@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The contract checks: each use-case input and integration-event payload field holds a known type and its required flag, a claim-shaped input is not taken from a caller of an authenticated entry point, an integration event payload field is carried by its translated domain event, and each entry point states a known auth kind.</summary>
 /// <follows>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</follows>
-/// <follows>litespec/core/use-cases#mark-inputs-a-provider-verified</follows>
+/// <follows>litespec/core/use-cases#mark-every-provider-verified-input</follows>
 /// <follows>litespec/core/use-cases#type-every-output-field</follows>
 /// <follows>litespec/core/edges#describe-every-integration-event-for-its-direction</follows>
 /// <follows>litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind</follows>

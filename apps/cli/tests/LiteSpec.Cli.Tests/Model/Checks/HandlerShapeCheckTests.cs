@@ -20,7 +20,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasoned Names Pass.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonedNamesPass()
     {
@@ -35,7 +35,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasonless Folder Reports.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonlessFolderReports()
     {
@@ -50,7 +50,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasonless Type Reports.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonlessTypeReports()
     {
@@ -67,7 +67,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Shared Kernel Project Is Exempt.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void SharedKernelProjectIsExempt()
     {
@@ -131,7 +131,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reads Outside Loops Pass.</summary>
-    /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
+    /// <proves>litespec/backend/application#keep-repository-reads-out-of-loops</proves>
     [Fact]
     public void ReadsOutsideLoopsPass()
     {
@@ -145,7 +145,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Repository Read In A Loop Reports.</summary>
-    /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
+    /// <proves>litespec/backend/application#keep-repository-reads-out-of-loops</proves>
     [Fact]
     public void RepositoryReadInALoopReports()
     {
@@ -160,7 +160,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Store Filtered Query Passes.</summary>
-    /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
+    /// <proves>litespec/backend/persistence#page-and-filter-collection-queries-in-the-store</proves>
     [Fact]
     public void StoreFilteredQueryPasses()
     {
@@ -174,7 +174,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Query Filter In Memory Reports.</summary>
-    /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
+    /// <proves>litespec/backend/persistence#page-and-filter-collection-queries-in-the-store</proves>
     [Fact]
     public void QueryFilterInMemoryReports()
     {

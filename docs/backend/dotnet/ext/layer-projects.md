@@ -1,11 +1,10 @@
 # Layer Projects
 
 **Stack:** dotnet
+
 **Concern:** application
 
-## Intent
-
-This extension packages each backend layer as its own .NET project: Domain, Application.Abstractions, Application, Infrastructure, and WebApi, with hosts beside them. It states the five-project form of the project, reference, package, and layout rules for backends already on five projects and for teams that want the compiler to hold Domain purity. The module layout is the default; this page holds the packaging that replaces it.
+This extension packages each backend layer as its own .NET project: Domain, Application.Abstractions, Application, Infrastructure, and WebApi, with hosts beside them. It states the project, reference, package, and layout rules for that five-project form, for backends already on five projects and for teams that want the compiler to hold Domain purity through project references. Without it, the module layout applies.
 
 ## Activation
 
@@ -47,11 +46,11 @@ This extension switches on no optional record type.
 
 **Strength:** required
 
-**Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, job classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects`.
+**Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, job classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project`.
 
-**Rationale:** Splitting Application into Write, Read, Contracts, and event-handler assemblies would buy a deployment boundary the stack never uses, and every use case would pay for it with a project reference to cross. The separation this stack keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): the command and query models differ, while one assembly holds them. Event handlers and jobs live with the use case they run inside the Application project, in that use case's operation folder; one that runs none lives in the module `Notifications/` folder of the notification it sends or the `ExternalSystems/` folder of the system it calls. Job scheduling stays in Worker or Infrastructure with the scheduling concerns, under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
+**Rationale:** One assembly holds commands, queries, and their handlers because the stack never deploys them separately. Splitting Application into Write, Read, Contracts, and event-handler assemblies would buy a deployment boundary the stack never uses, and every use case would pay for it with a project reference to cross. The separation this stack keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): the command and query models differ, while one assembly holds them. Event handlers and jobs live with the use case they run inside the Application project, in that use case's operation folder; one that runs none lives in the module `Notifications/` folder of the notification it sends or the `ExternalSystems/` folder of the system it calls. Job scheduling stays in Worker or Infrastructure with the scheduling concerns, under `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request`.
 
-**Reviewed for:** Which command, query, result, validator, handler, event handler, or job files escape the Application project, or which cross-module contracts escape Application.Abstractions and the merged Application? Look at the Application project files beside the shared contracts.
+**Reviewed for:** Does every command, query, result, validator, handler, event handler, and job file sit in the Application project, with cross-module contracts in Application.Abstractions or the merged Application? Look at the Application project files beside the shared contracts.
 
 ### Mirror Modules in Folders and Namespaces
 
@@ -72,7 +71,7 @@ Claimwick.Application/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandle
 
 The handler above lives in namespace `Claimwick.Application.Spending.Expenses.SubmitExpense`.
 
-**Reviewed for:** Which projects miss one folder and namespace per module, or name one outside its module? Look at the module folders and namespaces in every project.
+**Reviewed for:** Does every project give each module one folder and namespace under its module name? Look at the module folders and namespaces in every project.
 
 ### Use the Project Reference Graph
 
@@ -82,7 +81,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **Statement:** A project reference MUST follow the graph in the table in this section and add no other edge.
 
-**Rationale:** An undeclared reference lets a layer reach past its boundary, and review has no ground to refuse what no graph forbids. The table names every permitted edge, so composition stays in the hosts and each project names only the layers its job needs. A small project merged under `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects` has no Application.Abstractions row; its remaining rows still bind. This provision states the project form of the layer graph that `litespec/workspace/dependencies#follow-the-declared-dependency-graph` declares.
+**Rationale:** An undeclared reference lets a layer reach past its boundary. The table names every permitted edge, so composition stays in the hosts, each project names only the layers its job needs, and review has a written graph to hold new references against. A small project merged under `litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project` has no Application.Abstractions row; its remaining rows still bind. This provision states the project form of the layer graph that `litespec/workspace/dependencies#follow-the-declared-dependency-graph` declares.
 
 **Example:**
 
@@ -99,7 +98,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 `WebApi` references Infrastructure for composition in `Program.cs`. Endpoint implementations take their dependencies from Application abstractions, not from Infrastructure repositories, sessions, or provider clients.
 
-**Reviewed for:** Which project files add a reference outside the permitted edges of the graph table? Look at each project file beside the graph table.
+**Reviewed for:** Does every project file reference only the permitted edges of the graph table? Look at each project file beside the graph table.
 
 ### Keep Domain Package-Free
 
@@ -111,7 +110,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **Rationale:** A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of `litespec/workspace/dependencies#keep-domain-dependency-free`.
 
-**Reviewed for:** Which Domain project files reference a package beyond the base class library? Look at the Domain project file.
+**Reviewed for:** Does the Domain project file reference any package beyond the base class library? Look at the Domain project file.
 
 ### Keep Application Dependencies Narrow
 
@@ -121,9 +120,9 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **Statement:** Application MUST reference only LiteBus command and query abstractions, required read abstractions, and needed Microsoft abstractions, plus the `IQuerySession` read boundary.
 
-**Rationale:** Application coordinates; Infrastructure hides technology. A provider package in Application makes the coordination layer depend on the technology it was meant to stay free of. The Statement names the one permitted read boundary; everything else provider-shaped stays out. This provision states the .NET form of `litespec/workspace/dependencies#keep-application-free-of-provider-packages`.
+**Rationale:** Application coordinates work; Infrastructure hides technology. A provider package in Application makes the coordination layer depend on the technology it was meant to stay free of. The Statement names the one permitted read boundary; everything else provider-shaped stays out. This provision states the .NET form of `litespec/workspace/dependencies#keep-application-free-of-provider-packages`.
 
-**Reviewed for:** Which Application project files reference beyond the permitted abstractions and the one read boundary? Look at the Application project file.
+**Reviewed for:** Does the Application project file reference anything beyond the permitted abstractions and the one read boundary? Look at the Application project file.
 
 ### Keep the Test Projects the Size Requires
 
@@ -145,7 +144,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 A small solution holds the first two; Acceptance appears when the executable BDD extension activates.
 
-**Reviewed for:** Which solution trees miss Architecture or Integration test projects, or add Acceptance outside size large? Look at `apps/api/tests/` beside the declared size.
+**Reviewed for:** Does the solution tree hold Architecture and Integration test projects, with Acceptance only where size large or the BDD extension requires it? Look at `apps/api/tests/` beside the declared size.
 
 ### Keep .NET Production and Test Projects Separate
 
@@ -183,13 +182,13 @@ apps/api/
 
 Worker is conditional on the extension that runs background work. Acceptance.Tests is required when `size` is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. `AppHost` and `ServiceDefaults` are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no waiver for their absence.
 
-**Reviewed for:** Which production or test project files, or solution files, sit outside their fixed address? Look at `apps/api/`.
+**Reviewed for:** Does every production project, test project, and solution file sit at its fixed address? Look at `apps/api/`.
 
 ## Conventions
 
-### Use Five Application Projects
+### Package Each Layer as Its Own Project
 
-**ID:** `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects`
+**ID:** `litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project`
 
 **Strength:** default
 
@@ -199,11 +198,11 @@ Worker is conditional on the extension that runs background work. Acceptance.Tes
 
 **Rationale:** `Application.Abstractions` holds the contracts that more than one module names: the pipeline's own positions, the cross-module ports, the transport-neutral failures, and the published integration events. It references Domain and the required LiteBus module abstractions, and nothing else, so no type in it can name a use case, a handler, or a module.
 
-That refusal is why it is a project rather than a folder. A folder inside Application cannot decline what a developer puts in it, and the folder that tries becomes the place every unplaced type goes. A small project with few cross-module contracts may merge them into Application, trading that protection for one less project.
+That refusal is why shared contracts get a project rather than a folder. A folder inside Application cannot decline what a developer puts in it, so the folder meant for shared contracts becomes the drawer every unplaced type lands in. A small project with few cross-module contracts may merge them into Application, trading that compiler-held separation for one less project.
 
-An implementation never belongs there. The project name states the test, and a type that cannot pass it belongs to a module under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
+The project name states the admission test: anything that is not a shared abstraction fails it. An implementation never belongs there, and a type that cannot pass the test belongs to a module under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
 
-Hosts support local hosting and diagnostics. They are hosts rather than layer projects. A Worker project hosts background work under `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`.
+Hosts support local hosting and diagnostics. They are hosts rather than layer projects, and a Worker project hosts background work under `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`.
 
 **Example:**
 
@@ -215,11 +214,11 @@ apps/api/src/{ProjectName}.Infrastructure/
 apps/api/src/{ProjectName}.WebApi/
 ```
 
-**Reviewed for:** Which projects sit outside the five baseline projects, the merged small layout, or the allowed hosts and Worker? Look at the solution file beside the declared project size.
+**Reviewed for:** Does every project fit the five baseline projects, the merged small layout, or the allowed hosts and Worker? Look at the solution file beside the declared project size.
 
-### Use This Baseline Package Ownership
+### Assign Each Baseline Package to Its Owning Project
 
-**ID:** `litespec/backend/dotnet/ext/layer-projects#use-this-baseline-package-ownership`
+**ID:** `litespec/backend/dotnet/ext/layer-projects#assign-each-baseline-package-to-its-owning-project`
 
 **Strength:** default
 
@@ -227,7 +226,7 @@ apps/api/src/{ProjectName}.WebApi/
 
 **Replacement:** A project names the owning layer of each baseline package in its project documentation.
 
-**Rationale:** Without an owner, a package lands in the project that first needs it and spreads from there. The table assigns each baseline package to its one owning project, so review can refuse it anywhere else. This provision states the .NET form of `litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer`.
+**Rationale:** Without an owner, a package lands in the project that first needs it and spreads from there. The table assigns each baseline package to its one owning project, so the narrowest project holds each package and review can refuse it anywhere else. This provision states the .NET form of `litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer`.
 
 **Example:**
 
@@ -253,11 +252,11 @@ Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The cons
 
 The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval.
 
-**Reviewed for:** Which baseline package references sit outside the project the ownership table assigns? Look at each package reference beside the ownership table.
+**Reviewed for:** Does every baseline package reference sit in the project the ownership table assigns? Look at each package reference beside the ownership table.
 
-### Run LiteSpec.Analyzers in Every Application Project
+### Run the LiteSpec Analyzers in Every Layer Project
 
-**ID:** `litespec/backend/dotnet/ext/layer-projects#run-litespecanalyzers-in-every-application-project`
+**ID:** `litespec/backend/dotnet/ext/layer-projects#run-the-litespec-analyzers-in-every-layer-project`
 
 **Strength:** default
 
@@ -275,7 +274,7 @@ The example adds a package to the narrowest owning project. A central version en
 </ItemGroup>
 ```
 
-**Reviewed for:** Which layer project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each layer project file.
+**Reviewed for:** Does every layer project file reference `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each layer project file.
 
 ### Use the Domain Module Layout
 
@@ -358,7 +357,7 @@ The example adds a package to the narrowest owning project. A central version en
 
 Each aggregate-specific repository interface stays with the aggregate it loads. Application, Infrastructure, and WebApi use the same module and per-aggregate folder names, per `litespec/backend/dotnet/ext/layer-projects#mirror-modules-in-folders-and-namespaces`.
 
-**Reviewed for:** Which Domain module folders break the one plural folder per aggregate with states, events, exceptions, and concepts? Look at each module folder.
+**Reviewed for:** Does every Domain module folder hold one plural folder per aggregate with states, events, exceptions, and concepts? Look at each module folder.
 
 ### Use the Operation Folder Layout
 
@@ -427,7 +426,7 @@ Each aggregate-specific repository interface stays with the aggregate it loads. 
 
 Module and aggregate order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
-**Reviewed for:** Which operation folders miss message, result, validator, or handler files named for the use case, or which event handlers and jobs sit outside the folder of what they run? Look at each operation folder.
+**Reviewed for:** Does every operation folder hold message, result, validator, and handler files named for the use case, with event handlers and jobs in the folder of what they run? Look at each operation folder.
 
 ### Use the Endpoint Folder Layout
 
@@ -476,11 +475,11 @@ Module and aggregate order, including the single-aggregate flat form, follow `li
   Program.cs
 ```
 
-**Reviewed for:** Which endpoint folders miss the endpoint, request and response models, or mappings named for the use case? Look at each endpoint folder.
+**Reviewed for:** Does every endpoint folder hold the endpoint, request and response models, and mappings named for the use case? Look at each endpoint folder.
 
-### Use This Infrastructure Layout
+### Keep Persistence in One Infrastructure Folder
 
-**ID:** `litespec/backend/dotnet/ext/layer-projects#use-this-infrastructure-layout`
+**ID:** `litespec/backend/dotnet/ext/layer-projects#keep-persistence-in-one-infrastructure-folder`
 
 **Strength:** default
 
@@ -518,11 +517,12 @@ The module folders follow `litespec/backend/architecture#organize-code-by-module
 
 Aggregate-specific configuration stays beside its aggregate, while session and commit plumbing stay under the Marten root.
 
-**Reviewed for:** Which Marten configuration, repository, commit, or serialization files sit outside the one Infrastructure persistence folder? Look at the persistence files.
+**Reviewed for:** Does every Marten configuration, repository, commit, and serialization file sit in the one Infrastructure persistence folder? Look at the persistence files.
 
 ## Dependencies
 
 Packages: None.
 
+Related extensions: None.
 
 Guides: None.

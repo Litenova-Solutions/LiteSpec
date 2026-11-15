@@ -209,7 +209,7 @@ public sealed class RulesCommandTests
             "--full");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Rationale: One endpoint class per route operation", result.Output);
+        Assert.Contains("Rationale: When one endpoint class serves several operations", result.Output);
         Assert.Contains("Example: At startup, the application discovers endpoint implementations", result.Output);
     }
 

@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 ///     of the pass, and the caller reports the collected findings in the one finding
 ///     shape.
 /// </summary>
-/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 sealed class ConsumerRun
 {

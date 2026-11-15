@@ -33,7 +33,7 @@ A vision reaches no behavior by design, so no reach check reads it. An agent bui
 
 A `vision` record lives at `.litespec/intent/visions/<name>/<name>.yaml`, with `summary` and `statement`. An explanation file sits beside it when the project lists `intent` in `explanations.layers`. A decision names a vision in `basedOn`, and a requirement names one in `cites`. Nothing else links to a vision.
 
-Four provisions on the intent page state the fields of a vision. They keep dates and priorities out, forbid building from a vision, and require a decision kept open for a vision to cite it. `litespec/core/intent#reach-every-intent-record-with-behavior` excepts the vision. `litespec/core/principles#require-current-complexity-activation` states that a vision activates no machinery.
+Four provisions on the intent page state the fields of a vision. They keep dates and priorities out, forbid building from a vision, and require a decision kept open for a vision to cite it. `litespec/core/intent#reach-every-intent-record-with-behavior` excepts the vision. `litespec/core/principles#add-new-machinery-only-for-a-current-requirement` states that a vision activates no machinery.
 
 `litespec new vision <name>` scaffolds the record. The book lists visions beside goals. Claimwick carries `vision/contractor-expenses`, the destination where contractors submit expenses as employees do.
 

@@ -128,7 +128,7 @@ public sealed class ModelCheckSinceTests
     ///     temporary folder does through /var: git names the repository by its resolved path, and the
     ///     changed files still meet the records under the root as given.
     /// </summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CheckSinceReadsARootReachedThroughASymbolicLink()
     {
@@ -165,7 +165,7 @@ public sealed class ModelCheckSinceTests
     }
 
     /// <summary>A since check blocks on changed findings and reports the rest.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CheckSinceBlocksOnlyChangedFindings()
     {
@@ -203,7 +203,7 @@ public sealed class ModelCheckSinceTests
     }
 
     /// <summary>A since check on a clean tree reports everything and exits 0.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CheckSinceWithNothingChangedExits0()
     {
@@ -223,7 +223,7 @@ public sealed class ModelCheckSinceTests
     }
 
     /// <summary>Files the tool writes under <c>.litespec/model</c> while it builds never widen the since scope.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CheckSinceIgnoresTheToolOutputFolder()
     {
@@ -241,7 +241,7 @@ public sealed class ModelCheckSinceTests
     }
 
     /// <summary>A since check with an unknown revision explains itself and exits 2.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CheckSinceWithUnknownRevisionExits2()
     {

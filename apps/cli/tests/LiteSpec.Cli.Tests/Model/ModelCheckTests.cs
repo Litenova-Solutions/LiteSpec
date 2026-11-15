@@ -82,7 +82,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Clean small fixture exits 0.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CleanSmallFixtureExits0()
     {
@@ -92,7 +92,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Clean large fixture exits 0.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CleanLargeFixtureExits0()
     {
@@ -103,7 +103,7 @@ public sealed class ModelCheckTests
 
     /// <summary>Broken overlay '&lt;code&gt;' exits 1 with its finding code in the output.</summary>
     /// <param name="code">The finding code the broken-overlay case expects in the output.</param>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Theory]
     [MemberData(nameof(FindingCodeData))]
     // The MemberData values name each broken-overlay finding code case.
@@ -130,7 +130,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Every listed code names a broken overlay folder, so a renamed code without its folder fails.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void FindingCodesNameBrokenOverlayFolders()
     {

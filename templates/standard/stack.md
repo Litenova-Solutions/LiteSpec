@@ -3,9 +3,7 @@
 **Stack:** dotnet
 **Concern:** domain
 
-## Intent
-
-State what this stack selects and the one composition it applies. Name the folder it sits in and the pages a project selecting it also applies.
+Explain what selecting this stack applies: the folder it sits in, the single composition it brings, and the pages a project selecting it also takes on.
 
 ## Standards
 
@@ -27,8 +25,8 @@ State what this stack selects and the one composition it applies. Name the folde
 
 **Strength:** default
 
-**Default:** State one replaceable default this stack sets for its technology.
+**Default:** Write one default this stack sets for its technology, which a project may replace.
 
-**Replacement:** Name the local convention that replaces this default, and where the project records it.
+**Replacement:** Name the local convention that replaces the default, and where the project records it.
 
-**Reviewed for:** Does the stack carry the default, or its named local replacement?
+**Reviewed for:** Does the stack carry the default or its named local replacement? Look at the stack pages beside the project's local conventions.

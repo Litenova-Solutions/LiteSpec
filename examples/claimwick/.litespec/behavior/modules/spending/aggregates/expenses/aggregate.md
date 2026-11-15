@@ -1,16 +1,16 @@
 # Expense
 
-An expense is one work cost that an employee submitted. Claimwick keeps each expense from its submission to its reimbursement, and it keeps the facts that a tax file needs. Every decision, payment and erasure in the spending module acts on an expense, so this record is the one to understand first.
+An expense is one work cost that an employee submitted. Claimwick keeps each expense from its submission to its reimbursement, along with the facts a tax file needs. Every decision, payment and erasure in the spending module acts on an expense, so this is the record to understand first.
 
 ## Lifecycle
 
-An expense starts in the Submitted state when an employee submits it with `use-case/spending.submit-expense`. A manager then moves it to Approved with `use-case/spending.approve-expense`, or to Refused with `use-case/spending.refuse-expense`. Finance moves an approved expense to Reimbursed with `use-case/spending.reimburse-expense`. Reimbursed means that the payout reached the employee. Seven years after the reimbursement, the nightly erasure job moves it to Erased, which means its personal data is gone.
+An expense starts Submitted when an employee submits it with `use-case/spending.submit-expense`. A manager then moves it to Approved with `use-case/spending.approve-expense`, or to Refused with `use-case/spending.refuse-expense`. Finance moves an approved expense to Reimbursed with `use-case/spending.reimburse-expense`, which means the payout reached the employee. Seven years after the reimbursement, the nightly erasure job moves it to Erased, which means its personal data is gone.
 
-Each state tells the next step who acts. A Submitted expense waits for a manager. An Approved expense waits for finance. Refused has no transition out in the records, so no use case moves it again. Each decision use case refuses a second decision on the same expense.
+Each state says who acts next: a Submitted expense waits for a manager, and an Approved expense waits for finance. Refused has no transition out in the records, so no use case moves it again, and each decision use case refuses a second decision on the same expense.
 
 ## Data and Retention
 
-The expense holds four fields. The employee field is personal data. The other three are business facts that the tax file keeps.
+The expense holds four fields: the employee field is personal data, and the other three are business facts that the tax file keeps.
 
 | Field | Sensitivity | Data class | Kept for |
 |:---|:---|:---|:---|
@@ -19,7 +19,7 @@ The expense holds four fields. The employee field is personal data. The other th
 | `receipt` | internal | `expense-ledger` | 7 years, then kept |
 | `state` | internal | `expense-ledger` | 7 years, then kept |
 
-The employee field is pseudonymized when its retention ends, so the name no longer identifies the employee. The job `job/spending.erase-expired-personal-data` does this. The amount, the receipt and the state stay on file, because the tax file must stay defensible. The 7 years count from the reimbursement of the expense, which the data classes name as their period start.
+When its retention ends, the employee field is pseudonymized, so the name no longer identifies the employee. The job `job/spending.erase-expired-personal-data` performs the erasure. The amount, the receipt and the state stay on file, because the tax file must stay defensible. The 7 years count from the reimbursement of the expense, which the data classes name as their period start.
 
 ## Example
 

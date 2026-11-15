@@ -15,8 +15,6 @@ static class StandardsFixture
         **Stack:** any
         **Concern:** records
 
-        ## Intent
-
         This page defines one repository topic.
 
         ## Standards
@@ -54,8 +52,6 @@ static class StandardsFixture
 
         **Stack:** any
         **Concern:** frontend-ui
-
-        ## Intent
 
         This page offers drawn options for one recurring question.
 
@@ -112,8 +108,6 @@ static class StandardsFixture
         **Stack:** any
         **Concern:** operations
 
-        ## Intent
-
         This extension adds one optional capability.
 
         ## Activation
@@ -156,8 +150,6 @@ static class StandardsFixture
         **Stack:** dotnet
         **Concern:** domain
 
-        ## Intent
-
         This stack selects one standards composition.
 
         ## Standards
@@ -180,8 +172,6 @@ static class StandardsFixture
     /// <summary>The scope vocabulary page, with no provisions of its own.</summary>
     public static readonly string ScopesPage = Normalize("""
         # Provision Scopes
-
-        ## Intent
 
         This page states the shared situation vocabulary each provision carries.
 
@@ -258,8 +248,6 @@ static class StandardsFixture
     public static readonly string GuidePage = Normalize("""
         # Sample Guide
 
-        ## Purpose
-
         Create one verified standards artifact.
 
         ## Prerequisites
@@ -280,8 +268,6 @@ static class StandardsFixture
     public static readonly string TutorialPage = Normalize("""
         # Sample Tutorial
 
-        ## Purpose
-
         Produce one working standards artifact.
 
         ## Prerequisites
@@ -301,8 +287,6 @@ static class StandardsFixture
     /// <summary>The reference page.</summary>
     public static readonly string ReferencePage = Normalize("""
         # Sample Reference
-
-        ## Intent
 
         State the exact values that this repository publishes.
 
@@ -458,17 +442,17 @@ static class StandardsFixture
         "guide/sample.md", "tutorial/sample.md", "reference/sample.md", "tools/sample.md", "reference/glossary.md",
     ];
 
-    /// <summary>Writes the documentation index: its intent, the routing section, a link to each base page not omitted, and extra text.</summary>
-    /// <param name="intent">The intent sentence.</param>
+    /// <summary>Writes the documentation index: its lead, the routing section, a link to each base page not omitted, and extra text.</summary>
+    /// <param name="lead">The lead sentence.</param>
     /// <param name="omit">The base pages, by path under docs/, the index does not link.</param>
     /// <param name="extra">Text appended after the links.</param>
     /// <returns>The index text.</returns>
-    public static string Readme(string intent = "Use this page to find repository documentation.", string[]? omit = null, string extra = "")
+    public static string Readme(string lead = "Use this page to find repository documentation.", string[]? omit = null, string extra = "")
     {
         var links = BasePages
             .Where(page => omit is null || !omit.Contains(page, StringComparer.Ordinal))
             .Select(page => $"- [{page}]({page})\n");
-        return "# Documentation\n\n## Intent\n\n" + intent + "\n\n" + IndexRouting + "\n## Pages\n\n" + string.Concat(links) + extra;
+        return "# Documentation\n\n" + lead + "\n\n" + IndexRouting + "\n## Pages\n\n" + string.Concat(links) + extra;
     }
 
     /// <summary>Writes a file inside the temporary repository, creating its folder.</summary>

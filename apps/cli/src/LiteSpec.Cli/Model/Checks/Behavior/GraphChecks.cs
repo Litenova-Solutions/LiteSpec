@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/model#serve-every-flow-step</follows>
 /// <follows>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</follows>
-/// <follows>litespec/core/use-cases#hold-every-setting-default-to-a-requirement</follows>
+/// <follows>litespec/core/use-cases#tie-every-setting-default-to-a-requirement</follows>
 /// <follows>litespec/core/use-cases#exercise-rules-from-scenarios</follows>
 internal static class GraphChecks
 {

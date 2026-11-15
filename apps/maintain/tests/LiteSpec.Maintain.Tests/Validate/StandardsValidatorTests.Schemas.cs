@@ -226,7 +226,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
-            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n| `absent.md` | `docs/absent.md` | Renamed away. |\n");
+            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n| `absent.md` | `docs/absent.md` | Renamed away. |\n");
         },
         [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
@@ -238,7 +238,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
             StandardsFixture.Write(root, "templates/consumer/unlisted.md", "# Unlisted\n");
-            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
+            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
         },
         [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
@@ -249,7 +249,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
-            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
+            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
         },
         [], [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 

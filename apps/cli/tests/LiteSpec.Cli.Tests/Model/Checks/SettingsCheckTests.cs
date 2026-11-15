@@ -190,7 +190,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Declared Template Missing From Store Reports.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void DeclaredTemplateMissingFromStoreReports()
     {
@@ -209,7 +209,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Declared Template Held By Store Passes.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void DeclaredTemplateHeldByStorePasses()
     {
@@ -227,7 +227,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Missing Template Store File Reports.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void MissingTemplateStoreFileReports()
     {
@@ -244,7 +244,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Template Checks Skipped Without Store.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void TemplateChecksSkippedWithoutStore()
     {
@@ -260,7 +260,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Stored Key Without Notification Reports.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void StoredKeyWithoutNotificationReports()
     {
@@ -280,7 +280,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Stored Keys Matching Notifications Pass.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void StoredKeysMatchingNotificationsPass()
     {

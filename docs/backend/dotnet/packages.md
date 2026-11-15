@@ -1,11 +1,18 @@
 # .NET Packages
 
 **Stack:** dotnet
+
 **Concern:** workspace
 
-## Intent
+A .NET backend references only the LiteBus modules its code dispatches, and reports .NET breaches in the editor and the build. This page defines the .NET form of the shared [Dependencies](../../workspace/dependencies.md) rules: the module scope and the analyzer setup that reports each breach at the line that breaks it.
 
-A .NET backend references only the LiteBus modules its code dispatches and reports .NET breaches in the editor and the build. This page states that module scope and the analyzer setup that reports each breach at the line that breaks it. The shared dependency rules live on [Dependencies](../../workspace/dependencies.md); this page holds only their .NET form.
+## Concepts
+
+### LiteBus Modules and the Analyzers
+
+LiteBus ships as modules for commands, queries, and events rather than one bus package. A layer references only the module its code dispatches, so each dispatch surface stays exact: a layer that never publishes events carries no event contracts.
+
+The LiteSpec analyzers report a breach of a .NET provision where it happens, with a link to the provision. Without them, a breach surfaces only in review, if at all. The package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time.
 
 ## Standards
 
@@ -25,7 +32,7 @@ None.
 
 **Rationale:** A unified bus package pulls contracts for commands, queries, and events into a layer that dispatches only some of them. Referencing only the module the code uses keeps each dispatch surface exact.
 
-**Reviewed for:** Which project files reference a LiteBus module their code never dispatches? Look at each project file.
+**Reviewed for:** Does every project file reference only the LiteBus modules its code dispatches? Look at each project file.
 
 ### Run LiteSpec Analyzers in the Business Projects and Hosts
 
@@ -47,7 +54,7 @@ None.
 </ItemGroup>
 ```
 
-**Reviewed for:** Which shared kernel, modules, or host project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each business and host project file.
+**Reviewed for:** Does every shared kernel, modules, and host project file reference `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each business and host project file.
 
 ### Raise the LiteBus Handler Analyzers to Errors
 
@@ -59,7 +66,7 @@ None.
 
 **Replacement:** A project whose command handlers run on another mediator names the analyzers that report nested mediation and outside-world clients in its handlers.
 
-**Rationale:** Both LiteBus rules are off by default. `LB1023` reports nested mediation in a command handler and `LB1024` reports an outside-world client in a command handler, so consequences leave through event handlers after the commit under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project pipeline-owned collaborators under the key the [Configuration section of the LS2016 rule page](../../analyzers/rules/ls2016.md#configuration) names, such as its uniqueness claim service.
+**Rationale:** Both LiteBus rules are off by default, so a command handler can quietly send a second message or call an outside system with no report. `LB1023` reports nested mediation in a command handler and `LB1024` reports an outside-world client in a command handler, so consequences leave through event handlers after the commit under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project pipeline-owned collaborators under the key the [Configuration section of the LS2016 rule page](../../analyzers/rules/ls2016.md#configuration) names, such as its uniqueness claim service.
 
 **Example:**
 

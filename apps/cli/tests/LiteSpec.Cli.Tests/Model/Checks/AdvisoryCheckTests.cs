@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class AdvisoryCheckTests
 {
     /// <summary>Use Case Without Summary Reports.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void UseCaseWithoutSummaryReports()
     {
@@ -23,7 +23,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Use Case With Summary Passes.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void UseCaseWithSummaryPasses()
     {
@@ -36,7 +36,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Reaction Without Summary Reports.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void ReactionWithoutSummaryReports()
     {
@@ -52,7 +52,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Goal Without Statement Reports.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void GoalWithoutStatementReports()
     {
@@ -68,7 +68,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Goal With Summary And Statement Passes.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void GoalWithSummaryAndStatementPasses()
     {
@@ -81,7 +81,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Atomic With Two BoundBy Rules Reports.</summary>
-    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
     [Fact]
     public void AtomicWithTwoBoundByRulesReports()
     {
@@ -94,7 +94,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Atomic With One BoundBy Rule Passes.</summary>
-    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
     [Fact]
     public void AtomicWithOneBoundByRulePasses()
     {

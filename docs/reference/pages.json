@@ -7,9 +7,8 @@
       "style": "index",
       "area": "README",
       "title": "LiteSpec Documentation",
-      "intent": "LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in \u0060.litespec/project.yaml\u0060 (its size, shape, technology stacks, and extensions), so most readers need only a few groups.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Which Page Do You Want",
         "Standard",
         "Reference",
@@ -23,9 +22,8 @@
       "style": "index",
       "area": "analyzers",
       "title": "Overview",
-      "intent": "The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain, the layer that holds the business rules, naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule in test projects. It reports one error per rule, with a link from each error to the standard it enforces; the [Analyzer rules overview](rules/README.md) lists every rule. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "How a Rule Decides to Run",
         "How a Rule Reads Records",
@@ -40,9 +38,8 @@
       "style": "how-to",
       "area": "analyzers",
       "title": "Check .NET Code with the Analyzers",
-      "intent": "The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate waiver. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -54,9 +51,8 @@
       "style": "index",
       "area": "analyzers",
       "title": "Overview",
-      "intent": "This index lists the 49 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Domain Rules",
         "Outer-Layer Rules",
         "Naming and Style Rules",
@@ -70,9 +66,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1001: Domain References an Outer-Layer Concern",
-      "intent": "LS1001 is a compiler check that reports code in Domain, the layer that holds business rules, naming a persistence, web, messaging, or logging type, which would tie those rules to infrastructure they cannot test on their own. This page states what the rule reports, where the error sits, and how to move the flagged use out of Domain.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -83,9 +78,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1002: Domain Declares an Enum",
-      "intent": "LS1002 is a compiler check that reports an enum declared in Domain, the layer that holds business rules, because an enum carries no behavior and no stable code for callers outside Domain. This page states what the rule reports, where the error sits, and how to replace the enum with an abstract record and sealed cases.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -96,9 +90,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1003: Aggregate Has No State Record",
-      "intent": "LS1003 is a compiler check that reports an aggregate with no State record, where an aggregate is the type that owns a unit of business state that changes in one step. Loose lifecycle flags let callers combine states the business never allows. This page states what the rule reports, where the error sits, and how to give the aggregate a State record.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -109,9 +102,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1004: State Case Is Not Sealed",
-      "intent": "LS1004 is a compiler check that reports a lifecycle state case in Domain, the layer that holds business rules, left open for extension, which lets a later type add states the business never defined. This page states what the rule reports, where the error sits, and how to seal the case.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -122,9 +114,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1005: Domain Throws a Non-Domain Exception",
-      "intent": "LS1005 is a compiler check that reports a throw in Domain, the layer that holds business rules, of an exception that is not a DomainException subclass, which would reach the caller with no stable failure code and no business meaning. This page states what the rule reports, where the error sits, and how to throw a DomainException subclass instead.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -135,9 +126,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1006: Domain Exception Is Misnamed or Open",
-      "intent": "LS1006 is a compiler check that reports a DomainException subclass in Domain, the layer that holds business rules, that is not sealed or whose name does not end in Exception, which hides which business rule failed. This page states what the rule reports, where the error sits, and how to name and seal the exception.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -148,9 +138,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1007: Domain Event Is Not an Immutable Record",
-      "intent": "LS1007 is a compiler check that reports a domain event, a record of a completed business fact, that is not an immutable record, which would let callers change the fact after it was raised. This page states what the rule reports, where the error sits, and how to make the event an immutable record.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -161,9 +150,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1008: Domain Uses Binary Floating Point",
-      "intent": "LS1008 is a compiler check that reports a double or float type in Domain, the layer that holds business rules, because binary rounding makes totals and equality checks on money and exact quantities quietly wrong. This page states what the rule reports, where the error sits, and how to hold the value in decimal or a value object.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -174,9 +162,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1009: Domain Reads a Nondeterministic Value",
-      "intent": "LS1009 is a compiler check that reports a read of the clock, randomness, or a new identifier in Domain, the layer that holds business rules, because such reads answer differently on each call and tests cannot repeat them. This page states what the rule reports, where the error sits, and how to pass the value in as an argument.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -187,9 +174,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1010: Repository Exposes a Query Surface",
-      "intent": "LS1010 is a compiler check that reports a repository interface in Domain, the layer that holds business rules, that exposes a query surface such as \u0060IQueryable\u0060 or a database session. A repository loads and stores one aggregate, and a query surface would let any caller compose its own queries around the rules the aggregate protects. This page states what the rule reports, where the error sits, and how to return aggregates and Domain types only.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -200,9 +186,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1011: Public Domain Contract Is Undocumented",
-      "intent": "LS1011 is a compiler check that reports a public type or member in Domain, the layer that holds business rules, without XML documentation, which leaves readers guessing which business constraint, result, or failure it represents. This page states what the rule reports, where the error sits, and how to document the contract.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -213,9 +198,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1012: Identifier Is Not a Strongly Typed Value",
-      "intent": "LS1012 is a compiler check that reports an identifier in Domain, the layer that holds business rules, that is not a strongly typed value, because a raw Guid lets one record\u0027s identity flow into another record\u0027s slot with no compiler complaint. This page states what the rule reports, where the error sits, and how to wrap the value in a strongly typed identifier.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -226,9 +210,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS1013: Switch Leaves a Sealed Case to Its Discard Arm",
-      "intent": "LS1013 is a compiler check that reports a switch in Domain, the layer that holds business rules, over a state or closed-set record hierarchy that leaves a sealed case to its discard arm, because the C# compiler does not check the switch and the missed case reaches the discard arm at run time. This page states what the rule reports, where the error sits, and how to give every sealed case its own arm.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -239,9 +222,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2001: Implementation Type Is Not Internal Sealed",
-      "intent": "LS2001 is a compiler check that reports a handler, validator, endpoint, or other implementation type in the Application, Infrastructure, WebApi, and Worker layers that is not internal and sealed, which would invite callers to depend on it directly instead of going through its interface. This page states what the rule reports, where the error sits, and how to close the type.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -252,9 +234,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2003: WebApi Uses an MVC Controller",
-      "intent": "LS2003 is a compiler check that reports an MVC controller class in the WebApi project. A controller groups several HTTP operations behind shared filters and routing, while the .NET stack gives each operation its own endpoint class, so each route can be read and reviewed on its own. This page states what the rule reports, where the error sits, and how to replace the controller with endpoints.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -265,9 +246,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2004: Command Handler Writes Through a Document Session",
-      "intent": "LS2004 is a compiler check that reports a command handler, the type that runs the state change, writing through a document session or database context instead of a repository, which bypasses the boundary that guards the aggregate. This page states what the rule reports, where the error sits, and how to reach stored data through a Domain repository.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -278,9 +258,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2005: Handler Name Lacks Its Command or Query Suffix",
-      "intent": "LS2005 is a compiler check that reports a command or query handler, the type that runs a use case, whose name does not state which of the two it runs, so the model builder cannot tell a write from a read by its file name. This page states what the rule reports, where the error sits, and how to complete the handler name.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -291,9 +270,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2006: Endpoint Name Lacks Its Suffix",
-      "intent": "LS2006 is a compiler check that reports an endpoint, the type that maps one use case to HTTP, whose name does not end in \u0060Endpoint\u0060, so the model builder cannot find it by its file name. This page states what the rule reports, where the error sits, and how to complete the endpoint name.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -304,9 +282,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2007: Reaction or Job Name Hides Its Kind",
-      "intent": "LS2007 is a compiler check that reports a reaction or job, the type that answers a domain event or runs scheduled work, whose name does not say which trigger it answers, so the model builder cannot discover it by name. This page states what the rule reports, where the error sits, and how to name the reaction or job for its trigger.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -317,9 +294,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2009: Result Part Not Named After Its Result",
-      "intent": "LS2009 is a compiler check that reports a result part, a type declared beside a use-case result and reached through its properties, whose name does not start with the result name, so a reader cannot tell which result the part belongs to. This page states what the rule reports, where the error sits, and how to name the part after its result.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -330,9 +306,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2010: Repository Variable Not Named After Its Interface",
-      "intent": "LS2010 is a compiler check that reports a repository parameter, field, or local whose name does not follow its interface, so a reader cannot tell which aggregate the variable stages. This page states what the rule reports, where the error sits, and how to name the variable after its interface.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -343,9 +318,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2011: Query Handler Takes a Repository",
-      "intent": "LS2011 is a compiler check that reports a query handler, the type that answers a read, taking a Domain repository in its constructor, which pulls an aggregate into a read that should project past it. This page states what the rule reports, where the error sits, and how to reach read data through the read session.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -356,9 +330,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2012: Handler Authorizes Itself",
-      "intent": "LS2012 is a compiler check that reports a command or query handler, the type that runs a use case, authorizing itself instead of leaving authorization to the pipeline guard. A handler authorizes itself when it throws an access refusal or when it takes the authorization guard. This page states what the rule reports, where the error sits, and how to move the check into the declared access.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -369,9 +342,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2013: Audit Value Read from the Message in the Handler",
-      "intent": "LS2013 is a compiler check that reports a command handler, the type that runs the state change, adding an audit value that the message already carries, which the pipeline should have recorded before the handler ran. This page states what the rule reports, where the error sits, and how to declare the value beside the message.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -382,9 +354,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2014: Command Handler Finds or Creates",
-      "intent": "LS2014 is a compiler check that reports a command handler, the type that runs the state change, that both finds a record and creates it in one method, hiding two use cases behind one name. This page states what the rule reports, where the error sits, and how to split the flow across the boundary that owns it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -395,9 +366,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2015: Command Handler Changes Records in a Loop",
-      "intent": "LS2015 is a compiler check that reports a command handler, the type that runs the state change, changing records in a loop, where one failing record rolls back the batch and the batch holds locks for its whole length. This page states what the rule reports, where the error sits, and how to move the work into a job.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -408,9 +378,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2016: Handler Takes a Pipeline-Owned Collaborator",
-      "intent": "LS2016 is a compiler check that reports a command or query handler, the type that runs a use case, taking a collaborator the pipeline owns, such as the unit of work or the outbox, which no handler should touch directly. This page states what the rule reports, where the error sits, and how to leave the collaborator to its owner.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -421,9 +390,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2017: LiteSpecLayer Names No Known Layer",
-      "intent": "LS2017 is a compiler check that reports a \u0060LiteSpecLayer\u0060 project value naming no known layer under the \u0060layer-projects\u0060 extension, so a misspelled value cannot silently turn the analyzers off. This page states what the rule reports, where the error sits, and how to name the layer.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -434,9 +402,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2018: File Names a Type Outside Its Layer",
-      "intent": "LS2018 is a compiler check that reports an Application or WebApi file naming a type outside its layer, because a reference against the layer direction couples the file to work its layer never owns. This page states what the rule reports, where the error sits, and how to name only the types the layer allows.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -447,9 +414,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2019: Use Case Names a Type of Another Use Case",
-      "intent": "LS2019 is a compiler check that reports a use case folder naming a type declared in another use case folder, because a reference between two slices couples work that changes for different reasons. This page states what the rule reports, where the error sits, and how to move the shared type to the folder that owns it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -460,9 +426,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2020: Module Names a Type Outside Another Module\u0027s Contracts",
-      "intent": "LS2020 is a compiler check that reports a module naming another module\u0027s type outside its \u0060Contracts/\u0060 folder, because a read past the public surface couples the caller to internals the owner may change. This page states what the rule reports, where the error sits, and how to read through the contracts the owner publishes.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -473,9 +438,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2021: Message Sent Outside an Entry Point",
-      "intent": "LS2021 is a compiler check that reports a type holding a command, query or event mediator when the type is not an endpoint, a reaction or a job, because only those three entry points send a use case message. This page states what the rule reports, where the error sits, and how to move the send to the entry point that owns it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -486,9 +450,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2022: Event Published by User Code",
-      "intent": "LS2022 is a compiler check that reports user code naming the event mediator or an event publisher, because the pipeline publishes each outbound integration event a use case raises, and a handler that publishes on its own sends an event the record never declared. This page states what the rule reports, where the error sits, and how to let the raised domain event carry the integration event.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -499,9 +462,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS3001: Asynchronous Method Name Lacks Async",
-      "intent": "LS3001 is a compiler check that reports an async method whose name does not end in Async, which reads as a plain call where it is used, so readers miss the await and the cancellation token it needs. This page states what the rule reports, where the error sits, and how to complete the name.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -512,9 +474,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS3002: CancellationToken Is Not the Last Parameter",
-      "intent": "LS3002 is a compiler check that reports a cancellation token parameter that is not the last parameter or is not named cancellationToken, which is easy to pass in the wrong position and hides what it is where the method is called. This page states what the rule reports, where the error sits, and how to place and name the token.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -525,9 +486,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS3003: File Does Not Match Its Primary Type",
-      "intent": "LS3003 is a compiler check that reports a C# file whose name does not match the type it holds, which sends every reader searching for code that lives somewhere unexpected. This page states what the rule reports, where the error sits, and how to align the file with its type.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -538,9 +498,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS3004: Concrete Class Is Not Sealed",
-      "intent": "LS3004 is a compiler check that reports a concrete class with no derived type that is not sealed, which reads as designed for extension, so readers subclass it where the author meant no one to extend it. This page states what the rule reports, where the error sits, and how to seal the class or show it is built for extension.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -551,9 +510,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS4001: Test Contains No Assertion",
-      "intent": "LS4001 is a compiler check that reports a test method that contains no assertion, because a test that asserts nothing passes whatever the code does and proves nothing about the scenario it names. This page states what the rule reports, where the error sits, and how to assert the result the test covers.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -564,9 +522,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5001: Code Element Carries No Mark",
-      "intent": "LS5001 is a compiler check that reports a code element of a recognized kind that carries no mark naming the record it serves, because without the mark no tool can tell which record the element implements. This page states what the rule reports, where the error sits, and how to add the missing mark.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -577,9 +534,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5002: Mark Names No Usable Record",
-      "intent": "LS5002 is a compiler check that reports a mark naming no record, a record of a type its code element does not take, or a mark on a type or method that takes no mark, because a mark pointing nowhere leaves the element unlinked. This page states what the rule reports, where the error sits, and how to name a record the element takes.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -590,9 +546,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5003: Code Element Carries the Wrong Number of Marks",
-      "intent": "LS5003 is a compiler check that reports a code element carrying more or fewer marks than its kind takes, because an extra mark answers the element to a record it does not serve. This page states what the rule reports, where the error sits, and how to carry exactly the marks the kind takes.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -603,9 +558,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5004: Mark Uses the Undeclared Style",
-      "intent": "LS5004 is a compiler check that reports a mark written in the style the project did not declare, because two styles in one project send each search to half the code. This page states what the rule reports, where the error sits, and how to write the mark in the declared style.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -616,9 +570,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5005: Runtime Value Differs from Its Record",
-      "intent": "LS5005 is a compiler check that reports a hand-written event \u0060Classification\u0060 or exception \u0060Code\u0060 differing from what its record states, because a second copy of a record value drifts from the record. This page states what the rule reports, where the error sits, and how to let the record decide the value.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -629,9 +582,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5006: Marked Event or Exception Is Not Partial",
-      "intent": "LS5006 is a compiler check that reports a marked domain event or rule exception not declared as a \u0060partial\u0060 type, because the generator cannot add the runtime value to a type with no second part. This page states what the rule reports, where the error sits, and how to declare the type partial.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -642,9 +594,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5007: Marked Act Raises an Undeclared Event",
-      "intent": "LS5007 is a compiler check that reports an aggregate method marked with a use case raising an event the use case does not list in \u0060raises\u0060, because an unlisted event starts a consequence nobody reviewed. This page states what the rule reports, where the error sits, and how to declare or drop the event.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -655,9 +606,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5008: Declared Event Is Raised by No Marked Act",
-      "intent": "LS5008 is a compiler check that reports a use case listing an event in \u0060raises\u0060 that no method marked with it raises, because a listed event no method raises is a promise the code does not keep. This page states what the rule reports, where the error sits, and how to raise or unlist the event.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -668,9 +618,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5009: Two Permissions Generate One Constant Name",
-      "intent": "LS5009 is a compiler check that reports two permission records whose names generate the same constant, because the generator writes one constant per permission and cannot name two records with one name. This page states what the rule reports, where the error sits, and how to rename one of the permissions.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -681,9 +630,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5011: One Message Maps to Two Use Cases",
-      "intent": "LS5011 is a compiler check that reports a message two marked handlers serve with different use cases, because the registry answers each message\u0027s use case and grant from one entry. This page states what the rule reports, where the error sits, and how to give the message one use case.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -694,9 +642,8 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5012: Role Allows an Undeclared Permission",
-      "intent": "LS5012 is a compiler check that reports a role record allowing a permission no permission record declares, because the generator writes each role\u0027s allowed permissions from the shared permission list. This page states what the rule reports, where the error sits, and how to declare the permission or remove it from the role.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -707,9 +654,8 @@
       "style": "index",
       "area": "backend",
       "title": "Overview",
-      "intent": "The backend pages state how a LiteSpec server application is built: its layers, business model, coordination of use cases, storage, HTTP boundary, testing, and record identifiers, with the stack binding that realizes each one. A use case is one command or query with its access, results, and scenarios; a reaction answers an event without a request, and a job runs work on a schedule or by hand. A server project applies these pages through its stack, while a product without a server applies only the architecture, domain, and application pages, so every reader finds the rules for the layers their product has and no others.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "Backend Principles",
         "Backend Stack"
@@ -721,9 +667,8 @@
       "style": "standard",
       "area": "backend",
       "title": "HTTP API",
-      "intent": "The WebApi layer is the thin HTTP boundary of a LiteSpec backend: it converts each HTTP request into a message for the Application layer, dispatches it, and maps the result back to a stable HTTP response. This page states what one endpoint owns, how routes, errors, and collection paging behave, and how the OpenAPI contract, the machine-readable description of the API, is generated from the code. Keeping business rules, storage, and provider calls out of endpoints keeps HTTP replaceable transport, so the API evolves without touching business behavior.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -736,9 +681,8 @@
       "style": "standard",
       "area": "backend",
       "title": "Application Layer",
-      "intent": "The Application layer coordinates use cases, checking the shape of each incoming message, authorizing it, running the handler, and returning a result that carries no transport details. A use case is one command, which changes business state, or one query, which reads without changing state; a reaction answers an event without a request, and a job runs work on a schedule or by hand. This page states how use cases, reactions, and jobs are organized, what each stage of the command pipeline owns, and how ports and declared effects are wired.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -750,9 +694,8 @@
       "style": "standard",
       "area": "backend",
       "title": "Backend Architecture",
-      "intent": "The backend is a modular monolith of four layers: Domain holds business rules, Application coordinates use cases, Infrastructure holds technical adapters, and WebApi holds HTTP transport. A use case is one command or query with its access, results, and scenarios, a reaction answers an event by running a command or sending a notification, and a job runs work on a schedule or by hand. This page states those layers, the direction their references point, and the module tree that organizes every layer; a team building the backend reads it before the layer pages, which state what each layer owns.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -765,9 +708,8 @@
       "style": "standard",
       "area": "backend",
       "title": "Domain Layer",
-      "intent": "The Domain layer holds a product\u0027s business rules in code that depends on nothing but itself, so the rules are tested on their own. An aggregate is one unit of business state that stays consistent and changes in one step, and this page states how to model aggregates, their lifecycles, closed sets of values, and the domain repositories that load them. It also states the boundary that keeps technical concerns out of business rules.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -779,9 +721,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET HTTP API",
-      "intent": "Each HTTP operation in a .NET backend runs through one endpoint class in its use case folder, and the OpenAPI contract is generated from those classes at build time. This page states the endpoint contract, the metadata each operation declares, how transport models express closed sets, and how the global handler derives HTTP statuses from refusal codes. The shared transport rules live on [HTTP API](../api.md); this page holds only their .NET form.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -793,9 +734,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Application Layer",
-      "intent": "Application code in a .NET backend sends commands and queries through mediators from LiteBus, the pinned messaging library: commands change business state, queries read without changing it, and validators report structural input problems as LiteBus validity values. This page binds that dispatch for .NET: the command-handler shape, the validity shape, the query-handler shape, the entry point for each declared effect, the use case folder layout, the pinned mediator methods, and the pinned pipeline bindings. The shared coordination rules live on [Application Layer](../application.md); this page holds only their .NET bindings.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -808,9 +748,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Architecture",
-      "intent": "A .NET backend holds its business code in two projects, the shared kernel and the modules, with hosts that compose and serve them. This page binds that shape for .NET: which projects exist, how modules aggregates and use cases fill one namespace tree, which folders each level allows, and where host-only endpoints live, so every type keeps one home and boundaries hold by folder and mark. The shared architecture rules live on [Backend Architecture](../architecture.md); this page holds only their .NET bindings.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -822,9 +761,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Configuration",
-      "intent": "A .NET backend pins its SDK, build settings, package versions, and local tools to fixed versions through files at fixed paths. This page states what each file sets, so every machine builds the same output. The shared configuration rules live on [Configuration](../../workspace/config.md); this page holds only their .NET form.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -836,9 +774,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Domain Layer",
-      "intent": "Domain folders hold the business model of a .NET backend in C# types that depend on nothing but themselves, so no outer-layer concern leaks into business rules. An aggregate is one unit of business state that stays consistent and changes in one step, and this page states the C# shape of aggregates, their lifecycles and identities, child entities, value objects, closed sets, money, repositories, events, and the exceptions that reject broken rules. The shared domain rules live on [Domain Layer](../domain.md); each rule below cites the shared rule it realizes.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -851,9 +788,8 @@
       "style": "index",
       "area": "backend",
       "title": "Overview",
-      "intent": "The pages in this folder state the extensions only a .NET backend offers: executable acceptance scenarios and layer projects for backends that package each layer as its own project. A local extension stays inactive until one use case, flow, or module meets the criterion its page states; the project extension applies to the whole backend once selected. A use case is one command or query, a flow is the steps to one goal, and a module is one business area; authors turn to these pages when shared examples need business-language review, or when the backend keeps the five-project packaging.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         ".NET Stack Extensions"
       ]
@@ -864,9 +800,8 @@
       "style": "extension",
       "area": "backend",
       "title": "Executable BDD Acceptance Tests",
-      "intent": "This extension adds executable BDD scenarios for cross-layer examples that need review in business language and execution through a public boundary such as the HTTP API. Test authors write them as LightBDD feature classes, and use them for the critical examples its rules select, so product, domain, engineering, and testing discussions share one executable example. LightBDD binds steps at compile time, so a step that no longer exists, or whose parameters changed, fails the build rather than the run. Each BDD scenario proves one scenario record from the written specification, which stays the behavior source.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -880,9 +815,8 @@
       "style": "extension",
       "area": "backend",
       "title": "Layer Projects",
-      "intent": "This extension packages each backend layer as its own .NET project: Domain, Application.Abstractions, Application, Infrastructure, and WebApi, with hosts beside them. It states the five-project form of the project, reference, package, and layout rules for backends already on five projects and for teams that want the compiler to hold Domain purity. The module layout is the default; this page holds the packaging that replaces it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -896,9 +830,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Naming and Code Style",
-      "intent": "C# code in a .NET backend names its files and implementation shapes one way across every project, and places every cancellation token last. This page states those .NET rules: one primary type per file, a trailing cancellation token in every signature that takes one, a shared implementation style, and names that state their reason. The shared naming rules live on [Naming and Code Style](../../workspace/naming.md); this page holds only their .NET form.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -911,9 +844,9 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Packages",
-      "intent": "A .NET backend references only the LiteBus modules its code dispatches and reports .NET breaches in the editor and the build. This page states that module scope and the analyzer setup that reports each breach at the line that breaks it. The shared dependency rules live on [Dependencies](../../workspace/dependencies.md); this page holds only their .NET form.",
+      "intent": "",
       "sections": [
-        "Intent",
+        "Concepts",
         "Standards",
         "Conventions"
       ]
@@ -924,9 +857,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Persistence",
-      "intent": "A .NET backend persists aggregates through Marten, the baseline document store: command handlers stage writes through Domain repositories, queries project through the read session, and one post-handler commits each command pipeline. This page states those .NET bindings with the Infrastructure folder layout and session lifetime they assume, so every command keeps one transaction. The shared persistence rules live on [Persistence](../persistence.md).",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -939,9 +871,8 @@
       "style": "stack",
       "area": "backend",
       "title": ".NET Stack",
-      "intent": "A backend built on .NET declares the \u0060dotnet\u0060 stack in \u0060.litespec/project.yaml\u0060. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, the result formats the builder reads, and the test projects, packages, and runners.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -953,9 +884,8 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Workspace",
-      "intent": "A .NET backend lives under \u0060apps/api/\u0060, with the solution beside its projects. This page states that .NET layout: the workspace solution and where the AppHost lives, so every file has one fixed address. The shared workspace rules live on [Workspace Structure](../../workspace/structure.md); this page holds only their .NET form.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -967,9 +897,8 @@
       "style": "standard",
       "area": "backend",
       "title": "Persistence",
-      "intent": "Commands change aggregates and queries read them, with neither touching the database directly: repositories stage writes, the read session serves queries, and one post-handler commits each command. This page states that boundary, the transaction shape, and the obligations on stored data. One explicit boundary keeps storage decisions reviewable in Infrastructure instead of scattered through handlers.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -982,9 +911,8 @@
       "style": "standard",
       "area": "backend",
       "title": "Backend Testing",
-      "intent": "Backend tests prove behavior at separate boundaries: domain logic with no dependencies, use-case coordination through the project\u0027s own handlers, real persistence and HTTP behavior through the production host, and structural rules with architecture tests. This page states which suites each project size keeps and what each suite runs with, while the [Testing](../quality/testing.md) quality page states the cross-stack proof rules. Separate boundaries keep fast tests fast and point each failure at the layer that broke.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -997,9 +925,8 @@
       "style": "index",
       "area": "core",
       "title": "Overview",
-      "intent": "The Core pages state what every LiteSpec project shares: the principles, the record layers, the records that hold intent and behavior, and the rules for agents, writing, and releases. Read them in the order below when starting a project, then load only the pages each task touches.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reading Order"
       ]
     },
@@ -1009,9 +936,8 @@
       "style": "standard",
       "area": "core",
       "title": "Access",
-      "intent": "Who may act in the product and how they reach it: actors, roles, permissions, the access each use case declares, entry points, and external systems. Actors and roles live in Intent as product decisions users see; permissions, entry points, and external systems live in Behavior as access design. The [use-cases page](use-cases.md) states the use cases that carry access, and the [model page](model.md) states the shared record rules.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1023,9 +949,8 @@
       "style": "standard",
       "area": "core",
       "title": "Agent Operating Protocol",
-      "intent": "An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need an explicit task instruction before the agent acts. Following them keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1038,9 +963,8 @@
       "style": "standard",
       "area": "core",
       "title": "Authoring Standard",
-      "intent": "Every page in LiteSpec shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the prose rules the validators enforce on LiteSpec\u0027s own pages, and how each release carries the complete contract. The [Project Model](model.md) and [Record Language](language.md) pages state the rules for the records a project writes, and one shared shape lets readers learn pages once.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1052,9 +976,8 @@
       "style": "standard",
       "area": "core",
       "title": "Automation",
-      "intent": "Automation states the work that runs without a request: the reactions answering events, the jobs running on schedule or once, and the read models a module keeps current from another module\u0027s published events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1066,9 +989,8 @@
       "style": "standard",
       "area": "core",
       "title": "Behavior Records",
-      "intent": "Behavior states how the system acts to keep the promises Intent records: the words it uses, the areas it divides into, the things it keeps consistent, the rules that hold, and the behavior it defines with its endings and examples. Agents write these records from Intent, and code carries them. The [model page](model.md) states the shared record rules, the [intent page](intent.md) states the promises Behavior answers to, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1081,9 +1003,8 @@
       "style": "standard",
       "area": "core",
       "title": "Domain Model",
-      "intent": "Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the rules that hold, and the domain events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1095,9 +1016,8 @@
       "style": "standard",
       "area": "core",
       "title": "Edges and Screens",
-      "intent": "Edges and Screens states how the product meets the outside: the integration events, notifications, entry points, screens, and external systems. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1109,9 +1029,8 @@
       "style": "standard",
       "area": "core",
       "title": "Intent Layer",
-      "intent": "Intent is why the product exists and what it promises: actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms, under the product record that stands above the record layers at \u0060.litespec/product.yaml\u0060. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1124,9 +1043,8 @@
       "style": "standard",
       "area": "core",
       "title": "Record Language",
-      "intent": "Record Language states one grammar and one tone for every name, every identifier and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values, identifiers and codes of project records.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1139,9 +1057,8 @@
       "style": "standard",
       "area": "core",
       "title": "Record Layers",
-      "intent": "LiteSpec records form four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation builds that behavior in code, and Proof shows that it holds. This page states the translation rules between the record layers: Specify, Implement, and Verify. Agents apply it at every record-layer boundary, and readers use it to judge whether each record layer says only what belongs to it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1154,9 +1071,8 @@
       "style": "standard",
       "area": "core",
       "title": "Maintaining the Standards",
-      "intent": "LiteSpec publishes each release as one complete contract, so the repository holding the standard needs its own operating rules. This page states them: how a provision, one identified obligation on a page, moves from draft to active to retired, how a rename replaces every citation of the old name in one change, and how a maintainer publishes a release from a git tag. The rules keep every provision identifier resolvable and every release reproducible from its tag.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1169,9 +1085,8 @@
       "style": "standard",
       "area": "core",
       "title": "Project Model",
-      "intent": "A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their placement and identifiers, the record files, the explanation files, the documents, the common fields, the links, the marks, the authority order, the authoring order, the completion stages, the screen captures, the model builder, the check levels, and the book. People write Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1183,9 +1098,8 @@
       "style": "standard",
       "area": "core",
       "title": "Principles",
-      "intent": "These principles settle a design choice when no narrower provision prefers one design. LiteSpec defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. Apply this page when two designs both satisfy the narrower pages, and read the [layers page](layers.md) for the boundaries these principles govern.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1198,9 +1112,8 @@
       "style": "standard",
       "area": "core",
       "title": "Privacy and Retention",
-      "intent": "Privacy and Retention states how the product handles personal data: the data classes with their erasure positions and retention, and the extended erasure needs of referenced rows, child rows, handed-over data, requested reach, export guards, conflicts, and restore sweeps. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1212,9 +1125,8 @@
       "style": "standard",
       "area": "core",
       "title": "Product Release",
-      "intent": "A product release is the verified behavior a team ships as one immutable artifact. Teams apply this page at every release to run the checks their boundaries select, to read completion computed from proof, and to write the release record and the verification report. A project that selects the [Delivery extension](../ext/delivery.md) adds its deployment and rollback rules on top.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1227,9 +1139,8 @@
       "style": "standard",
       "area": "core",
       "title": "Supported Scope",
-      "intent": "LiteSpec is a standard for specification-driven development of one bounded-context business application by people and coding agents. This page states what each project choice decides, which extensions and outside constraints the project also declares, what claiming conformance means, and where the supported boundary ends. A team declares them once during inception, before writing anything else down, so agents and checks apply exactly the pages the project selected.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1242,9 +1153,8 @@
       "style": "standard",
       "area": "core",
       "title": "Provision Scopes",
-      "intent": "Provisions are filed by concern: each page states the rules for one concern, while an agent changing one file needs every rule for that situation. This page states the shared situation vocabulary each provision carries: its stack, its concern, its artifact, the record layer it governs, its trace, and its strength. Authors write these values when they write or grade a provision, and the provision index carries them so the CLI lists the provisions that apply to one path and the record layer each provision belongs to.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1257,9 +1167,8 @@
       "style": "standard",
       "area": "core",
       "title": "Technology Stacks",
-      "intent": "A stack binds the specification to one technology: a backend stack lives under \u0060backend/\u0060, a frontend stack under \u0060frontend/\u0060. Selecting one applies exactly the provisions, version pins, and checks that technology needs. This page states what selecting a stack applies, where its versions come from, and how a replacement names every baseline provision it replaces.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1271,9 +1180,8 @@
       "style": "standard",
       "area": "core",
       "title": "LiteSpec",
-      "intent": "LiteSpec is a system for building software from written records: the records state the required behavior, and people and agents build, verify, and operate against them. This page states what that system is and which parts it combines, while the intent, behavior, access, layers, and model pages state the records and the rules between them. A team starting a project reads it first, so every later choice lands in one shared model joining intent to code.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1286,9 +1194,8 @@
       "style": "standard",
       "area": "core",
       "title": "Use Cases",
-      "intent": "Use Cases states what the system does and what it answers: the commands and queries, their verbs, inputs, effects, endings, scenarios, and the settings they read. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1300,9 +1207,8 @@
       "style": "standard",
       "area": "core",
       "title": "Waivers",
-      "intent": "A waiver is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a waiver holds, which kind it takes, when to record one, how it covers a finding, what no waiver covers, and when each kind ends. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1314,9 +1220,8 @@
       "style": "standard",
       "area": "core",
       "title": "Writing",
-      "intent": "Writing states how every project writes its records, explanation files and documentation pages, so a reader who arrives cold on one page still learns who acts, what is at stake and what holds. Authors and agents apply it to every record value, explanation file, document, code comment, changelog and decision record. The [Record Language](language.md) page states the names, values and codes of project records; this page states the prose.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1329,9 +1234,8 @@
       "style": "index",
       "area": "example",
       "title": "Overview",
-      "intent": "The example pages show LiteSpec applied to one product, Claimwick, a small application in which employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. Its records live in \u0060examples/claimwick/.litespec/\u0060, and its code, screen and tests sit beside them in the same repository. Every record ID, file path, count and command output on these pages is copied from that repository or from a real run of \u0060litespec\u0060 against it, so a reader can open the same file and see the same text. The pages state no rules of their own: each rule lives on the standards page that the text cites.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How to Read the Example",
         "Reading Order"
       ]
@@ -1342,9 +1246,8 @@
       "style": "explanation",
       "area": "example",
       "title": "The Claimwick Product",
-      "intent": "Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its records as they are written in \u0060examples/claimwick/.litespec/\u0060, from the product brief down to the flow that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Product Brief",
         "The Spending Module",
         "The Goal",
@@ -1362,9 +1265,8 @@
       "style": "explanation",
       "area": "example",
       "title": "Modules and Records",
-      "intent": "The Spending module turns the Intent of [The Claimwick Product](the-product.md) into Behavior: the aggregates that hold each expense, policy and receipt, the rules that guard them, the use cases that change them, and the entry point, screen, reaction, job, notification and setting around them. This page lists those records as they are written in \u0060examples/claimwick/.litespec/behavior/modules/spending/\u0060, with the counts and IDs a reader can check in the folder.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Aggregates",
         "The Rules",
         "The Use Cases",
@@ -1382,9 +1284,8 @@
       "style": "explanation",
       "area": "example",
       "title": "A Use Case in Code",
-      "intent": "This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is \u0060examples/claimwick/.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml\u0060, and the code and tests are in \u0060examples/claimwick/apps/api/\u0060. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Record",
         "The Rule Behind the Refusal",
         "The Endpoint",
@@ -1399,9 +1300,8 @@
       "style": "explanation",
       "area": "example",
       "title": "The Claimwick Screen",
-      "intent": "The expenses screen is one of the three screens of Claimwick\u0027s web app that the example builds, beside the expense record at \u0060/expenses/{expenseId}\u0060 and the new-expense form at \u0060/expenses/new\u0060. It shows an employee their own expenses at the address \u0060/expenses\u0060. This page follows that screen from its route file, through the generated API client it reads, the shared UI package it composes, and the pattern catalog that records its interface choices, with the file of each step and the check the model runs over it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Route",
         "The Use Case Code",
         "The Generated Client",
@@ -1417,9 +1317,8 @@
       "style": "explanation",
       "area": "example",
       "title": "The Model and Its Checks",
-      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the waivers that cover its 28 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Full Check",
         "A Waiver That Covers a Finding",
         "Proof for the Use Cases",
@@ -1433,9 +1332,8 @@
       "style": "index",
       "area": "ext",
       "title": "Overview",
-      "intent": "The extensions pages hold conditional provision bundles a project adds only when a specific need appears, from caching and audit trails to multitenancy and delivery, so a project carries no provision it does not need. Each bundle stays inactive until a current need meets the criterion its page states, and the project records each choice with its criterion. A team facing a need the default provisions do not cover reads the candidate page and selects only the extensions whose criteria hold today.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How to Select an Extension",
         "Project Extensions",
         "Local Extensions",
@@ -1448,9 +1346,8 @@
       "style": "extension",
       "area": "ext",
       "title": "AI Assistance",
-      "intent": "Some queries are answered through a model that picks tools to gather facts and compose the answer. This page states the closed tool set, the structure-only scenarios, the pinned stub, and the provenance those queries carry. A project selects it for each query a model mediates.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1464,9 +1361,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Audit Trail",
-      "intent": "An audit trail proves who attempted what inside data one party owns while another party acts in it, including attempts the system refused. This page states what the trail stores for each attempt, which attempts it covers, where the producer runs, how the store resists tampering, and how a reviewer reads the trail. A team whose system acts in another party\u0027s data selects this extension and keeps one trail that proves accountability instead of reconstructing the answer from logs and domain events (facts the system recorded as completed).",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1480,9 +1376,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Caching",
-      "intent": "A cache answers repeated expensive reads from stored results instead of recomputing them, trading lower latency and source load for stale reads and invalidation work. This page states when that trade is justified, what each cache\u0027s staleness contract covers, how keys separate results, and how the system behaves when the cache fails. A team applies it once traces or load tests name a repeated expensive read, so each cache carries a staleness bound the team chose instead of one it discovers during an incident.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1496,9 +1391,8 @@
       "style": "extension",
       "area": "ext",
       "title": "API Compatibility",
-      "intent": "API compatibility keeps consumers that release on their own schedule working when the API or its published events change, including public, partner, and mobile clients. This page states how a project classifies each contract and event change, versions breaking ones, keeps supported versions alive, and retires them with notice. A team with such consumers applies it, so its consumers keep working across releases instead of breaking on deploy day.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1512,9 +1406,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Concurrency and Idempotency",
-      "intent": "Concurrency and idempotency rules stop overlapping writes from silently overwriting each other and stop a retried request from executing twice. This page states how a project documents conflicting writes, coordinates them with versions, and makes retried operations return one result through client keys and fingerprints. A team applies it when overlap or retry can corrupt behavior, so its callers get one predictable outcome instead of a silent overwrite or a duplicated effect.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1528,9 +1421,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Customer Rules and Hooks",
-      "intent": "Some products let customers build their own rules from triggers, conditions, and actions, and call customer endpoints when those rules fire. This page states the catalog those rules draw from, the tenant instances as data, and the may and may-not contract on hooks. A project selects it when tenants compose customer rules or the product calls customer hooks.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1544,9 +1436,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Delivery",
-      "intent": "Delivery holds the release, deployment and operations rules a project adds when running the product for other people takes a formal regime: release readiness gates, artifact promotion, deployment and rollback, backup and restore, alerts and runbooks, the supply-chain gate, container image build, rollout and runtime limits, and agent handoff. A project that only needs the core checks, contracts and review flow in the baseline carries none of it. A team that operates the product in production selects it, so each release deploys, recovers and answers alerts by a written procedure instead of improvisation, with container releases shipping the same image bytes they tested.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1560,9 +1451,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Connected Devices",
-      "intent": "Devices hold state, apply rules, and sync while offline, so the product owes them a protocol: messages, versions, client rules, and the shape of offline uploads. This page states the \u0060protocol\u0060 block an entry point carries when devices reach it. A project selects it for each entry point that serves scanners, kiosks, or offline-capable clients.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1576,9 +1466,8 @@
       "style": "extension",
       "area": "ext",
       "title": "External Integrations",
-      "intent": "External integrations connect the product to providers it does not control, which can fail, change their responses, or deliver one message twice. This page states how a use case (one command or query the product offers) names the outside behavior it needs, where provider details live, how failures map to project-owned results with stable refusal codes, and how tests simulate the network boundary. A team applies it for each use case that calls a provider, receives a webhook, or imports provider-shaped data, so a provider change touches one folder instead of the whole codebase.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1592,9 +1481,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Jobs and Queues",
-      "intent": "Work that outlives a request runs in a Worker: scheduled jobs from a timetable and reports too heavy for a request, while people clear queued items through claimed listings. This page states how each kind records its work, runs it once, and recovers. A project selects it for recurring, delayed, heavy, or human-cleared work.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1608,9 +1496,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Data Lifecycle",
-      "intent": "Data lifecycle rules decide how long each piece of stored data lives: how long it stays, when it is deleted, and when it can return. This page states what the team writes down for each lifetime and which behavior the code owns: hard delete wherever nothing needs the data later, explicit archive and restore states where a use case (one command or query the product offers) needs them, and authorized, audited operations throughout. A team selects it for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers past its retention and no deletion breaks a legal or business duty.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1624,9 +1511,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Localization",
-      "intent": "Localization makes every screen, message, route, and formatted value answer to the user\u0027s language. This page states what the team decides up front, the supported locales, the default locale, the fallback chain, and the route shape, and which behavior the code owns: catalogs for copy, locale-aware formatting, and business data that stays locale-neutral. A project selects it when it ships in more than one locale, so each language reads as a complete product instead of a partial translation.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1640,9 +1526,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Model Context Protocol",
-      "intent": "A Model Context Protocol server lets a large language model (LLM) client on the user\u0027s own machine call the product\u0027s public API. This page states how that server presents itself, describes its tools, and words its refusals; the API pages own the behavior the server calls. A project selects it when it ships such a server, so the model plans from accurate tool descriptions and every write waits for the person\u0027s confirmation.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1656,9 +1541,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Durable Delivery",
-      "intent": "Committed changes reach the outside world through durable delivery that survives crashes. This page states how the product stages after-commit effects in the outbox for a Worker to deliver. A team selects it for delivery that survives process failure.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1672,9 +1556,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Plans and Entitlements",
-      "intent": "A product that gates behavior and amounts by tier records each plan\u0027s entitlements in one place: the behavior the plan unlocks and the amounts it allows. This page states how the product records its plans, how behavior and amounts resolve to what the acting plan entitles, and how the product answers a run past its plan. A project selects it when tiers change what the software allows, so a plan change moves one record instead of scattered checks.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1688,9 +1571,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Live Delivery",
-      "intent": "Live updates reach open screens in seconds through a realtime transport the browser keeps open. This page states when the product replaces polling with realtime transport, which transport carries each kind of live update, and how connections, subscriptions, and clients stay safe under load and failure. A team selects it after it measures polling against an update target and accepts the cost of disconnects and missed messages.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1704,9 +1586,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Release Stage",
-      "intent": "The release stage tells whether any deployment holds customer data yet, because several provisions assume a running service that the first builds do not have. This page states how a project declares its stage, which provisions the early stage defers and until when, and how a recorded decision ends the deferral. A project selects it while no deployment holds customer data, or afterwards to record a past move to production, so relaxed early provisions expire on a date instead of lingering by accident.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1720,9 +1601,8 @@
       "style": "extension",
       "area": "ext",
       "title": "Multitenancy",
-      "intent": "Multitenancy lets independent customer organizations share one deployment while each keeps isolated data and policy. This page states how the product resolves tenant identity from trusted context, isolates each tenant\u0027s data and policy across authorization, storage, caches, reactions, jobs, exports, diagnostics, and recovery, and records the operations that cross tenant lines. A project selects it when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer\u0027s data to another.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Activation",
         "Baseline Relationship",
         "Standards",
@@ -1736,9 +1616,8 @@
       "style": "index",
       "area": "frontend",
       "title": "Overview",
-      "intent": "The frontend pages state how the browser and device side of a LiteSpec product is built: its frame, routes, and modules named for the backend use cases they call, the shared components and governed visual language, the interface pattern catalog, and how data, rendering, and testing work, with the bindings each stack realizes. Frontend teams and agents follow them when they add a route, build a screen, or change shared UI or data code, so every screen answers the same question the same way.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "Frontend Principles",
         "Shared Web Pages",
@@ -1752,9 +1631,8 @@
       "style": "stack",
       "area": "frontend",
       "title": "Blazor Stack",
-      "intent": "The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user\u0027s device, under the \u0060client-only\u0060 shape declared in [Supported Scope](../../core/scope.md). This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1766,9 +1644,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Components",
-      "intent": "Every screen in a LiteSpec frontend draws with components from one shared UI package: small primitives such as inputs and badges, and larger composites such as sections and tables built from them. This page states what that package holds, how page code, the components under each route or module folder, composes its parts, and where a drawing that no composite makes belongs. Frontend developers and coding agents apply it whenever they build or change a screen, so the product keeps one visual language and a restyle stays a change in one place.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1781,9 +1658,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Data and State",
-      "intent": "A LiteSpec frontend owns no API contract: it calls the API through one generated client, reads answers through the client\u0027s cache, and sends each write as a command, one message that changes business state. This page states how the client is built and configured, where each piece of state lives, and how every failure reaches the user as one problem, a project-owned failure shape carrying a stable code. Frontend developers and agents apply it for every read, write, and form, so a contract change breaks the build instead of the running page and every failure renders a sentence the team wrote for it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1796,9 +1672,8 @@
       "style": "index",
       "area": "frontend",
       "title": "Overview",
-      "intent": "The shared mobile pages state what every native mobile app does the same way: one .NET solution tree, native screens with one navigation controller, handlers with classified state, least-access device use, and core and device tests across structure, screens, data, device, and testing. No project selects this folder directly; selecting the [Android Stack](android/stack.md) applies it through that stack\u0027s folder chain. A developer or agent adding a screen, a device feature, or data code to a mobile app finds the shared rule here and the stack-specific rule on the stack page.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "Shared Mobile Pages",
         "Stacks"
@@ -1810,9 +1685,8 @@
       "style": "stack",
       "area": "frontend",
       "title": "Android Stack",
-      "intent": "The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, \u0060client-only\u0060 or \u0060server\u0060, declared in [Supported Scope](../../../core/scope.md). This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1824,9 +1698,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Mobile Data and State",
-      "intent": "Data handling in a mobile app routes every use case through an Application handler, the one place where that use case is defined. Every piece of state carries a declared classification deciding whether it is persisted, kept on the device, or recomputed. This page states the mobile store, storage, and client those rules land in, following [Frontend Data and State](../data.md) (\u0060litespec/frontend/data#route-use-cases-through-application\u0060, \u0060litespec/frontend/data#classify-state\u0060, \u0060litespec/frontend/data#update-the-cache-a-command-changed\u0060), and a team that applies it while writing handlers and screens keeps one definition of each use case and one source of each value.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1838,9 +1711,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Mobile Device Capabilities",
-      "intent": "A mobile app borrows device capabilities: the camera roll, the microphone, the speaker, and the permissions guarding them. This page states how the app picks media, requests permissions, plays sound, and declares what it uses. A team that applies it while adding a device feature keeps the app asking for the least access and behaving while shared hardware is busy.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1852,9 +1724,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Mobile Screens and Navigation",
-      "intent": "A mobile app renders its screens with the platform\u0027s native views, holds navigation in one controller, and follows the platform\u0027s back, inset, and motion behavior. This page states those screen and navigation rules for every mobile stack. A team that applies it while adding screens keeps navigation in one place and every screen behaving the way the platform\u0027s users expect.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1866,9 +1737,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Mobile Structure",
-      "intent": "A mobile consumer holds its apps in one .NET solution whose core projects carry the domain model and whose platform projects carry the screens. This page states that solution tree, the projects each shape holds, and the screen folders, with the import direction between them following \u0060litespec/frontend/structure#order-imports-from-routes-to-shared-packages\u0060. A team that applies it while adding apps and screens keeps every platform sharing one core and every layer building only on the layers inside it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1880,9 +1750,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Mobile Testing",
-      "intent": "The mobile app proves its behavior at two boundaries: core tests without a device, and device tests that drive each screen on an emulator or device. This page states how it follows the testing principles in [Frontend Testing](../testing.md) and where each kind of test lives. A team that applies it while writing tests keeps fast tests fast and still proves every screen where users meet it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1894,9 +1763,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "UI Patterns",
-      "intent": "One pattern catalog decides each recurring interface question once, such as how an expense page lays out or what an empty list shows, instead of letting each screen invent its own answer. This page states what each catalog entry holds: the options considered, the option chosen and who chose it, the narrow-screen behavior, and the implementation status per platform. Product owners and frontend teams use it when they choose and build interface behavior, so every screen answers the same question the same way instead of each route inventing its own answer.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -1908,9 +1776,8 @@
       "style": "index",
       "area": "frontend",
       "title": "Overview",
-      "intent": "The pattern pages decide each recurring interface question once, as drawn options with a named default to build, so every screen answers the same question the same way. A team building a screen starts from the page for its question, an owner picks an option from the drawings, and the team records the choice in its pattern catalog. The [UI Patterns](../patterns.md) page states the catalog contract, the pattern layout, and the wireframe language these pages share.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "Pattern Pages"
       ]
@@ -1921,9 +1788,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Admin Screen Patterns",
-      "intent": "Settings screens configure the company itself, and this page shows each screen as drawn options with a named default to build: the team and its roles, API keys and webhooks, data import, the payout account, subscription invoices, and budget limits and advances. The product owner chooses among the options when the team builds or revises a settings area. Consistent admin layouts keep powerful commands, such as granting access, rotating secrets, and paying invoices, safe to operate.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Patterns"
@@ -1935,9 +1801,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Create, Edit and Remove Patterns",
-      "intent": "Staff create records such as expenses, trips, and fares, change them, and remove one or several, and this page shows the layout for each task as drawn options with a named default to build, including the special cases: draft-first creation, corrections to the past, duplicates, hand ordering, restoring archived work, invitations, publishing, and scheduled changes. The product owner chooses among the options when the team builds or revises a working screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they commit.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Patterns"
@@ -1949,9 +1814,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Dialog and Overlay Patterns",
-      "intent": "A dialog, drawer, popover, menu, toast, context menu, shortcut overlay, bottom sheet, or persistent bar floats above or beside the page to confirm, edit, preview, or announce without a full navigation. This page shows when each overlay fits and how it opens, holds focus, and closes, as drawn options with a named default to build. The product owner chooses among the options when the team adds a confirmation, a side preview, or any floating layer. Right-sized overlays keep staff oriented: the page stays visible behind short tasks, and irreversible commands get the full attention they need.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Patterns"
@@ -1963,9 +1827,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Feedback and State Patterns",
-      "intent": "This page holds the patterns for the states a screen shows around its work: no records yet, no results, loading, a refused command, a command that worked, a notice before acting, a forbidden page, no connection, an expired sign-in, a conflict, work that runs in the background, a missing record, a server failure, maintenance, and a rate limit. An owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project\u0027s interface decisions. Each decided state says what happened, what it means, and what to do next, so staff never guess what a screen is telling them.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Patterns"
@@ -1977,9 +1840,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Form and Field Patterns",
-      "intent": "This page holds the patterns for entering a value into a form, and for what the form reports around it: money, record pickers, dates, text, single choices, switches, uploads, refused submits, unsaved work, periods, slugs, capacity, colors, repeated groups, tags, addresses, and message templates. A team building a form starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project\u0027s interface decisions. One decided shape per field keeps entry fast and errors fixable, so staff type once and repair only what the message names.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -1992,9 +1854,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "List and Table Patterns",
-      "intent": "This page holds the patterns for the expenses list, which shows many records of one kind so a reader can find one record, compare rows, and act on them: columns, sorting, filters, row density, selection, paging, row actions, table states, status, money, export, search, grouping, expansion, pinning, and the layout of a short list. A team building a list screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project\u0027s interface decisions. One shared set of answers keeps every list in the product behaving the same way, so a reader who learns one list knows them all.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -2007,9 +1868,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Money, Time and Density Patterns",
-      "intent": "This page holds the patterns for writing amounts, statements, moments, periods, counts, charts, payouts, invoices, VAT, and identifiers at every width, read across tables, statements, charts, and phone screens. A team building a finance or reporting screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project\u0027s interface decisions. One shared way of writing figures keeps exports, statements, and screens agreeing, so finance can cite a figure without checking where it was read.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -2022,9 +1882,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Navigation Patterns",
-      "intent": "This page holds the patterns for the product frame around every screen, which lets a reader move between areas and know where they are: sidebar, breadcrumb, header bar, tabs, icons, language and theme, command palette, account menu, notifications, help, and workspace switching. A team building the product frame starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project\u0027s interface decisions. One shared product frame keeps every page reachable by address and marked in place, so a reader never loses where they are.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Patterns"
@@ -2036,9 +1895,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Page Frame Patterns",
-      "intent": "This page holds the layout pattern for each kind of page: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, and error. A team building a new screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project\u0027s interface decisions. One layout per kind keeps every screen predictable, so a reader knows where the heading, actions, and content sit before reading.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Patterns"
@@ -2050,9 +1908,8 @@
       "style": "pattern",
       "area": "frontend",
       "title": "Record Detail Patterns",
-      "intent": "One screen shows one record of the product, with its state, facts, history, and the commands a reader may run, and this page holds the patterns for that screen: header, tabs, summary, aside, timeline, relations, refusals, change history, notes, attachments, identifiers, neighbor movement, and the whole record screen assembled from them. A team building a record screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project\u0027s interface decisions. One shared record shape keeps every record readable in the same order, so support finds the state and the next step without hunting.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Patterns"
@@ -2064,9 +1921,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Rendering and Routes",
-      "intent": "A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, how each route state renders, and where focus lands when the route changes. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2078,9 +1934,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Structure",
-      "intent": "A LiteSpec frontend holds three parts: a frame holding what every route shares, routes for the addresses it serves, and one module folder per backend use case it calls, with the module tree mirroring the backend module folders in kebab case. This page states those parts, the import direction between them, and where a file shared by several use cases belongs. Frontend developers and agents apply it whenever they add or move frontend code, so a reader holding a use-case specification finds the frontend code that serves it without a second map.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -2093,9 +1948,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Testing",
-      "intent": "Frontend tests prove behavior at the cheapest level that represents the risk: unit tests for pure logic, browser suites against a running deployment for navigation and integration, and one route check for every address. This page states which kind proves what, how a test proves a use case by calling it and asserting the result each scenario names, and where mocks may stand. Frontend developers and agents apply it whenever they add or change a test, so each risk is proved once at the right level instead of slowly everywhere or nowhere at all.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -2108,9 +1962,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Controlled UI Governance",
-      "intent": "The shared UI package is a constrained construction language: the ready-made controls, the interaction behavior, the page layouts, and the named visual values every screen draws with. This page states how the workspace governs that language: the visual authority, the design contract, the token roles and limits, the screen blueprint, the floorplan set, and the route suite that proves every route. Frontend teams and agents apply it whenever they add or change a screen, a component, or a named value, so every page of one kind looks and behaves as one page.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2122,9 +1975,8 @@
       "style": "index",
       "area": "frontend",
       "title": "Overview",
-      "intent": "The web pages state what the React and Svelte frontends do the same way: one TypeScript toolchain, one generated API client, and one shared UI package across structure, rendering, components, UI, data, and testing. No project selects this folder directly; selecting the [React Stack](react/stack.md) or [Svelte Stack](svelte/stack.md) applies it through that stack\u0027s folder chain. A developer or agent adding a route, a component, or data code to a React or Svelte frontend finds the shared rule here and the stack-specific rule on the stack page.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "Shared Web Pages",
         "Stacks"
@@ -2136,9 +1988,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "TypeScript Web Components",
-      "intent": "Every screen in a TypeScript web frontend draws with composites, shared building blocks for layout and interaction, from one shared UI package, instead of each application drawing its own. The component principles live in [Frontend Components](../components.md); this page states the TypeScript mechanism behind them for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md): the registry source holding the primitives every composite builds on, the closed list of refused raw elements, visual files for drawings no composite makes, the raw HTML sinks kept away from untrusted content, the typed component boundaries, and the route checks both stacks share. A team that applies it while writing pages keeps layout and interaction inside governed composites instead of scattered raw elements.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2150,9 +2001,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web Data and State",
-      "intent": "The frontend keeps no copy of the API contract: it generates its client, types, schemas, and query options from the published OpenAPI document. The data rules live in [Frontend Data and State](../data.md); this page holds the TypeScript mechanism behind them that the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share. A team that applies it while writing data code keeps every application consistent with the contract and every failure recoverable by the reader.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2164,9 +2014,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web UI Patterns",
-      "intent": "The web mechanism for UI patterns lives in [Web UI](ui.md), which states the pattern implementation for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) together with the other shared UI rules. A reader looking for the web implementation of a chosen pattern finds it there.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2178,9 +2027,8 @@
       "style": "stack",
       "area": "frontend",
       "title": "React Stack",
-      "intent": "A React frontend takes one of three rendering modes, chosen by who reads it: a static application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client. A team opening a React frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2192,9 +2040,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web Rendering and Routes",
-      "intent": "A route in a TypeScript web frontend carries metadata deciding how links and search meet it. This page states the metadata rule the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) add to the rendering rules in [Frontend Rendering and Routes](../rendering.md). A team that applies it while writing routes keeps every public route linkable and every private route out of search.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2206,9 +2053,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web Structure",
-      "intent": "React and Svelte frontends share one folder layout: a frame holding the values shared across routes, one route per address, and modules that mirror the backend\u0027s use cases so each business area and user task sits in the same place on both sides. This page states the tree, the frame folder, the use-case marks, the generated records file, and the route tree the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share, following the structure rules in [Frontend Structure](../structure.md). A team that applies it while adding files keeps every use case findable by path and every mark checkable by type.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2220,9 +2066,8 @@
       "style": "stack",
       "area": "frontend",
       "title": "Svelte Stack",
-      "intent": "A Svelte frontend takes one of three rendering modes, chosen by who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client. A team opening a Svelte frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2234,9 +2079,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web Testing",
-      "intent": "Web frontends prove pure logic in Vitest beside the module it covers and navigation and integration in Playwright against the running system. The testing principles live in [Frontend Testing](../testing.md); this page names the runners, libraries, and commands one web frontend uses for them, and refuses a test with no assertion. A team that applies it while writing tests keeps fast tests fast and proves every address and every declared refusal, each named way a use case, one user task, says no, in a browser.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2248,9 +2092,8 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web UI",
-      "intent": "One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once. This page states the registry build, the suite marks, the CSS decisions, the browser support target, the color schemes, motion, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every route readable in every scheme and browser it targets, and every primitive traceable to its source.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -2262,9 +2105,8 @@
       "style": "index",
       "area": "guide",
       "title": "Overview",
-      "intent": "The Guides section teaches by doing: tutorials take a reader to a first working result one step at a time, and how-to guides solve one stated problem in a project that already runs. Every guide cites the standard it applies and adds no rule of its own, so a reader learns the standard by following along.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Where to Start",
         "Tutorials",
         "How-To Guides"
@@ -2276,9 +2118,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Add a Blazor Frontend",
-      "intent": "A product that serves its interface from Blazor runs as a client with no server of its own, with the domain model, handlers, and pages in one Blazor WebAssembly application. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend for a \u0060client-only\u0060 project: the stack, the project shape, and the feature layout. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2290,9 +2131,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Add a Stack or an Extension",
-      "intent": "A LiteSpec maintainer adds a stack or an extension so the release can name it in \u0060litespec.manifest.yaml\u0060 and apply its pages. This guide moves the add-a-stack and add-an-extension procedures into the Maintain section. It adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2304,9 +2144,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Add a Svelte Frontend",
-      "intent": "A product that serves its web interface from Svelte declares the same web application tree as the React frontend in the tutorial, against the same backend use cases. This guide declares that frontend: the stack, the application tree with mirrored use case paths, routes composed from one floorplan, and the pinned baseline. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2318,9 +2157,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Add an Android Frontend",
-      "intent": "A product that serves its interface from Android declares a mobile solution with screens organized by module and hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend: the stack, the mobile solution tree, and the screen layout. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2332,9 +2170,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Build an Audit Trail",
-      "intent": "An audit trail proves who attempted what against which data and what each attempt produced, so a product can answer for every sensitive action. This guide builds that proof on the LiteBus pipeline that runs each state change in the .NET backend: the entry shape, the pipeline handlers, the protected store, and the read path. Each step names the audit rule it satisfies, and the guide adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2346,9 +2183,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Install the CLI",
-      "intent": "Each LiteSpec release ships the \u0060litespec\u0060 command line in two forms: the \u0060LiteSpec.Cli\u0060 .NET tool on nuget.org, and a standalone archive per platform on the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases). Both hold the same native executable, compiled ahead of time for the platform, and both carry the LiteSpec release beside it, so the executable needs no .NET runtime and no network. This guide installs the command line for a consumer repository or a machine, checks the download, and runs it in continuous integration. It adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2360,9 +2196,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Run Rules After Every Edit",
-      "intent": "An agent that loads the governing provisions once at the start of a task works from memory by its later edits, and memory drifts from the standard as the session grows. This guide brings the provisions back at the moment they matter: after each file edit the agent sees the short \u0060rules\u0060 output for that file, and before it stops it faces the model check over its change set. It covers Claude Code hooks and an OpenCode plugin. \u0060skill add\u0060 writes Markdown files only and installs no hooks, so each recipe below is installed by hand. The guide adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2374,9 +2209,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Start with Records Only",
-      "intent": "A team that wants LiteSpec\u0027s records, book and checks before it changes any code follows this guide. It claims \u0060intent\u0060 and \u0060behavior\u0060 in the project file, writes the first Intent and Behavior records, and runs the model check and the book, while its code and tests keep their own layout and practice. The [adoption page](../learn/adopting-litespec.md) states the claims that come next, \u0060implementation\u0060 and \u0060proof\u0060.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2388,9 +2222,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Constraint",
-      "intent": "A constraint states one outside rule, by law or by contract, that the product must respect, and it says which product choices the rule takes away. This guide writes one constraint record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can check the rule against its source, see whom it binds, and find each requirement that holds its effect. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2402,9 +2235,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Feature",
-      "intent": "A feature is one offering that solves problems and advances goals. It stands alone in its own folder at \u0060.litespec/intent/features/\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its parent the product: one record file states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder in the feature\u0027s \u0060requirements/\u0060 folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2416,9 +2248,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Flow",
-      "intent": "A flow states the path one actor takes toward one goal or one problem, from the state in which it starts to the state in which it ends, one step at a time. This guide writes one flow record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2430,9 +2261,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Problem",
-      "intent": "A problem states a pain that people outside the team have today, before any feature answers it. This guide writes one problem record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader who has never met the author can understand the problem, judge its evidence, and propose a different solution. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2444,9 +2274,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Research Record",
-      "intent": "A research record answers one question with the sources that bear on it, and it states what those sources establish and what they leave open. This guide writes one research record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can check each claim against its source, see the conditions the claim holds under, and tell a source\u0027s statement from the writer\u0027s inference. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2458,9 +2287,8 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write Code for a Use Case",
-      "intent": "A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. This guide places each code element of a use case in its folder and gives it the mark its record needs, so a writer adds a use case without hunting six pages.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Procedure",
         "Check"
@@ -2472,9 +2300,8 @@
       "style": "index",
       "area": "intent",
       "title": "Overview",
-      "intent": "The Intent records hold the research and decisions behind LiteSpec\u0027s provisions, in the shapes a consumer uses. They inform the provisions and settle nothing themselves: the provision remains the only obligation, and these records are never selected or applied as contract.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Research and Decisions"
       ]
     },
@@ -4042,9 +3869,8 @@
       "style": "index",
       "area": "learn",
       "title": "Overview",
-      "intent": "LiteSpec is the standard for building one business application from written rules that tools check. Technical leads read these pages to decide whether LiteSpec fits, developers read them to learn how its parts work, and teams read them before handing work to agents. Without one written shape, each agent invents its own design and the reasons behind past designs leave with the people who made them. This page is the single start: it states the five-minute picture and the one order to read in.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Five-Minute Picture",
         "The Path",
         "Evaluate",
@@ -4057,9 +3883,8 @@
       "style": "explanation",
       "area": "learn",
       "title": "Why LiteSpec Exists",
-      "intent": "When people or AI agents build software, they make decisions that rarely make it into the documentation. Requirements stay in chat threads. Business rules end up buried in handlers. The reasons behind a design disappear when someone leaves.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Problem",
         "How LiteSpec Helps",
         "The Goal",
@@ -4074,12 +3899,11 @@
       "style": "explanation",
       "area": "learn",
       "title": "How LiteSpec Works",
-      "intent": "LiteSpec connects what a team writes about a product to the code that implements it, and checks that the two still agree. This page explains the parts, the layers, the homes, and the tools, then states how to read a specification. Claimwick, the expense product in \u0060examples/claimwick/\u0060, is the worked example, walked from [The Claimwick Product](../example/the-product.md).",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Parts",
         "The Four Layers",
-        "Record Types and Their Homes",
+        "Record Types and Where They Live",
         "Links Between Records",
         "A Use Case from Record to Code",
         "How to Read a Specification",
@@ -4093,9 +3917,8 @@
       "style": "explanation",
       "area": "learn",
       "title": "Read the Standard",
-      "intent": "A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file \u0060.litespec/project.yaml\u0060) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the waivers the standard provides for rules a project cannot follow.",
+      "intent": "",
       "sections": [
-        "Intent",
         "A Project\u0027s Selection",
         "The Page Arrangement",
         "Page Sections and Provisions",
@@ -4110,9 +3933,8 @@
       "style": "explanation",
       "area": "learn",
       "title": "Work with Agents",
-      "intent": "An AI coding agent (software that reads task context, changes files, and runs checks) does its best work when the rules are written down and the checks run before review. This page explains how an agent finds the LiteSpec rules for your project, the order it follows on a task, and which decisions stay with you. Team members read it when they first hand work to an agent, so the agent starts from your records instead of its own habits.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Rules, Records, and Checks",
         "Rule Sources",
         "The LiteSpec Skill",
@@ -4128,15 +3950,14 @@
       "style": "explanation",
       "area": "learn",
       "title": "Adopt LiteSpec in Steps",
-      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each waiver from a single provision stays recorded until it is resolved.",
+      "intent": "",
       "sections": [
-        "Intent",
-        "Fit Check",
+        "Check the Fit",
         "Choose the Layers to Start",
         "Step 1: Claim Intent and Behavior",
         "Step 2: Add Implementation",
         "Step 3: Add Proof",
-        "Waivers for a Single Provision",
+        "Cover Early Gaps with Waivers",
         "Next Steps"
       ]
     },
@@ -4146,9 +3967,8 @@
       "style": "explanation",
       "area": "learn",
       "title": "How LiteSpec Compares",
-      "intent": "LiteSpec is one of many ways to specify work for AI coding agents, beside per-feature workflows, standards systems, instruction files, and tests. This page compares LiteSpec with 14 other approaches on the same dimensions: what each one specifies, how its rules are checked, and how it fits beside LiteSpec. Technical leads read it while they evaluate options, so they can place LiteSpec correctly instead of treating every approach as a rival.",
+      "intent": "",
       "sections": [
-        "Intent",
         "The Short Answer",
         "The Approaches",
         "Side-by-Side Comparison",
@@ -4165,9 +3985,8 @@
       "style": "explanation",
       "area": "learn",
       "title": "Lineage",
-      "intent": "LiteSpec borrows its words from established practices: each borrowed concept keeps its source\u0027s name, so a reader who knows the source already knows the word. This page names each practice, what LiteSpec takes from it, the words it uses, and what LiteSpec does differently. New readers take it after [How LiteSpec Compares](how-litespec-compares.md), as background rather than rules.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Domain-Driven Design",
         "Event Storming",
         "CQRS",
@@ -4186,9 +4005,8 @@
       "style": "index",
       "area": "maintain",
       "title": "Overview",
-      "intent": "The Maintain section documents the \u0060litespec-maintain\u0060 command line: the three commands that keep the LiteSpec standard itself consistent, from authoring checks to the generated provision index and the release changelog. A maintainer opens this index to find the command that checks, rebuilds, or compares the standard. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Run the Maintainer Tool",
         "Maintain the Standard"
       ]
@@ -4253,9 +4071,8 @@
       "style": "index",
       "area": "quality",
       "title": "Overview",
-      "intent": "The Quality pages state what a release proves beyond its behavior: who may act and what happens to sensitive data, how the product runs, which checks each pull request runs, and how each scenario is proved. Each page applies to a project that claims the record layer its rules govern, as the layer table below states. A project that operates in production adds the [Delivery extension](../ext/delivery.md) for its release gate, deployment, recovery and alerting regime.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "Layer Claims",
         "Pages"
@@ -4267,9 +4084,8 @@
       "style": "standard",
       "area": "quality",
       "title": "Continuous Integration",
-      "intent": "Every pull request runs a fixed set of CI jobs, and each job checks one surface: compilation, tests, measured checks, the project model of records joined to code, documentation, and generated contracts. This page names those jobs and states which file changes select each one. No change merges with its surface unchecked; mutation testing, the supply-chain gate, artifact promotion, branch protection and the release job live in the [Delivery extension](../ext/delivery.md) for projects that select it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -4282,9 +4098,8 @@
       "style": "standard",
       "area": "quality",
       "title": "Operations",
-      "intent": "Operating a product means starting it, watching it, and keeping its runtime state visible, and this page states how a LiteSpec product does each: local startup, diagnostics, and the operating records that answer failures. It applies to everyone who operates a release and to any change that touches schema, external dependencies, or background work. A product that follows it stays observable with one maintainer on call; deployment, rollback, backup, restore, alerts, runbooks and the alerting regime live in the [Delivery extension](../ext/delivery.md) for projects that select it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -4297,9 +4112,8 @@
       "style": "standard",
       "area": "quality",
       "title": "Security",
-      "intent": "Security answers 3 questions for every operation: who acts, what it touches, and what it keeps. This page states how a LiteSpec product answers them through authentication, actor resolution, authorization, trust boundaries, secrets, browser defenses, personal data, abuse limits, audit events, and release security checks, for anyone who builds or reviews an operation, an endpoint, a frontend, or a release. A product that follows it proves every operation runs for the right actor, touches only what it may, and keeps sensitive data safe.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -4312,9 +4126,8 @@
       "style": "standard",
       "area": "quality",
       "title": "Testing",
-      "intent": "Every stack proves its records through the same cross-stack Proof rules: each scenario is proved through the public boundary, each rule through its scenarios, and expected values come from the scenario\u0027s Then. This page states those rules, the test projects each size requires, the one mock rule and the mutation gate, while each stack\u0027s testing page states how its stack runs them. A project that claims the \u0060proof\u0060 layer applies this page, and a team that claims it as its own keeps its own test practice.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -4326,10 +4139,8 @@
       "style": "index",
       "area": "reference",
       "title": "Overview",
-      "intent": "The Reference pages list exact values a reader looks up: terms, provision identifiers (IDs citing one rule each), file shapes, schemas, URLs, and the records behind decisions and audit duties. Every project uses them during any task that names a term, cites a provision, or edits a project file. A developer or agent opens them for lookup in the middle of other work, not for reading in order, and they state no rules of their own: each rule lives on the standards page they point to, so these pages stay exact while the rules stay in one place.",
+      "intent": "",
       "sections": [
-        "Intent",
-        "How the Pages Fit Together",
         "Terms and Provisions",
         "Files and Contracts",
         "Decisions and Obligations"
@@ -4341,9 +4152,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Audit Obligations",
-      "intent": "The audit extension is the LiteSpec bundle a project selects to record who attempted what against which target and what it produced; it satisfies obligations from 4 guidance bodies (NIST, ISO, PCI DSS, and OWASP) and from the General Data Protection Regulation (GDPR). This page states those obligations in one place: the frameworks, the GDPR articles, and the map from each obligation to the provision (one identified rule) that satisfies it. A team writing its audit adoption decision reads it to state that reasoning without surveying the frameworks from scratch; the [Audit Trail](../ext/audit.md) owns every provision, and this page explains and states no rules.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4354,9 +4164,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Concepts",
-      "intent": "Use this generated page to find the one page that owns each glossary concept, and the provisions that page holds. A concept is stated on its home page; every other page cites the concept rather than restating its rule.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4367,9 +4176,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Decision Records",
-      "intent": "A decision record pins one expensive-to-reverse choice down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of relitigating it. A technical decision pins a choice of one of six kinds: provider, package, format, boundary, topology, or replacement. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4380,9 +4188,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Finding Codes",
-      "intent": "Use this generated page to read what a finding code means and how to resolve it. A reader who sees a code in \u0060litespec model check\u0060 output, or in a \u0060Checked by\u0060 line of a standards page, looks it up here. The table holds every code the tools emit, with its level, the record layer it governs, whether it ties that layer to the records, and the extension that adds it.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4393,9 +4200,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Record Folders",
-      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A named record sits in a folder that carries its name, beside its explanation, so \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060 and \u0060\u003Cname\u003E/\u003Cname\u003E.md\u0060 are the pair. A record in any other folder is a \u0060record-placement-invalid\u0060 finding, a folder whose name differs from its file stem is a \u0060record-folder-drift\u0060 finding. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4406,9 +4212,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Formats",
-      "intent": "Every file a LiteSpec tool reads or writes has one format, and every format a person writes has one schema (a contract stating its exact shape) that the checking command and the editor both validate. This page lists each format: the file, who writes it, its envelope, the command that reads or checks it, and its schema with a real example. An author in a consumer project uses it to wire editor validation and to look up a field, and a tool author uses it to find which command owns which file.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4432,9 +4237,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Release Manifest",
-      "intent": "\u0060litespec.manifest.yaml\u0060 is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release\u0027s real values and states what each field drives.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4445,9 +4249,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Project File",
-      "intent": "\u0060.litespec/project.yaml\u0060 is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, paths, and pinned release. The team edits it when the selection changes and validates it with the \u0060litespec model check\u0060 command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4458,9 +4261,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Provisions",
-      "intent": "Use this generated page to resolve a provision ID to its heading, owning page, scope, record layer, trace, strength, and verification mark, and to read the checked share of rules for each page.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Checked Share by Page",
         "Standard",
         "Reference",
@@ -4474,9 +4276,8 @@
       "style": "reference",
       "area": "reference",
       "title": "Published URLs",
-      "intent": "An agent (software that reads task context, changes files, and runs checks) wires itself to LiteSpec through URLs on \u0060https://litespec.dev\u0060, not through a local copy of the repository. This page lists every URL the site serves: its pattern, a real example for the current release, and what it returns, so an agent or a reader resolves any reference with a fetch.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Reference",
         "Notes"
       ]
@@ -4487,9 +4288,8 @@
       "style": "index",
       "area": "tools",
       "title": "Overview",
-      "intent": "The Tools section documents the LiteSpec command line: one command for each consumer check, generator, and lookup, from project validation to generated files. A developer or coding assistant opens this index to find the command that produces the check or file the task needs. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail. The commands that maintain the standard itself live in the [Maintain overview](../maintain/README.md).",
+      "intent": "",
       "sections": [
-        "Intent",
         "Install the CLI",
         "Run the CLI",
         "Consumer Repository"
@@ -4537,7 +4337,7 @@
       "style": "command",
       "area": "tools",
       "title": "Initialize Consumer",
-      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset, a ready-made selection of shape, stacks, frontends, and layer claims, or the records preset, which claims the record model with no stacks.",
+      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset: a ready-made selection of shape, stacks, frontends, and layer claims. The records preset claims the record model with no stacks.",
       "sections": [
         "Name",
         "Synopsis",
@@ -4591,7 +4391,7 @@
       "style": "command",
       "area": "tools",
       "title": "Rename Record",
-      "intent": "\u0060litespec rename\u0060 renames a record identifier and rewrites every link.",
+      "intent": "\u0060litespec rename\u0060 renames a record identifier and rewrites every link to it.",
       "sections": [
         "Name",
         "Synopsis",
@@ -4627,7 +4427,7 @@
       "style": "command",
       "area": "tools",
       "title": "Skill",
-      "intent": "\u0060litespec skill\u0060 installs or removes the litespec skill, the folder of guidance a coding agent loads when its description matches the task.",
+      "intent": "\u0060litespec skill\u0060 installs or removes the litespec skill: the folder of guidance a coding agent loads when its description matches the task.",
       "sections": [
         "Name",
         "Synopsis",
@@ -4645,9 +4445,8 @@
       "style": "tutorial",
       "area": "tutorial",
       "title": "Start a Consumer Repository",
-      "intent": "A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the \u0060dotnet\u0060 backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Lesson",
         "What You Built"
@@ -4659,9 +4458,8 @@
       "style": "tutorial",
       "area": "tutorial",
       "title": "Model a Behavior Module",
-      "intent": "A behavior module gathers one business area\u0027s glossary terms, aggregates, rules, use cases, reactions, jobs, read models, notifications, settings, domain events, and permissions into record files that the model builder, the tool that checks the project, reads. This tutorial works through one kind of record at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.",
+      "intent": "",
       "sections": [
-        "Purpose",
         "Prerequisites",
         "Lesson",
         "What You Built"
@@ -4673,9 +4471,8 @@
       "style": "index",
       "area": "workspace",
       "title": "Overview",
-      "intent": "The Workspace pages state the shape every repository built with LiteSpec shares: the canonical monorepo tree, the names that expose architectural role, the packages each layer, from Domain to the API host, may take, and where each configuration value lives. Every project applies them, whatever its size, shape, or technology stacks.",
+      "intent": "",
       "sections": [
-        "Intent",
         "How the Pages Fit Together",
         "Pages"
       ]
@@ -4686,9 +4483,8 @@
       "style": "standard",
       "area": "workspace",
       "title": "Configuration",
-      "intent": "Configuration is every value a workspace sets outside code: version pins, backend and frontend settings, environment access, secrets, and toolchain versions. This page states where each value lives, who owns it, and when a bad value fails. It applies to anyone who adds a setting, a dependency, or a tool to the workspace.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",
@@ -4701,9 +4497,8 @@
       "style": "standard",
       "area": "workspace",
       "title": "Dependencies",
-      "intent": "Dependencies are the packages a codebase takes on, and each one adds updates, advisories, and migration work. This page states which dependencies each layer, from Domain to the API host, may take, where each package version is pinned, and what a new package needs before it lands. It applies to anyone who adds a package, references another layer, or connects two frontends.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -4715,9 +4510,8 @@
       "style": "standard",
       "area": "workspace",
       "title": "Naming and Code Style",
-      "intent": "Names are the first documentation a reader meets: a name states the business intent and architectural role without opening the file. In a LiteSpec codebase every architectural role carries a fixed suffix, every type an aggregate owns starts with its root\u0027s name, and every frontend file follows one casing map. This page states those suffixes, anchors, and casings, with the exception-naming, boolean, async, and language-version rules beside them, for anyone who names code, and especially for agents working across sessions.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions"
@@ -4729,9 +4523,8 @@
       "style": "standard",
       "area": "workspace",
       "title": "Workspace Structure",
-      "intent": "A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what \u0060.litespec/project.yaml\u0060 declares. It applies to anyone who creates a file, and to agents locating code without asking.",
+      "intent": "",
       "sections": [
-        "Intent",
         "Concepts",
         "Standards",
         "Conventions",

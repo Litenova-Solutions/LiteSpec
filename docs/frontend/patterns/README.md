@@ -1,12 +1,10 @@
 # Overview
 
-## Intent
-
 The pattern pages decide each recurring interface question once, as drawn options with a named default to build, so every screen answers the same question the same way. A team building a screen starts from the page for its question, an owner picks an option from the drawings, and the team records the choice in its pattern catalog. The [UI Patterns](../patterns.md) page states the catalog contract, the pattern layout, and the wireframe language these pages share.
 
 ## How the Pages Fit Together
 
-Each page holds one group of patterns: one page per kind of screen or element, from the frame around every page to the fields inside one form. Every pattern names its question, its default option, its narrow-screen behavior, and why the default won, then draws each option as a wireframe with its own rationale and cost. A project builds the default unless its catalog records another option.
+Each page below covers one group of patterns: one page per kind of screen or element, from the frame around every page to the fields inside one form. Every pattern names its question, its default option, how the default behaves on a narrow screen, and why the default won. Each option then shows its wireframe with its own rationale and cost. A project builds the default unless its catalog records another option.
 
 ## Pattern Pages
 

@@ -15,7 +15,7 @@ options:
     pros: No record ever goes unplaced, so the book always renders complete.
     cons: Unplaced records are promoted to roots beside modules, which hides misplacement instead of reporting it as a finding.
 choice: Rebuild the generator from exported parents
-consequences: "`litespec/core/model#organize-the-book-by-the-record-layers` with `litespec/core/model#name-book-labels-with-litespec-terms`, `litespec/core/model#explain-the-book-from-litespec-definitions`, `litespec/core/model#show-only-computed-judgements-in-the-book`, `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`, and `litespec/core/model#point-every-book-entry-to-its-source` carry the rebuilt contract."
+consequences: "`litespec/core/model#organize-the-book-by-the-record-layers` with `litespec/core/model#name-book-labels-with-litespec-terms`, `litespec/core/model#explain-the-book-from-litespec-definitions`, `litespec/core/model#show-only-computed-judgments-in-the-book`, `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`, and `litespec/core/model#point-every-book-entry-to-its-source` carry the rebuilt contract."
 reopenedWhen: The accepted mockup is replaced by a newer accepted shape.
 basedOn:
   - research/book-outline-evidence

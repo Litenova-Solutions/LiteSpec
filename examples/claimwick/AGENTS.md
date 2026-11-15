@@ -41,14 +41,14 @@ Record a product decision for any changed product choice. Research outside `.lit
 
 This example holds no solution file, C# project file or package manifest, so its build and test gates have no command here. A consumer names its own in this section. The commands below run against the records and the code in this folder.
 
-Run metadata and model checks for each changed record, source, or test. Run `dotnet litespec model check` and query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#declare-structured-specification-metadata)
+Run metadata and model checks for each changed record, source, or test. Run `dotnet litespec model check` and query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema)
 
-Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
+Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#justify-each-freestyle-route-with-a-decision-record)
 
 Reach each declared refusal in an evidence specification and assert it by its result's code. (litespec/frontend/testing#assert-each-declared-refusal-by-its-code)
 
-Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
+Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#name-the-evidence-for-each-ui-change, litespec/frontend/ui#pass-every-route-suite-check)
 
-Record a waiver before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)
+Record a waiver before selecting another visual system or component base. (litespec/frontend/ui#record-one-shared-ui-package)
 
 Report every skipped check with its reason, and name the provisions `rules` returned and how each was judged. (litespec/core/release#report-verification-exactly)

@@ -15,7 +15,7 @@ options:
     pros: No author writes anything new.
     cons: A record finding stays editable in prose, and the book renders pages whose takeaway no field states.
 choice: A conclusion field plus dated sources
-consequences: "`litespec/core/intent#record-research-with-read-sources` states the question, the conclusion, the dated sources, and Answer. The book renders the Conclusion beside the question."
+consequences: "`litespec/core/intent#record-research-with-its-question-conclusion-and-sources` states the question, the conclusion, the dated sources, and Answer. The book renders the Conclusion beside the question."
 reopenedWhen: A research kind appears whose takeaway one sentence cannot state.
 basedOn:
   - research/research-conclusion-evidence

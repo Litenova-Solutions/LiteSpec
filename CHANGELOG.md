@@ -39,7 +39,7 @@ The new rule is `litespec/core/automation#run-at-most-one-use-case-from-a-reacti
 - The book lists read models under their module, shows each field with the published field it copies and its erasing event, and lists on each integration event the use cases that publish it.
 - Claimwick gains the reporting module with `read-model/reporting.reimbursed-expense`, built from the new `integration-event/expense-reimbursed` and erased by `integration-event/expense-personal-data-erased`, and the `use-case/reporting.list-reimbursed-expenses` query that reads it.
 
-The new rules are `litespec/core/automation#declare-each-read-model-field-from-a-published-field`, `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`, `litespec/backend/application#read-another-modules-state-through-a-read-model`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`, `litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder`, `litespec/ext/outbox#keep-integration-events-a-read-model-rebuilds-from` and `litespec/frontend/data#compose-a-screen-from-each-owners-query`. Decision 0065, Read Another Module Through a Read Model, records why.
+The new rules are `litespec/core/automation#declare-each-read-model-field-from-a-published-field`, `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`, `litespec/backend/application#read-another-modules-state-through-a-read-model`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`, `litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder`, `litespec/ext/outbox#keep-published-events-available-for-read-model-rebuilds` and `litespec/frontend/data#compose-a-screen-from-each-owners-query`. Decision 0065, Read Another Module Through a Read Model, records why.
 
 ### Part D: Domain Parts, Read Shapes and Module Edges
 
@@ -156,7 +156,7 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 ### Part R: Links That Hold
 
 - A reaction that undoes a committed step of a multi-step process names the step's use case in `compensates`, runs another use case, and answers the event that reports the later failure. `model check` reports `compensation-target-invalid` for a `compensates` naming a use case that is not a command or the same use case the reaction runs, and `compensation-trigger-invalid` for a compensating reaction answering an event the compensated use case raises. Decision 0015, Automations and Sagas, restates compensation in these terms, and decision 0076 keeps the `compensated` consistency mode removed with `compensates` as the field its undo lacked. The new rule is `litespec/core/automation#name-the-step-a-compensating-reaction-undoes`.
-- A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, or `model check` reports `rule-binds-missing`, under `litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds`.
+- A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, or `model check` reports `rule-binds-missing`, under `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`.
 - A query output group and a read model whose figure a command re-decides name the deciding command use case or its aggregate in `freshness.decidedBy`, allowed only with `snapshot` or `eventual` freshness. `model check` reports `freshness-decider-invalid` for a `decidedBy` naming a query or a decider outside the module that owns the figure's source, under `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`.
 - The .NET reader records each event handler's subscribed event type. `model check` reports `reaction-subscription-drift` for a marked handler subscribed to an event outside its reaction's `triggeredBy`, and `reaction-trigger-unhandled` for a declared trigger no marked handler answers, under `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`.
 - A refusal code is carried only from its own module and by one exception type: `model check` reports `refusal-module-foreign` and `refusal-code-duplicate`, under `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`. Two rules a boundary maps to one response keep two codes.
@@ -172,7 +172,13 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - `token-limit-failed` is `design-token-limit-failed`. Decisions 0005, 0014, 0048 and 0049 take the slugs `0005-flows-serve-a-goal`, `0014-one-waiver-record`, `0048-state-the-start-and-branches-of-each-flow` and `0049-literal-flow-words-concrete-consequences`, and decisions 0004, 0005 and 0051 state the 7.0.0 record model.
 - Text that still named removed shapes states the 7.0.0 ones: the read-model finding meanings, `record-parent-missing`, the Behavior overview and workspace tree, the cache and realtime freshness modes, the testing page's rule spanning aggregates, manual work as a command whose entry point and access name its starter, and the scope of a project-wide `bdd` selection.
 
-### Part T: Provision Changes Since v6.0.0
+### Part T: Plainer Pages
+
+- LiteSpec's own pages, examples, templates, READMEs and tool messages follow the writing and tone guidelines in `WRITING.md`: plainspoken technical writing for a capable reader new to LiteSpec, claims at the strength the source gives them, and the meaning of every provision kept exactly while its prose is rewritten for clarity. Consumer records keep following the writing standard on `docs/core/writing.md`.
+- A page opens with a lead paragraph under its title instead of an `Intent` or `Purpose` section: `litespec-maintain validate` reports `PAGE_LEAD_MISSING` for a page with none, under `litespec/core/authoring#open-each-page-with-a-lead`, which replaces the three-sentence Intent rule. The site shows the lead as the page introduction.
+- Every learn page, guide, standards page, extension, pattern page, tool page, analyzer page and hand-written reference page is rewritten to these guidelines, and the finding meanings and fixes the tools print say what happened and how to fix it. Provisions whose titles hid their act are retitled; the generated list below names each rename, and every citation moves with it.
+
+### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
 
@@ -188,24 +194,30 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (87):
+Added (108):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#read-another-modules-state-through-a-read-model`
+- `litespec/backend/application#write-only-aggregates-the-record-names`
 - `litespec/backend/architecture#give-each-use-case-its-own-models`
 - `litespec/backend/architecture#repeat-coordination-never-a-rule`
+- `litespec/backend/domain#name-domain-types-from-their-aggregate-root`
 - `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`
+- `litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories-and-writes`
 - `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`
 - `litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder`
 - `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`
 - `litespec/backend/dotnet/naming#put-the-cancellation-token-last`
+- `litespec/core/access#authorize-every-use-case-through-a-declared-grant`
 - `litespec/core/access#evaluate-access-in-one-order`
 - `litespec/core/access#require-a-recent-sign-in-by-setting`
 - `litespec/core/agent#scope-every-convention-to-files-it-governs`
 - `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples`
+- `litespec/core/authoring#open-each-page-with-a-lead`
 - `litespec/core/automation#decide-current-truth-in-the-owning-module`
 - `litespec/core/automation#declare-each-read-model-field-from-a-published-field`
 - `litespec/core/automation#declare-the-outcomes-of-each-reaction-and-job`
+- `litespec/core/automation#end-reaction-and-job-scenarios-in-the-run-result`
 - `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`
 - `litespec/core/automation#keep-validity-apart-from-storage`
 - `litespec/core/automation#move-a-state-by-time-with-a-timed-transition`
@@ -214,16 +226,16 @@ Added (87):
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
 - `litespec/core/automation#run-each-effect-on-its-own`
 - `litespec/core/behavior#group-module-rules-by-theme`
-- `litespec/core/domain-model#freeze-every-frozen-value`
-- `litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds`
+- `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`
+- `litespec/core/domain-model#record-when-each-frozen-value-freezes-and-where-it-lives`
 - `litespec/core/domain-model#state-what-each-rule-governs`
+- `litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve`
 - `litespec/core/edges#name-how-every-inbound-integration-event-arrives`
 - `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`
 - `litespec/core/edges#state-the-density-and-voice-of-each-entry-point`
 - `litespec/core/edges#state-the-outcome-of-every-outside-call`
 - `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`
 - `litespec/core/intent#branch-a-flow-only-between-its-steps`
-- `litespec/core/intent#describe-every-flow`
 - `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for`
 - `litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement`
 - `litespec/core/intent#name-every-actor-from-a-flow-a-problem-or-an-access-position`
@@ -235,7 +247,9 @@ Added (87):
 - `litespec/core/intent#state-the-brand-on-the-product`
 - `litespec/core/intent#state-when-each-flow-finishes`
 - `litespec/core/intent#state-when-each-flow-starts`
+- `litespec/core/intent#summarize-every-flow-before-its-steps`
 - `litespec/core/intent#write-flow-steps-as-sentences-with-ids`
+- `litespec/core/model#keep-each-name-unique-in-its-record-type`
 - `litespec/core/model#name-records-in-prose-by-their-identifiers`
 - `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
 - `litespec/core/model#serve-every-flow-step`
@@ -246,10 +260,12 @@ Added (87):
 - `litespec/core/release#run-flow-checks`
 - `litespec/core/release#verify-connected-flows`
 - `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`
+- `litespec/core/stacks#name-every-provision-a-replacement-replaces`
+- `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`
 - `litespec/core/use-cases#declare-each-modules-refusals-once`
 - `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
 - `litespec/core/use-cases#keep-each-scenario-inside-its-operation`
-- `litespec/core/use-cases#mark-inputs-a-provider-verified`
+- `litespec/core/use-cases#mark-every-provider-verified-input`
 - `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`
 - `litespec/core/use-cases#name-the-idempotency-of-every-command`
 - `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`
@@ -264,25 +280,42 @@ Added (87):
 - `litespec/core/waivers#record-accepted-gaps-as-waivers`
 - `litespec/core/waivers#state-the-kind-of-every-waiver`
 - `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`
+- `litespec/core/writing#use-one-mechanical-form-for-each-fact`
+- `litespec/ext/cache#state-the-staleness-each-cached-query-accepts`
+- `litespec/ext/concurrency#require-caller-versions-only-for-declared-conflicts`
 - `litespec/ext/delivery#close-incident-waivers-within-seven-days`
+- `litespec/ext/delivery#expose-release-health-and-diagnostics`
+- `litespec/ext/delivery#keep-deployment-limits-and-runbooks-ready`
+- `litespec/ext/delivery#link-each-operations-file-to-its-decision`
+- `litespec/ext/delivery#link-every-runbook-to-its-caller`
+- `litespec/ext/jobs#keep-worker-orchestration-separate-from-report-rules`
+- `litespec/ext/jobs#record-the-schedule-on-the-job-record`
+- `litespec/ext/mcp#keep-secrets-and-personal-data-out-of-descriptions-and-logs`
 - `litespec/ext/outbox#dispatch-flow-step-commands-in-a-new-scope`
-- `litespec/ext/outbox#keep-integration-events-a-read-model-rebuilds-from`
+- `litespec/ext/outbox#keep-published-events-available-for-read-model-rebuilds`
 - `litespec/frontend/data#brand-every-identifier-from-the-contract`
 - `litespec/frontend/data#compose-a-screen-from-each-owners-query`
 - `litespec/frontend/mobile/screens#route-app-links-to-flow-entry-screens`
 - `litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built`
 - `litespec/frontend/testing#name-the-flow-a-flow-test-covers`
-- `litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country`
 - `litespec/frontend/ui#keep-token-values-in-one-token-file`
-- `litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next`
+- `litespec/frontend/ui#link-each-screen-to-its-next-screens`
+- `litespec/frontend/ui#map-each-page-frame-to-its-floorplan`
 - `litespec/frontend/ui#meet-the-limits-of-every-token-role`
+- `litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point`
 - `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (44):
+Removed (65):
 
+- `litespec/backend/application#take-repositories-from-declared-changes-and-reads`
 - `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
+- `litespec/backend/domain#use-these-domain-names`
+- `litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories`
+- `litespec/core/access#grant-every-use-case-through-a-declared-grant`
 - `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
+- `litespec/core/authoring#limit-each-intent-to-three-sentences`
 - `litespec/core/automation#guard-every-manual-job`
+- `litespec/core/automation#point-reaction-and-job-scenarios-at-the-run-result`
 - `litespec/core/behavior#group-cross-aggregate-rules-by-theme`
 - `litespec/core/departures#depart-from-advice-without-a-record`
 - `litespec/core/departures#record-a-project-wide-lowering-as-a-departure`
@@ -291,6 +324,7 @@ Removed (44):
 - `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`
 - `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
 - `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook`
+- `litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve`
 - `litespec/core/edges#show-every-refusal-a-screen-can-reach`
 - `litespec/core/intent#answer-one-problem-with-each-feature`
 - `litespec/core/intent#branch-a-journey-only-between-its-steps`
@@ -304,6 +338,7 @@ Removed (44):
 - `litespec/core/intent#state-when-each-journey-finishes`
 - `litespec/core/intent#state-when-each-journey-starts`
 - `litespec/core/intent#write-journey-steps-as-sentences-with-ids`
+- `litespec/core/model#keep-each-name-unique-in-the-product`
 - `litespec/core/model#serve-every-journey-step`
 - `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`
 - `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
@@ -312,24 +347,223 @@ Removed (44):
 - `litespec/core/release#run-journey-checks`
 - `litespec/core/release#verify-connected-journeys`
 - `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`
+- `litespec/core/stacks#declare-replacements`
 - `litespec/core/use-cases#mark-every-lagging-query-as-built-asynchronously`
 - `litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads`
 - `litespec/core/use-cases#name-the-idempotency-of-every-use-case`
+- `litespec/core/use-cases#state-the-consistency-of-every-use-case`
 - `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
+- `litespec/core/writing#apply-plain-mechanics`
+- `litespec/ext/cache#record-accepted-cache-staleness`
+- `litespec/ext/concurrency#limit-version-checks`
 - `litespec/ext/delivery#close-incident-departures-within-seven-days`
+- `litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy`
+- `litespec/ext/delivery#point-each-operations-file-at-its-decision`
+- `litespec/ext/delivery#provide-release-delivery-controls`
+- `litespec/ext/delivery#provide-release-operating-visibility`
+- `litespec/ext/jobs#carry-the-schedule-on-the-job-record`
 - `litespec/ext/jobs#run-manual-jobs-under-their-guard`
+- `litespec/ext/jobs#separate-worker-orchestration`
+- `litespec/ext/mcp#exclude-secrets-and-personal-data`
 - `litespec/ext/outbox#dispatch-journey-step-commands-in-a-new-scope`
 - `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`
 - `litespec/frontend/testing#name-the-journey-a-journey-test-covers`
+- `litespec/frontend/ui#declare-a-closed-floorplan-set`
 - `litespec/frontend/ui#hold-the-declared-base-color`
 - `litespec/frontend/ui#keep-separators-at-the-subtle-step`
 - `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
-Renamed (3):
+Renamed (189):
 
+- `litespec/backend/api#keep-endpoint-dependencies-transport-focused` to `litespec/backend/api#keep-business-dependencies-out-of-endpoints`
+- `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape` to `litespec/backend/api#mirror-each-closed-set-on-the-wire`
+- `litespec/backend/application#declare-audit-values-beside-the-message` to `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`
+- `litespec/backend/application#keep-reaction-implementations-explicit` to `litespec/backend/application#answer-each-reaction-in-one-marked-class`
+- `litespec/backend/application#read-no-repository-inside-a-loop` to `litespec/backend/application#keep-repository-reads-out-of-loops`
+- `litespec/backend/application#return-use-case-results` to `litespec/backend/application#return-only-what-the-caller-needs`
+- `litespec/backend/application#take-one-timestamp-per-message` to `litespec/backend/application#read-time-from-the-scoped-clock`
+- `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request` to `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request`
+- `litespec/backend/architecture#keep-implementation-types-hidden` to `litespec/backend/architecture#keep-implementations-hidden-and-closed`
+- `litespec/backend/domain#call-the-marked-act-from-each-command-handler` to `litespec/backend/domain#change-each-aggregate-through-its-marked-act`
+- `litespec/backend/domain#define-collection-value-semantics-explicitly` to `litespec/backend/domain#compare-collection-values-by-their-content`
+- `litespec/backend/domain#describe-every-public-domain-contract-in-documentation` to `litespec/backend/domain#document-every-public-domain-contract`
+- `litespec/backend/domain#expose-repositories-for-one-aggregate-only` to `litespec/backend/domain#limit-each-repository-to-one-aggregate`
+- `litespec/backend/domain#identify-aggregates-with-strongly-typed-version-7-values` to `litespec/backend/domain#identify-each-aggregate-with-a-typed-version-7-identifier`
+- `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy` to `litespec/backend/domain#model-every-closed-set-as-a-type-hierarchy`
+- `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract` to `litespec/backend/domain#take-identity-and-events-from-the-shared-root-contract`
+- `litespec/backend/dotnet/api#keep-programcs-as-composition` to `litespec/backend/dotnet/api#compose-the-host-in-programcs`
+- `litespec/backend/dotnet/domain#make-money-and-decimal-rules-explicit` to `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object`
+- `litespec/backend/dotnet/domain#mark-each-changing-root-method-with-one-use-case` to `litespec/backend/dotnet/domain#mark-each-state-changing-root-method-with-its-use-case`
+- `litespec/backend/dotnet/ext/bdd#drive-public-behavior` to `litespec/backend/dotnet/ext/bdd#call-public-boundaries-from-bdd-steps`
 - `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module` to `litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module`
+- `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario` to `litespec/backend/dotnet/ext/bdd#trace-every-bdd-scenario-to-its-scenario`
+- `litespec/backend/dotnet/ext/bdd#translate-business-phrases` to `litespec/backend/dotnet/ext/bdd#translate-business-phrases-into-test-driver-calls`
+- `litespec/backend/dotnet/ext/layer-projects#run-litespecanalyzers-in-every-application-project` to `litespec/backend/dotnet/ext/layer-projects#run-the-litespec-analyzers-in-every-layer-project`
+- `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects` to `litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project`
+- `litespec/backend/dotnet/ext/layer-projects#use-this-baseline-package-ownership` to `litespec/backend/dotnet/ext/layer-projects#assign-each-baseline-package-to-its-owning-project`
+- `litespec/backend/dotnet/ext/layer-projects#use-this-infrastructure-layout` to `litespec/backend/dotnet/ext/layer-projects#keep-persistence-in-one-infrastructure-folder`
+- `litespec/backend/dotnet/naming#check-architectural-role-suffixes` to `litespec/backend/dotnet/naming#apply-architectural-role-suffixes`
+- `litespec/backend/dotnet/naming#check-repository-variable-names` to `litespec/backend/dotnet/naming#name-repository-variables-after-their-interface`
+- `litespec/backend/dotnet/naming#check-result-part-names` to `litespec/backend/dotnet/naming#name-result-parts-after-their-result`
+- `litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason` to `litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason`
+- `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution` to `litespec/backend/dotnet/workspace#list-every-deployable-unit-in-the-root-solution`
+- `litespec/backend/persistence#bound-aggregate-document-growth` to `litespec/backend/persistence#keep-unbounded-collections-out-of-aggregate-documents`
+- `litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters` to `litespec/backend/persistence#page-and-filter-collection-queries-in-the-store`
 - `litespec/core/access#keep-permission-lists-to-entries` to `litespec/core/access#keep-permission-sets-to-entries`
 - `litespec/core/access#scope-every-role` to `litespec/core/access#scope-every-role-to-its-one-reach`
+- `litespec/core/authoring#give-one-observable-fact-one-mark-across-pages` to `litespec/core/authoring#use-one-mark-for-one-fact-across-pages`
+- `litespec/core/authoring#identify-actionable-conventions` to `litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement`
+- `litespec/core/authoring#map-provisions-to-evidence` to `litespec/core/authoring#end-each-provision-with-one-verification-line`
+- `litespec/core/authoring#mark-every-provision-checkable-or-guidance` to `litespec/core/authoring#mark-each-provision-as-checked-or-reviewed`
+- `litespec/core/authoring#name-the-escape-from-every-abstraction` to `litespec/core/authoring#state-what-the-command-runs-underneath`
+- `litespec/core/authoring#name-the-tool-rather-than-the-mechanism` to `litespec/core/authoring#name-the-command-that-performs-each-step`
+- `litespec/core/authoring#record-a-setting-as-reference` to `litespec/core/authoring#record-each-setting-on-a-configuration-page`
+- `litespec/core/authoring#write-atomic-standards-provisions` to `litespec/core/authoring#keep-each-standard-to-one-obligation`
+- `litespec/core/edges#claim-every-notification-promise-from-a-requirement` to `litespec/core/edges#cite-the-requirement-behind-every-notification-claim`
+- `litespec/core/edges#keep-notification-templates-and-the-template-store-one-set` to `litespec/core/edges#match-notification-templates-to-the-template-store`
+- `litespec/core/edges#serve-static-content-through-served-content` to `litespec/core/edges#serve-static-files-as-served-content`
+- `litespec/core/intent#cite-each-applying-constraint-from-a-requirement` to `litespec/core/intent#cite-every-constraint-that-binds-a-requirement`
+- `litespec/core/intent#record-research-with-read-sources` to `litespec/core/intent#record-research-with-its-question-conclusion-and-sources`
+- `litespec/core/intent#shape-each-decision-page` to `litespec/core/intent#state-each-decision-with-context-and-choice`
+- `litespec/core/intent#state-requirement-kind-and-statement` to `litespec/core/intent#state-each-requirement-with-kind-and-statement`
+- `litespec/core/language#exclude-the-compound-that-names-another-concept` to `litespec/core/language#list-the-compounds-a-rejection-does-not-cover`
+- `litespec/core/language#write-each-kind-of-text-in-its-form` to `litespec/core/language#write-each-text-kind-in-its-own-form`
+- `litespec/core/model#declare-structured-specification-metadata` to `litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema`
+- `litespec/core/model#show-only-computed-judgements-in-the-book` to `litespec/core/model#show-only-computed-judgments-in-the-book`
+- `litespec/core/model#use-one-metadata-carrier` to `litespec/core/model#keep-every-field-value-in-the-record-file`
+- `litespec/core/principles#follow-intent-where-it-has-spoken` to `litespec/core/principles#follow-intent-where-it-states-the-promise`
+- `litespec/core/principles#name-boundary-intent` to `litespec/core/principles#name-boundaries-for-their-business-action`
+- `litespec/core/principles#require-current-complexity-activation` to `litespec/core/principles#add-new-machinery-only-for-a-current-requirement`
+- `litespec/core/release#qualify-the-reader-with-known-good-and-known-bad-fixtures` to `litespec/core/release#qualify-each-stack-reader-with-fixtures`
+- `litespec/core/release#run-consistency-checks` to `litespec/core/release#check-intent-and-behavior-changes-with-the-book`
+- `litespec/core/use-cases#hold-every-setting-default-to-a-requirement` to `litespec/core/use-cases#tie-every-setting-default-to-a-requirement`
+- `litespec/core/use-cases#write-prose-on-every-use-case` to `litespec/core/use-cases#summarize-every-use-case`
+- `litespec/core/writing#state-each-statement-without-modal-words` to `litespec/core/writing#write-each-statement-as-a-fact-without-modal-words`
+- `litespec/ext/ai#assert-structure-and-never-wording` to `litespec/ext/ai#assert-output-structure-instead-of-wording`
+- `litespec/ext/audit#add-a-correcting-record` to `litespec/ext/audit#correct-mistakes-with-a-new-record`
+- `litespec/ext/audit#cover-the-required-audit-categories` to `litespec/ext/audit#audit-every-required-category`
+- `litespec/ext/audit#declare-audit-selection-beside-the-command` to `litespec/ext/audit#declare-audit-details-on-the-command-type`
+- `litespec/ext/audit#declare-audit-selection-on-every-command` to `litespec/ext/audit#declare-which-commands-are-audited`
+- `litespec/ext/audit#emit-audit-records-at-the-mediation-boundary` to `litespec/ext/audit#write-audit-records-in-the-mediation-pipeline`
+- `litespec/ext/audit#exclude-indiscriminate-auditing` to `litespec/ext/audit#audit-only-selected-commands`
+- `litespec/ext/audit#exclude-personal-data-beyond-actor-identity` to `litespec/ext/audit#limit-personal-data-to-actor-and-target-identifiers`
+- `litespec/ext/audit#exclude-secrets-and-payment-data` to `litespec/ext/audit#keep-secrets-and-payment-data-from-the-trail`
+- `litespec/ext/audit#exclude-state-snapshots` to `litespec/ext/audit#keep-state-copies-from-audit-records`
+- `litespec/ext/audit#give-the-trail-a-read-path` to `litespec/ext/audit#provide-a-use-case-that-reads-the-trail`
+- `litespec/ext/audit#provide-tamper-evidence` to `litespec/ext/audit#chain-records-to-expose-tampering`
+- `litespec/ext/audit#record-a-bulk-read-inside-its-own-boundary` to `litespec/ext/audit#audit-bulk-reads-inside-one-boundary`
+- `litespec/ext/audit#record-bulk-export` to `litespec/ext/audit#audit-every-bulk-export`
+- `litespec/ext/audit#record-delegated-administrative-access` to `litespec/ext/audit#mark-actions-taken-under-a-support-grant`
+- `litespec/ext/audit#record-the-operation-trace-identity` to `litespec/ext/audit#link-each-record-to-its-operation-trace`
+- `litespec/ext/audit#reject-an-undeclared-command` to `litespec/ext/audit#fail-the-build-for-commands-without-an-audit-declaration`
+- `litespec/ext/audit#retain-each-category-for-its-declared-period` to `litespec/ext/audit#delete-records-when-their-retention-ends`
+- `litespec/ext/audit#state-the-action-as-use-case-identity` to `litespec/ext/audit#name-each-action-after-its-use-case`
+- `litespec/ext/cache#emit-a-signal-for-each-degraded-cache-path` to `litespec/ext/cache#distinguish-cache-misses-errors-and-degraded-responses`
+- `litespec/ext/cache#record-a-manual-cache-invalidation` to `litespec/ext/cache#record-each-manual-cache-invalidation`
+- `litespec/ext/compat#classify-independent-consumer-changes` to `litespec/ext/compat#classify-changes-that-reach-independent-consumers`
+- `litespec/ext/compat#diff-release-contracts` to `litespec/ext/compat#compare-release-contracts-against-baselines`
+- `litespec/ext/compat#exercise-generated-consumers` to `litespec/ext/compat#test-generated-clients-against-changed-contracts`
+- `litespec/ext/compat#gate-new-error-outcomes` to `litespec/ext/compat#add-error-outcomes-only-when-old-clients-cope`
+- `litespec/ext/compat#publish-deprecation-context` to `litespec/ext/compat#announce-planned-removals-in-the-changelog`
+- `litespec/ext/compat#record-version-retirement` to `litespec/ext/compat#record-how-each-version-retires`
+- `litespec/ext/compat#reject-breaking-diffs-without-authorization` to `litespec/ext/compat#block-breaking-changes-without-authorization`
+- `litespec/ext/compat#resolve-uncertain-classifications-safely` to `litespec/ext/compat#classify-unclear-changes-as-breaking`
+- `litespec/ext/compat#review-exhaustive-consumer-changes` to `litespec/ext/compat#review-new-enum-values-and-subtypes-with-consumers`
+- `litespec/ext/compat#treat-removed-behavior-fields-as-breaking` to `litespec/ext/compat#treat-removed-behavior-fields-as-breaking-changes`
+- `litespec/ext/concurrency#bound-expired-record-cleanup` to `litespec/ext/concurrency#remove-expired-keys-within-fixed-bounds`
+- `litespec/ext/concurrency#canonicalize-request-fingerprints` to `litespec/ext/concurrency#build-fingerprints-from-canonical-request-data`
+- `litespec/ext/concurrency#compare-expected-aggregate-versions` to `litespec/ext/concurrency#compare-caller-and-stored-versions-in-one-transaction`
+- `litespec/ext/concurrency#declare-replayed-transport-outcomes` to `litespec/ext/concurrency#list-which-statuses-and-headers-replay`
+- `litespec/ext/concurrency#exclude-unsafe-replay-outcomes` to `litespec/ext/concurrency#exclude-failures-and-secrets-from-replays`
+- `litespec/ext/concurrency#map-failed-expected-versions` to `litespec/ext/concurrency#return-409-for-failed-version-checks`
+- `litespec/ext/concurrency#protect-fingerprint-source-data` to `litespec/ext/concurrency#hash-sensitive-fingerprint-data`
+- `litespec/ext/concurrency#reload-concurrent-winners` to `litespec/ext/concurrency#replay-the-winner-for-losing-concurrent-requests`
+- `litespec/ext/concurrency#restrict-replay-data` to `litespec/ext/concurrency#store-only-fields-that-replay-needs`
+- `litespec/ext/concurrency#retain-safe-retry-keys` to `litespec/ext/concurrency#keep-keys-until-callers-stop-retrying`
+- `litespec/ext/delivery#apply-the-documented-defaults` to `litespec/ext/delivery#give-each-jobs-table-job-its-own-workflow`
+- `litespec/ext/delivery#exclude-insecure-frontend-secret-carriers` to `litespec/ext/delivery#keep-frontend-secrets-out-of-arguments-files-and-layers`
+- `litespec/ext/delivery#exercise-a-restore-before-the-first-production-data` to `litespec/ext/delivery#rehearse-a-restore-before-the-first-production-data`
+- `litespec/ext/delivery#exercise-every-runbook-before-release` to `litespec/ext/delivery#rehearse-every-runbook-before-release`
+- `litespec/ext/delivery#hold-back-example-rows-from-the-implementing-worker` to `litespec/ext/delivery#check-implementations-against-held-back-example-rows`
+- `litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure` to `litespec/ext/delivery#tie-alert-thresholds-to-requirement-measures`
+- `litespec/ext/delivery#keep-mutable-data-external` to `litespec/ext/delivery#keep-mutable-data-outside-the-container`
+- `litespec/ext/delivery#keep-rollback-executable` to `litespec/ext/delivery#keep-rollback-ready-to-run`
+- `litespec/ext/delivery#place-dockerfiles-beside-deployables` to `litespec/ext/delivery#place-dockerfiles-beside-their-applications`
+- `litespec/ext/delivery#provide-release-data-recovery` to `litespec/ext/delivery#keep-release-data-recoverable`
+- `litespec/ext/delivery#separate-frontend-configuration-classes` to `litespec/ext/delivery#separate-public-configuration-from-runtime-secrets`
+- `litespec/ext/delivery#set-sufficient-shutdown-time` to `litespec/ext/delivery#allow-time-for-graceful-shutdown`
+- `litespec/ext/delivery#test-released-traffic` to `litespec/ext/delivery#run-the-end-to-end-suite-after-traffic-shifts`
+- `litespec/ext/delivery#use-a-repeatable-deployment` to `litespec/ext/delivery#repeat-every-deployment-from-named-inputs`
+- `litespec/ext/delivery#use-protected-frontend-secret-delivery` to `litespec/ext/delivery#pass-frontend-secrets-by-mount-or-runtime-injection`
+- `litespec/ext/integrations#bind-client-configuration` to `litespec/ext/integrations#configure-external-clients-through-validated-options`
+- `litespec/ext/integrations#bound-transient-retries` to `litespec/ext/integrations#retry-transient-failures-with-bounded-attempts`
+- `litespec/ext/integrations#exclude-provider-internals` to `litespec/ext/integrations#keep-provider-internals-from-api-responses`
+- `litespec/ext/integrations#trust-inbound-integration-events-by-declared-trust` to `litespec/ext/integrations#declare-trust-for-inbound-integration-events`
+- `litespec/ext/jobs#bound-job-duration` to `litespec/ext/jobs#limit-job-duration`
+- `litespec/ext/jobs#bound-job-retries` to `litespec/ext/jobs#limit-job-retries-with-backoff-and-a-poison-state`
+- `litespec/ext/jobs#define-business-local-clock-behavior` to `litespec/ext/jobs#state-clock-behavior-for-business-local-schedules`
+- `litespec/ext/jobs#define-misfire-recovery` to `litespec/ext/jobs#state-how-missed-occurrences-recover`
+- `litespec/ext/jobs#dispatch-application-behavior` to `litespec/ext/jobs#dispatch-jobs-through-application-commands-or-ports`
+- `litespec/ext/jobs#exclude-direct-storage-and-http-execution` to `litespec/ext/jobs#keep-jobs-off-direct-storage-and-web-endpoints`
+- `litespec/ext/jobs#provide-operational-recovery-procedures` to `litespec/ext/jobs#write-runbooks-for-inspection-replay-and-disable`
+- `litespec/ext/jobs#record-reporting-need` to `litespec/ext/jobs#record-why-each-report-needs-its-infrastructure`
+- `litespec/ext/jobs#restrict-completion-by-fencing-value` to `litespec/ext/jobs#allow-completion-only-with-a-current-fencing-value`
+- `litespec/ext/jobs#resume-driven-work-through-the-cursor` to `litespec/ext/jobs#resume-batch-work-from-its-cursor`
+- `litespec/ext/jobs#run-budget-exceeding-exports-in-worker` to `litespec/ext/jobs#run-over-budget-exports-in-the-worker`
+- `litespec/ext/jobs#run-one-command-per-item-in-selection` to `litespec/ext/jobs#run-one-command-per-selected-item`
+- `litespec/ext/jobs#separate-schedule-definitions` to `litespec/ext/jobs#keep-schedule-definitions-separate-from-commands`
+- `litespec/ext/jobs#use-execution-scopes` to `litespec/ext/jobs#resolve-dependencies-inside-an-execution-scope`
+- `litespec/ext/lifecycle#bound-purge-and-archive-work` to `litespec/ext/lifecycle#keep-purge-and-archive-work-bounded-and-observable`
+- `litespec/ext/lifecycle#define-storage-lifecycle-behavior` to `litespec/ext/lifecycle#define-document-lifecycle-behavior`
+- `litespec/ext/mcp#confirm-every-writing-tool` to `litespec/ext/mcp#refuse-each-write-until-the-person-confirms`
+- `litespec/ext/outbox#await-target-acceptance` to `litespec/ext/outbox#wait-for-target-acceptance-before-completing`
+- `litespec/ext/outbox#back-off-unavailable-store-polling` to `litespec/ext/outbox#reduce-polling-when-the-store-is-unavailable`
+- `litespec/ext/outbox#bound-delivery-retries` to `litespec/ext/outbox#retry-delivery-with-bounded-backoff-and-jitter`
+- `litespec/ext/outbox#classify-permanent-delivery-failure` to `litespec/ext/outbox#stop-retrying-permanent-failures-at-the-bound`
+- `litespec/ext/outbox#deliver-each-event-to-each-handler-separately` to `litespec/ext/outbox#give-each-handler-its-own-delivery`
+- `litespec/ext/outbox#distinguish-dependency-outage` to `litespec/ext/outbox#report-store-outages-separately-from-delivery-failures`
+- `litespec/ext/outbox#exclude-manually-repeatable-reactions-and-jobs` to `litespec/ext/outbox#skip-the-outbox-for-manually-repeatable-work`
+- `litespec/ext/outbox#gate-dispatch-on-readiness` to `litespec/ext/outbox#stop-dispatch-when-the-host-is-not-ready`
+- `litespec/ext/outbox#plan-undispatched-rollback-records` to `litespec/ext/outbox#cover-undispatched-records-in-the-rollback-runbook`
+- `litespec/ext/outbox#record-durable-delivery-behavior` to `litespec/ext/outbox#document-delivery-guarantees-before-sending`
+- `litespec/ext/outbox#support-coexisting-message-producers` to `litespec/ext/outbox#read-records-from-every-coexisting-version`
+- `litespec/ext/realtime#record-realtime-need` to `litespec/ext/realtime#measure-polling-before-choosing-realtime`
+- `litespec/ext/realtime#record-transport-support` to `litespec/ext/realtime#record-the-transport-and-its-platform-support`
+- `litespec/ext/tenancy#bound-every-delegation-in-time` to `litespec/ext/tenancy#limit-every-delegation-in-time`
+- `litespec/ext/tenancy#use-selected-tenant-storage-support` to `litespec/ext/tenancy#scope-persistence-sessions-to-the-tenant`
+- `litespec/frontend/mobile/data#make-refusals-explicit` to `litespec/frontend/mobile/data#return-every-refusal-in-a-typed-result`
+- `litespec/frontend/mobile/device#prefer-permissionless-system-pickers` to `litespec/frontend/mobile/device#pick-media-through-permissionless-system-pickers`
+- `litespec/frontend/mobile/structure#hold-the-domain-in-the-app-only-without-a-server` to `litespec/frontend/mobile/structure#match-core-projects-to-the-product-shape`
+- `litespec/frontend/mobile/testing#run-the-release-build-before-a-release` to `litespec/frontend/mobile/testing#try-the-release-build-on-hardware-before-publishing`
+- `litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema` to `litespec/frontend/rendering#validate-address-parameters-with-a-schema`
+- `litespec/frontend/rendering#represent-route-states` to `litespec/frontend/rendering#define-every-route-state`
+- `litespec/frontend/structure#keep-shared-packages-non-application-specific` to `litespec/frontend/structure#keep-shared-packages-free-of-application-code`
+- `litespec/frontend/structure#locate-cross-route-values-in-the-frame` to `litespec/frontend/structure#place-cross-route-values-in-the-frame`
+- `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves` to `litespec/frontend/testing#mark-each-browser-test-with-the-scenario-it-proves`
+- `litespec/frontend/ui#check-every-route` to `litespec/frontend/ui#pass-every-route-suite-check`
+- `litespec/frontend/ui#derive-each-page-type-from-a-named-reference` to `litespec/frontend/ui#name-the-reference-behind-each-page-type`
+- `litespec/frontend/ui#govern-behavior-packages` to `litespec/frontend/ui#keep-each-behavior-package-justified-and-on-baseline`
+- `litespec/frontend/ui#prove-ui-behavior-and-appearance` to `litespec/frontend/ui#name-the-evidence-for-each-ui-change`
+- `litespec/frontend/ui#record-a-freestyle-route` to `litespec/frontend/ui#justify-each-freestyle-route-with-a-decision-record`
+- `litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract` to `litespec/frontend/ui#declare-each-frontend-outside-the-contract`
+- `litespec/frontend/ui#select-one-visual-authority` to `litespec/frontend/ui#record-one-shared-ui-package`
+- `litespec/frontend/ui#use-the-product-profiles` to `litespec/frontend/ui#select-a-density-profile-for-each-frontend`
+- `litespec/frontend/web/react/stack#meet-the-locale-dictionary-contract-with-the-dictionary-library` to `litespec/frontend/web/react/stack#resolve-copy-through-the-dictionary-library`
+- `litespec/frontend/web/react/stack#use-the-tsx-extension-on-shared-files` to `litespec/frontend/web/react/stack#use-the-tsx-file-extension-on-shared-files`
+- `litespec/frontend/web/rendering#define-route-metadata-deliberately` to `litespec/frontend/web/rendering#declare-titles-and-indexing-policy-on-every-route`
+- `litespec/frontend/web/svelte/stack#mark-svelte-route-entries` to `litespec/frontend/web/svelte/stack#mark-each-svelte-route-entry-with-its-screen`
+- `litespec/frontend/web/svelte/stack#meet-the-locale-dictionary-contract-with-the-dictionary-library` to `litespec/frontend/web/svelte/stack#resolve-copy-through-the-dictionary-library`
+- `litespec/frontend/web/svelte/stack#name-the-module-extension-on-each-import` to `litespec/frontend/web/svelte/stack#write-the-file-extension-in-each-import`
+- `litespec/frontend/web/svelte/stack#render-raw-html-only-through-one-template-tag` to `litespec/frontend/web/svelte/stack#render-raw-html-only-through-the-html-tag`
+- `litespec/frontend/web/svelte/stack#use-the-svelte-extension-on-shared-files` to `litespec/frontend/web/svelte/stack#use-the-svelte-file-extension-on-shared-files`
+- `litespec/frontend/web/ui#restrict-css-decisions` to `litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only`
+- `litespec/frontend/web/ui#track-source-changes` to `litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock`
+- `litespec/quality/operations#keep-runbooks-near-project-documentation` to `litespec/quality/operations#place-each-runbook-at-its-scope`
+- `litespec/quality/security#minimize-sensitive-data` to `litespec/quality/security#limit-each-use-case-to-its-declared-fields`
+- `litespec/quality/testing#use-evidence-rather-than-one-coverage-target` to `litespec/quality/testing#refuse-one-coverage-percentage-as-sufficient-testing`
+- `litespec/workspace/dependencies#keep-the-approved-web-ui-dependency-boundary` to `litespec/workspace/dependencies#take-web-ui-packages-from-the-approved-baseline`
+- `litespec/workspace/naming#name-asynchronous-operations-completely` to `litespec/workspace/naming#reveal-asynchrony-and-cancellation-in-operation-names`
+- `litespec/workspace/structure#keep-consumer-documentation-at-the-root` to `litespec/workspace/structure#keep-project-records-under-the-root-litespec-directory`
 
 Extensions added (0):
 

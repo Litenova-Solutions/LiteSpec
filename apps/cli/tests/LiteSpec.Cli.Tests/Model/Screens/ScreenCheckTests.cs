@@ -94,7 +94,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Screen Serving A Step Its Offers Do Not Serve Reports Mismatch.</summary>
-    /// <proves>litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve</proves>
+    /// <proves>litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve</proves>
     [Fact]
     public void ScreenServingAStepItsOffersDoNotServeReportsMismatch()
     {
@@ -106,7 +106,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Screen Serving A Step Its Offers Serve Reports No Mismatch.</summary>
-    /// <proves>litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve</proves>
+    /// <proves>litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve</proves>
     [Fact]
     public void ScreenServingAStepItsOffersServeReportsNoMismatch()
     {
@@ -281,7 +281,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
-            ["litespec/frontend/ui#check-every-route"], null, [], [], []));
+            ["litespec/frontend/ui#pass-every-route-suite-check"], null, [], [], []));
 
         Assert.Empty(WithCode(model, "mark-missing"));
         Assert.Empty(WithCode(model, "mark-unknown"));

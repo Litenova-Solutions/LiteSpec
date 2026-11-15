@@ -4,47 +4,57 @@
 
 **Concern:** frontend-ui
 
-## Intent
+The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user's device, under the `client-only` shape declared in [Supported Scope](../../core/scope.md).
 
-The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user's device, under the `client-only` shape declared in [Supported Scope](../../core/scope.md). This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.
+The stack is one Blazor WebAssembly application holding the whole product on the user's device: the domain model, the application handlers, the browser adapters, and the pages and features. It publishes to static files, so the product starts with no server and keeps working offline after the first load. The .NET toolchain builds, tests, and publishes the whole client.
+
+The shared frontend pages in the [Frontend overview](../README.md) state the rules the stack builds on, and the [Technology Stacks](../../core/stacks.md) page states the rules every stack shares. This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.
 
 ## Concepts
 
-### What the Stack Holds
+### Where Each File Lives
 
-The stack is one Blazor WebAssembly application holding the whole product on the user's device: the domain model, the application handlers, the browser adapters, and the pages and features. It publishes to static files, so the product starts with no server and keeps working offline after the first load. The .NET toolchain builds, tests, and publishes the whole client. The shared frontend pages in the [Frontend overview](../README.md) state the rules the stack builds on, and the [Technology Stacks](../../core/stacks.md) page states the rules every stack shares.
+Blazor names the three frontend parts as folders: `Frame/` holds the frame, `Routes/` holds one `.razor` file per address, and `Modules/` holds the use-case code.
 
-### Version Pins
+A Razor component is a `.razor` file, and its code-behind is a partial class in a `.razor.cs` file beside it, which also carries the route's screen mark. For example, the Claimwick expense console keeps its frame in `Frame/`, its expense list route in `Routes/ExpenseList.razor`, and its expense use-case code in `Modules/expenses/`.
+
+### How a Route Loads Its Data
+
+Each route is a Razor component carrying an `@page` directive, and the Blazor router renders the one whose address matches the request. The address comes from outside the component, so the route validates each address parameter before its load reads it. A shell is a layout component named by the `@layout` directive: it draws the shared frame once, so each route draws only its own page.
+
+`OnInitializedAsync` is the point where a route loads its reads before its view draws, reading each value it shows from the typed store, the one shared cache on this stack. Loading there gives the view one answer for each read, with the loading state covering the wait. The client-only shape holds no server code, so the server-code default has nothing to place.
+
+### Which Files Declare an Address
+
+A route entry is one `.razor` file with an `@page` directive. The entry carries the `<implements>` mark of the screen it renders on its partial class in its `.razor.cs` file, the way a .NET handler carries its use-case mark. The mark links the address to its screen record, so the builder and the check read one link from the class beside the route file.
+
+Layout components and error components are not route entries. They draw no screen of their own, so they carry no screen mark: a mark on one would link an address to a screen it does not show.
+
+### How Components Draw and Fail
+
+Route and module code draws through the shared package's composites, which own spacing, size, and placement. A class or style binding spells the `class` or `style` attribute on a markup element, and page code sets neither: a class or style attribute in route code is a second layout that no composite answers to.
+
+Two cases sit outside the composites. A drawing that no composite makes lives in a visual file, and raw HTML is a `MarkupString` value, the one type Blazor renders without encoding, so every raw HTML sink is a type a search finds.
+
+When a route fails, the failure shows through `Frame/RouteError.razor`, which draws the shared problem state: the same recovery and the same problem state on every route. The component boundary is Blazor's `ErrorBoundary`. The stack has no page-code lint, so the entry point record names the review that replaces it.
+
+### Where Data and Sentences Live
+
+The typed store is the one shared cache on this stack, and a component's own state is a field of its component class. The frame root holding client configuration and cross-route values is `Frame/`. Forms build on the shared package's form entry point, which wraps `EditForm`, so every form wires its fields and reports field refusals the same way.
+
+The client-only shape holds no API, so the stack generates no API client. Copy resolves through a dictionary library pinned in `packages.nuget`, under the locale-dictionary contract: one dictionary per language, with the fill, plural, and fallback behavior the contract states, in every language the product ships.
+
+### How Tests Run Without a Browser
+
+Logic tests run as plain .NET test projects on xunit.v3: the rules they prove need no browser. The manifest pins no component-test library and no browser-test library for this stack. Tests replace neither the Razor component model, the `NavigationManager` service, nor the typed store. For example, the expense total rule has its test beside its module, in an xunit.v3 test project.
+
+### What Replaces the Controlled UI Contract
+
+The controlled UI contract covers React and Svelte, so a Blazor frontend has no registry build command and no state-to-tone table. Its entry point record names Blazor and the boundaries that replace that contract, so the frontend reports with named replacements instead of nothing to check.
+
+### Which Versions Are Pinned
 
 The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version the stack builds with, and the `packages.nuget` keys pin every NuGet package version. These keys name the pins; the manifest holds the values.
-
-### Structure Bindings
-
-Blazor names the three frontend parts as folders: `Frame/` for the frame, `Routes/` for the addresses, and `Modules/` for the use-case code. A Razor component is a `.razor` file, and its code-behind is a partial class in a `.razor.cs` file beside it.
-
-### Rendering Bindings
-
-A Blazor route is a Razor component with an `@page` directive, and the Blazor router renders the one whose address matches the request. A shell is a layout component that the `@layout` directive names. `OnInitializedAsync` is the point where a route loads its reads before its view draws. The client-only shape holds no server code, so the server-code default has nothing to place.
-
-### Component Bindings
-
-A class or style binding spells the `class` or `style` attribute on a markup element. Raw HTML is a `MarkupString` value. The component boundary is Blazor's `ErrorBoundary`, and the route failure component is `Frame/RouteError.razor`. The stack has no page-code lint, so the entry point record names the review that replaces it.
-
-### Route Entry Bindings
-
-A route entry is one `.razor` file with an `@page` directive. Layout components and error components are not route entries, and they carry no screen mark.
-
-### Data Bindings
-
-The frame root, which holds client configuration and cross-route values, is `Frame/`. A component's own state is a field of its component class. The client-only shape holds no API, so the stack generates no API client.
-
-### Testing Bindings
-
-Logic tests run as plain .NET test projects on xunit.v3. The manifest pins no component-test library and no browser-test library for this stack.
-
-### UI Bindings
-
-This frontend sits outside the controlled UI contract, so it has no registry build command and no state-to-tone table. Its entry point record names the checks that replace them.
 
 ## Standards
 
@@ -58,9 +68,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** Three fixed roots let a reader and a tool find the frame, the addresses, and the use-case code in the same place in every Blazor frontend.
 
-**Example:** The Claimwick expense console keeps its frame in `Frame/`, the expense list route in `Routes/ExpenseList.razor`, and the expense use-case code in `Modules/expenses/`.
+**Example:** The Claimwick expense console keeps its frame in `Frame/`, its expense list route in `Routes/ExpenseList.razor`, and its expense use-case code in `Modules/expenses/`.
 
-**Reviewed for:** Which Blazor files sit outside `Frame/`, `Routes/`, and `Modules/`? Look in the project tree.
+**Reviewed for:** Does every Blazor file sit in `Frame/`, `Routes/`, or `Modules/`? Check the project tree.
 
 ### Bind Blazor Routes to Their Address
 
@@ -72,9 +82,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** The `@page` directive is the one place the router reads an address, and a query property the framework fills keeps the input typed.
 
-**Example:** The expense list route declares `@page "/expenses"` and takes its page number as a `[SupplyParameterFromQuery]` property.
+**Example:** The Claimwick expense list declares `@page "/expenses"` and takes its page number as a `[SupplyParameterFromQuery]` property.
 
-**Reviewed for:** Which route entries declare more than one `@page` directive, or read query values from the URL by hand? Look in the route files.
+**Reviewed for:** Does every route entry declare exactly one `@page` directive and read query values only through `[SupplyParameterFromQuery]` properties? Check the route files.
 
 ### Validate Blazor Route Parameters Before Loading
 
@@ -86,9 +96,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** An address comes from outside the component, so a load that reads an unchecked value fails inside the page instead of at its boundary.
 
-**Example:** The expense list route rejects a page number below one before it reads the typed store.
+**Example:** The Claimwick expense list rejects a page number below one before reading the typed store.
 
-**Reviewed for:** Which route loads read an address parameter before validating it? Look in each route's load.
+**Reviewed for:** Does every route load validate each address parameter before reading it? Check each route's load.
 
 ### Load Blazor Route Data Before Its View Renders
 
@@ -100,9 +110,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** The typed store is the one shared cache on this stack, so a load there before the first render gives the view one answer for each read.
 
-**Example:** The expense list route loads its claims from the typed store and shows its loading state until the load finishes.
+**Example:** The Claimwick expense list loads its claims from the typed store, showing its loading state until the load finishes.
 
-**Reviewed for:** Which route views draw a read before its `OnInitializedAsync` finishes? Look in each route file.
+**Reviewed for:** Does every route view wait for its `OnInitializedAsync` before drawing a read? Check each route file.
 
 ### Use a Layout for the Blazor Shell
 
@@ -114,9 +124,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** A layout draws the shared frame once, so each route draws only its own page.
 
-**Example:** `Frame/MainLayout.razor` holds the navigation bar and the cross-route values every expense route shows.
+**Example:** In the Claimwick console, `Frame/MainLayout.razor` holds the navigation bar and cross-route values, and every expense route renders inside it.
 
-**Reviewed for:** Which routes repeat frame markup instead of rendering inside the shell layout? Look in the route files.
+**Reviewed for:** Does every route render inside the shell layout instead of repeating frame markup? Check the route files.
 
 ### Keep Class and Style Bindings Out of Blazor Page Code
 
@@ -130,7 +140,7 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Example:** The expense total in `Routes/ExpenseList.razor` draws through a shared composite and sets no class attribute.
 
-**Reviewed for:** Which Blazor components under `Routes/` or `Modules/` set a `class` or `style` attribute? Look in the `.razor` files there.
+**Reviewed for:** Do any Blazor components under `Routes/` or `Modules/` set a `class` or `style` attribute? Check the `.razor` files there.
 
 ### Name Blazor Drawings with the Visual Suffix
 
@@ -142,9 +152,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** The suffix marks the one place outside the composites, so a reader and a tool find every custom drawing in one search.
 
-**Example:** A receipt-scan preview is `ReceiptPreview.visual.razor`.
+**Example:** The Claimwick receipt-scan preview lives in `ReceiptPreview.visual.razor`.
 
-**Reviewed for:** Which custom drawings sit in `.razor` files whose names lack the `.visual.razor` suffix? Look in the project tree.
+**Reviewed for:** Does every file holding a custom drawing end with `.visual.razor`? Check the project tree.
 
 ### Render Raw HTML Only Through MarkupString
 
@@ -156,9 +166,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** `MarkupString` is the one type Blazor renders without encoding, so every raw HTML sink is a type a search finds.
 
-**Example:** The expense note renders its sanitized HTML through `(MarkupString)` after its recorded sanitization decision.
+**Example:** The Claimwick expense note renders its sanitized HTML through `(MarkupString)`, matching its recorded sanitization decision.
 
-**Reviewed for:** Which Blazor components write raw HTML through another type? Look for `MarkupString` and raw markup in the `.razor` files.
+**Reviewed for:** Does every raw HTML write go through a `MarkupString` value? Check for `MarkupString` and raw markup in the `.razor` files.
 
 ### Show Route Failure in the Frame's Route Error Component
 
@@ -170,9 +180,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** One route error component gives every route failure the same recovery and the same problem state.
 
-**Example:** An expense list that fails to load shows the problem state from `Frame/RouteError.razor` with its trace identifier.
+**Example:** When the Claimwick expense list fails to load, `Frame/RouteError.razor` shows the problem state with its trace identifier.
 
-**Reviewed for:** Which route failures render outside `Frame/RouteError.razor`? Look in the route files and the frame.
+**Reviewed for:** Does every route failure render through `Frame/RouteError.razor`? Check the route files and the frame.
 
 ### Mark Each Blazor Route Entry with Its Screen
 
@@ -184,9 +194,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** The mark links the address to the screen record the way a .NET handler carries its use-case mark, so the builder and the check read one link.
 
-**Example:** `ExpenseList.razor.cs` carries `/// <implements>screen/claimwick-app.expense-list</implements>` on its partial class.
+**Example:** The Claimwick `ExpenseList.razor.cs` carries `/// <implements>screen/claimwick-app.expense-list</implements>` on its partial class.
 
-**Reviewed for:** Which route entries lack a screen mark on their partial class? Look in each `.razor.cs` file under `Routes/`.
+**Reviewed for:** Does every route entry carry a screen mark on its partial class? Check each `.razor.cs` file under `Routes/`.
 
 ### Keep Layouts and Error Components Unmarked
 
@@ -198,9 +208,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** A layout or error component draws no screen of its own, so a mark on it links an address to a screen it does not show.
 
-**Example:** `Frame/MainLayout.razor.cs` carries no `<implements>` mark.
+**Example:** The Claimwick `Frame/MainLayout.razor.cs` carries no `<implements>` mark.
 
-**Reviewed for:** Which layout or error components carry a screen mark? Look in `Frame/` and the route files.
+**Reviewed for:** Do any layout or error components carry a screen mark? Check `Frame/` and the route files.
 
 ### Build Blazor Forms on the Shared Form Entry Point
 
@@ -212,9 +222,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** One entry point gives every form the same field wiring and the same display for a refusal on its field.
 
-**Example:** The expense claim form in `Modules/expenses/` uses the shared form entry point and no `EditForm` of its own.
+**Example:** The Claimwick expense claim form in `Modules/expenses/` uses the shared form entry point, with no `EditForm` of its own.
 
-**Reviewed for:** Which Blazor forms bypass the shared form entry point? Look in the form components under `Routes/` and `Modules/`.
+**Reviewed for:** Does every Blazor form build on the shared form entry point? Check the form components under `Routes/` and `Modules/`.
 
 ### Localize Blazor Copy Through a Pinned Dictionary Library
 
@@ -228,7 +238,7 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Example:** The Claimwick console resolves the "Receipt required" sentence through its pinned dictionary library in every language it ships.
 
-**Reviewed for:** Which Blazor copy bypasses the pinned dictionary library, or misses fill, plural, typed keys, or a declared fallback? Look in the copy call sites.
+**Reviewed for:** Does every copy call site use the pinned dictionary library with fill, plural, typed keys, and a declared fallback? Check the copy call sites.
 
 ### Keep Blazor Test Mocks to the Owned Boundaries
 
@@ -240,9 +250,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** Those three are the stack's own behavior, and a stand-in for any of them tests the stand-in instead of the screen.
 
-**Example:** An expense list test renders the real component and seeds the typed store with claims.
+**Example:** A Claimwick expense list test renders the real component and seeds the typed store with claims.
 
-**Reviewed for:** Which tests replace the component model, `NavigationManager`, or the typed store? Look in the test doubles.
+**Reviewed for:** Does any test replace the component model, `NavigationManager`, or the typed store? Check the test doubles.
 
 ### Run Blazor Logic Tests on xunit.v3
 
@@ -254,9 +264,9 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Rationale:** Logic tests need no browser, so a plain .NET runner keeps them fast, and one pinned runner keeps every test project on the same version.
 
-**Example:** The expense total rule has its test beside its module, in an xunit.v3 test project.
+**Example:** The Claimwick expense total rule has its test beside its module, in an xunit.v3 test project.
 
-**Reviewed for:** Which logic tests run on another runner, or outside a plain .NET test project? Look in the test projects.
+**Reviewed for:** Does every logic test run in a plain .NET test project on the pinned `xunit.v3`? Check the test projects.
 
 ### Declare Blazor Outside the Controlled UI Contract
 
@@ -266,11 +276,11 @@ This frontend sits outside the controlled UI contract, so it has no registry bui
 
 **Statement:** A Blazor frontend MUST declare an entry point record naming Blazor and the boundaries that replace the controlled UI contract.
 
-**Rationale:** The controlled contract covers React and Svelte, so a Blazor frontend declares what replaces its checks instead of reporting as one with nothing to check.
+**Rationale:** The controlled contract covers React and Svelte, so a Blazor frontend with no declaration reads as a frontend with nothing to check. Naming Blazor and its replacement boundaries reports it as a frontend with named replacements instead.
 
-**Example:** The Claimwick Blazor entry point record names Blazor and the shared package boundaries that replace the controlled contract.
+**Example:** The Claimwick Blazor entry point record names Blazor and the shared package boundaries standing in for the controlled contract.
 
-**Reviewed for:** Which Blazor frontends declare no entry point record naming Blazor and its replacement boundaries? Look in the entry point records.
+**Reviewed for:** Does every Blazor frontend declare an entry point record naming Blazor and its replacement boundaries? Check the entry point records.
 
 ## Conventions
 

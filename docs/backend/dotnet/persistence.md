@@ -4,19 +4,23 @@
 
 **Concern:** infrastructure
 
-## Intent
-
-A .NET backend persists aggregates through Marten, the baseline document store: command handlers stage writes through Domain repositories, queries project through the read session, and one post-handler commits each command pipeline. This page states those .NET bindings with the Infrastructure folder layout and session lifetime they assume, so every command keeps one transaction. The shared persistence rules live on [Persistence](../persistence.md).
+A .NET backend stores aggregates through Marten, its baseline document store. Command handlers stage aggregate changes through Domain repositories, queries project shaped records through the read session, and one post-handler commits each command pipeline. This page defines the Marten form of the shared [Persistence](../persistence.md) rules, with the Infrastructure folder layout and session lifetime they assume, so every command keeps one transaction.
 
 ## Concepts
 
-### Sessions, Repositories, and the One Commit
+### How a Command Reaches the Store
 
-One scoped session serves a whole command: the Domain repositories stage aggregate writes through it, and exactly one command post-handler commits it. Query handlers read through the read session instead, projecting shaped records without loading aggregates. Only that post-handler commits, so a failed command leaves nothing stored. The declared consistency mode decides how work splits across commands; each command still commits once.
+Every command runs inside one scoped session: a Marten `IDocumentSession` that the host resolves once per WebApi request or Worker operation. The handler loads and stages aggregates through Domain repositories, the interfaces Domain owns for storing and loading each aggregate. Exactly one command post-handler then commits the session with `SaveChangesAsync`. Only that post-handler commits, so a failed command leaves nothing stored.
 
-### The Baseline Provider and Its Replacement
+The declared consistency mode decides how work splits across commands, but each command still commits once: under `consistency: atomic` the one commit covers everything the handler staged, and other modes split work across commands that each commit once.
 
-Marten is the baseline provider, supplying the session, the read session, and document storage.
+### How a Query Reads
+
+A query handler never loads aggregates. It projects through the read session, `IQuerySession`, which filters, orders, pages, and shapes records. The handler applies filter, scope, ordering, and limit before materialization.
+
+### Marten as the Baseline Provider
+
+Marten is the baseline provider: it supplies the session, the read session, and document storage. The provisions on this page name Marten types because the baseline is Marten. Backends that store through another provider follow the provider-neutral rules on [Persistence](../persistence.md), which these provisions bind for .NET.
 
 ## Standards
 
@@ -44,7 +48,7 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **Statement:** A command or query handler MUST NOT take a pipeline-owned collaborator, such as `IUnitOfWork`, `IIdempotencyStore`, or `ITransactionalOutbox`, through its constructor.
 
-**Rationale:** The pipeline owns the unit of work, the idempotency store, the outbox, and the uniqueness claim service, so a handler that takes one of them commits or reserves work outside the post-handler that owns the commit. The analyzer's default list names the LiteBus types, and a project adds its own claim service to the `litespec.LS2016.pipeline_owned_types` key. This provision binds `litespec/backend/persistence#keep-uniqueness-out-of-handlers` for .NET.
+**Rationale:** The pipeline owns the unit of work, the idempotency store, the outbox, and the uniqueness claim service. A handler that takes one of them commits or reserves work outside the post-handler that owns the commit. The analyzer's default list names the LiteBus types, and a project adds its own claim service to the `litespec.LS2016.pipeline_owned_types` key. This provision binds `litespec/backend/persistence#keep-uniqueness-out-of-handlers` for .NET.
 
 **Example:** The submit-expense handler takes its Domain repository and no unit of work, so the commit stays in the one post-handler. A handler constructor that adds `IUnitOfWork` is reported at the parameter.
 
@@ -60,7 +64,7 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **Statement:** A query handler MUST project through `IQuerySession`, applying filter, scope, ordering, and limit before materialization.
 
-**Rationale:** The read session already filters, orders, pages, and projects; a read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that repeats it. Ordering and paging follow `litespec/backend/api#bound-collection-queries`. This provision binds `litespec/backend/persistence#query-through-the-read-session` for .NET.
+**Rationale:** The read session already filters, orders, pages, and projects. A read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that repeats it. Ordering and paging follow `litespec/backend/api#bound-collection-queries`. This provision binds `litespec/backend/persistence#query-through-the-read-session` for .NET.
 
 | Provider | Query surface |
 |:---|:---|
@@ -68,7 +72,7 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 The table names the binding per provider. The obligation to project with filter, scope, ordering, and limit holds under each.
 
-A table the project keeps beside its documents, such as a counter or an append-only ledger written through plain SQL, is read through the same session. Under Marten, `AdvancedSql.QueryAsync<TRow>` returns any JSON-serializable type, so the SQL selects one JSON object per row, keyed in the casing the store's serializer uses, with the filter, ordering and limit in its `WHERE`, `ORDER BY` and `LIMIT`. The handler keeps no repository for such a table, and the project adds no read interface for it.
+A table the project keeps beside its documents, such as a counter or an append-only ledger written through plain SQL, is read through the same session. Under Marten, `AdvancedSql.QueryAsync<TRow>` returns any JSON-serializable type, so the SQL selects one JSON object per row, keyed in the casing the store's serializer uses, with the filter, ordering, and limit in its `WHERE`, `ORDER BY`, and `LIMIT`. The handler keeps no repository for such a table, and the project adds no read interface for it.
 
 **Example:** In the Claimwick product, each spending owner's running totals live in a `spending_totals` table that a command updates in place. The read-spending-totals query reads it through the session:
 
@@ -88,7 +92,7 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
     query.OwnerId.Value);
 ```
 
-**Reviewed for:** Which query handlers project outside `IQuerySession`, or apply filter, scope, ordering, or limit after materialization? Look at each query handler file.
+**Reviewed for:** Does every query handler project through `IQuerySession`, with filter, scope, ordering, and limit applied before materialization? Look at each query handler file.
 
 ### Commit Once in the Command Pipeline
 
@@ -100,11 +104,11 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 **Statement:** Exactly one global command post-handler MUST call `SaveChangesAsync` for a command pipeline.
 
-**Rationale:** Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, job, or endpoint, would store work the pipeline later refuses. This provision binds `litespec/backend/persistence#commit-each-command-pipeline-once` for .NET.
+**Rationale:** When exactly one post-handler commits, a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, job, or endpoint, would store work the pipeline later refuses. This provision binds `litespec/backend/persistence#commit-each-command-pipeline-once` for .NET.
 
-The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.
+The obligation is one commit per pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under `consistency: atomic` it covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.
 
-**Reviewed for:** Which pipelines commit outside one post-handler file calling `SaveChangesAsync`? Look at the `SaveChangesAsync` calls in each pipeline.
+**Reviewed for:** Does exactly one post-handler file call `SaveChangesAsync` in each pipeline? Look at the `SaveChangesAsync` calls in each pipeline.
 
 ### Enforce Uniqueness with Marten Unique Indexes
 
@@ -134,7 +138,7 @@ A payout exists at most once per expense, so its document id is the expense id:
 session.Store(new PayoutDocument(expense.Id, payoutNumber));
 ```
 
-**Reviewed for:** Which Marten aggregate documents with a uniqueness rule lack a unique index or an owner-derived identity? Look at the store configuration.
+**Reviewed for:** Does every Marten aggregate document with a uniqueness rule carry a unique index or an owner-derived identity? Look at the store configuration.
 
 ### Claim Cross-Record Keys with a Claims Document
 
@@ -146,7 +150,7 @@ session.Store(new PayoutDocument(expense.Id, payoutNumber));
 
 **Statement:** Each cross-record uniqueness key MUST be claimed through a claims document keyed by the key text and written with `session.Insert`, never with `Store`.
 
-**Rationale:** `Store` upserts, so it overwrites a competing claim instead of colliding with it; `Insert` fails when the key document already exists, which is the arbitration the rule needs. The repository compares the aggregate keys at load with the keys at commit, inserts the added key documents and deletes the removed ones in the same transaction. Marten cannot index elements of a list inside a document, cannot enforce uniqueness across document types, and computed indexes do not work on `DateTime` or `DateTimeOffset` members; those cases use the claims document. This provision binds `litespec/backend/persistence#claim-a-cross-record-key-at-commit` for .NET.
+**Rationale:** Some keys admit no index: Marten cannot index elements of a list inside a document, cannot enforce uniqueness across document types, and computed indexes do not work on `DateTime` or `DateTimeOffset` members. Those keys are claimed through a small document whose id is the key text, so the store still arbitrates the race. The write uses `Insert`, which fails when the key document already exists; `Store` upserts, so it would overwrite a competing claim instead of colliding with it. The repository compares the aggregate keys at load with the keys at commit, and inserts the added key documents and deletes the removed ones in the same transaction. This provision binds `litespec/backend/persistence#claim-a-cross-record-key-at-commit` for .NET.
 
 **Example:** In the library product, each copy barcode belongs to one book, while a book holds its barcodes in a list:
 
@@ -159,7 +163,7 @@ public sealed record BarcodeClaim(string Barcode);
 session.Insert(new BarcodeClaim(barcode));
 ```
 
-**Reviewed for:** Which cross-record keys bypass the claims document with `session.Insert`, or use `Store` on the claims type? Look at each key claim.
+**Reviewed for:** Is every cross-record key claimed through a claims document written with `session.Insert`, never with `Store`? Look at each key claim.
 
 ### Map Constraint Violations with the PostgreSQL Refusal Classifier
 
@@ -184,7 +188,7 @@ services.UseFaultRefusalClassifierInstance(
     }));
 ```
 
-**Reviewed for:** Which unique index names lack a conflict refusal code in the PostgreSQL refusal classifier? Look at the service registration.
+**Reviewed for:** Does every unique index name map to its conflict refusal code in the PostgreSQL refusal classifier? Look at the service registration.
 
 ### Apply Optimistic Concurrency to Every Aggregate Document
 
@@ -204,7 +208,7 @@ services.UseFaultRefusalClassifierInstance(
 options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 ```
 
-**Reviewed for:** Which Marten aggregate document types skip optimistic concurrency? Look at each document type and the document policy.
+**Reviewed for:** Does every Marten aggregate document type enable optimistic concurrency? Look at each document type and the document policy.
 
 ### Map Marten Concurrency Faults to Conflict Refusals
 
@@ -220,7 +224,7 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **Example:** Two approvers race on one submitted expense; the loser throws `ConcurrencyException` at commit, and the classifier returns the approve conflict refusal so the caller re-reads the expense before deciding again.
 
-**Reviewed for:** Which `ConcurrencyException` paths at commit escape the use case conflict refusal? Look at the registered classifier.
+**Reviewed for:** Does every `ConcurrencyException` path at commit reach the use case conflict refusal? Look at the registered classifier.
 
 ## Conventions
 
@@ -236,7 +240,7 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **Replacement:** A project names the folders holding its persistence types in its project documentation.
 
-**Rationale:** One store stays the default, configured in the shared kernel Infrastructure folder, while each module mappings and repositories live in its own Infrastructure folders, so every persistence type has one discoverable home. Scattered configuration hides the provider setup across the product. This provision binds `litespec/backend/persistence#use-one-persistence-folder` for .NET.
+**Rationale:** One store stays the default, configured in the shared kernel Infrastructure folder, while each module's mappings and repositories live in its own Infrastructure folders, so every persistence type has one discoverable home. Scattered configuration hides the provider setup across the product. This provision binds `litespec/backend/persistence#use-one-persistence-folder` for .NET.
 
 **Example:**
 
@@ -270,7 +274,7 @@ The module folders follow `litespec/backend/architecture#organize-code-by-module
 
 Aggregate-specific configuration stays beside its aggregate, while session and commit plumbing stay in the shared kernel Infrastructure folder.
 
-**Reviewed for:** Which Marten configuration, repository, commit, or serialization files sit outside their shared kernel or module Infrastructure folder? Look at the persistence files.
+**Reviewed for:** Does every Marten configuration, repository, commit, and serialization file sit in its shared kernel or module Infrastructure folder? Look at the persistence files.
 
 ### Register One Scoped Session
 

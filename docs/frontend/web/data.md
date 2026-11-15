@@ -3,9 +3,9 @@
 **Stack:** react, svelte
 **Concern:** frontend-data
 
-## Intent
+The frontend keeps no copy of the API contract. It generates its client, types, schemas, and query options from the published OpenAPI document.
 
-The frontend keeps no copy of the API contract: it generates its client, types, schemas, and query options from the published OpenAPI document. The data rules live in [Frontend Data and State](../data.md); this page holds the TypeScript mechanism behind them that the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share. A team that applies it while writing data code keeps every application consistent with the contract and every failure recoverable by the reader.
+The data rules live in [Frontend Data and State](../data.md). This page holds the TypeScript mechanism behind those rules that the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share. A team that applies it while writing data code keeps every application consistent with the contract and every failure recoverable by the reader.
 
 ## Concepts
 
@@ -23,11 +23,15 @@ type Problem = {
 };
 ```
 
-The `code` field is the discriminator: the page branches on which code arrived, not on a message that rewording can change. A code this build has never seen is still handled: the page branches on the code's presence rather than on a list of known codes. The client invents codes for what the API cannot answer. `client.unreachable` names a request that received no response. `client.unauthenticated` names a refused authentication. `client.http-<status>` names a response status the client maps to no problem, with the status in place of `<status>`.
+The `code` field is the discriminator: the page branches on which code arrived, not on a message that rewording can change. A code this build has never seen is still handled: the page branches on the code's presence rather than on a list of known codes. The client invents codes for what the API cannot answer:
+
+- `client.unreachable` names a request that received no response.
+- `client.unauthenticated` names a refused authentication.
+- `client.http-<status>` names a response status the client maps to no problem, with the status in place of `<status>`.
 
 The problem carries the `traceId` the API returns for the request, or the `X-Trace-Id` response header when the body carries none. Every error the user sees shows that identifier in copyable form inside its detail, while the headline states the message, so the user can paste it to support without reading it as the message.
 
-### TypeScript Mechanism
+### The Generated Client and Its Wiring
 
 The generator behind `litespec/frontend/data#generate-the-client-from-the-published-contract` runs the hey-api plugins with the zod plugin, and each stack page names the TanStack Query plugin its client adds. The workspace regenerates with `pnpm api:types` and edits nothing under the generated directory, per `litespec/frontend/data#regenerate-the-client-rather-than-editing-it`.
 
@@ -53,7 +57,7 @@ A refusal renders through the shared problem alert beside the refused record or 
 <ProblemAlert error={mutation.error} describe={describe} />
 ```
 
-Failures map to the problem type above, per `litespec/frontend/data#map-every-failure-to-one-problem-type`. State ownership, locale dictionaries, the frame root, and the shared form entry point follow `litespec/frontend/data#assign-state-to-the-narrowest-owner`, `litespec/frontend/data#localize-copy-through-locale-dictionaries`, `litespec/frontend/data#keep-the-client-boundary-in-the-frame`, and `litespec/frontend/data#build-a-form-on-the-shared-form-library`; each stack page names the component state, the dictionary library, the frame root, and the form entry point for its stack.
+Failures map to the problem type above, per `litespec/frontend/data#map-every-failure-to-one-problem-type`. State ownership, locale dictionaries, the frame root, and the shared form entry point follow `litespec/frontend/data#assign-state-to-the-narrowest-owner`, `litespec/frontend/data#localize-copy-through-locale-dictionaries`, `litespec/frontend/data#keep-the-client-boundary-in-the-frame`, and `litespec/frontend/data#build-a-form-on-the-shared-form-library`. Each stack page names the component state, the dictionary library, the frame root, and the form entry point for its stack.
 
 ## Standards
 

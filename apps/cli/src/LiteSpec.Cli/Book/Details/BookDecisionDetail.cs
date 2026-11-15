@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     decision its implementing classes follow, so the system page names
 ///     the decision that chooses its provider without a written link.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookDecisionDetail
 {
     /// <summary>

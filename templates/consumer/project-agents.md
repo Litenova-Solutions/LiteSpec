@@ -39,23 +39,23 @@ Record a product decision for any changed product choice. Research outside `.lit
 
 ## Project Commands
 
-Run the backend gates for every changed API boundary. (litespec/core/release#run-boundary-selected-checks)
+When a change touches an API boundary, run the backend gates for it. (litespec/core/release#run-boundary-selected-checks)
 
 ```bash
 dotnet build <api-solution> --configuration Release
 dotnet test <api-solution> --configuration Release --no-build
 ```
 
-Run the root pnpm gates for every changed frontend in `.litespec/project.yaml`. (litespec/core/release#run-boundary-selected-checks)
+When a change touches a frontend listed in `.litespec/project.yaml`, run the root pnpm gates for it. (litespec/core/release#run-boundary-selected-checks)
 
-Run metadata and model checks for each changed record, source, or test. Query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#declare-structured-specification-metadata)
+When a change touches a record, a source file, or a test, run the metadata and model checks for it. Query the model again after the change, and report whatever stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema)
 
-Report every skipped check with its reason, and name the provisions `rules` returned and how each was judged. (litespec/core/release#report-verification-exactly)
+Name each skipped check with its reason, and name the provisions `rules` returned with how each was judged. (litespec/core/release#report-verification-exactly)
 
-Compose each route from one floorplan in the frontend `DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
+Compose every route from one floorplan in the frontend `DESIGN.md`, or name the decision that justifies a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#justify-each-freestyle-route-with-a-decision-record)
 
-Cite every path of every use case a route calls in a test title, or record an exclusion with its reach.
+In a test title, cite each path of each use case a route calls, or record an exclusion with its reach.
 
-Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
+Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#name-the-evidence-for-each-ui-change, litespec/frontend/ui#pass-every-route-suite-check)
 
-Record a waiver before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)
+Record a waiver before choosing another visual system or component base. (litespec/frontend/ui#record-one-shared-ui-package)

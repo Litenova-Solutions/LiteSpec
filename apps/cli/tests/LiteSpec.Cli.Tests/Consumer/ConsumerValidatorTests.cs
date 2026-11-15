@@ -113,7 +113,7 @@ public sealed partial class ConsumerValidatorTests
     static JsonObject PathsOf(JsonObject project) => (JsonObject)project["paths"]!;
 
     /// <summary>Fixture validates as written.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "fixture validates as written")]
     public void FixtureValidatesAsWritten()
     {

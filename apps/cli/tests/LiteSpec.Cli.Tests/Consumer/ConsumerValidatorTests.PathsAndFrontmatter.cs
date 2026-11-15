@@ -116,7 +116,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page under the documentation root is scanned.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page under the documentation root is scanned")]
     public void PageUnderTheDocumentationRootIsScanned()
     {
@@ -131,7 +131,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Missing required title.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "missing required title")]
     public void MissingRequiredTitle()
     {
@@ -170,7 +170,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Result entry without its outcome.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "result entry without its outcome")]
     public void ResultEntryWithoutItsOutcome()
     {
@@ -183,7 +183,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Retired page type from the old model.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "retired page type from the old model")]
     public void RetiredPageTypeFromTheOldModel()
     {
@@ -196,7 +196,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with no frontmatter block.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page with no frontmatter block")]
     public void PageWithNoFrontmatterBlock()
     {
@@ -209,7 +209,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with a broken frontmatter block.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page with a broken frontmatter block")]
     public void PageWithABrokenFrontmatterBlock()
     {

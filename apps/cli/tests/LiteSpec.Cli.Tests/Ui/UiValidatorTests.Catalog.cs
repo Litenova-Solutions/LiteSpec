@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Ui;
 public sealed partial class UiValidatorTests
 {
     // Design contract (litespec/frontend/ui#publish-a-design-contract,
-    // litespec/frontend/ui#declare-a-closed-floorplan-set).
+    // litespec/frontend/ui#map-each-page-frame-to-its-floorplan).
 
     /// <summary>Shared Package With No Design Contract.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
@@ -54,7 +54,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A design contract without a Page Frames section reports it as missing.</summary>
-    /// <proves>litespec/frontend/ui#declare-a-closed-floorplan-set</proves>
+    /// <proves>litespec/frontend/ui#map-each-page-frame-to-its-floorplan</proves>
     [Fact]
     public void DesignContractWithoutPageFramesReportsTheMissingSection()
     {

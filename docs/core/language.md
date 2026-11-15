@@ -4,15 +4,13 @@
 
 **Concern:** records
 
-## Intent
-
-Record Language states one grammar and one tone for every name, every identifier and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values, identifiers and codes of project records.
+A project names fields, records, identifiers, finding codes, and tool names. One grammar for all of them means a reader who learned `serves` on a flow reads `serves` on a requirement without a second look. Record Language states that grammar and tone: the word classes for field names, the form for each kind of text, the forms for values and record names, the identifier grammar, and the codes tools report. Authors and agents apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files, and documents; Record Language states the names, values, identifiers, and codes.
 
 ## Concepts
 
 ### The Eight Word Classes
 
-Every field name belongs to one of eight word classes. The class decides the name's form, and the reading test tells whether a name sits in its class.
+Every field name belongs to one of eight word classes. The class decides the name's form, and the reading test tells whether a name sits in its class. With one grammar and no exceptions list, each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons.
 
 | Class | Form | Reading test | Examples |
 |:---|:---|:---|:---|
@@ -25,11 +23,11 @@ Every field name belongs to one of eight word classes. The class decides the nam
 | 7. Condition | `<verb, participle or adjective>When` for a named condition; `condition` inside an entry | "it is frozenWhen ..." | `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen`, `runsWhen` |
 | 8. Reason | `<participle>Because`, or `reason` alone | "it appliesBecause ..." | `appliesBecause`, `exemptBecause`, `reason` |
 
-Dates and booleans follow the classes: a recorded date ends in `On` (`readOn`, `expiresOn`); a validity start is `effectiveFrom`; a boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix.
+Dates and booleans follow the classes. A recorded date ends in `On` (`readOn`, `expiresOn`); a validity start is `effectiveFrom`. A boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix. For example, the Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
 ### Kinds of Text
 
-Every piece of text a project writes falls into one of these kinds. The kind decides its form; the layer does not.
+Every piece of text a project writes falls into one of these kinds. The kind decides its form; the layer does not. The tense and voice tell the reader what the text does before a word is weighed: a requirement promises, a domain event reports, and a runbook step instructs.
 
 | Kind of text | Form | Example |
 |:---|:---|:---|
@@ -51,7 +49,7 @@ Quantities: dates are ISO 8601 dates, durations ISO 8601 durations (`P7Y`, `PT10
 
 ### Value Style
 
-Each value below takes the written form its row gives. The last column names the mechanical test the value meets.
+Values are read far more than they are written, in records, in the book, and in tool output. Each value below takes the written form its row gives, so a period or a capital letter is never a styling choice but part of the value. The last column names the mechanical test the value meets.
 
 | Field | Write it as | Test |
 |:---|:---|:---|
@@ -68,7 +66,7 @@ Each value below takes the written form its row gives. The last column names the
 
 ### Names for Records
 
-Each record type takes the name form its row gives, in the word class of what the record is.
+Each record type takes the name form its row gives, in the word class of what the record is. A verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event, so the name tells a reader the type before the identifier is opened.
 
 | Type | Name form | Example |
 |:---|:---|:---|
@@ -126,7 +124,7 @@ Names stay unique per record type, not across the product.
 
 ### Wire Codes
 
-A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape and they stay unchanged once clients read them.
+A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape, and they stay unchanged once clients read them. A renamed code breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
 
 ### Resolution
 
@@ -134,7 +132,7 @@ Resolution means every identifier citation names a record that exists. The model
 
 ### Finding Codes and Tool Names
 
-A finding code reads as `<subject>-<problem>`: the subject is a record type, field or part as the glossary spells it, using `read-model`, `flow`, `part` and `atomicity`, and the problem is one of the words in the problem-word table below, each with one meaning.
+A finding code reads as `<subject>-<problem>`: the subject is a record type, field or part as the glossary spells it, using `read-model`, `flow`, `part` and `atomicity`, and the problem is one of the words in the problem-word table below, each with one meaning. The form tells a reader what the finding is about and what is wrong with it before the message is opened.
 
 | Problem | Meaning | Example |
 |:---|:---|:---|
@@ -186,7 +184,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** The Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
-**Reviewed for:** Which fields break their word class? Look at the field names the change adds, beside the word-class table.
+**Reviewed for:** Does every field use the name its word class gives it? Check the field names the change adds against the word-class table.
 
 ### Name a Boolean as a Predicate
 
@@ -200,7 +198,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** Claimwick marks an applying constraint with `applies: true` instead of `isApplicable: true`.
 
-**Reviewed for:** Which boolean fields read as something other than a predicate, or carry an `is` or `has` prefix? Look at the boolean fields the change adds.
+**Reviewed for:** Does every boolean field read as a predicate with no `is` or `has` prefix? Check the boolean fields the change adds.
 
 ### Name Each Date by What It Marks
 
@@ -216,9 +214,9 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Checked by:** `litespec-maintain validate` emits no `FIELD_NAME_SHAPE` diagnostic for a date field.
 
-### Write Each Kind of Text in Its Form
+### Write Each Text Kind in Its Own Form
 
-**ID:** `litespec/core/language#write-each-kind-of-text-in-its-form`
+**ID:** `litespec/core/language#write-each-text-kind-in-its-own-form`
 
 **Strength:** required
 
@@ -228,7 +226,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** A Claimwick requirement states "An expense above the threshold waits for its approver."
 
-**Reviewed for:** Which texts miss the form of their kind? Look at the statements, steps, and meanings the change adds, beside the text-kind table.
+**Reviewed for:** Does every text use the form of its kind? Check the statements, steps, and meanings the change adds against the text-kind table.
 
 ### Write Each Value in the Value Style
 
@@ -242,7 +240,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** A Claimwick flow step states "The traveller pays for the booking."
 
-**Reviewed for:** Which statement, meaning, rationale, condition, failure, or title values miss the value style of their row? Look at the values the change adds, beside the value-style table.
+**Reviewed for:** Does every statement, meaning, rationale, condition, failure, and title value use its row's style? Check the values the change adds against the value-style table.
 
 ### Write Quantities in Standard Units
 
@@ -256,9 +254,9 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** Claimwick holds a room for `PT10M` and writes "95 percent of checkouts complete" in prose.
 
-**Reviewed for:** Which quantities use free text or miss their unit? Look at the dates, durations, money values, and numbers the change adds.
+**Reviewed for:** Does every quantity use a standard unit? Check the dates, durations, money values, and numbers the change adds.
 
-### Name Each Record by Its Types Name Form
+### Name Each Record by Its Type's Name Form
 
 **ID:** `litespec/core/language#name-each-record-by-its-types-name-form`
 
@@ -270,7 +268,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** Claimwick names the flow `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`.
 
-**Reviewed for:** Which record names miss the name form of their type? Look at the identifiers the change adds, beside the record-name table.
+**Reviewed for:** Does every record name use the name form of its type? Check the identifiers the change adds against the record-name table.
 
 ### Write in American English
 
@@ -284,7 +282,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** Claimwick writes `license` and `pseudonymize` in field names, values, and prose.
 
-**Reviewed for:** Which words use British spelling? Look at the field names, enum values, and prose the change adds.
+**Reviewed for:** Does any word use British spelling? Check the field names, enum values, and prose the change adds.
 
 ### Keep Names an Outside Standard Fixes
 
@@ -298,7 +296,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** A Claimwick scenario keeps `given`, `when`, and `then`, which the word-class table gives no class.
 
-**Reviewed for:** Which fixed names were renamed to fit the grammar? Look at the Gherkin fields and CloudEvents attributes the change touches.
+**Reviewed for:** Was any fixed name renamed to fit the grammar? Check the Gherkin fields and CloudEvents attributes the change touches.
 
 ### Name Each Finding Code by Subject and Problem
 
@@ -312,7 +310,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** A use case with no scenario takes the code `use-case-scenario-missing`.
 
-**Reviewed for:** Which finding codes miss the subject-problem form or end in a word the problem-word table does not hold? Look at the finding codes the change adds, beside the problem-word table.
+**Reviewed for:** Does every finding code read as subject-problem with a problem word from the table? Check the finding codes the change adds against the problem-word table.
 
 ### Write Each Finding Message as a Fact
 
@@ -326,7 +324,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** A flow step with no serving use case reports `Flow step 'book-a-room#s3' is served by no use case.`
 
-**Reviewed for:** Which finding messages instruct instead of stating a fact, or open without the subject and identifier? Look at the messages the change adds.
+**Reviewed for:** Does every finding message state one present-tense fact opening with the subject and identifier? Check the messages the change adds.
 
 ### Name Commands as Verbs and Flags by What They Set
 
@@ -340,7 +338,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** The release check runs as `litespec model check --release` and exits 1 on a blocking finding.
 
-**Reviewed for:** Which subcommands read as nouns, or which flags name something other than their mode or value? Look at the commands and flags the change adds.
+**Reviewed for:** Does every subcommand read as a verb and every flag as its mode or value? Check the commands and flags the change adds.
 
 ### Follow the Identifier Form of Each Record Type
 
@@ -394,7 +392,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
 
-**Reviewed for:** Which wire codes in the contract break the values deployed clients branch on? Look at the wire codes beside the deployed clients.
+**Reviewed for:** Does any wire code in the contract break the values deployed clients branch on? Check the wire codes in the contract against the deployed clients.
 
 ### Resolve Every Identifier Citation
 
@@ -430,7 +428,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** A product whose subject is another language carries that language in its content files, where a diacritic is part of a word rather than a styling choice. Excluding only the declared content paths keeps the check strict everywhere else: documents about that content stay in scope, so styled prose filed beside content still meets the check.
 
-**Reviewed for:** Which non-ASCII prose sits outside the paths the project record declares? Look at the content files beside the declaration.
+**Reviewed for:** Does any non-ASCII prose sit outside the paths the project record declares? Check the content files against the declaration.
 
 ### Record the Project Vocabulary as Data
 
@@ -462,7 +460,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
 
-**Reviewed for:** Which words on the page are synonyms the project glossary rejects for the scope the page sits in?
+**Reviewed for:** Does any word on the page use a synonym the glossary rejects for this scope? Check the page against the project glossary.
 
 ### State Mannered Terms Literally
 
@@ -476,11 +474,11 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
 
-**Reviewed for:** Which mannered terms on the page stand where the glossary asks for the literal word?
+**Reviewed for:** Does any mannered term stand where the glossary asks for the literal word? Check the page against the project glossary.
 
-### Exclude the Compound That Names Another Concept
+### List the Compounds a Rejection Does Not Cover
 
-**ID:** `litespec/core/language#exclude-the-compound-that-names-another-concept`
+**ID:** `litespec/core/language#list-the-compounds-a-rejection-does-not-cover`
 
 **Strength:** required
 
@@ -495,7 +493,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
   "scope": "^.litespec/domain/modules/spending/", "except": ["shipping docket"] }
 ```
 
-**Reviewed for:** Which compounds use a rejected word to name another concept without being listed in the rejection's `except`?
+**Reviewed for:** Does any compound use a rejected word for another concept without an `except` entry? Check the compounds against the rejection's `except` list.
 
 ### Review Each Term for Its Lookalikes
 
@@ -509,7 +507,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Example:** The notification `send-receiptreminder-confirmation` and the reaction `send-receipt-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
 
-**Reviewed for:** Which terms differ from another term only in hyphenation, spelling, plurality, or a compound split? Look at the terms the change adds, beside the glossary.
+**Reviewed for:** Does any term differ from another only in hyphenation, spelling, plurality, or a compound split? Check the terms the change adds against the glossary.
 
 ### Use the Declared Record Identifier Grammar
 

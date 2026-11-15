@@ -13,8 +13,6 @@ public sealed partial class StandardsValidatorTests
     static readonly string LayerExtensionPage = """
         # Sample Extension
 
-        ## Intent
-
         This extension adds one optional capability.
 
         ## Activation
@@ -50,8 +48,6 @@ public sealed partial class StandardsValidatorTests
 
     static readonly string LayerTopicPage = """
         # Sample Topic
-
-        ## Intent
 
         This page defines one repository topic.
 
@@ -99,7 +95,7 @@ public sealed partial class StandardsValidatorTests
     public void ManifestAnchor() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", "# Topic\n\n## Intent\n\nText.\n");
+            StandardsFixture.Write(root, "docs/core/topic.md", "# Topic\n\nText.\n");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"agentsEntry\":\"docs/core/topic.md#missing\"}");
         },
         [MaintainerDiagnostics.Codes.ManifestAnchor]);

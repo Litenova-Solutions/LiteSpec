@@ -12,7 +12,7 @@ public sealed class ClaimwickExampleTests
     static readonly string Root = Path.Combine(TestCli.Repository, "examples", "claimwick");
 
     /// <summary>The Claimwick example passes the model check with no blocking finding.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact(DisplayName = "the Claimwick example passes the model check with no blocking finding")]
     public void PassesModelCheck()
     {

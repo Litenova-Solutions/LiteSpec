@@ -120,8 +120,8 @@ static partial class Concepts
 
         var provisions = Provisions.Collect(root);
         var text = new StringBuilder();
-        text.Append("# Concepts\n\n## Intent\n\n");
-        text.Append("Use this generated page to find the one page that owns each glossary concept, and the provisions that page holds. A concept is stated on its home page; every other page cites the concept rather than restating its rule.\n\n");
+        text.Append("# Concepts\n\n");
+        text.Append("Each glossary concept is explained on one page, its home. This generated table names that page and the provisions it holds; other pages link to the home page instead of restating the rule.\n\n");
         text.Append("## Reference\n\n");
         text.Append("| Concept | Home | Provisions |\n|:---|:---|:---|\n");
 

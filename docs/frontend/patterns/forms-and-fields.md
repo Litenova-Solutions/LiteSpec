@@ -3,19 +3,25 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-## Intent
+This page holds the patterns for entering a value into a form, and for what the form reports around it. One decided shape per field keeps entry fast and errors fixable, so staff type once and repair only what the message names.
 
-This page holds the patterns for entering a value into a form, and for what the form reports around it: money, record pickers, dates, text, single choices, switches, uploads, refused submits, unsaved work, periods, slugs, capacity, colors, repeated groups, tags, addresses, and message templates. A team building a form starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One decided shape per field keeps entry fast and errors fixable, so staff type once and repair only what the message names.
+The patterns cover money, record pickers, dates, text, single choices, switches, uploads, refused submits, unsaved work, periods, slugs, capacity, colors, repeated groups, tags, addresses, and message templates. A team building a form starts from these patterns: an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-Each pattern answers one recurring question about a field kind, such as how a money field names its currency. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+A pattern answers one question the team would otherwise answer differently on every screen, such as how a money field names its currency. It opens with that question, then names its default option: the shape the project builds unless the owner records another choice. It then says how the default behaves on a narrow screen, why the default won, which alternative fits which case, and which shape to leave out.
+
+Each option is one `####` heading with a stable option ID, one wireframe drawing, and three short parts: its rationale, its cost, and sometimes a reference to the outside product it learns from. A wireframe states the structure of the option and the copy it shows, and nothing about color, font, or components: the team builds the chosen option in its own stack and design system. For example, the money field pattern draws a text input with the currency in its label as the default, and an owner who needs preset amounts records the chips option instead.
+
+Each choice lands in the project's pattern catalog, the file that holds the project's interface decisions. The [UI patterns page](../patterns.md) states the catalog contract and the wireframe language.
 
 ### The Running Example
 
-The drawings on this page use the Claimwick expense for Ava's Rotterdam client visit: the EUR 45.00 hotel night, its booking fee, the Amsterdam sales cost centre, and the trips, payouts, and approval policies around them. Every option keeps eight rules: every field carries a visible label naming its value, an error appears after the field is left and clears on a valid value, an error reaches assistive technology, every required field carries a marker, submit stays enabled, each field states its purpose, Enter is ignored while text is composed, and a name is one field of any script. The Standards section states those rules, and the [Feedback and State Patterns](feedback-and-states.md) page states the rule for keeping the reader's input through a failure ([keep the reader's input through a failure](feedback-and-states.md#keep-the-readers-input-through-a-failure)).
+The drawings follow one Claimwick expense: Ava's EUR 45.00 hotel night for a Rotterdam client visit, its EUR 5.00 booking fee, the Amsterdam sales cost centre that pays, and the trips, payouts, and approval policies around it.
+
+Every drawing keeps the eight rules from the Standards section below. Each field shows a visible label naming its value. An error appears only after the field is left, and clears as soon as the value turns valid. Each error reaches assistive technology. Each required field carries a marker. Submit stays enabled so it can reveal errors. Each field states its purpose for autocomplete. Enter is ignored while an input method still composes text. A person's name is one field accepting any script. And a refused submit keeps everything the reader typed, as [Keep the Reader's Input Through a Failure](feedback-and-states.md#keep-the-readers-input-through-a-failure) states.
 
 ## Standards
 
@@ -27,9 +33,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** Every field MUST carry a visible label that names its value.
 
-**Rationale:** A placeholder disappears on the first keystroke, so a filled field with no label no longer says what it holds. Screen readers announce the label, and sighted staff returning to a filled form read it to check each value before saving. Without a visible label, both groups guess what each value means.
+**Rationale:** A placeholder vanishes on the first keystroke, so a filled field with no label beside it no longer says what it holds. Screen readers announce the label aloud, and sighted staff read it when they return to a filled form to check each value before saving. Without a visible label, both groups have to guess what each value means.
 
-**Reviewed for:** Which built field lacks a visible label naming its value? Open every form on built screens and read each field's label.
+**Reviewed for:** Does every built field show a visible label naming its value? Open each form on the built screens and read every field's label.
 
 ### Show a Field Error After the Field Is Left
 
@@ -39,9 +45,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** A field error MUST appear only once the user leaves the field with a changed value or submits the form, and disappear as soon as the value becomes valid.
 
-**Rationale:** An error shown while the reader is still typing scolds an unfinished value, and one that lingers after the fix makes the reader doubt the fix. The message appears once the field is left or the form is submitted, and it clears as soon as the value turns valid.
+**Rationale:** An error shown mid-typing scolds a value the reader has not finished, and one that lingers after the fix makes the reader doubt the repair. The message appears once the field is left or the form is submitted, and it clears as soon as the value turns valid.
 
-**Reviewed for:** Which built field shows an error while it is still being typed, or keeps one after the value turns valid? Open the built forms, type in each field, leave it, fix it, and read when the message appears and clears.
+**Reviewed for:** Does any built field show an error while it is still being typed in, or keep one after the value turns valid? Open the built forms, type in each field, leave it, fix it, and watch when each message appears and clears.
 
 ### Expose a Field Error to Assistive Technology
 
@@ -51,9 +57,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** A field MUST set `aria-invalid="true"` and point `aria-describedby` at its error only while the error shows.
 
-**Rationale:** WCAG 3.3.1 Error Identification asks that an error be described in text, and WCAG 4.1.2 Name, Role, Value asks that the field expose its state. The two attributes together tell a screen reader which field failed and what it says. An empty required field carries neither until the reader has touched it, so it is not read as invalid first.
+**Rationale:** A visible error message alone reaches only sighted readers. Marking the field invalid and pointing at the error message tells assistive technology which field failed and what the message says, which is what WCAG 3.3.1 Error Identification and WCAG 4.1.2 Name, Role, Value ask for: an error described in text, and a field exposing its state. An untouched empty required field carries neither mark, so it is never announced as invalid before the reader reaches it.
 
-**Reviewed for:** Which built field misses its invalid state or its error reference while its error shows, or carries either before it is touched? Open the built forms and read each field's attributes with its error shown and hidden.
+**Reviewed for:** Does every built field expose its invalid state and point at its error while the error shows, and carry neither before it is touched? Open the built forms and read each field's attributes with its error shown and hidden.
 
 ### Mark Every Required Field
 
@@ -63,9 +69,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** Every required field MUST carry the `required` attribute and a visible marker that the form explains once, above its first field.
 
-**Rationale:** WCAG 3.3.2 Labels or Instructions asks that a required field say so before it is submitted. The marker shows it to a sighted reader and the attribute announces it to a screen reader. One explanation above the first field teaches the marker once for the whole form.
+**Rationale:** WCAG 3.3.2 Labels or Instructions asks that a required field say so before it is submitted. A visible marker tells sighted readers which fields they must fill, and the `required` attribute tells the same to screen readers. Explaining the marker once, above the first field, teaches it for the whole form, so every field needs only the mark itself.
 
-**Reviewed for:** Which built required field lacks a visible marker or the `required` attribute, and which form explains the marker nowhere above its first field? Open the built forms and read each required field and the line above the first one.
+**Reviewed for:** Does every built required field show a visible marker and carry the `required` attribute, and does each form explain the marker above its first field? Open the built forms and read each required field plus the line above the first one.
 
 ### Keep Submit Enabled to Reveal Errors
 
@@ -75,9 +81,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** A submit control MUST stay enabled while the form holds errors, so pressing it moves focus to the summary or the first field in error.
 
-**Rationale:** A disabled submit gives no reason and no way forward. The reader presses a live submit and lands on the summary or the first field in error, which names what to fix. The form refuses the submit and keeps every entered value.
+**Rationale:** A greyed-out submit button gives no reason and no way forward. A submit that stays enabled can be pressed, and pressing it carries the reader to the summary or to the first field in error, which names what to fix. The form still refuses the submit, and keeps every entered value.
 
-**Reviewed for:** Which built submit control disables itself while the form holds errors? Open the built forms with errors and press each submit.
+**Reviewed for:** Does any built submit control disable itself while the form holds errors? Open the built forms with errors in them and press each submit.
 
 ### State Each Field's Purpose
 
@@ -87,9 +93,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** A field collecting information about the user MUST carry the `autocomplete` token for its purpose.
 
-**Rationale:** WCAG 1.3.5 Identify Input Purpose asks that the purpose of each such field be programmatically determinable. The token lets the browser fill a bank account holder or an email once instead of the reader typing it on every claim. The reader checks the filled value instead of typing it again.
+**Rationale:** Without the token, the browser cannot offer the stored bank account holder or email, so the reader retypes both on every claim. With the right token, the browser fills each value once, and the reader checks it instead of typing it. That is what WCAG 1.3.5 Identify Input Purpose asks for: the purpose of each such field must be programmatically determinable.
 
-**Reviewed for:** Which built field collecting information about the user lacks the `autocomplete` token for its purpose? Open the built forms and read each such field's token.
+**Reviewed for:** Does every built field collecting information about the user carry the `autocomplete` token for its purpose? Open the built forms and read the token on each such field.
 
 ### Refuse Enter While Text Is Being Composed
 
@@ -99,9 +105,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** A field that acts on the Enter key MUST ignore it while an input method is composing text.
 
-**Rationale:** A reader typing a vendor name in Japanese or Chinese confirms a candidate with Enter. The tag input or inline rename that submits on that keystroke sends half-composed text. Waiting for composition to end keeps the submitted value whole.
+**Rationale:** Someone typing a vendor name in Japanese or Chinese presses Enter to confirm a candidate in the input method, not to submit anything. If a tag input or inline rename acts on that keystroke, it files half-composed text. Ignoring Enter until composition ends keeps the submitted value whole.
 
-**Reviewed for:** Which built field acting on Enter submits half-composed text from an input method? Open the built tag inputs and fields acting on Enter, and confirm a candidate with Enter.
+**Reviewed for:** Does any built field acting on Enter submit half-composed text from an input method? Open the built tag inputs and other fields acting on Enter, and confirm a candidate with Enter.
 
 ### Take a Name in One Field of Any Script
 
@@ -111,9 +117,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Statement:** A person's name MUST be one field that accepts letters of any script.
 
-**Rationale:** Given and family names are not universal, and splitting them forces staff into parts their name lacks. A Latin-only rule refuses real staff. One field taking letters of any script holds every name the back office meets.
+**Rationale:** Given and family names are not universal, so splitting them forces staff into parts their name lacks, and a Latin-only rule refuses real staff. One field accepting letters of any script holds every name the back office meets.
 
-**Reviewed for:** Which built name entry splits the name or refuses letters outside Latin? Open the built staff and spender forms and enter a name in a non-Latin script.
+**Reviewed for:** Does any built name entry split the name, or refuse letters outside Latin? Open the built staff and spender forms and enter a name in a non-Latin script.
 
 ## Conventions
 
@@ -127,9 +133,9 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Replacement:** A project that replaces the default records which fields keep the default text keyboard and why.
 
-**Rationale:** The phone keyboard matches the value, and autocorrect does not rewrite an IBAN. A reader entering a booking reference meets keys for the value instead of the full alphabet.
+**Rationale:** A reader entering an amount or a booking reference meets keys for the value instead of the full alphabet. On an identifier field, autocorrect stays off, so it never rewrites an IBAN or a booking reference.
 
-**Reviewed for:** Which built numeric, code, or identifier field keeps the default text keyboard with no recorded reason? Open the built fields and the project's recorded waivers.
+**Reviewed for:** Does any built numeric, code, or identifier field keep the default text keyboard with no recorded reason? Open the built fields and read the project's recorded convention beside them.
 
 ## Patterns
 
@@ -139,15 +145,15 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Strength:** default
 
-**Question:** The back office holds amounts, fees, reversals, and payout figures, and staff type every one of them; the software chooses none. The decision is how a money field takes its value: the input shape, how it names the currency, where the symbol sits, and what total it restates beside the field.
+**Question:** Staff type amounts, fees, reversals, and payout figures by hand; the software chooses none of them. The question is how a money field takes its value: the shape of the input, how it names the currency, where the symbol sits, and which total it restates beside the field.
 
 **Default:** `text-input-currency-in-the-label-symbol-inside`
 
-**Compact:** Below the md breakpoint the amount and its help line stack in one column, with the field at full width.
+**Compact:** Below the md breakpoint the field goes full width, with the amount and its help line stacked in one column.
 
-**Rationale:** The text input with the currency in its label stays the pick. The label names the currency for a screen reader, and the field accepts any amount a reader types, including a comma or a point as the decimal separator. The restated payout total is the runner-up: it belongs on every amount an approver sees, because it stops the fee from surprising either side at payout. The preset amount chips are the other alternative for a round amount that repeats. Never ship the stepper: a continuous amount cannot be reached by stepping.
+**Rationale:** The default is the text input with the currency in its label: the label names the currency for a screen reader, and the field accepts any typed amount with a comma or a point as the decimal separator. The restated payout total is the runner-up: it belongs on every amount an approver sees, because it stops the fee from surprising either side at payout. Preset chips are the other alternative where one round amount repeats. The stepper stays out: a continuous amount cannot be reached by stepping.
 
-**Reviewed for:** Which built amount input breaks from the wireframe its catalog entry chose? Open the built amount, currency, and total fields beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built amount input match the wireframe its catalog entry chose? Open the built amount, currency, and total fields beside the catalog entry recording the chosen option and its reason.
 
 #### `text-input-currency-in-the-label-symbol-inside`: Text Input, Currency in the Label, Symbol Inside
 
@@ -164,9 +170,9 @@ page
     text muted "Added at payout. The budget pays this one."
 ```
 
-**Rationale:** The label names the currency, and the symbol sits inside the field as decoration that assistive technology skips. The field stays a text field, so a reader types any amount; a stepper cannot land on a value between its steps.
+**Rationale:** The currency lives in the label, where a screen reader announces it, and the symbol sits inside the field as decoration that assistive technology skips. Because the field stays a plain text input, the reader types any amount instead of stepping toward a value between two steps.
 
-**Cost:** A reader can type the symbol into the field, so validation has to accept it rather than refuse it. At most two decimal places are allowed.
+**Cost:** The reader can type the symbol into the field, so validation accepts the symbol rather than refusing it. The field allows at most two decimal places.
 
 **Reference:** HMRC
 
@@ -185,9 +191,9 @@ page
     fact "Payout sends" "EUR 50.00"
 ```
 
-**Rationale:** The amount and the payout total read on the same screen before saving. The EUR 50.00 total stops the fee from surprising either side at payout.
+**Rationale:** The reader sees the amount and the EUR 50.00 payout total on the same screen before saving, so the fee surprises neither side at payout.
 
-**Cost:** The restated total must update as the reader types, which a static wireframe cannot show. It adds one line under every amount field, even where the fee is zero.
+**Cost:** The restated total follows the typing, which a static wireframe cannot show. It also adds one line under every amount field, even where the fee is zero.
 
 #### `preset-price-chips-for-the-common-price-points`: Preset Amount Chips for the Common Amounts
 
@@ -208,9 +214,9 @@ page
     fact "Payout sends with the booking fee" "EUR 50.00"
 ```
 
-**Rationale:** Most lines land on a round amount, and the common amounts sit one tap away. The field stays for the odd amount.
+**Rationale:** Where most lines land on a round amount, the common amounts sit one tap away, and the field stays for the odd amount.
 
-**Cost:** The presets are company data that must be learned or configured, and a stale set pushes the reader toward last year's amounts. Five chips plus a field is wider than a field alone on a phone.
+**Cost:** The presets are company data that someone must learn or configure, and a stale set pushes the reader toward last year's amounts. Five chips plus a field also run wider than a field alone on a phone.
 
 ### Choosing a Record
 
@@ -218,15 +224,15 @@ page
 
 **Strength:** default
 
-**Question:** A reader chooses a reference to another record from a picker showing names. Nobody types an identifier. The failure to avoid is a select reading "Choose a cost centre" beside a field holding "CC-0C893968A2" as if it were a value to type.
+**Question:** A reader picks a reference to another record from a picker showing names, and types no identifier. The failure to avoid is a select reading "Choose a cost centre" beside a field holding "CC-0C893968A2", as if the code were a value worth typing.
 
 **Default:** `searchable-picker-showing-names`
 
-**Compact:** Below the md breakpoint the picker opens as a full-width sheet, with the search field at the top and the results under it.
+**Compact:** Below the md breakpoint the picker opens as a full-width sheet, with the search field on top and the results under it.
 
-**Rationale:** The searchable picker over names stays the pick: nobody types an identifier, and search beats scrolling for every list longer than a screen. The picker with one distinguishing fact per row is the runner-up for records that share a name. The plain select is the other alternative for a short, fixed list. Never ship a bare identifier field: a code such as CC-0C893968A2 is not a value a reader can type or check.
+**Rationale:** The default is the searchable picker over names: nobody types an identifier, and search beats scrolling for every list longer than a screen. The runner-up shows one distinguishing fact per row; prefer it where records share a name. The plain select is the other alternative for a short, fixed list. A bare identifier field stays out: a code such as CC-0C893968A2 is not a value a reader can type or check.
 
-**Reviewed for:** Which built record picker breaks from the wireframe its catalog entry chose? Open the built searchable pickers and recent lists beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built record picker match the wireframe its catalog entry chose? Open the built searchable pickers and recent lists beside the catalog entry recording the chosen option and its reason.
 
 #### `searchable-picker-showing-names`: Searchable Picker Showing Names
 
@@ -244,9 +250,9 @@ page
     field "Name" text
 ```
 
-**Rationale:** It searches over names and shows nothing else. Search beats scrolling every time.
+**Rationale:** The picker searches over names and shows nothing else. Search beats scrolling every time the list runs longer than a screen.
 
-**Cost:** A picker hides how many records exist. A reader who knows the cost centre is "Zaandam" still has to search rather than scan. It needs an empty-result state that offers creating one.
+**Cost:** A picker hides how many records exist, so a reader who knows the cost centre is "Zaandam" searches instead of scanning. It also needs an empty-result state that offers to create the missing record.
 
 #### `picker-with-the-record-s-facts-beside-its-name`: Picker with the Record's Facts Beside Its Name
 
@@ -263,9 +269,9 @@ page
     field "Name" text = "Travel"
 ```
 
-**Rationale:** Each option carries the one fact that tells two similar records apart. Budget suits a cost centre and date suits a trip. State suits an approval policy.
+**Rationale:** Each row carries the one fact that tells two similar records apart: the budget for a cost centre, the date for a trip, the state for an approval policy.
 
-**Cost:** The list grows wider, and the extra column is only useful for records that share a name. For a record set whose names are already unique it is noise.
+**Cost:** The list grows wider for a column that pays off only where records share a name. Where names are already unique, it is noise.
 
 #### `a-select-of-names`: A Select of Names
 
@@ -280,9 +286,9 @@ page
     field "Name" text
 ```
 
-**Rationale:** A plain select lists names. It has fewer moving parts than a picker, and it works from the keyboard with no extra setup.
+**Rationale:** The select lists names with fewer moving parts than a picker, and it works from the keyboard with no extra setup.
 
-**Cost:** A select hides every option until it opens, and a 40-cost-centre list becomes a long scroll. It cannot search, so a reader who knows the name still scrolls to it. A short, fixed list is the only case where it helps.
+**Cost:** Every option stays hidden until the select opens, so a 40-cost-centre list becomes a long scroll with no search. A reader who knows the name scrolls to it anyway. Only a short, fixed list suits the select.
 
 **Reference:** GOV.UK
 
@@ -292,15 +298,15 @@ page
 
 **Strength:** default
 
-**Question:** Staff enter dates and times for trips, payouts, and trip plans. The decision is which control takes the value: a field with a calendar, three text inputs, or a date and a time beside each other. The native browser date input is refused: it draws the browser chrome instead of the application control, and it renders differently in every browser.
+**Question:** Staff enter dates and times for trips, payouts, and trip plans. The question is which control takes the value: a field with a calendar, three text inputs, or a date and a time beside each other. The native browser date input stays out: it draws the browser chrome instead of the application control, and it renders differently in every browser.
 
 **Default:** `one-text-field-with-a-calendar-that-opens-beside-it`
 
-**Compact:** Below the md breakpoint the calendar opens as a full-width sheet under the field, one month at a time.
+**Compact:** Below the md breakpoint the calendar opens as a full-width sheet under the field, showing one month at a time.
 
-**Rationale:** One typed field with a calendar beside it stays the pick. There is always a way to type, and the calendar serves a reader who would rather click. The three text inputs are the runner-up where accessibility review demands them; they cost the slowest entry in the form. A date and a time on one row are the other alternative where a form always takes both. Never ship the native date input: it draws the browser chrome instead of the application control.
+**Rationale:** The default is one typed field with a calendar beside it: there is always a way to type, and the calendar serves a reader who would rather click. The runner-up is three text inputs; prefer it where accessibility review demands it, at the cost of the slowest entry in the form. A date and a time on one row are the other alternative where a form always takes both. The native date input stays out: it draws the browser chrome instead of the application control.
 
-**Reviewed for:** Which built calendar input breaks from the wireframe its catalog entry chose? Open the built date, duration, and range fields beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built calendar input match the wireframe its catalog entry chose? Open the built date, duration, and range fields beside the catalog entry recording the chosen option and its reason.
 
 #### `one-text-field-with-a-calendar-that-opens-beside-it`: One Text Field with a Calendar That Opens Beside It
 
@@ -319,9 +325,9 @@ page
     field "Trip ends" text = "14/03/2026 12:00"
 ```
 
-**Rationale:** The reader types into one field, with a calendar beside it to click. The date picker pattern is exactly this, and the rule is that there must always be a way to type.
+**Rationale:** One field takes typing and the calendar beside it takes clicking. A reader who knows the date types it and never opens the grid; a reader who would rather click never has to type.
 
-**Cost:** A calendar is a grid of 42 cells to build, translate, and test in two languages. It is the most code in the form package for one field.
+**Cost:** A calendar is a grid of 42 cells to build, translate, and test in two languages. It is the most code in the form package for a single field.
 
 **Reference:** APG
 
@@ -345,9 +351,9 @@ page
     text muted "In the Europe/Amsterdam time zone."
 ```
 
-**Rationale:** The three-field date is the most accessible answer. It uses numeric input modes and autocomplete tokens, and every browser renders it the same.
+**Rationale:** Day, month, and year each get a numeric field with the input modes and autocomplete tokens every browser renders the same. That sameness is what makes it the most accessible answer.
 
-**Cost:** Three fields hold one value, so 94 dates a year means 282 numbers typed. It is the most accessible answer and the slowest one.
+**Cost:** Three fields hold one value, so 94 dates a year cost 282 numbers typed. The most accessible answer is also the slowest one to fill in.
 
 **Reference:** GOV.UK
 
@@ -369,9 +375,9 @@ page
     message critical "The end must be after the start."
 ```
 
-**Rationale:** Date and time sit side by side as two fields, with the time zone stated once above them rather than repeated under each. That means fewer repetitions of the same fact.
+**Rationale:** Date and time sit side by side as two fields for a form that always takes both. The time zone is stated once above them instead of repeated under each one.
 
-**Cost:** On a narrow screen two fields plus the row wrap to three lines. The time zone is stated once in the header, not beside each field.
+**Cost:** On a narrow screen the row wraps to three lines. The time zone reads once in the header, not beside each field.
 
 ### Text Field and Its States
 
@@ -379,15 +385,15 @@ page
 
 **Strength:** default
 
-**Question:** Every text field draws several states: empty, filled, focused, refused, disabled, and read-only. The label stays visible above the input in all of them. A placeholder is never the label, because it vanishes on the first keystroke.
+**Question:** Every text field draws several states: empty, filled, focused, refused, disabled, and read-only, with the label visible above the input in all of them. A placeholder never serves as the label, because it vanishes on the first keystroke. The question is how the field draws those states, and whether it confirms a good value before submit.
 
 **Default:** `label-above-help-under-six-states-on-one-page`
 
 **Compact:** Below the md breakpoint the states stack in one column, each with its label and help line.
 
-**Rationale:** The six-state reference page stays the pick, because it is the only option that pins every state one field must draw. Inline confirmation of a good value is the runner-up for create forms, where it saves a refused submit. Floating labels are the other alternative for a compact form. Never ship the placeholder as the label: it vanishes on the first keystroke, and its color misses contrast.
+**Rationale:** The default is the six-state reference page, the only option pinning every state one field draws. The runner-up confirms a good value inline; prefer it on create forms, where it saves a refused submit. Floating labels are the other alternative for a compact form. The placeholder-as-label stays out: it vanishes on the first keystroke, and its color misses contrast.
 
-**Reviewed for:** Which built text input breaks from the wireframe its catalog entry chose? Open the built labels, counts, and growing areas beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built text input match the wireframe its catalog entry chose? Open the built labels, counts, and growing areas beside the catalog entry recording the chosen option and its reason.
 
 #### `label-above-help-under-six-states-on-one-page`: Label Above, Help Under, Six States on One Page
 
@@ -410,9 +416,9 @@ page
     text muted "Issued by the system when the line was made."
 ```
 
-**Rationale:** The page is the component reference for the field: empty, filled, focused, refused, disabled, and read-only. Showing the states together is how a team checks one control rather than six screenshots.
+**Rationale:** The page is the component reference for the field. Empty, filled, focused, refused, disabled, and read-only stand together, so the team checks one control instead of six screenshots.
 
-**Cost:** Six instances of one field is a style guide, not a screen. It never appears in the product. It exists so the states cannot drift apart.
+**Cost:** Nobody ships this page: six instances of one field make a style guide, not a screen. It exists so the states never drift apart.
 
 #### `inline-confirmation-of-a-good-value`: Inline Confirmation of a Good Value
 
@@ -431,9 +437,9 @@ page
     action primary "Add the policy"
 ```
 
-**Rationale:** A good value is confirmed where it was typed, with a quiet line instead of a wait for the submit. Confirming the wanted name early saves a round trip.
+**Rationale:** A quiet line confirms a good value where it was typed, instead of waiting for the submit. Confirming the wanted name early saves a refused submit.
 
-**Cost:** Live validation is a narrow exception, because it judges a field before it is finished. The check must wait for a pause in typing, or it interrupts.
+**Cost:** Live validation judges a field before it is finished, so it stays a narrow exception. The check waits for a pause in typing, or it interrupts the reader.
 
 **Reference:** Stripe
 
@@ -452,9 +458,9 @@ page
     action primary "Add the policy"
 ```
 
-**Rationale:** A floating label answers the placeholder problem by moving the label above the value once the field fills, so the label never vanishes. It keeps the compact look the placeholder promised without breaking it.
+**Rationale:** The label starts inside the field and moves above the value once the field fills, so it never vanishes. The field keeps the compact look the placeholder promised, without breaking the label rule.
 
-**Cost:** The empty state still reads as a placeholder, with small text and low contrast. A floated label is smaller than every other label in the back office, so a reader with low vision reads it at a size the rest of the form never uses.
+**Cost:** The empty state still reads as a placeholder, with small text and low contrast. A floated label also runs smaller than every other label in the back office, so a reader with low vision reads it at a size the rest of the form never uses.
 
 **Reference:** Material Design
 
@@ -464,15 +470,15 @@ page
 
 **Strength:** default
 
-**Question:** A reader chooses from a closed set, such as a naming rule or a plan. A select hides its options until it opens, so radios beat a select for a short set, and a segmented control fits two or three short values. Two to five exclusive options are a radio group, and six or more are a select or a searchable picker. Nothing is pre-selected in a question, though settings allow it. The decision is which control carries the choice: a radio list, a segmented control, or a select.
+**Question:** A reader picks one value from a closed set, such as a receipt naming rule or a plan. A select hides its options until it opens, so visible controls win for short sets: radios for two to five exclusive options, a segmented control for two or three short values, and a select or a searchable picker for six or more. A question preselects nothing, though a setting may carry a default. The question is which control carries the choice: a radio list, a segmented control, or a select.
 
 **Default:** `a-radio-list-with-a-description-per-option`
 
 **Compact:** Below the md breakpoint the radio list stays in one column, with each description under its option.
 
-**Rationale:** The radio list with a description per option stays the pick. Each choice carries the sentence that lets a reader choose between names that sound alike. The segmented control is the runner-up for two or three short values with no descriptions. The select is the other alternative for a long list in a settings page. Never ship the native multi-select: it needs a modifier key to choose a second value and hides which values are chosen, and a checkbox list replaces it.
+**Rationale:** The default is the radio list with a description per option, since each choice carries the sentence that lets a reader tell names apart that sound alike. The runner-up is the segmented control; prefer it for two or three short values with no descriptions. The select is the other alternative for a long list on a settings page. The native multi-select stays out: it needs a modifier key for a second value and hides which values are chosen, so a checkbox list replaces it.
 
-**Reviewed for:** Which built single-choice control breaks from the wireframe its catalog entry chose? Open the built radios, segments, and plan cards beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built single-choice control match the wireframe its catalog entry chose? Open the built radios, segments, and plan cards beside the catalog entry recording the chosen option and its reason.
 
 #### `a-radio-list-with-a-description-per-option`: A Radio List with a Description per Option
 
@@ -492,9 +498,9 @@ page
     text "The spender names each line before filing."
 ```
 
-**Rationale:** Each option carries a sentence saying what it means for the spender. That sentence is the only way to choose between "The spender name" and "Every line named".
+**Rationale:** Each choice carries a sentence saying what it means for the spender. Without that sentence, "The spender name" and "Every line named" read as the same choice twice.
 
-**Cost:** Three radio rows are a tall block, and they do not scale to twelve options, which a permission picker does need.
+**Cost:** Three radio rows with descriptions make a tall block. It does not scale to twelve options, which a permission picker does need.
 
 #### `a-segmented-control-for-two-or-three`: A Segmented Control for Two or Three
 
@@ -512,9 +518,9 @@ page
     field "Cost centre" select = "Choose a cost centre"
 ```
 
-**Rationale:** The choice is between two or three values that are all visible at once. A segmented control shows every option and hides none behind a menu.
+**Rationale:** Two or three values sit side by side, all visible at once. Nothing hides behind a menu.
 
-**Cost:** Labels have to fit, so "A blank expense" and "A template" are both shortened. The control grows with its longest label.
+**Cost:** Every label must fit the control, so "A blank expense" and "A template" both read shortened. The control grows with its longest label, which caps how many values it holds.
 
 #### `a-select-in-a-settings-page-where-nothing-is-pre-selected`: A Select, in a Settings Page Where Nothing Is Pre-Selected
 
@@ -532,9 +538,9 @@ page
     text muted "The currency amounts are entered in. Every amount uses it."
 ```
 
-**Rationale:** A select with a real empty first option is the least-bad shape where the value has no default and the options are many.
+**Rationale:** Where the value has no default and the options are many, a select with a real empty first option is the least-bad shape: it asks the question without answering it.
 
-**Cost:** The empty option is a placeholder, and placeholders stay out of components. A select whose first choice is a blank that must be replaced is two states, not one.
+**Cost:** The empty option is a placeholder, and placeholders stay out of components. A select whose first choice is a blank awaiting replacement holds two states, not one.
 
 **Reference:** GOV.UK
 
@@ -544,15 +550,15 @@ page
 
 **Strength:** default
 
-**Question:** The payout editor holds a toggle for the cost-centre line, and settings pages hold many more switches and checkboxes. This pattern decides which control each setting deserves, and what the label must say, since the label carries the difference between the two.
+**Question:** Settings pages hold many switches and checkboxes, and the payout editor holds a toggle for the cost-centre line. The question is which control each setting gets and what its label says, since the label carries the difference between on and off.
 
 **Default:** `a-switch-with-the-label-and-its-consequence`
 
 **Compact:** Below the md breakpoint each switch keeps its label and its consequence line in one column.
 
-**Rationale:** The switch with its consequence stated stays the pick. The label says what is on, and the line under it says what turning it off does. Instant apply with an undo toast is the runner-up for low-risk settings a reader flips often. A checkbox is the other alternative where the off state is the default. Never ship a switch whose label names the control instead of the outcome.
+**Rationale:** The default is the switch with its consequence stated: the label says what is on, and the line under it says what turning it off does. The runner-up applies instantly with an undo toast; prefer it for low-risk settings a reader flips often. A checkbox is the other alternative where the off state is the default. A switch whose label names the control instead of the outcome stays out.
 
-**Reviewed for:** Which built toggle breaks from the wireframe its catalog entry chose? Open the built switches, checkboxes, and instant applies beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built toggle match the wireframe its catalog entry chose? Open the built switches, checkboxes, and instant applies beside the catalog entry recording the chosen option and its reason.
 
 #### `a-switch-with-the-label-and-its-consequence`: A Switch with the Label and Its Consequence
 
@@ -571,9 +577,9 @@ page
     text "The budget pays this one. EUR 5.00 per expense."
 ```
 
-**Rationale:** The label says what is on and the line under it says what turning it off does, so the choice is reversible and stated.
+**Rationale:** The label says what is on, and the line under it says what turning it off does. The reader sees both directions of the choice before touching it.
 
-**Cost:** The label has to carry the whole difference between on and off, and a reader still has to look twice to see the current state. A switch draws more attention than a setting that rarely changes needs.
+**Cost:** The label carries the whole difference between on and off, and a reader still looks twice to see the current state. A switch also draws more attention than a setting that rarely changes needs.
 
 #### `instant-apply-with-an-undo-toast`: Instant Apply with an Undo Toast
 
@@ -593,9 +599,9 @@ page
   toast positive "Booking fee waived for the Travel policy."
 ```
 
-**Rationale:** A low-risk switch applies at once, with Undo in a toast. There is no Save to forget and no dialog to dismiss, and the toast names what changed. Instant apply fits only a setting applied on its own, never a form that holds other unsaved edits.
+**Rationale:** A low-risk switch applies at once, and a toast names what changed with Undo beside it. There is no Save to forget and no dialog to dismiss. Instant apply fits only a setting applied on its own, never a form holding other unsaved edits.
 
-**Cost:** Every flip is an audited command the moment it happens, with no review step before it. It fits display settings, not money, access, or anything a toast cannot undo.
+**Cost:** Every flip is an audited command the moment it happens, with no review step before it. The shape fits display settings, not money, access, or anything a toast cannot undo.
 
 **Reference:** Linear
 
@@ -617,9 +623,9 @@ page
     text "Harbor and Pine, with its address and telephone number, as the law requires."
 ```
 
-**Rationale:** A checkbox fits a setting whose default is off and whose action is to tick something. The label is phrased as what ticking does, not as what the box is.
+**Rationale:** A checkbox fits a setting whose default is off and whose action is a tick. The label reads as what ticking does, not as a name for the box.
 
-**Cost:** A checkbox and a switch look nearly identical here, and readers conflate them. The phrasing of the label has to carry the difference.
+**Cost:** A checkbox and a switch look nearly identical here, and readers conflate them. Only the phrasing of the label tells the two apart.
 
 **Reference:** GOV.UK
 
@@ -629,15 +635,15 @@ page
 
 **Strength:** default
 
-**Question:** Claimwick records take files: a receipt photo or a staff spreadsheet. A receipt needs a stated type and size, and a staff import needs stated columns and row-level refusals. The decision is how the upload field states its contract and reports progress and refusals.
+**Question:** Claimwick records take files, from a receipt photo to a staff spreadsheet. A receipt needs a stated type and size, and a staff import needs stated columns and row-level refusals. The question is how the upload field states its contract up front, and how it reports progress and refusals while the file moves.
 
 **Default:** `a-drop-zone-that-states-what-it-accepts`
 
-**Compact:** Below the md breakpoint the drop zone takes a tap to choose a file, and its type and size line stays under it.
+**Compact:** Below the md breakpoint the drop zone takes a tap to choose a file, with its type and size line staying under it.
 
-**Rationale:** The drop zone that states its types and size limit stays the pick. Nobody learns the limit by being refused. The per-file progress tray is the runner-up for imports of several files, where one bar per file beats one bar for all. A CSV upload that states its columns first is the other alternative where the file must match a fixed shape. Never ship a CSV upload with no stated columns: a file refused for a format nobody stated is a refusal the application caused.
+**Rationale:** The default is the drop zone stating its types and size limit: nobody learns the limit by being refused. The runner-up is one progress row per file; prefer it for imports of several files, where one bar per file beats one bar for all. A CSV upload stating its columns first is the other alternative where the file must match a fixed shape. A CSV upload with no stated columns stays out: a file refused for a format nobody stated is a refusal the application caused.
 
-**Reviewed for:** Which built file input breaks from the wireframe its catalog entry chose? Open the built drop zones, CSV reads, and progress rows beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built file input match the wireframe its catalog entry chose? Open the built drop zones, CSV reads, and progress rows beside the catalog entry recording the chosen option and its reason.
 
 #### `a-drop-zone-that-states-what-it-accepts`: A Drop Zone That States What It Accepts
 
@@ -656,7 +662,7 @@ page
     field "Back-page description" text
 ```
 
-**Rationale:** The zone states the accepted types and the size limit in a sentence under it, so nobody discovers the limit by being refused.
+**Rationale:** The zone states the accepted types and the size limit in a sentence under it. The reader knows the contract before choosing a file, instead of discovering the limit by being refused.
 
 **Cost:** A drop zone invites a click anywhere, and a file dropped outside it does nothing at all. Nothing on the page shows where the zone begins.
 
@@ -679,9 +685,9 @@ page
     action primary "Check the files"
 ```
 
-**Rationale:** Each file reports on its own row with its own progress and its own cancel, because two files never finish together. One bar for all would lie about both.
+**Rationale:** Two files never finish together, so each file gets its own row with its own progress and its own cancel. One shared bar would lie about both.
 
-**Cost:** A row per file is a list the page must manage: cancel one, remove one, and retry one. For a single receipt it is heavier than the one zone it replaces.
+**Cost:** A row per file is a list the page must manage, with a cancel, a remove, and a retry per row. For a single receipt that list runs heavier than the one zone it replaces.
 
 **Reference:** Dropbox
 
@@ -704,9 +710,9 @@ page
     action primary "Check the file"
 ```
 
-**Rationale:** For an import, the field states the four column names and the template before anything is uploaded. A file cannot fail a format the page never stated.
+**Rationale:** For an import, the field states the four column names and offers a template before anything is uploaded. A file never fails a format the page did not state.
 
-**Cost:** Stating four columns above the zone is a paragraph of prose, and prose belongs on the page beside the field, not inside a component.
+**Cost:** Stating four columns above the zone costs a paragraph of prose. That prose belongs on the page beside the field, not inside a component.
 
 ### Reporting a Refused Submit
 
@@ -714,15 +720,15 @@ page
 
 **Strength:** default
 
-**Question:** A submit refused by the API must report what is wrong and where. WCAG 3.3.1 and 3.3.3 ask for a summary that takes focus and links to each field, plus a message on each field. The decision is how the form carries that report.
+**Question:** When the API refuses a submit, the form reports what is wrong and where. WCAG 3.3.1 and 3.3.3 ask for a summary that takes focus and links to each field, plus a message on each field. The question is how the form carries that report.
 
 **Default:** `a-summary-above-the-form-plus-a-message-on-each-field`
 
 **Compact:** Below the md breakpoint the summary sits above the form with its links, and each message stays under its field.
 
-**Rationale:** Keep the summary with focus, plus per-field messages. It meets WCAG 3.3.1 and 3.3.3, and the links carry the reader to each field. Validation on leaving each field is the runner-up as a complement, never a replacement: it confirms good values early but cannot orient a reader facing three errors. Messages on the fields only are the other alternative for a short form. Never ship the dialog summary: it hides the form the reader must fix. Whatever the form reports, it keeps every entered value, as [keep the reader's input through a failure](feedback-and-states.md#keep-the-readers-input-through-a-failure) states.
+**Rationale:** The default is the summary with focus, plus per-field messages. It meets WCAG 3.3.1 and 3.3.3, and the links carry the reader to each field. The runner-up validates on leaving each field; prefer it as a complement, never a replacement, since it confirms good values early but leaves a reader facing three errors with no overview. Messages on the fields only are the other alternative for a short form. The dialog summary stays out: it hides the form the reader must fix. Whatever the form reports, it keeps every entered value, as [Keep the Reader's Input Through a Failure](feedback-and-states.md#keep-the-readers-input-through-a-failure) states.
 
-**Reviewed for:** Which built submit-error report breaks from the wireframe its catalog entry chose? Open the built summaries and per-field messages beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built submit-error report match the wireframe its catalog entry chose? Open the built summaries and per-field messages beside the catalog entry recording the chosen option and its reason.
 
 #### `a-summary-above-the-form-plus-a-message-on-each-field`: A Summary Above the Form, Plus a Message on Each Field
 
@@ -745,9 +751,9 @@ page
     action primary "Create trip"
 ```
 
-**Rationale:** The summary comes first and receives focus, with each entry linking to its field. The field repeats the same wording so it reads the same out of context.
+**Rationale:** The summary comes first and takes focus, with each entry linking to its field. The field repeats the same wording, so the message reads the same in the summary and beside the field.
 
-**Cost:** The wording exists in two places per error, so generate it once and use it twice. Hand-written copies drift, and the drift is invisible.
+**Cost:** The wording exists in two places per error, so it is generated once and used twice. Hand-written copies drift apart, and the drift stays invisible.
 
 **Reference:** GOV.UK
 
@@ -770,9 +776,9 @@ page
     action primary "Create trip"
 ```
 
-**Rationale:** A field is checked when it is left and marked good or wrong where it sits. The reader fixes one field and moves on, and by the submit nothing is left to refuse.
+**Rationale:** Each field is checked when left and marked good or wrong where it sits. The reader fixes one field and moves on, leaving nothing for the submit to refuse.
 
-**Cost:** It is a complement to the summary, never a replacement: with three errors and no summary the reader still cannot see them all at once. A check on blur fires while the form is half-filled.
+**Cost:** The shape complements the summary and never replaces it: with three errors and no summary the reader still cannot see them all at once. A check on blur fires while the form is half-filled.
 
 **Reference:** Shopify Polaris
 
@@ -795,9 +801,9 @@ page
     action primary "Create trip"
 ```
 
-**Rationale:** Each field carries its own message and nothing else. The reader sees the error where it has to fix it.
+**Rationale:** Each field carries its own message and nothing else. The reader sees each error exactly where the fix goes.
 
-**Cost:** On a long form the first error may be below the fold. The reader submits, sees nothing change, and concludes the button is broken.
+**Cost:** On a long form the first error may sit below the fold. The reader submits, sees nothing change, and concludes the button is broken.
 
 ### Work That Is Not Saved
 
@@ -805,15 +811,15 @@ page
 
 **Strength:** default
 
-**Question:** A form must show work that is not saved. Nothing may read as saved before it is, and leaving must not drop typed work without a warning. The decision is how the form marks unsaved work and guards the way out.
+**Question:** A form shows work that is not saved yet. Nothing reads as saved before it is, and leaving drops no typed work without a warning. The question is how the form marks unsaved work and guards the way out.
 
 **Default:** `a-visible-unsaved-marker-beside-the-save`
 
 **Compact:** Below the md breakpoint the unsaved note and the Save button stay together at the foot of the form.
 
-**Rationale:** Keep the visible unsaved marker beside Save. A reader never has to remember whether anything was typed. The save bar pinned to the top is the runner-up for long settings pages where the form actions scroll out of view. Autosave with a saved marker is the other alternative for a note written over several sittings. Never ship silent autosave on money or access: each save would be an audited command, and an audit entry per keystroke batch is not a trail a reader can follow.
+**Rationale:** The default is the visible unsaved marker beside Save: a reader never has to remember whether anything was typed. The runner-up pins a save bar to the top; prefer it for long settings pages where the form actions scroll out of view. Autosave with a saved marker is the other alternative for a note written over several sittings. Silent autosave on money or access stays out: each save would be an audited command, and an audit entry per keystroke batch is not a trail a reader can follow.
 
-**Reviewed for:** Which built unsaved marker breaks from the wireframe its catalog entry chose? Open the built dirty flags, drafts, and save bars beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built unsaved marker match the wireframe its catalog entry chose? Open the built dirty flags, drafts, and save bars beside the catalog entry recording the chosen option and its reason.
 
 #### `a-visible-unsaved-marker-beside-the-save`: A Visible Unsaved Marker Beside the Save
 
@@ -835,7 +841,7 @@ page
 
 **Rationale:** The moment a field changes, the Save button carries the count and a note says what changed. The reader never has to remember whether anything was typed.
 
-**Cost:** The count of changed fields is a derived fact, so it has to come from the form rather than the route. A Save that changes its own label moves under the pointer.
+**Cost:** The count of changed fields is a derived fact, so the form computes it rather than the route. A Save button that changes its own label moves under the pointer.
 
 #### `a-save-bar-pinned-to-the-top-while-dirty`: A Save Bar Pinned to the Top While Dirty
 
@@ -854,9 +860,9 @@ page
     field "Typeface" select = "Inter"
 ```
 
-**Rationale:** A pinned bar keeps Save and Discard in reach on a long settings page. It appears with the first keystroke and leaves with the save.
+**Rationale:** On a long settings page, a pinned bar keeps Save and Discard in reach. It appears with the first keystroke and leaves with the save.
 
-**Cost:** A pinned bar covers content on a phone and follows the reader past sections it has nothing to do with. It needs the same dirty tracking as the marker, so it adds reach rather than information.
+**Cost:** A pinned bar covers content on a phone, and it follows the reader past sections it has nothing to do with. It needs the same dirty tracking as the marker, so it adds reach rather than information.
 
 **Reference:** Shopify Polaris
 
@@ -873,9 +879,9 @@ page
     text muted "Saved four seconds ago"
 ```
 
-**Rationale:** The form saves itself every few seconds, and a quiet marker says when. Nothing is lost and no dialog is ever needed.
+**Rationale:** The form saves itself every few seconds, and a quiet marker says when. Nothing is lost when the browser closes, and no dialog is ever needed.
 
-**Cost:** Autosave makes each save a command against money and access, which means an audit entry per keystroke batch. A past decision must stay reconstructable, and a trail of keystroke batches is not one a reader can follow.
+**Cost:** On money or access, each autosave is a command, which means an audit entry per keystroke batch. A past decision must stay reconstructable, and a trail of keystroke batches is not one a reader can follow.
 
 ### Picking a Period
 
@@ -883,15 +889,15 @@ page
 
 **Strength:** default
 
-**Question:** Payouts and reporting run on periods. Two typed dates cover every window but ask for both edges, while presets cover the common windows in one tap. The decision is how the period control combines typing and presets.
+**Question:** Payouts and reporting run on periods. Two typed dates cover every window at the cost of asking for both edges, while presets cover the common windows in one tap. The question is how the period control combines typing and presets.
 
 **Default:** `two-date-inputs-with-presets`
 
 **Compact:** Below the md breakpoint the two date fields stack, with the presets above them and the payout date under the second field.
 
-**Rationale:** Keep two typed dates with presets. One tap covers the common windows, typing covers the rare ones, and both edges stay visible. The painted calendar is the runner-up for reporting screens where the window itself is the question. The month picker is the other alternative for a report that runs by calendar month. Never ship presets alone with no typed fallback: no preset reaches the filing-to-payout window the payout check wants.
+**Rationale:** The default is two typed dates with presets: one tap covers the common windows, typing covers the rare ones, and both edges stay visible. The runner-up is the painted calendar; prefer it on reporting screens where the window itself is the question. The month picker is the other alternative for a report running by calendar month. Presets alone with no typed fallback stay out: no preset reaches the filing-to-payout window the payout check wants.
 
-**Reviewed for:** Which built range picker breaks from the wireframe its catalog entry chose? Open the built presets, month pickers, and painted calendars beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built range picker match the wireframe its catalog entry chose? Open the built presets, month pickers, and painted calendars beside the catalog entry recording the chosen option and its reason.
 
 #### `two-date-inputs-with-presets`: Two Date Inputs with Presets
 
@@ -910,9 +916,9 @@ page
     action primary "Show the run"
 ```
 
-**Rationale:** The presets fill both fields and either edge can then be adjusted by typing. The common windows cost one tap and the rare ones stay possible. The control that fills the fields and the fields that hold them are one unit.
+**Rationale:** The presets fill both fields, and either edge can then be adjusted by typing. The common windows cost one tap and the rare ones stay possible. The presets filling the fields and the fields holding them act as one unit.
 
-**Cost:** Two controls describe one value. The preset shows Custom the moment either date is edited, or the row claims a window it no longer holds.
+**Cost:** Two controls describe one value. The preset row shows Custom the moment either date is edited, or it claims a window it no longer holds.
 
 #### `a-calendar-with-the-range-painted`: A Calendar with the Range Painted
 
@@ -951,9 +957,9 @@ page
     action primary "Show the run"
 ```
 
-**Rationale:** The chosen range is painted across the calendar, so the window is seen instead of read from two dates. The endpoints stay readable as dates under the control.
+**Rationale:** The chosen range is painted across the calendar, so the reader sees the window instead of reading it from two dates. The endpoints stay readable as dates under the control.
 
-**Cost:** A painted month shows one month, and the payout window usually spans two. Two months side by side show the window truthfully, and they do not fit a phone.
+**Cost:** A painted month shows one month, and the payout window usually spans two. Two months side by side show the window truthfully, and they do not fit on a phone.
 
 **Reference:** Airbnb
 
@@ -973,9 +979,9 @@ page
     action primary "Show the run"
 ```
 
-**Rationale:** Payout and tax reporting run by calendar month, and picking March 2026 in one control beats typing the first and last day of the month.
+**Rationale:** Payout and tax reporting run by calendar month. Picking March 2026 in one control beats typing the first and last day of the month.
 
-**Cost:** The control cannot express a window that crosses a month edge, like the fortnight around the payout. Whole months are the only shape it draws.
+**Cost:** The control draws whole months only. It holds no window crossing a month edge, like the fortnight around the payout.
 
 ### Slug or URL Field with a Preview
 
@@ -983,15 +989,15 @@ page
 
 **Strength:** default
 
-**Question:** A trip takes a slug, the short part typed in, and spenders read the full address: they link it and print it. The decision is how the field takes the slug and previews the address before saving.
+**Question:** A trip takes a slug, the short part typed in, while spenders read the full address: they link it and print it. The question is how the field takes the slug and previews the address before saving.
 
 **Default:** `slug-with-the-live-address-under-it`
 
 **Compact:** Below the md breakpoint the live address wraps under the slug field, with the copy command beside it.
 
-**Rationale:** Keep the slug with its live address under it. The reader types the short part and reads the full address before saving. Transliteration from the name is the runner-up for creation, where typing the same words twice is pure overhead. The address as a fact is the other alternative once it is shared. Never ship an address that cannot be read before it is saved.
+**Rationale:** The default is the slug with its live address under it: the reader types the short part and reads the full address before saving. The runner-up transliterates from the name; prefer it at creation, where typing the same words twice is pure overhead. The address as a fact is the other alternative once it is shared. An address that stays unreadable until after it is saved stays out.
 
-**Reviewed for:** Which built address input breaks from the wireframe its catalog entry chose? Open the built slugs, transliterations, and availability checks beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built address input match the wireframe its catalog entry chose? Open the built slugs, transliterations, and availability checks beside the catalog entry recording the chosen option and its reason.
 
 #### `slug-with-the-live-address-under-it`: Slug with the Live Address Under It
 
@@ -1012,9 +1018,9 @@ page
     action primary "Save address"
 ```
 
-**Rationale:** The full address sits under the slug field and updates as the short value is typed. The short value is never saved unseen. The copy command beside it is how the address leaves the back office.
+**Rationale:** The full address sits under the slug field and updates as the short value is typed, so the short value is never saved unseen. The copy command beside it is how the address leaves the back office.
 
-**Cost:** The address must update as the reader types, which a static wireframe cannot show. It also states the host the platform gives, which cannot be changed on this screen.
+**Cost:** The address updates as the reader types, which a static wireframe cannot show. It also states the host the platform gives, which no control on this screen changes.
 
 **Reference:** Shopify
 
@@ -1036,9 +1042,9 @@ page
     action primary "Create trip"
 ```
 
-**Rationale:** The address is built from the name and can then be edited, because the name and the address agree nine times in ten. Typing both by hand is the same words twice.
+**Rationale:** The name and the address agree nine times in ten, so the address is built from the name and stays editable after. Typing both by hand is the same words twice.
 
-**Cost:** The generated value must transliterate Dutch diacritics the way the reader expects, and a renamed trip must not silently change its address. Generation runs once at creation, never again.
+**Cost:** The generated value transliterates Dutch diacritics the way the reader expects. Generation runs once at creation, never again, so a renamed trip never silently changes its address.
 
 **Reference:** WordPress
 
@@ -1059,9 +1065,9 @@ page
     action primary "Change the address"
 ```
 
-**Rationale:** An address in use is shown as a fact with a change command, because links already shared depend on it. The 30-day redirect is what makes the change survivable.
+**Rationale:** Links already shared depend on the address, so an address in use reads as a fact with a change command. The 30-day redirect is what makes the change survivable.
 
-**Cost:** Changing a value takes two steps, and the redirect has to be a real behavior, not a sentence. A redirect nobody builds is a promise the page breaks.
+**Cost:** Changing a value takes two steps, and the redirect must be real behavior, not a sentence. A redirect nobody builds is a promise the page breaks.
 
 **Reference:** GitHub
 
@@ -1071,15 +1077,15 @@ page
 
 **Strength:** default
 
-**Question:** A budget code takes money from one cost-centre budget: Amsterdam sales holds EUR 10,000, and every code draws from the same budget. The decision is how the capacity field shows the ceiling, the split, and the refusal past it.
+**Question:** A budget code takes money from one cost-centre budget: Amsterdam sales holds EUR 10,000, and every code draws from the same budget. The question is how the capacity field shows the ceiling, the split, and the refusal past it.
 
 **Default:** `a-number-with-the-warehouse-ceiling-restated`
 
 **Compact:** Below the md breakpoint the ceiling field sits above the restated budget facts in one column.
 
-**Rationale:** Keep the number with the budget ceiling restated. One field, the budget it draws from, and what is left sit on the same screen. The split across codes is the runner-up for the budget page, where the question is the whole budget rather than one code. Claimed as a read-only fact beside an editable ceiling is the other alternative where claimed must never be typed. Never ship a capacity with no ceiling stated: a number without its budget is a number that overspends.
+**Rationale:** The default is the number with the budget ceiling restated. One field, the budget it draws from, and what is left sit on the same screen. The runner-up is the split across codes; prefer it on the budget page, where the question is the whole budget rather than one code. Claimed as a read-only fact beside an editable ceiling is the other alternative where claimed must never be typed. A capacity with no ceiling stated stays out: a number without its budget is a number that overspends.
 
-**Reviewed for:** Which built ceiling input breaks from the wireframe its catalog entry chose? Open the built splits, steppers, and overage messages beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built ceiling input match the wireframe its catalog entry chose? Open the built splits, steppers, and overage messages beside the catalog entry recording the chosen option and its reason.
 
 #### `a-number-with-the-warehouse-ceiling-restated`: A Number with the Budget Ceiling Restated
 
@@ -1100,9 +1106,9 @@ page
     action primary "Save capacity"
 ```
 
-**Rationale:** The budget total sits beside every ceiling field, because a code allocation means nothing without the budget it draws from. The line under the field says how spent the budget is.
+**Rationale:** Every ceiling field carries the budget total beside it: a code allocation means nothing without the budget it draws from. The line under the field says how spent the budget is.
 
-**Cost:** The restated ceiling must update when another code changes, or two screens state two budgets. It is a read of the whole cost centre behind one field.
+**Cost:** The restated figures update when another code changes, or two screens state two budgets. One field carries a read of the whole cost centre behind it.
 
 #### `the-split-across-types-with-what-is-left`: The Split Across Types with What Is Left
 
@@ -1121,9 +1127,9 @@ page
     text muted "Retired codes keep their claimed amounts but release nothing back."
 ```
 
-**Rationale:** One row per code shows claimed against its ceiling, because the question is the budget, not the row. The leftover line is what the reader came to read.
+**Rationale:** One row per code shows claimed against its ceiling. The question is the budget, not the row, and the leftover line is what the reader came to read.
 
-**Cost:** A row per code carries the columns a table would, and at twelve codes it needs the table back. Editing still jumps to one code at a time.
+**Cost:** A row per code carries the columns a table would. At twelve codes it needs the table back, and editing still jumps to one code at a time.
 
 #### `sold-as-a-read-only-fact-beside-an-editable-cap`: Claimed as a Read-Only Fact Beside an Editable Ceiling
 
@@ -1144,9 +1150,9 @@ page
     action primary "Save capacity"
 ```
 
-**Rationale:** Claimed is shown as a fact beside the controls that move it: claimed is what happened, and the ceiling is what the reader decides. The two must never share a field.
+**Rationale:** Claimed is shown as a fact beside the controls that move it. Claimed is what happened, and the ceiling is what the reader decides, so the two never share a field.
 
-**Cost:** Three figures plus a field for one decision, and the derived Left line must update as the ceiling is typed. It is the most screen per field in this item.
+**Cost:** Three figures plus a field for one decision. The derived Left line updates as the ceiling is typed, and it is the most screen per field in this pattern.
 
 **Reference:** Stripe
 
@@ -1156,15 +1162,15 @@ page
 
 **Strength:** default
 
-**Question:** A company brands its approval mails with one accent color: a `#RRGGBB` value dark enough for white button text to read on it. The field takes the value and proves the contrast before the page refuses it.
+**Question:** A company brands its approval mails with one accent color: a `#RRGGBB` value dark enough for white button text to read on it. The question is how the field takes the value and proves the contrast before the value is refused.
 
 **Default:** `hex-field-with-a-swatch-and-a-contrast-readout`
 
 **Compact:** Below the md breakpoint the swatch sits above the hex field, and the contrast readout stays under it.
 
-**Rationale:** The hex field with a swatch and a contrast readout is the pick. It takes any color, shows it, and states the ratio the validation enforces. The approver-button preview is the runner-up, because the button shows the ratio rather than stating it. Preset swatches are the other alternative for a reader who does not know a hex value. Never ship a free color with no contrast check: a pale accent ships white text nobody can read.
+**Rationale:** The default is the hex field with a swatch and a contrast readout. It takes any color, shows it, and states the ratio the validation enforces. The runner-up is the approver-button preview, which shows the ratio rather than stating it. Preset swatches are the other alternative for a reader who does not know a hex value. A free color with no contrast check stays out: a pale accent ships white text nobody can read.
 
-**Reviewed for:** Which built accent picker breaks from the wireframe its catalog entry chose? Open the built swatches, wells, and contrast readouts beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built accent picker match the wireframe its catalog entry chose? Open the built swatches, wells, and contrast readouts beside the catalog entry recording the chosen option and its reason.
 
 #### `hex-field-with-a-swatch-and-a-contrast-readout`: Hex Field with a Swatch and a Contrast Readout
 
@@ -1185,9 +1191,9 @@ page
     action primary "Save accent"
 ```
 
-**Rationale:** A hex field is paired with a swatch and the rule it passes. A color value means nothing until it is seen, and the readout repeats the validation rule, so the rule is learned before the request rather than after it.
+**Rationale:** A hex field is paired with a swatch and the rule it passes. A color value means nothing until it is seen, and the readout states the validation rule, so the reader learns the rule before saving rather than after a refusal.
 
-**Cost:** The ratio must recompute as the value is typed, and an unfinished value has no ratio to state. Six characters that are not yet a color need patience, not a refusal.
+**Cost:** The ratio recomputes as the value is typed, and an unfinished value has no ratio to state. Six characters that are not yet a color need patience, not a refusal.
 
 **Reference:** Shopify
 
@@ -1215,9 +1221,9 @@ page
     action primary "Save accent"
 ```
 
-**Rationale:** The brand color is previewed on the button the approver presses, because the button shows the ratio rather than stating it. The reader sees white on the accent instead of reading a number.
+**Rationale:** The brand color is previewed on the button the approver presses. The button shows the ratio rather than stating it: the reader sees white on the accent instead of reading a number.
 
-**Cost:** A preview is a second surface that must match the typed value. It shows the typed value, not the saved one, and updates as the reader types. A stale preview shows a value the reader will not get.
+**Cost:** A preview is a second surface that matches the typed value. It shows the typed value, not the saved one, and updates as the reader types. A stale preview shows a value the reader will not get.
 
 **Reference:** Mailchimp
 
@@ -1245,9 +1251,9 @@ page
     action primary "Save accent"
 ```
 
-**Rationale:** A row of presets all satisfy the rule, with a custom field for a reader who knows better. One tap covers the common case and cannot produce a failing color.
+**Rationale:** A row of presets all satisfy the rule, with a custom field for a reader who knows better. One tap covers the common case and never produces a failing color.
 
-**Cost:** Six presets cannot hold a brand color, so the custom field carries the real work anyway, and a preset row that never changes starts to look like the whole choice.
+**Cost:** Six presets hold no brand color, so the custom field carries the real work anyway. A preset row that never changes starts to look like the whole choice.
 
 **Reference:** Slack
 
@@ -1257,15 +1263,15 @@ page
 
 **Strength:** default
 
-**Question:** A trip budget holds TRIP10, MEAL20, and TAXI05: three groups with the same fields, each with its own name, ceiling, and allocation. The group repeats, and the budget counts every repetition.
+**Question:** A trip budget holds TRIP10, MEAL20, and TAXI05: three groups with the same fields, each with its own name, ceiling, and allocation. The group repeats, and the budget counts every repetition. The question is how the form draws the repetition: cards, a table, or one section per entry.
 
 **Default:** `stacked-cards-one-per-type`
 
 **Compact:** Below the md breakpoint the cards stack in one column, each with its code, its claimed count, its ceiling, and its actions.
 
-**Rationale:** The stacked cards are the pick: one card per code with its ceiling and allocation readable at once, and one command to add another. The table with inline editing is the runner-up for reviewing many codes, where changing three ceilings should cost three fields and no navigation. One section per repetition is the other alternative for creation, where each code is new. Never ship a group whose repetitions cannot be removed: a code added by mistake must leave without taking its claimed amounts with it.
+**Rationale:** The default is stacked cards: one card per code with its ceiling and allocation readable at once, and one command to add another. The runner-up is the table with inline editing; prefer it for reviewing many codes, where changing three ceilings costs three fields and no navigation. One section per repetition is the other alternative for creation, where each code is new. A group whose repetitions cannot be removed stays out: a code added by mistake leaves without taking its claimed amounts with it.
 
-**Reviewed for:** Which built code group breaks from the wireframe its catalog entry chose? Open the built stacked cards and inline tables beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built code group match the wireframe its catalog entry chose? Open the built stacked cards and inline tables beside the catalog entry recording the chosen option and its reason.
 
 #### `stacked-cards-one-per-type`: Stacked Cards, One per Type
 
@@ -1283,7 +1289,7 @@ page
     action primary "Save order"
 ```
 
-**Rationale:** One card per repetition with its ceiling readable at once, because repetitions are compared before one is edited. A code with claims stays visible but loses its Remove command.
+**Rationale:** One card per repetition carries its ceiling readable at once. Repetitions are compared before one is edited, and a code with claims stays visible while losing its Remove command.
 
 **Cost:** A card shows the ceiling but hides the dates, the cost-centre rule, and the description, so editing still opens each code. The list answers what, never why.
 
@@ -1321,7 +1327,7 @@ page
 
 **Rationale:** Values are edited where they sit, so changing three ceilings costs three fields and no navigation. One row in edit state at a time keeps the table readable while it is also a form.
 
-**Cost:** A table that is also a form validates cell by cell, and a refused cell must hold its row open. At phone width the columns scroll sideways, which hides the ceiling behind a swipe.
+**Cost:** A table that is also a form validates cell by cell, and a refused cell holds its row open. At phone width the columns scroll sideways, which hides the ceiling behind a swipe.
 
 **Reference:** Airtable
 
@@ -1353,9 +1359,9 @@ page
     action primary "Save codes"
 ```
 
-**Rationale:** The full group repeats once per entry with its own remove. Each repetition deserves the same labels, help, and errors as the first, and nothing about the second is abbreviated.
+**Rationale:** The full group repeats once per entry with its own remove. Each repetition gets the same labels, help, and errors as the first, and nothing about the second is abbreviated.
 
-**Cost:** Three full groups make a long page, and the budget total has nowhere to sit. It fits creation, where each code is new. It drags for review, where each code is known.
+**Cost:** Three full groups make a long page, and the budget total has nowhere to sit. The shape fits creation, where each code is new, and drags for review, where each code is known.
 
 **Reference:** GOV.UK
 
@@ -1365,15 +1371,15 @@ page
 
 **Strength:** default
 
-**Question:** Expenses and trips carry short tags: travel, meals, client. Tags are typed freely but read everywhere, so the input must take new words and still keep old ones spelled one way.
+**Question:** Expenses and trips carry short tags: travel, meals, client. Tags are typed freely but read everywhere. The question is how the input takes new words while keeping old ones spelled one way.
 
 **Default:** `chips-with-type-to-add-and-suggestions`
 
 **Compact:** Below the md breakpoint the chips wrap above the field, and the suggestions open under it.
 
-**Rationale:** The chips with type-to-add and suggestions are the pick: new words are allowed and old ones are offered, so `travel` is spelled once. A checkbox list in a popover is the runner-up where the tag set is closed and counted. Free text split on commas is the other alternative where a list is pasted in. Never ship free text with no suggestions: it grows `travel`, `Travel`, and `travel-meals` side by side.
+**Rationale:** The default is chips with type-to-add and suggestions. New words are allowed and old ones are offered, so `travel` is spelled once. The runner-up is a checkbox list in a popover; prefer it where the tag set is closed and counted. Free text split on commas is the other alternative where a list is pasted in. Free text with no suggestions stays out: it grows `travel`, `Travel`, and `travel-meals` side by side.
 
-**Reviewed for:** Which built tag chip breaks from the wireframe its catalog entry chose? Open the built chips, popover lists, and inherited tags beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built tag chip match the wireframe its catalog entry chose? Open the built chips, popover lists, and inherited tags beside the catalog entry recording the chosen option and its reason.
 
 #### `chips-with-type-to-add-and-suggestions`: Chips with Type-to-Add and Suggestions
 
@@ -1399,9 +1405,9 @@ page
     text "Use tra as a new tag"
 ```
 
-**Rationale:** Existing tags are offered as the reader types. A new word is accepted on Enter, so the existing spelling stays without forbidding the new one. The count on each suggestion says how many expenses carry the tag.
+**Rationale:** Existing tags are offered as the reader types, and a new word is accepted on Enter. The existing spelling stays without forbidding the new one, and the count on each suggestion says how many expenses carry the tag.
 
-**Cost:** Suggestions must search across every expense on every keystroke pause, and a slow search answers after the reader has already pressed Enter. The new word is accepted by timing, not by choice.
+**Cost:** Suggestions search across every expense on every pause in typing. A slow search answers after the reader has pressed Enter, so the new word is accepted by timing, not by choice.
 
 **Reference:** GitHub
 
@@ -1434,9 +1440,9 @@ page
     action "Done"
 ```
 
-**Rationale:** A closed tag set is drawn as checkboxes with a count on the button. Ticking is faster than typing when the words already exist, and managing the list is a separate task with its own dialog.
+**Rationale:** A closed tag set is drawn as checkboxes with a count on the button. Ticking beats typing when the words already exist, and managing the list is a separate task with its own dialog.
 
-**Cost:** A closed set cannot take a new word where it is needed, so the reader leaves the form to make one. It fits a governed vocabulary and fights a growing one.
+**Cost:** A closed set takes no new word where it is needed, so the reader leaves the form to make one. It fits a governed vocabulary and fights a growing one.
 
 **Reference:** Shopify
 
@@ -1463,7 +1469,7 @@ page
 
 **Rationale:** Tags are taken as one comma-separated line with the parsed chips read back below. Pasting a list from elsewhere works without retyping, and the readout shows exactly how the line was split.
 
-**Cost:** No suggestions means no shared spelling: `travel` and `Travel` become two tags and nobody is told. The readout shows the split but cannot judge the words.
+**Cost:** No suggestions means no shared spelling: `travel` and `Travel` become two tags and nobody is told. The readout shows the split but never judges the words.
 
 **Reference:** WordPress
 
@@ -1473,15 +1479,15 @@ page
 
 **Strength:** default
 
-**Question:** Harbor and Pine answers for its expenses with a name, an address, and a telephone number on every spender message. The address field takes the street the law asks for and the postcode the mail needs.
+**Question:** Harbor and Pine answers for its expenses with a name, an address, and a telephone number on every spender message. The question is how the address field takes the street the law asks for and the postcode the mail needs.
 
 **Default:** `postcode-lookup-that-fills-the-street`
 
 **Compact:** Below the md breakpoint the postcode and number sit on one row, and the looked-up street follows under them.
 
-**Rationale:** The postcode lookup is the pick: two short values the reader knows produce the street they would mistype. Country first is the runner-up for companies outside the lookup coverage. One search that fills the address is the other alternative for a reader who knows the street but not its spelling. The postcode stays optional for a country that has none, and every lookup offers manual entry beside it. Never ship a single free-text address box: one line cannot be split into street, postcode, and city again.
+**Rationale:** The default is the postcode lookup. Two short values the reader knows produce the street they would mistype. The runner-up asks country first; prefer it for companies outside the lookup coverage. One search that fills the address is the other alternative for a reader who knows the street but not its spelling. The postcode stays optional for a country that has none, and every lookup offers manual entry beside it. A single free-text address box stays out: one line never splits back into street, postcode, and city.
 
-**Reviewed for:** Which built location input breaks from the wireframe its catalog entry chose? Open the built lookups, country shapes, and map pins beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built location input match the wireframe its catalog entry chose? Open the built lookups, country shapes, and map pins beside the catalog entry recording the chosen option and its reason.
 
 #### `postcode-lookup-that-fills-the-street`: Postcode Lookup That Fills the Street
 
@@ -1505,7 +1511,7 @@ page
     action primary "Save address"
 ```
 
-**Rationale:** Postcode plus number is asked for first, because both are known by heart. The lookup then fills the street the reader would mistype. Two short fields beat one long one.
+**Rationale:** Postcode plus number are asked first, because the reader knows both by heart. The lookup then fills the street the reader would mistype. Two short fields beat one long one.
 
 **Cost:** The lookup covers the Netherlands and nowhere else, so every other country falls back to manual entry. Two paths through one field are two paths to test.
 
@@ -1533,7 +1539,7 @@ page
 
 **Rationale:** The country comes first because the shape of an address follows it: a Dutch postcode is nothing like a German one. The labels and the validation change with the country.
 
-**Cost:** Every supported country needs its own shape, its own labels, and its own validation. Three countries fit this pattern. Thirty need a library.
+**Cost:** Every supported country needs its own shape, labels, and validation. Three countries fit this pattern; thirty need a library.
 
 **Reference:** Stripe
 
@@ -1556,9 +1562,9 @@ page
     link "Type the address by hand instead"
 ```
 
-**Rationale:** A half-typed street resolves to a full address, because the reader knows where they are but not how the database spells it. One field holds the whole search.
+**Rationale:** A half-typed street resolves to a full address, for the reader who knows where they are but not how the database spells it. One field holds the whole search.
 
-**Cost:** An address search reads a provider the back office pays per keystroke, and the first result may be chosen without reading. The manual fallback must stay one tap away.
+**Cost:** An address search reads a provider the back office pays per keystroke, and the first result may be chosen without reading. The manual fallback stays one tap away.
 
 **Reference:** Google Places
 
@@ -1568,15 +1574,15 @@ page
 
 **Strength:** default
 
-**Question:** Claimwick mails every spender when a payout is sent, and the message carries the spender name, the expense number, and the arrival date. The editor takes the company words once and fills the spender facts per expense.
+**Question:** Claimwick mails every spender when a payout is sent, and the message carries the spender name, the expense number, and the arrival date. The question is how the editor takes the company words once and fills the spender facts per expense.
 
 **Default:** `subject-plus-body-with-variable-chips`
 
 **Compact:** Below the md breakpoint the subject and body stack, and the variable chips and the insert field sit under the body.
 
-**Rationale:** The subject plus body with variable chips is the pick: the sentence is written and the facts are placed where they belong. The side-by-side spender preview is the runner-up, because a template is proven once it is seen filled. Plain text with a variable list is the other alternative where a mail client must read text. Never ship a template with no preview: variables are spelled in one place and filled in another, and only a filled copy shows that they meet.
+**Rationale:** The default is subject plus body with variable chips. The sentence is written once and the facts are placed where they belong. The runner-up is the side-by-side spender preview; prefer it because a template is proven once it is seen filled. Plain text with a variable list is the other alternative where a mail client must read text. A template with no preview stays out: variables are spelled in one place and filled in another, and only a filled copy shows that they meet.
 
-**Reviewed for:** Which built message composer breaks from the wireframe its catalog entry chose? Open the built subject-plus-body forms and variable chips beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built message composer match the wireframe its catalog entry chose? Open the built subject-plus-body forms and variable chips beside the catalog entry recording the chosen option and its reason.
 
 #### `subject-plus-body-with-variable-chips`: Subject Plus Body with Variable Chips
 
@@ -1600,9 +1606,9 @@ page
     action primary "Save message"
 ```
 
-**Rationale:** Template variables are listed as chips under the body, because a variable is a word with a value, not code. The body carries each variable where it belongs, and the chips name what the editor accepts.
+**Rationale:** Template variables are listed as chips under the body. A variable is a word with a value, not code: the body carries each one where it belongs, and the chips name what the editor accepts.
 
-**Cost:** The body holds brackets as plain text, so the editor must highlight each variable it recognizes and refuse a misspelled one. The chips and the insert select are two ways to do the same thing, and both must agree.
+**Cost:** The body holds brackets as plain text, so the editor highlights each variable it recognizes and refuses a misspelled one. The chips and the insert select are two ways to do the same thing, and both agree.
 
 **Reference:** Mailchimp
 
@@ -1628,9 +1634,9 @@ page
     action primary "Save message"
 ```
 
-**Rationale:** A template is previewed beside the editor with a real record filled in, because a variable is only proven by its value. Ava's payout fills every variable this template holds.
+**Rationale:** A template is previewed beside the editor with a real record filled in. A variable is only proven by its value, and Ava's payout fills every variable this template holds.
 
-**Cost:** Two columns collapse to one on a phone, so the preview sits below the editor and the reader scrolls between them. A long template makes a long round trip.
+**Cost:** Two columns collapse to one on a phone. The preview sits below the editor and the reader scrolls between them, so a long template makes a long round trip.
 
 **Reference:** Postmark
 
@@ -1656,8 +1662,8 @@ page
     action primary "Save message"
 ```
 
-**Rationale:** A template is written as plain text with double-bracket variables, and each one is listed beside the editor with an example value. Nothing about the message can break in a mail client that reads text.
+**Rationale:** A template is written as plain text with double-bracket variables, each listed beside the editor with an example value. Nothing about the message breaks in a mail client that reads text.
 
-**Cost:** Double brackets are learned, not guessed: one missing bracket fails silently or loudly depending on the parser. The editor must highlight what it recognizes as the reader types.
+**Cost:** Double brackets are learned, not guessed: one missing bracket fails silently or loudly depending on the parser. The editor highlights what it recognizes as the reader types.
 
 **Reference:** GOV.UK

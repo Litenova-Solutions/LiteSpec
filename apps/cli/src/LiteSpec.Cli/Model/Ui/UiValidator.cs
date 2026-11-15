@@ -3,9 +3,9 @@ namespace LiteSpec.Cli.Model.Ui;
 /// <summary>
 ///     The controlled web UI validator: the in-process <see cref="Validate"/> the consumer pass calls.
 /// </summary>
-/// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
+/// <follows>litespec/frontend/ui#record-one-shared-ui-package</follows>
 /// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
-/// <follows>litespec/frontend/web/ui#track-source-changes</follows>
+/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
 static class UiValidator
 {
     /// <summary>

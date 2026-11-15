@@ -1,19 +1,22 @@
 # .NET Naming and Code Style
 
 **Stack:** dotnet
+
 **Concern:** workspace
 
-## Intent
-
-C# code in a .NET backend names its files and implementation shapes one way across every project, and places every cancellation token last. This page states those .NET rules: one primary type per file, a trailing cancellation token in every signature that takes one, a shared implementation style, and names that state their reason. The shared naming rules live on [Naming and Code Style](../../workspace/naming.md); this page holds only their .NET form.
+C# code in a .NET backend names its files, types, and variables one way across every project, and places every cancellation token last. This page defines the .NET form of the shared [Naming and Code Style](../../workspace/naming.md) rules: one primary type per file, a trailing cancellation token in every signature that takes one, a shared implementation style, and names that state their reason.
 
 ## Concepts
 
 ### Files and Style
 
-A C# file takes its primary type's exact name, so a reader finds any type by its file. A method that takes a cancellation token places it last, so callers pass cancellation without reading the signature. File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
+A C# file takes its primary type's exact name, so a reader finds any type by its file. Only a small private or file-scoped nested type stays with its owner; anything bigger gets its own file under its own name.
 
-### C# Role Suffixes
+A method that takes a cancellation token places it last and names it `cancellationToken`, so callers pass cancellation without reading the signature. File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
+
+### C# Role Names
+
+The suffixes for handlers, endpoints, reactions, and jobs live in the Role Suffixes table on the shared [Naming and Code Style](../../workspace/naming.md) page. The table below adds the C#-specific names: the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and the modules project carries one assembly marker.
 
 | Role | Pattern | Example |
 |:---|:---|:---|
@@ -21,8 +24,6 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 | API mapping class | `{UseCase}ApiMappings` | `CreateDraftApiMappings` |
 | Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
 | Assembly marker | `{Product}AssemblyMarker` | `ClaimwickAssemblyMarker` |
-
-In the dotnet stack, the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and the modules project carries one assembly marker.
 
 Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
 
@@ -66,9 +67,9 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Checked by:** `dotnet build` reports `LS3004` for a concrete class with no derived type that is not sealed.
 
-### Check Architectural Role Suffixes
+### Apply Architectural Role Suffixes
 
-**ID:** `litespec/backend/dotnet/naming#check-architectural-role-suffixes`
+**ID:** `litespec/backend/dotnet/naming#apply-architectural-role-suffixes`
 
 **Strength:** required
 
@@ -78,9 +79,9 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix, `LS2006` for an endpoint missing its suffix, and `LS2007` for a reaction or job whose name hides its kind.
 
-### Check Result Part Names
+### Name Result Parts After Their Result
 
-**ID:** `litespec/backend/dotnet/naming#check-result-part-names`
+**ID:** `litespec/backend/dotnet/naming#name-result-parts-after-their-result`
 
 **Strength:** required
 
@@ -90,9 +91,9 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Checked by:** `dotnet build` reports `LS2009` for a type a use-case result reaches through its properties whose name does not start with the result name.
 
-### Check Repository Variable Names
+### Name Repository Variables After Their Interface
 
-**ID:** `litespec/backend/dotnet/naming#check-repository-variable-names`
+**ID:** `litespec/backend/dotnet/naming#name-repository-variables-after-their-interface`
 
 **Strength:** required
 
@@ -104,9 +105,9 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 ## Conventions
 
-### Name No Folder or Type for the Absence of a Reason
+### Name Every Folder and Type for Its Reason
 
-**ID:** `litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason`
+**ID:** `litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason`
 
 **Strength:** default
 
@@ -114,7 +115,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Replacement:** A project names its shared kernel project in `stackConfig.dotnet.sharedKernel` and keeps every other folder and type named for its reason.
 
-**Rationale:** A folder named `Shared` or a type ending in `Manager` tells the reader the author found no reason to name; each such name becomes the drawer where unrelated code gathers. The shared kernel project is the one declared exception, named in one place, so the exception stays visible instead of spreading.
+**Rationale:** A folder named `Shared` or a type ending in `Manager` tells the reader the author found no reason to name, and each such name becomes the drawer where unrelated code gathers. The shared kernel project is the one declared exception, named in one place, so the exception stays visible instead of spreading.
 
 **Example:** The declared shared kernel project passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 

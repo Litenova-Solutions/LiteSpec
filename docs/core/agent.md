@@ -3,37 +3,45 @@
 **Stack:** any
 **Concern:** workspace
 
-## Intent
-
-An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need an explicit task instruction before the agent acts. Following them keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check.
+An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need an explicit task instruction before the agent acts. This protocol keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check. It applies to every agent run in a LiteSpec project, and to every review of an agent's change.
 
 ## Concepts
 
 ### The Project Model and the Agent Context
 
-A consumer project describes itself with records of fixed types in four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation holds code and technical decisions, and Proof shows the checks. Governance is a group of records beside the four record layers, not a fifth layer. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
+A consumer project describes itself with records of fixed types in four record layers. Intent states the promises, Behavior states how the system keeps them, Implementation holds code and technical decisions, and Proof shows the checks. Governance is a group of records beside the four record layers, not a fifth layer. The [model page](model.md) states the record types and their links.
 
-The query output is the task context: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve. Reading the query output before editing starts the run from decided Intent instead of repository guesswork. Every task follows one order: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code.
+An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios. The query output is the task context: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve.
+
+Reading the query output before editing starts the run from decided Intent instead of repository guesswork. Every task follows one order: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code.
 
 ### Extensions and Their Boundaries
 
-An extension is a conditional standards bundle a project selects when its criterion holds. A selected project extension applies to the whole project, while a selected local extension applies only inside its own boundary, such as one frontend or one module. The [scope page](scope.md) states how a project selects extensions. Editing inside an extension's boundary without loading the extension follows baseline guidance the extension replaced.
+An extension is a conditional standards bundle a project selects when its criterion holds. A selected project extension applies to the whole project, while a selected local extension applies only inside its own boundary, such as one frontend or one module.
+
+The [scope page](scope.md) states how a project selects extensions. Editing inside an extension's boundary without loading the extension follows baseline guidance the extension replaced.
 
 ### Guidance Precedence
 
-Guidance overlaps by design: a project waiver narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project waiver first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local decision wins, and the broader baseline fills only the gaps it leaves.
+Guidance overlaps by design: a project waiver narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project waiver first, then the extension, then the deeper page, then the shallower page.
+
+A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local decision wins, and the broader baseline fills only the gaps it leaves.
 
 ### Agents Write Below Decided Intent
 
-The [layers page](layers.md) states the closed specification. The owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests. The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
+The [layers page](layers.md) states the closed specification: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests. The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
 
 ### Side Effects That Need an Explicit Task Instruction
 
-Some changes reach beyond an ordinary implementation edit: they alter project boundaries, move money or data, or change state outside the repository. Each such change needs an explicit task instruction that names the action and its bounds before the agent acts, because the task text alone never justifies it. A project may grant wider authority in its `AGENTS.md`. The side-effect provision below lists the changes it covers.
+Some changes reach beyond an ordinary implementation edit: they alter project boundaries, move money or data, or change state outside the repository. Each such change needs an explicit task instruction that names the action and its bounds before the agent acts, because the task text alone never justifies it.
+
+A project may grant wider authority in its `AGENTS.md`. The side-effect provision below lists the changes it covers.
 
 ### Ask the Tool Which Provisions Apply
 
-`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and waivers merged in. A convention states a judgment rule; a list of words belongs in the glossary, where the checks read it. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
+`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and waivers merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
+
+A convention states a judgment rule; a list of words belongs in the glossary, where the checks read it.
 
 ### Git Is the Decision Record
 
@@ -41,7 +49,9 @@ The [principles page](principles.md) states git as the decision record. An agent
 
 ### Work in Progress
 
-Every link between records holds in every run. `litespec model check` blocks on reachability locally and in the pull-request check alike, so work in progress that leaves a record unreached carries a gap waiver with `expiresOn` and `closedBy`, which parks reachability for that record until it expires.
+Every link between records holds in every run, and `litespec model check` blocks on reachability locally and in the pull-request check alike.
+
+Work in progress that leaves a record unreached carries a gap waiver with `expiresOn` and `closedBy`, which parks reachability for that record until it expires.
 
 ### New Intent in a Running Project
 
@@ -73,7 +83,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** `litespec model query use-case/spending.submit-expense` returns the use case with its rules, results, and scenarios. A spelling fix in a setting record reads the record and its explanation file, then edits without querying the model.
 
-**Reviewed for:** The completion report names the model query that selected the cited records, or names the prose-only correction and the record it read.
+**Reviewed for:** Does the completion report name the model query that selected the cited records, or the prose-only correction and the record it read? Check the report beside the cited records.
 
 ### Load Applicable Extensions
 
@@ -89,7 +99,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** A change to the cached catalog reads the selected caching extension before touching the code its boundary covers.
 
-**Reviewed for:** The change names each extension loaded before editing inside its boundary.
+**Reviewed for:** Does the change name each extension loaded before editing inside its boundary? Check the change record beside the extensions the project selects.
 
 ### Load Applicable Provisions Before Editing
 
@@ -105,7 +115,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** `litespec rules use-case/spending.submit-expense` returns the provisions that govern the change, grouped by strength.
 
-**Reviewed for:** Which judgment provisions that `litespec rules --since <base>` listed lack a judged answer in the completion report? Compare the rules output with the report.
+**Reviewed for:** Does the completion report answer every judgment provision `litespec rules --since <base>` listed? Compare the rules output with the report.
 
 ### Keep the Agent Protocol Current
 
@@ -117,7 +127,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** A project MUST keep its agent protocol region and its project-scope skill copies equal to what its LiteSpec release generates.
 
-**Rationale:** The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The project-scope skill copies carry the same procedure to tools that load skills on demand. A stale copy points at the same old release. The release template plus the project file regenerate the region and the project-scope skill copies in one command, so drift is always fixable. Global copies live outside the project and stay outside the check. Settled by [decision/0037-generate-the-agent-protocol](decision/0037-generate-the-agent-protocol) and [decision/0039-ship-a-litespec-skill](decision/0039-ship-a-litespec-skill).
+**Rationale:** The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The project-scope skill copies carry the same procedure to tools that load skills on demand, and a stale copy points at the same old release. The release template plus the project file regenerate the region and the project-scope skill copies in one command, so drift is always fixable. Global copies live outside the project and stay outside the check. Settled by [decision/0037-generate-the-agent-protocol](decision/0037-generate-the-agent-protocol) and [decision/0039-ship-a-litespec-skill](decision/0039-ship-a-litespec-skill).
 
 **Example:** Claimwick upgrades its LiteSpec release and runs `litespec model render`; the region in its `AGENTS.md` and its project-scope skill copies match what the new release generates.
 
@@ -135,7 +145,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** Overlapping guidance is normal: a project waiver narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.
 
-**Reviewed for:** The design applies the project waiver, the extension, the deeper page, and the shallower page in that order.
+**Reviewed for:** Does the design apply the project waiver, the extension, the deeper page, and the shallower page in that order? Check the design beside the overlapping guidance.
 
 ### Replace Only Declared Conventions
 
@@ -149,7 +159,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** Conventions exist to be replaced, but only through a recorded decision. An undocumented local preference that silently replaces a baseline default looks identical to a mistake, so the next agent fixes it back. The recorded convention keeps the replacement visible and reviewable.
 
-**Reviewed for:** Each convention replacement resolves to a recorded local convention in the project documentation.
+**Reviewed for:** Does each convention replacement resolve to a recorded local convention? Check the replacements beside the project documentation.
 
 ### Scope Every Convention to Files It Governs
 
@@ -179,7 +189,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** When two provisions disagree and no precedence decides, any continuation invents a compromise neither provision states. Stopping with both provision identifiers and paths hands the decision to a person with exactly the evidence the decision needs.
 
-**Reviewed for:** The stopped work quotes the conflict with both provision IDs and paths.
+**Reviewed for:** Does the stopped work quote the conflict with both provision IDs and paths? Check the handoff beside the disagreeing provisions.
 
 ### Inspect Existing Work Before Editing
 
@@ -193,7 +203,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** A working tree can hold the user's own uncommitted edits, untracked files, and generated output from an unrelated task. An agent that edits without looking overwrites or deletes work outside its scope. Reading `git status` first marks that work as untouchable.
 
-**Reviewed for:** `git status` output precedes the edits, with user changes, untracked files, and unrelated generated output untouched.
+**Reviewed for:** Does `git status` output precede the edits, with user changes, untracked files, and unrelated generated output untouched? Check the session log beside the working tree.
 
 ### Restrict Unapproved Side Effects
 
@@ -209,7 +219,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** A task that names the migration and its scope approves it; a task silent on releases leaves a release unmade.
 
-**Reviewed for:** An explicit task instruction naming the action and its bounds covers each consequential action beyond the task, or the project's `AGENTS.md` grants the wider authority.
+**Reviewed for:** Does an explicit task instruction naming the action and its bounds cover each consequential action beyond the task, or does the project's `AGENTS.md` grant the wider authority? Check the task text beside the actions taken.
 
 ### Make Coherent Scoped Changes
 
@@ -223,7 +233,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** A change that stops at code and skips its records, tests, or operating evidence leaves the workspace claiming behavior nothing proves. A change that sprawls past the request drags unrelated files into review. The smallest coherent change keeps the records, code, tests, and evidence that belong together in one reviewable unit.
 
-**Reviewed for:** Every changed artifact traces to the authorized request.
+**Reviewed for:** Does every changed artifact trace to the authorized request? Check the changed files beside the task text.
 
 ### Take Expected Values from the Scenario
 
@@ -239,7 +249,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** A scenario whose Then names a total of `42.50` keeps `42.50` as the asserted value even when the code returns `42.51`: the mismatch fails the test instead of updating the expectation.
 
-**Reviewed for:** Each test's expected values match the scenario's Then, with none taken from a code run.
+**Reviewed for:** Do each test's expected values match the scenario's Then, with none taken from a code run? Check the assertions beside the scenario Thens.
 
 ### Verify Refusals and Calculations Against Held-Back Examples
 
@@ -257,7 +267,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** The implementing agent writes a discount calculation from its rule and scenario; a later check runs the withheld example rows against the result.
 
-**Reviewed for:** The check log shows refusal and calculation example rows withheld during implementation and run after.
+**Reviewed for:** Does the check log show refusal and calculation example rows withheld during implementation and run after? Check the log beside the implementing change.
 
 ### Verify Money Calculations and Refusals Against Held-Back Examples
 
@@ -273,7 +283,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** The implementing agent writes a discount calculation from its rule and scenario; a CI check runs the withheld rows from `proof/withheld/` against the result.
 
-**Reviewed for:** The check log shows money-risk refusal and calculation rows written by a different author, withheld during implementation, and run after.
+**Reviewed for:** Does the check log show money-risk refusal and calculation rows written by a different author, withheld during implementation, and run after? Check the log beside the withheld rows.
 
 ### Protect Proofs from Implementation Edits
 
@@ -305,7 +315,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** Given a requirement for expense reimbursement, an agent writes the use case, its scenarios, and the handler without asking what the promise means.
 
-**Reviewed for:** Each written page traces to a decided Intent record, with no invented promise.
+**Reviewed for:** Does each written page trace to a decided Intent record, with no invented promise? Check the written pages beside the Intent records.
 
 ### Escalate Decisions That Specify Forbids
 
@@ -321,7 +331,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** A setting needs a default queue cap; the agent raises a question to the owner with a recommendation instead of writing the default into the record.
 
-**Reviewed for:** Each figure the owner sets that the change needs sits in an owner question or a backlog item, not in an agent-written decision.
+**Reviewed for:** Does each figure the owner sets that the change needs sit in an owner question or a backlog item, not in an agent-written decision? Check the owner questions and the backlog board beside the change.
 
 ### Raise Open Figures to the Owner
 
@@ -337,7 +347,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** Two open figures land in one owner question set, each with a recommendation.
 
-**Reviewed for:** Which open figures lack an owner question with a recommendation or a backlog item? Look at the owner questions and the backlog board beside the change.
+**Reviewed for:** Does every open figure have an owner question with a recommendation or a backlog item? Check the owner questions and the backlog board beside the change.
 
 ### Name Judged Provisions in the Completion Report
 
@@ -353,7 +363,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by a waiver.
 
-**Reviewed for:** Which judged provisions lack a how in the completion report? Look at the provisions beside the report.
+**Reviewed for:** Does the completion report name every judged provision with its judgment? Check the report beside the provisions the query returned.
 
 ### Advise Without Gating
 
@@ -367,7 +377,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** Decisions belong to the owner: the pull request that changes a record is its review. An agent that records a decision spends authority it was never given. Advice with evidence lets the owner decide faster without moving the decision to the agent.
 
-**Reviewed for:** The agent output records findings as advice with evidence, with decisions left to the owner.
+**Reviewed for:** Does the agent output record findings as advice with evidence, with decisions left to the owner? Check the output beside the changed records.
 
 ## Conventions
 
@@ -385,7 +395,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** Generating a file or changing a public boundary from a summary risks baking a paraphrase into a contract. The full record carries the exact fields, links, and wording the new surface matches. A small edit that follows an existing local pattern can rely on neighboring code instead.
 
-**Reviewed for:** Each file generation or boundary change cites the full record it matched.
+**Reviewed for:** Does each file generation or boundary change cite the full record it matched? Check the change beside the cited records.
 
 ### Inspect Local Examples After Standards
 
@@ -401,7 +411,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** Standards state the required shape, while neighboring files show the names, folders, and idioms this project chose for it. An agent that skips them writes compliant but foreign-looking code that the next edit rewrites.
 
-**Reviewed for:** The change names the neighboring files that shaped it after the standards.
+**Reviewed for:** Does the change name the neighboring files that shaped it after the standards? Check the change beside its neighbors.
 
 ### Keep Agent Working Files Under Agents
 
@@ -427,7 +437,7 @@ A running project takes new intent through this one sequence. Other pages link t
   scratch/
 ```
 
-**Reviewed for:** Every agent working file sits under `.agents/` or the path the working-files convention names.
+**Reviewed for:** Does every agent working file sit under `.agents/` or the path the working-files convention names? Check the working files beside the convention.
 
 ### Search the Provisions Before Recording a Decision
 
@@ -445,7 +455,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** An agent about to record how Claimwick declares integration edges queries `litespec rules` for the subject; the provision declares every edge in a record, so the code follows it and no decision is recorded.
 
-**Reviewed for:** Which technical decisions restate a choice a provision already makes? Compare each decision with the `rules` output for its subject.
+**Reviewed for:** Does any technical decision restate a choice a provision already makes? Compare each decision with the `rules` output for its subject.
 
 ## Reference Example
 

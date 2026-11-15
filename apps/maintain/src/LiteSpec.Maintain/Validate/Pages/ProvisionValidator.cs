@@ -353,7 +353,7 @@ internal sealed partial class ProvisionValidator
         var add = Context.Add;
         // A provision whose Statement or Default only repeats its own heading
         // states no obligation. The heading is a label; the assertion belongs in the
-        // labeled block. (litespec/core/authoring#write-atomic-standards-provisions, litespec/core/authoring#identify-actionable-conventions)
+        // labeled block. (litespec/core/authoring#keep-each-standard-to-one-obligation, litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement)
         foreach (var provision in provisions)
         {
             var label = provision.Section == "Standards" ? "Statement" : "Default";

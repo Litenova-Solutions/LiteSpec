@@ -1,8 +1,6 @@
 # Add an Android Frontend
 
-## Purpose
-
-A product that serves its interface from Android declares a mobile solution with screens organized by module and hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend: the stack, the mobile solution tree, and the screen layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
+A product whose interface runs on Android keeps its screens in a mobile solution: screens organized by module, all hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. It covers the stack, the mobile solution tree, and the screen layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -11,7 +9,7 @@ Start with:
 - A consumer project that declares the `android` stack. A product with a server adds `android` beside its backend stack, and a product with no server starts from the `android-client` preset on the [initialize command](../tools/init.md) page.
 - The .NET SDK and Android API level pinned in `litespec.manifest.yaml` under `stack.dotnet` and `stack.android`, with the Android workload installed through `dotnet workload install android`.
 
-Read the [mobile structure](../frontend/mobile/structure.md), the [mobile screens and navigation](../frontend/mobile/screens.md), and the [Android stack](../frontend/mobile/android/stack.md) pages before this guide: they state the obligations, and this guide shows one compliant way to meet them.
+Read the [mobile structure](../frontend/mobile/structure.md), the [mobile screens and navigation](../frontend/mobile/screens.md), and the [Android stack](../frontend/mobile/android/stack.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
 
 ## Procedure
 

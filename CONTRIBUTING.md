@@ -4,6 +4,8 @@ The canonical guide for changing this repository is `AGENTS.md`. Read it before 
 
 ## Making a Change
 
+Write by the [LiteSpec writing and tone guidelines](WRITING.md).
+
 Submit every change through a branch and pull request against `main`. A release is prepared on its own branch named `release/<version>`. CI checks that branch from its first push, and the branch merges to `main` when the release is complete. The pull request that changes a record is its review.
 
 Report a defect or propose a change through the issue forms in [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/).

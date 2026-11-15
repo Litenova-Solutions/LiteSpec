@@ -4,32 +4,32 @@
 
 **Concern:** workspace
 
-## Intent
-
-LiteSpec is a standard for specification-driven development of one bounded-context business application by people and coding agents. This page states what each project choice decides, which extensions and outside constraints the project also declares, what claiming conformance means, and where the supported boundary ends. A team declares them once during inception, before writing anything else down, so agents and checks apply exactly the pages the project selected.
+LiteSpec is a standard for specification-driven development of one bounded-context business application by people and coding agents. A project declares what it is before writing anything else: its size, shape, stacks, and record layers, plus any extensions and outside constraints. You set these choices once in `.litespec/project.yaml` during inception. They decide which records you write, which pages apply, and which checks run, so every agent and tool works from the same contract, and a conformance claim later covers only the layers it names.
 
 ## Concepts
 
 ### The Four Project Choices
 
-Four choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it: size, shape, stacks and layers. The layer claims decide which part of the contract the project takes, as Layer Claims below states.
+Four choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it: size, shape, stacks, and layers. Size is the record set the project carries. Shape is the deployment boundary. A stack is the technology choice for the backend or for one frontend. Layers are the record layers the project claims, and whose practice it follows in each. You declare all four before writing anything else, so agents and checks apply exactly the pages you selected.
 
-Size decides the record set and the test projects. A small project carries the core record types with Architecture and Integration test projects. A large project adds goals, problems, features, flows, and scenarios with the Acceptance project. A project with one web frontend and no flows fits small; the running Claimwick example, which needs flows, selects large.
+A small project carries the core record types, proved by Architecture and Integration test projects. A large project adds goals, problems, features, flows, and scenarios, proved by the Acceptance project as well. A project with one web frontend and no flows fits small. The running Claimwick example needs flows, so it selects large.
 
-Shape decides the deployment boundary: `server` for a project with its own backend, `client-only` for one without. A server project names one backend stack. A client-only project names none, and records which backend surfaces stay uncovered.
+Shape is `server` when the project runs its own backend, and `client-only` when it does not. A server project names one backend stack. A client-only project names none, and records which backend surfaces stay uncovered.
 
-Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, blazor, or android for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
+Each stack decides which technology pages and checks apply. A project names one stack per frontend: react, svelte, blazor, or android. Each stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices. The project record holds the result either way.
 
-Layers decide which record layers the project claims and whose practice it follows in each, as Layer Claims below states. A project that claims Implementation or Proof names its stacks.
+Layers decide which part of the contract the project takes, as Layer Claims below states. A project that claims Implementation or Proof names its stacks, because the stack selects the code reader.
 
 ### Layer Claims
 
-A project claims the record layers it uses in `layers` in `.litespec/project.yaml`, and the practice each claimed layer follows. Each layer is written from the one above it and points up to it, so a project leaves layers out from the bottom: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. Implementation and Proof both point at Behavior, not at each other, so either can be left out on its own. A project claims one of five combinations of layers:
+A project claims the record layers it uses in `layers` in `.litespec/project.yaml`, with the practice each claimed layer follows. Intent holds the outcomes and problems the product answers. Behavior holds what the software does, holds, and enforces. Implementation is the code that serves the Behavior records. Proof is the tests and runs that prove the Behavior scenarios.
+
+Each layer is written from the one above it and points up to it. A project leaves layers out from the bottom: `behavior` needs `intent`, while `implementation` and `proof` each need `behavior`. Implementation and Proof both point at Behavior, not at each other, so you can leave out either one on its own. A project claims one of five combinations:
 
 1. `intent` alone.
 2. `intent` and `behavior`.
-3. `intent`, `behavior` and `implementation`.
-4. `intent`, `behavior` and `proof`.
+3. `intent`, `behavior`, and `implementation`.
+4. `intent`, `behavior`, and `proof`.
 5. All four layers.
 
 | Layer | Values | With `litespec` | With `own` |
@@ -39,19 +39,29 @@ A project claims the record layers it uses in `layers` in `.litespec/project.yam
 | `implementation` | `litespec` or `own` | Code marks its records, and the stack, workspace and code layout pages and the analyzers' architecture rules apply | Code marks its records; the team keeps its own architecture |
 | `proof` | `litespec` or `own` | Tests prove scenarios, and the testing pages and LiteSpec's test projects apply | Tests prove scenarios; the team keeps its own test practice |
 
-Every provision and every finding code governs one record layer, or `any`, and either ties the layer to the records (`trace`) or states LiteSpec's practice for it. A provision or code applies when its layer is `any` or claimed and, for Implementation and Proof, when it ties the layer to the records or the layer follows `litespec`. `model check`, the book, `rules` and the analyzers report only what applies, and the book shows a layer the project does not claim as not claimed, never as missing. Stacks are required when Implementation or Proof is claimed, because the stack selects the code reader. A [waiver](waivers.md) covers one provision, a whole page or finding codes that the project does not follow.
+Every provision and every finding code governs one record layer, or `any`. Each one either ties its layer to the records (`trace`) or states LiteSpec's practice for the layer.
+
+A provision or code applies when its layer is `any` or claimed. For Implementation and Proof, it also needs to tie the layer to the records, or the layer needs to follow `litespec`. `model check`, the book, `rules`, and the analyzers report only what applies. The book shows a layer you do not claim as not claimed, never as missing.
+
+Stacks are required when you claim Implementation or Proof, because the stack selects the code reader. A [waiver](waivers.md) covers one provision, a whole page, or finding codes you do not follow.
 
 ### One Folder for Every LiteSpec File
 
-Every file LiteSpec creates, reads, or governs in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. Inside it, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own; `project.yaml`, `glossary.yaml`, and the example cast sit at its top level; the tool builds its model in memory, keeps its working files in `model/` and writes its book to `book/` under it, and a `.gitignore` there keeps those two generated folders out of source control. Nothing of LiteSpec lives anywhere else in the repository, and no LiteSpec material sits at the repository root. Application code, tests, and infrastructure keep the places their stack pages name. Proof holds no authored records.
+Every file LiteSpec creates, reads, or governs in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. Nothing of LiteSpec lives anywhere else, and no LiteSpec material sits at the repository root. Application code, tests, and infrastructure keep the places their stack pages name.
+
+Inside `.litespec/`, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own. The files `project.yaml` and `glossary.yaml` and the example cast sit at its top level. Proof holds no authored records.
+
+The tool builds its model in memory, keeps its working files in `model/`, and writes its book to `book/` under `.litespec/`. A `.gitignore` there keeps those two generated folders out of source control, so a checkout never mixes committed records with built files.
 
 ### Extensions, Constraints, and the Boundary
 
-An extension is a conditional standards bundle that stays inactive until a documented condition holds. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. The `delivery` extension owns the operations checks, the alert and runbook checks, so no layer claim bundles them. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.yaml` whether any constraint applies, and an empty answer records that none does.
+An extension is a conditional standards bundle that stays inactive until a documented condition holds. You select an extension only when its activation criterion holds. The [extension catalog](../ext/README.md) lists each extension with its criteria. For example, a project that operates the product in production with a formal release, deployment, rollback, or alerting regime selects the `delivery` extension, which owns the operations checks and the alert and runbook checks. No layer claim bundles them.
 
-LiteSpec specifies the product, not the company that builds it. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces; company operation enters only as a constraint or as dated research.
+Outside constraints work the same way. You state in `.litespec/project.yaml` whether any constraint applies, and an empty answer records that none does.
 
-Every record states something the software does, holds, refuses at runtime or runs on, and translates into code, results, tests or infrastructure:
+LiteSpec specifies the product, not the company that builds it. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces. Company operation enters only as a constraint or as dated research.
+
+Every record states something the software does, holds, refuses at runtime, or runs on. Each one translates into code, results, tests, or infrastructure:
 
 | Type | Belongs when it is | Out when it is |
 |:---|:---|:---|
@@ -63,13 +73,17 @@ Every record states something the software does, holds, refuses at runtime or ru
 | Research | Evidence a software record cites | Market sizing, viability, acquisition, pricing strategy |
 | Module | A product area of the bounded context | A company function |
 
-Each module is declared under `behavior/modules/<module>/`, so one name runs through Behavior and code, and each feature stands on its own in `intent/features/`, naming the problems it solves in `solves`, while product-level requirements sit in `intent/requirements/`. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `behavior/modules/` that names no declared module gets a blocking finding.
+Each module is declared under `behavior/modules/<module>/`, so one name runs through Behavior and code. A folder under `behavior/modules/` that names no declared module gets a blocking finding. Each feature stands on its own in `intent/features/`, naming the problems it solves in `solves`. Product-level requirements sit in `intent/requirements/`. Anything cross-cutting, such as accessibility or security, sits at product level.
 
-Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas without claiming conformance.
+Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas, but they make no conformance claim.
 
 ### What Claiming Conformance Means
 
-A consumer claims conformance to the layers it names in `layers` in `.litespec/project.yaml`. It meets every provision that applies to those layers, selects every extension whose criteria hold, records each [waiver](waivers.md) it relies on with its reason, and passes the checks that run for those layers. A claim covers only the layers it names: a claim of `intent` and `behavior` covers the record model, a claim of `implementation` adds the code marks and, with `litespec`, the stack, workspace and code layout pages, and a claim of `proof` adds the test pages and scenario proof. Governance is a group of records beside the four record layers, not a fifth layer. A project outside the supported boundary, or one that skips a provision or a check that applies to a layer it claims, makes no conformance claim for that layer.
+A consumer claims conformance to the layers it names in `layers` in `.litespec/project.yaml`. It meets every provision that applies to those layers, selects every extension whose criteria hold, records each [waiver](waivers.md) it relies on with its reason, and passes the checks that run for those layers.
+
+A claim covers only the layers it names. A claim of `intent` and `behavior` covers the record model. A claim of `implementation` adds the code marks and, with `litespec`, the stack, workspace, and code layout pages. A claim of `proof` adds the test pages and scenario proof. Governance is a group of records beside the four record layers, not a fifth layer.
+
+A project outside the supported boundary makes no conformance claim for that layer. A project that skips a provision or a check that applies to a layer it claims makes no claim for that layer either.
 
 ## Standards
 
@@ -81,9 +95,9 @@ A consumer claims conformance to the layers it names in `layers` in `.litespec/p
 
 **Statement:** A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only or the project claims neither `implementation` nor `proof` in `layers`.
 
-**Rationale:** One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures. A project that claims neither Implementation nor Proof may leave the stacks empty or absent, or name them for information alone, since no code reader runs for it; a project that claims either names the stacks the code reader and the checks govern.
+**Rationale:** Without one declared size and explicit stacks, each agent infers the architecture from the directory tree, and two agents infer two architectures. Declaring size and stacks once tells every check which records and pages apply. The size decides which record types the project carries and which test projects prove them, and each stack decides which technology pages and checks apply. A project with no Implementation or Proof claim needs no code reader, so it may leave stacks empty or absent, or name them for information alone. A project that claims either names the stacks the code reader and the checks govern.
 
-**Example:** A project with one web frontend and no flows selects small with the svelte stack; the running Claimwick example, with flows, selects large.
+**Example:** A project with one web frontend and no flows selects small with the svelte stack. The running Claimwick example has flows, so it selects large.
 
 The running Claimwick example declares large with a server shape and two stacks in `.litespec/project.yaml`:
 
@@ -100,9 +114,9 @@ layers:
   proof: litespec
 ```
 
-The size selects the large record set, the shape selects a backend stack, and each stack selects its technology pages, which satisfies this provision.
+Size selects the large record set, shape selects a backend stack, and each stack selects its technology pages, which satisfies this provision.
 
-The diagram shows size, shape and stacks and what each decides.
+The diagram below shows what each choice decides.
 
 ![Size, shape and stacks and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, flows, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)
 
@@ -114,11 +128,11 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Strength:** required
 
-**Statement:** A consumer MUST name in `layers` in `.litespec/project.yaml` each record layer it claims, with `litespec` or `own` for Implementation and Proof, leaving layers out only from the bottom.
+**Statement:** A consumer MUST name each record layer it claims in `layers` in `.litespec/project.yaml`, with `litespec` or `own` for Implementation and Proof, leaving layers out only from the bottom.
 
-**Rationale:** Teams adopt LiteSpec in parts: the record model alone, records with marked code, records with acceptance tests, or all of it, and with their own architecture or test practice where they have one. Naming each layer lets every tool check exactly the part the team uses, so a missing test project is not a finding for a team that claims no Proof, and a team that keeps its own code layout still gets its marks checked. Leaving layers out from the bottom keeps every remaining link whole, because each layer points up to the one above it. Settled by [decision/0027-projects-claim-record-layers](decision/0027-projects-claim-record-layers).
+**Rationale:** Teams adopt LiteSpec in parts: the record model alone, records with marked code, records with acceptance tests, or all of it, with their own architecture or test practice where they have one. Naming each layer lets every tool check exactly the part the team uses, so a missing test project is not a finding for a team that claims no Proof, and a team that keeps its own code layout still gets its marks checked. Leaving layers out from the bottom keeps every remaining link whole, because each layer points up to the one above it. Settled by [decision/0027-projects-claim-record-layers](decision/0027-projects-claim-record-layers).
 
-**Example:** The running Claimwick example claims all four layers with `litespec`. A product that marks its code in its own layout and proves no scenarios yet claims `intent`, `behavior` and `implementation: own`, and `model check` reports no `use-case-unverified` finding for it.
+**Example:** The running Claimwick example claims all four layers with `litespec`. A product that marks its code in its own layout and proves no scenarios yet claims `intent`, `behavior`, and `implementation: own`, and `model check` reports no `use-case-unverified` finding for it.
 
 **Checked by:** `litespec model check` reports `project-invalid` for a project file without `layers`, with a value other than those the table allows, or with a layer whose parent is not claimed.
 
@@ -130,11 +144,11 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer MUST keep one business language and deployment boundary.
 
-**Rationale:** One business language and one deployment boundary keep every module, record, and use case in a single consistent model. Modules organize related language, models, use cases, and code without becoming independent services or bounded contexts. A second language or boundary splits the project into systems that the records, links, and checks can no longer hold together.
+**Rationale:** One business language and one deployment boundary keep every module, record, and use case in a single consistent model. Modules organize related language, models, use cases, and code without becoming independent services or bounded contexts. A second language or boundary splits the project into systems the records, links, and checks can no longer hold together.
 
-**Example:** Posts, Authors, and Comments can be modules in one publishing context.
+**Example:** A publishing product keeps Posts, Authors, and Comments as modules in one context, with one shared language.
 
-**Reviewed for:** Module pages and `.litespec/project.yaml` name one business language and one deployment boundary, with no second of either.
+**Reviewed for:** Does the project keep one business language and one deployment boundary? Check the module pages and `.litespec/project.yaml`.
 
 ### Select Conditional Extensions Explicitly
 
@@ -144,11 +158,11 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer MUST select every extension whose activation criteria apply, and no extension whose criteria do not.
 
-**Rationale:** Conditional capabilities stay inactive until a documented product or engineering condition applies, so no project carries caching, messaging, or tenancy machinery it never justified. Selecting exactly the extensions whose criteria hold keeps the active rule set minimal and reviewable. The manifest's extension list is the closed set a project selects from, so there is no informal extension. Settled by [decision/0030-limit-the-jobs-extension](decision/0030-limit-the-jobs-extension) for the jobs extension, which keeps the subjects a small team follows.
+**Rationale:** Conditional capabilities stay inactive until a documented product or engineering condition applies, so no project carries caching, messaging, or tenancy machinery it never justified. Selecting exactly the extensions whose criteria hold keeps the active rule set minimal and reviewable. The manifest's extension list is the closed set to select from, so no informal extension slips in. Settled by [decision/0030-limit-the-jobs-extension](decision/0030-limit-the-jobs-extension) for the jobs extension, which holds it to subjects a small team can follow.
 
-**Example:** Caching, durable messaging, and multitenancy are extensions; the extension index lists each with its activation criteria.
+**Example:** Caching, durable messaging, and multitenancy are extensions. The extension index lists each with its activation criteria.
 
-**Reviewed for:** Each entry in `selectedExtensions` carries a criterion that holds, and no applicable extension from the extension catalog stays unselected.
+**Reviewed for:** Does `selectedExtensions` list exactly the extensions whose criteria hold? Check each entry against the extension catalog.
 
 ### Record Selected Extensions
 
@@ -158,7 +172,7 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `.litespec/project.yaml`, each with its criterion.
 
-**Rationale:** The project record determines which extension boundaries apply to the project's work. Writing each selection with its criterion lets a later reader check whether the condition still holds. Without the record, extensions drift in through dependencies and prose while the checks apply a different set.
+**Rationale:** Without a written selection, extensions drift in through dependencies and prose while the checks apply a different set. A later reader cannot tell which condition justified each extension, or whether it still holds. Writing each selection with its criterion keeps the project record as the one place that decides which extension boundaries apply.
 
 **Example:**
 
@@ -176,11 +190,11 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer MUST state in `.litespec/project.yaml` whether any outside constraint applies to the project.
 
-**Rationale:** An outside rule the project never names is a law the product can break unknowingly. Recording the answer, even when it is empty, proves the team asked the question: an empty answer states that no outside rule binds the project. A later reader can then tell a project with no constraints from one that never looked.
+**Rationale:** A product can break a law the team never named. An empty answer proves the team asked the question and found no outside rule binding the project. A later reader can then tell a project with no constraints apart from one that never looked.
 
 **Example:** A clinic booking system records that medical-device regulation does not apply to appointment scheduling.
 
-**Reviewed for:** `.litespec/project.yaml` states which outside constraints apply, or records an empty answer.
+**Reviewed for:** Does `.litespec/project.yaml` state which outside constraints apply, or record an empty answer? Check the project file.
 
 ### Declare a Consumer That Has No Backend
 
@@ -190,7 +204,7 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer with no server of its own MUST declare the `client-only` shape and record a decision naming the surfaces left without coverage.
 
-**Rationale:** The shape decides which backend pages still apply. A `client-only` product keeps a domain model, so it applies the backend architecture, domain, and application pages that the manifest lists under `shapes`. Persistence, the HTTP API, and API testing have no target without a server, and the decision names those uncovered surfaces. Adding a server only to obtain conformance contradicts `litespec/core/principles#require-current-complexity-activation`, which permits new machinery only for a current documented requirement.
+**Rationale:** The shape decides which backend pages still apply. A `client-only` product keeps a domain model, so the backend architecture, domain, and application pages that the manifest lists under `shapes` still apply to it. Persistence, the HTTP API, and API testing have no target without a server, and the decision names those uncovered surfaces. Adding a server only to obtain conformance contradicts `litespec/core/principles#add-new-machinery-only-for-a-current-requirement`, which permits new machinery only for a current documented requirement.
 
 **Example:** `litespec/quality/ci#run-applicable-gates-on-every-pull-request` already permits skipping a gate whose surface does not exist, so a missing backend gate is a recorded consequence rather than an unexplained absence.
 
@@ -204,9 +218,9 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer MUST record a separate project decision for microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, or large pipelines.
 
-**Rationale:** Microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines each change the assumptions this page rests on: one language, one deployment, one API and database. A separate project decision records that the team saw the boundary and chose deliberately. Without it, the project drifts outside the supported scope while claiming its checks still apply.
+**Rationale:** Each of these architectures changes the assumptions this page rests on: one language, one deployment, one API, and one database. Without a recorded decision, the project drifts outside the supported scope while claiming its checks still apply. A separate project decision records that the team saw the boundary and chose deliberately.
 
-**Reviewed for:** A project decision names each architecture outside the supported boundary the project adopts.
+**Reviewed for:** Does a project decision name each architecture outside the supported boundary the project adopts? Check the project decisions.
 
 ### Claim Conformance Only When Every Applicable Provision Holds
 
@@ -216,11 +230,11 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer MUST meet every provision that applies to each layer it claims in `layers` before claiming conformance to LiteSpec for those layers.
 
-**Rationale:** A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of `intent` and `behavior` takes in the provisions about the record model; a claim of `implementation` or `proof` also takes in the provisions that tie each layer to the records. A [waiver](waivers.md) outranks the provision or findings it covers while it stands, so a project that records each waiver still meets this provision; a waiver past its expiry date reports `waiver-expired` and no longer outranks them. An unrecorded waiver in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.
+**Rationale:** A conformance claim tells a reader that the whole claimed part of the contract holds, not only the parts the project chose to follow. A claim of `intent` and `behavior` takes in the provisions about the record model, and a claim of `implementation` or `proof` also takes in the provisions that tie each layer to the records. A [waiver](waivers.md) outranks the provision or findings it covers while it stands, so a project that records each waiver still meets this provision. A waiver past its expiry date reports `waiver-expired` and no longer outranks them. An unrecorded gap in a claimed layer breaks the claim for that layer, and leaves any layer the project does meet untouched.
 
-**Example:** A consumer that claims all four layers with `litespec`, selects the dotnet stack and the caching extension, claims conformance when every page those selections apply holds and their checks pass, with each waiver recorded. A consumer that claims `intent` and `behavior` claims conformance when the provisions about the record model hold, while its own code layout and tooling stay outside the claim.
+**Example:** A consumer claims all four layers with `litespec`, selects the dotnet stack and the caching extension, and claims conformance when every page those selections apply holds and their checks pass, with each waiver recorded. A consumer that claims `intent` and `behavior` claims conformance when the provisions about the record model hold, while its own code layout and tooling stay outside the claim.
 
-**Reviewed for:** `.litespec/project.yaml` names each claimed layer in `layers`, beside the selected size, shape, stacks, and extensions; each waiver from a provision that applies to a claimed layer resolves to a waiver record under `.litespec/governance/waivers/`, and the checks that run for those layers pass.
+**Reviewed for:** Does the project meet every provision that applies to each layer it claims? Check `layers` in `.litespec/project.yaml`, the waiver records under `.litespec/governance/waivers/`, and the checks that run for those layers.
 
 ### Point Behavior Docs at the Behavior Root
 
@@ -230,7 +244,7 @@ The diagram shows size, shape and stacks and what each decides.
 
 **Statement:** A consumer MUST set `paths.behaviorDocs` in `.litespec/project.yaml` to the folder that holds its Behavior records.
 
-**Rationale:** The builder joins records, queries, diffs, and the book from one declared root. A Behavior tree the project record never names is one the tools never see, so its records skip every check. One declared folder keeps authors and tools on the same tree.
+**Rationale:** Tools never see a Behavior tree the project record does not name, so its records skip every check. The builder joins records, queries, diffs, and the book from one declared root. One declared folder keeps authors and tools on the same tree.
 
 **Example:**
 
@@ -249,11 +263,11 @@ paths:
 
 **Statement:** A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, `.litespec/`, at the repository root.
 
-**Rationale:** One folder with one name in every consumer makes the LiteSpec material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting the tree, and keeps it apart from the application's code, tests, and infrastructure. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.yaml` stays relative to the repository root, so moving the folder never rewrites the paths inside it, and a command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.yaml`.
+**Rationale:** Without one folder, readers and tools hunt the tree for LiteSpec material scattered across the repository. One folder with one name in every consumer makes the material identifiable at a glance. A reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting, and keeps it apart from the application's code, tests, and infrastructure. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.yaml` stays relative to the repository root, so moving the folder never rewrites the paths inside it. A command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.yaml`.
 
-**Example:** Claimwick holds its project file, glossary, example cast, and the Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
+**Example:** Claimwick holds its project file, glossary, example cast, and its Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder, instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
 
-**Reviewed for:** Which files created, read, or governed by LiteSpec sit outside `.litespec/`, or at the repository root? Look at the repository tree beside the project's `.litespec/` folder.
+**Reviewed for:** Does any file LiteSpec creates, reads, or governs sit outside `.litespec/` or at the repository root? Look at the repository tree beside the project's `.litespec/` folder.
 
 ### Write Every Hand-Written LiteSpec File in YAML
 
@@ -261,11 +275,11 @@ paths:
 
 **Strength:** required
 
-**Statement:** A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary and the pattern catalog, in YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, while files that programs exchange, such as check results, the model and `--format json` output, stay JSON.
+**Statement:** A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary, and the pattern catalog, in YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, while files that programs exchange, such as check results, the model, and `--format json` output, stay JSON.
 
-**Rationale:** People write these files and review them in pull requests, so one syntax with comments and no brace noise keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and `schemaVersion` tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own. Settled by [decision/0023-every-handwritten-file-in-yaml](decision/0023-every-handwritten-file-in-yaml).
+**Rationale:** Without one syntax, readers learn a new format per file, and edits hide in brace noise. People write these files and review them in pull requests, so one syntax with comments keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and `schemaVersion` tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own. Settled by [decision/0023-every-handwritten-file-in-yaml](decision/0023-every-handwritten-file-in-yaml).
 
-**Example:** Claimwick's `.litespec/project.yaml` starts with the comment naming `https://litespec.dev/<version>/schemas/litespec-project.schema.yaml`, then `schemaVersion: 1`, and lists its layers, size, shape and stacks as YAML keys; its check results under `.litespec/proof/checks/` stay JSON files written by its harness.
+**Example:** Claimwick's `.litespec/project.yaml` starts with the comment naming `https://litespec.dev/<version>/schemas/litespec-project.schema.yaml`, then `schemaVersion: 1`, and lists its layers, size, shape, and stacks as YAML keys. Its check results under `.litespec/proof/checks/` stay JSON, written by its harness.
 
 **Checked by:** `litespec model check` reports `project-invalid` for a project file that is not `.litespec/project.yaml` or lacks `schemaVersion`; scope: the project file.
 
@@ -281,9 +295,9 @@ paths:
 
 **Replacement:** A consumer records a topology convention naming the deployables and stores it runs instead.
 
-**Rationale:** One API deployable and one database keep the first architecture reviewable and operable by a small team. Each additional deployable or store adds deployment, data-consistency, and operations work that a project rarely needs at the start. A background job appears only when a process continues without an HTTP request.
+**Rationale:** Each additional deployable or store adds deployment, data-consistency, and operations work that a project rarely needs at the start. One API deployable and one database keep the first architecture reviewable and operable by a small team. A background job appears only when a process continues without an HTTP request.
 
-**Reviewed for:** The topology holds one API deployable and one database, or a topology convention records what runs instead.
+**Reviewed for:** Does the topology hold one API deployable and one database, or does a topology convention record what runs instead? Check the topology and the project conventions.
 
 ### Measure Capacity Before Expansion
 
@@ -295,12 +309,12 @@ paths:
 
 **Replacement:** A consumer records a capacity convention naming what justifies expansion without measurements.
 
-**Rationale:** Caches, replicas, queues, and partitioning each answer a different limitation, and only measurements show which one the project hit. Recording current load, the latency target, and the observed constraint before expanding proves the added capacity answers the observed limit. Expanding first and measuring later adds machinery that can hide the real bottleneck.
+**Rationale:** Caches, replicas, queues, and partitioning each answer a different limitation, and only measurements show which one the project hit. Expanding first and measuring later adds machinery that can hide the real bottleneck. Recording current load, the latency target, and the observed constraint before expanding proves the added capacity answers the observed limit.
 
-**Reviewed for:** Each added cache, replica, queue, or partition follows recorded load, latency target, and observed constraint, or a capacity convention.
+**Reviewed for:** Does each added cache, replica, queue, or partition follow recorded load, latency target, and observed constraint, or a capacity convention? Check the capacity records beside each expansion.
 
 ## Reference Example
 
 This informative example demonstrates `litespec/core/scope#select-a-size-a-shape-and-stacks` and `litespec/core/scope#select-conditional-extensions-explicitly`.
 
-A publishing product supports sign-in, draft creation, publication, and public reading inside one bounded context. Multi-tenant publication, live editing, and bulk analytics each fall inside a selected extension boundary with its own activation criterion.
+A publishing product supports sign-in, draft creation, publication, and public reading inside one bounded context. Multi-tenant publication, live editing, and bulk analytics each sit inside a selected extension boundary with its own activation criterion.

@@ -1,6 +1,6 @@
 # Expense Submitted
 
-The expense-submitted event tells other parts of the company that an employee filed a new expense. A reader who has read nothing else should see that the event carries the expense identifier and nothing else about the expense.
+The expense-submitted event tells other parts of the company that an employee filed a new expense. It carries the expense identifier, and nothing else about the expense.
 
 ## Consumers
 
@@ -8,7 +8,7 @@ The records declare no consumer of the event yet, so it names none. The event ca
 
 ## Compatibility
 
-A new field may be added to the payload. A field may not be removed or renamed, and its meaning may not change, until the event's `dataschema` moves to a new version.
+The payload may gain a new field. No field may be removed or renamed, and no meaning may change, until the event's `dataschema` moves to a new version.
 
 ## Example
 

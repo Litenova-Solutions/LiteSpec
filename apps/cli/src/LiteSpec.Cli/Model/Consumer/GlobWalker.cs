@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 /// <summary>
 ///     The page scan's file walk: every record file and Markdown file under the documentation root, in a stable order.
 /// </summary>
-/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</follows>
 /// <follows>litespec/core/authoring#use-the-declared-page-contract</follows>
 static class GlobWalker
 {

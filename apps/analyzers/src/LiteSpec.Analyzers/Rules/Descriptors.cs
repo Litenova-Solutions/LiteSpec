@@ -43,7 +43,7 @@ internal static class Descriptors
     private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
     /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/backend/dotnet/architecture#keep-implementation-types-internal).</summary>
     private static readonly Provision InternalImplementations = Provision.Of("backend/dotnet/architecture", "keep-implementation-types-internal");
-    /// <summary>The provision the related descriptors enforce: use five application projects (litespec/backend/dotnet/ext/layer-projects#use-five-application-projects).</summary>
+    /// <summary>The provision the related descriptors enforce: use five application projects (litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project).</summary>
     private static readonly Provision ApplicationProjects = Provision.Of("backend/dotnet/ext/layer-projects", "use-five-application-projects");
     /// <summary>The provision the related descriptors enforce: respect layer direction in every file (litespec/backend/dotnet/architecture#respect-layer-direction-in-every-file).</summary>
     private static readonly Provision RespectLayerDirection = Provision.Of("backend/dotnet/architecture", "respect-layer-direction-in-every-file");
@@ -55,7 +55,7 @@ internal static class Descriptors
     private static readonly Provision NoControllers = Provision.Of("backend/dotnet/api", "exclude-mvc-controllers-from-the-stack");
     /// <summary>The provision the related descriptors enforce: stage aggregate writes through repositories (litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories).</summary>
     private static readonly Provision RepositoryWrites = Provision.Of("backend/dotnet/persistence", "stage-aggregate-writes-through-repositories");
-    /// <summary>The provision the related descriptors enforce: name asynchronous operations completely (litespec/workspace/naming#name-asynchronous-operations-completely).</summary>
+    /// <summary>The provision the related descriptors enforce: name asynchronous operations completely (litespec/workspace/naming#reveal-asynchrony-and-cancellation-in-operation-names).</summary>
     private static readonly Provision AsyncNames = Provision.Of("workspace/naming", "name-asynchronous-operations-completely");
     /// <summary>The provision the related descriptors enforce: keep implementation style consistent (litespec/backend/dotnet/naming#keep-implementation-style-consistent).</summary>
     private static readonly Provision ImplementationStyle = Provision.Of("backend/dotnet/naming", "keep-implementation-style-consistent");
@@ -73,7 +73,7 @@ internal static class Descriptors
     private static readonly Provision QueryProjection = Provision.Of("backend/application", "project-queries-directly");
     /// <summary>The provision the related descriptors enforce: enforce target authorization in the pipeline (litespec/backend/application#enforce-target-authorization-in-the-pipeline).</summary>
     private static readonly Provision TargetAuthorization = Provision.Of("backend/application", "enforce-target-authorization-in-the-pipeline");
-    /// <summary>The provision the related descriptors enforce: declare audit values beside the message (litespec/backend/application#declare-audit-values-beside-the-message).</summary>
+    /// <summary>The provision the related descriptors enforce: declare audit values beside the message (litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message).</summary>
     private static readonly Provision AuditValues = Provision.Of("backend/application", "declare-audit-values-beside-the-message");
     /// <summary>The provision the related descriptors enforce: implement one outcome path per command (litespec/backend/application#implement-one-outcome-path-per-command).</summary>
     private static readonly Provision OutcomePath = Provision.Of("backend/application", "implement-one-outcome-path-per-command");

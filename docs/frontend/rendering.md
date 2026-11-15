@@ -3,19 +3,21 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-## Intent
+Every route answers three questions: which web address it serves, which data it needs, and which floorplan draws it. A floorplan is the page component that fixes the page layout.
 
-A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, how each route state renders, and where focus lands when the route changes. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.
+This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, how each route state renders, and where focus lands when the route changes. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.
 
 ## Concepts
 
 ### The Route, Its Cache, and Its View
 
-A route is the entry for one address: it declares its parameters, loads each read it needs through one shared cache, and hands rendering to its view. The view reads the same cache entries the route filled, so the page renders with its data rather than showing a spinner after it appears. The cache owns freshness; neither the router nor the view keeps a second copy. The view renders inside one floorplan, the page component that fixes the page layout ([Controlled UI Governance](ui.md)).
+A route is the entry for one address. It declares its parameters, loads each read it needs through one shared cache, and hands rendering to its view. The view reads the same cache entries the route filled, so the page renders with its data rather than showing a spinner after it appears.
+
+The cache owns freshness. Neither the router nor the view keeps a second copy. The view renders inside one floorplan, as [Controlled UI Governance](ui.md) states.
 
 ### Addresses Carry Their Own Parameters
 
-A route declares its address parameters, including filters and page, in a validated schema. A filtered list is then a link somebody can share, bookmark, and reopen: the address holds the filter values, and opening the address restores the same view. A filter kept in component state reaches nobody and is lost on the first navigation away.
+A route declares its address parameters, including filters and page, in a validated schema. A filtered list then becomes a link somebody can share, bookmark, and reopen: the address holds the filter values, and opening the address restores the same view. A filter kept in component state reaches nobody and is lost on the first navigation away.
 
 ### Route States
 
@@ -33,11 +35,11 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A route MUST load each read it needs through one shared cache before its view renders.
 
-**Rationale:** A view that renders before its reads complete shows a spinner after it appears, then swaps the spinner for content: two drawings for one navigation, with layout shifting between them. Loading each read through one shared cache before the view renders gives the page its data in place. The cache owns freshness, so the router keeps no second copy that could disagree.
+**Rationale:** A view that renders before its reads complete shows a spinner after it appears, then swaps the spinner for content. That is two drawings for one navigation, with layout shifting between them. Loading through one shared cache puts the data in place for the first drawing, and the router keeps no second copy that could disagree.
 
-**Example:** An entity route loads its record and every read the record's own sections need.
+**Example:** An expense record route loads the expense and every read its sections need, before the view renders.
 
-**Reviewed for:** Which routes render before their reads load through the one shared cache? Look in the route loaders and the cache definitions.
+**Reviewed for:** Does every route load each read it needs through the one shared cache before its view renders? Check the route loaders and the cache definitions.
 
 ### Read Route Data from the Route Cache
 
@@ -49,13 +51,13 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A view MUST read route data through the same cache entry its route filled.
 
-**Rationale:** A view that reads under another key issues a second request for data the route already loaded, and the two answers can disagree when the data changes between them. Reading through the same cache entry the route filled renders the data the route approved. A failed read reaches the route's error boundary, which draws the shared problem state instead of a half-rendered view.
+**Rationale:** A view that reads under another key issues a second request for data the route already loaded, and the two answers can disagree when the data changes between them. Reading through the same entry renders the data the route approved. A failed read reaches the route's error boundary, which draws the shared problem state instead of a half-rendered view.
 
-**Reviewed for:** Which views read under another key than the cache entry their route filled, or handle a failed read outside the route error boundary? Look in the view data reads and the route loaders.
+**Reviewed for:** Does every view read through the cache entry its route filled, and does every failed read reach the route error boundary? Check the view data reads and the route loaders.
 
-### Keep Address Parameters Validated by a Schema
+### Validate Address Parameters with a Schema
 
-**ID:** `litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema`
+**ID:** `litespec/frontend/rendering#validate-address-parameters-with-a-schema`
 
 **Strength:** required
 
@@ -63,11 +65,11 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A route MUST declare its address parameters in a validated schema, including its filters and its page.
 
-**Rationale:** A validated schema makes the address the whole input: a shareable address restores the same filters and page, and validation refuses a malformed address at the boundary instead of rendering a page from nonsense values.
+**Rationale:** Without a schema, a malformed address renders a page from nonsense values, and a filter kept outside the address is lost on the first share or navigation away. A validated schema makes the address the whole input: a shareable address restores the same filters and page, and validation refuses a malformed address at the boundary.
 
-**Example:** The list schema declares its own text field and spreads the shared paging fields.
+**Example:** The expense list schema declares its own text field and spreads the shared paging fields.
 
-**Reviewed for:** Which routes leave address parameters, filters, or page outside a validated schema? Look in the route parameter schemas.
+**Reviewed for:** Does every route declare its address parameters, filters, and page in a validated schema? Check the route parameter schemas.
 
 ### Load Each Route and Each Language Separately
 
@@ -81,9 +83,9 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Rationale:** A user opens one address and reads one language, so downloading every route and every language up front wastes time on code and copy outside that path. Each route and each language ships as its own download: a user in Dutch who stays on the dashboard downloads neither English nor the routes outside that path. No icon set or language loads whole for the same reason.
 
-**Example:** A dictionary loader returns one language. Each route file or folder ships as its own download.
+**Example:** A dictionary loader returns one language, not the whole dictionary. Each route file or folder ships as its own download.
 
-**Reviewed for:** Which routes or languages ship in a shared download, or load an icon set or language whole? Look in the route bundles and the dictionary loader.
+**Reviewed for:** Does every route and every language ship as its own download, with no icon set or language loaded whole? Check the route bundles and the dictionary loader.
 
 ### Prefetch a Route on Intent
 
@@ -95,13 +97,13 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A frontend MUST prefetch the route the user signals intent toward, without treating that prefetch as a cache beyond the shared cache.
 
-**Rationale:** When the user signals intent toward a route, by hovering a link or focusing a menu item, prefetching loads that route's data into the shared cache before the navigation starts, so most navigations render from data already in place. The prefetch fills the shared cache only: a router that kept its own second cache would serve a stale answer beside the fresh one.
+**Rationale:** When the user signals intent toward a route, by hovering a link or focusing a menu item, prefetching loads that route's data into the shared cache before the navigation starts, so most navigations render from data already in place. The prefetch fills the shared cache only, because a router keeping its own second cache would serve a stale answer beside the fresh one.
 
-**Reviewed for:** Which route prefetches land outside the shared cache, or feed a second router cache? Look in the router prefetch wiring.
+**Reviewed for:** Does every route prefetch land in the shared cache, with no second router cache? Check the router prefetch wiring.
 
-### Represent Route States
+### Define Every Route State
 
-**ID:** `litespec/frontend/rendering#represent-route-states`
+**ID:** `litespec/frontend/rendering#define-every-route-state`
 
 **Strength:** required
 
@@ -109,11 +111,11 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A data-driven route MUST define its loading, empty, error, forbidden, not-found, and ready behavior.
 
-**Rationale:** A blank region while a request is pending or failed gives the user no signal: the page reads no different when loading than when broken. Defining loading, empty, error, forbidden, not-found, and ready behavior gives each state a designed drawing, and the root not-found handling draws the shared outcome page for an absent address.
+**Rationale:** A blank region while a request is pending or failed gives the user no signal: the page reads no different when loading than when broken. Defining each state up front gives it a designed drawing, and the root not-found handling draws the shared outcome page for an absent address.
 
 These six are the states a route has. A control adds `disabled` and `pending` under `litespec/frontend/components#render-control-states`, because both describe a control rather than a route. A route adds `not-found`, which a control does not, because a missing target resolves at the route.
 
-**Reviewed for:** Which data-driven routes miss a loading, empty, error, forbidden, not-found, or ready behavior, or leave an absent address outside the shared outcome page? Look in the route state definitions.
+**Reviewed for:** Does every data-driven route define its loading, empty, error, forbidden, not-found, and ready behavior, with an absent address on the shared outcome page? Check the route state definitions.
 
 ### Move Focus on a Route Change
 
@@ -125,9 +127,11 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Statement:** A route change inside the application MUST move keyboard focus to the new route's top-level heading.
 
-**Rationale:** A full page load starts focus and the screen reader at the top of the new page, but a client-side navigation replaces the content under a focus that stays on the link just used, or falls back to the page body. A keyboard user then tabs through the old position and a screen-reader user hears nothing change. Moving focus to the heading reads the new page's title and starts the next Tab from there, as WCAG 2.4.3 Focus Order expects. For example, opening EXP-1042 from the expense list lands focus on the heading "EXP-1042, Ava, EUR 125.00".
+**Rationale:** A full page load starts focus and the screen reader at the top of the new page. A client-side navigation instead replaces the content under a focus that stays on the link just used, or falls back to the page body. A keyboard user then tabs through the old position, and a screen-reader user hears nothing change. Moving focus to the heading reads the new page's title and starts the next Tab from there, as WCAG 2.4.3 Focus Order expects.
 
-**Reviewed for:** Which route leaves focus on the old link or the page body after a navigation inside the application? Look in the route suite output.
+**Example:** Opening EXP-1042 from the expense list lands focus on the heading "EXP-1042, Ava, EUR 125.00".
+
+**Reviewed for:** Does every route move focus to the new route's top-level heading after a navigation inside the application? Check the route suite output.
 
 ### Keep Authenticated Caching Explicit
 
@@ -141,7 +145,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Rationale:** A cache entry that ignores whose data it holds serves one actor's answer to another user: the classic leak behind a shared cache. Declaring the cache key, the partition, the invalidation owner, and the security review beside the read definition forces each cached actor-specific read to name its boundary before it caches. An uncached read is the safe default, and a cache partitioned per request is the safe server shape.
 
-**Reviewed for:** Which cached actor-specific reads lack a declared cache key, partition, invalidation owner, or security review beside the read definition? Look in the read definitions setting cache keys.
+**Reviewed for:** Does every cached actor-specific read declare its cache key, partition, invalidation owner, and security review beside the read definition? Check the read definitions setting cache keys.
 
 ### Keep Proxy Behavior at the Edge
 
@@ -153,11 +157,11 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Statement:** A development or edge proxy rule MUST route only, and never decide who the actor is or what the actor may read.
 
-**Rationale:** A development or edge proxy runs before the request reaches the API, with no view of the record or the permissions an authorization decision depends on. A proxy rule that decided who the actor is or what the actor may read would enforce a different boundary than the API, and the two would disagree on the first edge case. The proxy routes and nothing else; the API owns identity and authorization.
+**Rationale:** A development or edge proxy runs before the request reaches the API, with no view of the record or the permissions an authorization decision depends on. A proxy rule that decided who the actor is or what the actor may read would enforce a different boundary than the API, and the two would disagree on the first edge case. Leaving identity and authorization to the API keeps one boundary instead of two.
 
-**Example:** A development proxy forwards `/api` and `/auth` to the API and changes nothing else.
+**Example:** A development proxy forwards `/api` and `/auth` to the API and changes nothing else: no header decides the actor, and no rule filters what the actor may read.
 
-**Reviewed for:** Which proxy rules decide identity or authorization instead of routing only? Look in the proxy rules.
+**Reviewed for:** Does every development and edge proxy rule route only, deciding neither identity nor authorization? Check the proxy rules.
 
 ### Build the Server Data Cache per Request
 
@@ -171,7 +175,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Rationale:** A server renders for many users at once. A data cache shared across requests serves the next user the previous user's answer, leaking one actor's data to another with no error to report it. Constructing the cache inside each request gives every user a fresh cache that dies with the response.
 
-**Reviewed for:** Which server rendering reuses a data cache across requests instead of constructing it inside each request? Look in the server request setup.
+**Reviewed for:** Does every server-rendered frontend construct its data cache inside each request, reusing none across requests? Check the server request setup.
 
 ## Conventions
 
@@ -189,7 +193,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Rationale:** A shell is the frame every child route shares: navigation, header, and providers. A shared layout holds it without adding an address segment, so the shell stays out of links and every child route renders inside the same frame.
 
-**Reviewed for:** Which shells sit outside a shared layout, or add an address segment? Look in the layout definitions.
+**Reviewed for:** Does every shell sit in a shared layout, adding no address segment? Check the layout definitions.
 
 ### Keep Layouts Stable
 
@@ -203,9 +207,9 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A layout wraps every route beneath it. A feature-specific provider placed in a shared layout forces unrelated routes to carry its download, its state, and its failure modes. Keeping a layout to the frame and the providers every child route needs keeps each route's cost to what it uses.
+**Rationale:** A layout wraps every route beneath it. A feature-specific provider placed in a shared layout forces unrelated routes to carry its download, its state, and its failure modes. Keeping each route's cost to what it uses means the layout holds only what every child needs.
 
-**Reviewed for:** Which layouts carry a provider that some child route never needs? Look in the layout definitions.
+**Reviewed for:** Does every layout hold only the frame and the providers every child route needs? Check the layout definitions.
 
 ### Split Long Client Work
 
@@ -219,9 +223,9 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Replacement:** A consumer can replace this default by moving the work to a worker thread or to the server, and naming where it runs.
 
-**Rationale:** While script runs, the page answers no click and no key, so a staff member previewing 1,204 imported payouts sees a frozen screen and clicks again. Giving the browser a turn between chunks keeps every input answered within one frame, and the total blocking time the measured checks record stays low.
+**Rationale:** While script runs, the page answers no click and no key. A staff member previewing 1,204 imported payouts sees a frozen screen and clicks again. Giving the browser a turn between chunks keeps every input answered within one frame, and the total blocking time the measured checks record stays low.
 
-**Reviewed for:** Which client task runs longer than 50 milliseconds without yielding? Look in the browser performance traces of the heaviest routes.
+**Reviewed for:** Does every client task longer than 50 milliseconds yield between chunks? Check the browser performance traces of the heaviest routes.
 
 ### Keep Server-Only Code Identifiable
 
@@ -237,4 +241,4 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Rationale:** A module that reads a request header, a cookie, or a server secret breaks when it runs in the browser, and worse, it can drag the secret into the client download. A file whose name and place show server ownership turns an accidental browser import into a build error, and carries the same fact to a reader browsing the tree.
 
-**Reviewed for:** Which modules reading request headers, cookies, or server secrets sit in files unnamed or unplaced for the server? Look in the server file names and places.
+**Reviewed for:** Does every module reading a request header, cookie, or server secret sit in a file named and placed for the server? Check the server file names and places.

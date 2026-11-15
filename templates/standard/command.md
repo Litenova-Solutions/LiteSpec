@@ -2,7 +2,7 @@
 
 ## Name
 
-`{command}` starts one named operation and reports its result.
+`{command}` runs one named operation and reports its result.
 
 ## Synopsis
 
@@ -12,25 +12,25 @@
 
 ## Description
 
-State why the command exists and the moment a reader reaches for it.
+Explain why the command exists by naming the moment a reader reaches for it: what they want to achieve when this command is the right one.
 
 ## Arguments
 
 | Argument | Required | Effect |
 |:---|:---|:---|
-| `{argument}` | yes | State what the argument selects. |
+| `{argument}` | yes | Say what the argument selects. |
 
 ## Options
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--{option}` | `{default}` | State what the option changes. |
+| `--{option}` | `{default}` | Say what the option changes. |
 
 ## Exit Codes
 
 | Code | Meaning |
 |:---|:---|
-| `0` | The command completed its work. |
+| `0` | The command finished its work. |
 | `1` | The command ran and reported a failure. |
 | `2` | The arguments or options are invalid. |
 
@@ -42,4 +42,4 @@ State why the command exists and the moment a reader reaches for it.
 
 ## Underneath
 
-State what the command runs on the reader's behalf, and how to run those steps directly. Write `Nothing beneath this command is separately runnable.` when nothing beneath the command is separately runnable.
+Name what the command runs for the reader, and how to run those steps directly. When nothing beneath the command runs separately, write `Nothing beneath this command is separately runnable.`

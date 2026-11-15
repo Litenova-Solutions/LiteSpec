@@ -30,7 +30,7 @@ public static class ReferenceTables
     public static string BuildFindingCodes()
     {
         var text = new StringBuilder();
-        text.Append("# Finding Codes\n\n## Intent\n\n");
+        text.Append("# Finding Codes\n\n");
         text.Append("Use this generated page to read what a finding code means and how to resolve it. A reader who sees a code in `litespec model check` output, or in a `Checked by` line of a standards page, looks it up here. The table holds every code the tools emit, with its level, the record layer it governs, whether it ties that layer to the records, and the extension that adds it.\n\n");
         text.Append("## Reference\n\n");
         text.Append("| Code | Level | Layer | Trace | Extension | Meaning | Fix |\n|:---|:---|:---|:---|:---|:---|:---|\n");
@@ -48,7 +48,7 @@ public static class ReferenceTables
     public static string BuildFolders()
     {
         var text = new StringBuilder();
-        text.Append("# Record Folders\n\n## Intent\n\n");
+        text.Append("# Record Folders\n\n");
         text.Append("Use this generated page to find the folder and file each record type lives in, relative to `.litespec/`. A named record sits in a folder that carries its name, beside its explanation, so `<name>/<name>.yaml` and `<name>/<name>.md` are the pair. A record in any other folder is a `record-placement-invalid` finding, a folder whose name differs from its file stem is a `record-folder-drift` finding. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.\n\n");
         text.Append("## Reference\n\n");
         text.Append("| Type | Folder | File |\n|:---|:---|:---|\n");

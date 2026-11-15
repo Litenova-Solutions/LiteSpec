@@ -80,7 +80,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Decision that omits its context.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact(DisplayName = "decision that omits its context")]
     public void DecisionThatOmitsItsContext()
     {
@@ -90,7 +90,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Decision that omits its consequences.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact(DisplayName = "decision that omits its consequences")]
     public void DecisionThatOmitsItsConsequences()
     {
@@ -100,7 +100,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Decision without an options section.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact(DisplayName = "decision without an options section")]
     public void DecisionWithoutAnOptionsSection()
     {
@@ -212,7 +212,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Research whose source publication date is not an ISO date.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact(DisplayName = "research whose source publication date is not an ISO date")]
     public void ResearchWithAPublicationDateThatIsNotADate()
     {
@@ -226,7 +226,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Research that omits its findings.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact(DisplayName = "research that omits its findings")]
     public void ResearchThatOmitsItsFindings()
     {

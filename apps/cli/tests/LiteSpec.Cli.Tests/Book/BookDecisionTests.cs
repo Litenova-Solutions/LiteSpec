@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Book;
 public sealed class BookDecisionTests
 {
     /// <summary>An external system gains a decides edge from the decision a class implementing it follows, on both ends.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ExternalSystemGainsDecidesEdgeFromTheFollowedDecision()
     {
@@ -40,7 +40,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>Two systems decide independently: each names only the decision its own implementers follow.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void EachSystemNamesOnlyItsOwnDecidingDecision()
     {
@@ -68,7 +68,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>The first decision in identifier order decides when the implementers follow several.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void FirstDecisionInIdentifierOrderDecides()
     {
@@ -91,7 +91,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>No decides edge appears when the implementers follow no decision: a provision, a waiver, or an unknown id.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NoDecidesEdgeWhenImplementersFollowNoDecision()
     {
@@ -115,7 +115,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>No decides edge appears when nothing implements the system, even when code follows a decision.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NoDecidesEdgeWhenNothingImplementsTheSystem()
     {
@@ -134,7 +134,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>A decision that already writes decides to the system gains no second, computed edge.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void WrittenDecidesEdgeIsNotDuplicated()
     {
@@ -166,7 +166,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>A decision detail carries the concerns the book command wrote beside its record.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DecisionDetailCarriesComputedConcerns()
     {
@@ -185,7 +185,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>Decision concerns come from the one classification rules applies, reading the configured roots.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DecisionConcernsReadTheConfiguredRoots()
     {

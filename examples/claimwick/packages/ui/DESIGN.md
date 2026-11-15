@@ -11,7 +11,7 @@ pageFrames:
 
 # Claimwick shared UI package design contract
 
-Read this before composing anything. The list below is the whole of it. A screen that needs a pattern outside it needs a decision first.
+Read this before composing anything. The list below is the whole contract: a screen that needs a pattern outside it needs a decision first.
 
 ## Baseline
 
@@ -19,7 +19,7 @@ shadcn-svelte 1.7.0, style nova on bits-ui, baseColor neutral, font geist. The m
 
 ## Tokens
 
-Values live in tokens/claimwick.tokens.json, in the W3C Design Tokens format, version 2025.10. The file carries the light and dark schemes, and the component stylesheet is generated from it. Change a value there. A color written into a component is a color nobody can theme and nobody can find.
+Values live in tokens/claimwick.tokens.json, in the W3C Design Tokens format, version 2025.10. The file carries the light and dark schemes, and the component stylesheet is generated from it. Change a value there and nowhere else: a color written into a component is a color nobody can theme and nobody can find.
 
 ## Page Frames
 
@@ -33,7 +33,7 @@ The page frames this package provides, each mapped to the floorplan that impleme
 
 ## Vocabulary
 
-The composites applications compose from. Name the ones a page reaches for, one sentence each.
+These are the composites applications compose from. Name the ones a page reaches for, one sentence each.
 
 - A `button` is the only clickable element. A `div` carrying an `onClick` is refused.
 - A `badge` is a state in one word, and its tone is one of five.
@@ -53,4 +53,4 @@ A number is never animated. The number is the answer.
 
 ## Browser Support
 
-Baseline widely available. Every platform feature this package and its routes use has worked in every major browser for at least 30 months, or the file that uses it carries a fallback beside it.
+Baseline widely available: every platform feature this package and its routes use has worked in every major browser for at least 30 months, or the file that uses it carries a fallback beside it.

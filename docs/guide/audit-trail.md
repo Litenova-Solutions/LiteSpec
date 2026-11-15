@@ -1,8 +1,6 @@
 # Build an Audit Trail
 
-## Purpose
-
-An audit trail proves who attempted what against which data and what each attempt produced, so a product can answer for every sensitive action. This guide builds that proof on the LiteBus pipeline that runs each state change in the .NET backend: the entry shape, the pipeline handlers, the protected store, and the read path. Each step names the audit rule it satisfies, and the guide adds no rule of its own.
+An audit trail proves who attempted what against which data and what each attempt produced, so a product can answer for every sensitive action. This guide builds that proof on the LiteBus pipeline that runs each state change in the .NET backend: the record shape, the pipeline handlers, the protected store, and the read path. Each step names the audit rule it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -10,13 +8,13 @@ Start with:
 
 - The `audit` extension selected in the consumer's `.litespec/project.yaml`.
 - The audit adoption decision that `litespec/ext/audit#record-the-audit-adoption-decision` requires.
-- The `audit` field on each command record, which the record schema requires with no default: a level of `required`, `optional`, or `none` with its target, or `exemptBecause` with its justification.
+- The `audit` field on each command record. The record schema requires it with no default: a level of `required`, `optional`, or `none` with its target, or `exemptBecause` with its justification.
 - A LiteBus command pipeline that commits once for each command.
 - A database account reserved for audit writes, separate from the account that writes business data.
 - The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.yaml`.
-- The pipeline reference in the `docs/` folder of the [LiteBus v7 branch](https://github.com/litenova/LiteBus/tree/v7/docs), which defines the handler interfaces this guide implements.
+- The pipeline reference in the `docs/` folder of the [LiteBus v7 branch](https://github.com/litenova/LiteBus/tree/v7/docs). It defines the handler interfaces this guide implements.
 
-Read the [audit extension](../ext/audit.md) before this guide: it states the obligations, and this guide shows one compliant way to meet them.
+Read the [audit extension](../ext/audit.md) before this guide. It states the obligations, and this guide shows one compliant way to meet them.
 
 ## Procedure
 
@@ -29,7 +27,7 @@ Model the audit record once, using the fields the extension requires in `litespe
 | `auditId` | UUID v7 | Record identity, ordered by write time | `litespec/ext/audit#record-the-required-audit-fields` |
 | `occurredAt` | Timestamp with zone | Business time of the attempt | `litespec/ext/audit#record-the-required-audit-fields` |
 | `recordedAt` | Timestamp with zone | Time the evidence was written | `litespec/ext/audit#record-the-required-audit-fields` |
-| `action` | Use case identity | The invoked use case | `litespec/ext/audit#state-the-action-as-use-case-identity` |
+| `action` | Use case identity | The invoked use case | `litespec/ext/audit#name-each-action-after-its-use-case` |
 | `category` | Closed set | Retention and review classification | `litespec/ext/audit#use-a-fixed-category-vocabulary` |
 | `outcome` | Closed set | `succeeded`, `denied`, or `failed` | `litespec/ext/audit#record-every-attempt-outcome` |
 | `failureCode` | Stable code | The refusal or failure reason | `litespec/ext/audit#record-the-refusal-code-on-an-unsuccessful-attempt` |
@@ -37,7 +35,7 @@ Model the audit record once, using the fields the extension requires in `litespe
 | `actorId` | Pseudonymous identifier | The acting account | `litespec/ext/audit#record-the-required-audit-fields` |
 | `actorDeviceId` | Pseudonymous identifier | The acting device | `litespec/ext/audit#use-a-closed-actor-set` |
 | `actorProcess` | Name | The acting scheduled process | `litespec/ext/audit#use-a-closed-actor-set` |
-| `underGrant` | Boolean | The actor used a support grant | `litespec/ext/audit#record-delegated-administrative-access` |
+| `underGrant` | Boolean | The actor used a support grant | `litespec/ext/audit#mark-actions-taken-under-a-support-grant` |
 | `tenantId` | Identifier | The tenant that owns the data | `litespec/ext/audit#scope-every-record-to-its-tenant` |
 | `targetKind` | Name | The kind of thing acted on | `litespec/ext/audit#record-the-required-audit-fields` |
 | `targetId` | Identifier | Its identity | `litespec/ext/audit#record-the-required-audit-fields` |
@@ -45,16 +43,18 @@ Model the audit record once, using the fields the extension requires in `litespe
 | `sourceIp` | Address | Request origin | `litespec/ext/audit#record-the-request-origin` |
 | `userAgent` | Bounded text | The calling client | `litespec/ext/audit#record-the-request-origin` |
 | `requestId` | Identifier | The request that produced the attempt | `litespec/ext/audit#record-the-request-origin` |
-| `traceId` | Identifier | Join key to the diagnostic log | `litespec/ext/audit#record-the-operation-trace-identity` |
+| `traceId` | Identifier | Join key to the diagnostic log | `litespec/ext/audit#link-each-record-to-its-operation-trace` |
 | `schemaVersion` | Integer | The shape this record was written in | `litespec/ext/audit#version-the-audit-record-shape` |
-| `previousHash` | Hash | The preceding record hash | `litespec/ext/audit#provide-tamper-evidence` |
-| `entryHash` | Hash | Hash over this canonical record | `litespec/ext/audit#provide-tamper-evidence` |
+| `previousHash` | Hash | The preceding record hash | `litespec/ext/audit#chain-records-to-expose-tampering` |
+| `entryHash` | Hash | Hash over this canonical record | `litespec/ext/audit#chain-records-to-expose-tampering` |
 
-The shape carries no person name, no address, no message body, and no state snapshot. That exclusion lets the product meet `litespec/ext/audit#exclude-personal-data-beyond-actor-identity` and `litespec/ext/audit#remove-the-identity-mapping-on-erasure`.
+The shape deliberately leaves things out: no person name, no address, no message body, and no state snapshot. Those omissions are what let the product meet `litespec/ext/audit#limit-personal-data-to-actor-and-target-identifiers` and `litespec/ext/audit#remove-the-identity-mapping-on-erasure`.
 
-### Declare the Selection on Each Command
+### Declare Which Commands Are Audited
 
-Attach the values fixed per use case (action identity, target kind, category) to the command type with an attribute, as `litespec/ext/audit#declare-audit-selection-beside-the-command` requires. Declare the audit target and reason beside the message: the attribute names the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial. The command record's `audit` field selects which use cases are audited and why; async work audits at request time.
+Each command type says beside itself whether it is audited. Mark the values fixed per use case (the action identity, the target kind, and the category) with an attribute, as `litespec/ext/audit#declare-audit-details-on-the-command-type` requires. The attribute also names the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial.
+
+Which use cases are audited, and why, is selected on the command record's `audit` field. Work that runs asynchronously is audited at request time.
 
 ```csharp
 [Audited("catalog.add-product", TargetKind = "product", Category = AuditCategory.Configuration, Target = nameof(AddProductCommand.ProductId), Reason = nameof(AddProductCommand.Reason))]
@@ -64,19 +64,19 @@ public sealed record AddProductCommand(...) : ICommand<AddProductCommandResult>;
 public sealed record BrowseStorefrontQuery(...) : IQuery<BrowseStorefrontQueryResult>;
 ```
 
-Write an architecture test that scans every `ICommand` implementation and fails the build when a type carries neither attribute. That test implements `litespec/ext/audit#reject-an-undeclared-command`.
+No command goes unmarked. Add an architecture test that scans every `ICommand` implementation and fails the build when a type carries neither attribute. That test implements `litespec/ext/audit#fail-the-build-for-commands-without-an-audit-declaration`.
 
 ### Carry Request Context to the Pipeline
 
 Capture the request origin at the HTTP boundary and place it where the pipeline reads it. The endpoint already resolves the actor from verified claims under `litespec/quality/security#derive-the-actor-from-claims`.
 
-Register middleware that reads the connection address, the user agent, and the request identifier, and expose the three through a scoped accessor that the audit producer resolves. This satisfies `litespec/ext/audit#record-the-request-origin` and `litespec/ext/audit#record-the-operation-trace-identity`.
+Register middleware that reads the connection address, the user agent, and the request identifier. Expose the three through a scoped accessor that the audit producer resolves. This satisfies `litespec/ext/audit#record-the-request-origin` and `litespec/ext/audit#link-each-record-to-its-operation-trace`.
 
 ### Open the Audit Scope in a Pre-Handler
 
-Implement `ICommandPreHandler`, the handler interface that LiteBus runs before every command.
+Implement `ICommandPreHandler`, the interface LiteBus runs before every command.
 
-Read the declaration from the command type. Resolve the actor, the tenant, the clock, and the request context, and put the assembled scope into `IExecutionContext.Items`. The ambient execution context carries those items through every later pipeline stage.
+Read the declaration from the command type, resolve the actor, the tenant, the clock, and the request context, and put the assembled scope into `IExecutionContext.Items`. The ambient execution context carries those items through every later pipeline stage.
 
 ```csharp
 internal sealed class OpenAuditScopePreHandler(IAuditScopeFactory factory) : ICommandPreHandler
@@ -96,7 +96,7 @@ internal sealed class OpenAuditScopePreHandler(IAuditScopeFactory factory) : ICo
 
 ### Enrich from the Handler
 
-Let the command handler contribute only the values it alone determines, as `litespec/ext/audit#restrict-handler-contribution-to-determined-values` requires. A generated identity and a reason value composed from loaded state are the usual two.
+The command handler adds only the values it alone determines, as `litespec/ext/audit#restrict-handler-contribution-to-determined-values` requires. In practice that is two values: a generated identity and a reason value composed from loaded state.
 
 ```csharp
 var product = Product.Create(ProductId.New(), ...);
@@ -112,7 +112,7 @@ Implement `ICommandPostHandler`. LiteBus runs a post-handler only when the main 
 
 Stage the audit record in the same session as the business change, as `litespec/ext/audit#commit-a-success-record-with-its-business-change` requires.
 
-Order matters. The post-handler that commits the session runs in the same stage, so give the commit an explicit later priority. `HandlerPriorityAttribute` orders handlers by ascending value, and a handler with no attribute takes priority `0`.
+The commit needs to run after the audit write, and both post-handlers run in the same stage. Order them with explicit priorities: `HandlerPriorityAttribute` orders handlers by ascending value, and a handler with no attribute takes priority `0`.
 
 ```csharp
 [HandlerPriority(10)]
@@ -122,13 +122,13 @@ internal sealed class WriteAuditRecordPostHandler : ICommandPostHandler { }
 internal sealed class CommitChangesPostHandler : ICommandPostHandler { }
 ```
 
-When both handlers keep the default priority, the order depends on registration order, which `litespec/ext/audit#stage-the-audit-write-before-the-business-commit` rejects.
+Give the audit write the earlier priority explicitly. When both handlers keep the default priority, the order depends on registration order, which `litespec/ext/audit#stage-the-audit-write-before-the-business-commit` rejects.
 
 ### Close the Scope as Denied or Failed
 
-Implement `ICommandErrorHandler`, which runs when any stage throws. Map the authorization refusal to `denied` and every other failure to `failed`.
+Implement `ICommandErrorHandler`, which runs when any stage throws. Map an authorization refusal to `denied` and every other failure to `failed`.
 
-Write this record on a connection outside the failing transaction, so the rollback does not remove it, as `litespec/ext/audit#write-an-unsuccessful-record-outside-the-failed-transaction` requires. Open a second session, write, and commit it there.
+A rollback must not take the evidence with it, so write this record on a connection outside the failing transaction, as `litespec/ext/audit#write-an-unsuccessful-record-outside-the-failed-transaction` requires. Open a second session, write the record, and commit it there.
 
 ```csharp
 internal sealed class WriteFailedAuditRecordErrorHandler(IAuditFailureWriter writer) : ICommandErrorHandler
@@ -148,27 +148,28 @@ internal sealed class WriteFailedAuditRecordErrorHandler(IAuditFailureWriter wri
 }
 ```
 
-Publish the write failure count of this path, as `litespec/ext/audit#publish-unsuccessful-write-failures` requires. Count a missing scope on the same counter before returning. The separate connection can lose a record when the process dies mid-write; the counter is what distinguishes that rare loss from a defect.
+Publish the write failure count of this path, as `litespec/ext/audit#publish-unsuccessful-write-failures` requires, and count a missing scope on the same counter before returning. The separate connection can lose a record when the process dies mid-write, and the counter is what tells that rare loss apart from a defect.
 
 ### Protect the Store
 
-Create a database role that holds `INSERT` and `SELECT` on the audit table and holds neither `UPDATE` nor `DELETE`, and write through that role. This satisfies `litespec/ext/audit#enforce-append-only-through-storage-privilege`.
+Create a database role that holds `INSERT` and `SELECT` on the audit table and holds neither `UPDATE` nor `DELETE`, and write through that role. The database itself then refuses rewrites, which satisfies `litespec/ext/audit#enforce-append-only-through-storage-privilege`.
 
-Compute `entryHash` over the canonical record content and the preceding `previousHash`. Run a recurring job that walks the chain and raises an alert on a break. The pair satisfies `litespec/ext/audit#provide-tamper-evidence` and `litespec/ext/audit#verify-the-integrity-chain-on-a-schedule`.
+Then make tampering visible. Compute `entryHash` over the canonical record content and the preceding `previousHash`, and run a recurring job that walks the chain and raises an alert on a break. The pair satisfies `litespec/ext/audit#chain-records-to-expose-tampering` and `litespec/ext/audit#verify-the-integrity-chain-on-a-schedule`.
 
 ### Provide the Read Path
 
-Add a query use case that filters by tenant, actor, action, target, and outcome, and gate it on a permission. This satisfies `litespec/ext/audit#give-the-trail-a-read-path`.
+Add a query use case that filters by tenant, actor, action, target, and outcome, and gate it on a permission. This satisfies `litespec/ext/audit#provide-a-use-case-that-reads-the-trail`.
 
-Declare that query audited: reading the evidence is itself a sensitive action under `litespec/ext/audit#audit-reads-of-the-trail`.
+Declare that query audited. Reading the evidence is itself a sensitive action under `litespec/ext/audit#audit-reads-of-the-trail`.
 
 ## Check
 
-Work through the provisions in [the audit extension](../ext/audit.md); each one this guide implements ends with the evidence to check.
+Check the result against [the audit extension](../ext/audit.md): work through its provisions, and for each one this guide implements, check the evidence the provision names.
 
-Confirm three behaviors by test before review:
+Prove three behaviors with tests before review:
 
 - A refused authorization leaves one `denied` record after the transaction rolls back.
 - A committed command leaves exactly one `succeeded` record in the same transaction.
 - An `UPDATE` against the audit table returns a privilege error.
-- Each behavior above is a scenario on its own use case page, proved by the test that asserts it.
+
+Record each behavior as a scenario on its use case page, proved by the test that asserts it.

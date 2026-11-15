@@ -150,46 +150,46 @@ internal sealed partial class PageValidator
             // A standard page carries no per-stack sections. Shared pages stay neutral
             // across stacks, and each stack page carries its own bindings.
             // (litespec/core/authoring#place-each-stack-binding-on-its-stack-page)
-            return new PageContract(["Intent", "Standards", "Conventions"], ["Concepts", "Reference Example"]);
+            return new PageContract(["Standards", "Conventions"], ["Concepts", "Reference Example"]);
         }
 
         // A pattern page offers drawn options for recurring interface questions; its
         // Standards hold the rules every option keeps.
         if (kind == "pattern")
         {
-            return new PageContract(["Intent", "Patterns"], ["Concepts", "Standards", "Conventions"]);
+            return new PageContract(["Patterns"], ["Concepts", "Standards", "Conventions"]);
         }
 
         if (kind == "stack")
         {
-            return new PageContract(["Intent", "Standards", "Conventions"], ["Concepts"]);
+            return new PageContract(["Standards", "Conventions"], ["Concepts"]);
         }
 
         if (kind == "extension")
         {
-            return new PageContract(["Intent", "Activation", "Baseline Relationship", "Standards", "Conventions", "Dependencies"], []);
+            return new PageContract(["Activation", "Baseline Relationship", "Standards", "Conventions", "Dependencies"], []);
         }
 
         if (kind == "how-to")
         {
-            return new PageContract(["Purpose", "Procedure", "Check"], ["Prerequisites"]);
+            return new PageContract(["Procedure", "Check"], ["Prerequisites"]);
         }
 
         // A tutorial closes on what the reader now has. Check asks whether a
         // procedure worked, which is a different question asked by a different reader.
         if (kind == "tutorial")
         {
-            return new PageContract(["Purpose", "Prerequisites", "Lesson", "What You Built"], []);
+            return new PageContract(["Prerequisites", "Lesson", "What You Built"], []);
         }
 
         if (kind == "reference")
         {
-            return new PageContract(["Intent", "Reference"], ["Notes"]);
+            return new PageContract(["Reference"], ["Notes"]);
         }
 
         // Underneath is required rather than optional, so a command page that hides its
         // mechanism fails rather than passing in silence. A command with nothing
-        // separately runnable writes 'None.' (litespec/core/authoring#name-the-escape-from-every-abstraction)
+        // separately runnable writes 'None.' (litespec/core/authoring#state-what-the-command-runs-underneath)
         if (kind == "command")
         {
             return new PageContract(["Name", "Synopsis", "Description", "Arguments", "Options", "Exit Codes", "Examples", "Underneath"], []);
@@ -244,23 +244,23 @@ internal sealed partial class PageValidator
         List<string> canonical;
         if (kind == "standard")
         {
-            canonical = ["Intent", "Concepts", "Standards", "Conventions", "Reference Example"];
+            canonical = ["Concepts", "Standards", "Conventions", "Reference Example"];
         }
         else if (kind == "pattern")
         {
-            canonical = ["Intent", "Concepts", "Standards", "Conventions", "Patterns"];
+            canonical = ["Concepts", "Standards", "Conventions", "Patterns"];
         }
         else if (kind == "stack")
         {
-            canonical = ["Intent", "Concepts", "Standards", "Conventions"];
+            canonical = ["Concepts", "Standards", "Conventions"];
         }
         else if (kind == "how-to")
         {
-            canonical = ["Purpose", "Prerequisites", "Procedure", "Check"];
+            canonical = ["Prerequisites", "Procedure", "Check"];
         }
         else if (kind == "reference")
         {
-            canonical = ["Intent", "Reference", "Notes"];
+            canonical = ["Reference", "Notes"];
         }
         else if (kind is "research" or "decision")
         {
@@ -392,7 +392,34 @@ internal sealed partial class PageValidator
         return AddsNoContentPattern().IsMatch(text);
     }
 
-    /// <summary>Checks the index Intent rule and the glossary order and definition rules.</summary>
+    /// <summary>Whether the page holds a paragraph between its title and its first H2, apart from the Stack and Concern lines.</summary>
+    /// <param name="reader">The parsed page.</param>
+    /// <returns>True when a lead paragraph opens the page.</returns>
+    private static bool HasLead(PageReader reader)
+    {
+        var title = reader.Headings.FirstOrDefault(heading => heading.Level == 1);
+        var firstSection = reader.Headings.FirstOrDefault(heading => heading.Level == 2);
+        var from = title is null ? 1 : title.Line + 1;
+        var to = firstSection is null ? reader.Lines.Length + 1 : firstSection.Line;
+
+        for (var line = from; line < to; line++)
+        {
+            var text = reader.Lines[line - 1].Trim();
+            if (text.Length > 0
+                && !reader.FencedLines.Contains(line)
+                && !text.StartsWith("**Stack:**", StringComparison.Ordinal)
+                && !text.StartsWith("**Concern:**", StringComparison.Ordinal)
+                && !text.StartsWith("<!--", StringComparison.Ordinal)
+                && !text.StartsWith("---", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Checks the lead paragraph rule and the glossary order and definition rules.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="kind">The page class.</param>
     /// <param name="reader">The parsed page.</param>
@@ -400,14 +427,10 @@ internal sealed partial class PageValidator
     private void CheckIndexAndGlossary(string relative, string? kind, PageReader reader, List<PageSection> sections)
     {
         var add = Context.Add;
-        if (kind == "index" && (sections.Count == 0 || sections[0].Name != "Intent"))
+        if (kind is "standard" or "pattern" or "stack" or "extension" or "how-to" or "tutorial" or "reference" or "index" or "explanation"
+            && !HasLead(reader))
         {
-            add(relative, sections.Count > 0 ? sections[0].Line : 1, MaintainerDiagnostics.Codes.IndexIntent, "an index must start with an Intent H2");
-        }
-
-        if (kind == "explanation" && (sections.Count == 0 || sections[0].Name != "Intent"))
-        {
-            add(relative, sections.Count > 0 ? sections[0].Line : 1, MaintainerDiagnostics.Codes.PageMissingSection, "an explanation page starts with an Intent H2");
+            add(relative, sections.Count > 0 ? sections[0].Line : 1, MaintainerDiagnostics.Codes.PageLeadMissing, "a page opens with a lead paragraph under its title, before its first H2");
         }
 
         if (kind != "glossary")

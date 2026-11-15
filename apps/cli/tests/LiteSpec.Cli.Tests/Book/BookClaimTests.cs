@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Book;
 public sealed class BookClaimTests
 {
     /// <summary>Under intent and behavior alone the book leaves out code, proof and level S findings, and carries no test run.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookUnderIntentAndBehaviorLeavesOutCodeProofAndLevelSFindings()
     {
@@ -62,7 +62,7 @@ public sealed class BookClaimTests
     }
 
     /// <summary>Under own code and proof the book adds code and proof status and the level S findings.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookUnderOwnCodeAndProofAddsCodeProofAndLevelSFindings()
     {
@@ -72,7 +72,7 @@ public sealed class BookClaimTests
     }
 
     /// <summary>Under LiteSpec's code and proof the book adds code and proof status and the level S findings.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookUnderLiteSpecCodeAndProofAddsCodeProofAndLevelSFindings()
     {
@@ -118,7 +118,7 @@ public sealed class BookClaimTests
             .Select(entry => $"{entry!["layer"]!.GetValue<string>()}={entry["practice"]!.GetValue<string>()}"));
 
     /// <summary>Code without proof: the book shows the code, and it reads no test, proof status or missing test for an unclaimed proof layer.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookUnderCodeWithoutProofLeavesOutProof()
     {
@@ -142,7 +142,7 @@ public sealed class BookClaimTests
     }
 
     /// <summary>Proof without code: the book shows the tests, and it reads no code or missing code for an unclaimed implementation layer.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookUnderProofWithoutCodeLeavesOutCode()
     {
@@ -164,7 +164,7 @@ public sealed class BookClaimTests
     }
 
     /// <summary>The manifest Intent coverage counts each requirement and flow step and the share reached, under every claim.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void IntentCoverageCountsRequirementsAndFlowStepsAndTheShareReached()
     {

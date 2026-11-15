@@ -71,7 +71,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Scenarios and rules read norun while the model holds no test run.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ProofIsNorunWithoutATestRun()
     {
@@ -91,7 +91,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Proof maps passing and unproved states, with the proving test file and line.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ProofMapsPassingAndUnprovedWithTestLines()
     {
@@ -111,7 +111,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Machine states come from the status maps the builder already writes: verified use cases, met requirements.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void MachineStatesComeFromStatusMaps()
     {
@@ -133,7 +133,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>A stored scenario state wins over the proves links; a scenario without one still reads its links.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void StoredScenarioStatusWinsOverProvesLinks()
     {
@@ -165,7 +165,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>An indirect proof reads indirect, never passing.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void IndirectProofReadsIndirect()
     {
@@ -185,7 +185,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Tested proof targets read their tested state from the tested map the builder wrote.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void TestedComesFromTestedMap()
     {
@@ -217,7 +217,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Aggregates list their reachable states; other types carry no reachable list.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ReachableListsAggregateStates()
     {
@@ -230,7 +230,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Requirements count the fulfilling records by type.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void KeptByCountsFulfillingTypes()
     {
@@ -243,7 +243,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Flow steps list their servers and screens, and the steps a test walked.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void FlowStepsListServersScreensAndExercised()
     {
@@ -258,7 +258,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>A reaction and a job serving steps read as their servers, and a walked step reads walked.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ReactionAndJobServedAndExercisedSteps()
     {
@@ -372,7 +372,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Expectations and missing marks are computed once from code and tests.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void TestsExpectAndLacksAreComputedOnce()
     {
@@ -403,7 +403,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Findings group by subject base id, open and known apart, unknown dropped.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void FindingsGroupBySubjectBase()
     {
@@ -448,7 +448,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Explanations render to HTML with hash record links, split into intro and sections.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BodyHtmlRendersMarkdownWithHashLinksAndSections()
     {
@@ -469,7 +469,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Outgoing and incoming edges carry field keys with no wording.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void OutAndInEdgesUseFieldKeys()
     {
@@ -490,7 +490,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Nested link fields form dotted keys, and step fragments resolve to the record.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NestedEffectsFormDottedKeys()
     {
@@ -502,7 +502,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Wave-5 link objects resolve to dotted edges, and a mode-only object resolves to none while reaching the client intact.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void Wave5LinkObjectsFormRecordEdges()
     {
@@ -516,7 +516,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, binds, exercises and typed references.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void Wave6LinkShapesFormRecordEdges()
     {
@@ -609,7 +609,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>A record detail carries the captures and evidence strength the model states beside the record, and computes completion from proof.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DetailsCarryCapturesAndEvidenceStrengthWithComputedCompletion()
     {
@@ -634,7 +634,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Each detail carries the folder path and module the model states beside the record.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DetailsCarryTheFolderAndTheModule()
     {
@@ -649,7 +649,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>Completion reads from proof: code, tests and passing scenarios, each null when the record expects nothing there.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void CompletionIsComputedFromProof()
     {

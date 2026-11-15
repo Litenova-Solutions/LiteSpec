@@ -65,7 +65,7 @@ public sealed class UiBlueprintCheckTests
     }
 
     /// <summary>A screen no other screen leads to, that is not its entry point's start, reports screen-unreachable.</summary>
-    /// <proves>litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next</proves>
+    /// <proves>litespec/frontend/ui#link-each-screen-to-its-next-screens</proves>
     [Fact]
     public void ScreenLedToByNoOtherScreenReportsUnreachable()
     {
@@ -81,7 +81,7 @@ public sealed class UiBlueprintCheckTests
     }
 
     /// <summary>A screen another screen leads to reports no unreachable finding.</summary>
-    /// <proves>litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next</proves>
+    /// <proves>litespec/frontend/ui#link-each-screen-to-its-next-screens</proves>
     [Fact]
     public void ScreenLedToByAnotherScreenReportsNoUnreachable()
     {
@@ -248,7 +248,7 @@ public sealed class UiBlueprintCheckTests
     }
 
     /// <summary>A written refusal missing a declared language reports sentence-language-missing.</summary>
-    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    /// <proves>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</proves>
     [Fact]
     public void RefusalMissingADeclaredLanguageReportsSentenceLanguageMissing()
     {
@@ -265,7 +265,7 @@ public sealed class UiBlueprintCheckTests
     }
 
     /// <summary>A written refusal carrying every declared language reports no sentence-language-missing.</summary>
-    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    /// <proves>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</proves>
     [Fact]
     public void RefusalCarryingEveryDeclaredLanguageReportsNothing()
     {
@@ -283,7 +283,7 @@ public sealed class UiBlueprintCheckTests
     }
 
     /// <summary>The default language needs no sentences entry.</summary>
-    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    /// <proves>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</proves>
     [Fact]
     public void DefaultLanguageNeedsNoSentencesEntry()
     {
@@ -296,7 +296,7 @@ public sealed class UiBlueprintCheckTests
     }
 
     /// <summary>A derived refusal without sentences reports no sentence-language-missing.</summary>
-    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    /// <proves>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</proves>
     [Fact]
     public void DerivedRefusalWithoutSentencesReportsNothing()
     {
@@ -321,7 +321,7 @@ public sealed class UiBlueprintCheckTests
     }
 
     /// <summary>A use case reached through entry points declaring two languages needs a sentence for each.</summary>
-    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    /// <proves>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</proves>
     [Fact]
     public void TwoEntryPointsRequireEachDeclaredLanguage()
     {

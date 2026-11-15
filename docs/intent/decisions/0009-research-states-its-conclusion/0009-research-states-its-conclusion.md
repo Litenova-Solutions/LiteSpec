@@ -25,7 +25,7 @@ Each research record gains a required `conclusion` field, which holds one senten
 
 ## Consequences
 
-The provision `litespec/core/intent#record-research-with-read-sources` states the question, the conclusion, the dated sources and the Answer. The book shows the conclusion beside the question.
+The provision `litespec/core/intent#record-research-with-its-question-conclusion-and-sources` states the question, the conclusion, the dated sources and the Answer. The book shows the conclusion beside the question.
 
 ## Evidence
 

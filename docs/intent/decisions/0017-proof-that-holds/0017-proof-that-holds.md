@@ -31,7 +31,7 @@ Finding codes follow `<subject>-<problem>` with 15 problem words. An unknown cod
 
 ## Consequences
 
-The provision `litespec/core/model#compute-proof-statuses-in-the-builder` holds the tracked proof state and keeps judgement in the builder. The provision `litespec/core/model#show-only-computed-judgements-in-the-book` keeps rendering in the book. Findings block by check level.
+The provision `litespec/core/model#compute-proof-statuses-in-the-builder` holds the tracked proof state and keeps judgement in the builder. The provision `litespec/core/model#show-only-computed-judgments-in-the-book` keeps rendering in the book. Findings block by check level.
 
 The glossary holds the 4 proof words. `decision/0033-agents-never-weaken-proving-tests` adds the advisory proof-change finding on the method hash.
 

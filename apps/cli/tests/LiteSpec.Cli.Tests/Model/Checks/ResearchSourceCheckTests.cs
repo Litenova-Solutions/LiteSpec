@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ResearchSourceCheckTests
 {
     /// <summary>A research explanation linking a URL directly reports.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void DirectLinkReportsSourceLinkBare()
     {
@@ -34,7 +34,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A research explanation naming a bare URL reports.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void BareUrlReportsSourceLinkBare()
     {
@@ -61,7 +61,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A research explanation naming an angle-bracket URL reports.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void AngleUrlReportsSourceLinkBare()
     {
@@ -88,7 +88,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A URL inside code reports no bare link.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void UrlInsideCodePasses()
     {
@@ -110,7 +110,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A reference link whose label shows the URL cites by key and reports no bare link.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void UrlAsReferenceLinkLabelPasses()
     {
@@ -134,7 +134,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A research explanation citing an unknown source key reports.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void UnknownSourceKeyReports()
     {
@@ -161,7 +161,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A research explanation citing a declared source key passes.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void KnownSourceKeyPasses()
     {
@@ -185,7 +185,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A research source cited nowhere in its explanation reports.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void UncitedSourceReportsSourceUnused()
     {
@@ -212,7 +212,7 @@ public sealed class ResearchSourceCheckTests
     }
 
     /// <summary>A research record with no explanation skips the source checks.</summary>
-    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
     [Fact]
     public void ResearchWithoutAnExplanationSkipsSourceChecks()
     {

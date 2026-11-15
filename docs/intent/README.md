@@ -1,7 +1,5 @@
 # Overview
 
-## Intent
-
 The Intent records hold the research and decisions behind LiteSpec's provisions, in the shapes a consumer uses. They inform the provisions and settle nothing themselves: the provision remains the only obligation, and these records are never selected or applied as contract.
 
 ## Research and Decisions

@@ -1,26 +1,24 @@
 # Work with Agents
 
-## Intent
-
-An AI coding agent (software that reads task context, changes files, and runs checks) does its best work when the rules are written down and the checks run before review. This page explains how an agent finds the LiteSpec rules for your project, the order it follows on a task, and which decisions stay with you. Team members read it when they first hand work to an agent, so the agent starts from your records instead of its own habits.
+An AI coding agent reads task context, changes files, and runs checks. It does its best work when the rules are written down and the checks run before review. Without that, it fills gaps from its training and from whichever files it happens to open. This page shows how an agent finds the LiteSpec rules for a project, the order it follows on a task, and which decisions stay with the team. Read it before handing work to an agent, so the agent starts from project records instead of its own habits.
 
 ## Rules, Records, and Checks
 
-Without LiteSpec, an agent decides architecture, naming, and testing from its training and from whatever files it happens to open. With LiteSpec, those choices are already made and written down, so the agent spends its effort on the work you asked for.
+Without LiteSpec, an agent takes architecture, naming, and testing from its training and from whichever files it happens to open. Two agents given the same request can produce two designs that both compile and both pass their tests. With LiteSpec, those choices are already made and written down, so the agent spends its effort on the work it was asked for.
 
 An agent gets three things:
 
 - **Rules it can cite.** Every provision has an ID and a strength, so the agent cites exactly which rule a change follows; [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows the anatomy.
 - **Records it can trust.** The records in git say what to build. The specification is closed: the agent builds what they state and nothing more.
-- **Checks it can run.** `dotnet litespec model check` and the CI gates tell the agent whether its change holds before you review it.
+- **Checks it can run.** `dotnet litespec model check` and the CI gates tell the agent whether its change holds before review.
 
 ## Rule Sources
 
-An agent finds the rules in two places: the installed tool and the published site.
+An agent finds the rules in two places: the installed tool and the published site. Both carry the same release the project pinned, so the agent reads one contract either way.
 
 ### The Installed Tool
 
-The project installs the `litespec` command line at the adopted release, as a local .NET tool or as the standalone binary. Either carries its whole release, manifest, schemas, docs, and templates, so every check reads the same contract the team pinned. The project's `AGENTS.md` carries a generated agent protocol region that names the release and its selection, and the agent reads only the pages a task touches.
+The project installs the `litespec` command line at the adopted release, as a local .NET tool or as the standalone binary. Either one carries its whole release, manifest, schemas, docs, and templates, so every check reads the same contract the team pinned. The project's `AGENTS.md` carries a generated agent protocol region that names the release and its selection, and the agent reads only the pages a task touches.
 
 Before editing a file, the agent asks which provisions govern it:
 
@@ -32,7 +30,7 @@ The command lists the provisions grouped by strength, as one-line statements, wi
 
 ### The Published Site
 
-An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/7.0.0/select/) renders the same agent protocol that `litespec init` writes into a new project's `AGENTS.md`, filled for the chosen selection:
+An agent that can fetch URLs reads the standard from litespec.dev instead of the installed tool. The [selection page](https://litespec.dev/7.0.0/select/) renders the same agent protocol that `litespec init` writes into a new project's `AGENTS.md`, filled in for the chosen selection:
 
 ```markdown
 <!-- generated:agent-protocol -->
@@ -59,7 +57,7 @@ A LiteSpec skill teaches Claude Code and OpenCode the LiteSpec procedure: read t
 
 ## Entry Files per Agent
 
-Each agent reads its own entry file. The table names the file and how to bridge it to the shared `AGENTS.md` protocol.
+Each agent reads its own entry file, so the project bridges each one to the shared `AGENTS.md` protocol. The table names the file and how to bridge it.
 
 | Agent | Reads | Bridge |
 |:---|:---|:---|
@@ -108,7 +106,7 @@ An agent makes the decisions the standard has already made: where a type goes, h
 
 The agent protects proofs. It does not delete, skip, or weaken a test that proves a scenario, and it does not change expected values unless the scenario changed in the same change. When a proving test fails or looks wrong, the agent stops and reports the mismatch instead of fitting the test to the code.
 
-UI design works the same way. For each recurring interface question, LiteSpec offers drawn options and a Default. An agent builds the Default with your own components and style and records it with `source: recommended`. It waits for the owner only when the route departs from the Default or no Default exists; in that case it shows the options on the pattern's page on the LiteSpec site and recommends one. If it sees a better option while working, it finishes on the recorded option and proposes the idea in its report, instead of changing the decision.
+UI design works the same way. For each recurring interface question, LiteSpec offers drawn options and a Default. An agent builds the Default with the project's own components and style and records it with `source: recommended`. It waits for the owner only when the route departs from the Default or no Default exists; in that case it shows the options on the pattern's page on the LiteSpec site and recommends one. If it sees a better option while working, it finishes on the recorded option and proposes the idea in its report, instead of changing the decision.
 
 ## Next Steps
 

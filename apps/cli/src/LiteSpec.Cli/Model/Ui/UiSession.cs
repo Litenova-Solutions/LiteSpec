@@ -10,10 +10,10 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Ui;
 
 /// <summary>One in-process validation run: the errors, digests, and manifest it collects.</summary>
-/// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
-/// <follows>litespec/frontend/ui#use-the-product-profiles</follows>
+/// <follows>litespec/frontend/ui#record-one-shared-ui-package</follows>
+/// <follows>litespec/frontend/ui#select-a-density-profile-for-each-frontend</follows>
 /// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
-/// <follows>litespec/frontend/web/ui#track-source-changes</follows>
+/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
 sealed class UiSession
 {
     /// <summary>
@@ -126,7 +126,7 @@ sealed class UiSession
 
         // A controlled frontend composes the shared package, so the workspace declares
         // it once. A frontend that composes no shared component carries no UI block.
-        // (litespec/frontend/ui#select-one-visual-authority)
+        // (litespec/frontend/ui#record-one-shared-ui-package)
         // An additional registry passes both registry gates under a waiver against
         // the pinned baseline provision. The expiry date on that record is checked
         // above; the gates below check its presence.
@@ -320,7 +320,7 @@ sealed class UiSession
                                 return;
                             }
 
-                            Add("ui-class-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
+                            Add("ui-class-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
                         });
                     }
                 }
@@ -349,7 +349,7 @@ sealed class UiSession
                     var inline = source.EndsWith(".svelte", StringComparison.Ordinal) ? SourceFiles.SvelteInlineStyle : SourceFiles.ReactInlineStyle;
                     if (inline.IsMatch(File.ReadAllText(source)))
                     {
-                        Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] an inline style belongs in a shared component", source);
+                        Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] an inline style belongs in a shared component", source);
                     }
                 }
 

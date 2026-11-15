@@ -16,7 +16,7 @@ public sealed class BookHygieneTests
     static readonly Regex HtmlTag = new("<[^>]+>", RegexOptions.Compiled);
 
     /// <summary>No shard holds an object coercion or the old raw-JSON fallback block.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ShardsHoldNoObjectStringOrRawJson()
     {
@@ -75,7 +75,7 @@ public sealed class BookHygieneTests
     }
 
     /// <summary>Every hash link and outgoing edge in the shards points at a record the shard map holds, and the client shows anything else as the missing-record text.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void GeneratedLinksResolveOrShowTheMissingRecordText()
     {
@@ -137,7 +137,7 @@ public sealed class BookHygieneTests
     }
 
     /// <summary>Generated content holds no data-go target: the client renders those buttons itself, only for records and outline nodes it holds, and ignores empty ones.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DataGoButtonsRenderOnlyForKnownRecords()
     {
@@ -223,7 +223,7 @@ public sealed class BookHygieneTests
     ///     The book client holds no risk tier, no T1, no fact badges, no fact chips,
     ///     no fact pills, no avatars and no card styles for facts.
     /// </summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookClientHoldsNoTierOrFactBadges()
     {

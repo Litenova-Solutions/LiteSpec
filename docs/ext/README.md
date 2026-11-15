@@ -1,24 +1,24 @@
 # Overview
 
-## Intent
+Each extension is a conditional bundle of provisions a project adds only when a specific need appears, from caching and audit trails to multitenancy and delivery. A project carries no provision it does not need: each bundle stays inactive until a current need meets the criterion its page states, and the project records each choice with its criterion.
 
-The extensions pages hold conditional provision bundles a project adds only when a specific need appears, from caching and audit trails to multitenancy and delivery, so a project carries no provision it does not need. Each bundle stays inactive until a current need meets the criterion its page states, and the project records each choice with its criterion. A team facing a need the default provisions do not cover reads the candidate page and selects only the extensions whose criteria hold today.
+When the baseline provisions do not cover a need, read the candidate page and select only the extensions whose criteria hold today.
 
 ## How to Select an Extension
 
-Each extension below states its own activation criterion and whether it applies to the whole project or to named records. A project selects every extension whose criteria hold and no extension whose criteria do not, and lists each selection in `selectedExtensions` in `.litespec/project.yaml` with the criterion it met. The manifest repeats each activation scope, replacement list, and switched-on record type where checks read it. Most extensions add provisions without replacing any; the audit and outbox pages each name the one baseline provision they replace.
+Each extension below states its activation criterion and whether it applies to the whole project or to named records. Select every extension whose criteria hold, and none whose criteria do not, and list each selection in `selectedExtensions` in `.litespec/project.yaml` with the criterion it met. The manifest repeats each activation scope, replacement list, and switched-on record type where checks read it. Most extensions add provisions without replacing any; the audit and outbox pages each name the one baseline provision they replace.
 
 ## Project Extensions
 
 Selected once for the whole project:
 
-- [AI Assistance](ai.md): closed tool sets, structure-only scenarios, and pinned stubs for queries a model mediates.
+- [AI Assistance](ai.md): a closed tool set, structure-only scenarios, and a pinned stub for each query a model mediates.
 - [API Compatibility](compat.md): versioning and retirement for APIs with public, partner, mobile, or independently deployed consumers.
 - [Audit Trail](audit.md): tamper-resistant evidence of who attempted what in data another party owns.
-- [Customer Rules and Hooks](customer-rules.md): customer-composed rules and hooks for a product whose tenants automate their own work.
-- [Delivery](delivery.md): release readiness gates, image build and rollout, deployment and rollback, backup and restore, alerting and the supply-chain gate for a product operated in production.
+- [Customer Rules and Hooks](customer-rules.md): catalogs, tenant instances, and hook contracts for a product whose tenants automate their own work.
+- [Delivery](delivery.md): release readiness gates, image build and rollout, deployment and rollback, backup and restore, alerting, and the supply-chain gate for a product operated in production.
 - [Localization](locale.md): locales, catalogs, and formatting for a product that ships in more than one locale.
-- [Model Context Protocol](mcp.md): the server a product ships so an LLM client can call its public API.
+- [Model Context Protocol](mcp.md): server presentation, tool wording, and refusals for a product that ships an MCP server.
 - [Multitenancy](tenancy.md): tenant isolation across authorization, storage, jobs, and recovery for one shared deployment.
 - [Plans and Entitlements](plans.md): plans, entitlements, and feature gating for a product that sells tiers.
 - [Release Stage](stage.md): the pre-customer-data stage, what it defers, and the promotion that ends it.

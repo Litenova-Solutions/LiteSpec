@@ -1,37 +1,38 @@
 # .NET Workspace
 
 **Stack:** dotnet
+
 **Concern:** workspace
 
-## Intent
-
-A .NET backend lives under `apps/api/`, with the solution beside its projects. This page states that .NET layout: the workspace solution and where the AppHost lives, so every file has one fixed address. The shared workspace rules live on [Workspace Structure](../../workspace/structure.md); this page holds only their .NET form.
+A .NET backend lives under `apps/api/`, with the solution beside its projects and production code separated from test code by folder, so every file has one fixed address. This page defines the .NET form of the shared [Workspace Structure](../../workspace/structure.md) rules: the workspace solution and where the AppHost lives.
 
 ## Concepts
 
 ### Solutions and Project Homes
 
-The API solution sits directly under `apps/api/` and remains the solution builds and test runs name. Production projects live under `src/` and test projects under `tests/`, so a test dependency reaching production shows in the path. When the workspace holds a second .NET deployable, a root solution lists both sets for editors that open across them.
+The API solution sits directly under `apps/api/` and remains the solution builds and test runs name. Production projects live under `src/` and test projects under `tests/`, so a test dependency reaching production shows in the path.
+
+When the workspace holds a second .NET deployable, such as a command-line tool, a root solution lists both project sets for editors that open across them. The root solution adds an editor-wide view; builds, test runs, and configuration still name the API solution.
 
 ### The AppHost Placement
 
-An AppHost that runs the API alone stays under `apps/api/src/` with the projects it hosts. An AppHost that also runs frontends orchestrates the workspace rather than the API, so it lives at `apps/apphost/` beside the applications it runs.
+An AppHost that runs the API alone stays under `apps/api/src/` with the projects it hosts. An AppHost that also runs frontends orchestrates the workspace rather than the API, so it lives at `apps/apphost/` beside the applications it runs: under `apps/api/src/` it would read as one of the API's layers while reaching out of that tree for every frontend it starts.
 
 ## Standards
 
-### Keep One Workspace Solution Beside the API Solution
+### List Every Deployable Unit in the Root Solution
 
-**ID:** `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution`
+**ID:** `litespec/backend/dotnet/workspace#list-every-deployable-unit-in-the-root-solution`
 
 **Strength:** required
 
 **Statement:** A root solution MUST list the .NET projects of more than one deployable unit, with builds, test runs, and configuration still naming the API solution.
 
-**Rationale:** The API solution stays at `apps/api/` and remains the one builds and test runs name. A workspace with a second .NET deployable, such as a command-line tool, otherwise has no single file an editor can open across both. Two solution files listing overlapping projects are a supported MSBuild arrangement, and the projects stay where `litespec/workspace/structure#keep-production-and-test-code-separate` puts them.
+**Rationale:** A workspace with a second .NET deployable, such as a command-line tool, otherwise has no single file an editor can open across both. The root solution gives editors that view, while the API solution stays at `apps/api/` and remains the one builds and test runs name. Two solution files listing overlapping projects are a supported MSBuild arrangement, and the projects stay where `litespec/workspace/structure#keep-production-and-test-code-separate` puts them.
 
 **Example:** A workspace with an API and a command-line tool carries `apps/api/{Product}.slnx`, `apps/cli/{Product}.Cli.slnx` where one exists, and a root `{Product}.slnx` listing both sets.
 
-**Reviewed for:** Which root solution files list a single deployable, or which builds, test runs, or configuration name outside the API solution? Look at the solution files beside the build configuration.
+**Reviewed for:** Does the root solution list more than one deployable unit, with builds, test runs, and configuration still naming the API solution? Look at the solution files beside the build configuration.
 
 ### Place a Workspace AppHost Beside the Applications It Runs
 
@@ -59,9 +60,9 @@ apps/
   {frontend}/
 ```
 
-The workspace solution of `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution` lists the AppHost, and the API solution lists it too when a test project references it.
+The workspace solution of `litespec/backend/dotnet/workspace#list-every-deployable-unit-in-the-root-solution` lists the AppHost, and the API solution lists it too when a test project references it.
 
-**Reviewed for:** Which AppHosts sit outside their placed home for what they run? Look at each AppHost path beside the applications it runs.
+**Reviewed for:** Does every AppHost sit in the placed home for what it runs? Look at each AppHost path beside the applications it runs.
 
 ## Conventions
 

@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     computed field the client renders, built from the model only. Each computed
 ///     field is built by its own detail type; this type assembles them per record.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookRecordDetails
 {
     /// <summary>Gets the identity fields the mockup record shape strips from the fields it carries.</summary>

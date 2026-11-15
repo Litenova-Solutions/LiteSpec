@@ -3,7 +3,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
 /// <summary>The write check: every repository a handler, reaction or job takes belongs to an aggregate its record declares it changes or reads.</summary>
-/// <follows>litespec/backend/application#take-repositories-from-declared-changes-and-reads</follows>
+/// <follows>litespec/backend/application#write-only-aggregates-the-record-names</follows>
 /// <follows>litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads</follows>
 internal static class WriteChecks
 {

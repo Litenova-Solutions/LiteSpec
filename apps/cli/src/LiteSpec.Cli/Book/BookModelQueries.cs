@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Book;
 ///     The relationship readings over the index: one scenario's proof state, the
 ///     children and use case of a result, and the first calculation example.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookModelQueries
 {
     /// <summary>One scenario's proof state from its proves links, while the model holds no stored state for it.</summary>

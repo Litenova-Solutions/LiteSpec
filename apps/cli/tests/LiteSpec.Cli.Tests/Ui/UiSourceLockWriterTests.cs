@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Ui;
 public sealed class UiSourceLockWriterTests
 {
     /// <summary>Render rewrites only the digest of a primitive whose source changed.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void RenderRewritesOnlyTheStaleDigest()
     {
@@ -36,7 +36,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>A component copied as two files records one digest over both, so a change to its second file is reported and render records it.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void AComponentDigestCoversEveryPath()
     {
@@ -59,7 +59,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render leaves a lock that is already current byte for byte as it was.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void RenderLeavesACurrentLockUntouched()
     {
@@ -75,7 +75,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render writes no lock for a project that declares no shared package.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void RenderWritesNoLockWithoutASharedPackage()
     {
@@ -95,7 +95,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render does not create a lock the team has not started, so a missing lock stays missing.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void RenderDoesNotCreateAMissingLock()
     {
@@ -109,7 +109,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render restores the preset and the CLI pin from the manifest baseline, so a drifted lock passes the check.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void RenderRestoresThePresetAndCliFromTheManifest()
     {
@@ -130,7 +130,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render takes the Svelte baseline and the shadcn-svelte CLI pin for a Svelte lock.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void RenderWritesTheSveltePinForASvelteLock()
     {

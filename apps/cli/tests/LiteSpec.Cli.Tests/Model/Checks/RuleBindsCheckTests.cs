@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class RuleBindsCheckTests
 {
     /// <summary>Rule Spanning Two Aggregates With Both Bound Passes.</summary>
-    /// <proves>litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds</proves>
+    /// <proves>litespec/core/domain-model#name-every-spanned-aggregate-in-binds</proves>
     [Fact]
     public void RuleSpanningTwoAggregatesWithBothBoundPasses()
     {
@@ -20,7 +20,7 @@ public sealed class RuleBindsCheckTests
     }
 
     /// <summary>Rule Spanning Two Aggregates With None Bound Reports.</summary>
-    /// <proves>litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds</proves>
+    /// <proves>litespec/core/domain-model#name-every-spanned-aggregate-in-binds</proves>
     [Fact]
     public void RuleSpanningTwoAggregatesWithNoneBoundReports()
     {
@@ -36,7 +36,7 @@ public sealed class RuleBindsCheckTests
     }
 
     /// <summary>Rule Spanning Two Aggregates With One Bound Reports.</summary>
-    /// <proves>litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds</proves>
+    /// <proves>litespec/core/domain-model#name-every-spanned-aggregate-in-binds</proves>
     [Fact]
     public void RuleSpanningTwoAggregatesWithOneBoundReports()
     {
@@ -50,7 +50,7 @@ public sealed class RuleBindsCheckTests
     }
 
     /// <summary>Rule Governing One Aggregate Without Binds Passes.</summary>
-    /// <proves>litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds</proves>
+    /// <proves>litespec/core/domain-model#name-every-spanned-aggregate-in-binds</proves>
     [Fact]
     public void RuleGoverningOneAggregateWithoutBindsPasses()
     {

@@ -139,7 +139,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert carrying its measure's numbers reports no drift.</summary>
-    /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
+    /// <proves>litespec/ext/delivery#tie-alert-thresholds-to-requirement-measures</proves>
     [Fact]
     public void ThresholdCarryingMeasureNumbersPasses()
     {
@@ -153,7 +153,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert carrying none of its measure's numbers reports advisory drift.</summary>
-    /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
+    /// <proves>litespec/ext/delivery#tie-alert-thresholds-to-requirement-measures</proves>
     [Fact]
     public void ThresholdMissingMeasureNumbersReports()
     {
@@ -285,7 +285,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file pointing at its decision reports nothing and follows it.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void OperationsFileWithFollowsPasses()
     {
@@ -303,7 +303,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file with no follows mark reports.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void OperationsFileWithoutMarkReports()
     {
@@ -323,7 +323,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations mark naming no decision reports.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void OperationsMarkNamingNothingReports()
     {
@@ -343,7 +343,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A technical decision with no follower anywhere is still unfollowed.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void DecisionWithNoFollowerReportsUnfollowed()
     {

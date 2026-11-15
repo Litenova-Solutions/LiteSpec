@@ -7,7 +7,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The consistency checks: each use case states a known consistency mode, a command writing several aggregates states its consistency, an atomic command writes the group its rule binds, a command states its replay and any conflict, and each reservation names its release.</summary>
-/// <follows>litespec/core/use-cases#state-the-consistency-of-every-use-case</follows>
+/// <follows>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</follows>
 /// <follows>litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule</follows>
 /// <follows>litespec/core/domain-model#release-every-reservation-by-a-named-use-case</follows>
 /// <follows>litespec/core/use-cases#state-what-a-replay-does</follows>

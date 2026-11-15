@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Checks.Intent;
 /// <summary>The fulfilment checks: every requirement is fulfilled or decided and cites a reason, and every applying constraint is cited.</summary>
 /// <follows>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</follows>
 /// <follows>litespec/core/intent#cite-the-reasons-of-every-requirement</follows>
-/// <follows>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</follows>
+/// <follows>litespec/core/intent#cite-every-constraint-that-binds-a-requirement</follows>
 internal static class FulfilmentChecks
 {
     /// <summary>Requirement kinds that code makes true, so some rule, use case, reaction, job, notification or setting fulfills them.</summary>

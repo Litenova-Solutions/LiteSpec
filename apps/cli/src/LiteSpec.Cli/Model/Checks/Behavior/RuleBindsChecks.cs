@@ -4,7 +4,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The rule binds check: a rule whose governs names more than one aggregate names every governed aggregate in binds.</summary>
-/// <follows>litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds</follows>
+/// <follows>litespec/core/domain-model#name-every-spanned-aggregate-in-binds</follows>
 internal static class RuleBindsChecks
 {
     /// <summary>Reports a rule spanning aggregates that names none or not all of them in binds.</summary>

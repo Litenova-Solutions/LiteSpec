@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Tests.Consumer;
 public sealed partial class ConsumerValidatorTests
 {
     /// <summary>Controlled frontend without its shared package.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact(DisplayName = "controlled frontend without its shared package")]
     public void ControlledFrontendWithoutItsSharedPackage()
     {
@@ -21,7 +21,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Frontend outside the controlled contract stays quiet.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact(DisplayName = "frontend outside the controlled contract stays quiet")]
     public void FrontendOutsideTheControlledContractStaysQuiet()
     {
@@ -36,7 +36,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Child validator findings merge with their prefix.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact(DisplayName = "child validator findings merge with their prefix")]
     public void ChildValidatorFindingsMergeWithTheirPrefix()
     {
@@ -88,7 +88,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Failing run writes its problems as an array.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact(DisplayName = "failing run writes its problems as an array")]
     public void FailingRunWritesItsProblemsAsAnArray()
     {
@@ -138,7 +138,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with a leading byte-order mark.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()
     {

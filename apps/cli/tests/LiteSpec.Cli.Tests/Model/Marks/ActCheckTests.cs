@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class ActCheckTests
 {
     /// <summary>Handler Calling No Marked Method Reports Use Case Act Uncalled.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerCallingNoMarkedMethodReportsUseCaseActUncalled()
     {
@@ -22,7 +22,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Handler Calling The Shared Method Passes.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerCallingTheSharedMethodPasses()
     {
@@ -33,7 +33,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Fan Out Command With No Writes Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void FanOutCommandWithNoWritesReportsNothing()
     {
@@ -44,7 +44,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Store Only Command Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void StoreOnlyCommandReportsNothing()
     {
@@ -55,7 +55,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Entity Command Without A Called Act Still Reports.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void EntityCommandWithoutACalledActStillReports()
     {

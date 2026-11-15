@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     The prose fields of one record rendered to HTML: every C4 field the record
 ///     carries, with hash record links.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookProseFields
 {
     /// <summary>Gets the prose fields the book renders as Markdown: every field a view reads through the rendered HTML.</summary>

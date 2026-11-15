@@ -168,7 +168,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A record detail renders its explanation as text: headings, spans, lists, tables, code and quotes.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RecordExplanationRendersAsEscapedHtmlWithSections()
     {
@@ -200,7 +200,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>An explanation can never inject markup: angle brackets escape inside code spans.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RecordExplanationEscapesMarkup()
     {
@@ -212,7 +212,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>No shard falls back to raw JSON: no object dumps and no raw JSON blocks anywhere.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NoShardHoldsRawJsonOrObjectDumps()
     {
@@ -227,7 +227,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>An aggregate detail carries its lifecycle fields and its reachable states.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void AggregateDetailCarriesLifecycleFieldsAndReachableStates()
     {
@@ -244,7 +244,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A scenario detail carries its Given, When and Then sentences with examples and proof.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ScenarioDetailCarriesSentencesExamplesAndProof()
     {
@@ -388,7 +388,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A goal traces through features and requirements to the met state; a goal no feature serves has no incoming advances.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void GoalTraceReachesMetRequirements()
     {
@@ -415,7 +415,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Findings sit on their records, open and known apart, with the waiver covers and expiry.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void FindingsSitOnTheirRecordsWithWaiverExpiry()
     {
@@ -438,7 +438,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A rule detail states its kind, what it governs and refuses, and its proof.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RuleDetailCarriesKindGovernsAndRefusal()
     {
@@ -465,7 +465,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A requirement detail states its fit criterion and whether it is met.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RequirementDetailCarriesFitCriterionAndVerification()
     {
@@ -494,7 +494,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A reaction detail carries its triggers, what it sends and what it fulfills; a notification carries its audience and channel.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ReactionAndNotificationDetailsCarryTriggerAndAudience()
     {
@@ -517,7 +517,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A scheduled job detail carries its kind, schedule and run fields.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ScheduledJobDetailCarriesScheduleFields()
     {
@@ -535,7 +535,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A flow detail carries its chapter: steps, serving, promises and outcomes.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void FlowDetailCarriesItsChapter()
     {
@@ -564,7 +564,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A setting detail carries its meaning and default; a use-case detail carries its access grant and what it serves.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void SettingAndUseCaseDetailsCarryMeaningAccessAndServes()
     {
@@ -620,7 +620,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Details carry no status, owner, decider, decide-by date, effective status or held-by list.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DetailsCarryNoStatusOwnerDeciderOrHeldBy()
     {
@@ -640,7 +640,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Implementation and proof rail sections read from computed code, tests, expectations and lacks.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ImplementationAndProofRailSections()
     {
@@ -698,7 +698,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Numbered reference lists read linked records with their statement, meaning or summary.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NumberedReferenceListsReadFromFieldsAndEdges()
     {
@@ -721,7 +721,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Trace bands walk goal to behavior through incoming advances, citing requirements, kept-by counts and fulfilling edges.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void TraceBandsReadFromEdgesAndKeptBy()
     {

@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class AtomicityCheckTests
 {
     /// <summary>Atomic Writes Differing From Binds Reports Drift.</summary>
-    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
     [Fact]
     public void AtomicWritesDifferingFromBindsReportsDrift()
     {
@@ -21,7 +21,7 @@ public sealed class AtomicityCheckTests
     }
 
     /// <summary>Atomic Writes Equal To Binds Passes.</summary>
-    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
     [Fact]
     public void AtomicWritesEqualToBindsPasses()
     {
@@ -63,7 +63,7 @@ public sealed class AtomicityCheckTests
     }
 
     /// <summary>Atomic Use Case Writing Five Aggregates Without A Rule Reports Invalid.</summary>
-    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
     [Fact]
     public void AtomicUseCaseWritingFiveAggregatesWithoutARuleReportsInvalid()
     {

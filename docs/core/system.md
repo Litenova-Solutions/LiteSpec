@@ -4,17 +4,17 @@
 
 **Concern:** records
 
-## Intent
-
-LiteSpec is a system for building software from written records: the records state the required behavior, and people and agents build, verify, and operate against them. This page states what that system is and which parts it combines, while the intent, behavior, access, layers, and model pages state the records and the rules between them. A team starting a project reads it first, so every later choice lands in one shared model joining intent to code.
+LiteSpec is a system for building software from written records: the records state the required behavior, and people and agents build, verify, and operate against them. This page states what that system is and which parts it combines. Read this page first when starting a project, so every later choice lands in one shared model joining intent to code. The intent, behavior, access, layers, and model pages state the records and the rules between them.
 
 ## Concepts
 
 ### Product Scope
 
-LiteSpec specifies one bounded-context business application: the behavior the application performs, the data it holds, and the limits it enforces. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces. Running the company that builds the application sits outside the standard: a price as an offer, a market, a hiring or sales action, a launch calendar, a company goal and a founder risk enter a consumer's records only as a constraint, a limit the application enforces or an authority imposes, or as dated research. Plan entitlements the software enforces stay as application behavior in settings and permissions; the price list as a company offer does not.
+LiteSpec specifies one bounded-context business application: the behavior the application performs, the data it holds, and the limits it enforces. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces.
 
-LiteSpec names responsibilities instead of departments: product, domain, architecture, implementation, testing, release, and operations responsibilities, and one person can hold all of them at the same time.
+Running the company that builds the application sits outside the standard. A price as an offer, a market, a hiring or sales action, a launch calendar, a company goal, and a founder risk enter a consumer's records only as a constraint, a limit the application enforces or an authority imposes, or as dated research. Plan entitlements the software enforces stay as application behavior in settings and permissions; the price list as a company offer does not.
+
+LiteSpec names responsibilities instead of departments: product, domain, architecture, implementation, testing, release, and operations responsibilities. One person can hold all of them at the same time.
 
 Agents perform a substantial part of the engineering work. An agent can inspect repositories, propose designs, edit authorized artifacts, run tools, and collect evidence. An agent never decides unresolved product policy, legal judgment, or financial decisions; those stay with accountable people.
 
@@ -24,7 +24,7 @@ Because agents do so much execution, the system defines its technical concepts e
 
 Two capable contributors can answer one request with different boundaries, names, transaction behavior, and verification. Each result can compile while the workspace loses a coherent model. The same happens with two agents, or with one agent on two different days.
 
-The system addresses five recurring problems, from product intent lost between a request and its implementation to documentation no evidence supports, which [Why LiteSpec Exists](../learn/why-litespec.md#the-problem) lists in full.
+The system addresses five recurring problems, from product intent lost between a request and its implementation to documentation no evidence supports. [Why LiteSpec Exists](../learn/why-litespec.md#the-problem) lists them in full.
 
 The system makes the record durable and the agent replaceable: a different person, model, or tool continues from the same records and reaches the same required boundaries.
 
@@ -46,7 +46,9 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, flows, and roles. The [behavior page](behavior.md) states the bounded context, modules, the glossary, aggregates, rules, domain events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
+The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, flows, and roles. The [behavior page](behavior.md) states the bounded context, modules, the glossary, aggregates, rules, domain events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, permissions, entry points, and external systems.
+
+The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -64,7 +66,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** Agents meet unknowns in the middle of a task: an unknown access rule, an unclear retention limit, a missing recovery target. When the answer changes behavior, money, data, access, or recovery, only an accountable person can give it. Stopping and taking the question to that person keeps the choice visible instead of buried in code nobody stated. Accountable people decide outcomes, terms, policies, and criteria, and an agent contribution stays a proposal until one of them accepts it.
 
-**Reviewed for:** The change report naming the unknown fact, the person asked, and the record carrying the answer.
+**Reviewed for:** Does every change report name the unknown fact, the person asked, and the record carrying the answer? Check the change report beside the change.
 
 ### Drive Work from Records
 
@@ -76,9 +78,9 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** An agent MUST start behavior work from the Intent records and the Behavior records that own the behavior.
 
-**Rationale:** A prompt, ticket, chat message, or code comment can start work, but none of them holds the stated behavior. Starting from the owning records keeps the agent building what the records state, and keeps the records as the lasting statement of what the code does. Without this rule, each task reinterprets intent from its starting message, and the records drift from the code until nobody trusts either.
+**Rationale:** A prompt, ticket, chat message, or code comment can start work, but none of them holds the stated behavior. When each task reinterprets intent from its starting message, the records drift from the code until nobody trusts either. Starting from the owning records keeps the agent building what the records state, and keeps the records as the lasting statement of what the code does.
 
-**Reviewed for:** The change report listing the Intent and Behavior records the work started from.
+**Reviewed for:** Does every change report name the Intent and Behavior records the work started from? Check the change report beside the change.
 
 ### Point Code and Tests up to Records
 
@@ -90,7 +92,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** Every code element the marks table on the [model page](model.md) assigns a mark MUST carry one naming the record it serves, with each handler marking exactly one record.
 
-**Rationale:** The mark is the link from Implementation to Behavior and from Proof to the scenario it proves, in the two kinds the [model page](model.md) states: `implements` names the record served and `follows` names the choice followed. A folder or a type name only resembles the record, and a resemblance drifts with the next rename; a mark holds the identifier, so the checks, the analyzers and the editor follow the same link without guessing. One record per handler keeps each file answerable to one use case. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
+**Rationale:** A folder or a type name only resembles its record, and a resemblance drifts with the next rename. The mark is the link from Implementation to Behavior and from Proof to the scenario it proves, in the two kinds the [model page](model.md) states: `implements` names the record served and `follows` names the choice followed. The mark holds the identifier, so the checks, the analyzers, and the editor follow the same link without guessing. One record per handler keeps each file answerable to one use case. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
 
 **Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `reaction/spending.send-approver-reminder-on-expense-submitted`.
 
@@ -122,7 +124,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** Every edge between use cases, reactions, jobs, notifications, integration events, and external systems MUST be declared in a record and checked.
 
-**Rationale:** The declared edges form the effect graph the checks verify: an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. No edge shares a transaction: a use case commits its own writes, only a reaction or job runs a use case, and an outbound integration event follows from the domain event it translates. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
+**Rationale:** The declared edges form the effect graph the checks verify, and an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. No edge shares a transaction: a use case commits its own writes, only a reaction or job runs a use case, and an outbound integration event follows from the domain event it translates. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
 
 **Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop-invalid` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (check level S) for a declared edge no code takes.
 
@@ -138,9 +140,9 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** A use case is done only when a caller can run it and operations can support it: behavior, storage, entry points, automated evidence, and operating impact together. Accepting a thinner slice leaves the missing parts for later, and later rarely itemizes what shipped half-built. Placeholder work leaves the use case unimplemented. Multi-step product outcomes belong to a flow rather than stretching one use case across several goals.
 
-**Example:** A use case without its tests and operating records is not complete.
+**Example:** The Claimwick `use-case/spending.submit-expense` use case without its tests and operating records is not complete.
 
-**Reviewed for:** The use case page with its behavior, persistence, entry points, tests, and operating records present.
+**Reviewed for:** Does every use case page show behavior, persistence, entry points, tests, and operating records? Check the use case page against its records.
 
 ### Update Records with Behavior
 
@@ -154,7 +156,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** Records map to current names and paths only when each behavior change carries them along. A change that moves code but leaves the use case page, the tests, or the flow behind splits the project into stated fiction and unstated fact. Updating the records in the same change keeps the change to behavior and the change to its description in one place.
 
-**Reviewed for:** The behavior change with its use case page, tests, product records, decision, flow, and operating records changed together.
+**Reviewed for:** Does every behavior change update its use case page, tests, product records, decision, flow, and operating records? Check the behavior change against its records.
 
 ## Conventions
 
@@ -172,7 +174,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** One home for the docs layout means the folders and the record layers stay in one table. A second tree beside it drifts with the next reorganization, and readers follow the stale one.
 
-**Reviewed for:** The `docs/` tree matching the layout the model page states, or the project documentation naming the replacement layout.
+**Reviewed for:** Does the `docs/` tree match the layout the model page states, or does the project documentation record a replacement? Check the tree against the model page layout and the project documentation.
 
 ### Group Module Use Case Files by Aggregate
 
@@ -188,7 +190,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** Each aggregate needs its own directory for its `aggregate.yaml` and use cases, so grouping use case folders under a plural kebab-case aggregate subdirectory gives every aggregate one home. The use case identifier stays `use-case/<module>.<name>`; only the directory changes. Each module keeps the same typed layout, so a module with one aggregate has the same folders as any other. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
-**Reviewed for:** Each use case folder, holding its `<use-case>.yaml`, under the module's `use-cases/` folder or its aggregate subdirectory.
+**Reviewed for:** Does every use case folder sit in the module's `use-cases/` folder or its aggregate subdirectory? Check each use case folder, holding its `<use-case>.yaml`, against the module layout.
 
 ### Keep Operational and Security References Under Operations
 
@@ -204,7 +206,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** One home for operating and security reference prose means an on-call reader looks in `.litespec/implementation/operations/` first and finds the runbooks, limits, and inventories there. Scattering that prose across product and domain pages buries it where an incident never looks. Enforceable security and privacy rules still belong to their owning use case fields and rules, since those are what the code and tests prove.
 
-**Reviewed for:** Operating and security reference prose under `.litespec/implementation/operations/`, or the project documentation naming the replacement home.
+**Reviewed for:** Does all operating and security reference prose sit under `.litespec/implementation/operations/`, or does the project documentation name a replacement home? Check the prose against that folder and the project documentation.
 
 ### Use Established Technical Terms
 
@@ -220,7 +222,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** Names such as aggregate, command, query, reaction, job, repository, projection, outbox, idempotency, and transaction carry established meanings that developers and agents already share. Replacing one with a softer synonym hides the pattern and forces every reader to guess what the new word covers. When a term is unfamiliar, explain it and give an example instead of renaming it.
 
-**Reviewed for:** Prose using aggregate, command, query, reaction, job, repository, projection, outbox, idempotency, and transaction with their accepted meanings.
+**Reviewed for:** Does the prose use aggregate, command, query, reaction, job, repository, projection, outbox, idempotency, and transaction with their accepted meanings?
 
 ### Use Ordinary Capitalization in Prose
 
@@ -236,7 +238,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** Lowercase module, aggregate, use case, flow, rule, domain event, and decision read as ordinary nouns, while exact record types and code types keep their declared capitalization. The contrast tells a reader whether a word names the concept or the artifact. Capitalizing both blurs that distinction on every page.
 
-**Reviewed for:** Prose writing module, aggregate, use case, flow, rule, domain event, and decision in lowercase outside names and identifiers.
+**Reviewed for:** Does the prose keep module, aggregate, use case, flow, rule, domain event, and decision lowercase outside names and identifiers?
 
 ## Reference Example
 

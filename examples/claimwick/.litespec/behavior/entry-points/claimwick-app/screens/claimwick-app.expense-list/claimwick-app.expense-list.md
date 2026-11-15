@@ -1,6 +1,6 @@
 # Expense List
 
-The expense list is the page where an employee watches their own expenses, newest first, with the amount and the latest state of each. It matters because the employee plans around the money and needs to see what each expense waits for without asking.
+The expense list is the page where an employee watches their own expenses, newest first, with the amount and the latest state of each. The employee plans around the money and needs to see what each expense waits for without asking.
 
 ## Task
 
@@ -24,8 +24,8 @@ page
 
 ## States
 
-When the employee has no expenses yet, the page says so and points at the new expense form. While the list loads, it shows its rows as placeholders. When the list fails to load, the page says the list is unavailable and offers to try again. A refusal never appears here, because listing takes no input the product can refuse.
+With no expenses yet, the employee reads that the list is empty and follows its pointer to the new expense form. While the list loads, its rows show as placeholders. When the list fails to load, the page says the list is unavailable and offers to try again. No refusal appears here, because listing takes no input the product can refuse.
 
 ## Example
 
-Ava opens the list after her client visit and sees EXP-1042 at the top, submitted on 18 Nov 2026 for EUR 48.90 and waiting for Ben.
+Ava opens the list after her client visit. EXP-1042 sits at the top, submitted on 18 Nov 2026 for EUR 48.90 and waiting for Ben.

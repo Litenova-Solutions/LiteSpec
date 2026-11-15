@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     the reachable states of an aggregate, and the fulfilling counts of a
 ///     requirement.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookProofDetail
 {
     /// <summary>Adds the proof state of one scenario or rule from its proves links.</summary>

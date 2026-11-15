@@ -4,15 +4,15 @@
 
 **Concern:** records
 
-## Intent
+A LiteSpec project describes itself with records: written statements of fixed types, joined by fixed links. People write the Intent records that state what the product promises, agents write the Behavior records from Intent to state how the system keeps those promises, and the model builder computes how code and tests connect to the records.
 
-A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their placement and identifiers, the record files, the explanation files, the documents, the common fields, the links, the marks, the authority order, the authoring order, the completion stages, the screen captures, the model builder, the check levels, and the book. People write Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records.
+It states the four record layers; the record types with their placement and identifiers; the record files, explanation files, and documents; the common fields and links; the marks; the authority and authoring orders; and the completion stages, screen captures, model builder, check levels, and book.
 
 ## Concepts
 
 ### The Four Record Layers
 
-Each record layer answers one question, is written from the record layer above it, and owns its records.
+Each layer answers one question, each layer is written from the layer above it, and each record belongs to the layer that owns it.
 
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
@@ -21,13 +21,13 @@ Each record layer answers one question, is written from the record layer above i
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
-Governance is a group of records beside the four record layers, not a fifth layer: the `waiver` record attaches to any record layer.
+Governance is a group of records beside the four record layers, not a fifth layer: the `waiver` record attaches to any record layer. A waiver sets a rule aside for one project, with its reason.
 
-Three translation rules join the record layers. Specify moves Intent to Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it states every price, fee, rate, term, market, payer, retention period for personal data, observable freshness, and default or figure that differs by tenant, market, or date. Implement moves Behavior to Implementation: it adds the code shapes the stack pages fix, and adds no observable outcome no result declares, no edge no record declares, no write outside `writes`, and no access wider than the grant. Verify moves Implementation to Proof: one test proves each scenario through the public boundary, and a proof goes stale when its scenario, its test body, or a file carrying the mark of the behavior it proves changed after the run. A run records its commit.
+Three translation rules join the record layers. Specify moves Intent to Behavior: it adds the states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it states every price, fee, rate, term, market, payer, retention period for personal data, observable freshness, and default or figure that differs by tenant, market, or date. Implement moves Behavior to Implementation: it adds the code shapes the stack pages fix, and it adds no observable outcome no result declares, no edge no record declares, no write outside `writes`, and no access wider than the grant. Verify moves Implementation to Proof: one test proves each scenario through the public boundary, a proof goes stale when its scenario, its test body, or a file carrying the mark of the behavior it proves changed after the run, and a run records its commit.
 
 ### Record Types and Page Styles
 
-Each type answers one question.
+A record type is one kind of statement a project can write, and each type answers one question. The type fixes what the record holds, where it lives, and what it links to.
 
 | Type | Record layer | Question |
 |:--|:--|:--|
@@ -69,28 +69,34 @@ The [intent page](intent.md) states the Intent records, the [behavior page](beha
 
 Each record file holds the fields the record schema names for its type. List records hold many entries: a rule-set page holds rules, a setting-set page holds settings, a permission set per module holds permissions, and a refusal set per module holds refusal codes. The book renders the retention schedule from the data classes.
 
-Every record states something the software does, holds, refuses at runtime or runs on, and translates into code, results, tests or infrastructure. The [intent page](intent.md) states the test each Intent type meets.
+Every record states something the software does, holds, refuses at runtime, or runs on, and translates into code, results, tests, or infrastructure. The [intent page](intent.md) states the test each Intent type meets.
+
+### Size and Stacks
+
+Each project declares its size, its shape, and its stacks in `.litespec/project.yaml`. Size decides which record types the checks require, so a small project is not held to records only a large one needs. Each frontend declares one stack, and the backend declares its own, and each stack brings the technology pages and checks that apply to it. Extensions name their replacements. The [scope page](scope.md) states how a project selects its size, shape, and stacks.
 
 ### Placement Principles
 
-The placement of every record follows ten principles, from the product root down to a test.
+Placement is the choice of where a record lives. Ten principles place every record, from the product root down to a test.
 
-1. **One tree from the product.** The product is the root record, above the record layers. Every record has exactly one parent, and only the product has none. Every other link is a connection. An inverse link is computed, unless a reader needs it on the record, in which case the record states it and a check holds it to its source.
-2. **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, an aggregate or an entry point. No record writes an up-link that its location already states.
-3. **Four kinds of scope node, and only four.** Product, module, aggregate and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
+1. **One tree from the product.** The product is the root record, above the record layers. Every record has exactly one parent, and only the product has none. Every other link is a connection. An inverse link stays computed, unless a reader needs it on the record, in which case the record states it and a check holds it to its source.
+2. **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, an aggregate, or an entry point. No record writes an up-link that its location already states.
+3. **Four kinds of scope node, and only four.** Product, module, aggregate, and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
 4. **The lowest scope node that holds every user.** A record sits under the lowest scope node that holds every record linking to it within its layer. The author places it, and the tool validates it.
 5. **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency or through an integration event. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
 6. **One identifier.** The identifier is short, unique in its record type, and what every link and citation uses. Placement shows as the folder path and the `module` field, never as a second name.
-7. **One name per module in every layer and in code.** `behavior/modules/finance/`, the backend source trees, the test projects and the frontend modules all use the declared module name.
+7. **One name per module in every layer and in code.** `behavior/modules/finance/`, the backend source trees, the test projects, and the frontend modules all use the declared module name.
 8. **Code and tests follow the identifier.** The folder and namespace of code and tests that mark a record match that record's identifier and module.
 9. **Computed stays computed.** Proof and the generated folders hold no authored records.
 10. **The folder holds the content, the link names the reason.** A record nests under another record only when its whole content lies within that record, as a requirement lies within its feature. A record whose content spans several records sits at the lowest scope node that holds all of it, and names the record it exists for in a link field.
 
 ### The Placement Table
 
-The table is frozen: it gives each type its layer, scope levels, storage folder, containment parent and identifier, and a record type gains a home only by changing this table. Scope is the node a record sits under: product, module, aggregate or entry point. Containment is the record's parent. Storage is the file and typed folder that hold it. Book grouping is presentation, and it follows containment except where this page says otherwise. Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `refusals.yaml` and `glossary.yaml`), the list files and the entries (results and scenarios) keep the places the table gives.
+The Placement Table gives each type its home: its layer, the scope levels it may sit under, the storage folder that holds it, its containment parent, and its identifier. The table is frozen, and a record type gains a home only by changing this table. Four words keep the placement facts apart: scope is the node a record sits under (product, module, aggregate, or entry point), containment is the record's parent, storage is the file and typed folder that hold it, and book grouping is presentation, which follows containment except where this page says otherwise.
 
-Each parent with child records holds them in a folder named for the child type in the plural, inside the parent's own folder. A child stored as its own file sits in its own folder inside that typed folder, as `<typed folder>/<name>/<name>.yaml`. A child stored as an entry, such as a result, scenario, domain-event entry, permission, refusal code, flow step or source, stays in its parent's file. The table gives each child type's folder. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
+Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `refusals.yaml` and `glossary.yaml`), the list files, and the entries (results and scenarios) keep the places the table gives.
+
+Each parent with child records holds them in a folder named for the child type in the plural, inside the parent's own folder. A child stored as its own file sits in its own folder inside that typed folder, as `<typed folder>/<name>/<name>.yaml`. A child stored as an entry, such as a result, scenario, domain-event entry, permission, refusal code, flow step, or source, stays in its parent's file. The table gives each child type's folder. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
 | Type | Layer | Scope | Storage | Containment | Identifier |
 |:--|:--|:--|:--|:--|:--|
@@ -130,9 +136,9 @@ Each parent with child records holds them in a folder named for the child type i
 
 Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
 
-`behavior/modules/<m>/` declares a module. A feature names the problems it solves in `solves`, and a product-level requirement cites at least one constraint, goal or problem in `cites`. A folder under `behavior/modules/` that names no declared module gets a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed scope are `record-placement-invalid` findings. A child record placed outside its typed folder, such as an aggregate directly in its module folder, is also `record-placement-invalid`. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
+A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `module-undeclared` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
 
-A module, an aggregate, and an entry point is a scope node, and the folder path of each record under it names that node. Storage is the folder path and the module, never a second name.
+A module, an aggregate, and an entry point are scope nodes, and the folder path of each record under one names that node. Storage is the folder path and the module, never a second name. A feature names the problems it solves in `solves`, and a product-level requirement cites at least one constraint, goal, or problem in `cites`.
 
 A rule home is an aggregate name or a module name. A rule identifier keeps its home segment when the rule moves; only identifiers whose first segment names a module change with a module move. Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in `behavior/modules/<m>/rules/` rule-set files; `module.yaml` holds no rules, and a rule in `module.yaml` is a `record-placement-invalid` finding.
 
@@ -158,6 +164,16 @@ Implementation content that is not a record, and Proof content left by a run, si
 | Operating documents | `implementation/operations/` |
 | Generated registers, gate files, operating logs | `proof/` |
 
+### Record Parents
+
+A parent is the one record a record sits under. Every record except the product has exactly one parent, so book grouping places each record once: under its parent, or at the top of its own layer when the product parents it. A use case's scenarios group by result instead, and a feature also shows under every problem its `solves` names. Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. An inverse link stays computed unless a reader needs it stated, in which case a check holds the copy.
+
+Containment follows storage. An entry's parent is the record file that holds it: a scenario's parent is its use case, reaction, or job. A record file's parent is its scope node: the product, a module, an aggregate, or an entry point. List records are files whose entries take the file's scope node as parent. Types at product level take the product as parent with no field written: a project has exactly one product, so the field would repeat one value on every record.
+
+The product has no record parent; its parent is the project that declares it, and it carries the layer key `root`. Intent, Behavior, Implementation, Proof, and Governance are transparent group nodes on the path from product to record: a group node is never a parent and never satisfies the parent rule.
+
+The Placement Table above names each type's scope, storage, and parent.
+
 ### The Docs Layout
 
 A consumer keeps its documentation in one folder per record layer, so the folder a page sits in says who writes it and what it may contain.
@@ -174,7 +190,7 @@ A named record lives in its record file `<name>.yaml` inside its own folder `<na
 
 The product record (`.litespec/product.yaml`) stands at the top of `.litespec/`, above the record layers. The glossary (`.litespec/glossary.yaml`) and the example cast stay at the top of `.litespec/` beside it, because every record layer uses them.
 
-Proof holds no authored records. Tests are code, placed by the rule the Code and Tests section states, and the model computes completion from their marks and results.
+Proof holds no authored records. Tests are code, placed by the rule the Where Code and Tests Sit section states, and the model computes completion from their marks and results.
 
 ### Pages and Entries
 
@@ -182,7 +198,7 @@ A page record is one record file `<name>.yaml` holding one YAML mapping: the pag
 
 Container pages (`permission-set`, `entry-point-set`, `setting-set`, `rule-set`, `refusal-set`) are record files: they hold entries.
 
-The decision type has two layers: a product decision lives under Intent, and a technical decision lives under Implementation. Both share one number sequence. A technical decision carries `kind`, one of the six kinds the [decision records page](../reference/decision-records.md) names; a product decision takes none.
+The decision type spans two layers: a product decision lives under Intent, and a technical decision lives under Implementation. Both share one number sequence, so a number still names one decision wherever it sits. A technical decision carries `kind`, one of the six kinds the [decision records page](../reference/decision-records.md) names; a product decision takes none.
 
 ### Record Files
 
@@ -197,35 +213,35 @@ rationale: |
 
 ### Explanation Files
 
-An explanation file is the optional `<name>.md` beside its record file, with the same name in the record's own folder. It is plain Markdown with no frontmatter. It opens with `# <record title>`, then one paragraph of prose, then H2 sections in the order of the explanation-section table in [the writing standard](writing.md). It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier. Inside Intent and Behavior records, a generated region derives from other records only. It stays optional unless the project lists the record's layer in `explanations.layers` in [the project file](../reference/project-file.md).
+An explanation file is the optional `<name>.md` beside its record file, with the same name in the record's own folder. It is plain Markdown with no frontmatter: no field joins the two files, so the shared name is the link, and a rename moves both. It opens with `# <record title>`, then one paragraph of prose, then H2 sections in the order of the explanation-section table in [the writing standard](writing.md). It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier. Inside Intent and Behavior records, a generated region derives from other records only. It stays optional unless the project lists the record's layer in `explanations.layers` in [the project file](../reference/project-file.md).
 
 ### Documents
 
 A document is a `.md` file under a record root with no `.yaml` of the same name beside it. It is Markdown with an optional YAML frontmatter block between `---` lines, holding only a document page style in `type` and its common fields. The document page styles are `index`, `tutorial`, `how-to`, `reference`, `command`, `configuration`, `glossary`, and `example-cast`. A document holds no record type and no entries. A `.md` file with no frontmatter and no record file beside it is an orphaned explanation, except a file named `README.md`, which is a document. Document pages may sit at a layer root.
 
-### The Split Rule
+### What Goes in the Record File
 
-Anything a check reads is a field in the record file. Anything that only helps someone understand goes in the explanation file. Every record carries one `summary`, and a record that makes a testable claim also carries one `statement`. The opening paragraph and the fixed sections of each record type live in the explanation file, and so does any project-specific section under its own H2 heading.
+Anything a check reads is a field in the record file. Anything that only helps someone understand goes in the explanation file. The split keeps checked facts where the checks read them, and prose where people read it. Every record carries one `summary`, and a record that makes a testable claim also carries one `statement`. The opening paragraph and the fixed sections of each record type live in the explanation file, and so does any project-specific section under its own H2 heading.
 
-### Article Types
+### Research and Decision Articles
 
-The article types are `research` and `decision`. Their explanation file is required, and it carries the required H2 sections: Findings and Source Notes for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.
+Two record types read as prose articles: `research` and `decision`. Their explanation file is required, and it carries the required H2 sections: Findings and Source Notes for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.
 
-### YAML Reader
+### How Record Files Are Read
 
 A record file holds one YAML mapping, read by YamlDotNet. The reader accepts the YAML YamlDotNet reads, except it refuses an empty document, a document that does not start at the first column, `---` and `...` markers, tabs in indentation, folded `>` blocks, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `"0001"`.
 
 ### Canonical Form
 
-`litespec model format` rewrites every record file into one canonical form: block mappings and sequences with two-space indentation, sequences indented under their key, keys in schema order, multi-line text in `|` block scalars, plain scalars where they read back as the same string and double quotes otherwise, and one line end at the end of the file. Keys open with `type`, `id`, and `title`, continue with the type's own fields in schema order, then `terms` where the type carries it, and close with `records`; any other key keeps its written order after these. Only a permission carries `risk`. An object without a record `type` keeps its written key order. `litespec model format --check` lists each file that differs without writing; the [model command page](../tools/model.md) lists the exit codes. A record file that differs from its canonical text is a `format-drift` finding.
+Canonical form is the one layout every record file shares, owned by the tool. `litespec model format` rewrites every record file into it: block mappings and sequences with two-space indentation, sequences indented under their key, keys in schema order, multi-line text in `|` block scalars, plain scalars where they read back as the same string and double quotes otherwise, and one line end at the end of the file. One layout keeps diffs on content: a change shows the moved fact, never reflowed prose or reordered keys.
 
-### Citations in Prose
+Keys open with `type`, `id`, and `title`, continue with the type's own fields in schema order, then `terms` where the type carries it, and close with `records`; any other key keeps its written order after these. Only a permission carries `risk`. An object without a record `type` keeps its written key order.
 
-A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a flow step. Link checks resolve the identifier against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
+`litespec model format --check` lists each file that differs without writing; the [model command page](../tools/model.md) lists the exit codes. A record file that differs from its canonical text is a `format-drift` finding.
 
 ### Identifiers
 
-An identifier names its record type first, then the record name, with the owning home in between when the type has one. The name carries one to six lowercase hyphenated words, chosen by a person; a decision counts its number as a word. Names follow the grammar the [record language page](language.md) states.
+An identifier is the one name every link and citation uses for a record. It names its record type first, then the record name, with the owning home in between when the type has one. The name carries one to six lowercase hyphenated words, chosen by a person; a decision counts its number as a word. Names follow the grammar the [record language page](language.md) states.
 
 | Type | Form | Example |
 |:---|:---|:---|
@@ -262,7 +278,9 @@ An identifier names its record type first, then the record name, with the owning
 | `waiver` | `waiver/<name>` | `waiver/export-expenses-unimplemented` |
 | `term` | `term/<name>` | `term/expense` |
 
-A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name. A use case name is unique among use cases, so a result cites only that name. Use case, reaction and job names share one namespace, so a scenario cites only its parent name. An aggregate name is unique among aggregates. A feature requirement's feature segment names its feature, and the feature's folder holds it. A product-level requirement carries no feature segment. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
+The home segment stays short because names are unique where it matters. A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name. A use case name is unique among use cases, so a result cites only that name. Use case, reaction, and job names share one namespace, so a scenario cites only its parent name. An aggregate name is unique among aggregates.
+
+A feature requirement's feature segment names its feature, and the feature's folder holds it. A product-level requirement carries no feature segment. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
 The folder wins. A record that moves to another module changes the module segment of its identifier and every citation in the same change. An identifier whose home segment disagrees with its folder is an `identifier-folder-drift` finding. Each name stays unique in its record type, and a `name-duplicate` finding reports a duplicate. Folders do not narrow uniqueness within a type. A page record takes its identifier name from its title, with the name words appearing in the title words in the same order.
 
@@ -270,7 +288,7 @@ A flow step id is `flow/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. 
 
 ### Common Fields
 
-Every written record carries the shared fields in this table, in its record file. Field names follow `litespec/core/language#name-each-field-by-its-word-class`.
+Every written record carries the shared fields in this table, in its record file. They are the fields every join needs. Field names follow `litespec/core/language#name-each-field-by-its-word-class`.
 
 | Field | Written | Meaning |
 |:---|:---|:---|
@@ -284,9 +302,13 @@ Every written record carries the shared fields in this table, in its record file
 
 A field that records the history of the record is gone, because git holds it. A field that states a fact about the product or the world, including a future date, stays: `expiresOn` on a waiver and `readOn` beside an outside source.
 
+### Citations in Prose
+
+A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a flow step. Link checks resolve the identifier against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
+
 ### Links
 
-Each written link lives as a field on the record it starts from: a decision carries `decides`, a rule carries `fulfills`, and so on. The table below is generated from the schema's `x-reads-as` and `x-read-back-as` annotations. Each link states how it reads in both directions, and the book takes its connection labels from those two phrases.
+A link is a typed reference from one record to another, and each written link lives as a field on the record it starts from: a decision carries `decides`, a rule carries `fulfills`, and so on. Each link property carries one meaning, so every verb reads the same everywhere. The table below is generated from the schema's `x-reads-as` and `x-read-back-as` annotations. Each link states how it reads in both directions, and the book takes its connection labels from those two phrases.
 
 <!-- generated:links -->
 | Field | Written on | Points at | Reads as | Read back as |
@@ -363,7 +385,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `leadsTo` | screen | screen | leads to | is reached from |
 <!-- /generated:links -->
 
-Intent links point up a layer: `serves`, `answers`, `fulfills`, `cites` and `advances` connect Behavior to Intent or Intent to the promise above it. Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources. The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds: a flow names no use case, and a requirement names no rule.
+Links point up a layer by default, from the behavior to the promise it keeps. Intent links point up: `serves`, `answers`, `fulfills`, `cites` and `advances` connect Behavior to Intent or Intent to the promise above it. Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources. The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds: a flow names no use case, and a requirement names no rule.
 
 A read model and an entry point carry no `fulfills`: the query that reads a read model fulfills the requirement.
 
@@ -371,7 +393,7 @@ Containment needs no link field: it follows storage. The scope node holds the pa
 
 ### Computed Links
 
-The model derives the links and facts in this table from other records, code, routes or tests. Each row states whether the derivation stays computed or is stated on the record with the check that holds it.
+Some facts a reader needs sit on the record even though the model could derive them, and some stay derived. The table below lists the links and facts the model derives from other records, code, routes, or tests, and states for each whether the derivation stays computed or is stated on the record with the check that holds it.
 
 | Link | Result | Reason or Check |
 |:--|:--|:--|
@@ -386,23 +408,13 @@ The model derives the links and facts in this table from other records, code, ro
 | `exposure` on a use case | Stated in `exposure` | `exposure-reference-drift`, `exposure-missing` |
 | `classification` on a field | Stated in `classification` | `classification-drift` |
 | `fields` on a data class | Stated in `fields` | `data-class-fields-drift` |
-| `serves` on a screen | Stated in `serves` | `litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve` |
-
-### Parents
-
-Every record except the product has exactly one parent. Book grouping places each record once: under its parent, or at the top of its own layer when the product parents it. A use case's scenarios group by result instead, and a feature also shows under every problem its `solves` names. Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. An inverse link is computed unless a reader needs it stated, in which case a check holds the copy.
-
-Containment follows storage. An entry's parent is the record file that holds it: a scenario's parent is its use case, reaction or job. A record file's parent is its scope node: the product, a module, an aggregate or an entry point. List records are files whose entries take the file's scope node as parent. Types at product level take the product as parent with no field written: a project has exactly one product, so the field would repeat one value on every record.
-
-The product has no record parent; its parent is the project that declares it, and it carries the layer key `root`. Intent, Behavior, Implementation, Proof, and Governance are transparent group nodes on the path from product to record: a group node is never a parent and never satisfies the parent rule.
-
-The Placement Table above names each type's scope, storage and parent.
+| `serves` on a screen | Stated in `serves` | `litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve` |
 
 ### Marks
 
-The mark rules keep their one home on this page: the marks table below states the mark each code element carries, and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each element goes and what checks it.
+A mark is a written link from a code element to the record it serves. The link runs from code up to the record. A mark holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. It comes in one of two kinds: `implements` names the record served, and `follows` names the provision, decision, waiver, or project convention that shapes the code.
 
-A mark is a written link from a code element to the record it serves, in one of two kinds: `implements` names the record served and `follows` names the provision, decision, waiver, or project convention that shapes the code. It holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain part type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`).
+The mark rules keep their one home on this page: the marks table below states the mark each code element carries, and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each element goes and what checks it. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain part type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`).
 
 | Record layer the code serves | Code element | Mark names |
 |:--|:--|:--|
@@ -425,57 +437,61 @@ A mark is a written link from a code element to the record it serves, in one of 
 | Tests | Test | The lowest record it verifies: `scenario/<parent>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<feature>.<name>` or `requirement/<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep; `<project>/conventions#<slug>` for a project convention the code must keep |
 | Application, Infrastructure or API | Technical class: a top-level class that declares a method, or an options class that binds a setting, and takes no other mark. Nested types, records, interfaces, generated code, migrations, and model snapshots are never technical classes | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>`, `waiver/<name>`, or `<project>/conventions#<slug>` in a `follows` mark |
 
-A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository its aggregate. Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, the waiver that allows it, or the project convention that states it. Any other code element may carry a `follows` mark as well.
+A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository names its aggregate. Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, the waiver that allows it, or the project convention that states it. Any other code element may carry a `follows` mark as well.
 
 The tools recognize code elements through the semantic model and then expect their mark: the generated mark attribute by its full name, and a handler by the interface it implements, wherever that interface comes from. A port and a domain service are recognized by their mark, and a job host by its hosted-service shape or by its mark. A public method on an aggregate root that changes state needs its use-case mark even when it raises no domain event, so an unmarked port is found only from the top, through its external system.
 
 Seven provisions divide the marks between them: `litespec/core/system#point-code-and-tests-up-to-records` requires the mark, `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice` covers technical classes, `litespec/core/model#declare-one-mark-style` fixes the style, `litespec/core/model#match-each-backend-mark-to-its-folder` matches each backend mark to its folder, `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark` checks each mapped record from the top, `litespec/core/model#name-the-lowest-record-each-test-proves` sets what a test names, and `litespec/quality/testing#prove-each-scenario-through-the-public-boundary` places the test mark.
 
-Mark style belongs to the language. C# marks use the one style the project declares as `marks` in `.litespec/project.yaml`: `xml` for a documentation tag or `attribute` for the generated attribute. TypeScript marks use the typed constant, and marks in YAML and other operations files use the comment. One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
+Mark style belongs to the language. C# marks use the one style the project declares as `marks` in `.litespec/project.yaml`: `xml` for a documentation tag or `attribute` for the generated attribute. TypeScript marks use the typed constant, and marks in YAML and other operations files use the comment. One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports.
 
-### Code and Tests
+A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 
-Backend code follows the module layout (module, then aggregate, then use case, in one tree), or the five project trees under the `layer-projects` extension. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout`, whose aggregate is `payout`, sits in `{Product}/Finance/Payout/RequestPayout/`, or in `{Product}.Application/Finance/Payout/RequestPayout/` under `layer-projects`.
+### Where Code and Tests Sit
+
+Backend code follows the module layout (module, then aggregate, then use case, in one tree), or the five project trees under the `layer-projects` extension. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout`, whose aggregate is `payout`, sits in `{Product}/Finance/Payout/RequestPayout/`, or in `{Product}.Application/Finance/Payout/RequestPayout/` under `layer-projects`.
 
 Tests mirror the code they prove, with the same check: a test marking a scenario sits under the folder path of the scenario's use case.
 
 Frontend code follows "Organize a Frontend into Frame, Routes, and Modules", with module folders named after declared modules and routes grouped by entry point.
 
-The check lives in one place and is reported once.
+One check owns this comparison, so each drift is reported once.
 
 ### Authority
 
-Git is the decision record. A record in the repository is decided, and a record no longer wanted is deleted.
+Authority is the order that settles conflicts between records. Git is the decision record: a record in the repository is decided, and a record no longer wanted is deleted.
 
 Intent outranks Behavior. A lower record cannot override a higher one: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. A contradiction is reported and resolved by updating or removing the inconsistent records. Inside one record, a must beats a should. Two decisions deciding the same record are a `decision-decides-duplicate` finding, not a tie to resolve. Every other link is trace: it explains why a record exists and never decides a conflict.
 
-A decision explains a choice. Goals, problems, features, flows, actors, research, and prose carry no authority, so they never override another record. Only an explicit product `excludes` overrides a requirement: the product page states exclusions in `excludes`, and its summary is never read as one. A waiver outranks the LiteSpec provision its `covers` names for the project that records it, until its `expiresOn` date. [Waivers](waivers.md) states the record.
+A decision explains a choice. Goals, problems, features, flows, actors, research, and prose carry no authority, so they never override another record. Only an explicit product `excludes` overrides a requirement: the product page states exclusions in `excludes`, and its summary is never read as one. A waiver outranks the LiteSpec provision its `covers` names for the project that records it: a gap waiver until its `expiresOn` date, and a lasting waiver for as long as its reason holds. [Waivers](waivers.md) states the record.
 
 When code and the specification disagree, the specification wins where Intent has spoken. Where the specification is silent, an agent builds nothing: something that seems missing becomes a question to the owner or a backlog item, never code.
 
-An accepted gap becomes a gap waiver with an `expiresOn` date, an `exit` and `closedBy`, and the findings its `covers` names are covered, and do not fail the run, until that date. Module order states dependencies and grants no authority.
+An accepted gap becomes a gap waiver with an `expiresOn` date, an `exit` and `closedBy`: the findings its `covers` names are covered, and do not fail the run, until that date. Module order states dependencies and grants no authority.
 
 ### Authoring Order
 
-Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A branch may be incomplete; what merges is complete. Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
+Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Each record lands with the Intent above it already written, so no Behavior record rests on a promise nobody stated yet. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A branch may be incomplete; what merges is complete. Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
 
 ### Reachability
 
-Storage fixes where a record sits. Reachability fixes that it leads to software.
+Storage fixes where a record sits. Reachability fixes that it leads to software: every promise must trace down to behavior that keeps it, or it is unfinished work.
 
-A goal reaches a flow serving it or a quality requirement. A flow serves one goal or answers one problem or constraint, and each step cites the requirements it carries. A problem reaches a feature, a requirement or a flow that answers it. A feature or requirement reaches a use case, flow or quality scenario in Behavior. A constraint is answered by a requirement or by a flow. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A vision reaches nothing by design: decisions and requirements cite it, and no reach check reads it, as the [intent page](intent.md#visions) states.
+A goal reaches a flow serving it or a quality requirement. A flow serves one goal or answers one problem or constraint, and each step cites the requirements it carries. A problem reaches a feature, a requirement, or a flow that answers it. A feature or requirement reaches a use case, flow, or quality scenario in Behavior. A constraint is answered by a requirement or by a flow. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A vision reaches nothing by design: decisions and requirements cite it, and no reach check reads it, as the [intent page](intent.md#visions) states.
 
 A record that reaches no Behavior gets an `intent-unreached` finding: it is either unfinished work, which belongs on the backlog, or not software.
 
 Intent that is written but not yet served is planned, and planned Intent is a gap the project records. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. Each one blocks in every run, local or in the pull-request check, because a link from Intent to the Behavior that serves it is never advisory. A gap waiver with `expiresOn` and `closedBy` parks any of them for its subject or paths until it expires. The rule holds in every claim.
 
-Intent coverage states, for each Intent requirement and each flow step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction or job serves it. The builder computes the share from the records alone, so the book shows Intent coverage in every claim, first on the Intent part of the book.
+Intent coverage states, for each Intent requirement and each flow step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction, or job serves it. The builder computes the share from the records alone, so the book shows Intent coverage in every claim, first on the Intent part of the book.
 
 ### Completion Stages
 
-The builder computes one completion stage for every requirement, use case, flow, feature and goal, and writes it as `completion` with `stage`, `proof`, `heldBy` and `counts`. The stages run from least to most complete: `unfulfilled`, `specified`, `coded` and `verified`. A parent is only as far as its weakest in-scope child, and `heldBy` names the children at that weakest stage, at most ten, with a `held by` count in `counts` naming the full number when the list is capped. `counts` holds the labeled done and of pairs behind the stage. `proof` reads `known` when the model holds a test run and `unknown` when it holds none; with no test run, a coded record stays `coded` with proof `unknown`, and proof unknown never reads as a failure. The book leads with completion.
+Completion is how far a record has traveled from a promise to proven software. The builder computes one completion stage for every requirement, use case, flow, feature, and goal, and writes it as `completion` with `stage`, `proof`, `heldBy` and `counts`. The stages run from least to most complete: `unfulfilled`, `specified`, `coded` and `verified`. Nobody types a stage: the builder counts it from fulfillment, code, and proof on every run, so the figure never goes stale.
 
-A requirement is `unfulfilled` when no Behavior record fulfills it, `specified` when a fulfiller has no code, `coded` when every fulfiller has code and not every fulfiller is verified, and `verified` when every fulfiller is verified and its measure passes. A use case is `unfulfilled` when no scenario specifies it, `specified` when a scenario specifies it and no code implements it, `coded` when code implements it and not every scenario is verified, and `verified` when every scenario has a passing proof that is not stale. A flow takes the stage of its weakest step: an unserved step is `unfulfilled`, a served step with no code is `specified`, a step with code and no passing proof exercising it is `coded`, and an exercised step is `verified`. A feature takes the stage of its weakest in-scope requirement and flow. Its in-scope requirements are the requirements on the feature page, and its in-scope flows are the flows whose steps cite those requirements. A goal takes the stage of its weakest in-scope feature, flow and requirement. Its in-scope flows are the flows serving it. A goal's completion shows delivery only: its outcome reads `not measured` until the goal records `observations` with date, measured value and source, and a goal is never shown as reached from delivery alone.
+A parent is only as far as its weakest in-scope child, and `heldBy` names the children at that weakest stage, at most ten, with a `held by` count in `counts` naming the full number when the list is capped. `counts` holds the labeled done and of pairs behind the stage. `proof` reads `known` when the model holds a test run and `unknown` when it holds none; with no test run, a coded record stays `coded` with proof `unknown`, and proof unknown never reads as a failure. The book leads with completion.
+
+Each type takes its stage from its children. A requirement is `unfulfilled` when no Behavior record fulfills it, `specified` when a fulfiller has no code, `coded` when every fulfiller has code and not every fulfiller is verified, and `verified` when every fulfiller is verified and its measure passes. A use case is `unfulfilled` when no scenario specifies it, `specified` when a scenario specifies it and no code implements it, `coded` when code implements it and not every scenario is verified, and `verified` when every scenario has a passing proof that is not stale. A flow takes the stage of its weakest step: an unserved step is `unfulfilled`, a served step with no code is `specified`, a step with code and no passing proof exercising it is `coded`, and an exercised step is `verified`. A feature takes the stage of its weakest in-scope requirement and flow. Its in-scope requirements are the requirements on the feature page, and its in-scope flows are the flows whose steps cite those requirements. A goal takes the stage of its weakest in-scope feature, flow, and requirement. Its in-scope flows are the flows serving it. A goal's completion shows delivery only: its outcome reads `not measured` until the goal records `observations` with date, measured value, and source, and a goal is never shown as reached from delivery alone.
 
 A requirement a waiver parks stays out of a feature's stage and counts and names itself in the feature's `heldBy`, so deferred work stays visible without holding the stage back.
 
@@ -493,23 +509,21 @@ The builder derives the proof words from code, screens, tests, and test runs on 
 
 ### Screen Captures
 
-The project file names the screenshot galleries in `screenshots`: `galleries` holds one or more repository-relative folders, and `pattern` holds the file-name pattern with `{route}`, `{theme}` and `{width}`. The builder records each screen's captures as `captures` with `path`, `theme`, `width` and `capturedOn`, and its `captureState` as `captured`, `route-not-captured` or `no-route`. The route slug drops the leading slash of the screen address, joins its segments with a hyphen, reduces a bracketed, braced, colon or dollar parameter to its name, and names the root route `home`, so `/events/[id]` becomes `events-id` and the default pattern names its desktop light capture `events-id--light--1440.png`. `capturedOn` is the capture file's last-write date in UTC. A screen with an address and no matching capture is `route-not-captured`; a screen with no address and no route carrying it is `no-route`. A missing gallery folder captures nothing and fails nothing. A gallery inside a declared frontend folder serves only the screens of that frontend's entry point, so two frontends that both serve the root route never share a capture.
+A capture is a screenshot of a built screen, filed where the builder can match it to the screen record. The project file names the screenshot galleries in `screenshots`: `galleries` holds one or more repository-relative folders, and `pattern` holds the file-name pattern with `{route}`, `{theme}` and `{width}`. The builder records each screen's captures as `captures` with `path`, `theme`, `width` and `capturedOn`, and its `captureState` as `captured`, `route-not-captured` or `no-route`.
 
-### Size and Stacks
-
-Each project declares its size, its shape, and its stacks in `.litespec/project.yaml`. Each frontend declares one stack, and the backend declares its own. Extensions name their replacements. The [scope page](scope.md) states how a project selects its size, shape, and stacks.
+The route slug drops the leading slash of the screen address, joins its segments with a hyphen, reduces a bracketed, braced, colon or dollar parameter to its name, and names the root route `home`, so `/events/[id]` becomes `events-id` and the default pattern names its desktop light capture `events-id--light--1440.png`. `capturedOn` is the capture file's last-write date in UTC. A screen with an address and no matching capture is `route-not-captured`; a screen with no address and no route carrying it is `no-route`. A missing gallery folder captures nothing and fails nothing. A gallery inside a declared frontend folder serves only the screens of that frontend's entry point, so two frontends that both serve the root route never share a capture.
 
 ### The Model Builder
 
-The model builder reads record files, explanation files, documents, code, routes, tests, and test runs into one model. It holds the model in memory, runs the model checks, and renders generated regions. The [model command page](../tools/model.md) lists the subcommands and finding codes.
+The model builder is the tool that turns records, code, and test runs into one model. It reads record files, explanation files, documents, code, routes, tests, and test runs into one model. It holds the model in memory, runs the model checks, and renders generated regions. The [model command page](../tools/model.md) lists the subcommands and finding codes.
 
-Generated regions sit inside fences that only the builder writes and prose checks skip, in explanation files and documents. A region that renders facts about its record finds the record through the explanation file name. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one file without mixing. The `decision-index` region renders one table of the decisions beside it, grouped by kind, then by the computed concern of each decision's followers. The `waiver-index` region renders the waivers beside it, gaps by `expiresOn` with their `closedBy`, then lasting waivers with their consequences. The [decision records page](../reference/decision-records.md) states the columns of the decision table.
+Generated regions sit inside fences that only the builder writes and prose checks skip, in explanation files and documents. Handwritten prose and computed views stay in one file without mixing: a region that renders facts about its record finds the record through the explanation file name, and each project runs the builder in its own gate. The `decision-index` region renders one table of the decisions beside it, grouped by kind, then by the computed concern of each decision's followers. The `waiver-index` region renders the waivers beside it, gaps by `expiresOn` with their `closedBy`, then lasting waivers with their consequences. The [decision records page](../reference/decision-records.md) states the columns of the decision table.
 
-A finding that a live waiver covers is reported as covered and exits zero. A waiver is live when it has no `expiresOn` date or its date has not passed. [The waivers page](waivers.md) states how a waiver covers a finding, what no waiver covers, and when one expires. A waiver past its `expiresOn` date is reported as `waiver-expired`. Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the run's commit with the hash of the scenario and of its test body at the last passing run; a proof is stale when the scenario, the test body or a file carrying the mark of the behavior it proves changed after the run.
+A finding that a live waiver covers is reported as covered and exits zero. A waiver is live when it has no `expiresOn` date or its date has not passed. [The waivers page](waivers.md) states how a waiver covers a finding, what no waiver covers, and when one expires. A waiver past its `expiresOn` date is reported as `waiver-expired`. Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the run's commit with the hash of the scenario and of its test body at the last passing run; a proof is stale when the scenario, the test body, or a file carrying the mark of the behavior it proves changed after the run.
 
 ### Check Levels
 
-Every check has a level. The level states what a finding rests on.
+Every check has a level, and the level states what a finding rests on: records only, code read through a stack reader, or prose, names, and proof state.
 
 | Level | Meaning |
 |:--|:--|
@@ -519,11 +533,11 @@ Every check has a level. The level states what a finding rests on.
 
 Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks.
 
-Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking. A .NET reader that cannot read or parse a backend, test or screen file, a declared stack root with no folder, a `server` project with no backend reader, and a configured bill of materials that cannot be read or parsed, is not SPDX or CycloneDX, or yields no packages each report `reader-missing` (level S) naming the file or path, and the model is built from what could be read.
+Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking. A .NET reader that cannot read or parse a backend, test, or screen file, a declared stack root with no folder, a `server` project with no backend reader, and a configured bill of materials that cannot be read or parsed, is not SPDX or CycloneDX, or yields no packages each report `reader-missing` (level S) naming the file or path, and the model is built from what could be read.
 
 `litespec model check` prints the level beside each finding.
 
-`litespec model check` runs only the findings of the layers the project claims in `layers`, as the [scope page](scope.md#layer-claims) states. With only `intent` and `behavior` claimed, no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. Claiming `implementation` or `proof` adds the stack readers and the mark and proof findings. Claiming `implementation: litespec` adds the layout group, `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout, with the stack and analyzer findings. The [model command page](../tools/model.md) lists every finding code with its level, its layer, its trace and its meaning.
+`litespec model check` runs only the findings of the layers the project claims in `layers`, as the [scope page](scope.md#layer-claims) states. With only `intent` and `behavior` claimed, no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. Claiming `implementation` or `proof` adds the stack readers and the mark and proof findings. Claiming `implementation: litespec` adds the layout group, `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout, with the stack and analyzer findings. The [model command page](../tools/model.md) lists every finding code with its level, its layer, its trace, and its meaning.
 
 `litespec model check` blocks on the planned-Intent findings in every run. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached carries a gap waiver with `expiresOn` and `closedBy`, which then parks the finding for that record until it expires. The rule holds in every claim.
 
@@ -531,11 +545,11 @@ Two flags tune blocking without changing the levels. `litespec model check --rel
 
 ### The Book
 
-The book lives in the Proof record layer. The book shows each flow as record detail: its `startedWhen`, the steps with their `statement` and `failure`, each branch as a sentence after the steps, its `finishedWhen`; for each step, the requirements the step cites, with their statements and their `except` and fallback inline; for each step, the serving behavior in one line; and the Then clauses of its scenarios, as context.
+The book is the model made readable: it renders the in-memory model for people, and judges nothing itself. It lives in the Proof record layer. The book leads with completion, and it says `claimed` for a link and `verified` for proof: a `fulfills` link reads as a claim until its scenarios pass.
 
-Field tables render as tables. A use case's scenarios group under their result. Field names never render literally in flow detail. The book says `claimed` for a link and `verified` for proof: a `fulfills` link reads as a claim until its scenarios pass. The book renders each record's explanation file under its fields, anchored at the record. The book leads with completion.
+The book shows each flow as record detail: its `startedWhen`, the steps with their `statement` and `failure`, each branch as a sentence after the steps, its `finishedWhen`; for each step, the requirements the step cites, with their statements and their `except` and fallback inline; for each step, the serving behavior in one line; and the Then clauses of its scenarios, as context.
 
-The book renders the in-memory model only and judges nothing itself.
+Field tables render as tables. A use case's scenarios group under their result. Field names never render literally in flow detail. The book renders each record's explanation file under its fields, anchored at the record.
 
 ## Standards
 
@@ -549,7 +563,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A project MUST hold each child record stored as its own file in a folder named for its type in the plural, inside its parent's folder, and each child stored as an entry in its parent's file.
 
-**Rationale:** A reader who opens a parent folder sees its own files and each kind of child apart from the others, without opening each file. One rule for every parent replaces a placement sentence per type, and a module keeps one layout instead of two. A child stored as an entry has no file of its own, so a folder for it would hold nothing. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
+**Rationale:** A reader who opens a parent folder sees its own files with each kind of child kept apart, without opening each file. One rule for every parent replaces a placement sentence per type and gives every module one layout. A child stored as an entry has no file of its own, so a folder for it would hold nothing. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
 **Example:** A feature's requirements sit in `features/approval/requirements/`, and an aggregate's use cases sit in `aggregates/expenses/use-cases/`, while a result stays in its use case file.
 
@@ -565,7 +579,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A project MUST keep every record in the home its type names.
 
-**Rationale:** One home per type tells a reader where to open a record and tells the builder where to read it. A record kept anywhere else is invisible to the checks that scan its home, so it looks sound while nothing validates it. Settled by [decision/0042-record-named-folders](../intent/decisions/0042-record-named-folders/0042-record-named-folders.md), which puts each named record in its own folder beside its explanation.
+**Rationale:** A fixed home tells a reader where to open a record and tells the builder where to read it. A record kept anywhere else misses the checks that scan its home, so it looks sound while nothing validates it. Settled by [decision/0042-record-named-folders](../intent/decisions/0042-record-named-folders/0042-record-named-folders.md), which puts each named record in its own folder beside its explanation.
 
 **Example:** A decision lives at `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml`.
 
@@ -595,7 +609,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every record page MUST live in one record file holding one YAML mapping with its entries in `records`.
 
-**Rationale:** One file per page tells a reader where to open a record and tells the builder where to read it. The mapping holds exactly the fields the schema defines for its type, with entries in `records`, so every record has one shape and the checks read every record the same way. A record kept anywhere else is invisible to the checks that scan its home. Settled by [decision/0020-records-in-yaml](decision/0020-records-in-yaml) on the evidence in [research/record-format-evidence](research/record-format-evidence).
+**Rationale:** One file per page tells a reader where to open a record and tells the builder where to read it. The mapping holds exactly the fields the schema defines for its type, with entries in `records`, so every record has one shape and the checks read every record the same way. A record kept anywhere else misses the checks that scan its home. Settled by [decision/0020-records-in-yaml](decision/0020-records-in-yaml) on the evidence in [research/record-format-evidence](research/record-format-evidence).
 
 **Example:** Claimwick keeps `use-case/spending.submit-expense` in `.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml`, with its results and scenarios in `records`.
 
@@ -611,7 +625,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** An explanation file MUST sit beside its record file in the record's own folder, with the same name, and hold plain Markdown with no frontmatter.
 
-**Rationale:** The file name is the link: no field joins the two files, so a rename moves both and nothing else. Plain Markdown with no frontmatter keeps the explanation readable in any reader and tells every check to read fields from the record file only. The file opens with the record title and uses H2 sections, so each explanation has one shape.
+**Rationale:** The shared file name is the link: no field joins the two files, so a rename moves both and nothing else. Plain Markdown with no frontmatter stays readable in any reader and tells every check to read fields from the record file only. The file opens with the record title and uses H2 sections, so each explanation has one shape.
 
 **Example:** `submit-expense.yaml` explains its Example and Notes in `submit-expense.md` beside it.
 
@@ -627,11 +641,11 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A fact a check reads MUST live as a field in the record file rather than in the explanation file.
 
-**Rationale:** Fields are checked; explanation prose is not. A fact a check reads that sits in prose is invisible to the check. The page explanation cites entries by identifier, so entries need no file of their own.
+**Rationale:** Fields are checked and prose is not, so a check-read fact sitting in prose is invisible to its check. The page explanation cites entries by identifier, so entries need no file of their own.
 
 **Example:** The submit-expense summary lives in the `summary` field of `submit-expense.yaml`, while why the flow reads well lives under Notes in `submit-expense.md`.
 
-**Reviewed for:** Which explanation files state a fact a check reads? Look at each explanation file beside its record file.
+**Reviewed for:** Does any explanation file state a fact a check reads? Compare each explanation file with its record file.
 
 ### Require an Explanation File for Article Types
 
@@ -643,7 +657,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A research or decision page MUST carry its explanation file with the required H2 sections.
 
-**Rationale:** An article is read as prose: the Findings of a research and the Decision of a decision are what the reader comes for. The required sections keep each article complete: Findings for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.
+**Rationale:** Research and decision records are read as prose: a research's Findings and a decision's Decision are what the reader comes for. The required sections keep each article complete: Findings for research, and Context, Options, Decision, Consequences, and Revisit Conditions for decision.
 
 **Example:** `research/approval-time-benchmarks` carries its Findings in `approval-time-benchmarks.md`.
 
@@ -659,7 +673,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A record page on a layer the project lists in `explanations.layers` MUST carry its explanation file with the required H2 sections.
 
-**Rationale:** A complex product needs every record explained for people who did not write it. The setting makes the explanation a gate instead of a habit.
+**Rationale:** On a complex product, every record needs explaining for people who did not write it. Listing a layer in `explanations.layers` makes the explanation a gate instead of a habit.
 
 **Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check.
 
@@ -691,7 +705,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Each rule on the shape of one record MUST be written in the record schema, and each rule on the graph between records stays in the model check.
 
-**Rationale:** An editor validates a record against the schema alone, so a shape rule the schema lacks lets a record pass in the editor and fail in the check. Graph rules, such as reference resolution, ownership and consistency across records, need every record at once, which a schema cannot read. The schema holds required properties, minimum counts, conditional requirements and allowed values. A list of objects does not use `uniqueItems`, since that compares whole objects, so the model check reports each key that two entries of one record share. Proposed by [decision/0058-keep-shape-rules-in-the-schema](../intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema.md) on the disagreements between the schema and the check.
+**Rationale:** An editor validates a record against the schema alone, so a shape rule the schema lacks lets a record pass in the editor and fail in the check. Graph rules, such as reference resolution, ownership, and consistency across records, need every record at once, which a schema cannot read. The schema holds required properties, minimum counts, conditional requirements, and allowed values. A list of objects does not use `uniqueItems`, since that compares whole objects, so the model check reports each key that two entries of one record share. Proposed by [decision/0058-keep-shape-rules-in-the-schema](../intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema.md) on the disagreements between the schema and the check.
 
 **Example:** A Claimwick research record with an empty `sources` list fails the schema in an editor and the model check alike, and a research record that names source key `benchmark-report` twice is reported as `record-key-duplicate`.
 
@@ -707,7 +721,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every record except the product MUST have exactly one parent from the Placement Table on this page.
 
-**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its use case, reaction or job, and a record file sits under its scope node. A feature requirement sits under its feature in its own folder, and types at product level, including a product-level requirement, sit under the product with no field written. The product is the root of the tree and stands above every record layer, settled by [decision/0091-place-the-product-above-layers](decision/0091-place-the-product-above-layers). Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
+**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record places every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its use case, reaction, or job, and a record file sits under its scope node. A feature requirement sits under its feature in its own folder, and types at product level, including a product-level requirement, sit under the product with no field written. The product is the root of the tree and stands above every record layer, settled by [decision/0091-place-the-product-above-layers](decision/0091-place-the-product-above-layers). Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
 
 **Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/features/approval-reminders/requirements/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits in the file of `use-case/spending.submit-expense`.
 
@@ -723,11 +737,11 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A record MUST nest under another record only when its whole content lies within that record, and otherwise sit at the lowest scope node that holds all of its content and name the record it exists for in a link field.
 
-**Rationale:** A folder states that everything inside it belongs to the record above it. Content is what a record states and what it changes; its links are its reasons, not its content. A record filed under one of several records its content spans claims a scope it does not have, and a reader who wants every record of its type must search the folder of every possible parent. The reason a record exists can change while its content stays the same, so a link field keeps that change to one line, where a folder would move the record. Settled by [decision/0078-place-each-record-by-its-content](decision/0078-place-each-record-by-its-content).
+**Rationale:** A folder states that everything inside it belongs to the record above it. Content is what a record states and what it changes; its links are its reasons, not its content. A record filed under one of several records its content spans claims a scope it does not hold, and a reader looking for every record of its type must search the folder of every possible parent. The reason a record exists can change while its content stays the same, so a link field keeps that change to one line where a folder would move the record. Settled by [decision/0078-place-each-record-by-its-content](decision/0078-place-each-record-by-its-content).
 
 **Example:** In the Claimwick product, `flow/submit-and-reimburse` cites requirements of both `feature/approval` and `feature/approval-reminders`, so it sits in `intent/flows/` under the product and names its goal in `serves`. A reaction answering another module's integration event sits with the module whose records it changes, and names the event in `triggeredBy`.
 
-**Reviewed for:** Which records sit under a record that holds only part of their content, and which record types in the Placement Table take a parent whose scope is narrower than their content? Look at each record's folder beside the records it cites and the records that serve it.
+**Reviewed for:** Does any record sit under a record that holds only part of its content, and does any record type in the Placement Table take a parent whose scope is narrower than its content? Compare each record's folder with the records it cites and the records that serve it.
 
 ### Move Each Identifier with Its Module
 
@@ -745,9 +759,9 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Checked by:** `litespec model check` reports `identifier-folder-drift` for an identifier whose home segment disagrees with its folder.
 
-### Keep Each Name Unique in the Product
+### Keep Each Name Unique in Its Record Type
 
-**ID:** `litespec/core/model#keep-each-name-unique-in-the-product`
+**ID:** `litespec/core/model#keep-each-name-unique-in-its-record-type`
 
 **Strength:** required
 
@@ -755,7 +769,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Each name MUST stay unique in its record type.
 
-**Rationale:** Short identifiers resolve with no lookup table only when each name means one record of its type. Two records of one type with one name collide everywhere the identifier is read, while two records of different types with one name coexist: `actor/owner` and `role/owner` are different records. Folders do not narrow uniqueness within a type. Use case, reaction and job names share one namespace, so a scenario cites its parent without ambiguity.
+**Rationale:** Short identifiers resolve with no lookup table only when each name means one record of its type. Two records of one type with one name collide everywhere the identifier is read, while two records of different types with one name coexist: `actor/owner` and `role/owner` are different records. Folders do not narrow uniqueness within a type. Use case, reaction, and job names share one namespace, so a scenario cites its parent without ambiguity.
 
 **Example:** Claimwick names one feature `approval-reminders`; a second feature with that name is reported even though the folders differ. An actor named `owner` and a role named `owner` coexist.
 
@@ -787,7 +801,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every page record MUST take its identifier name, and so its folder and file names, from the words of its title in title order.
 
-**Rationale:** Readers browse the folders before they open a record, so the folder name must say what the record says. A retitle that keeps the identifier leaves the folder and file saying the old name while the record says the new one, and no listing shows the gap. Taking the name from the title's words keeps the identifier, the file and the folder on what the record says. Proposed by [decision/0061-name-each-identifier-from-its-title](../intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md).
+**Rationale:** Readers browse the folders before they open a record, so the folder name must say what the record says. A retitle that keeps the identifier leaves the folder and file saying the old name while the record says the new one, and no listing shows the gap. Taking the name from the title's words keeps the identifier, the file, and the folder on what the record says. Proposed by [decision/0061-name-each-identifier-from-its-title](../intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md).
 
 **Example:** Claimwick titles a requirement "Nobody Approves Their Own Expense", so the requirement is `requirement/approval.nobody-approves-own-expense` in `nobody-approves-own-expense/nobody-approves-own-expense.yaml`. The name `no-self-approval` holds words the title does not hold, so it is reported.
 
@@ -803,7 +817,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A record MUST state the links and facts a reader needs to read it alone, with every stated fact the model can also derive held by a check that reports a difference.
 
-**Rationale:** An isolated file reads whole by eye and by tool, without opening the files it links to. The copy stays honest because a check compares it with its source on every run: `governs` against the links naming the rule, `exposure` against the entry points and permissions the use case declares, a field `classification` against its data class, a data class `fields` list against the fields naming the class, and a screen `serves` against the steps its use cases serve. Judgements stay computed and are never typed: completion, coverage, proof status, counts and censuses. Settled by [decision/0070-keep-one-source-for-each-fact](decision/0070-keep-one-source-for-each-fact).
+**Rationale:** An isolated file reads whole by eye and by tool, without opening the files it links to. The copy stays honest because a check compares it with its source on every run: `governs` against the links naming the rule, `exposure` against the entry points and permissions the use case declares, a field `classification` against its data class, a data class `fields` list against the fields naming the class, and a screen `serves` against the steps its use cases serve. Judgments stay computed and are never typed: completion, coverage, proof status, counts, and censuses. Settled by [decision/0070-keep-one-source-for-each-fact](decision/0070-keep-one-source-for-each-fact).
 
 **Example:** The Claimwick submit-expense use case states its `exposure` in plain words, and `exposure-reference-drift` reports an entry point it names that `reachedThrough` lacks.
 
@@ -831,9 +845,9 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Applies to:** artifact: record:use-case, record:reaction, record:job, record:notification, record:setting
 
-**Statement:** A use case, reaction, job, notification, or setting MUST carry serves, fulfills, or both.
+**Statement:** A use case, reaction, job, notification, or setting MUST carry `serves`, `fulfills`, or both.
 
-**Rationale:** A use case, reaction, job, notification, or setting with no served flow step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-link-missing` fails a use case, reaction, job, notification, or setting carrying neither. A use case is background-only when a reaction or job runs it, so `use-case-flow-missing` skips it.
+**Rationale:** A behavior record with no served flow step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with `serves` or `fulfills` ties every behavior to the Intent that asks for it. A use case is background-only when a reaction or job runs it, so `use-case-flow-missing` skips it.
 
 **Checked by:** `litespec model check` reports `record-link-missing` for a use case, reaction, job, notification, or setting with neither `serves` nor `fulfills`, and `use-case-flow-missing` (level G) at large size for a use case that no reaction, job or other use case runs and that serves no flow step.
 
@@ -847,7 +861,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every flow step MUST have a serving use case, reaction, or job.
 
-**Rationale:** A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with serves, so each step id collects the behaviors that carry the actor through it. `step-use-case-missing` fails a step with no serving use case, reaction, or job. The pair sits side by side: `step-use-case-missing` names a step no use case, reaction, or job serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+**Rationale:** A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with `serves`, so each step id collects the behaviors that carry the actor through it. The pair sits side by side: `step-use-case-missing` names a step no use case, reaction, or job serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
 **Checked by:** `litespec model check` reports `step-use-case-missing` for a flow step with no serving use case, reaction, or job, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves.
 
@@ -927,7 +941,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** Intent records outrank Behavior records: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. A use case asking for behavior its rule forbids loses to the rule, and the contradiction is reported and resolved by updating the inconsistent records. Where Intent has spoken, the specification wins over code; where the specification is silent, an agent builds nothing, as the Authority section states. Goals, problems, features, flows, actors, research, and prose carry no authority, so none outranks the ladder. Only an explicit product `excludes` overrides a requirement.
 
-**Reviewed for:** Conflict decisions under `.litespec/intent/decisions/` name the higher record that won, in the order this page states.
+**Reviewed for:** When records conflict, does the decision name the higher record that won? Look at the conflict decisions under `.litespec/intent/decisions/`, in the order this page states.
 
 ### Name What Every Decision Decides
 
@@ -1035,7 +1049,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** A feature worked from problem to scenario stays complete at every level: each record lands with the Intent above it already written. Parallel slices leave Behavior records resting on Intent nobody wrote yet.
 
-**Reviewed for:** Behavior records show Intent above them through their `fulfills` and `decides` links.
+**Reviewed for:** Does every Behavior record show the Intent above it? Follow its `fulfills` and `decides` links.
 
 ### Compute Proof Statuses in the Builder
 
@@ -1047,7 +1061,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Coded, verified, tested, exercised, stale, flaky, and reachable MUST come from the builder, never from handwriting.
 
-**Rationale:** Handwritten state drifts: a record marked coded stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads coded when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario, the test body or a file carrying the mark of the behavior it proves changed after the run, which records its commit. A requirement reads verified when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A flow step reads exercised when a passing proof of a use case, reaction or job serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
+**Rationale:** Handwritten state drifts: a record marked coded stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads coded when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario, the test body, or a file carrying the mark of the behavior it proves changed after the run, which records its commit. A requirement reads verified when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A flow step reads exercised when a passing proof of a use case, reaction, or job serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:** A use case reads coded when its handler exists.
 
@@ -1079,7 +1093,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** The builder MUST compute one completion stage for every requirement, use case, flow, feature and goal, and write it as `completion` with `stage`, `proof`, `heldBy` and `counts`, with a parent only as far as its weakest in-scope child and `heldBy` naming at most ten children at that stage.
 
-**Rationale:** Completion is a fact the builder can count from fulfillment, code and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: `unfulfilled` when no Behavior record fulfills a record, `specified` when it is fulfilled and no code is found, `coded` when code is found for every in-scope child, and `verified` when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays `coded` with proof `unknown`, so proof unknown never reads as a failure. A requirement a waiver parks stays out of the stage and the counts and names itself in `heldBy`, so deferred work stays visible. A goal's completion shows delivery only; its outcome reads `not measured` until the goal records `observations`.
+**Rationale:** Completion is a fact the builder can count from fulfillment, code, and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: `unfulfilled` when no Behavior record fulfills a record, `specified` when it is fulfilled and no code is found, `coded` when code is found for every in-scope child, and `verified` when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays `coded` with proof `unknown`, so proof unknown never reads as a failure. A requirement a waiver parks stays out of the stage and the counts and names itself in `heldBy`, so deferred work stays visible. A goal's completion shows delivery only; its outcome reads `not measured` until the goal records `observations`.
 
 **Example:** In Claimwick, `feature/expense-submission` shows `coded` with proof `unknown` before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows `verified` with no held-by entries.
 
@@ -1095,7 +1109,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** The builder MUST record each screen's captures from the gallery folders and file-name pattern the project file names, as `captures` with `path`, `theme`, `width` and `capturedOn`, and its `captureState` as `captured`, `route-not-captured` or `no-route`.
 
-**Rationale:** A reader judging a screen needs to see it, and a capture named by its route, theme and width is the copy the built screen makes. The route slug names the file the same way everywhere: the leading slash dropped, segments joined with a hyphen, a parameter reduced to its name, and the root route named `home`. A missing gallery folder captures nothing and fails nothing, so a project with no photography yet still builds its model.
+**Rationale:** A reader judging a screen needs to see it, and a capture named by its route, theme, and width is the copy the built screen makes. The route slug names the file the same way everywhere: the leading slash dropped, segments joined with a hyphen, a parameter reduced to its name, and the root route named `home`. A missing gallery folder captures nothing and fails nothing, so a project with no photography yet still builds its model.
 
 **Example:** The Claimwick web gallery holds `expenses--light--1440.png`, so `screen/expenses.list` at `/expenses` shows that capture at theme `light` and width 1440 with `captureState` `captured`; a screen with no address shows `no-route`.
 
@@ -1189,7 +1203,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its folder and links name, or at the top of its own layer when the product parents it.
 
-**Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md). Settled by [decision/0088-serve-the-book-live-and-export-it](decision/0088-serve-the-book-live-and-export-it).
+**Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation, and Proof in the book reads the same structure in the docs folder, in the model output, and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md). Settled by [decision/0088-serve-the-book-live-and-export-it](decision/0088-serve-the-book-live-and-export-it).
 
 **Example:** In the Claimwick product, `use-case/spending.submit-expense` sits under Behavior, its module and its aggregate; its results under it; each scenario under the result it shows; and the handler that carries its mark under Implementation.
 
@@ -1209,7 +1223,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Example:** A use case page heads its results "Results" and its scenarios "Scenarios", never "Endings" and "Examples".
 
-**Reviewed for:** Which book labels are neither a record type, a field name, a computed state, a glossary term, nor the reads-as phrase the Links table states for a connection? Look at the book beside the glossary and the Links table.
+**Reviewed for:** Does every book label use a LiteSpec term? Look at the book beside the glossary and the Links table: each label is a record type, a field name, a computed state, a glossary term, or a reads-as phrase.
 
 ### Explain the Book from LiteSpec Definitions
 
@@ -1225,11 +1239,11 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Example:** The book explains a waiver with the glossary definition of Waiver.
 
-**Reviewed for:** Which explanations in the book are not a glossary definition or a record type question? Look at the book's explanations beside the glossary and the record type table.
+**Reviewed for:** Does every book explanation come from a LiteSpec definition? Look at the book's explanations beside the glossary and the record type table.
 
-### Show Only Computed Judgements in the Book
+### Show Only Computed Judgments in the Book
 
-**ID:** `litespec/core/model#show-only-computed-judgements-in-the-book`
+**ID:** `litespec/core/model#show-only-computed-judgments-in-the-book`
 
 **Strength:** required
 
@@ -1237,11 +1251,11 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every status, count, order and finding the book shows MUST be one the builder or a check computes.
 
-**Rationale:** The book is a view of the model, not a second authority. A judgement only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
+**Rationale:** The book is a view of the model, not a second authority. A judgment only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
 
 **Example:** The book orders features by the completion the builder computes.
 
-**Reviewed for:** Which statuses, counts, orders or findings in the book does no builder output or check produce? Look at the book beside the model output.
+**Reviewed for:** Does every status, count, order, and finding in the book come from the builder or a check? Look at the book beside the model output.
 
 ### Add a Missing Fact to LiteSpec Before the Book Shows It
 
@@ -1257,7 +1271,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Example:** The book needs to say that a refusal has no scenario, so LiteSpec gains a check for it, and the book shows that check's findings.
 
-**Reviewed for:** Which facts does the book show that no record field, computed status or check defines? Look at the book beside the model output and the finding codes.
+**Reviewed for:** Does every fact the book shows come from LiteSpec? Look at the book beside the model output and the finding codes: each fact is a record field, a computed status, or a check.
 
 ### Point Every Book Entry to Its Source
 
@@ -1273,11 +1287,11 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Example:** The submit-expense use case page links to `.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml` at its first line, and its handler to the handler file at the class.
 
-**Reviewed for:** Which book entries lack a link to their file and line? Look at the book's record, code, test and finding entries.
+**Reviewed for:** Does every book entry link to its file and line? Look at the book's record, code, test, and finding entries.
 
-### Declare Structured Specification Metadata
+### Hold Every Record File and Frontmatter Block to the Schema
 
-**ID:** `litespec/core/model#declare-structured-specification-metadata`
+**ID:** `litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema`
 
 **Strength:** required
 
@@ -1297,9 +1311,9 @@ title: Submit Expense
 
 **Checked by:** `litespec model check` reports `record-invalid` for each record file and document frontmatter block that fails the record schema.
 
-### Use One Metadata Carrier
+### Keep Every Field Value in the Record File
 
-**ID:** `litespec/core/model#use-one-metadata-carrier`
+**ID:** `litespec/core/model#keep-every-field-value-in-the-record-file`
 
 **Strength:** required
 
@@ -1309,7 +1323,7 @@ title: Submit Expense
 
 **Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value. A generated region that `model render` writes from the record file is not a second carrier, because no person edits it and `model check` reports any drift from the record. The source-links region of a research or constraint explanation is one such region.
 
-**Reviewed for:** Which pages carry field values outside the record file? Look at the explanation files beside the changed record files.
+**Reviewed for:** Does any page carry field values outside the record file? Look at the explanation files beside the changed record files.
 
 ### Classify Every Specification File
 
@@ -1337,7 +1351,7 @@ title: Submit Expense
 
 **Rationale:** One shape puts the title and each section in the same place on every explanation. The H1 carries the record title, and each H2 carries one section from the table on this page or a free section; Notes take free `###` headings under their H2.
 
-**Reviewed for:** Which explanation files miss their H1 title or section content outside H2? Look at the explanation files beside the changed record files.
+**Reviewed for:** Does every explanation file open with its H1 title and section content under H2? Look at the explanation files beside the changed record files.
 
 ### Derive a Computed Fact Instead of Restating It
 
@@ -1357,7 +1371,7 @@ title: Submit Expense
 The figures below render from the retention schedule at build time.
 ```
 
-**Reviewed for:** Which counts, censuses, or membership lists lack a source or command? Look at the numbers the change adds.
+**Reviewed for:** Does every count, census, and membership list name its source or command? Look at the numbers the change adds.
 
 ### Keep Code Out of Intent and Behavior Fields
 
@@ -1367,13 +1381,13 @@ The figures below render from the retention schedule at build time.
 
 **Applies to:** artifact: any
 
-**Statement:** No field on an Intent or Behavior record MUST be filled from code.
+**Statement:** A project MUST fill no field on an Intent or Behavior record from code.
 
 **Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper record layer does not state becomes a backlog item outside the repository. Derivation between records stays allowed.
 
 **Example:** A positivity guard found in a handler becomes a backlog item for a rule, while the code stays untouched until the rule lands.
 
-**Reviewed for:** Which Intent or Behavior fields copy values from code? Look at the fields the change fills, beside the implementation.
+**Reviewed for:** Does any Intent or Behavior field copy a value from code? Look at the fields the change fills, beside the implementation.
 
 ### Scaffold Pages and Reserve Identifiers
 
@@ -1389,7 +1403,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** `litespec new reaction spending.send-receipt-reminder-on-expense-submitted` creates the reaction record file with its reserved identifier.
 
-**Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
+**Reviewed for:** Does every new page carry a reserved identifier? Look for pages created without `litespec new`.
 
 ### Rewrite Every Link on a Rename
 
@@ -1421,7 +1435,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** The author validates the touched page, fixes the reported diagnostics, and commits only when the page passes.
 
-**Reviewed for:** The change report shows each touched page passing single-page validation before commit.
+**Reviewed for:** Does the change report show each touched page passing single-page validation before commit?
 
 ### State What Happens in Every Behavior Statement
 
@@ -1439,7 +1453,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
 
-**Reviewed for:** Which rule statements, scenario steps, or result meanings hide their behavior behind a vague word? Look at the statements the change adds.
+**Reviewed for:** Does any rule statement, scenario step, or result meaning hide its behavior behind a vague word? Look at the statements the change adds.
 
 ## Conventions
 
@@ -1455,6 +1469,6 @@ The figures below render from the retention schedule at build time.
 
 **Replacement:** Any other code-computed fact lives in the book and the model output.
 
-**Rationale:** A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as coded and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed. An index region is the exception: it lists the records beside it, so each row names the computed followers, concerns and flags the reader needs to read the list. Settled by [decision/0072-generate-the-links-table-from-the-schema](decision/0072-generate-the-links-table-from-the-schema).
+**Rationale:** A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as coded and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed. An index region is the exception: it lists the records beside it, so each row names the computed followers, concerns, and flags the reader needs to read the list. Settled by [decision/0072-generate-the-links-table-from-the-schema](decision/0072-generate-the-links-table-from-the-schema).
 
-**Reviewed for:** Which generated regions outside an index region render code-computed facts? Look inside the generated fences beside the book and the model output.
+**Reviewed for:** Does any generated region outside an index region render code-computed facts? Look inside the generated fences beside the book and the model output.

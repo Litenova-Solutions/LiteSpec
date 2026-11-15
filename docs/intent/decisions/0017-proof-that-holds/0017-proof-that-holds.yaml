@@ -15,7 +15,7 @@ options:
     pros: The book shows one verdict per record.
     cons: Rendering judges instead of the builder, so two vocabularies drift apart.
 choice: Tracked proof state, check level blocking, four words, one code grammar
-consequences: "`litespec/core/model#compute-proof-statuses-in-the-builder` holds the tracked proof state and keeps judgement in the builder, `litespec/core/model#show-only-computed-judgements-in-the-book` keeps rendering in the book, and findings block by check level. The glossary holds the four proof words, and `decision/0033-agents-never-weaken-proving-tests` adds the advisory proof-change finding on the method hash."
+consequences: "`litespec/core/model#compute-proof-statuses-in-the-builder` holds the tracked proof state and keeps judgement in the builder, `litespec/core/model#show-only-computed-judgments-in-the-book` keeps rendering in the book, and findings block by check level. The glossary holds the four proof words, and `decision/0033-agents-never-weaken-proving-tests` adds the advisory proof-change finding on the method hash."
 reopenedWhen: A test runner appears whose outcomes the builder cannot read.
 basedOn:
   - research/lower-layers-practice

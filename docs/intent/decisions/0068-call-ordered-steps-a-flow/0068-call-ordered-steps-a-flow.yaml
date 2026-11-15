@@ -15,7 +15,7 @@ options:
     pros: "No record, identifier, or provision moves."
     cons: "Journey maps hold touchpoints, emotions, and channels the record never holds, while every other type uses a standard engineering name."
 choice: "flow"
-consequences: "The record type is `flow`, identifiers read `flow/<name>` and `flow/<name>#s1`, and flows live in `intent/flows/`. The schema carries `flowPage`, `flowId`, `flowStep`, `flowStepId`, and `flowBranch`; code and tests carry `Flow`; a journey test is a flow test. The sixteen provisions naming the old type take the slugs their new headings derive, with every citation replaced. `litespec new flow` and `litespec rename` write the new shape, and the consumer template is `flow.yaml`. `litespec/core/intent#describe-every-flow`, `litespec/core/model#serve-every-flow-step`, and `litespec/core/release#run-flow-checks` state the renamed record, its servers, and its checks."
+consequences: "The record type is `flow`, identifiers read `flow/<name>` and `flow/<name>#s1`, and flows live in `intent/flows/`. The schema carries `flowPage`, `flowId`, `flowStep`, `flowStepId`, and `flowBranch`; code and tests carry `Flow`; a journey test is a flow test. The sixteen provisions naming the old type take the slugs their new headings derive, with every citation replaced. `litespec new flow` and `litespec rename` write the new shape, and the consumer template is `flow.yaml`. `litespec/core/intent#summarize-every-flow-before-its-steps`, `litespec/core/model#serve-every-flow-step`, and `litespec/core/release#run-flow-checks` state the renamed record, its servers, and its checks."
 reopenedWhen: "A consumer shows that flow misleads its readers about what the record holds."
 basedOn:
   - research/naming-grammar-evidence

@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Book;
 public sealed class BookContractTests
 {
     /// <summary>Every detail carries lacks as an array: empty with nothing lacking, listing each missing mark otherwise.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void LacksIsAlwaysAnArray()
     {
@@ -27,7 +27,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Proof states are the closed seven, and every scenario and rule proof reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ProofStatesAreTheClosedSeven()
     {
@@ -50,7 +50,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Outline kinds are the closed five, and every outline node reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void OutlineKindsAreTheClosedFive()
     {
@@ -75,7 +75,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Implementation kinds are the closed fourteen, and every impl entry reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ImplKindsAreTheClosedFourteen()
     {
@@ -119,7 +119,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Check levels are G, S and A, and every written finding tier and level reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void CheckLevelsAreGSAAndFindingsCarryThem()
     {
@@ -158,7 +158,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Capture states are the closed three, carried through from the model onto the screen detail.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void CaptureStatesAreCarriedThrough()
     {
@@ -179,7 +179,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Computed fields keep one shape each: objects stay objects, arrays stay arrays, and a route is an object or absent.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ComputedFieldsKeepTheirShapes()
     {
@@ -220,7 +220,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Every written type is a record type and every written layer is a layer key, the product's root, or null.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void TypeAndLayerAreClosed()
     {

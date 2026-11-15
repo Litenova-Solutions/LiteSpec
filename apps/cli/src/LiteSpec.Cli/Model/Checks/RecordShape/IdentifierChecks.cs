@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/language#name-records-with-one-to-six-words</follows>
 /// <follows>litespec/core/language#use-every-identifier-once</follows>
 /// <follows>litespec/core/model#move-each-identifier-with-its-module</follows>
-/// <follows>litespec/core/model#keep-each-name-unique-in-the-product</follows>
+/// <follows>litespec/core/model#keep-each-name-unique-in-its-record-type</follows>
 /// <follows>litespec/core/model#take-decision-numbers-from-one-sequence</follows>
 /// <follows>litespec/core/model#name-each-identifier-from-its-title</follows>
 internal static class IdentifierChecks

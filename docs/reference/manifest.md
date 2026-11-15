@@ -1,7 +1,5 @@
 # Release Manifest
 
-## Intent
-
 `litespec.manifest.yaml` is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release's real values and states what each field drives.
 
 ## Reference
@@ -302,7 +300,7 @@ The `registry` block names the component source:
 | `url` | `https://ui.shadcn.com` | `https://shadcn-svelte.com/registry` |
 | `allowAdditional` | `true` | `true` |
 
-`litespec model check` selects the baseline by the shared package platform: a Svelte package reads `uiBaselineSvelte`, and any other package reads `uiBaseline`. It checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/frontend/ui#select-one-visual-authority` requires the one shared package, and `litespec/frontend/ui#pin-the-baseline-in-the-shared-package` requires the pin.
+`litespec model check` selects the baseline by the shared package platform: a Svelte package reads `uiBaselineSvelte`, and any other package reads `uiBaseline`. It checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/frontend/ui#record-one-shared-ui-package` requires the one shared package, and `litespec/frontend/ui#pin-the-baseline-in-the-shared-package` requires the pin.
 
 ## Notes
 

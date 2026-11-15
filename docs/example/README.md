@@ -1,12 +1,10 @@
 # Overview
 
-## Intent
-
-The example pages show LiteSpec applied to one product, Claimwick, a small application in which employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. Its records live in `examples/claimwick/.litespec/`, and its code, screen and tests sit beside them in the same repository. Every record ID, file path, count and command output on these pages is copied from that repository or from a real run of `litespec` against it, so a reader can open the same file and see the same text. The pages state no rules of their own: each rule lives on the standards page that the text cites.
+These pages show LiteSpec applied to one product, Claimwick, a small expense product where employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones, from its first records down to the checks that prove it. Its records live in `examples/claimwick/.litespec/`, and its code, screen, and tests sit beside them in the same repository. Every record ID, file path, count, and command output below is copied from that repository or from a real run of `litespec` against it, so you can open the same file and read the same text. The pages add no rules: each rule lives on the standards page the text cites.
 
 ## How to Read the Example
 
-The pages follow one thread from the product's intent down to its checks:
+The pages follow one thread from what the product promises down to how the tools check it:
 
 ```trail
 product        Claimwick: submit, approve, reimburse

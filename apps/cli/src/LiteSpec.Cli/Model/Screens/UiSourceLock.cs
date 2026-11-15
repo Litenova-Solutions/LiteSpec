@@ -13,7 +13,7 @@ namespace LiteSpec.Cli.Model.Screens;
 ///     status, paths and dependencies), the registry, the formatter and the generator are kept
 ///     as the team wrote them, and a lock whose text is already current is left alone.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#track-source-changes</follows>
+/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
 static class UiSourceLock
 {
     /// <summary>The preset fields the lock records, in the order the schema lists them.</summary>

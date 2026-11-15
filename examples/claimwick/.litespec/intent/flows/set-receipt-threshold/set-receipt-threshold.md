@@ -4,4 +4,4 @@ A manager sets the receipt threshold on the policy once finance and the managers
 
 ## Example
 
-Ben, a manager, sets the receipt threshold to the amount finance and the managers agreed for the quarter. The policy then holds it, and an expense above the threshold asks for a receipt at submission.
+Ben, a manager, sets the receipt threshold to the amount finance and the managers agreed for the quarter. From then on the policy holds it, and an expense above the threshold asks for a receipt at submission.

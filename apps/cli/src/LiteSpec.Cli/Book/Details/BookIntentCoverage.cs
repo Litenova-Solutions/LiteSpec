@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     its entries to the coverage shard, and reads it back. The status covers every item the
 ///     model computes, and the share reached.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookIntentCoverage
 {
     /// <summary>The Intent coverage a store carries: the status the build computed from the model with IntentCoverage.Compute.</summary>

@@ -1,6 +1,6 @@
 # Approval
 
-Approval is the Claimwick feature in which employees submit work expenses, managers decide them, and finance reimburses the approved ones. Its use cases live in `module/spending`. Expenses arrive every day, and each one needs a timely decision. Where the policy asks for it, each expense also needs a receipt as proof.
+Approval is the Claimwick feature in which employees submit work expenses, managers decide them, and finance reimburses the approved ones. Its use cases live in `module/spending`. Expenses arrive every day, and each one needs a timely decision, with a receipt as proof where the policy asks for it.
 
 ## Capabilities
 
@@ -15,7 +15,7 @@ The feature lets employees submit expenses with receipts, lets managers decide e
 | `requirement/approval.erased-after-retention` | The personal data of a decided expense is erased after its retention. | Past its need, personal data is a risk with no use. |
 | `requirement/approval.reimbursed-expenses-listed` | Finance lists each reimbursed expense with the employee it was paid to. | Finance checks each payout against the employee it was paid to. |
 
-The 25 EUR threshold comes from `decision/0001-receipt-threshold`. The 5-day target follows `research/approval-time-benchmarks`, which supports it with one industry study. The acknowledgement of each month-end submission has its own target in `feature/approval-reminders`, which sets it at 2 seconds.
+The 25 EUR threshold comes from `decision/0001-receipt-threshold`. The 5-day target follows `research/approval-time-benchmarks`, which backs it with one industry study. The acknowledgement of each month-end submission has its own target in `feature/approval-reminders`, which sets it at 2 seconds.
 
 ## Success Criteria
 
@@ -24,7 +24,7 @@ The 25 EUR threshold comes from `decision/0001-receipt-threshold`. The 5-day tar
 - An approved expense is reimbursed at most once.
 - The employee sees the decision on each expense in their own list, without asking the manager.
 
-The time to a decision depends on the managers as well as on the feature, so it is measured as a goal rather than listed here: `goal/decided-in-days` sets a median of under 120 hours.
+How fast a decision arrives depends on the managers as well as on the feature, so it is measured as a goal rather than listed here: `goal/decided-in-days` sets a median of under 120 hours.
 
 ## Boundaries
 

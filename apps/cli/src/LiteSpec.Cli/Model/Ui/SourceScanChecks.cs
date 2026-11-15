@@ -4,7 +4,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The source-scan checks of the UI validator: the shared package's own
 ///     source against the Tailwind utility rules.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#restrict-css-decisions</follows>
+/// <follows>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</follows>
 sealed class SourceScanChecks
 {
     /// <summary>The state of the run.</summary>
@@ -23,7 +23,7 @@ sealed class SourceScanChecks
     // authored file outside the copied primitive boundary and the tests. The shared
     // package owns the primitive library, so its composites import it deliberately;
     // an application does not, and `ValidateApplicationImports` refuses it there.
-    // (litespec/frontend/web/ui#restrict-css-decisions)
+    // (litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only)
     /// <summary>
     ///     Scans the shared package's source against the utility rules.
     /// </summary>
@@ -53,7 +53,7 @@ sealed class SourceScanChecks
                         return;
                     }
 
-                    session.Add("ui-class-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
+                    session.Add("ui-class-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
                 }, variants: false);
             }
 

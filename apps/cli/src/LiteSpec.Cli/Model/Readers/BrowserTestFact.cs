@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.Readers;
 /// <param name="Gotos">Every <c>page.goto</c> target in the test body.</param>
 /// <param name="Codes">Every refusal code its assertions hold.</param>
 /// <param name="Texts">Every other asserted text.</param>
-/// <follows>litespec/frontend/testing#mark-the-scenario-a-browser-test-proves</follows>
+/// <follows>litespec/frontend/testing#mark-each-browser-test-with-the-scenario-it-proves</follows>
 sealed record BrowserTestFact(
     string File,
     int Line,

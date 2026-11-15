@@ -3,15 +3,17 @@
 **Stack:** react, svelte
 **Concern:** frontend-ui
 
-## Intent
+Every screen in a TypeScript web frontend draws with composites from one shared UI package: shared building blocks for layout and interaction. No application draws its own.
 
-Every screen in a TypeScript web frontend draws with composites, shared building blocks for layout and interaction, from one shared UI package, instead of each application drawing its own. The component principles live in [Frontend Components](../components.md); this page states the TypeScript mechanism behind them for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md): the registry source holding the primitives every composite builds on, the closed list of refused raw elements, visual files for drawings no composite makes, the raw HTML sinks kept away from untrusted content, the typed component boundaries, and the route checks both stacks share. A team that applies it while writing pages keeps layout and interaction inside governed composites instead of scattered raw elements.
+The component principles live in [Frontend Components](../components.md). This page states the TypeScript mechanism behind those principles for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md): the registry source holding the primitives every composite builds on, the closed list of refused raw elements, visual files for drawings no composite makes, the raw HTML sinks kept away from untrusted content, the typed component boundaries, and the route checks both stacks share. A team that applies it while writing pages keeps layout and interaction inside governed composites instead of scattered raw elements.
 
 ## Concepts
 
-### TypeScript Mechanism
+### Primitives, Composites, and Page Code
 
-The registry CLI writes the primitives into one folder nobody edits by hand, and the composites sit beside them and import them, per `litespec/frontend/components#keep-shared-ui-in-one-package`. Page code declares no layout or interactive element, and each refusal names the composite to use, per `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`. The refused elements and their replacements are one closed list.
+The registry CLI writes the primitives into one folder nobody edits by hand. The composites sit beside them and import them, per `litespec/frontend/components#keep-shared-ui-in-one-package`.
+
+Page code declares no layout or interactive element, and each refusal names the composite to use, per `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`. The refused elements and their replacements are one closed list.
 
 | Refused | Use instead |
 |:---|:---|
@@ -25,7 +27,11 @@ The registry CLI writes the primitives into one folder nobody edits by hand, and
 
 Text elements stay available, because a sentence is not a component decision: `p`, `h2`, `h3`, `em`, `strong`, `ul`, `ol`, and `li` carry prose. The floorplan owns the `h1`. Any other element follows the same rule: page code declares no other element, and the author adds a composite or a visual file instead.
 
-Class names merge through the one merge helper the shared package exports, with every merge or variant helper import inside it, per `litespec/frontend/components#write-no-class-name-in-page-code`. A drawing no composite makes lives in a visual file, which draws with semantic theme tokens only, per `litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`. Each stack page names the visual file pattern, the class and style bindings, and the raw HTML sink for its stack.
+### Style, Checks, and Raw Content
+
+Class names merge through the one merge helper the shared package exports, with every merge or variant helper import inside it, per `litespec/frontend/components#write-no-class-name-in-page-code`.
+
+A drawing no composite makes lives in a visual file, which draws with semantic theme tokens only, per `litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`. Each stack page names the visual file pattern, the class and style bindings, and the raw HTML sink for its stack.
 
 A visible card, panel, or section title renders as a heading at its correct level, per `litespec/frontend/components#expose-card-and-section-titles-as-headings`, and the route suite resolves each as a heading. The route suite checks keyboard reach, visible focus, target size, and status announcements on every route, per `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`. Stored rich content renders only under its recorded sanitization decision, per `litespec/frontend/components#sanitize-untrusted-rich-content`.
 
@@ -41,9 +47,9 @@ A visible card, panel, or section title renders as a heading at its correct leve
 
 **Statement:** Route and module code MUST pass the ESLint rules that refuse raw layout and interactive elements, class and style bindings, and layout utilities outside visual files, with each refusal naming the composite to use.
 
-**Rationale:** A lint gate that only refuses leaves the author searching the shared package for the replacement; a refusal that names the composite answers with the error. The refusal-to-composite map is approved once per stack, and each stack page names the mechanism that enforces it. Visual files stay allowlisted, because a drawing no composite makes has no composite to name. This gates litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code, litespec/frontend/components#write-no-class-name-in-page-code, and litespec/frontend/ui#keep-layout-inside-floorplans.
+**Rationale:** A lint gate that only refuses leaves the author searching the shared package for the replacement. A refusal that names the composite answers with the error. The refusal-to-composite map is approved once per stack, and each stack page names the mechanism that enforces it. Visual files stay allowlisted, because a drawing no composite makes has no composite to name. This gates litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code, litespec/frontend/components#write-no-class-name-in-page-code, and litespec/frontend/ui#keep-layout-inside-floorplans.
 
-**Reviewed for:** Which refused element, binding, or layout utility does the consumer's lint command report outside visual files in route and module code? Look at the lint output the consumer's configuration produces in CI.
+**Reviewed for:** Does any refused element, binding, or layout utility show in the consumer's lint output outside visual files in route and module code? Check the lint output the consumer's configuration produces in CI.
 
 ### Keep Component Boundaries Typed
 
@@ -91,9 +97,9 @@ function OrderTotal({ orderId }: { orderId: string }) {
 
 **Deviation:** A frontend whose framework runtime or a required library writes markup through a sink the named policy cannot cover keeps the directive in report-only mode and records the sink in its sanitization decision.
 
-**Rationale:** A recorded sanitizer protects only the calls that remember to use it. Trusted Types makes the browser refuse any raw string written into `innerHTML` or a similar sink, so a component that forgets the sanitizer fails in testing instead of in a staff member's browser. Framework runtimes and libraries also write markup through those sinks, so a team first sends the policy as `Content-Security-Policy-Report-Only`, reads the reports, and enforces it once every reported sink passes through the named policy.
+**Rationale:** A recorded sanitizer protects only the calls that remember to use it. Trusted Types makes the browser refuse any raw string written into `innerHTML` or a similar sink, so a component that forgets the sanitizer fails in testing instead of in a staff member's browser. Framework runtimes and libraries also write markup through those sinks. A team first sends the policy as `Content-Security-Policy-Report-Only`, reads the reports, and enforces it once every reported sink passes through the named policy.
 
-**Reviewed for:** Which raw markup sink runs outside the named policy, or which frontend sends no Trusted Types directive? Look in the Content Security Policy header and the violation reports.
+**Reviewed for:** Does every raw markup sink run inside the named policy, with the frontend sending the Trusted Types directive? Check the Content Security Policy header and the violation reports.
 
 ## Conventions
 

@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     The flow and screen details of one record: the servers, screens and
 ///     exercised steps of a flow, and the route and called use cases of a screen.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookFlowDetail
 {
     /// <summary>Adds the step servers, step screens and exercised steps of one flow.</summary>

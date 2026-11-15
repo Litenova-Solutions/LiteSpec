@@ -1,6 +1,6 @@
 # Mail Relay
 
-The mail relay delivers the spending module's emails to managers. The approval reminder travels through it to the manager who approves the waiting expense. It matters because a reminder that never arrives leaves the expense waiting unseen.
+The mail relay delivers the spending module's emails to managers. The approval reminder travels through it to the manager who decides the waiting expense. A reminder that never arrives leaves the expense waiting unseen.
 
 ## Use
 
@@ -8,8 +8,8 @@ The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` se
 
 ## Data Shared
 
-The relay sees the manager's address, the expense and its waiting time for each reminder it delivers. It holds no Claimwick data after the send.
+For each reminder it delivers, the relay sees the manager's address, the expense and its waiting time. It holds no Claimwick data after the send.
 
 ## Failure Handling
 
-A failed send retries with a growing delay, and a failure past the last retry dead-letters the reminder after one day. The expense still waits for its decision, which the manager sees in the app.
+A failed send retries with a growing delay. A failure past the last retry dead-letters the reminder after one day. The expense still waits for its decision, which the manager sees in the app.

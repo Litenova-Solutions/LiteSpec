@@ -12,9 +12,9 @@ litespec-maintain changelog --from <ref> [--root <path>] [--check] [--help]
 
 ## Description
 
-This command compares the provision index at a git ref with the current one, so a reader of an earlier release sees which provision IDs were added, removed, or renamed, and which extensions arrived or left. It writes those lists into the marked provision-diff section of `CHANGELOG.md`. An ID counts as renamed when one removed ID and one added ID share the same page and the same statement.
+Each release tells readers of an earlier release what changed: which provision IDs were added, removed, or renamed, and which extensions arrived or left. This command computes those lists by comparing the provision index at a git ref with the current one, and writes them into the marked provision-diff section of `CHANGELOG.md`. An ID counts as renamed when one removed ID and one added ID share the same page and the same statement.
 
-Run it after `litespec-maintain provisions`, as the last step before tagging a release. The next run overwrites the marked section, so never edit that section directly.
+Run it after `litespec-maintain provisions`, as the last step before tagging a release, and never edit the marked section directly: the next run overwrites it.
 
 ## Arguments
 
@@ -32,7 +32,7 @@ None.
 ## Exit Codes
 
 | Code | Meaning |
-|:---|:---|
+|:--|:--|
 | `0` | The section was written, or `--check` found it current. |
 | `1` | `--check` found the section stale. |
 | `2` | The usage is invalid, or the ref, the index, or the changelog is unreadable. |
@@ -53,4 +53,4 @@ litespec-maintain changelog --from v3.0.0 --check
 
 ## Underneath
 
-The command reads the old copies with `git show <ref>:docs/reference/provisions.json` and `git show <ref>:litespec.manifest.yaml`, run from the repository root. The comparison and the section rewrite have no separate entry point. They run only as part of this command.
+The old copies are read with `git show <ref>:docs/reference/provisions.json` and `git show <ref>:litespec.manifest.yaml`, run from the repository root. The comparison and the section rewrite have no separate entry point: they run only as part of this command.

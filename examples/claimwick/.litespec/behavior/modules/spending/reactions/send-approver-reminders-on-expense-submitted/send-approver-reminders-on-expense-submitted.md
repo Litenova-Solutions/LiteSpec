@@ -1,6 +1,6 @@
 # Send Approver Reminders on Expense Submitted
 
-This reaction sends a reminder to the approver of an expense that waits too long for a decision. It runs when `domain-event/expense.submitted` is raised, so it considers each new expense. It supports the requirement `requirement/approval.decided-within-five-days`.
+This reaction reminds the approver of an expense that waits too long for a decision. It runs when `domain-event/expense.submitted` is raised, so it considers each new expense. It supports `requirement/approval.decided-within-five-days`.
 
 ## Trigger and Effect
 
@@ -10,8 +10,8 @@ A reminder is due only after the wait, so the reaction cannot send it when the e
 
 ## Failure Handling
 
-A failed send retries up to five times with a growing delay, and a failure past the last retry dead-letters the reminder after one day. Each waiting expense earns one reminder: the reaction recognizes its own repeats by the key `approval-reminder-{expenseId}`, and the notification sends with frequency once.
+A failed send retries up to five times with a growing delay. A failure past the last retry dead-letters the reminder after one day. Each waiting expense earns one reminder: the reaction recognizes its own repeats by the key `approval-reminder-{expenseId}`, and the notification sends with frequency once.
 
 ## Example
 
-Ava submits the 48.90 EUR train fare, and Ben does not decide it on the first day. Ben approves the fare on the second day, before the waiting time ends. When the waiting time ends, the reaction finds the fare decided, so it sends nothing.
+Ava submits the 48.90 EUR train fare, and Ben leaves it undecided on the first day. Ben approves the fare on the second day, before the waiting time ends. When the waiting time ends, the reaction finds the fare decided, so it sends nothing.

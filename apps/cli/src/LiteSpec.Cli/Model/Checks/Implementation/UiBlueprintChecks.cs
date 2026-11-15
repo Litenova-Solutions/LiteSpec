@@ -17,9 +17,9 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     carries its sentence in each language its entry points declare beside the default.
 /// </summary>
 /// <follows>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</follows>
-/// <follows>litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next</follows>
+/// <follows>litespec/frontend/ui#link-each-screen-to-its-next-screens</follows>
 /// <follows>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</follows>
-/// <follows>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</follows>
+/// <follows>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</follows>
 internal static class UiBlueprintChecks
 {
     /// <summary>The field naming the screens a person reaches from a screen in one step.</summary>

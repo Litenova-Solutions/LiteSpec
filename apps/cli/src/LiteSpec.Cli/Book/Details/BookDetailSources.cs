@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     servers, tests, findings, screen routes and calls, and code entries, each
 ///     grouped once from the model and the outline.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static partial class BookDetailSources
 {
     /// <summary>A record or provision identifier a finding message quotes, such as 'goal/approve-claims', shown as code.</summary>

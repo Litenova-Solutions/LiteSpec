@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     wrote, its preset against the baseline, and each recorded digest.
 /// </summary>
 /// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
-/// <follows>litespec/frontend/web/ui#track-source-changes</follows>
+/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
 sealed class SourceLockChecks
 {
     /// <summary>The state of the run.</summary>
@@ -53,7 +53,7 @@ sealed class SourceLockChecks
             session.Required(lockNode, key, label, "ui-sourcelock-invalid", file);
         }
 
-        session.SchemaCheck("ui-source-lock.schema.yaml", lockNode, label, "litespec/frontend/web/ui#track-source-changes", "ui-sourcelock-invalid");
+        session.SchemaCheck("ui-source-lock.schema.yaml", lockNode, label, "litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock", "ui-sourcelock-invalid");
         var cliPackage = platform == "svelte" ? "shadcn-svelte" : "shadcn";
         var expectedCli = JsonRead.Chain(manifest, "packages", "npm", cliPackage);
         var cli = JsonRead.Child(lockNode, "cli");
@@ -102,7 +102,7 @@ sealed class SourceLockChecks
                 var name = dependency is JsonValue dependencyValue && dependencyValue.TryGetValue<string>(out var dependencyName) ? dependencyName : null;
                 if (name is null || !pinnedPackages.Contains(name))
                 {
-                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: dependency '{JsonValues.Text(dependency)}' is not pinned in the LiteSpec manifest", file);
+                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock] {itemLabel}: dependency '{JsonValues.Text(dependency)}' is not pinned in the LiteSpec manifest", file);
                 }
             }
 
@@ -148,7 +148,7 @@ sealed class SourceLockChecks
                 var isBaseline = status is { Node: JsonValue statusValue } && statusValue.TryGetValue<string>(out var statusText) && statusText == "baseline";
                 if (!matches && isBaseline)
                 {
-                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: its source no longer matches the recorded digest; record it as extended or forked", file);
+                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock] {itemLabel}: its source no longer matches the recorded digest; record it as extended or forked", file);
                 }
             }
         }

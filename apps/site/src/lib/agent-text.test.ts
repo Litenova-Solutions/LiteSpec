@@ -1,5 +1,5 @@
 // Tests for the agent-facing text: page descriptions keep the first sentence
-// of the Intent with page links rewritten, the agent protocol region loads
+// of the lead with page links rewritten, the agent protocol region loads
 // from the consumer template and fills every placeholder, the root index
 // embeds the filled block with each placeholder explained, no llms.txt
 // output keeps a relative link, and every selection index leaves out the
@@ -24,15 +24,17 @@ import { SITE_ORIGIN } from "./origin.ts";
 import { pageByFile, selectionKey, selections, version, type Page } from "./spec.ts";
 
 describe("page description", () => {
-  it("keeps only the first sentence of the Intent", () => {
-    const page = pageByFile("docs/core/authoring.md")!;
-    assert.strictEqual(
-      describePage(page),
-      "Every page in LiteSpec shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs.",
-    );
+  it("keeps only the first sentence of the lead", () => {
+    const page = {
+      file: "docs/core/sample.md",
+      title: "Sample",
+      style: "standard",
+      intent: "First sentence states the subject. Second sentence gives detail.",
+    } as Page;
+    assert.strictEqual(describePage(page), "First sentence states the subject.");
   });
 
-  it("cuts a synthetic intent at its first sentence and rewrites its links", () => {
+  it("cuts a synthetic lead at its first sentence and rewrites its links", () => {
     const page = {
       file: "docs/core/sample.md",
       title: "Sample",
@@ -43,25 +45,38 @@ describe("page description", () => {
   });
 
   it("rewrites relative page links to absolute raw URLs", () => {
-    const page = pageByFile("docs/frontend/web/patterns.md")!;
+    const page = {
+      file: "docs/frontend/web/sample.md",
+      title: "Sample",
+      style: "standard",
+      intent: "See [Web UI](ui.md) and the [React Stack](react/stack.md).",
+    } as Page;
     assert.strictEqual(
       describePage(page),
-      `The web mechanism for UI patterns lives in [Web UI](${SITE_ORIGIN}/${version}/frontend/web/ui.md), which states the pattern implementation for the [React Stack](${SITE_ORIGIN}/${version}/frontend/web/react/stack.md) and [Svelte Stack](${SITE_ORIGIN}/${version}/frontend/web/svelte/stack.md) together with the other shared UI rules.`,
+      `See [Web UI](${SITE_ORIGIN}/${version}/frontend/web/ui.md) and the [React Stack](${SITE_ORIGIN}/${version}/frontend/web/react/stack.md).`,
     );
   });
 
   it("leaves external links alone", () => {
-    const page = pageByFile("docs/guide/install-the-cli.md")!;
-    assert.ok(describePage(page).includes("https://github.com/Litenova-Solutions/LiteSpec/releases"));
+    const page = {
+      file: "docs/guide/sample.md",
+      title: "Sample",
+      style: "how-to",
+      intent: "Fetch the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) archives.",
+    } as Page;
+    assert.strictEqual(
+      describePage(page),
+      "Fetch the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) archives.",
+    );
   });
 
   it("falls back for the glossary", () => {
     assert.strictEqual(describePage(pageByFile("docs/reference/glossary.md")!), "One heading per term, in alphabetical order.");
   });
 
-  it("falls back for a page with no intent", () => {
-    const page = pageByFile("docs/intent/decisions/0001-keep-release-reasoning-as-records/0001-keep-release-reasoning-as-records.md")!;
-    assert.strictEqual(describePage(page), `The ${page.title} page of the LiteSpec ${version} release.`);
+  it("falls back for a page with no lead", () => {
+    const page = { title: "Sample", style: "standard", intent: "" } as Page;
+    assert.strictEqual(describePage(page), `The Sample page of the LiteSpec ${version} release.`);
   });
 });
 

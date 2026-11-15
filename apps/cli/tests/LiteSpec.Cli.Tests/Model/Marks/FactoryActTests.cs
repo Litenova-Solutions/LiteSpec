@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class FactoryActTests
 {
     /// <summary>Static Factory Marked With The Use Case Satisfies The Act Check.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void StaticFactoryMarkedWithTheUseCaseSatisfiesTheActCheck()
     {
@@ -20,7 +20,7 @@ public sealed class FactoryActTests
     }
 
     /// <summary>Static Factory Without The Mark Reports Use Case Act Uncalled.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void StaticFactoryWithoutTheMarkReportsUseCaseActUncalled()
     {

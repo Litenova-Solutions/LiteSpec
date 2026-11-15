@@ -1,8 +1,6 @@
 # Add a Stack or an Extension
 
-## Purpose
-
-A LiteSpec maintainer adds a stack or an extension so the release can name it in `litespec.manifest.yaml` and apply its pages. This guide moves the add-a-stack and add-an-extension procedures into the Maintain section. It adds no rule of its own.
+LiteSpec grows in two ways: a new stack carries the rules for a backend or frontend technology, and a new extension carries optional rules a project selects on top of its stacks. Either one joins the release when its pages exist and `litespec.manifest.yaml` names them. It covers the pages, the manifest entry, and the maintainer checks that prove the addition. It is written for a LiteSpec maintainer, and it adds no rule of its own.
 
 ## Prerequisites
 
@@ -14,21 +12,25 @@ Start with:
 
 ## Procedure
 
-### 1. Add a Stack
+### Add a Stack
 
-A stack is added in three steps:
+Add a stack in three steps.
 
-1. Add the stack folder under `docs/backend/` or `docs/frontend/` with a `stack.md` page that states what the stack adds: its rules, its version pins, and its checks.
-2. Add the manifest entry with the stack id and its `folder`, plus `requires` when a project also selects another stack with this one and `pairsWith` when a frontend stack works beside only some backend stacks.
-3. Run `litespec-maintain validate` and fix what it reports: a folder outside the two areas, a missing folder, a missing `stack.md`, an unknown `requires` or `pairsWith` name, and any backend or frontend page no selection reaches.
+First, add the stack folder under `docs/backend/` or `docs/frontend/` with a `stack.md` page. The page states what the stack adds: its rules, its version pins, and its checks.
 
-### 2. Add an Extension
+Second, add the manifest entry with the stack id and its `folder`. Add `requires` when a project also selects another stack with this one, and `pairsWith` when a frontend stack works beside only some backend stacks.
 
-An extension is added in three steps:
+Third, run `litespec-maintain validate` and fix what it reports: a folder outside the two areas, a missing folder, a missing `stack.md`, an unknown `requires` or `pairsWith` name, and any backend or frontend page no selection reaches.
 
-1. Write the extension page at `docs/ext/<id>.md`, or at `<stack folder>/ext/<id>.md` when it supports one stack only. The page uses the extension style with `Activation`, `Baseline Relationship`, and `Dependencies` sections, and the Activation states the scope and the criterion.
-2. Add the manifest entry with the extension id and its `path`, `activationScope`, `applicableKinds` where the extension applies to specific record kinds, `replaces` where it replaces baseline provisions, and `switchesOn` where selecting it requires record types.
-3. Run `litespec-maintain validate` and fix what it reports: a path that does not exist, a path outside the two allowed shapes, a scope the page does not state, kinds the page does not match, a missing criterion, and a replacement id that names no active provision.
+### Add an Extension
+
+Add an extension in three steps.
+
+First, write the extension page at `docs/ext/<id>.md`, or at `<stack folder>/ext/<id>.md` when it supports one stack only. The page uses the extension style with `Activation`, `Baseline Relationship`, and `Dependencies` sections, and the Activation states the scope and the criterion.
+
+Second, add the manifest entry with the extension id and its `path`. Add `activationScope`, `applicableKinds` where the extension applies to specific record kinds, `replaces` where it replaces baseline provisions, and `switchesOn` where selecting it requires record types.
+
+Third, run `litespec-maintain validate` and fix what it reports: a path that does not exist, a path outside the two allowed shapes, a scope the page does not state, kinds the page does not match, a missing criterion, and a replacement id that names no active provision.
 
 ## Check
 

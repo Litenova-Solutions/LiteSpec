@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class OperationsMarkReaderTests
 {
     /// <summary>Follows Marks Are Read With The Comment Style.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void FollowsMarksAreReadWithTheCommentStyle()
     {
@@ -35,7 +35,7 @@ public sealed class OperationsMarkReaderTests
     }
 
     /// <summary>Marks Outside Comments And Other Verbs Are Ignored.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void MarksOutsideCommentsAndOtherVerbsAreIgnored()
     {
@@ -52,7 +52,7 @@ public sealed class OperationsMarkReaderTests
     }
 
     /// <summary>Markdown Files Below An Operations Folder Are Ignored.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void MarkdownFilesBelowAnOperationsFolderAreIgnored()
     {

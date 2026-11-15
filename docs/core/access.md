@@ -3,59 +3,83 @@
 **Stack:** any
 **Concern:** records
 
-## Intent
+Every call into the product raises two questions: who is calling, and whether that caller may do this. Access is how the product answers them. Actors name the parties who act, roles bundle permissions into grants with a stated reach, each use case declares the grant and tenant reach its calls must satisfy, and entry points and external systems state how callers reach the product.
 
-Who may act in the product and how they reach it: actors, roles, permissions, the access each use case declares, entry points, and external systems. Actors and roles live in Intent as product decisions users see; permissions, entry points, and external systems live in Behavior as access design. The [use-cases page](use-cases.md) states the use cases that carry access, and the [model page](model.md) states the shared record rules.
+Actors and roles are product decisions, so they live in Intent where users can see them. Permissions, entry points, and external systems are access design, so they live in Behavior.
+
+The [use cases](use-cases.md) page states the use cases that carry access, and the [project model](model.md) states the shared record rules.
 
 ## Concepts
 
-### The Permission Chain
+### How Actor, Role, and Permission Connect
 
-Access follows one chain from actor to use case: an actor holds a role, the role carries its one scope and allows permissions, and the use case declares the grant it checks. The chain answers every access question in one place: which actor held which role, at which scope the role reaches, which permission the role allowed, and which use case declared it. The chain is role-based access control: permissions attach to roles, never to actors directly, and the role's scope bounds its reach. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
+Access follows one chain from actor to use case. An actor holds a role, the role carries its one scope and allows permissions, and the use case declares the grant it checks. When someone asks why a call was allowed or refused, the chain gives the whole answer: which actor held which role, what reach the role's scope states, which permission the role allowed, and which use case declared it.
+
+This is role-based access control: permissions attach to roles, never to actors directly, and the role's scope bounds how far each permission reaches. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
 
 ### Actors, Roles, and Scopes
 
-An actor is one party that acts in the product. Its kind is person for a human acting directly, or organization for a company or group acting as one party. Software is no actor: an external system stands alone, and internal machinery is never an actor. Each actor states in `belongsToTeam` whether it belongs to the team building and running the product.
+An actor is one party that acts in the product: a person acting directly, or an organization, a company or group acting as one party. The `kind` field says which, so a reviewer knows who answers for what the actor does. Software is never an actor. An outside system is recorded as an external system instead, and internal machinery gets no actor at all. Each actor also states in `belongsToTeam` whether it belongs to the team that builds and runs the product.
 
-A role is one named set of permissions granted together, and it holds the one scope of its grant: a kebab-case level naming the reach, such as platform, tenant, or self. The role is the scope's only home. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation. An actor lists each role it holds in `holds` by identifier. Which tenant or team a person holds a role for is runtime data: a role assignment binds a scope instance as well as the level, the tenant or team the hold reaches, or the person for a self grant. A role reaches the same level wherever an actor holds it. A permission that two roles allow at different levels takes its reach from the role the caller holds.
+A role is one named set of permissions granted together, and it holds the one scope of its grant. The scope is a kebab-case level naming how far the grant reaches, such as `platform`, `tenant`, or `self`, and the role is the only place that reach is stated. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation.
+
+An actor lists each role it holds in `holds`, by role identifier. A hold names only the role: the reach comes from the role's scope, and one actor's hold cannot widen or narrow it. Which tenant or team a person holds a role for is runtime data, not record data. A role assignment binds a scope instance beside the level: the tenant or team the hold reaches, or the person for a `self` grant. A role reaches the same level wherever an actor holds it, so a permission that two roles allow at different levels takes its reach from the role the caller holds.
 
 ### Permissions
 
-A permission is one allowed action. Each module keeps its permissions in `modules/<m>/permissions.yaml`, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from those lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
+A permission is one allowed action, and each module lists its own in `modules/<m>/permissions.yaml`. Each entry states in `meaning`, in one sentence, what it allows. Roles allow permissions from these lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
 
-A permission name opens with a verb from the use-case verb table on the [use-cases page](use-cases.md), a glossary verb of kind command or either, or with `manage`, so the name says what the permission allows. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. A permission that guards a query or use case disclosing personal or financial data carries the `personal-data` or `access` risk, like a permission for a write. A permission allows exactly the use cases whose `access` grant names it: no permission implies another by its name, and `manage-` is a naming convention only. A destructive use case takes its own permission when roles must differ, and that permission carries the use case's risk.
+A permission name opens with a verb that says what the grant does: a verb from the use-case verb table on the [use cases](use-cases.md) page, a glossary verb of kind command or either, or `manage`. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission, and it is the only risk field any record carries: a permission that guards a query or use case disclosing personal or financial data carries the `personal-data` or `access` risk, just like a permission for a write.
 
-### The Access Field
+A permission allows exactly the use cases whose `access` grant names it. No permission implies another by its name, and `manage-` is a naming convention only. When roles must differ on a destructive use case, that use case takes its own permission, and the permission carries the use case's risk.
 
-Each use case declares `access` with three parts: what grant the call checks, which tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignIn`. The entry point the call arrives through declares `auth`: how the caller proves identity. The entry point authenticates and the use case authorizes. The `auth` list on the entry point names one or more of `session`, `token`, `device`, `link`, `app`, or `none`. The `grant` on the use case is a permission such as `permission/manage-copies`, a self grant such as `self(permission/read-loans)`, `signed-in` for an authenticated caller with no permission, `anonymous` for an open call, or `system` for work an internal trigger runs with no outside caller. A self grant allows the permission only on records the caller owns. `recentSignIn` names a `setting/` identifier holding the window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use-cases page](use-cases.md) states the use case fields around access.
+### What the Access Field Declares
 
-### Generic Refusals
+Each use case declares `access` in three parts: the grant the call must satisfy, the tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignIn`. The entry point the call arrives through declares `auth`, how the caller proves identity. The entry point authenticates, and the use case authorizes.
 
-Refusals that follow from access and input need no written result. A call with no authentication where one is needed ends in the derived unauthenticated result, a call without the grant ends in the derived forbidden result, a call whose sign-in is older than the `recentSignIn` window ends in the derived sign-in-too-old result, and a call with input that breaks its rules ends in the derived invalid input result. [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them. A permission allows a call, and the call still meets every rule, so holding a permission never bypasses a rule refusal. This is stated once here, not in each role.
+The `auth` list on an entry point names one or more of `session`, `token`, `device`, `link`, `app`, or `none`. The `grant` on a use case takes one of five forms:
 
-### Tenant Scope and Cross Tenant Access
+- A permission such as `permission/manage-copies`, for role-held action.
+- A self grant such as `self(permission/read-loans)`, which allows the permission only on records the caller owns.
+- `signed-in`, for an authenticated caller with no permission.
+- `anonymous`, for an open call.
+- `system`, for work an internal trigger runs with no outside caller.
 
-`own` keeps the call inside the caller tenant, `public` opens it beyond tenant boundaries, `none` states the call touches no tenant data, and `cross` reaches across tenants. A call that reads or writes another tenant carries the widest reach, and the pull request that changes it is its review.
+The `recentSignIn` field names a `setting/` identifier holding the sign-in window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use cases](use-cases.md) page states the use-case fields around access.
+
+### Refusals That Need No Written Result
+
+Some refusals follow from access and input rules, so they need no written result. A call with no authentication where one is needed ends in the derived unauthenticated result. A call without the grant ends in the derived forbidden result. A call whose sign-in is older than the `recentSignIn` window ends in the derived sign-in-too-old result. A call with input that breaks its rules ends in the derived invalid input result.
+
+[Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them. A permission allows a call, and the call still meets every rule, so holding a permission never bypasses a rule refusal. This is stated once here, not on each role.
+
+### Tenant Reach of a Call
+
+`own` keeps the call inside the caller tenant. `public` opens it beyond tenant boundaries. `none` states the call touches no tenant data. `cross` reaches across tenants. A call that reads or writes another tenant's data names the widest reach it needs, and the pull request that changes it is its review.
 
 ### Entitlements
 
-An entitlement is a grant that depends on what the caller bought or configured, such as a plan limit or a policy setting. The use case cites the setting or plan behind the grant, as [Cite the Setting or Plan Behind Every Entitlement](#cite-the-setting-or-plan-behind-every-entitlement) states, so a reviewer sees why one tenant is allowed what another is refused. The cited setting states its range and setter, as the [use-cases page](use-cases.md) states for settings.
+An entitlement is a grant that depends on what the caller bought or configured, such as a plan limit or a policy setting. One tenant may submit expenses above a receipt threshold while another is refused, and the grant alone would read as unequal treatment. The use case cites the setting or plan behind the grant, as [Cite the Setting or Plan Behind Every Entitlement](#cite-the-setting-or-plan-behind-every-entitlement) states, so a reviewer sees the commercial or configured reason for the difference. The cited setting states its range and setter, as the [use cases](use-cases.md) page states for settings.
 
 ### Hierarchies, Derived Trust, and Delegation
 
-Hierarchies, derived trust, and delegation are patterns built from the same access parts, not extra grant forms. A hierarchy nests roles so a senior role allows what its junior roles allow, derived trust lets one checked fact stand for another within one call, and delegation lets one actor act for another. Each pattern proves its allowed and refused calls with scenarios, as [Prove Hierarchies Derived Trust and Delegation with Scenarios](#prove-hierarchies-derived-trust-and-delegation-with-scenarios) states. Grants that cross tenants through delegation use the tenancy extension, which states the declared grant each side carries.
+Hierarchies, derived trust, and delegation are patterns built from the same access parts, not extra grant forms. A hierarchy nests roles so a senior role allows what its junior roles allow. Derived trust lets one checked fact stand for another within one call. Delegation lets one actor act for another. Each pattern proves its allowed and refused calls with scenarios, as [Prove Hierarchies Derived Trust and Delegation with Scenarios](#prove-hierarchies-derived-trust-and-delegation-with-scenarios) states. Grants that cross tenants through delegation use the tenancy extension, which states the declared grant each side carries.
 
 ### Entry Points
 
-An entry point is how people or systems reach the product from outside. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) states the kinds, and each entry point declares its `auth`. A device caller authenticates with its own auth kind, `device`. A `served-content` entry point carries `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so a static script or a legal text is served content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. The protocol detail for devices lives in the devices extension.
+An entry point is how people or systems reach the product from outside. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) lists the kinds, and each entry point declares its `auth`. A device caller authenticates with its own auth kind, `device`, and the protocol detail for devices lives in the devices extension.
+
+A `served-content` entry point carries `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so a static script or a legal text is served content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive.
 
 ### External Systems
 
-An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It stands alone and names no actor. An integration that calls the product is an external system calling through an API entry point. It declares each operation the product may call in `operations`, with its direction, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there does not run, with the Intent decision that accepts the limit.
+An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It stands alone and names no actor: software is never an actor, so the outside party gets a system record instead. An integration that calls the product is an external system calling through an API entry point.
 
-### Homes and Summaries
+It declares each operation the product may call in `operations`, with its direction, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there does not run, with the Intent decision that accepts the limit.
 
-Each access record lives in one home, and the [model page](model.md) states the shared identifier and ownership rules.
+### Where Access Records Live
+
+Each access record lives in one home. The [project model](model.md) states the shared identifier and ownership rules.
 
 | Type | Stored as | Home |
 |:---|:---|:---|
@@ -65,7 +89,7 @@ Each access record lives in one home, and the [model page](model.md) states the 
 | `entry-point` | page | The Behavior entry points home |
 | `external-system` | page | The external systems home in Behavior, at product or module level |
 
-An actor, role, or external system page carries a `summary` field stating what the record is for. Each module permissions file holds its permission entries, and its explanation file states the risks and boundaries of those entries.
+An actor, role, or external system page carries a `summary` field that states what the record is for. Each module permissions file holds its permission entries, and its explanation file states the risks and boundaries of those entries.
 
 ## Standards
 
@@ -79,9 +103,9 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An access record MUST live in the home its type names.
 
-**Rationale:** One home per type tells a reader where to open a record and tells the book where to render it. A record kept anywhere else looks written while readers open the home and find nothing there.
+**Rationale:** A reader who wants an actor opens the actors home, and the book renders each record from its home too. A record kept anywhere else looks written while everyone opens the home and finds nothing there.
 
-**Reviewed for:** Which access records sit outside the homes their type names? Look at the actor, role, permission, entry point, and external system homes.
+**Reviewed for:** Does every access record sit in the home its type names? Check the actor, role, permission, entry point, and external system homes.
 
 ### Name Every Actor with Its Kind
 
@@ -93,7 +117,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An actor MUST name its kind in `kind`.
 
-**Rationale:** The kind tells a reviewer whether a human or an organization stands behind the actor, which decides who answers for what it does. Without the kind, a reviewer assigns responsibility without knowing who stands behind the actor. Software stands behind no actor.
+**Rationale:** The kind says whether a human or an organization stands behind the actor, and that decides who answers for what the actor does. Without it, a reviewer assigns responsibility without knowing who stands behind the actor. Software stands behind no actor.
 
 **Example:** An employee actor carries `person`, and the library as a lending party carries `organization`.
 
@@ -109,7 +133,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An actor that acts through a role MUST list the role's identifier in `holds`.
 
-**Rationale:** The hold is the grant: without it, the actor and the role sit on separate pages with no stated connection, and no reviewer can tell what the actor is allowed to do. The hold names only the role, because the role holds the scope of its grant, so one actor's hold cannot widen or narrow the reach the role states. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
+**Rationale:** The hold is what connects an actor to its grant. Without it, the actor and the role sit on separate pages with no stated connection, and no reviewer can tell what the actor may do. The hold names only the role, because the role holds the scope of its grant, and one actor's hold cannot widen or narrow the reach the role states. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
 
 **Example:**
 
@@ -129,7 +153,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A role MUST name its one scope in `scope`.
 
-**Rationale:** The role is the only home of a grant's reach. The scope bounds what the role reaches: the same permission allows platform-wide action in one grant and own-record action in another. A scope on each hold or each permission would state the reach again, and three copies of one value drift apart, so the role states it once and every permission reads its reach from the roles that allow it. Without a named scope, every grant reads as product-wide, and the narrowest grant gets the widest reach. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
+**Rationale:** The role is the only home of a grant's reach. The same permission allows platform-wide action in one grant and own-record action in another, so the scope decides what each grant actually reaches. Stating the reach on each hold or each permission as well would keep three copies of one value, and the copies would drift apart, so the role states it once and every permission reads its reach from the roles that allow it. Without a named scope, every grant reads as product-wide, and the narrowest grant gets the widest reach. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
 
 **Example:** A scope of `team` bounds the role to one team, while `platform` bounds it to the whole product.
 
@@ -145,7 +169,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A role MUST name the permissions it allows in `allows`.
 
-**Rationale:** The allows list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link.
+**Rationale:** The `allows` list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
 
 **Example:** `role/employee` allows `permission/request-expense`, which the submit use case cites in its grant.
 
@@ -161,7 +185,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A permission MUST state what it allows in `meaning`.
 
-**Rationale:** The meaning is the one sentence a reviewer reads to decide whether the grant fits the role: a name alone carries no boundary. Two permissions with the same name pattern and no meanings drift into overlapping grants that no audit can separate.
+**Rationale:** The `meaning` is the one sentence a reviewer reads to decide whether the grant fits the role. A name alone carries no boundary: two permissions with the same name pattern and no meanings drift into overlapping grants that no audit can separate.
 
 **Example:** `permission/request-expense` carries "Submit an expense for reimbursement."
 
@@ -177,7 +201,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** Each use case MUST declare its grant and its tenant scope in `access`.
 
-**Rationale:** The two parts answer the access questions together: what grant the call checks and which tenant reach the call has. A use case without one part leaves that question to code, and two implementations of the same page enforce different boundaries. The entry point the call arrives through declares how the caller proved identity.
+**Rationale:** The grant and the tenant scope answer the two access questions together: what check the call passes, and which tenant data it may touch. A use case missing one part leaves that question to code, and two implementations of the same record enforce different boundaries. The entry point the call arrives through declares how the caller proved identity.
 
 **Example:**
 
@@ -197,15 +221,15 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** Each entry point MUST name its auth kinds from session, token, device, link, app, and none.
 
-**Rationale:** The auth kind tells a reviewer how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
+**Rationale:** The auth kind says how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
 
-**Example:** An expense submission names `session`, a self-checkout kiosk names `device`, and a public catalog names `none`.
+**Example:** An expense submission names `session`, a library self-checkout kiosk names `device`, and a public catalog names `none`.
 
 **Checked by:** `litespec model check` reports `field-invalid` for an `auth` kind outside session, token, device, link, app, and none.
 
-### Grant Every Use Case Through a Declared Grant
+### Authorize Every Use Case Through a Declared Grant
 
-**ID:** `litespec/core/access#grant-every-use-case-through-a-declared-grant`
+**ID:** `litespec/core/access#authorize-every-use-case-through-a-declared-grant`
 
 **Strength:** required
 
@@ -213,9 +237,9 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** Each access declaration MUST name its grant as a permission, a self grant, signed-in, anonymous, or system.
 
-**Rationale:** The grant is the check the call passes: a permission for role-held action, a self grant for action on records the caller owns, signed-in for an authenticated caller with no permission, anonymous for open calls, and system for work an internal trigger runs with no outside caller. A call with no authentication where one is needed ends in the derived unauthenticated result. System never authorizes an outside request. A grant outside these five forms gives the checker no stated check to enforce, and each caller invents its own test. Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing) and [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order).
+**Rationale:** The grant is the check the call passes: a permission for role-held action, a self grant for action on records the caller owns, signed-in for an authenticated caller with no permission, anonymous for open calls, and system for work an internal trigger runs with no outside caller. A grant outside these five forms gives the checker no stated check to enforce, so each caller invents its own test. System never authorizes an outside request, and a call with no authentication where one is needed ends in the derived unauthenticated result. Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing) and [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order).
 
-**Example:** `permission/manage-copies` for staff work, `self(permission/read-loans)` for a reader reading their own loans, `signed-in` for a workspace a signed-in person opens with no permission, `anonymous` for a public catalog, and `system` for an archive use case only its retention job runs.
+**Example:** `permission/manage-copies` guards staff work, `self(permission/read-loans)` lets a reader read their own loans, `signed-in` opens a workspace to any signed-in person with no permission, `anonymous` opens a public catalog, and `system` covers an archive use case only its retention job runs.
 
 **Checked by:** `litespec model check` reports `field-invalid` for a grant outside permission, self, signed-in, anonymous, and system, and `reference-unknown` for a permission no record defines.
 
@@ -245,11 +269,11 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A message whose target must be the caller MUST carry no target and act on the caller, or declare a self grant that the authorization guard enforces.
 
-**Rationale:** A target that must equal the caller is a value the caller could forge: each handler would compare it with the verified identity, and each comparison is authorization logic in a handler. Carrying no target leaves nothing to forge, and the call acts on the caller from verified claims. Where the target must stay on the message, a self grant states the scope beside the use case, and the guard enforces it.
+**Rationale:** A target that must equal the caller is a value the caller could forge. Each handler would compare it with the verified identity, and each comparison is authorization logic sitting in a handler. Carrying no target leaves nothing to forge: the call acts on the caller from verified claims. Where the target must stay on the message, a self grant states the scope beside the use case, and the guard enforces it.
 
 **Example:** "My loans" lists the signed-in reader's loans and takes no reader id.
 
-**Reviewed for:** Which use cases with a self grant name a caller-owned target in their inputs without a self declaration the guard enforces, or compare the caller with a target in a handler? Look at the inputs and handlers beside the self grants.
+**Reviewed for:** Which use cases still read a target identifier from their input when the guard allows only the signed-in person? Check their inputs and handlers beside the self grants.
 
 ### Scope Every Grant to Its Tenant Reach
 
@@ -261,7 +285,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** Each access declaration MUST name its tenant scope as own, cross, public, or none.
 
-**Rationale:** The tenant scope bounds which tenant data the call may touch: own stays inside the caller tenant, cross reaches across tenants, public works beyond tenant boundaries, and none touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same, and the widest reach hides in the narrowest grant.
+**Rationale:** The tenant scope bounds which tenant data the call may touch: `own` stays inside the caller tenant, `cross` reaches across tenants, `public` works beyond tenant boundaries, and `none` touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same, and the widest reach hides inside the narrowest grant.
 
 **Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
@@ -281,7 +305,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Example:** A Claimwick approver holds the approver role for one cost center. A call to approve an expense evaluates as the session principal, then the approver assignment whose cost center matches the expense, then the approve-expense permission, then the own tenant scope, then ownership and delegation. An assignment for another cost center does not match, so the call ends in the derived forbidden result.
 
-**Reviewed for:** Which calls allow or refuse outside the one order? Walk an allowed and a refused call through principal, assignments, permission, tenant scope, ownership, and delegation.
+**Reviewed for:** Does every call evaluate principal, assignments, permission, tenant scope, ownership, and delegation in that order? Walk one allowed and one refused call through the steps.
 
 ### Cite the Setting or Plan Behind Every Entitlement
 
@@ -297,7 +321,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Example:** A submit command cites `setting/spending.receipt-threshold`, so an expense above the line with no receipt is refused by the policy setting rather than by role.
 
-**Reviewed for:** Which entitlement grants lack a cited setting or plan? Look at the grant beside the settings each use case cites.
+**Reviewed for:** Does every entitlement grant cite its setting or plan? Check each grant beside the settings its use case cites.
 
 ### Prove Hierarchies Derived Trust and Delegation with Scenarios
 
@@ -309,11 +333,11 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A hierarchy, derived trust, or delegation pattern MUST prove its allowed and refused calls with scenarios.
 
-**Rationale:** Patterns compose the same access parts into wider reach, so prose alone cannot show where the wider grant stops. Scenarios that walk an allowed call and a refused call pin the boundary as checked facts, and the checker confirms each one through the public boundary.
+**Rationale:** These patterns compose the same access parts into wider reach, so prose alone cannot show where the wider grant stops. Scenarios that walk an allowed call and a refused call pin the boundary as checked facts, and the checker confirms each one through the public boundary.
 
 **Example:** A delegation story shows an assistant acting for a manager succeeding, and the same assistant acting without delegation ending in the derived forbidden result.
 
-**Reviewed for:** Which hierarchy, trust, or delegation patterns lack an allowed and a refused scenario? Look at the scenarios on the use cases that carry the pattern.
+**Reviewed for:** Does every hierarchy, trust, or delegation pattern carry an allowed and a refused scenario? Check the scenarios on the use cases that carry the pattern.
 
 ### Record a Delegated Grant Inside One Tenant as a Role Assignment
 
@@ -325,11 +349,11 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A delegated or temporary grant inside one tenant MUST be recorded as a role assignment with a validity window in `validFrom` and `validUntil` and the bound scope instance, held on an aggregate the access model reads and granted and revoked by its own use cases.
 
-**Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the authorization guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The assignment binds the scope instance the deputy reaches, the tenant or team, beside the dates. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant. Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order).
+**Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The assignment binds the scope instance the deputy reaches, the tenant or team, beside the dates. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant. Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order).
 
 **Example:** In Claimwick, a manager delegating team management to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the manager role to the deputy, bound to the manager's team, with `validFrom` of 2026-12-20 and `validUntil` of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The manage use case acting under it still declares `permission/manage-team`.
 
-**Reviewed for:** Which delegated or temporary grants inside one tenant lack a role assignment with `validFrom` and `validUntil` and the bound scope instance on an aggregate the access model reads, or lack their own granting and revoking use cases? Look at the assignments beside the actor holds and the use cases that act under them.
+**Reviewed for:** Does every delegated or temporary grant inside one tenant sit on a role assignment with `validFrom`, `validUntil`, and the bound scope instance, with its own granting and revoking use cases? Check the assignments beside the actor holds and the use cases that act under them.
 
 ### Grant Across Tenants Only Through Declared Delegation
 
@@ -345,7 +369,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Example:** An assistant acts for a manager only where the manager delegation grant and the assistant acting grant both name the pairing.
 
-**Reviewed for:** Which cross tenant delegation grants lack a declared grant on both sides? Look at the delegation grants the tenancy extension declares.
+**Reviewed for:** Does every cross-tenant delegation grant declare its grant on both sides? Check the delegation grants the tenancy extension declares.
 
 ### Describe Every Served Content Entry Point with Its Serving Fields
 
@@ -373,7 +397,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An external system MUST declare how personal data it holds is erased in `erasure`.
 
-**Rationale:** Personal data sent outside stays outside unless some operation or event removes it, so the erasure declaration states the call, the integration event, or why removal does not run. An unsupported, manual or not-applicable erasure cites the Intent decision that accepts the limit, so the gap reads as an accepted decision rather than a missed edge.
+**Rationale:** Personal data sent outside stays outside unless some operation or event removes it. The erasure declaration states the call, the integration event, or why removal does not run. An unsupported, manual, or not-applicable erasure cites the Intent decision that accepts the limit, so the gap reads as an accepted decision rather than a missed edge.
 
 **Example:** A payout archive declares `{"mode": "unsupported", "reason": "settled payouts belong to the bank"}` with the decision that accepts the limit, plus the sentence employees see.
 
@@ -439,7 +463,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Deviation:** A permission name an access editor already lists under another verb.
 
-**Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product, and a project verb carries its kind in its glossary verb term, so a permission opens with a command or either verb from either list. The opening verb is a naming convention only: no permission implies another by its name, and `manage-` grants nothing beyond the use cases that cite the permission. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once), and glossary verbs by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary). Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order) and [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
+**Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes, or removes. The verb table gives each opening word one meaning across the product, and a project verb carries its kind in its glossary verb term, so a permission opens with a command or either verb from either list. The opening verb is a naming convention only: no permission implies another by its name, and `manage-` grants nothing beyond the use cases that cite the permission. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once), and glossary verbs by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary). Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order) and [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
 
 **Example:** `permission/approve-expense` opens with `approve` and `permission/manage-policy` opens with `manage`, so both pass. `permission/submit-expense` opens with the glossary verb `submit` and passes. `permission/handle-documents` opens with a word neither list states, so it is reported.
 
@@ -457,7 +481,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** Each permission is defined once, in its entry: its `meaning` is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so the explanation holds what the entries cannot. A permission that guards a query or use case disclosing personal or financial data carries the `personal-data` or `access` risk, like a permission for a write. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once). Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing).
 
-**Reviewed for:** Which explanation files beside a permissions file restate a permission's meaning, add a grant, or name a future role? Look at the Risk and Boundaries sections beside each permissions file.
+**Reviewed for:** Does the explanation beside each permissions file state only risks and boundaries, without restating a meaning, adding a grant, or naming a future role? Check the Risk and Boundaries sections beside each permissions file.
 
 ## Conventions
 
@@ -475,4 +499,4 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** Three levels cover the grants most products need: product-wide administration, tenant-wide operation, and action on one's own records. A project with different boundaries names its own levels, and every role still carries exactly one scope.
 
-**Reviewed for:** Which role scopes fall outside platform, tenant, and self without a recorded project convention? Look at `scope` on each role page.
+**Reviewed for:** Does every role scope use `platform`, `tenant`, or `self`, or a recorded project convention? Check `scope` on each role page.

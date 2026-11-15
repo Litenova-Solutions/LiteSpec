@@ -1,7 +1,7 @@
 # Export Approved Expenses
 
-Finance runs this flow once for each payout period. Finance collects the expenses that managers approved in the period into one batch, which the payout then reads. The batch holds one row for each approved expense, so the payout pays every approved expense of the period.
+Finance runs this flow once for each payout period, collecting the expenses managers approved in the period into one batch for the payout to read. The batch holds one row for each approved expense, so the payout pays every approved expense of the period.
 
 ## Example
 
-At the end of the week, Cara exports the approved expenses. Two fares were approved this week, including Ava's 48.90 EUR train fare, so the batch holds two rows, and Cara exports it once for the payout.
+At the end of the week, Cara exports the approved expenses. Two fares were approved this week, including Ava's 48.90 EUR train fare, so Cara exports one batch of two rows for the payout.

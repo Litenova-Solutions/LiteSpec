@@ -4,9 +4,7 @@
 
 **Concern:** infrastructure
 
-## Intent
-
-External integrations connect the product to providers it does not control, which can fail, change their responses, or deliver one message twice. This page states how a use case (one command or query the product offers) names the outside behavior it needs, where provider details live, how failures map to project-owned results with stable refusal codes, and how tests simulate the network boundary. A team applies it for each use case that calls a provider, receives a webhook, or imports provider-shaped data, so a provider change touches one folder instead of the whole codebase.
+External integrations connect the product to providers it does not control, which can fail, change their responses, or deliver one message twice. This page states how a use case (one command or query the product offers) names the outside behavior it needs, where provider details live, how failures map to project-owned results with stable refusal codes, and how tests simulate the network boundary. A team applies these rules to each use case that calls a provider, receives a webhook, or imports provider-shaped data, so a provider change touches one folder instead of the whole codebase.
 
 ## Activation
 
@@ -14,13 +12,13 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`, `rule`, `flow`.
 
-The consumer enables `integrations` for each use case that calls an external system, receives an inbound integration event, or uses a provider SDK.
+Enable `integrations` on each use case that calls an external system, receives an inbound integration event, or uses a provider SDK.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision.
+No baseline provision changes under this extension.
 
-This extension switches on no optional record type. Each provider is recorded as an external system, the core record that names its actor, operations, and erasure.
+This extension switches on no optional record type. Each provider is recorded as an external system, which is the core record naming its actor, operations, and erasure.
 
 ## Standards
 
@@ -34,9 +32,9 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An integration MUST record its provider as an external system naming its operations and erasure.
 
-**Rationale:** The external-system record bounds the dependency: its summary names the party behind it, `litespec/core/edges#describe-every-external-system-operation` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
+**Rationale:** The external-system record draws the boundary around the dependency. Its summary names the party behind the provider, `litespec/core/edges#describe-every-external-system-operation` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
 
-**Reviewed for:** Which providers lack an external system page in the Behavior external systems that names operations and erasure? Look at the external system pages.
+**Reviewed for:** Does every provider have an external system page in the Behavior external systems naming its operations and erasure? Check the external system pages.
 
 ### Call Only Declared Operations
 
@@ -48,11 +46,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A `calls` effect MUST name an operation the cited external system declares.
 
-**Rationale:** Each outside call is a declared edge: the effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** The effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache, so each outside call reads as a declared edge. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
 
-**Example:** The payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
+**Example:** The Claimwick payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
-**Reviewed for:** Which calls effects name an operation the cited external system does not declare? Look at each effect beside its external system record.
+**Reviewed for:** Does every `calls` effect name an operation its cited external system declares? Check each effect beside its external system record.
 
 ### Run Provider Calls from Event Handlers or Jobs
 
@@ -66,11 +64,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Deviation:** A project that keeps an inline provider call records a waiver naming the compensation that undoes it.
 
-**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a waiver naming the compensation that undoes it.
+**Rationale:** A command handler changes its aggregate and nothing else, and each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#give-each-handler-its-own-delivery`. A provider failure then retries without rolling back the accepted change. When the command needs the provider result before it can answer, it records the intent first and an event handler calls the provider.
 
-**Example:** The reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
+**Example:** The Claimwick reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
 
-**Reviewed for:** Which provider calls run outside an event handler or a job without a waiver naming their compensation? Look at the provider call sites beside the waiver records.
+**Reviewed for:** Does every provider call run from an event handler or a job, or carry a waiver naming its compensation? Check the provider call sites beside the waiver records.
 
 ### Define Business-Action Ports
 
@@ -82,11 +80,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** Application MUST own a public external-service interface named for its business action.
 
-**Rationale:** The use case needs a behavior, such as sending a payout, not a provider. A public interface named for that business action states the need with no provider in sight. Application then depends on the behavior while providers come and go behind it.
+**Rationale:** What the use case needs is a behavior, such as sending a payout, not a provider. Naming a public interface for that business action states the need with no provider in sight, so Application depends on the behavior while providers come and go behind it.
 
 **Example:** `IPayoutSender` describes the business action without exposing a payout-bank client.
 
-**Reviewed for:** Which Application ports name a provider in their name or signature instead of a business action? Look at each Application port.
+**Reviewed for:** Is every Application port named for its business action, with no provider in its name or signature? Check each Application port.
 
 ### Isolate Provider Implementations
 
@@ -98,15 +96,15 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** Infrastructure MUST own provider clients, SDKs, authentication, and transport models.
 
-**Rationale:** Provider clients, SDKs, authentication, and transport models name provider things in provider terms. Infrastructure owns all of them, outside Application's business boundary. A provider SDK upgrade then touches Infrastructure instead of the use case.
+**Rationale:** Provider clients, SDKs, authentication, and transport models name provider things in provider terms, so they live in Infrastructure, outside the Application business boundary. A provider SDK upgrade then touches Infrastructure instead of the use case.
 
 **Example:** `IPayoutProviderClient` is provider infrastructure rather than an Application port.
 
-**Reviewed for:** Which Application layer code references a provider SDK or transport type? Look at the Application layer folders.
+**Reviewed for:** Does any Application layer code reference a provider SDK or transport type? Check the Application layer folders.
 
-### Bind Client Configuration
+### Configure External Clients Through Validated Options
 
-**ID:** `litespec/ext/integrations#bind-client-configuration`
+**ID:** `litespec/ext/integrations#configure-external-clients-through-validated-options`
 
 **Strength:** required
 
@@ -114,9 +112,9 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An external client MUST bind its base address, credentials, timeout, and policy through validated options.
 
-**Rationale:** Base address, credentials, timeout, and policy decide where the client calls and how it behaves. Binding them through validated options checks each value at startup. A missing or invalid value fails fast instead of misdirecting the first live call.
+**Rationale:** Base address, credentials, timeout, and policy decide where the client calls and how it behaves. Validated options check each value at startup. A missing or invalid value then fails fast instead of misdirecting the first live call.
 
-**Reviewed for:** Which external clients miss bound base address, credentials, timeout, or policy through validated options? Look at the client registrations.
+**Reviewed for:** Does every external client bind its base address, credentials, timeout, and policy through validated options? Check the client registrations.
 
 ### Use Managed HTTP Clients
 
@@ -128,9 +126,9 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An HTTP integration MUST use `HttpClientFactory` and applicable service discovery.
 
-**Rationale:** `HttpClientFactory` centralizes handler lifetime, and service discovery resolves provider addresses in one place. Both keep HTTP construction out of the use case. A hand-built client in each call site would scatter both concerns.
+**Rationale:** `HttpClientFactory` centralizes handler lifetime in one place, and service discovery resolves provider addresses in one place. Together they keep HTTP construction out of the use case, where a hand-built client in each call site would scatter both concerns.
 
-**Reviewed for:** Which HTTP integrations skip `HttpClientFactory` or applicable service discovery? Look at the HTTP registrations.
+**Reviewed for:** Does every HTTP integration use `HttpClientFactory` and applicable service discovery? Check the HTTP registrations.
 
 ### Reject Per-Request HTTP Clients
 
@@ -142,13 +140,13 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An HTTP integration MUST NOT construct a new HTTP client for each request.
 
-**Rationale:** A new HTTP client per request skips the central handler configuration and opens sockets the process never reuses. Under load, the exhausted sockets fail calls that the provider would have served. Managed clients reuse what per-request construction throws away.
+**Rationale:** Each per-request client skips the central handler configuration and opens sockets the process never reuses. Under load, those exhausted sockets fail calls the provider would have served. Managed clients reuse what per-request construction throws away.
 
-**Reviewed for:** Which HTTP integrations construct a new HTTP client per request? Look at the HTTP call sites.
+**Reviewed for:** Does any HTTP integration construct a new HTTP client per request? Check the HTTP call sites.
 
-### Bound Transient Retries
+### Retry Transient Failures with Bounded Attempts
 
-**ID:** `litespec/ext/integrations#bound-transient-retries`
+**ID:** `litespec/ext/integrations#retry-transient-failures-with-bounded-attempts`
 
 **Strength:** required
 
@@ -156,9 +154,9 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An external client MUST retry transient failures with bounded attempts and jitter.
 
-**Rationale:** A provider outage tempts every caller to retry at once, and the synchronized wave hits the provider the moment it recovers. Bounded attempts cap the load and jitter spreads it over time. An unbounded retry turns each caller into a second outage.
+**Rationale:** A provider outage tempts every caller to retry at once, and the synchronized wave hits the provider the moment it recovers. Bounded attempts cap that load, and jitter spreads it over time. An unbounded retry turns each caller into a second outage.
 
-**Reviewed for:** Which external clients retry transient failures without bounded attempts and jitter? Look at the retry policies.
+**Reviewed for:** Which external clients retry without a cap on attempts or without jitter? Check each client's retry policy.
 
 ### Protect Non-Idempotent Calls
 
@@ -172,7 +170,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
 
-**Reviewed for:** Which non-idempotent provider calls retry without provider idempotency and documented replay behavior? Look at the retry paths.
+**Reviewed for:** Does every retried non-idempotent provider call rest on provider idempotency and documented replay behavior? Check the retry paths.
 
 ### Translate Provider Failure Outcomes
 
@@ -184,17 +182,17 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An integration MUST map each provider error to a rejected, accepted, or unknown outcome with its project-owned result and stable diagnostics, and name the handling of the unknown case in `onUnknown`.
 
-**Rationale:** Each provider reports failure in its own codes and shapes. Mapping them to project-owned results with stable diagnostics keeps the project's failure contract steady while providers change theirs. A rejected outcome names the provider's refusal, an accepted outcome names what the provider took, and an unknown outcome names a call whose effect stayed uncertain, such as a timeout. The unknown case names its handling in `onUnknown`: `dedupe-key` reuses the provider deduplication key on retry, `reconcile` settles the effect out of band, and `retry-safe` repeats a call the receiver tolerates twice.
+**Rationale:** Each provider reports failure in its own codes and shapes. Mapping them to project-owned results with stable diagnostics keeps the project failure contract steady while providers change theirs. A rejected outcome names the provider refusal, an accepted outcome names what the provider took, and an unknown outcome names a call whose effect stayed uncertain, such as a timeout. The unknown case names its handling in `onUnknown`: `dedupe-key` reuses the provider deduplication key on retry, `reconcile` settles the effect out of band, and `retry-safe` repeats a call the receiver tolerates twice.
 
-The project's own error catalog holds the stable codes. `litespec/backend/api#return-stable-problem-details` returns a code from that catalog. An integration that invents one code per provider creates one code space per provider. A client that branches on failure learns every code space. A provider's own error taxonomy is the input to the mapping, not its output.
+The stable codes live in the project error catalog, and `litespec/backend/api#return-stable-problem-details` returns a code from that catalog. An integration that invents one code per provider creates one code space per provider, and a client that branches on failure then learns every code space. The provider error taxonomy feeds the mapping; it is not the mapping's output.
 
-**Example:** A rejected payout file and an unsettled batch both map to the project's `payout-refused` code. The provider's own code travels in diagnostics. A payout call that times out maps to unknown with `onUnknown: dedupe-key`, so the retry reuses the provider key instead of paying twice.
+**Example:** A rejected Claimwick payout file and an unsettled batch both map to the project `payout-refused` code, while the provider's own code travels in diagnostics. A payout call that times out maps to unknown with `onUnknown: dedupe-key`, so the retry reuses the provider key instead of paying twice.
 
-**Reviewed for:** Which provider errors miss their rejected, accepted, or unknown outcome with project-owned results and stable diagnostics, and which unknown cases name no `onUnknown` handling? Look at the integration failure mappings.
+**Reviewed for:** Does every provider error map to a rejected, accepted, or unknown outcome with a project-owned result and stable diagnostics, and does every unknown case name its `onUnknown` handling? Check the integration failure mappings.
 
-### Exclude Provider Internals
+### Keep Provider Internals from API Responses
 
-**ID:** `litespec/ext/integrations#exclude-provider-internals`
+**ID:** `litespec/ext/integrations#keep-provider-internals-from-api-responses`
 
 **Strength:** required
 
@@ -202,13 +200,13 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Statement:** An API MUST NOT expose provider bodies, credentials, headers, exception types, or internal account identifiers.
 
-**Rationale:** Provider bodies, headers, exception types, and account identifiers carry secrets, implementation details, and sometimes another account's data. An API that returns them leaks all three to its callers. The mapped project-owned outcome carries the meaning without the internals.
+**Rationale:** Secrets, implementation details, and sometimes another account's data travel in provider bodies, headers, exception types, and account identifiers. An API that returns them leaks all three to its callers. The mapped project-owned outcome carries the meaning without the internals.
 
-**Reviewed for:** Which API responses expose provider bodies, credentials, headers, exception types, or internal account identifiers? Look at the API responses.
+**Reviewed for:** Does any API response expose provider bodies, credentials, headers, exception types, or internal account identifiers? Check the API responses.
 
-### Trust Inbound Integration Events by Declared Trust
+### Declare Trust for Inbound Integration Events
 
-**ID:** `litespec/ext/integrations#trust-inbound-integration-events-by-declared-trust`
+**ID:** `litespec/ext/integrations#declare-trust-for-inbound-integration-events`
 
 **Strength:** required
 
@@ -216,9 +214,9 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Statement:** An inbound integration event MUST declare `trust` as trigger-only or payload with its correlation.
 
-**Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states how each inbound fact arrives: the record names in `arrivesThrough` the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in `through` the external system it travels through.
+**Rationale:** An inbound fact carries one of two trusts: trigger-only wakes a read of the source, while payload is fit to act on. The `trust` declaration states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states how each inbound fact arrives: the record names in `arrivesThrough` the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in `through` the external system it travels through.
 
-**Reviewed for:** Which inbound integration events declare neither trigger-only nor payload trust, with their correlation? Look at each inbound integration event record.
+**Reviewed for:** Does every inbound integration event declare trigger-only or payload trust with its correlation? Check each inbound integration event record.
 
 ### Verify Inbound Provider Messages
 
@@ -230,13 +228,13 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Statement:** An inbound provider handler MUST verify signature, timestamp tolerance, replay protection, content type, size, schema, and event identity before processing on a webhook arrival, and event identity, schema, size, and replay protection on a subscribed broker or stream arrival.
 
-**Rationale:** An inbound message arrives from the network, where anyone can send bytes. Signature, timestamp tolerance, replay protection, content type, size, schema, and event identity each guard a different part of that trust boundary. Skipping any one leaves its attack open. A subscribed broker or stream arrival authenticates at the subscription, so each message carries no per-message signature: the handler verifies event identity, schema, size, and replay protection on each message.
+**Rationale:** An inbound message arrives from the network, where anyone can send bytes. Signature, timestamp tolerance, replay protection, content type, size, schema, and event identity each guard a different part of that trust boundary, and skipping any one leaves its attack open. A subscribed broker or stream arrival authenticates at the subscription, so each message carries no per-message signature, and the handler verifies event identity, schema, size, and replay protection on each message.
 
-Order matters on a webhook arrival. Verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is not the bytes that the signature covered.
+Order matters on a webhook arrival: verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is not the bytes the signature covered.
 
 **Example:** A failed signature returns `401` with no body. A message that names the failed check tells an unauthenticated caller how to pass it.
 
-**Reviewed for:** Which webhook inbound handlers skip a check their arrival requires, and which subscription inbound handlers skip event identity, schema, size, or replay protection? Look at the inbound handlers.
+**Reviewed for:** Does every webhook inbound handler run the checks its arrival requires, and does every subscription inbound handler verify event identity, schema, size, and replay protection? Check the inbound handlers.
 
 ### Process Duplicate Messages Safely
 
@@ -248,9 +246,9 @@ Order matters on a webhook arrival. Verify the signature first, over the raw bod
 
 **Statement:** An inbound provider handler MUST store or process duplicate events idempotently.
 
-**Rationale:** A provider repeats delivery after a timeout or an acknowledgement failure, so the same event arrives twice. Storing or processing duplicates idempotently leaves one accepted effect. A handler without that protection pays, ships, or notifies twice.
+**Rationale:** After a timeout or an acknowledgement failure, the provider repeats delivery and the same event arrives twice. Idempotent storage or processing leaves one accepted effect. A handler without that protection pays, ships, or notifies twice.
 
-**Reviewed for:** Which inbound provider handlers leave more than one accepted effect for a duplicate event? Look at the duplicate-delivery paths.
+**Reviewed for:** Does every inbound provider handler leave exactly one accepted effect for a duplicate event? Check the duplicate-delivery paths.
 
 ### Reject Formula-Leading Import Values
 
@@ -262,11 +260,11 @@ Order matters on a webhook arrival. Verify the signature first, over the raw bod
 
 **Statement:** A CSV or spreadsheet import MUST reject or neutralize a value that begins with a formula-leading character.
 
-**Rationale:** The formula-leading characters are the equals sign, the plus sign, the minus sign, the at sign, the tab, and the carriage return. Escaping when you export protects the user of that export. It does not protect the reader of the next export. A different report can re-export an unchanged imported value without escaping it. [CSV injection](https://owasp.org/www-community/attacks/CSV_Injection) travels through the store, so the boundary that admits the value is where it stops.
+**Rationale:** The formula-leading characters are the equals sign, the plus sign, the minus sign, the at sign, the tab, and the carriage return. Escaping on export protects the user of that export, but not the reader of the next one: a different report can re-export an unchanged imported value without escaping it. [CSV injection](https://owasp.org/www-community/attacks/CSV_Injection) travels through the store, so the boundary that admits the value is where it stops.
 
 **Example:** An import that rejects the value reports the row and the field. An import that neutralizes it records what it changed. A silently altered value is a data defect nobody can trace.
 
-**Reviewed for:** Which CSV or spreadsheet imports keep a formula-leading value without rejection or neutralization? Look at the import boundaries.
+**Reviewed for:** Does every CSV or spreadsheet import reject or neutralize each formula-leading value? Check the import boundaries.
 
 ### Simulate Integration Boundaries
 
@@ -278,9 +276,9 @@ Order matters on a webhook arrival. Verify the signature first, over the raw bod
 
 **Statement:** An integration test MUST use WireMock.Net or a protocol-specific local endpoint.
 
-**Rationale:** A live provider account makes tests slow, flaky, and expensive, and some failure modes never occur on demand. WireMock.Net or a protocol-specific local endpoint simulates the network contract under test control. The suite then covers provider behavior without calling the provider.
+**Rationale:** A live provider account makes tests slow, flaky, and expensive, and some failure modes never occur on demand. WireMock.Net or a protocol-specific local endpoint simulates the network contract under test control, so the suite covers provider behavior without calling the provider.
 
-**Reviewed for:** Which integration tests call a live provider instead of WireMock.Net or a protocol-specific local endpoint? Look at the integration test suite.
+**Reviewed for:** Does every integration test run against WireMock.Net or a protocol-specific local endpoint instead of a live provider? Check the integration test suite.
 
 ### Cover Provider Failure Modes
 
@@ -292,11 +290,11 @@ Order matters on a webhook arrival. Verify the signature first, over the raw bod
 
 **Statement:** An integration test MUST cover timeout, connection failure, transient response, permanent response, malformed payload, rate limit, duplicate delivery, and unexpected response shape.
 
-**Rationale:** Timeout, connection failure, transient and permanent responses, malformed payloads, rate limits, duplicate delivery, and unexpected shapes each exercise a different path through retry, mapping, and idempotency. A mode without a test leaves its path unverified. The suite covers all eight so each path proves itself. The timeout mode exercises the unknown outcome: the test shows which `onUnknown` handling the retry follows.
+**Rationale:** Timeout, connection failure, transient and permanent responses, malformed payloads, rate limits, duplicate delivery, and unexpected shapes each exercise a different path through retry, mapping, and idempotency. A mode without a test leaves its path unverified, so the suite covers all eight and each path proves itself. The timeout mode exercises the unknown outcome: the test shows which `onUnknown` handling the retry follows.
 
-An unexpected response shape is the mode a provider produces without failing. A well-formed response can carry a field that moved, a type that changed, or a value no one planned for. The response parses. The behavior is still wrong. Every other listed mode reports that response as an error. A provider that versions its API changes shape on a schedule. A pinned version still changes on the day the provider raises it.
+An unexpected response shape is the mode a provider produces without failing. A well-formed response can carry a field that moved, a type that changed, or a value no one planned for. The response parses, but the behavior is still wrong, while every other listed mode reports that response as an error. A provider that versions its API changes shape on a schedule, and a pinned version still changes on the day the provider raises it.
 
-**Reviewed for:** Which declared failure modes lack a test: timeout, connection failure, transient response, permanent response, malformed payload, rate limit, duplicate delivery, or unexpected response shape? Look at the integration test suite.
+**Reviewed for:** Does the suite test every declared failure mode: timeout, connection failure, transient response, permanent response, malformed payload, rate limit, duplicate delivery, and unexpected response shape? Check the integration test suite.
 
 ## Conventions
 
@@ -312,9 +310,9 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Replacement:** A project names another root for provider code in its documentation.
 
-**Rationale:** Each provider's transport code lives under `Infrastructure/Integrations/{Provider}/`. One folder per provider keeps provider code inside one Infrastructure boundary. A reader finds everything about a provider in one place.
+**Rationale:** One folder per provider keeps provider code inside one Infrastructure boundary under `Infrastructure/Integrations/{Provider}/`. A reader finds everything about a provider in one place.
 
-**Reviewed for:** Which provider code sits outside `Infrastructure/Integrations/{Provider}/`, with no other root named in the project documentation? Look at the Infrastructure tree.
+**Reviewed for:** Does every provider's code sit under `Infrastructure/Integrations/{Provider}/`, or under another root the project documentation names? Check the Infrastructure tree.
 
 ### Keep Provider Components Together
 
@@ -328,9 +326,9 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Replacement:** A project names another grouping for provider components in its documentation.
 
-**Rationale:** Options, client, transport models, mappings, and the registration module change together when the provider changes. Keeping them in the provider folder keeps each change in one place. A registration module stored elsewhere is the file every provider change forgets.
+**Rationale:** When the provider changes, its options, client, transport models, mappings, and registration module change together. Keeping them in the provider folder keeps each change in one place, while a registration module stored elsewhere is the file every provider change forgets.
 
-**Reviewed for:** Which provider folders lack their options, client, models, mappings, or registration, with no other grouping named in the project documentation? Look at each provider folder.
+**Reviewed for:** Does every provider folder hold its options, client, models, mappings, and registration, or follow another grouping the project documentation names? Check each provider folder.
 
 ### Keep Ports Near Use Cases
 
@@ -344,14 +342,14 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Replacement:** A project keeps business-action ports in one shared ports folder.
 
-**Rationale:** A business-action port exists because its use case needs that behavior. Keeping the port with its Application use cases states the need next to the needer. A ports folder far from the use cases hides which behavior each port serves.
+**Rationale:** A business-action port exists because its use case needs that behavior. Keeping the port with its Application use cases states the need next to the needer, while a ports folder far from the use cases hides which behavior each port serves.
 
-**Reviewed for:** Which business-action ports sit apart from their Application use cases, with no shared port folder the project keeps? Look at the Application folders.
+**Reviewed for:** Does every business-action port sit with its Application use cases, or in the shared port folder the project keeps? Check the Application folders.
 
 ## Dependencies
 
 Packages: `Microsoft.Extensions.Http.Resilience`, `WireMock.Net` in integration tests.
 
-Related extensions: `outbox`.
+Related extensions: `outbox`, which delivers each event to each handler separately.
 
-Guides: `None.`
+Guides: None.

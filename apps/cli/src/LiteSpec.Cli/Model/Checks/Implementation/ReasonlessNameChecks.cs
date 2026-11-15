@@ -5,7 +5,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The reasonless-name check: no folder or type is named for the absence of a reason, such as Common, Shared or Helpers.</summary>
-/// <follows>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</follows>
+/// <follows>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</follows>
 internal static class ReasonlessNameChecks
 {
     /// <summary>Folder and type names that name the absence of a reason.</summary>

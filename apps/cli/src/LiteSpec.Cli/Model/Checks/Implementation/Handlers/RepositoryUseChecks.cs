@@ -3,8 +3,8 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
 /// <summary>The repository-use checks: no collaborator holds a repository, no repository is read inside a loop, a collection query filters in the store, and every aggregate repository is implemented.</summary>
-/// <follows>litespec/backend/application#read-no-repository-inside-a-loop</follows>
-/// <follows>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</follows>
+/// <follows>litespec/backend/application#keep-repository-reads-out-of-loops</follows>
+/// <follows>litespec/backend/persistence#page-and-filter-collection-queries-in-the-store</follows>
 /// <follows>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</follows>
 internal static class RepositoryUseChecks
 {

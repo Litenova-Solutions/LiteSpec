@@ -12,10 +12,10 @@ Today finance checks each contractor line against a receipt sent by email. The o
 
 No decision cites this vision yet.
 
-A later choice that would close it, such as tying every expense to an employee number, names this vision in its `basedOn` field when it is made. That keeps the record of who submitted an expense open to a person who is not an employee.
+A later choice that would close it off, such as tying every expense to an employee number, names this vision in its `basedOn` field when it is made. That keeps the record of who submitted an expense open to a person who is not an employee.
 
 ## Trigger
 
-This vision becomes a problem and a feature when one of two events happens. Finance reports how many contractor costs it reconciles by hand each month, or a contractor asks to submit receipts the way employees do.
+This vision turns into a problem and a feature when finance reports how many contractor costs it reconciles by hand each month, or when a contractor asks to submit receipts the way employees do.
 
 Either event gives a problem record its evidence, and requirements can then cite this vision. The records hold no such count or request yet.

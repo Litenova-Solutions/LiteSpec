@@ -1,22 +1,20 @@
 # Write Code for a Use Case
 
-## Purpose
-
 A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. This guide places each code element of a use case in its folder and gives it the mark its record needs, so a writer adds a use case without hunting six pages.
 
 ## Prerequisites
 
 Start with:
 
-- The use case record and the records it names, so each element has a record to point at.
-- The [marks table](../core/model.md#marks), which owns which mark each element carries.
-- The stack pages for the written form each mark takes in the project's language.
+- The use case record with the records it names, so every element points at a record that exists.
+- The [marks table](../core/model.md#marks), which owns the mark each element carries.
+- The stack pages for your language, which state the written form each mark takes.
 
 ## Procedure
 
-### Place Each Element
+### Place Each Element in Its Folder
 
-A use case folder holds an `Application/` folder, and a `WebApi/` folder when the use case has an endpoint. Each file of the use case sits in one of the two. Create each element in the folder the table names and carry the mark the table names. A row with no mark is placed by its folder. A row whose check names a review is read by a reviewer; every other check is a finding the [model command](../tools/model.md) reports.
+A use case folder holds an `Application/` folder, and a `WebApi/` folder when the use case has an endpoint. Put each file of the use case in one of the two, in the folder the table names, with the mark the table names. A row with no mark is placed by its folder alone.
 
 | Element | Goes In | Mark | Checked By |
 |:---|:---|:---|:---|
@@ -39,13 +37,18 @@ A use case folder holds an `Application/` folder, and a `WebApi/` folder when th
 | Read-model reader or projection | The module `ReadModels/<ReadModelPlural>/` folder | `implements` naming `read-model/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Test | The test suite for its boundary, mirroring the module tree | `proves` naming `scenario/<use-case>.<name>` | See the [finding table](../tools/model.md) |
 
-Screens stay outside this table: whether a browser reaches a use case depends on the deployment.
+The table lists no screens: whether a browser reaches a use case depends on the deployment, not on the code layout.
 
-Two code checks hold the marks to their records. Each reaction handler subscribes only to the events its reaction names in `triggeredBy`: a handler subscribed to another event reports `reaction-subscription-drift`, and a declared trigger no handler answers reports `reaction-trigger-unhandled`. This satisfies `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`. Each refusal code is thrown only from its own module and by one exception type, so two rules a boundary maps to one response keep two codes. This satisfies `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`.
+A row whose check names a review is read by a reviewer. Every other check is a finding that the [model command](../tools/model.md) reports.
+
+Two code checks hold the marks to their records:
+
+- A reaction handler subscribes only to the events its reaction names in `triggeredBy`. A handler subscribed to another event reports `reaction-subscription-drift`, and a declared trigger no handler answers reports `reaction-trigger-unhandled`. This satisfies `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`.
+- Each refusal code is thrown only from its own module and by one exception type, so two rules that a boundary maps to one response still keep two codes. This satisfies `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`.
 
 ### Point Each Mark at Its Record
 
-Write every `implements` or `proves` mark with the identifier the table names. The [Project Model](../core/model.md) states the mark rules, and [System](../core/system.md) requires each mark. Each stack page states the written form its language takes.
+Write every `implements` or `proves` mark with the identifier the table names. The [Project Model](../core/model.md) states the mark rules, [System](../core/system.md) requires each mark, and each stack page states the written form its language takes.
 
 ## Check
 

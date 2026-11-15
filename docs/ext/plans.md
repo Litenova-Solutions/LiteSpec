@@ -4,9 +4,11 @@
 
 **Concern:** application
 
-## Intent
+A product that gates behavior and amounts by tier records each plan's entitlements in one place: the behavior the plan unlocks and the amounts it allows.
 
-A product that gates behavior and amounts by tier records each plan's entitlements in one place: the behavior the plan unlocks and the amounts it allows. This page states how the product records its plans, how behavior and amounts resolve to what the acting plan entitles, and how the product answers a run past its plan. A project selects it when tiers change what the software allows, so a plan change moves one record instead of scattered checks.
+This page states how the product records its plans, how behavior and amounts resolve to what the acting plan entitles, and how the product answers a run past its plan.
+
+A project selects it when tiers change what the software allows, so a plan change moves one record instead of scattered checks.
 
 ## Activation
 
@@ -14,13 +16,13 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `plans` when tiers gate behavior or amounts in the software, within one offering or across several. An offering with no gated behavior or amount does not select it: without gated tiers there is nothing to entitle.
+A project selects `plans` when tiers gate behavior or amounts in the software, within one offering or across several. An offering with no gated behavior or amount leaves it unselected: without gated tiers there is nothing to entitle.
 
 ## Baseline Relationship
 
 This extension replaces no baseline provision. It sits beside the [multitenancy extension](tenancy.md): tenancy isolates each tenant's data, while plans state what each tenant's tier allows.
 
-It switches on no record type: plans live as policy requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, which the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
+It switches on no record type. Plans live as policy requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, as the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
 
 ## Standards
 
@@ -36,9 +38,9 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** A plan named in two places disagrees the day one updates without the other: one record promises what the gate refuses. One record per plan holds the name and the entitlements, so a plan change is one edit in one place.
 
-**Example:** The team tier names the export use case and the row cap it unlocks.
+**Example:** The team plan's record names the export use case it unlocks and the row cap it allows.
 
-**Reviewed for:** Which plans lack a record with their entitlements, or share a record with another plan? Look at the requirement pages under `.litespec/intent/`.
+**Reviewed for:** Does every plan have its own record with its entitlements? Read the requirement pages under `.litespec/intent/`.
 
 ### Gate Behavior Through Permissions
 
@@ -50,9 +52,9 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Statement:** A gated use case MUST declare a permission that only an entitled plan grants.
 
-**Rationale:** The permission chain already joins actors to use cases: the actor holds a role, the role allows a permission, and the use case declares it in its grant, as the [access page](../core/access.md) states. A plan grants its permissions through that chain, so entitlement is a grant like any other instead of a second access system beside the first.
+**Rationale:** The permission chain already joins actors to use cases: the actor holds a role, the role allows a permission, and the use case declares it in its grant, as the [access page](../core/access.md) states. A plan grants its permissions through that chain, so entitlement is a grant like any other, not a second access system beside the first.
 
-**Reviewed for:** Which gated use cases declare no permission in their grant, or one that a plan without the entitlement grants? Look at each gated use case's grant.
+**Reviewed for:** Does every gated use case declare a permission in its grant that only an entitled plan grants? Read each gated use case's grant.
 
 ### Bound Plan Amounts in Settings
 
@@ -64,11 +66,11 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Statement:** Each amount a plan allows MUST live as a setting the gated use case cites.
 
-**Rationale:** An allowance buried in code changes only with a release, and each plan's number hides in a different branch. A setting states the range, the setter, and the bound behavior, and the gated use case cites it, so raising a tier edits the setting instead of the code. `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement` requires the citation, and `litespec/core/use-cases#hold-every-setting-default-to-a-requirement` holds a commercial default to its requirement.
+**Rationale:** An allowance buried in code changes only with a release, with each plan's number hiding in a different branch. A setting states the range, the setter, and the bound behavior, and the gated use case cites it, so raising a tier edits the setting instead of the code. `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement` requires the citation, and `litespec/core/use-cases#tie-every-setting-default-to-a-requirement` holds a commercial default to its requirement.
 
 **Example:** The export-row cap lives as `setting/spending.max-export-rows` with an operator-set value, and the export command cites it.
 
-**Reviewed for:** Which plan allowances live outside a setting the gated use case cites? Look at the gated use cases beside their settings.
+**Reviewed for:** Does every plan allowance live in a setting the gated use case cites? Read the gated use cases beside their settings.
 
 ### Refuse Runs Beyond Entitlement
 
@@ -80,9 +82,9 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Statement:** A use case run past its plan MUST end in the refusal result the use case names for that run.
 
-**Rationale:** A run past its plan is a refusal like any other: it ends in the named refusal result with its stable code, as the [behavior page](../core/behavior.md) states, so callers branch on one code instead of guessing from an error page. The code stays stable while prices and allowances move.
+**Rationale:** A run past its plan is a refusal like any other: it ends in the named refusal result with its stable code, as the [behavior page](../core/behavior.md) states. Callers branch on one code instead of guessing from an error page, and the code stays stable while prices and allowances move.
 
-**Reviewed for:** Which runs past their plan end outside the named refusal result? Look at the use case tests for plan limits.
+**Reviewed for:** Does every run past its plan end in the named refusal result? Read the use case tests for plan limits.
 
 ### Resolve the Acting Plan from Trusted Context
 
@@ -96,7 +98,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** The plan decides what runs, so only verified subscription state resolves it: a plan the caller supplies itself is a choice, not a fact. The [multitenancy extension](tenancy.md) treats tenant identity the same way.
 
-**Reviewed for:** Which acting plans resolve from caller input instead of verified subscription state? Look at the plan resolution code.
+**Reviewed for:** Does every acting plan resolve from verified subscription state rather than caller input? Read the plan resolution code.
 
 ### Hide Unentitled Actions on Screens
 
@@ -108,9 +110,9 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Statement:** A screen MUST NOT offer an action the acting plan does not entitle.
 
-**Rationale:** The server refuses what the plan does not entitle, and the screen reflects that refusal before the call: a button for an unentitled action invites a failure the product already decided. Hiding or disabling the action shows each plan only what it may run.
+**Rationale:** The server refuses what the plan does not entitle, and the screen reflects that refusal before the call. A button for an unentitled action invites a failure the product already decided. Hiding or disabling the action shows each plan only what it may run.
 
-**Reviewed for:** Which screens show an action the acting plan does not entitle? Look at each screen's actions.
+**Reviewed for:** Does any screen offer an action the acting plan does not entitle? Read each screen's actions.
 
 ## Conventions
 
@@ -128,7 +130,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** Authorization already runs in the pipeline with the actor and the target in hand. Resolving the plan there gives every use case the same answer from the same verified state, instead of each handler querying subscriptions its own way.
 
-**Reviewed for:** Which use cases find the acting plan outside the authorization pipeline, with no plan-resolution convention naming where? Look at the authorization pipeline and that convention.
+**Reviewed for:** Does every use case find the acting plan in the authorization pipeline, or does a plan-resolution convention name where? Read the authorization pipeline and that convention.
 
 ## Dependencies
 

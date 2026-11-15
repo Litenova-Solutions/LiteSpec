@@ -35,9 +35,9 @@ An entry point leads from outside only. The kinds are `browser`, `api`, `webhook
 
 The provision `litespec/core/domain-model#declare-the-kind-of-every-aggregate` carries the entity and store kinds, and no coordination kind exists. The provision `litespec/core/edges#give-each-entry-point-a-kind` carries the kinds only.
 
-The provision `litespec/core/use-cases#state-the-consistency-of-every-use-case` carries the 2 consistency modes. An atomic write across aggregates cites its bound rule. A reaction that undoes a committed step names the step in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states.
+The provision `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` carries the 2 consistency modes. An atomic write across aggregates cites its bound rule. A reaction that undoes a committed step names the step in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states.
 
-The provision `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the entry point. The provision `litespec/core/access#grant-every-use-case-through-a-declared-grant` keeps the grant on the use case. Four provisions in the automation page carry the reaction trigger, the job kind and the two name forms.
+The provision `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the entry point. The provision `litespec/core/access#authorize-every-use-case-through-a-declared-grant` keeps the grant on the use case. Four provisions in the automation page carry the reaction trigger, the job kind and the two name forms.
 
 ## Evidence
 

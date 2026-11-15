@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2017: the declared LiteSpecLayer names no known layer.</summary>
-/// <follows>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</follows>
+/// <follows>litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LayerNameAnalyzer : DiagnosticAnalyzer
 {

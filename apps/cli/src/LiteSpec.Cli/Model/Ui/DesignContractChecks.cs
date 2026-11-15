@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     package publishes, against its schema and its required sections.
 /// </summary>
 /// <follows>litespec/frontend/ui#publish-a-design-contract</follows>
-/// <follows>litespec/frontend/ui#declare-a-closed-floorplan-set</follows>
+/// <follows>litespec/frontend/ui#map-each-page-frame-to-its-floorplan</follows>
 sealed class DesignContractChecks
 {
     /// <summary>The state of the run.</summary>
@@ -43,7 +43,7 @@ sealed class DesignContractChecks
     // workspace rather than once per application. A floorplan it names outside the
     // closed set is a design decision, not a route-level choice.
     // (litespec/frontend/ui#publish-a-design-contract,
-    // litespec/frontend/ui#declare-a-closed-floorplan-set)
+    // litespec/frontend/ui#map-each-page-frame-to-its-floorplan)
     /// <summary>
     ///     Validates the design contract the shared package publishes.
     /// </summary>

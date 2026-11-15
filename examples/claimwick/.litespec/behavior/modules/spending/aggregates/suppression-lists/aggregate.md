@@ -1,6 +1,6 @@
 # Suppression List
 
-The suppression list names the managers who get no approval reminder. The reminder reaction reads it before it sends, so a manager on the list never gets a reminder for a waiting expense. It matters because reminders to managers who asked for none would train every manager to ignore them.
+The suppression list names the managers who get no approval reminder. The reminder reaction reads it before it sends, so a manager on the list never gets a reminder for a waiting expense. Sending reminders to managers who asked for none would train every manager to ignore them.
 
 ## Lifecycle
 
@@ -12,4 +12,4 @@ Each row holds the manager, the time the manager was added, and the reason. The 
 
 ## Example
 
-Ben asks for no approval reminders while he covers two teams. His row joins the list with the date and the reason. When Ava's fare waits past the reminder delay, the reaction finds Ben on the list and sends nothing. When Ben asks for reminders again, his row leaves, and the next waiting expense earns its reminder.
+Ben asks for no approval reminders while he covers two teams, and his row joins the list with the date and the reason. When Ava's fare waits past the reminder delay, the reaction finds Ben on the list and sends nothing. When Ben asks for reminders again, his row leaves, and the next waiting expense earns its reminder.

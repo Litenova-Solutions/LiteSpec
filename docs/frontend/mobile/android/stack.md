@@ -4,47 +4,43 @@
 
 **Concern:** frontend-ui
 
-## Intent
+The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, `client-only` or `server`, declared in [Supported Scope](../../../core/scope.md).
 
-The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, `client-only` or `server`, declared in [Supported Scope](../../../core/scope.md). This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.
+The stack is one native Android application: a .NET for Android project holding the screens, the navigation controller, and the device code, built against plain Android views. It publishes an AAB through the .NET toolchain, which builds, tests, and publishes the whole mobile solution.
+
+The shared mobile pages in the [Mobile overview](../README.md) state the rules every mobile stack follows, and the [Technology Stacks](../../../core/stacks.md) page states the rules every stack shares. This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.
 
 ## Concepts
 
-### What the Stack Holds
+### How the Solution Is Organized
 
-The stack is one native Android application: a .NET for Android project holding the screens, the navigation controller, and the device code, built against plain Android views. It publishes an AAB through the .NET toolchain, which builds, tests, and publishes the whole mobile solution. The shared mobile pages in the [Mobile overview](../README.md) state the rules every mobile stack follows, and the [Technology Stacks](../../../core/stacks.md) page states the rules every stack shares.
+The platform project is `{ProjectName}.Android`: it holds the host Activity, the navigation controller, the `Screens/` folder, the platform adapters, and the `Resources/` folder. The core projects hold the rest: Domain for rules and state, Application for handlers and interfaces, and Infrastructure for storage and platform-neutral adapters. On the `server` shape, the Client project joins them, holding the generated API client. The split keeps the core compiling for every platform unchanged.
 
-### Version Pins
+### How Screens Navigate
+
+Screens are plain Android views that the navigation controller shows, and the host Activity owns the controller: one controller holds the current screen, the open overlay, and the history. Back, insets, and saved state are platform APIs of the Activity and its window, not of a UI library.
+
+A route entry is one screen class under `Screens/`, and it carries the `<implements>` mark of the screen it renders, in the form the .NET stack states. The host Activity and failure views are not route entries: they draw no screen of their own, so they carry no screen mark.
+
+### Where Styles and Sentences Live
+
+Colors and text styles live in resources, and screen code draws with plain Android views: a screen takes its colors and text styles from `Resources/values/styles.xml` and sets no style value in code. Copy resolves through the generated `Resource` class, with its fallback in `Resources/values/strings.xml`: the generated class gives every copy key a typed name, and the default values folder gives every key a fallback when a language lacks it. The stack has no page-code lint, so the entry point record names the review that replaces it.
+
+### Where Data Lives
+
+The app keeps its persisted state in app-private storage and reads it through the typed store. Persisted state and user media live under `Context.FilesDir`, written atomically, so a write stopped midway leaves the previous complete file. On the `server` shape, the `{ProjectName}.Client` project holds the generated API client, which owns the base address, the credentials, the headers, and the mapping from a failure to a result.
+
+### How Tests Run with and Without a Device
+
+Core tests run as plain .NET test projects with no emulator: the core holds no platform type, so its tests need no device. Device tests run on an emulator or a device, where screens meet the platform toolkit. The manifest pins no device-test library. For example, the Claimwick expense claim rule has its test in an xunit.v3 project beside the Domain project it proves.
+
+### What Replaces the Controlled UI Contract
+
+Screens draw with native Android views, and this frontend sits outside the controlled UI contract, so it has no registry build command. Its entry point record names Android and the checks that replace the contract, so the frontend reports with named replacements instead of nothing to check.
+
+### Which Versions Are Pinned
 
 The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version, the `stack.android` key pins the Android API level, and the `packages.nuget` keys pin every NuGet package version. These keys name the pins; the manifest holds the values.
-
-### Structure Bindings
-
-The platform project is `{ProjectName}.Android`. It holds the host Activity, the navigation controller, the `Screens/` folder, the platform adapters, and the `Resources/` folder. The core projects hold the rest: Domain, Application, and Infrastructure, with the Client project added on the `server` shape.
-
-### Rendering Bindings
-
-Screens are plain Android views that the navigation controller shows, and the host Activity owns the controller. Back, insets, and saved state are platform APIs of the Activity and its window, not of a UI library.
-
-### Component Bindings
-
-Colors and text styles live in resources, and screen code draws with plain Android views. The stack has no page-code lint, so the entry point record names the review that replaces it.
-
-### Route Entry Bindings
-
-A route entry is one screen class under `Screens/`. The host Activity and failure views are not route entries, and they carry no screen mark.
-
-### Data Bindings
-
-The app keeps its persisted state in app-private storage and reads it through the typed store. The server shape adds the `{ProjectName}.Client` project, which holds the generated API client.
-
-### Testing Bindings
-
-Core tests run as plain .NET test projects with no emulator. Device tests run on an emulator or a device. The manifest pins no device-test library.
-
-### UI Bindings
-
-Screens draw with native Android views, and this frontend sits outside the controlled UI contract, so it has no registry build command. Its entry point record names the checks that replace it.
 
 ## Standards
 
@@ -58,9 +54,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** Three fixed homes let a reader and a tool find the frame, the screens, and the use-case code in the same place in every Android app.
 
-**Example:** The Claimwick Android app keeps its navigation host in `Claimwick.Android`, the expense list screen in `Screens/Expenses/`, and the expense handlers in the Application project.
+**Example:** The Claimwick Android app keeps its navigation host in `Claimwick.Android`, its expense list screen in `Screens/Expenses/`, and its expense handlers in the Application project.
 
-**Reviewed for:** Which screen classes sit outside `Screens/`, or hold use-case logic instead of calling Application handlers? Look in the platform project and the core projects.
+**Reviewed for:** Does every screen class sit under `Screens/` and call Application handlers instead of holding use-case logic? Check the platform project and the core projects.
 
 ### Mark Each Android Screen with Its Screen Record
 
@@ -72,9 +68,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** The mark links the screen to its record the way a .NET handler carries its use-case mark, so the builder and the check read one link.
 
-**Example:** `ExpenseListScreen` carries `/// <implements>screen/claimwick-app.expense-list</implements>`.
+**Example:** The Claimwick `ExpenseListScreen` carries `/// <implements>screen/claimwick-app.expense-list</implements>`.
 
-**Reviewed for:** Which screen classes under `Screens/` lack a screen mark? Look in each screen file.
+**Reviewed for:** Does every screen class under `Screens/` carry its screen mark? Check each screen file.
 
 ### Keep Hosts and Failure Views Unmarked
 
@@ -86,9 +82,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** A host or failure view draws no screen of its own, so a mark on it links an address to a screen it does not show.
 
-**Example:** The host Activity class carries no `<implements>` mark.
+**Example:** The Claimwick host Activity class carries no `<implements>` mark.
 
-**Reviewed for:** Which host Activities or failure views carry a screen mark? Look in the platform project.
+**Reviewed for:** Do any host Activities or failure views carry a screen mark? Check the platform project.
 
 ### Hold One Navigation Controller in the Platform Project
 
@@ -100,9 +96,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** One controller holds the current screen, the open overlay, and the history, so no screen navigates on its own.
 
-**Example:** The Claimwick controller is one class that the host Activity creates and that every expense screen raises events to.
+**Example:** The Claimwick host Activity creates the one controller class, and every expense screen raises events to it.
 
-**Reviewed for:** Which screens navigate without the controller, or which second controller holds navigation state? Look in the screen classes and the host Activity.
+**Reviewed for:** Does navigation run through the one controller owned by the host Activity, with no screen navigating on its own? Check the screen classes and the host Activity.
 
 ### Accept App Links in the Host Activity
 
@@ -114,9 +110,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** Handling both entry points lets a cold start and a link that arrives while the app runs open the same screen, and `AutoVerify` lets the platform open the app instead of a browser.
 
-**Example:** A link to `https://claimwick.example/claims/` opens the claim screen named by its path, whether the app was closed or open.
+**Example:** A link to `https://claimwick.example/claims/` opens the claim screen its path names, whether the app was closed or open.
 
-**Reviewed for:** Which app links the host Activity misses on a cold start or while running? Look at the intent filter and both overrides.
+**Reviewed for:** Does the host Activity receive app links on both a cold start and while running? Check the intent filter and both overrides.
 
 ### Route the Back Gesture Through the Activity Dispatcher
 
@@ -128,9 +124,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** The dispatcher is the platform's own path for the back signal, so predictive back reaches the controller as the same overlay-then-screen-then-leave order on every screen.
 
-**Example:** A back gesture on the expense detail screen closes an open overlay first, then steps back to the expense list.
+**Example:** On the Claimwick expense detail screen, a back gesture closes an open overlay first, then steps back to the expense list.
 
-**Reviewed for:** Which back gestures bypass the Activity's dispatcher, or leave the app from a screen other than the first? Look in the host Activity and the controller.
+**Reviewed for:** Does every back gesture reach the controller through the Activity's dispatcher, leaving the app only from the first screen? Check the host Activity and the controller.
 
 ### Apply System Insets to Each Screen
 
@@ -142,9 +138,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** The window supplies these insets, so reading them from `WindowInsets` keeps controls and text clear of the bars and cutouts on every device.
 
-**Example:** The expense claim screen pads its submit button by the system bar inset while its background draws full bleed.
+**Example:** The Claimwick expense claim screen pads its submit button by the system bar inset while its background draws full bleed.
 
-**Reviewed for:** Which screens place a control or text under a system bar or a cutout? Look in the screen layouts and the inset handling.
+**Reviewed for:** Does every screen keep its controls and text clear of the system bars and cutouts? Check the screen layouts and the inset handling.
 
 ### Store Navigation State in the Activity Bundle
 
@@ -156,9 +152,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** The platform ends the process in the background when memory runs short, and the saved bundle returns the visitor to the same screen with the same overlay and history.
 
-**Example:** After the platform ends the Claimwick process, the app reopens on the expense detail screen with its overlay still open.
+**Example:** When the platform ends the Claimwick process, the app reopens on the expense detail screen with its overlay still open.
 
-**Reviewed for:** Which navigation state the controller holds outside the saved bundle? Look in the host Activity and the controller.
+**Reviewed for:** Does the host Activity save and restore the controller's navigation state through its `Bundle`? Check the host Activity and the controller.
 
 ### Keep Screen Styles in Resources
 
@@ -170,9 +166,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** Resources hold every color and text style in one place, and a screen that sets a value in code is a second style that no resource answers to.
 
-**Example:** The expense total uses the `TotalText` style from `Resources/values/styles.xml` and sets no color in its screen class.
+**Example:** The Claimwick expense total uses the `TotalText` style from `Resources/values/styles.xml`, setting no color in its screen class.
 
-**Reviewed for:** Which screen classes set a color, font, or margin in code? Look in the screen classes.
+**Reviewed for:** Does every screen take its colors and text styles from `Resources/values/styles.xml`, with none set in code? Check the screen classes.
 
 ### Read Android Copy Through the Generated Resource Class
 
@@ -184,9 +180,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** The generated class gives every copy key a typed name, and the default values folder gives every key a fallback when a language lacks it.
 
-**Example:** The expense list reads its empty-state sentence as `Resource.String.ExpenseListEmpty`, and the Spanish file supplies the translation.
+**Example:** The Claimwick expense list reads its empty-state sentence as `Resource.String.ExpenseListEmpty`, with the Spanish file supplying the translation.
 
-**Reviewed for:** Which copy strings a screen reads by a literal name instead of the generated class? Look in the screen classes and the layouts.
+**Reviewed for:** Does every screen read its copy through the generated `Resource` class? Check the screen classes and the layouts.
 
 ### Store Persisted State in App-Private Storage
 
@@ -198,9 +194,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** The app's own sandbox keeps the data away from other apps and the shared media library, and an atomic write keeps the previous complete file if a write stops midway.
 
-**Example:** The expense receipts the visitor adds are copied into the app's files directory and replace their previous copy only after the new one is whole.
+**Example:** The Claimwick receipts the visitor adds are copied into the app's files directory, replacing their previous copy only after the new one is whole.
 
-**Reviewed for:** Which persisted state or user media sits outside `Context.FilesDir`, or is written in place? Look in the storage adapters.
+**Reviewed for:** Does all persisted state and user media live under `Context.FilesDir`, written atomically? Check the storage adapters.
 
 ### Use the System Pickers for Media
 
@@ -212,9 +208,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** Both pickers grant access to the chosen items only, so the app needs no storage permission to read one receipt.
 
-**Example:** Adding a receipt photo opens the Photo Picker, and the visitor's choice is the only image the app receives.
+**Example:** In the Claimwick app, adding a receipt photo opens the Photo Picker, and the visitor's choice is the only image the app receives.
 
-**Reviewed for:** Which screens pick photos or files through another intent, or request a storage permission to do so? Look in the picking call sites and the manifest.
+**Reviewed for:** Does every screen pick photos and files through the system pickers, with no storage permission requested for it? Check the picking call sites and the manifest.
 
 ### Request Permissions at the Point of Use
 
@@ -226,9 +222,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** A request at the point of use arrives when the visitor knows what it is for, and the same permission answers a question the visitor just asked.
 
-**Example:** The camera permission is requested when the visitor taps Scan receipt, not at launch.
+**Example:** The Claimwick app requests the camera permission when the visitor taps Scan receipt, not at launch.
 
-**Reviewed for:** Which runtime permissions are requested in `OnCreate` or before the action that needs them? Look in the host Activity and the action handlers.
+**Reviewed for:** Is every runtime permission requested through `RequestPermissions` when its action starts, none in `OnCreate`? Check the host Activity and the action handlers.
 
 ### Request Audio Focus Before Playing Sound
 
@@ -240,9 +236,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** One speaker serves every app, so the platform arbitrates only the apps that ask for focus, and pausing on loss yields to navigation prompts and calls.
 
-**Example:** A confirmation chime plays only after the app holds audio focus, and a phone call pauses it.
+**Example:** The Claimwick confirmation chime plays only after the app holds audio focus, and a phone call pauses it.
 
-**Reviewed for:** Which sound playback runs without an `AudioFocusRequest`, or keeps playing after focus is lost? Look in the playback call sites.
+**Reviewed for:** Does every screen that plays sound request audio focus first and pause on focus loss? Check the playback call sites.
 
 ### Run Android Core Tests on xunit.v3
 
@@ -254,9 +250,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** Core tests need no emulator, so a plain .NET runner keeps them fast, and one pinned runner keeps every core project on the same version.
 
-**Example:** The expense claim rule has its test in an xunit.v3 project beside the Domain project it proves.
+**Example:** The Claimwick expense claim rule has its test in an xunit.v3 project beside the Domain project it proves.
 
-**Reviewed for:** Which core tests run on another runner, or need an emulator or device? Look in the core test projects.
+**Reviewed for:** Does every core test run in a plain .NET test project on the pinned `xunit.v3`, with no emulator? Check the core test projects.
 
 ### Keep Android Core Test Mocks to the Owned Boundaries
 
@@ -268,9 +264,9 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Rationale:** A stand-in for the code under test proves the stand-in, so the test reaches the rule only through the real types and handlers.
 
-**Example:** The expense claim test builds a real Domain claim and calls the real submit handler, and replaces only the platform storage adapter.
+**Example:** The Claimwick expense claim test builds a real Domain claim and calls the real submit handler, replacing only the platform storage adapter.
 
-**Reviewed for:** Which core tests replace a Domain type or an Application handler? Look in the test doubles.
+**Reviewed for:** Does any core test replace a Domain type or an Application handler? Check the test doubles.
 
 ### Declare Android Outside the Controlled UI Contract
 
@@ -280,11 +276,11 @@ Screens draw with native Android views, and this frontend sits outside the contr
 
 **Statement:** An Android frontend MUST declare an entry point record naming Android and the boundaries that replace the controlled UI contract.
 
-**Rationale:** The controlled contract covers React and Svelte, so an Android frontend declares what replaces its checks instead of reporting as one with nothing to check.
+**Rationale:** The controlled contract covers React and Svelte, so an Android frontend with no declaration reads as a frontend with nothing to check. Naming Android and its replacement boundaries reports it as a frontend with named replacements instead.
 
-**Example:** The Claimwick Android entry point record names Android and the native view review that replaces the controlled contract.
+**Example:** The Claimwick Android entry point record names Android and the native view review standing in for the controlled contract.
 
-**Reviewed for:** Which Android frontends declare no entry point record naming Android and its replacement boundaries? Look in the entry point records.
+**Reviewed for:** Does every Android frontend declare an entry point record naming Android and its replacement boundaries? Check the entry point records.
 
 ## Conventions
 

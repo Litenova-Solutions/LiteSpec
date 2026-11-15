@@ -1,14 +1,14 @@
 # Expense Personal Data Erased
 
-The expense-personal-data-erased event tells other modules that the personal data of a decided expense was erased. A consumer that keeps personal data about the expense removes its copy as well. The event carries only the expense identifier, so a consumer finds the expense it must clear by that identifier.
+The expense-personal-data-erased event tells other modules that the personal data of a decided expense was erased. A consumer holding personal data about the expense removes its copy too. The event carries only the expense identifier, so the consumer finds the expense it must clear by that identifier.
 
 ## Consumers
 
-The reporting module clears the employee of the matching row in `read-model/reporting.reimbursed-expense`. The amount and the reimbursement time stay, because the tax file keeps them.
+The reporting module clears the employee of the matching row in `read-model/reporting.reimbursed-expense`. The amount and the reimbursement time stay on the row, because the tax file keeps them.
 
 ## Compatibility
 
-A new field may be added to the payload. A field may not be removed or renamed, and its meaning may not change, until the event's `dataschema` moves to a new version.
+The payload may gain a new field. No field may be removed or renamed, and no meaning may change, until the event's `dataschema` moves to a new version.
 
 ## Example
 

@@ -43,7 +43,7 @@ internal static class MaintainerDiagnostics
         Codes.IdPageFilename,
         Codes.IdUnknownReference,
         Codes.IndexContainsProcedure,
-        Codes.IndexIntent,
+        Codes.PageLeadMissing,
         Codes.LinkBroken,
         Codes.LinkAnnotationMissing,
         Codes.ManifestAnalyzerPin,
@@ -232,8 +232,8 @@ internal static class MaintainerDiagnostics
         /// <summary>An index that contains a procedure.</summary>
         public const string IndexContainsProcedure = "INDEX_CONTAINS_PROCEDURE";
 
-        /// <summary>An index intent problem.</summary>
-        public const string IndexIntent = "INDEX_INTENT";
+        /// <summary>A page with no lead paragraph under its title.</summary>
+        public const string PageLeadMissing = "PAGE_LEAD_MISSING";
 
         /// <summary>A broken link.</summary>
         public const string LinkBroken = "LINK_BROKEN";

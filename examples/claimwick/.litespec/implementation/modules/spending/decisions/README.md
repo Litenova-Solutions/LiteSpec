@@ -1,6 +1,6 @@
 # Spending Technical Decisions
 
-The technical decisions only the Spending module follows. A decision that several modules follow lives in `.litespec/implementation/decisions/`.
+These are the technical decisions only the Spending module follows. A decision that several modules follow lives in `.litespec/implementation/decisions/` instead.
 
 <!-- generated:decision-index -->
 | Decision | Kind | Concern | Choice | Followers | Reopened When | Flags |

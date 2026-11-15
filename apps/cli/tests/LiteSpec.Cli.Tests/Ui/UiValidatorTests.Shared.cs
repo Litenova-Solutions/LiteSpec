@@ -7,10 +7,10 @@ namespace LiteSpec.Cli.Tests.Ui;
 /// </summary>
 public sealed partial class UiValidatorTests
 {
-    // Source boundary (litespec/frontend/ui#select-one-visual-authority).
+    // Source boundary (litespec/frontend/ui#record-one-shared-ui-package).
 
     /// <summary>Second Visual System In The Workspace Root.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void SecondVisualSystemInTheWorkspaceRoot()
     {
@@ -22,7 +22,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Visual System In OptionalDependencies.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void SecondVisualSystemInOptionalDependencies()
     {
@@ -34,7 +34,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Visual System Pinned Through Pnpm Overrides.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void SecondVisualSystemPinnedThroughPnpmOverrides()
     {
@@ -49,7 +49,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Visual System Pinned Through Resolutions.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void SecondVisualSystemPinnedThroughResolutions()
     {
@@ -61,29 +61,29 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>UI Exception With An Expired Date.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void UIExceptionWithAnExpiredDate()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteWaiver("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteWaiver("ui-authority", "litespec/frontend/ui#record-one-shared-ui-package", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the waiver or close the gap");
+            "[litespec/frontend/ui#record-one-shared-ui-package] expiresOn 2020-01-01 has passed; renew the waiver or close the gap");
     }
 
     /// <summary>UI Exception With A Live Date.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void UIExceptionWithALiveDate()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteWaiver("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
+        fixture.WriteWaiver("ui-authority", "litespec/frontend/ui#record-one-shared-ui-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>Exception Against Another Area Stays Unread By The UI Validator.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void ExceptionAgainstAnotherAreaStaysUnreadByTheUIValidator()
     {
@@ -102,7 +102,7 @@ public sealed partial class UiValidatorTests
     // Shared package (litespec/frontend/ui#pin-the-baseline-in-the-shared-package).
 
     /// <summary>A Controlled Frontend With No Shared Package.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void AControlledFrontendWithNoSharedPackage()
     {
@@ -197,10 +197,10 @@ public sealed partial class UiValidatorTests
             "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] registry 'fixture' is not the built-in shadcn registry");
     }
 
-    // Source lock (litespec/frontend/web/ui#track-source-changes).
+    // Source lock (litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock).
 
     /// <summary>Changed Copied Source Without A Fork Record.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void ChangedCopiedSourceWithoutAForkRecord()
     {
@@ -210,7 +210,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Dependency The Manifest Does Not Pin.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void ADependencyTheManifestDoesNotPin()
     {
@@ -226,7 +226,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Path Escaping The Package Root.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void APathEscapingThePackageRoot()
     {
@@ -240,7 +240,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Findings Carry Their Code And Level.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void FindingsCarryTheirCodeAndLevel()
     {

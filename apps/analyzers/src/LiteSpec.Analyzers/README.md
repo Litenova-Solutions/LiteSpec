@@ -4,10 +4,9 @@
 
 Developers who add the LiteSpec analyzers to a .NET application, and who read why a diagnostic appears on a line.
 
-
 ## What It Is
 
-Roslyn analyzers that check a .NET application against the [LiteSpec](https://litespec.dev) standard. Each error names the provision it enforces and links to it.
+These Roslyn analyzers check a .NET application against the [LiteSpec](https://litespec.dev) standard. Each error names the provision it enforces and links to it.
 
 ## Quick Start
 
@@ -19,17 +18,17 @@ Add the package to each application project, or once in `Directory.Build.props`:
 </ItemGroup>
 ```
 
-The package needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later.
+The package requires the .NET 9.0.300 SDK, Visual Studio 17.14, or later.
 
 ## Layout
 
 ### How a File Gets Its Layer
 
-A rule runs only on the files of the layers its provision covers. Each file's layer comes from its nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` reading as `Application`), or, in a use case, reaction, or job folder, from the file's role suffix: `Endpoint`, `RequestModel`, and `ResponseModel` are `WebApi`; `Command`, `Query`, `Result`, `Handler`, `Validator`, `Job`, and `Worker` are `Application`. A host project is `WebApi` or `Worker` by its assembly name, and a test project is `Test`.
+Each rule runs only on the files in the layers its provision covers. A file takes its layer from the nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`). Inside a use case, reaction, or job folder, the file's role suffix decides instead: `Endpoint`, `RequestModel`, and `ResponseModel` mean `WebApi`, while `Command`, `Query`, `Result`, `Handler`, `Validator`, `Job`, and `Worker` mean `Application`. A host project counts as `WebApi` or `Worker` by its assembly name, and a test project counts as `Test`.
 
-A consumer on the layer-projects extension keeps one layer per project instead: the analyzers read the layer from the assembly name suffix (`Shop.Domain`, `Shop.Application.Abstractions`, `Shop.Application`, `Shop.Infrastructure`, `Shop.WebApi`, `Shop.Worker`, `Shop.Domain.Tests`), and any other assembly is not analyzed. The build props set the layout from the project's selected extensions, so a project states nothing itself.
+A consumer on the layer-projects extension keeps one layer per project instead. Then the analyzers read the layer from the assembly name suffix (`Shop.Domain`, `Shop.Application.Abstractions`, `Shop.Application`, `Shop.Infrastructure`, `Shop.WebApi`, `Shop.Worker`, `Shop.Domain.Tests`), and any other assembly goes unanalyzed. The build props derive the layout from the project's selected extensions, so the project states nothing itself.
 
-To name the layer yourself, set `LiteSpecLayer` in the project file:
+To declare the layer yourself, set `LiteSpecLayer` in the project file:
 
 ```xml
 <PropertyGroup>
@@ -37,7 +36,7 @@ To name the layer yourself, set `LiteSpecLayer` in the project file:
 </PropertyGroup>
 ```
 
-The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A declared value applies to every file in the project. `None` turns the whole package off for that project: no analyzer rule runs, and the generator writes no source and reports no diagnostic. A file the rules cannot place stays quiet in the same way. A declared value that names no known layer still reports `LS2017`.
+The accepted values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. One declared value covers every file in the project. `None` switches the whole package off for that project: no analyzer rule runs, and the generator emits neither source nor diagnostics. A file the rules cannot place stays quiet in the same way. A declared value that names no known layer still reports `LS2017`.
 
 ### Rules
 
@@ -95,7 +94,7 @@ The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastruct
 
 ### Change a Rule's Severity
 
-Every rule is an error by default, so a finding fails the build. Lower a rule's severity in `.editorconfig`:
+Every rule reports an error by default, so a finding fails the build. To lower a rule, set its severity in `.editorconfig`:
 
 ```ini
 [*.cs]
@@ -103,8 +102,8 @@ dotnet_diagnostic.LS1011.severity = warning
 dotnet_diagnostic.LS3004.severity = none
 ```
 
-A project that sets a Standard aside records a waiver that cites the provision, as the [LiteSpec model page](https://litespec.dev/7.0.0/core/model/) describes.
+A project that sets a Standard aside records a waiver citing the provision, as the [LiteSpec model page](https://litespec.dev/7.0.0/core/model/) describes.
 
 ## Limits
 
-The rules read only the files the layer rules place. Read [How a File Gets Its Layer](#how-a-file-gets-its-layer) before you rely on a rule being silent for a file.
+The rules judge only the files the layer rules can place. Read [How a File Gets Its Layer](#how-a-file-gets-its-layer) before you treat a rule's silence on a file as approval.

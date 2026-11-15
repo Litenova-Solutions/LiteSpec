@@ -147,7 +147,7 @@ extensions:
     - use-case
     - flow
     replaces:
-    - 'litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request'
+    - 'litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request'
     switchesOn:
     - setting
     - runbook

@@ -141,7 +141,7 @@ public sealed class IdentifierCheckTests
     }
 
     /// <summary>Distinct Names Pass.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void DistinctNamesPass()
     {
@@ -155,7 +155,7 @@ public sealed class IdentifierCheckTests
     }
 
     /// <summary>Use Case Name Reused Reports.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void UseCaseNameReusedReports()
     {
@@ -175,7 +175,7 @@ public sealed class IdentifierCheckTests
     }
 
     /// <summary>Aggregate Name Reused Reports.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void AggregateNameReusedReports()
     {
@@ -195,7 +195,7 @@ public sealed class IdentifierCheckTests
     }
 
     /// <summary>Same Name Across Types Passes.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void SameNameAcrossTypesPasses()
     {
@@ -210,7 +210,7 @@ public sealed class IdentifierCheckTests
     }
 
     /// <summary>Same Identifier Twice Stays Identifier Duplicate.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void SameIdentifierTwiceStaysIdentifierDuplicate()
     {

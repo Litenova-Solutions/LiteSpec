@@ -1,6 +1,6 @@
 # Tax Receipt Retention
 
-National tax law requires a company to keep its business receipts for seven years. Claimwick stores the receipts of reimbursed expenses, so the law binds the product and the retention rule traces to it.
+National tax law requires a company to keep its business receipts for seven years. Claimwick stores the receipts of reimbursed expenses, so the law binds the product and the retention rule traces back to it.
 
 ## Scope
 

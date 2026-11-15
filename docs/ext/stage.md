@@ -4,9 +4,11 @@
 
 **Concern:** operations
 
-## Intent
+The release stage tells whether any deployment holds customer data yet, because several provisions assume a running service that the first builds do not have.
 
-The release stage tells whether any deployment holds customer data yet, because several provisions assume a running service that the first builds do not have. This page states how a project declares its stage, which provisions the early stage defers and until when, and how a recorded decision ends the deferral. A project selects it while no deployment holds customer data, or afterwards to record a past move to production, so relaxed early provisions expire on a date instead of lingering by accident.
+This page states how a project declares its stage, which provisions the early stage defers and until when, and how a recorded decision ends the deferral.
+
+A project selects it while no deployment holds customer data, or afterwards to record a past move to production, so relaxed early provisions expire on a date instead of lingering by accident.
 
 ## Activation
 
@@ -18,9 +20,7 @@ The project selects `stage` before its first deployment holds customer data, or 
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. A `pre-production` consumer defers named provisions through this extension, while the compat extension still governs versioning once selected.
-
-It switches on no record type: the promotion decision is a core record every project requires.
+This extension replaces no baseline provision and switches on no record type: the promotion decision is a core record every project requires. A `pre-production` consumer defers named provisions through this extension, while the compat extension still governs versioning once selected.
 
 ## Standards
 
@@ -34,7 +34,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `.litespec/project.yaml`.
 
-**Rationale:** The release stage is a project fact, not a waiver from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own waiver record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
+**Rationale:** The release stage is a project fact, not a waiver from any rule, so it lives as data in the `stage` selection. `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own waiver record. Without the declared stage, tools and reviewers have no way to tell which provisions the project owes today.
 
 **Example:** A consumer with no customer data in any deployment declares the early stage.
 
@@ -57,7 +57,7 @@ selectedExtensions:
 
 **Statement:** A `pre-production` consumer MUST record each deferred provision as a gap waiver expiring at promotion with `closedBy` naming the promotion decision, with a `production` consumer carrying no deferred provision.
 
-**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each waiver carries `kind: gap`, names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and names the promotion decision in `closedBy`, so promotion closes every deferral at once.
+**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each waiver carries `kind: gap`, names the deferred provision in `covers`, sets the date its deferral ends in `expiresOn`, and names the promotion decision in `closedBy`, so promotion closes every deferral at once.
 
 **Example:** Each deferral is a waiver covering its provision until promotion.
 
@@ -89,9 +89,9 @@ closedBy:
 
 **Statement:** A consumer MUST record its promotion to `production` as a decision before its first deployment holds customer data, ending every deferred provision.
 
-**Rationale:** Promotion is the moment relaxed provisions end, and an unrecorded moment never arrives: the relaxed provisions last until somebody notices they never ended. The decision stands in git before the first deployment holds customer data, so the data sits under full rules from day one. The decision also covers the migration and cutover work that moves customer data into production.
+**Rationale:** Promotion is the moment relaxed provisions end, and an unrecorded moment never arrives. The relaxed provisions last until somebody notices they never ended. The decision stands in git before the first deployment holds customer data, so the data sits under full rules from day one. The decision also covers the migration and cutover work that moves customer data into production.
 
-**Reviewed for:** Which promotion decisions under `.litespec/intent/decisions/` come after the first deployment holds customer data, or leave a deferred provision open? Look at the decision records beside the deferrals they end.
+**Reviewed for:** Does the promotion decision stand in git before the first deployment holds customer data, with every deferred provision ended? Read the decision records under `.litespec/intent/decisions/` beside the deferrals they end.
 
 ## Conventions
 

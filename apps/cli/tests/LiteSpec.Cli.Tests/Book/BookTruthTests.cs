@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Book;
 public sealed class BookTruthTests
 {
     /// <summary>A model with no test run carries a null run and the not-run proof state on every scenario and rule, with machine truth kept.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookWithNoTestRunSaysNotRun()
     {
@@ -42,7 +42,7 @@ public sealed class BookTruthTests
     }
 
     /// <summary>A flow step served only by a reaction lists the reaction as its server and no screen.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void FlowStepServedOnlyByAReactionReadsAsReaction()
     {
@@ -66,7 +66,7 @@ public sealed class BookTruthTests
     }
 
     /// <summary>A flow step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ExercisedStepRendersAsWalked()
     {
@@ -81,7 +81,7 @@ public sealed class BookTruthTests
     }
 
     /// <summary>Findings embedded in the model reach their subject records, open and known apart.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void EmbeddedFindingsReachTheirRecords()
     {

@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
 /// <summary>The prose checks, advisory: every record holds a summary, every goal, problem, requirement and rule holds a statement, and a Behavior statement names what happens rather than a vague word.</summary>
-/// <follows>litespec/core/use-cases#write-prose-on-every-use-case</follows>
+/// <follows>litespec/core/use-cases#summarize-every-use-case</follows>
 /// <follows>litespec/core/access#write-a-summary-on-every-actor-and-role-page</follows>
 /// <follows>litespec/core/model#state-what-happens-in-every-behavior-statement</follows>
 internal static class ProseChecks

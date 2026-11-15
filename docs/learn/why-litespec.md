@@ -1,7 +1,5 @@
 # Why LiteSpec Exists
 
-## Intent
-
 When people or AI agents build software, they make decisions that rarely make it into the documentation. Requirements stay in chat threads. Business rules end up buried in handlers. The reasons behind a design disappear when someone leaves.
 
 AI agents make this harder to manage. Give two agents the same request and they may produce different designs. Both compile. Both pass their tests. But each introduces its own patterns, names, and assumptions.
@@ -34,13 +32,13 @@ It has three parts.
 
 The standard defines rules for building one [bounded-context business application](../core/scope.md). It covers how to describe product intent and behavior, along with rules for code, tests, security, operations, and releases.
 
-Every rule has a stable ID and states whether it is binding or advisory. People, agents, and tools can refer to the same rule without having to infer how strictly it applies.
+Each rule, called a provision, has a stable ID and states whether it is required, a default the project may replace with its own convention, or advisory. People, agents, and tools can refer to the same rule without having to infer how strictly it applies.
 
 [Read the standard](reading-the-standard.md) explains how it is organized.
 
 ### Records: What to Build
 
-A project describes its intent in short YAML files with defined record types. These cover the product's modules, features, requirements, user flows, business rules, use cases, and supporting behavior, as well as the decisions behind them.
+A project describes its product in short YAML files with defined record types. These cover the product's modules, features, requirements, user flows, business rules, use cases, and supporting behavior, as well as the decisions behind them.
 
 The records live in git. Committed records represent agreed decisions; changes are reviewed through pull requests.
 
@@ -64,8 +62,8 @@ Work moves through four layers:
 
 1. **Intent** describes what the product promises.
 2. **Behavior** defines how the application keeps those promises.
-3. **Code** implements that behavior.
-4. **Tests** verify the promised examples through the application's public boundary.
+3. **Code** (the Implementation layer) implements that behavior.
+4. **Tests** (the Proof layer) verify the promised examples through the application's public boundary.
 
 The [record layers](../core/layers.md) define what belongs in each layer and how one translates into the next.
 

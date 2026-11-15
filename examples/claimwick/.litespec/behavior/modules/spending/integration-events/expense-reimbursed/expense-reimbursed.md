@@ -1,6 +1,6 @@
 # Expense Reimbursed
 
-The expense-reimbursed event tells other modules that finance paid an approved expense to its employee. The reporting module reads it to list the reimbursed expenses. A reader who has read nothing else should see that the event carries the employee and the amount, so a consumer can total the payouts per employee.
+The expense-reimbursed event tells other modules that finance paid an approved expense to its employee. The reporting module reads it to list the reimbursed expenses. The event carries the employee and the amount, so a consumer can total the payouts per employee.
 
 ## Consumers
 
@@ -8,7 +8,7 @@ The reporting module builds `read-model/reporting.reimbursed-expense` from this 
 
 ## Compatibility
 
-A new field may be added to the payload. A field may not be removed or renamed, and its meaning may not change, until the event's `dataschema` moves to a new version.
+The payload may gain a new field. No field may be removed or renamed, and no meaning may change, until the event's `dataschema` moves to a new version.
 
 ## Example
 

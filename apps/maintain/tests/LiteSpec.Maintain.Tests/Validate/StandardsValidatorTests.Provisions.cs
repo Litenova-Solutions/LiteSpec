@@ -28,7 +28,7 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.IdPageFilename]);
 
     /// <summary>Missing statement.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "missing statement")]
     public void MissingStatement() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Statement:** Consumers MUST keep the topic inside its declared boundary.\n\n", "")),
@@ -42,14 +42,14 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.StandardModalCount]);
 
     /// <summary>Missing waiver.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "missing waiver")]
     public void MissingWaiver() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Consumers MUST keep", "Consumers SHOULD keep")),
         [MaintainerDiagnostics.Codes.StandardMissingDeviation]);
 
     /// <summary>Missing convention default.</summary>
-    /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
+    /// <proves>litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement</proves>
     [Fact(DisplayName = "missing convention default")]
     public void MissingConventionDefault() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Default:** Store the topic in its owning documentation area.\n\n", "")),
@@ -81,7 +81,7 @@ public sealed partial class StandardsValidatorTests
         []);
 
     /// <summary>Convention without a verification line.</summary>
-    /// <proves>litespec/core/authoring#map-provisions-to-evidence</proves>
+    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
     [Fact(DisplayName = "convention without a verification line")]
     public void ConventionWithoutVerificationLine() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Reviewed for:** Does the topic live in its owning documentation area?\n", "")),
@@ -143,14 +143,14 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#use-the-declared-identifier-grammar</proves>
     [Fact(DisplayName = "unknown active ID")]
     public void UnknownActiveId() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nThe page cites litespec/core/topic#unknown-rule.\n"),
+        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\nThe page cites litespec/core/topic#unknown-rule.\n"),
         [MaintainerDiagnostics.Codes.IdUnknownReference]);
 
     /// <summary>Stale citation.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-identifier-grammar</proves>
     [Fact(DisplayName = "stale citation")]
     public void StaleCitation() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nThe page cites litespec/core/topic#keep-the-topic-bounded-elsewhere.\n"),
+        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\nThe page cites litespec/core/topic#keep-the-topic-bounded-elsewhere.\n"),
         [MaintainerDiagnostics.Codes.IdUnknownReference]);
 
     /// <summary>Grammar notation is not a citation.</summary>
@@ -168,28 +168,28 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.StandardModalVocabulary]);
 
     /// <summary>Multiple statement sentences.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "multiple statement sentences")]
     public void MultipleStatementSentences() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Consumers MUST keep the topic inside its declared boundary.", "Consumers MUST keep the topic inside its boundary. Reviewers inspect the result.")),
         [MaintainerDiagnostics.Codes.StandardSentenceCount]);
 
     /// <summary>Duplicate Statement.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "duplicate Statement")]
     public void DuplicateStatement() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Statement:** Consumers MUST name the topic owner.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
         [MaintainerDiagnostics.Codes.StandardRequirementCount]);
 
     /// <summary>Unexpected waiver.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "unexpected waiver")]
     public void UnexpectedWaiver() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Deviation:** No waiver applies.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
         [MaintainerDiagnostics.Codes.StandardUnexpectedDeviation]);
 
     /// <summary>Waiver sentence count.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "waiver sentence count")]
     public void WaiverSentenceCount() => Check(
         root =>
@@ -215,56 +215,56 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.StandardInformativeNormative]);
 
     /// <summary>Duplicate label.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "duplicate label")]
     public void DuplicateLabel() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Rationale:** The boundary gives reviewers one testable result.\n\n**Rationale:** Another explanation.")),
         [MaintainerDiagnostics.Codes.StandardLabelDuplicate]);
 
     /// <summary>Invalid label.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "invalid label")]
     public void InvalidLabel() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Default:** Keep another default.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
         [MaintainerDiagnostics.Codes.StandardLabelInvalid]);
 
     /// <summary>Label order.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "label order")]
     public void LabelOrder() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Example:** One example.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
         [MaintainerDiagnostics.Codes.StandardLabelOrder]);
 
     /// <summary>Unlabeled provision content.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "unlabeled provision content")]
     public void UnlabeledProvisionContent() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "Additional constraint.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
         [MaintainerDiagnostics.Codes.StandardUnlabeledContent]);
 
     /// <summary>Missing convention replacement.</summary>
-    /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
+    /// <proves>litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement</proves>
     [Fact(DisplayName = "missing convention replacement")]
     public void MissingConventionReplacement() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Replacement:** A consumer can name another location through an explicit local convention.\n", "")),
         [MaintainerDiagnostics.Codes.ConventionMissingReplacement]);
 
     /// <summary>Default sentence count.</summary>
-    /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
+    /// <proves>litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement</proves>
     [Fact(DisplayName = "default sentence count")]
     public void DefaultSentenceCount() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Store the topic in its owning documentation area.", "Store the topic in its owning documentation area. Record the path.")),
         [MaintainerDiagnostics.Codes.ConventionDefaultSentence]);
 
     /// <summary>Replacement sentence count.</summary>
-    /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
+    /// <proves>litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement</proves>
     [Fact(DisplayName = "replacement sentence count")]
     public void ReplacementSentenceCount() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer can name another location. The local convention records it.")),
         [MaintainerDiagnostics.Codes.ConventionReplacementSentence]);
 
     /// <summary>Normative waiver.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "normative waiver")]
     public void NormativeWaiver() => Check(
         root =>
@@ -276,14 +276,14 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.StandardDeviationNormative]);
 
     /// <summary>Replacement naming an exception.</summary>
-    /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
+    /// <proves>litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement</proves>
     [Fact(DisplayName = "replacement naming an exception")]
     public void ReplacementNamingAnException() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer replaces this default by recording an Exception for this provision.")),
         [MaintainerDiagnostics.Codes.ConventionReplacementWaiver]);
 
     /// <summary>Replacement naming a waiver.</summary>
-    /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
+    /// <proves>litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement</proves>
     [Fact(DisplayName = "replacement naming a waiver")]
     public void ReplacementNamingAWaiver() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer replaces this default by recording a waiver with its reason.")),

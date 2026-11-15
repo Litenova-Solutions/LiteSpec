@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Book;
 ///     precedence order, plus the entry points the index builder and the review queries keep under
 ///     this name. Connection labels come from the carried schema, never from this file.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookModel
 {
     /// <summary>The navigation layers, in display order.</summary>

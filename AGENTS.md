@@ -85,7 +85,7 @@ Sources: `litespec/core/agent#make-coherent-scoped-changes`, `litespec/core/agen
 
 ## Writing
 
-Write prose by the [writing standard](docs/core/writing.md): it sets voice, tone, grammar, sentence and paragraph rules, title forms per record type, explanation sections and documentation kinds for LiteSpec and for every consumer, so no personal guide is needed on any machine. The [authoring standard](docs/core/authoring.md) adds what the validators check on LiteSpec's own pages: ASCII only, one term per concept, capitalized modal words only inside a Statement, Deviation, Default or Replacement, Title Case on every heading, an `Overview` title on every section index, and nothing about earlier releases. The [Project Model](docs/core/model.md) and [Record Language](docs/core/language.md) pages state the rules a consumer's YAML record files follow: their types, identifiers, names, glossary and waivers.
+Write every page, example, template, README and tool message in this repository by the [LiteSpec writing and tone guidelines](WRITING.md): plainspoken technical writing, a lead paragraph instead of an Intent section, claims at their real strength, and normative meaning preserved. Records follow the [writing standard](docs/core/writing.md), which LiteSpec publishes for consumers and applies to its own records under `docs/intent/`: title forms per record type, explanation sections and record sentence rules. The [authoring standard](docs/core/authoring.md) adds what the validators check on LiteSpec's own pages: ASCII only, one term per concept, capitalized modal words only inside a Statement, Deviation, Default or Replacement, Title Case on every heading, an `Overview` title on every section index, and nothing about earlier releases. The [Project Model](docs/core/model.md) and [Record Language](docs/core/language.md) pages state the rules a consumer's YAML record files follow: their types, identifiers, names, glossary and waivers.
 
 Each page uses the sections of its page style. A Standard states one testable obligation. Every provision states its strength and where it applies, and has the same layout, in this order:
 
@@ -107,7 +107,7 @@ Each page uses the sections of its page style. A Standard states one testable ob
 
 The ID line holds the ID the heading derives, and the Strength line states `required`, `default` or `advisory`. A Standard is `required` or `advisory`; a Convention or a pattern is `default`. `litespec-maintain provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
 
-Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-normative-vocabulary`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#write-atomic-standards-provisions`, `litespec/core/authoring#place-the-id-under-every-provision-heading`, `litespec/core/authoring#regenerate-the-provision-index`, `litespec/core/principles#state-the-strength-of-every-provision`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
+Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-normative-vocabulary`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#keep-each-standard-to-one-obligation`, `litespec/core/authoring#place-the-id-under-every-provision-heading`, `litespec/core/authoring#regenerate-the-provision-index`, `litespec/core/principles#state-the-strength-of-every-provision`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
 
 ## Releases
 
@@ -133,7 +133,7 @@ Read the full provision before you apply any of these:
 - Publish integration events only from the domain events they translate, never from user code. (`litespec/backend/application#emit-declared-integration-events-after-commit`)
 - Read another module's state through the module's own read model, or ask one question through a decision port. (`litespec/backend/application#read-another-modules-state-through-a-read-model`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`)
 - Derive the actor from verified claims, and authorize each target from declared permissions. (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`)
-- Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#select-one-visual-authority`, `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`)
+- Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#record-one-shared-ui-package`, `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`)
 
 ## UI Patterns
 
@@ -156,7 +156,7 @@ The book is the model made readable, so it follows LiteSpec and adds nothing of 
 5. When the book needs a fact LiteSpec does not define, add it to LiteSpec first as a record field, a computed status or a check.
 6. Link every record, code element, test and finding to its file and line.
 
-Sources: `litespec/core/model#organize-the-book-by-the-record-layers`, `litespec/core/model#name-book-labels-with-litespec-terms`, `litespec/core/model#explain-the-book-from-litespec-definitions`, `litespec/core/model#show-only-computed-judgements-in-the-book`, `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`, `litespec/core/model#point-every-book-entry-to-its-source`.
+Sources: `litespec/core/model#organize-the-book-by-the-record-layers`, `litespec/core/model#name-book-labels-with-litespec-terms`, `litespec/core/model#explain-the-book-from-litespec-definitions`, `litespec/core/model#show-only-computed-judgments-in-the-book`, `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`, `litespec/core/model#point-every-book-entry-to-its-source`.
 
 ## Tests
 

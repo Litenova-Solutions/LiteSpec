@@ -1,12 +1,10 @@
 # The Model and Its Checks
 
-## Intent
-
-The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 28 findings, and the record and query commands an agent uses to load one record. Each command below was run against `examples/claimwick`, and the output is copied from that run.
+The project model joins the written records of a project to its code, screens, and tests, and its checks report every gap as a finding. What follows shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 28 findings, and the record and query commands an agent uses to load one record. Each command below was run against `examples/claimwick`, and the output is copied from that run.
 
 ## The Full Check
 
-`litespec model check` builds the model in memory and reports each finding with its file, level, code and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, all 28 lines copied from the run, is:
+`litespec model check` builds the model in memory and reports each finding with its file, level, code, and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, all 28 lines copied from the run, is:
 
 ```text
 .litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/reporting.list-reimbursed-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
@@ -51,11 +49,11 @@ The 28 covered findings fall into six codes:
 | `use-case-flow-missing` | 1 | `waiver/reimbursed-list-unserved` |
 | `use-case-endpoint-missing` | 1 | `waiver/export-expenses-unexposed` |
 
-Each code names one gap. The screen gap and the proof gap are real: the web app holds three screens, and no run records a passing proof for a scenario. Every code in the table but `use-case-unverified` blocks when open: the link findings are level G on records and level S on code, and `use-case-unverified` blocks only with `--release`.
+Each code names one gap, and the screen gap and the proof gap are real: the web app holds three screens, and no run records a passing proof for a scenario. Every code in the table but `use-case-unverified` blocks when open. The link findings are level G on records and level S on code, while `use-case-unverified` blocks only with `--release`.
 
 ## A Waiver That Covers a Finding
 
-The export use case has no handler yet, because the finance file format has not been decided. The gap is a waiver, a record that accepts the gap until a date. Its file is `.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
+The export use case has no handler yet, because the finance file format has not been decided. That gap is a waiver, a record that accepts the gap until a date. Its file is `.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
 
 ```yaml
 type: waiver
@@ -74,26 +72,26 @@ closedBy:
 - use-case/spending.export-expenses
 ```
 
-The `covers` list names the finding code, and the `subject` list names the record the finding is about. The finding is reported as covered, so the run passes. The `kind` states the waiver is a gap, the `exit` field states how the gap closes, `closedBy` names the record whose change closes it, and `expiresOn` makes the gap expire: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
+The `covers` list names the finding code, and the `subject` list names the record the finding is about, so the finding is reported as covered and the run passes. The `kind` states the waiver is a gap. The `exit` field states how the gap closes, `closedBy` names the record whose change closes it, and `expiresOn` sets the expiry: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
 
-The example holds eight waivers in `.litespec/governance/waivers/`. The `export-review-bypass` waiver covers a provision rather than a finding, and the other seven cover the codes in the table above.
+The example holds eight waivers in `.litespec/governance/waivers/`. Seven of them cover the codes in the table above; the `export-review-bypass` waiver covers a provision rather than a finding.
 
 ## Proof for the Use Cases
 
-The `use-case-unverified` findings say that a use case has scenarios with no passing proof. The Submit expense use case shows why: its two scenarios are confirmed by tests, which name them in `<proves>` tags, but no run has passed for them. [A Use Case in Code](a-use-case-in-code.md) shows the links. The waiver `waiver/use-cases-unverified` covers all ten use cases until the example ships a test run whose passing proofs cover every scenario.
+The `use-case-unverified` findings say that a use case has scenarios with no passing proof. Submit expense shows why: tests confirm its two scenarios by naming them in `<proves>` tags, but no run has passed for them. [A Use Case in Code](a-use-case-in-code.md) shows the links. The waiver `waiver/use-cases-unverified` covers all ten use cases until the example ships a test run whose passing proofs cover every scenario.
 
 ## Querying One Record
 
-`litespec model query` prints one record with its file, its line and its links in both directions. Agents use it to load a record's context before they change it. Querying the Submit expense use case returns its fields, then its links and its computed state:
+`litespec model query` prints one record with its file, its line, and its links in both directions. Agents use it to load a record's context before they change it. Querying Submit expense returns its fields first, then its links and its computed state:
 
 ```text
 dotnet run --project apps/cli/src/LiteSpec.Cli -- model query use-case/spending.submit-expense --root examples/claimwick
 ```
 
-The `file` field names `.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml`, and the `computed.completion.stage` field reads `coded`. The `implements` list names the three code files that carry the use case's mark, and the `proves` list names its two scenarios. The output is long, so [A Use Case in Code](a-use-case-in-code.md) shows the computed part.
+The `file` field names `.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml`, and the `computed.completion.stage` field reads `coded`. The `implements` list names the three code files that carry the use case's mark, and the `proves` list names its two scenarios. The output is long, so [A Use Case in Code](a-use-case-in-code.md) shows only the computed part.
 
-Two more forms find records without an identifier. `litespec model query --search "receipt threshold"` lists the records whose identifier, title, summary or statement holds the text, an exact identifier first. `litespec model query --list use-case --module spending` lists every use case of the spending module, one line each with identifier, title and path. With `--search` or `--list`, no match prints nothing and exits 0.
+Two more forms find records without an identifier. `litespec model query --search "receipt threshold"` lists the records whose identifier, title, summary, or statement holds the text, with an exact identifier first. `litespec model query --list use-case --module spending` lists every use case of the spending module, one line per use case with identifier, title, and path. With `--search` or `--list`, no match prints nothing and exits 0.
 
 ## The Continuous Integration Jobs
 
-The model check runs in the continuous integration jobs that [Continuous Integration](../quality/ci.md) describes. A pull request runs the jobs that its changed areas select, so a change to a record or code file runs the model job.
+The model check runs in the continuous integration jobs that [Continuous Integration](../quality/ci.md) describes. A pull request runs the jobs its changed areas select, so a change to a record or code file runs the model job.

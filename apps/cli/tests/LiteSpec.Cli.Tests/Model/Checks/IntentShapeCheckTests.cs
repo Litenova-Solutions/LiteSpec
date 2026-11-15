@@ -20,7 +20,7 @@ public sealed class IntentShapeCheckTests
     }
 
     /// <summary>Requirement With Retired SetBy Reports.</summary>
-    /// <proves>litespec/core/intent#state-requirement-kind-and-statement</proves>
+    /// <proves>litespec/core/intent#state-each-requirement-with-kind-and-statement</proves>
     [Fact]
     public void RequirementWithRetiredSetByReports()
     {
@@ -33,7 +33,7 @@ public sealed class IntentShapeCheckTests
     }
 
     /// <summary>Decision Without ReopenedWhen Reports.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact]
     public void DecisionWithoutReopenedWhenReports()
     {
@@ -46,7 +46,7 @@ public sealed class IntentShapeCheckTests
     }
 
     /// <summary>Decision Without Choice Reports.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact]
     public void DecisionWithoutChoiceReports()
     {

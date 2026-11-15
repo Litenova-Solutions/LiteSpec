@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     from its explanation, the navigation map of an entry point, and the
 ///     storyboard of a flow.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookBlueprintDetail
 {
     /// <summary>Adds the wireframe text of one screen from its explanation's wireframe block.</summary>
