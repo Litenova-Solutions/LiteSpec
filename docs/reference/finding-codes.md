@@ -219,6 +219,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `screen-unreachable` | A | behavior | no | - | A screen is reached from no other screen and is not its entry point's start. | Lead to the screen from another screen, or make it the entry point's start. |
 | `screen-dead-end` | A | behavior | no | - | A screen leads nowhere and offers no use case. | Lead the screen to a next screen, or offer a use case from it. |
 | `wording-alias` | A | behavior | no | - | A wireframe, result sentence or label uses a glossary alias where the term exists. | Use the glossary term instead of its alias. |
+| `sentence-language-missing` | A | behavior | no | - | A written refusal result has no sentence for a language its use case's entry points declare. | Write the sentence in sentences for each language beside the entry point's default. |
 
 ## Notes
 

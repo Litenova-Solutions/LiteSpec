@@ -33,6 +33,8 @@ No new record type is added. The brand belongs to the product, density and voice
 
 The wireframe draws the screen's structure from the domain: each action names a use case the screen offers, each state names a glossary term of the record shown, and each refusal names a result of an offered use case. The book draws each wireframe on its screen page, each entry point's screens as a navigation map from `leadsTo`, and each flow as a strip of its screens in step order.
 
+Money and moment forms come from the entry-point record: `languages` names the languages the entry point serves with the first as the default, `formats` names the money and moment options from the money and moment patterns, and each screen renders them with the locale data of the reader's language and the currency and country the record carries, with no format string, separator, or symbol in code.
+
 ## Evidence
 
 The faint baseline borders, the empty `rules` output for a design contract outside the claimed layers, and the 2:1 input borders found by a hand-run script were read from one consumer's records and mockups with high confidence. The W3C Design Tokens Community Group published the first stable Design Tokens specification, version 2025.10, on 2025-10-28, as a Final Community Group Report. The navigation map follows breadboarding, which draws an interface as places, affordances and connections before visual design, as Shape Up chapter 4 describes it.

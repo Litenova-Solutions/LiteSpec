@@ -129,6 +129,7 @@ The route suite is one specification per frontend that visits every route. It as
 | Color scheme | The accessibility check passes in each color scheme the project declares |
 | Motion | Under the reduced-motion setting, no spatial, scaling, or looping animation runs |
 | Announcements | Asynchronous status changes announce through the platform's polite or assertive live region, both present when the route loads |
+| Formats | Money and moment text follows the forms the entry point names, in the reader's language |
 
 The suite discovers its routes from the application route definition rather than from a list. A new route is therefore checked with no new specification. A dynamic segment resolves to a record the deployment holds, and falls back to an absent record when it holds none.
 
@@ -294,6 +295,22 @@ pageFrames:
 **Example:** The Claimwick expense list names the expense record and the new expense form in `leadsTo`, so a reader reaches either in one step.
 
 **Checked by:** `litespec model check` reports `screen-unreachable` for a screen no other screen leads to that is not its entry point's start, and `screen-dead-end` for a screen that leads nowhere and offers no use case. Run it at the consumer root.
+
+### Format Money and Moments from the Reader's Language and the Business's Country
+
+**ID:** `litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country`
+
+**Strength:** required
+
+**Applies to:** artifact: record:entry-point
+
+**Statement:** Each entry point MUST name the money and moment forms its screens render in `formats`, rendered with the locale data (CLDR) of the reader's language and the currency and country the record carries, with no format string, separator, or symbol written in code.
+
+**Rationale:** One record serves readers in several languages, and each language writes its separators its own way. The entry point names one money option and one moment option from the money and moment patterns, and each screen renders them with the locale data (CLDR) of the reader's language and the currency and country the record carries. A form fixed in code shows one reader the wrong separators and hides the choice from every check. Proposed by decision 0089.
+
+**Example:** The Claimwick expense of EUR 1,212.35 reads `EUR 1.212,35` for a Dutch reader and `EUR 1,212.35` for an English reader, from the same record.
+
+**Checked by:** `litespec model check` reports `sentence-language-missing` for a written refusal result with no sentence for a language its use case's entry points declare. Run it at the consumer root.
 
 ### Select a Tone from the Closed Set
 

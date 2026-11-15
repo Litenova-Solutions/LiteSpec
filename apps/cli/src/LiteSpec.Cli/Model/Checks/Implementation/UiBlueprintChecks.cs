@@ -13,11 +13,13 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     The screen blueprint checks: a screen's wireframe block parses in the wireframe language, its
 ///     actions, states and refusals name what the screen reaches, every screen is led to or starts its
 ///     entry point, no screen ends with nothing done, interface text uses glossary terms rather than
-///     their aliases, and every refusal a screen can reach carries its sentence.
+///     their aliases, every refusal a screen can reach carries its sentence, and every written refusal
+///     carries its sentence in each language its entry points declare beside the default.
 /// </summary>
 /// <follows>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</follows>
 /// <follows>litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next</follows>
 /// <follows>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</follows>
+/// <follows>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</follows>
 internal static class UiBlueprintChecks
 {
     /// <summary>The field naming the screens a person reaches from a screen in one step.</summary>
@@ -35,7 +37,7 @@ internal static class UiBlueprintChecks
     /// <summary>A quoted string in a wireframe block, with backslash escapes.</summary>
     private static readonly Regex QuotedCopy = new("\"(?<copy>(?:[^\"\\\\]|\\\\.)*)\"", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>Reports wireframe-invalid, wireframe-reference-unknown, screen-unreachable, screen-dead-end, wording-alias and refusal-sentence-missing.</summary>
+    /// <summary>Reports wireframe-invalid, wireframe-reference-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
     /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -46,6 +48,7 @@ internal static class UiBlueprintChecks
         CheckDeadEnd(model, findings);
         CheckWordingAliases(model, findings);
         CheckRefusalSentences(model, findings);
+        CheckSentenceLanguages(model, findings);
     }
 
     /// <summary>Reports each screen whose explanation holds no wireframe block, more than one, an unclosed one, or a block the wireframe language rejects.</summary>
@@ -632,5 +635,109 @@ internal static class UiBlueprintChecks
                 });
             }
         }
+    }
+
+    /// <summary>Reports each written refusal result missing a sentence for a language its use case's entry points declare beside the default.</summary>
+    /// <param name="model">The loaded project model that holds every use case, entry point and result.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSentenceLanguages(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records
+            .Where(record => record.Type == RecordTypes.UseCase && !record.Derived)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name) || name.Length == 0)
+            {
+                continue;
+            }
+
+            var required = RequiredLanguages(model, useCase);
+
+            if (required.Count == 0)
+            {
+                continue;
+            }
+
+            foreach (var result in model.RecordsByHome[name]
+                .Where(result => result.Type == RecordTypes.Result && !result.Derived && result.Field(RecordFields.Outcome) == "refusal")
+                .OrderBy(result => result.Id, StringComparer.Ordinal))
+            {
+                var present = SentencesOf(result);
+
+                foreach (var tag in required.Keys.Order(StringComparer.Ordinal))
+                {
+                    if (present.Contains(tag))
+                    {
+                        continue;
+                    }
+
+                    findings.Add(new Finding(
+                        "sentence-language-missing",
+                        $"Result '{result.Id}' is a refusal of use case '{useCase.Id}' reached through entry point '{required[tag]}' and carries no '{tag}' sentence.",
+                        result.File, result.Line, SubjectOf(result))
+                    {
+                        TierOverride = "A",
+                    });
+                }
+            }
+        }
+    }
+
+    /// <summary>The languages a use case's entry points declare beside each entry point's default, with one entry point naming each.</summary>
+    /// <param name="model">The loaded project model that holds every entry point.</param>
+    /// <param name="useCase">The use case record whose entry points are read.</param>
+    /// <returns>Each non-default language tag with the first entry point declaring it.</returns>
+    private static Dictionary<string, string> RequiredLanguages(ProjectModel model, Record useCase)
+    {
+        var required = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var pointId in useCase.Ids(RecordFields.ReachedThrough))
+        {
+            if (!model.ById.TryGetValue(pointId, out var point) || point.Type != RecordTypes.EntryPoint)
+            {
+                continue;
+            }
+
+            var languages = point.Strings(RecordFields.Languages);
+
+            for (var index = 1; index < languages.Count; index++)
+            {
+                var tag = languages[index].Trim();
+
+                if (tag.Length > 0)
+                {
+                    required.TryAdd(tag, pointId);
+                }
+            }
+        }
+
+        return required;
+    }
+
+    /// <summary>The language tags a result carries a non-empty sentence for.</summary>
+    /// <param name="result">The result record whose sentences are read.</param>
+    /// <returns>Each tag of sentences holding a non-empty sentence.</returns>
+    private static HashSet<string> SentencesOf(Record result)
+    {
+        var present = new HashSet<string>(StringComparer.Ordinal);
+
+        if (result.Raw.ValueKind != JsonValueKind.Object
+            || !result.Raw.TryGetProperty(RecordFields.Sentences, out var sentences)
+            || sentences.ValueKind != JsonValueKind.Object)
+        {
+            return present;
+        }
+
+        foreach (var entry in sentences.EnumerateObject())
+        {
+            if (entry.Value.ValueKind == JsonValueKind.String
+                && entry.Value.GetString() is { Length: > 0 } text
+                && text.Trim().Length > 0)
+            {
+                present.Add(entry.Name);
+            }
+        }
+
+        return present;
     }
 }

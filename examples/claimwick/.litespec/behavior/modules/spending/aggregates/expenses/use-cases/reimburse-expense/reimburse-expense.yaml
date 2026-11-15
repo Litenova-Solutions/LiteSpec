@@ -46,6 +46,8 @@ records:
   code: spending.not-approved
   meaning: The expense is not approved.
   sentence: This expense is not approved yet, so it cannot be reimbursed.
+  sentences:
+    nl: Deze uitgave is nog niet goedgekeurd, dus deze kan nog niet worden vergoed.
 - type: result
   id: result/reimburse-expense.already-reimbursed
   title: Already Reimbursed
@@ -53,6 +55,8 @@ records:
   code: spending.already-reimbursed
   meaning: The expense is already reimbursed.
   sentence: This expense is already reimbursed.
+  sentences:
+    nl: Deze uitgave is al vergoed.
 - type: scenario
   id: scenario/reimburse-expense.reimbursing-an-approved-expense-succeeds
   title: Reimbursing an Approved Expense Succeeds

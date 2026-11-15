@@ -873,4 +873,10 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `sentences` field.</summary>
     public const string Sentences = "sentences";
+
+    /// <summary>Gets the name of the `languages` field.</summary>
+    public const string Languages = "languages";
+
+    /// <summary>Gets the name of the `formats` field.</summary>
+    public const string Formats = "formats";
 }

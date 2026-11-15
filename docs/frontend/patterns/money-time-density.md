@@ -86,7 +86,7 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **Compact:** The recommended option reflows: the amount column keeps the code with each figure and the true minus on reversals, while the table scrolls sideways.
 
-**Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers decimals, negatives and separators: each currency shows the decimals it defines. The runner-up is the plain code table. It shows the same choice without reversal rows.
+**Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers decimals, negatives and separators: each currency shows the decimals it defines. The runner-up is the plain code table. It shows the same choice without reversal rows. The entry point names the option its screens render in `formats.money`.
 
 Choose the symbol with code in the header only when the finance screens and the spender screens show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.
 
@@ -266,7 +266,7 @@ page
 
 **Compact:** The recommended option reflows: the Submitted column keeps its single form with the zone still named once in the header.
 
-**Rationale:** Keep one form per table. State the zone once in the header. A column then reads as a column.
+**Rationale:** Keep one form per table. State the zone once in the header. A column then reads as a column. The entry point names the option its screens render in `formats.moment`.
 
 The runner-up puts absolute over relative. It fits dispute and payout surfaces where recency leads. Never ship relative only on a reconciled page. Nothing there can be cited.
 

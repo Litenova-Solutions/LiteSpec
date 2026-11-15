@@ -2182,6 +2182,34 @@ $defs:
       voice:
         description: How the product addresses this entry point's audience.
         $ref: '#/$defs/nonEmptyString'
+      languages:
+        description: The BCP 47 language tags the entry point serves, the first being its default.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          pattern: '^[a-z]{2,3}(-[A-Z]{2})?$'
+      formats:
+        description: The money and moment pattern options the entry point's screens render.
+        type: object
+        additionalProperties: false
+        required:
+        - money
+        - moment
+        properties:
+          money:
+            description: The option of the Writing an Amount pattern the entry point renders.
+            enum:
+            - code-and-decimals-with-the-column-totals-at-the-foot
+            - code-and-two-decimals-in-the-reader-s-language-with-a-true-m
+            - money-out-in-red-with-a-true-minus
+          moment:
+            description: The option of the Writing a Moment pattern the entry point renders.
+            enum:
+            - one-form-per-table-with-the-zone-stated-once
+            - grouped-by-day-so-the-column-is-the-day
+            - a-time-with-the-zone-on-every-value
       path:
         $ref: '#/$defs/nonEmptyString'
       contentType:
@@ -3644,6 +3672,34 @@ $defs:
       voice:
         description: How the product addresses this entry point's audience.
         $ref: '#/$defs/nonEmptyString'
+      languages:
+        description: The BCP 47 language tags the entry point serves, the first being its default.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          pattern: '^[a-z]{2,3}(-[A-Z]{2})?$'
+      formats:
+        description: The money and moment pattern options the entry point's screens render.
+        type: object
+        additionalProperties: false
+        required:
+        - money
+        - moment
+        properties:
+          money:
+            description: The option of the Writing an Amount pattern the entry point renders.
+            enum:
+            - code-and-decimals-with-the-column-totals-at-the-foot
+            - code-and-two-decimals-in-the-reader-s-language-with-a-true-m
+            - money-out-in-red-with-a-true-minus
+          moment:
+            description: The option of the Writing a Moment pattern the entry point renders.
+            enum:
+            - one-form-per-table-with-the-zone-stated-once
+            - grouped-by-day-so-the-column-is-the-day
+            - a-time-with-the-zone-on-every-value
       path:
         $ref: '#/$defs/nonEmptyString'
       contentType:

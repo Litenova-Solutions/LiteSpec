@@ -277,7 +277,7 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Reports each capitalized phrase of two to four words named in three or more records that no glossary term defines.</summary>
+    /// <summary>Reports each capitalized phrase of two to four words named in three or more records that no glossary term defines, skipping sentence openers, months, currency codes, acronym pairs, cast names and wireframes.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUndefinedPhrases(ProjectModel model, List<Finding> findings)
@@ -318,6 +318,8 @@ internal static class IntentChecks
             }
         }
 
+        var castNames = CastNamesOf(model);
+
         var recordsOfPhrase = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         var recordOfPhrase = new Dictionary<string, Record>(StringComparer.OrdinalIgnoreCase);
 
@@ -348,7 +350,7 @@ internal static class IntentChecks
 
         foreach (var entry in recordsOfPhrase.OrderBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase))
         {
-            if (entry.Value.Count < 3 || defined.Contains(entry.Key) || titles.Contains(entry.Key))
+            if (entry.Value.Count < 3 || defined.Contains(entry.Key) || titles.Contains(entry.Key) || ContainsCastName(entry.Key, castNames))
             {
                 continue;
             }
@@ -365,7 +367,7 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Every prose text of a record: its written string values and its explanation without headings and table rows.</summary>
+    /// <summary>Every prose text of a record: its written string values and its explanation without headings, table rows and wireframe blocks.</summary>
     /// <param name="record">The record whose prose is read.</param>
     /// <returns>The prose texts of the record.</returns>
     private static List<string> TextsOf(Record record)
@@ -376,9 +378,37 @@ internal static class IntentChecks
 
         if (record.Explanation is { } explanation)
         {
+            var inWireframe = false;
+
             foreach (var line in explanation.Split('\n'))
             {
                 var trimmed = line.TrimStart();
+
+                if (trimmed.StartsWith("```", StringComparison.Ordinal))
+                {
+                    if (!inWireframe)
+                    {
+                        var info = trimmed.Length > 3 ? trimmed[3..].Trim() : "";
+
+                        if (info == "wireframe"
+                            || info.StartsWith("wireframe ", StringComparison.Ordinal)
+                            || info.StartsWith("wireframe\t", StringComparison.Ordinal))
+                        {
+                            inWireframe = true;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        inWireframe = false;
+                        continue;
+                    }
+                }
+
+                if (inWireframe)
+                {
+                    continue;
+                }
 
                 if (!trimmed.StartsWith('#') && !trimmed.StartsWith('|'))
                 {
@@ -431,10 +461,54 @@ internal static class IntentChecks
     /// <summary>One word token inside prose.</summary>
     private static readonly Regex WordToken = new(@"[A-Za-z][a-zA-Z]*", RegexOptions.Compiled);
 
+    /// <summary>One code-formatted name inside the example cast, without its backticks.</summary>
+    private static readonly Regex CastCodeName = new(@"`(?<name>[^`]+)`", RegexOptions.Compiled);
+
     /// <summary>Every explanation section name of every record type, which reads as a heading, not a term.</summary>
     private static readonly HashSet<string> SectionNames = new(
         ExplanationSections.ByType.Values.SelectMany(sections => sections.Select(section => section.Name)),
         StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Sentence openers and function words that never open a term.</summary>
+    private static readonly HashSet<string> SentenceOpeners = new(
+        [
+            "When", "On", "If", "Otherwise", "Its", "Then", "After", "Before", "Once",
+            "Every", "Each", "This", "That", "These", "Those", "A", "An", "The",
+            "And", "Or", "But", "So", "For", "With", "From", "To", "In", "At", "By",
+        ],
+        StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Month names, which date a sentence rather than name a term.</summary>
+    private static readonly HashSet<string> MonthNames = new(
+        [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December",
+        ],
+        StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>ISO 4217 currency codes, which state a currency rather than name a term.</summary>
+    private static readonly HashSet<string> CurrencyCodes = new(
+        [
+            "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN",
+            "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BOV",
+            "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHE", "CHF",
+            "CHW", "CLF", "CLP", "CNY", "COP", "COU", "CRC", "CUC", "CUP", "CVE",
+            "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR", "FJD",
+            "FKP", "GBP", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD",
+            "HKD", "HNL", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR",
+            "ISK", "JEP", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF", "KPW",
+            "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD",
+            "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR",
+            "MWK", "MXN", "MXV", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR",
+            "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR",
+            "RON", "RSD", "RUB", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD",
+            "SHP", "SLE", "SOS", "SRD", "SSP", "STN", "SVC", "SYP", "SZL", "THB",
+            "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
+            "USD", "USN", "UYI", "UYU", "UZS", "VED", "VES", "VND", "VUV", "WST",
+            "XAF", "XAG", "XAU", "XBA", "XBB", "XBC", "XBD", "XCD", "XDR", "XOF",
+            "XPD", "XPF", "XPT", "XSU", "XUA", "YER", "ZAR", "ZMW", "ZWG",
+        ],
+        StringComparer.Ordinal);
 
     /// <summary>The capitalized phrases of two to four words in one text, with a leading article dropped. A phrase never spans a sentence stop, a colon, a semicolon, a pipe or a line break, and a word touching a digit or a slash joins no phrase.</summary>
     /// <param name="text">The prose text to scan.</param>
@@ -507,22 +581,233 @@ internal static class IntentChecks
         return after < text.Length && (char.IsDigit(text[after]) || text[after] == '/');
     }
 
-    /// <summary>Adds one run as a phrase when it holds two or more words after its article drops, unless it names an explanation section.</summary>
+    /// <summary>Adds one run as a phrase when it holds two or more words after its article drops, unless it opens with a sentence opener, holds a month, a currency code or an acronym pair, or names an explanation section.</summary>
     /// <param name="phrases">The list receiving the phrase.</param>
     /// <param name="run">The capitalized words of one run.</param>
     private static void AddPhrase(List<string> phrases, List<string> run)
     {
         var words = run.SkipWhile(word => word is "The" or "A" or "An").ToList();
 
-        if (words.Count >= 2)
+        if (words.Count < 2)
         {
-            var phrase = string.Join(" ", words);
+            return;
+        }
 
-            if (!SectionNames.Contains(phrase))
+        if (SentenceOpeners.Contains(words[0]))
+        {
+            return;
+        }
+
+        if (words.Any(word => MonthNames.Contains(word) || CurrencyCodes.Contains(word)))
+        {
+            return;
+        }
+
+        if (HasAcronymPair(words))
+        {
+            return;
+        }
+
+        var phrase = string.Join(" ", words);
+
+        if (!SectionNames.Contains(phrase))
+        {
+            phrases.Add(phrase);
+        }
+    }
+
+    /// <summary>Whether the phrase holds two all-caps acronyms, which name codes rather than a term.</summary>
+    /// <param name="words">The capitalized words of one phrase.</param>
+    /// <returns>True when at least two words are all caps acronyms.</returns>
+    private static bool HasAcronymPair(List<string> words)
+    {
+        var acronyms = 0;
+
+        foreach (var word in words)
+        {
+            if (word.Length >= 2 && word.All(char.IsUpper))
             {
-                phrases.Add(phrase);
+                acronyms++;
+
+                if (acronyms >= 2)
+                {
+                    return true;
+                }
             }
         }
+
+        return false;
+    }
+
+    /// <summary>Every name the project's example cast lists: each code-formatted name and each table value.</summary>
+    /// <param name="model">The loaded project model that holds every body and record.</param>
+    /// <returns>The cast names, without placeholders.</returns>
+    private static HashSet<string> CastNamesOf(ProjectModel model)
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var cast in model.Bodies.Where(body => Path.GetFileName(body.File).Equals("example-cast.md", StringComparison.OrdinalIgnoreCase)))
+        {
+            foreach (var name in CastNamesInText(cast.Body))
+            {
+                names.Add(name);
+            }
+        }
+
+        foreach (var cast in model.Records.Where(record => record.Type == RecordTypes.ExampleCast))
+        {
+            if (cast.Explanation is { } explanation)
+            {
+                foreach (var name in CastNamesInText(explanation))
+                {
+                    names.Add(name);
+                }
+            }
+        }
+
+        names.RemoveWhere(name => name.Length == 0 || name.Contains('<') || name.Contains('>'));
+
+        return names;
+    }
+
+    /// <summary>The code-formatted names and table values of one example cast text.</summary>
+    /// <param name="text">The example cast Markdown.</param>
+    /// <returns>Each code name and table value, trimmed.</returns>
+    private static List<string> CastNamesInText(string text)
+    {
+        var names = new List<string>();
+
+        foreach (Match match in CastCodeName.Matches(text))
+        {
+            var name = match.Groups["name"].Value.Trim();
+
+            if (name.Length > 0)
+            {
+                names.Add(name);
+            }
+        }
+
+        names.AddRange(TableValuesOf(text));
+
+        return names;
+    }
+
+    /// <summary>The data values of every Markdown table in the text, without the header and separator rows.</summary>
+    /// <param name="text">The example cast Markdown.</param>
+    /// <returns>Each non-empty data cell, with surrounding backticks stripped.</returns>
+    private static List<string> TableValuesOf(string text)
+    {
+        var values = new List<string>();
+        var table = new List<string>();
+
+        void FlushTable()
+        {
+            if (table.Count >= 3)
+            {
+                var start = IsSeparatorRow(table[1]) ? 2 : 1;
+
+                for (var index = start; index < table.Count; index++)
+                {
+                    foreach (var cell in CellsOf(table[index]))
+                    {
+                        var value = cell.Trim().Trim('`').Trim();
+
+                        if (value.Length > 0 && !IsSeparatorCell(value))
+                        {
+                            values.Add(value);
+                        }
+                    }
+                }
+            }
+
+            table.Clear();
+        }
+
+        foreach (var line in text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+        {
+            if (line.TrimStart().StartsWith('|'))
+            {
+                table.Add(line);
+            }
+            else if (table.Count > 0)
+            {
+                FlushTable();
+            }
+        }
+
+        if (table.Count > 0)
+        {
+            FlushTable();
+        }
+
+        return values;
+    }
+
+    /// <summary>The cells of one Markdown table row, trimmed and without empties.</summary>
+    /// <param name="line">The table row.</param>
+    /// <returns>Each non-empty cell.</returns>
+    private static List<string> CellsOf(string line) =>
+        line.Split('|').Select(cell => cell.Trim()).Where(cell => cell.Length > 0).ToList();
+
+    /// <summary>Whether the row separates the header from the data: every cell holds only dashes, colons and spaces.</summary>
+    /// <param name="line">The table row.</param>
+    /// <returns>True when the row is a separator row.</returns>
+    private static bool IsSeparatorRow(string line)
+    {
+        var cells = CellsOf(line);
+
+        return cells.Count > 0 && cells.All(IsSeparatorCell);
+    }
+
+    /// <summary>Whether the cell holds only dashes, colons and spaces.</summary>
+    /// <param name="cell">The table cell.</param>
+    /// <returns>True when the cell is a separator cell.</returns>
+    private static bool IsSeparatorCell(string cell) =>
+        cell.Length > 0 && cell.All(character => character is '-' or ':' or ' ' or '\t');
+
+    /// <summary>Whether the phrase contains a cast name as one word or as contiguous words.</summary>
+    /// <param name="phrase">The candidate phrase.</param>
+    /// <param name="castNames">The cast names.</param>
+    /// <returns>True when a cast name sits inside the phrase.</returns>
+    private static bool ContainsCastName(string phrase, HashSet<string> castNames)
+    {
+        if (castNames.Count == 0)
+        {
+            return false;
+        }
+
+        var words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var name in castNames)
+        {
+            var nameWords = name.Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            if (nameWords.Length == 0 || nameWords.Length > words.Length)
+            {
+                continue;
+            }
+
+            for (var start = 0; start <= words.Length - nameWords.Length; start++)
+            {
+                var matches = true;
+
+                for (var offset = 0; offset < nameWords.Length; offset++)
+                {
+                    if (!words[start + offset].Equals(nameWords[offset], StringComparison.OrdinalIgnoreCase))
+                    {
+                        matches = false;
+                        break;
+                    }
+                }
+
+                if (matches)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>The evidence kinds a problem carries, one per evidence entry.</summary>

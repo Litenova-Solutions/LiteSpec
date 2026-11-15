@@ -44,6 +44,8 @@ records:
   code: spending.retention-not-ended
   meaning: The retention of the expense has not ended.
   sentence: The retention of this expense has not ended, so its personal data stays.
+  sentences:
+    nl: De bewaartermijn van deze uitgave is nog niet verstreken, dus de persoonsgegevens blijven bewaard.
 - type: scenario
   id: scenario/erase-personal-data.erasing-personal-data-succeeds
   title: Erasing Personal Data Succeeds

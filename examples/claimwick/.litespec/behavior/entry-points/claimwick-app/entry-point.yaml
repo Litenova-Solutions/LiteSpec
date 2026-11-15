@@ -7,3 +7,9 @@ auth:
 - session
 density: application-balanced
 voice: Claimwick addresses the employee plainly and names the next step on every screen.
+languages:
+- en
+- nl
+formats:
+  money: code-and-two-decimals-in-the-reader-s-language-with-a-true-m
+  moment: one-form-per-table-with-the-zone-stated-once

@@ -70,6 +70,8 @@ records:
   code: spending.receipt-missing
   meaning: The expense is above the receipt threshold and carries no receipt.
   sentence: Attach the receipt for this expense, then submit again.
+  sentences:
+    nl: Voeg het bonnetje voor deze uitgave toe en dien de uitgave daarna opnieuw in.
 - type: scenario
   id: scenario/submit-expense.submitting-with-a-receipt-succeeds
   title: Submitting with a Receipt Succeeds

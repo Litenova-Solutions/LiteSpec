@@ -44,6 +44,8 @@ records:
   code: spending.negative-threshold
   meaning: The threshold is negative.
   sentence: Enter a threshold of zero or more.
+  sentences:
+    nl: Voer een drempel van nul of meer in.
 - type: scenario
   id: scenario/change-receipt-threshold.setting-the-threshold-succeeds
   title: Setting the Threshold Succeeds

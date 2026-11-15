@@ -26195,7 +26195,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060one-form-per-table-with-the-zone-stated-once\u0060",
-      "rationale": "Keep one form per table. State the zone once in the header. A column then reads as a column. The runner-up puts absolute over relative. It fits dispute and payout surfaces where recency leads. Never ship relative only on a reconciled page. Nothing there can be cited.",
+      "rationale": "Keep one form per table. State the zone once in the header. A column then reads as a column. The entry point names the option its screens render in \u0060formats.moment\u0060. The runner-up puts absolute over relative. It fits dispute and payout surfaces where recency leads. Never ship relative only on a reconciled page. Nothing there can be cited.",
       "example": ""
     },
     {
@@ -26213,7 +26213,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060code-and-two-decimals-in-the-reader-s-language-with-a-true-m\u0060",
-      "rationale": "Ship the code format in the reader\u0027s language with a true minus. It keeps one convention and answers decimals, negatives and separators: each currency shows the decimals it defines. The runner-up is the plain code table. It shows the same choice without reversal rows. Choose the symbol with code in the header only when the finance screens and the spender screens show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.",
+      "rationale": "Ship the code format in the reader\u0027s language with a true minus. It keeps one convention and answers decimals, negatives and separators: each currency shows the decimals it defines. The runner-up is the plain code table. It shows the same choice without reversal rows. The entry point names the option its screens render in \u0060formats.money\u0060. Choose the symbol with code in the header only when the finance screens and the spender screens show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.",
       "example": ""
     },
     {
@@ -27799,6 +27799,24 @@
       "statement": "Every route MUST name its page type\u0027s reference, with a freestyle route naming its decision record instead.",
       "rationale": "An author with no named reference invents a page from primitives, and the next author invents another page for the same type. Naming the page type\u0027s reference keeps every page of one type on the one drawing it derives from, so the type stays one design. A freestyle route names its decision record instead, since it derives from no reference.",
       "example": ""
+    },
+    {
+      "id": "litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country",
+      "heading": "Format Money and Moments from the Reader\u0027s Language and the Business\u0027s Country",
+      "page": "docs/frontend/ui.md",
+      "anchor": "format-money-and-moments-from-the-readers-language-and-the-businesss-country",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060sentence-language-missing\u0060 for a written refusal result with no sentence for a language its use case\u0027s entry points declare. Run it at the consumer root.",
+      "stack": "any",
+      "concern": "frontend-ui",
+      "artifact": "record:entry-point",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each entry point MUST name the money and moment forms its screens render in \u0060formats\u0060, rendered with the locale data (CLDR) of the reader\u0027s language and the currency and country the record carries, with no format string, separator, or symbol written in code.",
+      "rationale": "One record serves readers in several languages, and each language writes its separators its own way. The entry point names one money option and one moment option from the money and moment patterns, and each screen renders them with the locale data (CLDR) of the reader\u0027s language and the currency and country the record carries. A form fixed in code shows one reader the wrong separators and hides the choice from every check. Proposed by decision 0089.",
+      "example": "The Claimwick expense of EUR 1,212.35 reads \u0060EUR 1.212,35\u0060 for a Dutch reader and \u0060EUR 1,212.35\u0060 for an English reader, from the same record."
     },
     {
       "id": "litespec/frontend/ui#give-every-input-a-visible-boundary",

@@ -69,6 +69,8 @@ records:
   code: spending.nothing-approved
   meaning: The state of an export with no approved expense awaiting it.
   sentence: No approved expense awaits export, so there is no batch to send.
+  sentences:
+    nl: Er wacht geen goedgekeurde uitgave op export, dus er is geen batch om te verzenden.
 - type: scenario
   id: scenario/export-expenses.exporting-approved-expenses-succeeds
   title: Exporting Approved Expenses Succeeds

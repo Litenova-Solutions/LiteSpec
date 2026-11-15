@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1723 provisions in 4 groups across 6 areas.
+The active release states 1724 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -93,7 +93,7 @@ The active release states 1723 provisions in 4 groups across 6 areas.
 | [frontend/rendering](../frontend/rendering.md) | 10 | 0 | 0% |
 | [frontend/structure](../frontend/structure.md) | 11 | 1 | 9% |
 | [frontend/testing](../frontend/testing.md) | 11 | 4 | 36% |
-| [frontend/ui](../frontend/ui.md) | 21 | 4 | 19% |
+| [frontend/ui](../frontend/ui.md) | 22 | 5 | 23% |
 | [frontend/web/components](../frontend/web/components.md) | 2 | 1 | 50% |
 | [frontend/web/react/stack](../frontend/web/react/stack.md) | 20 | 0 | 0% |
 | [frontend/web/rendering](../frontend/web/rendering.md) | 1 | 0 | 0% |
@@ -1674,6 +1674,7 @@ The active release states 1723 provisions in 4 groups across 6 areas.
 | litespec/frontend/ui#compose-each-route-from-one-floorplan | [Compose Each Route from One Floorplan](../frontend/ui.md#compose-each-route-from-one-floorplan) | rule | any | frontend-ui | route | implementation | no | required | guidance | Which routes render zero or several floorplans without recording a freestyle decision? Look in the route sources and the suite output reading the floorplan name from each frame. |
 | litespec/frontend/ui#declare-a-closed-floorplan-set | [Declare a Closed Floorplan Set](../frontend/ui.md#declare-a-closed-floorplan-set) | rule | any | frontend-ui | any | implementation | no | required | guidance | Which page frames miss the design contract Page Frames section, their component, or their when-to-use rule? Look in the design contract. |
 | litespec/frontend/ui#derive-each-page-type-from-a-named-reference | [Derive Each Page Type from a Named Reference](../frontend/ui.md#derive-each-page-type-from-a-named-reference) | rule | any | frontend-ui | route | implementation | no | required | guidance | Which routes name neither their page type reference nor, for a freestyle route, their decision record? Look in the route sources. |
+| litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country | [Format Money and Moments from the Reader's Language and the Business's Country](../frontend/ui.md#format-money-and-moments-from-the-readers-language-and-the-businesss-country) | rule | any | frontend-ui | record:entry-point | implementation | no | required | checkable | `litespec model check` reports `sentence-language-missing` for a written refusal result with no sentence for a language its use case's entry points declare. Run it at the consumer root. |
 | litespec/frontend/ui#give-every-input-a-visible-boundary | [Give Every Input a Visible Boundary](../frontend/ui.md#give-every-input-a-visible-boundary) | rule | any | frontend-ui | any | implementation | no | required | guidance | Which input boundary token falls below 3:1 against its surface in a declared color scheme? Look in the token definitions and the rendered form fields. |
 | litespec/frontend/ui#govern-behavior-packages | [Govern Behavior Packages](../frontend/ui.md#govern-behavior-packages) | rule | any | frontend-ui | any | implementation | no | required | guidance | Which behavior packages name no decision record justifying them, or render outside baseline components and tokens? Look in the package declarations and the decision records. |
 | litespec/frontend/ui#keep-a-blocked-command-visible-with-its-reason | [Keep a Blocked Command Visible with Its Reason](../frontend/ui.md#keep-a-blocked-command-visible-with-its-reason) | convention | any | frontend-ui | component, route | implementation | no | default | guidance | Which commands blocked only by state or role vanish instead of staying visible and disabled with the reason beside them? Look in the command surfaces. |

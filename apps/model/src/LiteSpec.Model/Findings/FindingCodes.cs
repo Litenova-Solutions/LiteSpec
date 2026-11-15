@@ -648,6 +648,9 @@ public static class FindingCodes
         new("wording-alias", "A", RecordLayer.Behavior, trace: false,
             "A wireframe, result sentence or label uses a glossary alias where the term exists.",
             "Use the glossary term instead of its alias."),
+        new("sentence-language-missing", "A", RecordLayer.Behavior, trace: false,
+            "A written refusal result has no sentence for a language its use case's entry points declare.",
+            "Write the sentence in sentences for each language beside the entry point's default."),
     ];
 
 

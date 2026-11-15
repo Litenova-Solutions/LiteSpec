@@ -46,6 +46,8 @@ records:
   code: spending.own-expense
   meaning: The approver submitted the expense.
   sentence: You submitted this expense, so another manager must decide it.
+  sentences:
+    nl: Je hebt deze uitgave zelf ingediend, dus een andere manager moet erover beslissen.
 - type: result
   id: result/approve-expense.not-submitted
   title: Not Submitted
@@ -53,6 +55,8 @@ records:
   code: spending.not-submitted
   meaning: The expense is already decided.
   sentence: This expense is already decided, so there is nothing to approve.
+  sentences:
+    nl: Over deze uitgave is al beslist, dus er valt niets meer goed te keuren.
 - type: scenario
   id: scenario/approve-expense.approving-a-submitted-expense-succeeds
   title: Approving a Submitted Expense Succeeds

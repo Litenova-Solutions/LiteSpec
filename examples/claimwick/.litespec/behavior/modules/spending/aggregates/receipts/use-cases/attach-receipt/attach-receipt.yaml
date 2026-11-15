@@ -64,6 +64,8 @@ records:
   code: spending.expense-decided
   meaning: The expense is already decided.
   sentence: This expense is already decided, so it takes no more receipts.
+  sentences:
+    nl: Over deze uitgave is al beslist, dus er kunnen geen bonnetjes meer bij.
 - type: scenario
   id: scenario/attach-receipt.attaching-a-receipt-succeeds
   title: Attaching a Receipt Succeeds

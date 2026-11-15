@@ -112,6 +112,7 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - An outside call separates rejected, accepted and unknown outcomes, with `onUnknown` for the unknown case.
 - Notifications are messages to people, delivered `deliveredThrough` an external system; consent is recorded data a rule requires through `requiresConsent`. Under the concurrency extension a command states its `conflicts`.
 - Reaction and job scenarios end in a run use case's result or in one of the record's outcomes. A scenario belongs to the use case, reaction or job it exercises.
+- An entry point declares the `languages` it serves and its money and moment `formats`, each an option of the money and time patterns; the screens render them from the locale data of the reader's language and the currency and country the record carries, and `sentence-language-missing` reports a refusal with no sentence in a declared language.
 
 ### Part N: Removals and Names
 
@@ -150,7 +151,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (69):
+Added (70):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#read-another-modules-state-through-a-read-model`
@@ -217,6 +218,7 @@ Added (69):
 - `litespec/frontend/mobile/screens#route-app-links-to-flow-entry-screens`
 - `litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built`
 - `litespec/frontend/testing#name-the-flow-a-flow-test-covers`
+- `litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country`
 - `litespec/frontend/ui#keep-token-values-in-one-token-file`
 - `litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next`
 - `litespec/frontend/ui#meet-the-limits-of-every-token-role`

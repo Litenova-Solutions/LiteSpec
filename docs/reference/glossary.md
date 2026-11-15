@@ -530,6 +530,16 @@ Home: docs/core/intent.md
 
 Source: plain English.
 
+### Format
+
+The shape of a money amount or a moment on a screen, chosen from the money and moment patterns and named on the entry point.
+
+Layer: Behavior.
+
+Home: docs/frontend/ui.md
+
+Source: LiteSpec.
+
 ### Freshness
 
 How current a query group or read model is: its mode of immediate, snapshot, or eventual, with the duration within which it holds.
@@ -633,6 +643,16 @@ Layer: Behavior.
 Home: docs/core/automation.md
 
 Source: LiteSpec.
+
+### Language
+
+One language an entry point serves, named by its BCP 47 tag; the first tag is the default.
+
+Layer: Behavior.
+
+Home: docs/frontend/ui.md
+
+Source: BCP 47.
 
 ### Measured Requirement
 

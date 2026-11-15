@@ -9,8 +9,9 @@ using Record = LiteSpec.Cli.Model.Records.Record;
 namespace LiteSpec.Cli.Tests.Model.Screens;
 
 /// <summary>
-///     The UI blueprint checks: wireframe references, screen reachability, wording aliases and
-///     the token limits, each proved on a small model that breaks one rule.
+///     The UI blueprint checks: wireframe references, screen reachability, wording aliases,
+///     refusal sentences, sentence languages and the token limits, each proved on a small
+///     model that breaks one rule.
 /// </summary>
 public sealed class UiBlueprintCheckTests
 {
@@ -244,6 +245,99 @@ public sealed class UiBlueprintCheckTests
 
         Assert.NotEmpty(findings);
         Assert.Contains(findings, finding => finding.Message.Contains("'text'", StringComparison.Ordinal));
+    }
+
+    /// <summary>A written refusal missing a declared language reports sentence-language-missing.</summary>
+    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    [Fact]
+    public void RefusalMissingADeclaredLanguageReportsSentenceLanguageMissing()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "entry-point/app");
+        model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser","languages":["en","nl"]}""", temp.Path));
+
+        var findings = WithCode(model, "sentence-language-missing");
+
+        Assert.Single(findings);
+        Assert.Contains("result/list-loans.refused", findings[0].Message, StringComparison.Ordinal);
+        Assert.Contains("'nl'", findings[0].Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A written refusal carrying every declared language reports no sentence-language-missing.</summary>
+    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    [Fact]
+    public void RefusalCarryingEveryDeclaredLanguageReportsNothing()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "entry-point/app");
+        model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser","languages":["en","nl"]}""", temp.Path));
+        model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
+        model.Records.Add(Rec(
+            "result", "result/list-loans.refused",
+            """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused","sentences":{"nl":"De lijst is geweigerd."}}""",
+            temp.Path));
+
+        Assert.Empty(WithCode(model, "sentence-language-missing"));
+    }
+
+    /// <summary>The default language needs no sentences entry.</summary>
+    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    [Fact]
+    public void DefaultLanguageNeedsNoSentencesEntry()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "entry-point/app");
+        model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser","languages":["en"]}""", temp.Path));
+
+        Assert.Empty(WithCode(model, "sentence-language-missing"));
+    }
+
+    /// <summary>A derived refusal without sentences reports no sentence-language-missing.</summary>
+    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    [Fact]
+    public void DerivedRefusalWithoutSentencesReportsNothing()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "entry-point/app");
+        model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser","languages":["en","nl"]}""", temp.Path));
+        model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
+        using var document = JsonDocument.Parse("""{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused"}""");
+        model.Records.Add(new Record
+        {
+            Type = "result",
+            Id = "result/list-loans.refused",
+            Title = "result/list-loans.refused",
+            File = Path.Combine(temp.Path, "result.md"),
+            Line = 1,
+            Raw = document.RootElement.Clone(),
+            Derived = true,
+        });
+
+        Assert.Empty(WithCode(model, "sentence-language-missing"));
+    }
+
+    /// <summary>A use case reached through entry points declaring two languages needs a sentence for each.</summary>
+    /// <proves>litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country</proves>
+    [Fact]
+    public void TwoEntryPointsRequireEachDeclaredLanguage()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "entry-point/app");
+        model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser","languages":["en","nl"]}""", temp.Path));
+        model.Records.Add(Rec("entry-point", "entry-point/kiosk", """{"kind":"browser","languages":["en","fr"]}""", temp.Path));
+        model.Records.RemoveAll(record => record.Id == "use-case/lending.list-loans");
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app","entry-point/kiosk"]}""", temp.Path));
+
+        var findings = WithCode(model, "sentence-language-missing");
+
+        Assert.Equal(2, findings.Count);
+        Assert.Contains(findings, finding => finding.Message.Contains("'nl'", StringComparison.Ordinal));
+        Assert.Contains(findings, finding => finding.Message.Contains("'fr'", StringComparison.Ordinal));
     }
 
     static List<Finding> WithCode(ProjectModel model, string code) =>
