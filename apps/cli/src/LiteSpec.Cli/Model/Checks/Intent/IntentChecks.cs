@@ -323,7 +323,9 @@ internal static class IntentChecks
         var recordsOfPhrase = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         var recordOfPhrase = new Dictionary<string, Record>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var record in model.Records.Where(record => !record.Derived).OrderBy(record => record.Id, StringComparer.Ordinal))
+        // Research, constraints and decisions quote the outside world by its own names (laws,
+        // vendors, places), which are not the product's vocabulary, so only product records count.
+        foreach (var record in model.Records.Where(record => !record.Derived && !OutsideSourceTypes.Contains(record.Type)).OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var phrases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -478,6 +480,12 @@ internal static class IntentChecks
         ],
         StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>The record types that quote outside sources by name, which term-missing does not read.</summary>
+    private static readonly HashSet<string> OutsideSourceTypes = new(StringComparer.Ordinal)
+    {
+        RecordTypes.Research, RecordTypes.Constraint, RecordTypes.Decision,
+    };
+
     /// <summary>Month names, which date a sentence rather than name a term.</summary>
     private static readonly HashSet<string> MonthNames = new(
         [
@@ -603,7 +611,7 @@ internal static class IntentChecks
             return;
         }
 
-        if (HasAcronymPair(words))
+        if (HasAcronym(words))
         {
             return;
         }
@@ -616,23 +624,16 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Whether the phrase holds two all-caps acronyms, which name codes rather than a term.</summary>
+    /// <summary>Whether the phrase holds an all-caps acronym, which names an outside standard, law or code rather than a product term.</summary>
     /// <param name="words">The capitalized words of one phrase.</param>
-    /// <returns>True when at least two words are all caps acronyms.</returns>
-    private static bool HasAcronymPair(List<string> words)
+    /// <returns>True when a word is an all-caps acronym.</returns>
+    private static bool HasAcronym(List<string> words)
     {
-        var acronyms = 0;
-
         foreach (var word in words)
         {
             if (word.Length >= 2 && word.All(char.IsUpper))
             {
-                acronyms++;
-
-                if (acronyms >= 2)
-                {
-                    return true;
-                }
+                return true;
             }
         }
 

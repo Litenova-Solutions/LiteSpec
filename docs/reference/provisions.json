@@ -8302,7 +8302,7 @@
       "anchor": "define-each-recurring-capitalized-phrase",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060term-missing\u0060 for a capitalized phrase of two to four words named in three or more records that no glossary term defines.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060term-missing\u0060 for a capitalized phrase of two to four words named in three or more product records that no glossary term defines; research, constraints and decisions quote outside sources by their own names and are not read, and a phrase holding an acronym, a month, a currency code, a cast name or a sentence opener is no term.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:term",

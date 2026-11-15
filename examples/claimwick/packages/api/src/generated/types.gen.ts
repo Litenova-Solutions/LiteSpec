@@ -23,3 +23,47 @@ export type ExpenseRow = {
 export type ListExpensesResponse = {
   expenses: ExpenseRow[];
 };
+
+export type ApproveExpenseData = {
+  path: {
+    expenseId: string;
+  };
+};
+
+export type ApproveExpenseResponse = unknown;
+
+export type RefuseExpenseData = {
+  path: {
+    expenseId: string;
+  };
+  query: {
+    reason: string;
+  };
+};
+
+export type RefuseExpenseResponse = unknown;
+
+export type ReimburseExpenseData = {
+  path: {
+    expenseId: string;
+  };
+};
+
+export type ReimburseExpenseResponse = unknown;
+
+export type ErasePersonalDataData = {
+  path: {
+    expenseId: string;
+  };
+};
+
+export type ErasePersonalDataResponse = unknown;
+
+export type AttachReceiptData = {
+  query: {
+    receiptId: string;
+    expenseId: string;
+  };
+};
+
+export type AttachReceiptResponse = unknown;

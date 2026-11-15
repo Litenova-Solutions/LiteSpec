@@ -215,6 +215,60 @@ public sealed class TermPhraseTests
         Assert.DoesNotContain("'US AI Review'", result.Output);
     }
 
+    /// <summary>A phrase holding one all-caps acronym names an outside standard, law or code, so it is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void SingleAcronymPhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The desk checks Lowest WCAG Contrast each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Lowest WCAG Contrast'", result.Output);
+    }
+
+    /// <summary>Research, constraints and decisions quote outside sources by name, so a phrase they repeat is no product term.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void OutsideSourcePhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        const string Text = """
+            # Record
+
+            The library follows the Public Lending Charter for every loan.
+            """;
+        TestRecords.Explain(fixture.Path, ".litespec/intent/research/loan-period-benchmarks/loan-period-benchmarks.md", Text);
+        TestRecords.Explain(fixture.Path, ".litespec/intent/constraints/library-privacy-law/library-privacy-law.md", Text);
+        TestRecords.Explain(fixture.Path, ".litespec/intent/decisions/0001-loan-period/0001-loan-period.md", Text);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Public Lending Charter'", result.Output);
+    }
+
+    /// <summary>The same phrase repeated in product records is still reported, so the narrowing keeps the check.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void ProductRecordPhraseIsStillReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The library follows the Public Lending Charter for every loan.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.Contains("'Public Lending Charter'", result.Output);
+    }
+
     /// <summary>A phrase holding a code-formatted cast name is no recurring phrase.</summary>
     /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
     [Fact]
