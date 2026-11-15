@@ -7,8 +7,8 @@ import type { Book, BookRecord, BookTest, ImplKind } from "$lib/frame";
 /** A goal nothing serves reads as a gap in the trace and the Intent tree. */
 export const GOAL_GAP_TEXT = "No feature serves this goal";
 
-/** A feature nothing cites reads as a gap in the trace and the Intent tree. */
-export const FEATURE_GAP_TEXT = "No requirement cites this feature";
+/** A feature with no requirement in its folder reads as a gap in the trace and the Intent tree. */
+export const FEATURE_GAP_TEXT = "This feature has no requirements";
 
 /** A requirement nothing keeps reads as a gap in the trace and the Intent tree. */
 export const GAP_TEXT = "Nothing keeps this requirement";
@@ -110,7 +110,7 @@ export function downOf(book: Book, id: string): DownEntry[] {
   }
   if (t === "goal") linked(book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature"), "advances");
   if (t === "problem") linked(book.ins(id, "solves").filter((x) => book.typeOf(x) === "feature"), "solves");
-  if (t === "feature") linked(book.ins(id, "cites"), "cites");
+  if (t === "feature") contained(book.kids(id).filter((x) => book.typeOf(x) === "requirement"), "a requirement of the feature");
   if (t === "requirement") linked(book.ins(id, "fulfills"), "fulfills");
   if (t === "flow") linked(book.ins(id, "serves"), "serves");
   if (isScenarioType(t)) {
