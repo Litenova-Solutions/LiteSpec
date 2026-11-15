@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Maintain.ProvisionIndex;
 using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Standards;
 using static LiteSpec.Maintain.Validate.PageText;
@@ -642,7 +643,8 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        JsonSchema.UnsupportedKeywords(schema, schemaRelative, "#", add);
+        // The link annotations are keywords the schema carries for the Links table, so the gate reads a copy without them.
+        JsonSchema.UnsupportedKeywords(LinkTable.WithoutAnnotations(schema), schemaRelative, "#", add);
         var errors = new List<string>();
         try
         {

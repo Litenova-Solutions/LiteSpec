@@ -60,7 +60,7 @@ static class BookDetailValues
         return null;
     }
 
-    /// <summary>Strips the step fragment of an id, such as journey/name#s1.</summary>
+    /// <summary>Strips the step fragment of an id, such as flow/name#s1.</summary>
     /// <param name="id">The record id, with or without a step fragment.</param>
     /// <returns>The id without its fragment.</returns>
     public static string BaseId(string id)

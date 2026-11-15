@@ -2,23 +2,52 @@ type: use-case
 id: use-case/spending.attach-receipt
 title: Attach Receipt
 summary: An employee adds a receipt to a submitted expense so it can be decided.
+exposure: A signed-in employee reaches this command through the expenses app under the expense-request permission. A receipt attached to the wrong expense misstates its proof, but the expense stays undecided until a manager acts.
 kind: command
 access:
   grant: permission/request-expense
   tenant: own
 serves:
-- journey/submit-and-reimburse#s2
+- flow/submit-and-reimburse#s2
 fulfills:
 - requirement/approval.above-threshold-receipt
 reachedThrough:
 - entry-point/claimwick-app
 raises:
-- event/receipt.attached
-changes:
+- domain-event/receipt.attached
+input:
+- name: expense
+  meaning: The submitted expense the receipt supports.
+  type: id
+  of: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+- name: file
+  meaning: The receipt file as the employee uploaded it.
+  type: file
+  contentTypes:
+  - application/pdf
+  - image/jpeg
+  - image/png
+  maxSize: 10 MB
+  required: true
+  origin: caller
+  classification: internal
+writes:
 - aggregate/spending.expense
+- aggregate/spending.receipt
+reads:
+- aggregate/spending.expense
+consistency:
+  mode: atomic
+  boundBy:
+  - rule/spending.receipt-attached-atomically
 idempotency:
-  mode: none
+  mode: state
   reason: a repeat attaches the same receipt to the same submitted expense, leaving the same receipt attached
+  replay: acts-again
+  recognizedBy: the aggregate state already holds the outcome this command sets
 audit:
   level: none
   target: no audit trail; the example stores no audit entry
@@ -34,6 +63,7 @@ records:
   outcome: refusal
   code: spending.expense-decided
   meaning: The expense is already decided.
+  sentence: This expense is already decided, so it takes no more receipts.
 - type: scenario
   id: scenario/attach-receipt.attaching-a-receipt-succeeds
   title: Attaching a Receipt Succeeds
@@ -41,6 +71,10 @@ records:
   when: The employee attaches the receipt.
   then: The receipt is attached.
   result: result/attach-receipt.attached
+  exercises:
+  - rule/receipt.attaches-before-decision
+  - rule/spending.receipt-filed-once
+  - rule/spending.receipt-attached-atomically
 - type: scenario
   id: scenario/attach-receipt.attaching-to-decided-expense-refused
   title: Attaching to a Decided Expense Is Refused
@@ -48,3 +82,5 @@ records:
   when: The employee attaches the receipt.
   then: The receipt is refused because the expense is already decided.
   result: result/attach-receipt.expense-decided
+  exercises:
+  - rule/receipt.attaches-before-decision

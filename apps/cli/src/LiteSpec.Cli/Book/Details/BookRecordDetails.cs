@@ -34,7 +34,7 @@ static class BookRecordDetails
     ///     proof status and scenario proof. The expectation, the completion and
     ///     the missing marks stop at the claimed layers, so an unclaimed layer
     ///     never reads as missing. Every detail that is a requirement or a
-    ///     journey carries its Intent coverage. Every written type is a member
+    ///     flow carries its Intent coverage. Every written type is a member
     ///     of <see cref="RecordTypes"/> and every written layer is a member of
     ///     the outline layer keys or null.
     /// </summary>
@@ -47,6 +47,8 @@ static class BookRecordDetails
         var implemented = claims.Implementation is not null;
         var proven = claims.Proof is not null;
         var coverage = BookIntentCoverage.Of(model);
+        var coverageById = CoverageById(coverage);
+        var stepsByFlow = StepsByFlow(coverage);
         var index = BookIndexBuilder.BuildIndex(model);
         var layers = BookDetailSources.LayerById(outline);
         var kept = BookDetailSources.KeptBy(index);
@@ -82,18 +84,25 @@ static class BookRecordDetails
 
             BookProofDetail.AddReachable(detail, index, id, type);
             BookProofDetail.AddKept(detail, kept, id, type);
-            BookJourneyDetail.AddSteps(detail, served, index, record, id, type);
-            if (!proven && type == "journey")
+            BookFlowDetail.AddSteps(detail, served, index, record, id, type);
+            BookBlueprintDetail.AddWireframe(detail, record, type);
+            BookBlueprintDetail.AddNavigationMap(detail, index, outline, id, type);
+            BookBlueprintDetail.AddStoryboard(detail, served, record, id, type);
+            if (!proven && type == "flow")
             {
                 detail["exercised"] = new JsonArray();
             }
 
-            AddIntentCoverage(detail, coverage, id, type);
+            AddIntentCoverage(detail, coverageById, stepsByFlow, id, type);
+            if (type == "goal")
+            {
+                AddOutcome(detail, record);
+            }
             JsonObject? routeEntry = null;
             if (type == "screen")
             {
                 routes.TryGetValue(id, out routeEntry);
-                BookJourneyDetail.AddRoute(detail, routeEntry, calls);
+                BookFlowDetail.AddRoute(detail, routeEntry, calls);
             }
 
             var impl = implemented
@@ -110,9 +119,7 @@ static class BookRecordDetails
             detail["lacks"] = BookImplementationDetail.LacksFor(index, tests, impl, expect, id, type);
             detail["completion"] = BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type);
             detail["findings"] = FindingList(findings.TryGetValue(id, out var own) ? own : []);
-            var body = BookBodyDetail.Render(index, record);
-            detail["bodyHtml"] = body.Html;
-            detail["sections"] = body.Sections;
+            detail["sections"] = BookBodyDetail.Render(index, record);
             detail["fieldsHtml"] = BookProseFields.Render(index, record);
             BookRequiresDetail.Add(detail, index, id, type);
             order.Add(id);
@@ -126,6 +133,12 @@ static class BookRecordDetails
         {
             details[id]["out"] = BookEdges.EdgeList(outs.TryGetValue(id, out var from) ? from : []);
             details[id]["in"] = BookEdges.EdgeList(ins.TryGetValue(id, out var to) ? to : []);
+        }
+
+        // A reach link reads as claimed until the proof of the record that makes it passes, then as verified.
+        foreach (var detail in details.Values)
+        {
+            AddClaims(detail, details);
         }
 
         return details;
@@ -173,21 +186,73 @@ static class BookRecordDetails
         return detail;
     }
 
+    /// <summary>One coverage entry per item id, indexed once so no record scans the entries.</summary>
+    /// <param name="coverage">The computed Intent coverage status.</param>
+    /// <returns>The entry per item id.</returns>
+    static Dictionary<string, IntentCoverage.Entry> CoverageById(IntentCoverage coverage)
+    {
+        var byId = new Dictionary<string, IntentCoverage.Entry>(StringComparer.Ordinal);
+        foreach (var entry in coverage.Entries)
+        {
+            byId.TryAdd(entry.Id, entry);
+        }
+
+        return byId;
+    }
+
+    /// <summary>One step entry list per flow id, indexed once so no flow scans the entries.</summary>
+    /// <param name="coverage">The computed Intent coverage status.</param>
+    /// <returns>The step entries per flow id, in coverage order.</returns>
+    static Dictionary<string, List<IntentCoverage.Entry>> StepsByFlow(IntentCoverage coverage)
+    {
+        var byFlow = new Dictionary<string, List<IntentCoverage.Entry>>(StringComparer.Ordinal);
+        foreach (var entry in coverage.Entries)
+        {
+            if (entry.Kind != "step")
+            {
+                continue;
+            }
+
+            var hash = entry.Id.IndexOf('#');
+            if (hash < 0)
+            {
+                continue;
+            }
+
+            var flow = entry.Id[..hash];
+            if (!byFlow.TryGetValue(flow, out var list))
+            {
+                list = [];
+                byFlow[flow] = list;
+            }
+
+            list.Add(entry);
+        }
+
+        return byFlow;
+    }
+
     /// <summary>
-    ///     Adds the Intent coverage of one requirement or journey: a
+    ///     Adds the Intent coverage of one requirement or flow: a
     ///     requirement carries whether a Behavior record reaches it and the
-    ///     reaching records; a journey carries its reached and total step
+    ///     reaching records; a flow carries its reached and total step
     ///     counts and one entry per step.
     /// </summary>
     /// <param name="detail">The detail being built.</param>
-    /// <param name="coverage">The computed Intent coverage status.</param>
+    /// <param name="coverageById">The coverage entry per item id.</param>
+    /// <param name="stepsByFlow">The step entries per flow id.</param>
     /// <param name="id">The record id.</param>
     /// <param name="type">The record type.</param>
-    static void AddIntentCoverage(JsonObject detail, IntentCoverage coverage, string id, string type)
+    static void AddIntentCoverage(JsonObject detail, Dictionary<string, IntentCoverage.Entry> coverageById, Dictionary<string, List<IntentCoverage.Entry>> stepsByFlow, string id, string type)
     {
         if (type == "requirement")
         {
-            var entry = coverage.Entries.FirstOrDefault(candidate => candidate.Kind == "requirement" && candidate.Id == id);
+            coverageById.TryGetValue(id, out var entry);
+            if (entry is not null && entry.Kind != "requirement")
+            {
+                entry = null;
+            }
+
             var reachedBy = new JsonArray();
             if (entry is not null)
             {
@@ -203,11 +268,11 @@ static class BookRecordDetails
                 ["reachedBy"] = reachedBy,
             };
         }
-        else if (type == "journey")
+        else if (type == "flow")
         {
             var steps = new JsonArray();
             var reached = 0;
-            foreach (var entry in coverage.Entries.Where(candidate => candidate.Kind == "step" && candidate.Id.StartsWith(id + "#", StringComparison.Ordinal)))
+            foreach (var entry in stepsByFlow.TryGetValue(id, out var list) ? list : [])
             {
                 var reachedBy = new JsonArray();
                 foreach (var source in entry.ReachedBy)
@@ -223,6 +288,7 @@ static class BookRecordDetails
                 steps.Add((JsonNode)new JsonObject
                 {
                     ["id"] = entry.Id,
+                    ["kind"] = "step",
                     ["reached"] = entry.Reached,
                     ["reachedBy"] = reachedBy,
                 });
@@ -249,5 +315,87 @@ static class BookRecordDetails
         }
 
         return list;
+    }
+
+    /// <summary>
+    ///     Adds the outcome of one goal: "not measured" until the goal records an observation, then
+    ///     "measured" with each observation as it was recorded. Delivery reads apart from this.
+    /// </summary>
+    /// <param name="detail">The detail being built.</param>
+    /// <param name="record">The goal record.</param>
+    static void AddOutcome(JsonObject detail, JsonObject record)
+    {
+        var observations = new JsonArray();
+        foreach (var node in BookRender.Fields(record)?["observations"] as JsonArray ?? [])
+        {
+            if (node is JsonObject entry)
+            {
+                observations.Add((JsonNode)new JsonObject
+                {
+                    ["date"] = entry["date"]?.DeepClone(),
+                    ["value"] = entry["value"]?.DeepClone(),
+                    ["source"] = entry["source"]?.DeepClone(),
+                });
+            }
+        }
+
+        detail["outcome"] = new JsonObject
+        {
+            ["state"] = observations.Count > 0 ? "measured" : "not measured",
+            ["observations"] = observations,
+        };
+    }
+
+    /// <summary>
+    ///     Adds each reaching record's claim to the requirement's reach and to each flow step's reach:
+    ///     verified when that record's own proof is passing, claimed otherwise.
+    /// </summary>
+    /// <param name="detail">The detail being built.</param>
+    /// <param name="details">The detail object per record id, complete before the claims are read.</param>
+    static void AddClaims(JsonObject detail, IReadOnlyDictionary<string, JsonObject> details)
+    {
+        if (detail["intentCoverage"] is not JsonObject coverage)
+        {
+            return;
+        }
+
+        if (coverage["reachedBy"] is JsonArray reachedBy)
+        {
+            coverage["claims"] = ClaimsOf(reachedBy, details);
+        }
+
+        if (coverage["steps"] is JsonArray steps)
+        {
+            foreach (var step in steps.OfType<JsonObject>())
+            {
+                if (step["reachedBy"] is JsonArray stepBy)
+                {
+                    step["claims"] = ClaimsOf(stepBy, details);
+                }
+            }
+        }
+    }
+
+    /// <summary>The claims of one reach list: each reaching record with its state, verified or claimed.</summary>
+    /// <param name="reachedBy">The reaching record identifiers.</param>
+    /// <param name="details">The detail object per record id.</param>
+    /// <returns>The claims, in the reach list's order.</returns>
+    static JsonArray ClaimsOf(JsonArray reachedBy, IReadOnlyDictionary<string, JsonObject> details)
+    {
+        var claims = new JsonArray();
+        foreach (var source in reachedBy)
+        {
+            var id = source is JsonValue value && value.TryGetValue<string>(out var text) ? text : "";
+            var verified = details.TryGetValue(id, out var target)
+                && target["proof"] is JsonObject proof
+                && BookRender.StrProp(proof, "state") == BookProofStates.Passing;
+            claims.Add((JsonNode)new JsonObject
+            {
+                ["id"] = id,
+                ["state"] = verified ? "verified" : "claimed",
+            });
+        }
+
+        return claims;
     }
 }

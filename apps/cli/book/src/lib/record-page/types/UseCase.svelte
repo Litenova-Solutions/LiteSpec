@@ -12,15 +12,13 @@
   import FactCell from "../blocks/FactCell.svelte";
   import FactGrid from "../blocks/FactGrid.svelte";
   import AccessBlock from "../shared/AccessBlock.svelte";
-  import BuiltBlock from "../shared/BuiltBlock.svelte";
   import DataTouched from "../shared/DataTouched.svelte";
   import EffectsBlock from "../shared/EffectsBlock.svelte";
   import ResultCards from "../shared/ResultCards.svelte";
   import ScenarioBlock from "../shared/ScenarioBlock.svelte";
-  import WhereBlock from "../shared/WhereBlock.svelte";
   import { tdHtml } from "../page-html";
   import { proseOf } from "../page-prose";
-  import { browserReached, bulletsHtml, clsBadgeHtml, idemTileOf, objectField, stringField, stringList, typedFieldHtml } from "../page-values";
+  import { bulletsHtml, clsBadgeHtml, idemTileOf, objectField, stringField, typedFieldHtml } from "../page-values";
   import { useCaseModel } from "./use-case-model";
 
   // A use case: access, data, input and output, effects, results and scenarios.
@@ -33,11 +31,8 @@
       return q ? [{ id: x, record: q }] : [];
     }),
   );
-  const model = $derived(useCaseModel(book, f, r, resultInputs));
+  const model = $derived(useCaseModel(f, r, resultInputs));
   const scs = $derived(book.scenariosOf(id).filter((s) => book.get(stripStep(s))));
-  const offered = $derived(
-    browserReached(stringList(f, "reachedThrough"), (e) => book.kids(e).some((k) => book.typeOf(k) === "screen")),
-  );
   const idem = $derived(idemTileOf(f));
   const audit = $derived(objectField(f, "audit"));
   const background = $derived(stringField(f, "background"));
@@ -54,8 +49,6 @@
 <SectionJump
   items={[
     { key: "acc", label: "access", count: true },
-    { key: "where", label: "offers", count: book.screensOf(id).length || offered },
-    { key: "built", label: "implements", count: model.hasImpl },
     { key: "data", label: "data", count: model.dataCount },
     { key: "in", label: "input", count: model.input.length },
     { key: "out", label: "output", count: model.hasOutput },
@@ -65,8 +58,6 @@
   ]}
 />
 <AccessBlock {id} {f} />
-<WhereBlock {id} {r} />
-<BuiltBlock {r} />
 <DataTouched {f} />
 <PageSection blockKey="guar" heading="idempotency">
   <FactGrid>
@@ -76,8 +67,8 @@
   </FactGrid>
   {#if audit}
     <div class="mt-2.5">
-      {#if audit.exempt}
-        <Note kind="quiet" icon="info"><b>Not audited.</b> {String(audit.exempt)}</Note>
+      {#if audit.exemptBecause}
+        <Note kind="quiet" icon="info"><b>Not audited.</b> {String(audit.exemptBecause)}</Note>
       {:else}
         <Note kind="info" icon="book">
           <b>Audited</b> against {String(audit.target ?? "")}. {String(audit.level ?? "")}
@@ -100,7 +91,7 @@
         tdHtml(typedFieldHtml(book, x)),
         tdHtml(
           esc(String(x.meaning ?? "")) +
-            (x.origin ? `<div class="mt-0.5 text-[0.6875rem] text-muted-foreground">from ${esc(String(x.origin))}</div>` : ""),
+            (x.origin ? `<div class="mt-0.5 text-xs text-slate-600">from ${esc(String(x.origin))}</div>` : ""),
         ),
         tdHtml(bulletsHtml(x.rules)),
       ])}
@@ -111,10 +102,10 @@
   <PageSection blockKey="out" heading="output">
     {#if model.outputSections.length}
       {#each model.outputSections as s (s.key)}
-        <div class="mt-[18px] mb-2 text-[0.8125rem] font-semibold text-subtle-foreground">
+        <div class="mt-6 mb-2 text-sm font-semibold text-slate-600">
           {capitalize(s.key)}{" "}
           <Fact text={capitalize(s.classification)} />{" "}
-          {#if s.freshnessHtml}<span class="font-mono text-[0.6875rem] font-normal text-muted-foreground">{@html s.freshnessHtml}</span>{/if}
+          {#if s.freshnessHtml}<span class="font-mono text-xs font-normal text-slate-600">{@html s.freshnessHtml}</span>{/if}
         </div>
         <DataTable
           head={["Name", "Meaning"]}
@@ -140,11 +131,11 @@
 {#if model.results.length}
   <PageSection blockKey="res" heading="Results" count={model.results.length}>
     {#if model.ok.length}
-      <div class="mt-[18px] mb-2 text-[0.8125rem] font-semibold text-subtle-foreground">Outcome: Success</div>
+      <div class="mt-6 mb-2 text-sm font-semibold text-slate-600">Outcome: Success</div>
       <ResultCards items={model.ok} />
     {/if}
     {#if model.refused.length}
-      <div class="mt-[18px] mb-2 text-[0.8125rem] font-semibold text-subtle-foreground">Outcome: Refusal</div>
+      <div class="mt-6 mb-2 text-sm font-semibold text-slate-600">Outcome: Refusal</div>
       <ResultCards items={model.refused} />
     {/if}
   </PageSection>

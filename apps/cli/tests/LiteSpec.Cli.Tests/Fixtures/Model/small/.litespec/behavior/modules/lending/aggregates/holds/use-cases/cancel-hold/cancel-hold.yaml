@@ -10,7 +10,7 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/hold.hold-canceled
+- domain-event/hold.hold-canceled
 idempotency:
   mode: none
   reason: Each call cancels its own hold, and canceling an ended hold is refused.

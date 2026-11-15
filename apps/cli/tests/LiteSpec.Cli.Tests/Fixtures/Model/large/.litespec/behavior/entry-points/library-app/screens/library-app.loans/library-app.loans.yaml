@@ -13,11 +13,11 @@ offers:
 - use-case/lending.cancel-hold
 - use-case/lending.retire-copy
 serves:
-- journey/borrow-and-return#s1
-- journey/borrow-and-return#s2
-- journey/borrow-and-return#s3
-- journey/borrow-and-return#s4
-- journey/borrow-and-return#s5
-- journey/borrow-and-return#s6
-- journey/borrow-and-return#s7
-- journey/borrow-and-return#s8
+- flow/borrow-and-return#s1
+- flow/borrow-and-return#s2
+- flow/borrow-and-return#s3
+- flow/borrow-and-return#s4
+- flow/borrow-and-return#s5
+- flow/borrow-and-return#s6
+- flow/borrow-and-return#s7
+- flow/borrow-and-return#s8

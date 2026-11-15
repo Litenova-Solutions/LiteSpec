@@ -10,7 +10,7 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/hold.hold-placed
+- domain-event/hold.hold-placed
 idempotency:
   mode: none
   reason: Each call places its own hold, and placing a duplicate hold is refused.

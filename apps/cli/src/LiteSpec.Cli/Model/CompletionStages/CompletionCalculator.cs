@@ -6,7 +6,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.CompletionStages;
 
 /// <summary>
-///     Computes the completion stage of every requirement, use case, journey,
+///     Computes the completion stage of every requirement, use case, flow,
 ///     feature and goal from proof only: the code found, the tests read, and
 ///     the scenarios with passing, current proof. A parent is only as far as
 ///     its weakest child.
@@ -17,7 +17,7 @@ static class CompletionCalculator
     /// <summary>The stage names from least to most complete.</summary>
     static readonly string[] Stages = ["unfulfilled", "specified", "coded", "verified"];
 
-    /// <summary>Computes completion for every requirement, use case, journey, feature and goal in the model.</summary>
+    /// <summary>Computes completion for every requirement, use case, flow, feature and goal in the model.</summary>
     /// <param name="model">The built project model, with its links, tests and ledger read.</param>
     public static void Compute(ProjectModel model)
     {
@@ -37,9 +37,9 @@ static class CompletionCalculator
             model.Completion[useCase.Id] = UseCaseCompletion(facts, useCase, coded, stale);
         }
 
-        foreach (var journey in facts.OfType(RecordTypes.Journey))
+        foreach (var flow in facts.OfType(RecordTypes.Flow))
         {
-            model.Completion[journey.Id] = JourneyCompletion(facts, journey, coded, stale);
+            model.Completion[flow.Id] = FlowCompletion(facts, flow, coded, stale);
         }
 
         foreach (var feature in facts.OfType(RecordTypes.Feature))
@@ -161,22 +161,22 @@ static class CompletionCalculator
     }
 
     /// <summary>
-    ///     One journey's completion. Its children are its steps. An unserved step
+    ///     One flow's completion. Its children are its steps. An unserved step
     ///     is unfulfilled, a served step with no code is specified, a step whose
     ///     serving code is found and that no passing proof exercises is
     ///     coded, and an exercised step is verified.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
-    /// <param name="journey">The journey whose completion is wanted.</param>
+    /// <param name="flow">The flow whose completion is wanted.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
-    /// <returns>The journey completion.</returns>
-    static Completion JourneyCompletion(
-        CompletionLookups facts, Record journey,
+    /// <returns>The flow completion.</returns>
+    static Completion FlowCompletion(
+        CompletionLookups facts, Record flow,
         IReadOnlySet<string> coded, IReadOnlySet<string> stale)
     {
         var model = facts.Model;
-        var steps = journey.StepIds();
+        var steps = flow.StepIds();
         var served = 0;
         var done = 0;
         var exercised = 0;
@@ -206,14 +206,14 @@ static class CompletionCalculator
 
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal)
         {
-            ["journey steps served"] = new CompletionCount(served, steps.Count),
+            ["flow steps served"] = new CompletionCount(served, steps.Count),
             ["steps coded"] = new CompletionCount(done, steps.Count),
             ["steps exercised"] = new CompletionCount(exercised, steps.Count),
         };
 
         if (steps.Count == 0)
         {
-            return new Completion("unfulfilled", ProofOf(model), [journey.Id], counts);
+            return new Completion("unfulfilled", ProofOf(model), [flow.Id], counts);
         }
 
         var weakest = stepStages.Min(entry => Rank(entry.Stage));
@@ -226,7 +226,7 @@ static class CompletionCalculator
 
     /// <summary>
     ///     One feature's completion from the requirements citing it and the
-    ///     journeys citing those requirements. The feature is only as far as
+    ///     flows citing those requirements. The feature is only as far as
     ///     its weakest child.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
@@ -242,8 +242,8 @@ static class CompletionCalculator
         var citing = facts.OfType(RecordTypes.Requirement)
             .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(feature.Id, StringComparer.Ordinal))
             .ToList();
-        var journeys = JourneysCiting(facts, citing);
-        var steps = journeys.SelectMany(journey => journey.StepIds()).Distinct(StringComparer.Ordinal).ToList();
+        var flows = FlowsCiting(facts, citing);
+        var steps = flows.SelectMany(flow => flow.StepIds()).Distinct(StringComparer.Ordinal).ToList();
 
         var fulfilled = citing.Count(requirement => facts.FulfillersOf(requirement).Count > 0);
         var verified = citing.Count(requirement =>
@@ -256,7 +256,7 @@ static class CompletionCalculator
         {
             ["requirements fulfilled"] = new CompletionCount(fulfilled, citing.Count),
             ["requirements verified"] = new CompletionCount(verified, citing.Count),
-            ["journey steps served"] = new CompletionCount(servedSteps, steps.Count),
+            ["flow steps served"] = new CompletionCount(servedSteps, steps.Count),
             ["steps coded"] = new CompletionCount(doneSteps, steps.Count),
             ["steps exercised"] = new CompletionCount(exercisedSteps, steps.Count),
         };
@@ -271,11 +271,11 @@ static class CompletionCalculator
             }
         }
 
-        foreach (var journey in journeys)
+        foreach (var flow in flows)
         {
-            if (model.Completion.TryGetValue(journey.Id, out var child))
+            if (model.Completion.TryGetValue(flow.Id, out var child))
             {
-                childStages.Add((journey.Id, child.Stage));
+                childStages.Add((flow.Id, child.Stage));
             }
         }
 
@@ -295,7 +295,7 @@ static class CompletionCalculator
     }
 
     /// <summary>
-    ///     One goal's completion from the features advancing it, the journeys
+    ///     One goal's completion from the features advancing it, the flows
     ///     serving it and the requirements citing it. The goal is only as far
     ///     as its weakest child.
     /// </summary>
@@ -308,8 +308,8 @@ static class CompletionCalculator
         var features = facts.OfType(RecordTypes.Feature)
             .Where(feature => feature.Ids(RecordFields.Advances).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
-        var journeys = facts.OfType(RecordTypes.Journey)
-            .Where(journey => journey.Ids(RecordFields.Serves).Contains(goal.Id, StringComparer.Ordinal))
+        var flows = facts.OfType(RecordTypes.Flow)
+            .Where(flow => flow.Ids(RecordFields.Serves).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
         var requirements = facts.OfType(RecordTypes.Requirement)
             .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(goal.Id, StringComparer.Ordinal))
@@ -330,12 +330,12 @@ static class CompletionCalculator
         }
 
         AddCount("features verified", features);
-        AddCount("journeys verified", journeys);
+        AddCount("flows verified", flows);
         AddCount("requirements verified", requirements);
 
         var childStages = new List<(string Id, string Stage)>();
 
-        foreach (var child in features.Concat(journeys).Concat(requirements))
+        foreach (var child in features.Concat(flows).Concat(requirements))
         {
             if (model.Completion.TryGetValue(child.Id, out var completion))
             {
@@ -349,7 +349,7 @@ static class CompletionCalculator
 
             return new Completion(
                 "unfulfilled", ProofOf(model),
-                Cap([goal.Id], counts), counts);
+                Cap([goal.Id], counts), counts, GoalOutcome(goal));
         }
 
         var weakest = childStages.Min(entry => Rank(entry.Stage));
@@ -357,19 +357,30 @@ static class CompletionCalculator
             .Where(entry => Rank(entry.Stage) == weakest)
             .Select(entry => entry.Id);
 
-        return new Completion(Stages[weakest], ProofOf(model), Cap(held, counts), counts);
+        return new Completion(Stages[weakest], ProofOf(model), Cap(held, counts), counts, GoalOutcome(goal));
     }
 
-    /// <summary>The journeys citing any of the requirements, in id order.</summary>
+    /// <summary>The outcome of a goal: "measured" once it holds observations, else "not measured". Delivery never shows as an outcome.</summary>
+    /// <param name="goal">The goal whose outcome is wanted.</param>
+    /// <returns>The outcome word of the goal.</returns>
+    static string GoalOutcome(Record goal) =>
+        goal.Raw.ValueKind == System.Text.Json.JsonValueKind.Object
+            && goal.Raw.TryGetProperty(RecordFields.Observations, out var observations)
+            && observations.ValueKind == System.Text.Json.JsonValueKind.Array
+            && observations.GetArrayLength() > 0
+            ? "measured"
+            : "not measured";
+
+    /// <summary>The flows citing any of the requirements, in id order.</summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
-    /// <param name="requirements">The requirements whose citing journeys are wanted.</param>
-    /// <returns>The journeys citing one of the requirements.</returns>
-    static List<Record> JourneysCiting(CompletionLookups facts, IReadOnlyList<Record> requirements)
+    /// <param name="requirements">The requirements whose citing flows are wanted.</param>
+    /// <returns>The flows citing one of the requirements.</returns>
+    static List<Record> FlowsCiting(CompletionLookups facts, IReadOnlyList<Record> requirements)
     {
         var ids = requirements.Select(requirement => requirement.Id).ToHashSet(StringComparer.Ordinal);
 
-        return facts.OfType(RecordTypes.Journey)
-            .Where(journey => journey.Ids(RecordFields.Cites).Any(ids.Contains))
+        return facts.OfType(RecordTypes.Flow)
+            .Where(flow => flow.StepCitations().Any(ids.Contains))
             .ToList();
     }
 
@@ -527,6 +538,7 @@ static class CompletionCalculator
         }
 
         var run = ProofLedger.RunOf(model.Config, model.TestRun);
+        var commit = ProofLedger.CommitOf(model.Config);
         var passing = model.Proves
             .Where(link => link.Confirmed && link.Passing == true)
             .Select(link => link.Claim)
@@ -540,7 +552,9 @@ static class CompletionCalculator
                 Checker.SemanticHash(scenario),
                 ProofLedger.TestHashOf(model, scenario.Id),
                 ProofLedger.MethodHashOf(model, scenario.Id),
-                run))
+                ProofLedger.MarksHashOf(model, scenario),
+                run,
+                commit))
             {
                 stale.Add(scenario.Id);
             }
@@ -549,9 +563,9 @@ static class CompletionCalculator
         return stale;
     }
 
-    /// <summary>One journey step's stage from the records serving it, worked out once per step.</summary>
+    /// <summary>One flow step's stage from the records serving it, worked out once per step.</summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
-    /// <param name="step">The journey step id, as <c>journey/&lt;name&gt;#&lt;step&gt;</c>.</param>
+    /// <param name="step">The flow step id, as <c>flow/&lt;name&gt;#&lt;step&gt;</c>.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>Unfulfilled when nothing serves the step, specified when its serving record has no code, coded when code is found and no passing proof exercises it, and verified when a passing proof exercises it.</returns>

@@ -20,7 +20,7 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Use Cases](use-cases.md): the commands, queries, results, scenarios, and settings.
 - [Automation](automation.md): the reactions and jobs that run without a request.
 - [Edges and Screens](edges.md): the integration events, notifications, entry points, screens, and external systems.
-- [Privacy and Retention](privacy.md): the data classes and the retention schedule.
+- [Privacy and Retention](privacy.md): the data classes and their retention.
 - [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how it is reached.
 - [Agent](agent.md): how agents select context, resolve standards, and report completion.
 - [Authoring](authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.

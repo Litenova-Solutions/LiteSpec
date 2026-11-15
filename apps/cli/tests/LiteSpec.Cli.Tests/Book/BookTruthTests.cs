@@ -41,10 +41,10 @@ public sealed class BookTruthTests
         Assert.Null(borrow["proof"]);
     }
 
-    /// <summary>A journey step served only by a reaction lists the reaction as its server and no screen.</summary>
+    /// <summary>A flow step served only by a reaction lists the reaction as its server and no screen.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void JourneyStepServedOnlyByAReactionReadsAsReaction()
+    public void FlowStepServedOnlyByAReactionReadsAsReaction()
     {
         using var temp = TestCli.Temp("book-truth");
         var reactionId = "";
@@ -52,30 +52,30 @@ public sealed class BookTruthTests
         {
             var reaction = Records(root).First(record => Text(record["type"]) == "reaction");
             reactionId = Text(reaction["id"]);
-            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("journey/borrowing#s2");
+            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("flow/borrowing#s2");
         });
         Assert.True(reactionId.Length > 0, "The fixture holds no reaction.");
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
-        var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
-        var servers = Obj(journey, "stepServers");
+        var flow = ReadRecords(Path.Combine(Out(temp), "data"))["flow/borrowing"];
+        var servers = Obj(flow, "stepServers");
         Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
         Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), reactionId));
-        Assert.Empty(Obj(journey, "stepScreens")["s2"] as JsonArray ?? new JsonArray());
-        Assert.True(HasEdge(Arr(journey, "in"), reactionId, "reaction.serves"));
+        Assert.Empty(Obj(flow, "stepScreens")["s2"] as JsonArray ?? new JsonArray());
+        Assert.True(HasEdge(Arr(flow, "in"), reactionId, "reaction.serves"));
     }
 
-    /// <summary>A journey step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
+    /// <summary>A flow step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void ExercisedStepRendersAsWalked()
     {
         using var temp = TestCli.Temp("book-truth");
-        var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("journey/borrowing#s1"));
+        var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("flow/borrowing#s1"));
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
-        var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
-        var exercised = Arr(journey, "exercised");
+        var flow = ReadRecords(Path.Combine(Out(temp), "data"))["flow/borrowing"];
+        var exercised = Arr(flow, "exercised");
         Assert.True(HasString(exercised, "s1"));
         Assert.False(HasString(exercised, "s2"));
     }
@@ -100,7 +100,7 @@ public sealed class BookTruthTests
         Assert.Equal(".litespec/behavior/modules/lending/aggregates/loans/return-copy.yaml", Str(finding, "path"));
         Assert.Equal(3, finding["line"]?.GetValue<int>());
 
-        var known = Arr(details["journey/borrowing"], "findings");
+        var known = Arr(details["flow/borrowing"], "findings");
         Assert.Single(known);
         Assert.Equal("step-screen-missing", Str(known[0]!.AsObject(), "code"));
         Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
@@ -129,7 +129,7 @@ public sealed class BookTruthTests
                     ["code"] = "step-screen-missing",
                     ["tier"] = "A",
                     ["message"] = "Step s2 has no screen.",
-                    ["subject"] = "journey/borrowing",
+                    ["subject"] = "flow/borrowing",
                     ["outcome"] = "accepted",
                     ["reason"] = "The kiosk covers it next quarter.",
                 });

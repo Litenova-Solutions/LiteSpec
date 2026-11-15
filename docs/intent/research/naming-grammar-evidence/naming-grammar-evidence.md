@@ -16,11 +16,11 @@ More names span several shapes. `direction`, `effects`, `fields`, `key`, `mode`,
 
 `serves` spans 2 shapes across 5 record types, with 3 target sets. `source` carries 4 shapes across 21 definitions. Those are the origin marker, the constraint's free-text source, the integration event's CloudEvents source, and the nested input and output origin. Research sources are a sixth shape beside them. The record gives no confidence for these claims.
 
-The consumer already shows bad data from 2 collisions. All 111 features carry milestone-style `by` values, where the convention expects dates. Of the use-case `serves` values, 11 name a whole journey, where the schema allows only a journey step or a goal. The record gives no confidence for these claims.
+The consumer already shows bad data from 2 collisions. All 111 features carry milestone-style `by` values, where the convention expects dates. Of the use-case `serves` values, 11 name a whole flow, where the schema allows only a flow step or a goal. The record gives no confidence for these claims.
 
 One concept therefore keeps one name, one shape and one cardinality everywhere it appears, with no exemption list. The record gives no confidence for this rule.
 
-Justifications that hold links each get one rule. The `because` field on a consistency object holds a rule list, and `wideningBecause` holds a requirement link. `appliesBecause` holds prose. So `cites` becomes the one verb for a reason link everywhere. It covers the requirement, the journey, the consistency `because`, the query `wideningBecause` and the retention row intent. The record gives no confidence for this rule.
+Justifications that hold links each get one rule. The `because` field on a consistency object holds a rule list, and `wideningBecause` holds a requirement link. `appliesBecause` holds prose. So `cites` becomes the one verb for a reason link everywhere. It covers the requirement, the flow, the consistency `because`, the query `wideningBecause` and the retention row intent. The record gives no confidence for this rule.
 
 The boolean fields need no rename. `applies`, `secret`, `recorded`, `builtAsynchronously` and `sharesTransaction` are present-tense predicates with no `is` or `has` prefix. So a boolean stays a present-tense predicate that is true about the record when it is true. The record gives no confidence for this rule.
 

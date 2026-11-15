@@ -2,7 +2,7 @@
 // output, and the counts the jump links read. The component resolves the
 // linked records; the model reads only values.
 
-import type { Book, BookRecord, RecordFields } from "$lib/frame";
+import type { BookRecord, RecordFields } from "$lib/frame";
 import { freshnessNoteHtml, isRecord, objectList, pagingRows, stringField, useCaseFields } from "../page-values";
 
 /** One result linked from a use case, with its record resolved. */
@@ -41,7 +41,7 @@ export interface UseCaseModel {
   hasImpl: boolean;
 }
 
-export function useCaseModel(book: Book, f: RecordFields, r: BookRecord, results: UseCaseResultInput[]): UseCaseModel {
+export function useCaseModel(f: RecordFields, r: BookRecord, results: UseCaseResultInput[]): UseCaseModel {
   const uf = useCaseFields(f);
   const rows = results.map(({ id, record }) => {
     const qf = record.fields ?? {};
@@ -65,7 +65,7 @@ export function useCaseModel(book: Book, f: RecordFields, r: BookRecord, results
       return {
         key: k,
         classification: stringField(g, "classification") ?? "internal",
-        freshnessHtml: g.freshness ? freshnessNoteHtml(book, g) : "",
+        freshnessHtml: g.freshness ? freshnessNoteHtml(g) : "",
         fields: objectList(g, "fields").map((x) => ({
           name: stringField(x, "name") ?? "",
           meaning: stringField(x, "meaning") ?? "",
@@ -87,7 +87,7 @@ export function useCaseModel(book: Book, f: RecordFields, r: BookRecord, results
     outputRows,
     paging,
     hasOutput: outputSections.length > 0 || outputRows.length > 0 || !!paging,
-    dataCount: uf.changes.length + uf.reads.length,
+    dataCount: uf.writes.length + uf.reads.length,
     effectCount: uf.effects.length,
     hasImpl: (r.impl ?? []).length > 0,
   };

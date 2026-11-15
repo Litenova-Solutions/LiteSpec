@@ -8,7 +8,7 @@ A consumer starting its first release knows where the product should go later: p
 
 Neither decision can name its reason, because a decision's `basedOn` takes constraints, research and requirements. A destination is none of these. Both decisions therefore show an empty `basedOn`, and the reason sits in the product explanation file. No record can cite that file, and no check reads it.
 
-The existing record types do not fit a destination. A goal needs a measure and a journey or quality requirement that moves it, so an unmeasured destination raises `goal-mover-missing`. A feature needs a problem with observed or reported evidence, which a destination often lacks. A departure parks planned-Intent findings until an expiry date, and a destination has no date. The backlog outside the repository holds order and timing well, but agents and decisions inside the repository never see it.
+The existing record types do not fit a destination. A goal needs a measure and a flow or quality requirement that moves it, so an unmeasured destination raises `goal-mover-missing`. A feature needs a problem with observed or reported evidence, which a destination often lacks. A departure parks planned-Intent findings until an expiry date, and a destination has no date. The backlog outside the repository holds order and timing well, but agents and decisions inside the repository never see it.
 
 ## Options
 

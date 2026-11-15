@@ -11,15 +11,15 @@ The Application layer coordinates use cases, checking the shape of each incoming
 
 ### The Use Case Folder
 
-Every Application folder in the module tree is a product, module, aggregate, or use case layer folder, or the folder of a notification, external system or view a module trigger serves. One use case folder holds everything a reviewer needs to judge a use case, in two layer folders. Its `Application/` folder holds its message, result, result parts, validator, handler, definition of pipeline-read values, its own steps, and the event handlers and job that run it. Its `WebApi/` folder, present when the use case has an endpoint, holds the endpoint with the request and response models. A use case with no `WebApi/` folder has no endpoint, and the tree shows it. Each event handler class carries the mark naming its reaction and is placed under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. What another module names lives in the owning module's `Contracts/` folder sorted by kind, and the pipeline machinery lives in the product `Application/` folder.
+Every Application folder in the module tree is a product, module, aggregate, or use case layer folder, or the folder of a notification, external system or read model a module trigger serves. One use case folder holds everything a reviewer needs to judge a use case, in two layer folders. Its `Application/` folder holds its message, result, result parts, validator, handler, definition of pipeline-read values, its own steps, and the event handlers and job that run it. Its `WebApi/` folder, present when the use case has an endpoint, holds the endpoint with the request and response models. A use case with no `WebApi/` folder has no endpoint, and the tree shows it. Each event handler class carries the mark naming its reaction and is placed under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. What another module names lives in the owning module's `Contracts/` folder sorted by kind, and the pipeline machinery lives in the product `Application/` folder.
 
 ### The Command Pipeline
 
-A command travels fixed stages in order: validation, authorization, idempotency, audit, timestamp, holds, the handler, commit, and fault classification, with exactly one commit post-handler. The handler loads or creates the one aggregate its use case changes, calls one domain method on it, stages it through its domain repository, and returns a result. Validation, authorization, idempotency, audit, the timestamp, holds, the commit, and fault classification each belong to their own pipeline stage, so none appears in the handler. A query travels validation and the guard, then projects its result directly without loading an aggregate. The handler sends no command, query or event. One pipeline step stages each domain event the act raised and each integration event that translates one of them, in the same commit. An event handler answers its trigger outside the command pipeline, sending the one command its reaction runs or running the declared `sends` and `calls` effects after the commit. A scheduled or manual job sends its one command once per item in its selection.
+A command travels fixed stages in order: validation, authorization, idempotency, audit, timestamp, holds, the handler, commit, and fault classification, with exactly one commit post-handler. The handler loads or creates the one aggregate its use case changes, calls one domain method on it, stages it through its domain repository, and returns a result. Validation, authorization, idempotency, audit, the timestamp, holds, the commit, and fault classification each belong to their own pipeline stage, so none appears in the handler. A query travels validation and the guard, then projects its result directly without loading an aggregate. The handler sends no command, query or event. One pipeline step stages each domain event the act raised and each integration event that translates one of them, in the same commit. An event handler answers its trigger outside the command pipeline, sending the one command its reaction runs or running the declared `sends` and `calls` effects after the commit. A scheduled or one-off job sends its one command once per item in its selection.
 
 ### Ports
 
-A port is a narrow interface Application declares for work it does not do itself, such as archiving posts or reading the clock. Each port names one business capability with project-owned types, and Infrastructure implements it. A port is declared in the layer folder its consumers share, so it is reviewed with the specification it serves; a port another module calls is published in the owning module's `Contracts/Ports/` folder, and it only reads. Four kinds of port earn their place: a repository keeps the store out of business code, an outside-system port keeps a provider behind an adapter, a rule calculation another module calls keeps one home for the rule, and a decision port answers one current-value question another module's command needs. A general reader that returns the owner's state to any caller is not one of them: a module keeps its own view of what it needs, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, a messenger port carries the notifications `sends` effects name, and a store port carries state the owning system holds.
+A port is a narrow interface Application declares for work it does not do itself, such as archiving posts or reading the clock. Each port names one business capability with project-owned types, and Infrastructure implements it. A port is declared in the layer folder its consumers share, so it is reviewed with the specification it serves; a port another module calls is published in the owning module's `Contracts/Ports/` folder, and it only reads. Four kinds of port earn their place: a repository keeps the store out of business code, an outside-system port keeps a provider behind an adapter, a rule calculation another module calls keeps one home for the rule, and a decision port answers one current-value question another module's command needs. A general reader that returns the owner's state to any caller is not one of them: a module keeps its own read model of what it needs, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, a messenger port carries the notifications `sends` effects name, and a store port carries state the owning system holds.
 
 ### Declared Effects
 
@@ -146,7 +146,7 @@ WebApi enforces coarse authenticated, role, or scope policies first under `lites
 
 **Statement:** A command handler MUST load or create the aggregate its use case changes, call one domain method on it, stage it through its repository, and return the result, and send no command, query or event.
 
-**Rationale:** Everything else has an owner. Validation, authorization, idempotency, audit, the timestamp, holds, and the commit are pipeline stages; decisions and invariants are the aggregate's; uniqueness is persistence's under `litespec/backend/persistence#enforce-uniqueness-in-the-store`; messages, provider calls, and changes to other aggregates are consequences that event handlers run after the commit under `litespec/backend/application#dispatch-only-declared-effect-edges`. A handler that sends a command nests one use case inside another, and a handler that publishes an event publishes state its act never announced; neither has a record that can declare it. A handler that does more widens the unit of work, so one failing step rolls back work that had no reason to fail with it, and agents copy the widened shape. The commit post-handler owns the transaction under `litespec/backend/persistence#commit-each-command-pipeline-once`, WebApi owns error mapping, the audit completion handler owns the trail, and the guard owns authorization. A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `changes` names, one method each, and the record states why the change cannot be eventual. The handler takes its repositories under `litespec/backend/application#take-repositories-from-declared-changes-and-reads`. It returns only the results and refusals the record declares, under `litespec/backend/application#return-only-declared-results-and-refusals`.
+**Rationale:** Everything else has an owner. Validation, authorization, idempotency, audit, the timestamp, holds, and the commit are pipeline stages; decisions and invariants are the aggregate's; uniqueness is persistence's under `litespec/backend/persistence#enforce-uniqueness-in-the-store`; messages, provider calls, and changes to other aggregates are consequences that event handlers run after the commit under `litespec/backend/application#dispatch-only-declared-effect-edges`. A handler that sends a command nests one use case inside another, and a handler that publishes an event publishes state its act never announced; neither has a record that can declare it. A handler that does more widens the unit of work, so one failing step rolls back work that had no reason to fail with it, and agents copy the widened shape. The commit post-handler owns the transaction under `litespec/backend/persistence#commit-each-command-pipeline-once`, WebApi owns error mapping, the audit completion handler owns the trail, and the guard owns authorization. A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `writes` names, one method each, and the record states why the change cannot be eventual. The handler takes its repositories under `litespec/backend/application#take-repositories-from-declared-changes-and-reads`. It returns only the results and refusals the record declares, under `litespec/backend/application#return-only-declared-results-and-refusals`.
 
 **Example:** In the Claimwick product, `use-case/spending.approve-expense` runs through the command pipeline: the endpoint maps the request to the approve command, the command entry point dispatches it, validation and the authorization guard run, the handler loads the expense, calls Approve on it, stages the expense, and returns the result. The handler body reads as three steps: it loads the expense through its domain repository, it calls one domain method on it, and it stages the expense. The handler commits nothing, and exactly one post-handler commits after it. The diagram shows each stage from the HTTP request to that single commit.
 
@@ -164,13 +164,13 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Applies to:** artifact: command-handler
 
-**Statement:** A command handler MUST write only the aggregates its record's `changes` names, through one domain repository per aggregate.
+**Statement:** A command handler MUST write only the aggregates its record's `writes` names, through one domain repository per aggregate.
 
-**Rationale:** A write outside `changes` is behavior the record hides, so the stack reader fails `write-undeclared` on it. Under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` the handler normally takes one domain repository for the one aggregate it changes and stages only that aggregate. A use case whose record declares `consistency: atomic` over several aggregates takes one repository per named aggregate and stages each one. A query handler likewise projects only over the aggregates its record's `reads` names, through the read session.
+**Rationale:** A write outside `writes` is behavior the record hides, so the stack reader fails `write-undeclared` on it. Under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` the handler normally takes one domain repository for the one aggregate it changes and stages only that aggregate. A use case whose record declares `consistency: atomic` over several aggregates takes one repository per named aggregate and stages each one. A query handler likewise projects only over the aggregates its record's `reads` names, through the read session.
 
 **Example:** The `approve-expense` handler takes the expense repository and no other; staging a second aggregate fails the check unless the record declares `consistency: atomic` over both.
 
-**Checked by:** `litespec model check` reports `write-undeclared` (level S) for a handler that takes a repository whose aggregate sits outside the aggregates its record names in `changes` and `reads`; one domain repository serves each named aggregate.
+**Checked by:** `litespec model check` reports `write-undeclared` (level S) for a handler that takes a repository whose aggregate sits outside the aggregates its record names in `writes` and `reads`; one domain repository serves each named aggregate.
 
 ### Implement One Outcome Path per Command
 
@@ -212,7 +212,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Applies to:** artifact: query-handler
 
-**Statement:** A query handler MUST project directly to its result from its own module's store and views, without loading an aggregate.
+**Statement:** A query handler MUST project directly to its result from its own module's store and read models, without loading an aggregate.
 
 **Rationale:** A read path acts on no invariant, so loading an aggregate for presentation pays for enforcement no read needs and couples the read shape to the write model. Projecting directly to the result keeps reads on the read boundary the persistence standards state. A query handler takes no domain repository, and it reads no other module's reader: a query that only shows another module's data belongs to that module, and the screen joins the two answers under `litespec/frontend/data#compose-a-screen-from-each-owners-query`. The result type carries the `include` groups the record's `output` declares, under `litespec/backend/application#shape-query-results-from-declared-output`. The command and query split lives in `litespec/backend/architecture#separate-command-and-query-behavior`.
 
@@ -244,7 +244,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Statement:** A query result type MUST carry the `include` groups its record's `output` declares, with their fields, freshness, and visibility.
 
-**Rationale:** The record's `output` names each group with its fields, their classification, the aggregates it reads, and the freshness the caller can rely on: `immediate`, `snapshot`, `bounded`, or `advisory`. The result type carries one member per group, so the caller reads what the record promises and nothing more. A group with `visibleWhen` appears only when its condition holds, and a group wider than its `reads` names the approved requirement widening it in `cites`. A query with `builtAsynchronously` carries a `bounded` or `advisory` freshness with its lag scenario.
+**Rationale:** The record's `output` names each group with its fields, their classification, the aggregates it reads, and the freshness the caller can rely on: `immediate`, `snapshot`, `bounded`, or `advisory`. The result type carries one member per group, so the caller reads what the record promises and nothing more. A group with `visibleWhen` appears only when its condition holds, and a group wider than its `reads` names the approved requirement widening it in `widenedBy`. A query whose `timing` is asynchronous carries an `eventual` freshness with its `within` and a lag scenario.
 
 **Example:** The expense-list result carries its `rows` group with the declared fields, freshness, and visibility.
 
@@ -310,21 +310,21 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Reviewed for:** Which ports sit above the lowest folder holding every consumer that names them? Look at each port beside its consumers.
 
-### Read Another Module's State Through a View
+### Read Another Module's State Through a Read Model
 
-**ID:** `litespec/backend/application#read-another-modules-state-through-a-view`
+**ID:** `litespec/backend/application#read-another-modules-state-through-a-read-model`
 
 **Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, reaction
 
-**Statement:** A use case MUST read another module's state through a view its own module keeps, named in its `reads`, unless its decision needs the owner's current value and asks for it through a decision port.
+**Statement:** A use case MUST read another module's state through a read model its own module keeps, named in its `reads`, unless its decision needs the owner's current value and asks for it through a decision port.
 
-**Rationale:** A general reader in the owner's `Contracts/Ports/` folder couples every reading module to the owner's storage, uptime and release cadence, and it grows a method per caller until one interface returns one profile shape to every module. A view is the reading module's own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner's integration events. The reader pays with a lag up to the view's declared `freshness`, which most decisions accept. This is the practice known as event-carried state transfer, declared as a record so a check can prove every field has a source. Settled by [decision/0065-read-another-module-through-a-view](decision/0065-read-another-module-through-a-view).
+**Rationale:** A general reader in the owner's `Contracts/Ports/` folder couples every reading module to the owner's storage, uptime and release cadence, and it grows a method per caller until one interface returns one profile shape to every module. A read model is the reading module's own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner's integration events. The reader pays with a lag up to the read model's declared `freshness`, which most decisions accept. This is the practice known as event-carried state transfer, declared as a record so a check can prove every field has a source. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
-**Example:** The reporting module's list-reimbursed-expenses query reads `view/reporting.reimbursed-expense`, which its projections fill from the expense-reimbursed integration event; it calls no spending reader.
+**Example:** The reporting module's list-reimbursed-expenses query reads `read-model/reporting.reimbursed-expense`, which its projections fill from the expense-reimbursed integration event; it calls no spending reader.
 
-**Reviewed for:** Which use cases call another module's reader for state a view could hold, and which views does no use case name in `reads`? Look at each cross-module port call beside the module's views.
+**Reviewed for:** Which use cases call another module's reader for state a read model could hold, and which read models does no use case name in `reads`? Look at each cross-module port call beside the module's read models.
 
 ### Ask Another Module One Question Through a Decision Port
 
@@ -334,13 +334,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Applies to:** artifact: port, command-handler
 
-**Statement:** A command whose decision needs another module's current value MUST ask for it through a decision port with one read-only method and one answer type named for its question, with the use case record stating why a view's freshness is not enough.
+**Statement:** A command whose decision needs another module's current value MUST ask for it through a decision port with one read-only method and one answer type named for its question, with the use case record stating why a read model's freshness is not enough.
 
 **Rationale:** Some decisions cannot accept a copy that lags: money that may still move, or capacity that may still sell. A decision port answers that one question with the owner's current value and nothing else, so it cannot grow into a general reader, and its name says what it decides. It only reads: a change the caller needs in the owning module is a fact that module's reaction answers. A query never needs one, because a screen accepts the lag or calls the owner's own query.
 
 **Example:** A sale asks a capacity module `IRemainingCapacity.FindAsync(variantId)` and receives a `RemainingCapacity` with the units left and the time it was read, instead of loading a whole event profile through a general reader.
 
-**Reviewed for:** Which ports in `Contracts/Ports/` hold more than one method, write, or are called by a query handler, and which use cases call one without stating why a view is not enough? Look at each decision port beside its callers.
+**Reviewed for:** Which ports in `Contracts/Ports/` hold more than one method, write, or are called by a query handler, and which use cases call one without stating why a read model is not enough? Look at each decision port beside its callers.
 
 ### Call External Systems Through Their Ports
 
@@ -368,7 +368,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Statement:** Each `sends` effect MUST run in an event handler or job through the messenger port, after the commit of the command that raised its trigger.
 
-**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a notification send runs in an event handler after the commit. The notification record owns the template, the addresses, the channel, the consent rule, the frequency, the dedup key, and the claims each message keeps. The `sends` edge names the notification, and the notification record carries its suppression in `suppressedWhen`. The messenger port carries the send with project-owned types. A reaction or job that only sends lives in the module `Notifications/` folder named for its notification, beside the notification's message model and any type only that notification uses. A send no edge declares fails `effect-undeclared`, and a second send of a `once` notification with the same dedup key sends nothing.
+**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a notification send runs in an event handler after the commit. The notification record owns the template, the audience, the channel, the consent rule, the frequency, the dedup key, and the claims each message keeps. The `sends` edge names the notification, and the notification record carries its suppression in `suppressedWhen`. The messenger port carries the send with project-owned types. A reaction or job that only sends lives in the module `Notifications/` folder named for its notification, beside the notification's message model and any type only that notification uses. A send no edge declares fails `effect-undeclared`, and a second send of a `once` notification with the same dedup key sends nothing.
 
 **Example:** The due-notice event handler sends the loan-due notification through the messenger port; the template and consent rule stay on the notification record.
 
@@ -448,7 +448,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in `triggeredBy`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries, sending at most one command. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows. A conflict refusal from the command it runs is transient, so the reaction retries it under its `onFailure`; a declared final refusal ends the reaction without a retry. The class lives in the `Application/` folder of the use case it runs, or with the notification it sends or the system it calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. The [automation page](../core/automation.md) states the trigger fields. An entry with `after-commit` timing uses durable delivery through the outbox extension.
 
-**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `Lending/Notifications/LoanDue/` carries one mark naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
+**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `Lending/Notifications/LoanDue/` carries one mark naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `domain-event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
 
 **Reviewed for:** Which event handlers answer outside one class with one mark, send more than one command, retry a final refusal, or sit outside the folder of what they run? Look at each event handler class and its mark.
 
@@ -460,13 +460,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Applies to:** artifact: job
 
-**Statement:** A scheduled or manual job MUST run its declared commands once per item in its record's `selection`, honoring its batch size, lease, and cursor.
+**Statement:** A scheduled or one-off job MUST run its declared commands once per item in its record's `selection`, honoring its batch size, lease, and cursor.
 
-**Rationale:** The job record owns what each run selects, how many items each batch takes, the lease that keeps two runs apart, and the cursor where a run resumes. The job runs its `effects` entries once per item, records its evidence where the record states, and follows its `onFailure` when an item fails. A `manual` job carries no aggregate: it states its `runsWhere` and its guard, and runs as interactive platform work. One execution host runs the job under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`. The job class lives in the `Application/` folder of the use case it runs, so the use case folder shows every way it starts.
+**Rationale:** The job record owns what each run selects, how many items each batch takes, the lease that keeps two runs apart, and the cursor where a run resumes. The job runs its `effects` entries once per item, records its evidence where the record states, and follows its `onFailure` when an item fails. One execution host runs the job under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`. The job class lives in the `Application/` folder of the use case it runs, so the use case folder shows every way it starts.
 
 **Example:** The erase-expired-data job selects decided expenses past retention in batches of 200 under its lease, runs one erase command per expense, and resumes from its cursor.
 
-**Reviewed for:** Which scheduled or manual jobs run outside their selection, batch size, lease, or cursor? Look at each job run beside its record.
+**Reviewed for:** Which scheduled or one-off jobs run outside their selection, batch size, lease, or cursor? Look at each job run beside its record.
 
 ### Issue Per-Record Work from a Job
 
@@ -716,8 +716,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
         GrantConsent/
           Application/  WebApi/
     UseCases/                             use cases no single aggregate owns
-    Views/
-      OrderHistories/                     a view of another module's published facts
+    ReadModels/
+      OrderHistories/                     a read model of another module's published facts
 ```
 
 Module, aggregate, and use case order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.

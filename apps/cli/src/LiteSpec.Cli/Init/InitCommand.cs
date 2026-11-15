@@ -12,7 +12,9 @@ namespace LiteSpec.Cli.Init;
 ///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.yaml</c>
 ///     from one of the ready-made presets in <c>templates/presets/</c>, copies the
 ///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>,
-///     and inserts the agent-protocol region into an existing <c>AGENTS.md</c> that holds none.
+///     writes the UI quality requirements from <c>templates/consumer/requirements/</c>
+///     as product-level requirements, and inserts the agent-protocol region into an
+///     existing <c>AGENTS.md</c> that holds none.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
 /// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
@@ -41,13 +43,22 @@ static class InitCommand
         ("example-cast.md", ".litespec/example-cast.md"),
     ];
 
+    /// <summary>The UI quality requirements <c>litespec init</c> writes as product-level requirements, by file stem.</summary>
+    static readonly string[] UiRequirements =
+    [
+        "ui-text-contrast", "ui-control-boundary", "ui-focus-indicator",
+        "ui-chart-series", "ui-reflow", "ui-target-size",
+    ];
+
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
         Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--help]
 
         Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
-        glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the
+        glossary, and example cast into .litespec/ beside it. It writes the UI quality
+        requirements from templates/consumer/requirements/ as product-level requirements
+        under .litespec/intent/requirements/, leaving existing files alone. A fresh AGENTS.md carries the
         agent-protocol region filled with the release, size, shape, stacks, layers,
         extensions, and selection index of the new project, and names the command that
         runs the CLI. An existing AGENTS.md that holds no region gains the region after
@@ -79,7 +90,7 @@ static class InitCommand
           --skill-global  Write the skill copies under the user's home instead of the consumer. Without --skill it installs the default agents.
           --help     Print this text and exit.
 
-        Exit codes: 0 written, 1 the release's template, preset, scaffold, or skill file is unreadable or a skill target holds a folder this tool did not write, 2 the project file exists or an option or agent is invalid.
+        Exit codes: 0 written, 1 the release's template, preset, scaffold, requirement, or skill file is unreadable or a skill target holds a folder this tool did not write, 2 the project file exists or an option or agent is invalid.
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
@@ -202,6 +213,7 @@ static class InitCommand
         JsonObject project;
         JsonObject overlay;
         Dictionary<string, string> scaffold;
+        List<(string Stem, string Yaml, string? Md)> requirements;
 
         try
         {
@@ -233,6 +245,29 @@ static class InitCommand
                 }
 
                 scaffold[file] = File.ReadAllText(source);
+            }
+
+            // The UI quality requirements are read the same way. A release without
+            // the requirements folder writes no requirements.
+            requirements = [];
+
+            var requirementsDir = Path.Combine(home, "templates", "consumer", "requirements");
+
+            if (Directory.Exists(requirementsDir))
+            {
+                foreach (var stem in UiRequirements)
+                {
+                    var yamlSource = Path.Combine(requirementsDir, stem + ".yaml");
+
+                    if (!File.Exists(yamlSource))
+                    {
+                        CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/requirements/{stem}.yaml.");
+                        return 1;
+                    }
+
+                    var mdSource = Path.Combine(requirementsDir, stem + ".md");
+                    requirements.Add((stem, File.ReadAllText(yamlSource), File.Exists(mdSource) ? File.ReadAllText(mdSource) : null));
+                }
             }
 
             project = template;
@@ -393,6 +428,21 @@ static class InitCommand
             copied += 1;
         }
 
+        foreach (var (stem, yaml, md) in requirements)
+        {
+            var folder = Path.Combine(root, ".litespec", "intent", "requirements", stem);
+
+            if (WriteFreshFile(Path.Combine(folder, stem + ".yaml"), yaml, ref copied) != 0)
+            {
+                return 1;
+            }
+
+            if (md is not null && WriteFreshFile(Path.Combine(folder, stem + ".md"), md, ref copied) != 0)
+            {
+                return 1;
+            }
+        }
+
         var gitignore = Path.Combine(root, ".litespec", ".gitignore");
 
         if (File.Exists(gitignore))
@@ -469,6 +519,35 @@ static class InitCommand
             CliHost.Out.WriteLine($"To install the LiteSpec skill, run: {command} skill add");
         }
 
+        return 0;
+    }
+
+    /// <summary>Writes one release file unless it exists, naming what happened.</summary>
+    /// <param name="destination">The absolute path to write.</param>
+    /// <param name="contents">The file text.</param>
+    /// <param name="copied">The count of files written this run, raised when the file is written.</param>
+    /// <returns>0 when the file was written or already existed, 1 when it cannot be written.</returns>
+    static int WriteFreshFile(string destination, string contents, ref int copied)
+    {
+        if (File.Exists(destination))
+        {
+            CliHost.Out.WriteLine($"'{destination}' already exists; left alone.");
+            return 0;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+            File.WriteAllText(destination, contents);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+            return 1;
+        }
+
+        CliHost.Out.WriteLine($"Wrote {destination}.");
+        copied += 1;
         return 0;
     }
 

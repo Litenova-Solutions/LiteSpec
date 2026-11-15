@@ -17,21 +17,21 @@ Access follows one chain from actor to use case: an actor holds a role, the role
 
 An actor is one party that acts in the product. Its kind is person for a human acting directly, or organization for a company or group acting as one party. Software is no actor: an external system stands alone, and internal machinery is never an actor. Each actor states in `belongsToTeam` whether it belongs to the team building and running the product.
 
-A role is one named set of permissions granted together, and it holds the one scope of its grant: a kebab-case level naming the reach, such as platform, tenant, or self. The role is the scope's only home. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation. An actor lists each role it holds in `holds` by identifier. Which tenant or team a person holds a role for is runtime data, held by role assignments, so a role reaches the same level wherever an actor holds it. A permission that two roles allow at different levels takes its reach from the role the caller holds.
+A role is one named set of permissions granted together, and it holds the one scope of its grant: a kebab-case level naming the reach, such as platform, tenant, or self. The role is the scope's only home. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation. An actor lists each role it holds in `holds` by identifier. Which tenant or team a person holds a role for is runtime data: a role assignment binds a scope instance as well as the level, the tenant or team the hold reaches, or the person for a self grant. A role reaches the same level wherever an actor holds it. A permission that two roles allow at different levels takes its reach from the role the caller holds.
 
 ### Permissions
 
 A permission is one allowed action. Each module keeps its permissions in `modules/<m>/permissions.yaml`, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from those lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
 
-A permission name opens with a verb from the use-case verb table on the [use-cases page](use-cases.md), a glossary verb of kind command or either, or with `manage`, so the name says what the permission allows. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. Whether a permission only reads follows from the kind of its leading verb in that table or in its glossary verb term. A permission name that opens with `manage` allows every changing use case on what it names, so it never only reads.
+A permission name opens with a verb from the use-case verb table on the [use-cases page](use-cases.md), a glossary verb of kind command or either, or with `manage`, so the name says what the permission allows. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. A permission that guards a query or use case disclosing personal or financial data carries the `personal-data` or `access` risk, like a permission for a write. A permission allows exactly the use cases whose `access` grant names it: no permission implies another by its name, and `manage-` is a naming convention only. A destructive use case takes its own permission when roles must differ, and that permission carries the use case's risk.
 
 ### The Access Field
 
-Each use case declares `access` with two parts: what grant the call checks and which tenant reach the call has. The door the call arrives through declares `auth`: how the caller proves identity. The door authenticates and the use case authorizes. The `auth` list on the door names one or more of `session`, `token`, `device`, `link`, `app`, or `none`. The `grant` on the use case is a permission such as `permission/manage-copies`, a self grant such as `self(permission/read-loans)`, or the open grants `anonymous` and `system`. A self grant allows the permission only on records the caller owns. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use-cases page](use-cases.md) states the use case fields around access.
+Each use case declares `access` with three parts: what grant the call checks, which tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignIn`. The entry point the call arrives through declares `auth`: how the caller proves identity. The entry point authenticates and the use case authorizes. The `auth` list on the entry point names one or more of `session`, `token`, `device`, `link`, `app`, or `none`. The `grant` on the use case is a permission such as `permission/manage-copies`, a self grant such as `self(permission/read-loans)`, `signed-in` for an authenticated caller with no permission, `anonymous` for an open call, or `system` for work an internal trigger runs with no outside caller. A self grant allows the permission only on records the caller owns. `recentSignIn` names a `setting/` identifier holding the window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use-cases page](use-cases.md) states the use case fields around access.
 
 ### Generic Refusals
 
-Refusals that follow from access and input need no written result. A call without the grant ends in the derived forbidden result, and a call with input that breaks its rules ends in the derived invalid input result. [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them. A permission allows a call, and the call still meets every rule, so holding a permission never bypasses a rule refusal. This is stated once here, not in each role.
+Refusals that follow from access and input need no written result. A call with no authentication where one is needed ends in the derived unauthenticated result, a call without the grant ends in the derived forbidden result, a call whose sign-in is older than the `recentSignIn` window ends in the derived sign-in-too-old result, and a call with input that breaks its rules ends in the derived invalid input result. [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them. A permission allows a call, and the call still meets every rule, so holding a permission never bypasses a rule refusal. This is stated once here, not in each role.
 
 ### Tenant Scope and Cross Tenant Access
 
@@ -47,11 +47,11 @@ Hierarchies, derived trust, and delegation are patterns built from the same acce
 
 ### Entry Points
 
-An entry point is one door from outside: a way people or systems reach the product. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) states the kinds, and each door declares its `auth`. A `served-content` entry point carries `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so a static script or a legal text is served content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. The protocol detail for devices lives in the devices extension.
+An entry point is how people or systems reach the product from outside. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) states the kinds, and each entry point declares its `auth`. A device caller authenticates with its own auth kind, `device`. A `served-content` entry point carries `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so a static script or a legal text is served content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. The protocol detail for devices lives in the devices extension.
 
 ### External Systems
 
-An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It stands alone and names no actor. An integration that calls the product is an external system calling through an API entry point. It declares each operation the product may call in `operations`, with its direction, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there is impossible with the Intent decision that accepts the limit.
+An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It stands alone and names no actor. An integration that calls the product is an external system calling through an API entry point. It declares each operation the product may call in `operations`, with its direction, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there does not run, with the Intent decision that accepts the limit.
 
 ### Homes and Summaries
 
@@ -63,7 +63,7 @@ Each access record lives in one home, and the [model page](model.md) states the 
 | `role` | page | The Intent roles home |
 | `permission` | entry | The module permissions file |
 | `entry-point` | page | The Behavior entry points home |
-| `external-system` | page | The Behavior systems home, at product or module level |
+| `external-system` | page | The external systems home in Behavior, at product or module level |
 
 An actor, role, or external system page carries a `summary` field stating what the record is for. Each module permissions file holds its permission entries, and its explanation file states the risks and boundaries of those entries.
 
@@ -117,7 +117,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 "holds": ["role/employee"]
 ```
 
-**Checked by:** `litespec model check` reports `role-orphaned` for a role held by no actor, and `record-invalid` for a hold that is not a role identifier, such as a hold carrying a scope.
+**Checked by:** `litespec model check` reports `role-unused` for a role held by no actor, and `record-invalid` for a hold that is not a role identifier, such as a hold carrying a scope.
 
 ### Scope Every Role to Its One Reach
 
@@ -149,7 +149,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Example:** `role/employee` allows `permission/request-expense`, which the submit use case cites in its grant.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry, and `permission-orphan` for a permission allowed by no role.
+**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry, and `permission-unused` for a permission allowed by no role.
 
 ### State Every Permission with Its Meaning
 
@@ -177,7 +177,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** Each use case MUST declare its grant and its tenant scope in `access`.
 
-**Rationale:** The two parts answer the access questions together: what grant the call checks and which tenant reach the call has. A use case without one part leaves that question to code, and two implementations of the same page enforce different boundaries. The door the call arrives through declares how the caller proved identity.
+**Rationale:** The two parts answer the access questions together: what grant the call checks and which tenant reach the call has. A use case without one part leaves that question to code, and two implementations of the same page enforce different boundaries. The entry point the call arrives through declares how the caller proved identity.
 
 **Example:**
 
@@ -211,13 +211,29 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each access declaration MUST name its grant as a permission, a self grant, anonymous, or system.
+**Statement:** Each access declaration MUST name its grant as a permission, a self grant, signed-in, anonymous, or system.
 
-**Rationale:** The grant is the check the call passes: a permission for role-held action, a self grant for action on records the caller owns, anonymous for open calls, and system for work with no caller. A grant outside these four forms gives the checker no stated check to enforce, and each caller invents its own test.
+**Rationale:** The grant is the check the call passes: a permission for role-held action, a self grant for action on records the caller owns, signed-in for an authenticated caller with no permission, anonymous for open calls, and system for work an internal trigger runs with no outside caller. A call with no authentication where one is needed ends in the derived unauthenticated result. System never authorizes an outside request. A grant outside these five forms gives the checker no stated check to enforce, and each caller invents its own test. Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing) and [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order).
 
-**Example:** `permission/manage-copies` for staff work, `self(permission/read-loans)` for a reader reading their own loans, `anonymous` for a public catalog, and `system` for a self-checkout handler acting for the device.
+**Example:** `permission/manage-copies` for staff work, `self(permission/read-loans)` for a reader reading their own loans, `signed-in` for a workspace a signed-in person opens with no permission, `anonymous` for a public catalog, and `system` for an archive use case only its retention job runs.
 
-**Checked by:** `litespec model check` reports `field-invalid` for a grant outside permission, self, anonymous, and system, and `reference-unknown` for a permission no record defines.
+**Checked by:** `litespec model check` reports `field-invalid` for a grant outside permission, self, signed-in, anonymous, and system, and `reference-unknown` for a permission no record defines.
+
+### Require a Recent Sign-In by Setting
+
+**ID:** `litespec/core/access#require-a-recent-sign-in-by-setting`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** A use case that requires a recent sign-in MUST name the window in `recentSignIn` with a `setting/` identifier.
+
+**Rationale:** Some operations need a fresh sign-in: changing a sign-in method or approving a large payout on a week-old session is not the same as doing it just after signing in. The window is a product decision, so it lives in a setting that states its range and setter, and every use case that needs it names the same setting instead of typing its own duration. A call whose sign-in is older than the window ends in the derived sign-in-too-old result. Settled by [decision/0074-declare-access-settings-and-deadlines](decision/0074-declare-access-settings-and-deadlines).
+
+**Example:** Claimwick payout approval above the threshold names `setting/spending.sign-in-window` in `recentSignIn`; a session older than the window ends in the derived sign-in-too-old result.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a `recentSignIn` that names no `setting/` identifier and `reference-unknown` for a setting no record defines.
 
 ### Remove a Target That Must Be the Caller
 
@@ -250,6 +266,22 @@ An actor, role, or external system page carries a `summary` field stating what t
 **Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
 **Checked by:** `litespec model check` reports `field-invalid` for a tenant scope outside own, cross, public, and none.
+
+### Evaluate Access in One Order
+
+**ID:** `litespec/core/access#evaluate-access-in-one-order`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case, record:aggregate
+
+**Statement:** Access MUST be evaluated in one order: the authenticated principal, then the role assignments whose bound scope instance matches the target, then the permission, then the use case tenant scope, then the self-ownership restriction, then delegation validity, with several assignments combining as a union.
+
+**Rationale:** Each step narrows what the next step checks: identity before assignments, assignments before the permission they carry, the permission before the reach it is used at, and ownership and delegation last as restrictions on an otherwise allowed call. One order means two implementations allow and refuse the same calls. A role assignment binds a scope instance as well as a level: the tenant the hold reaches, or the person for a self grant. Several assignments combine as a union: any assignment that allows the call allows it. Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order).
+
+**Example:** A Claimwick approver holds the approver role for one cost center. A call to approve an expense evaluates as the session principal, then the approver assignment whose cost center matches the expense, then the approve-expense permission, then the own tenant scope, then ownership and delegation. An assignment for another cost center does not match, so the call ends in the derived forbidden result.
+
+**Reviewed for:** Which calls allow or refuse outside the one order? Walk an allowed and a refused call through principal, assignments, permission, tenant scope, ownership, and delegation.
 
 ### Cite the Setting or Plan Behind Every Entitlement
 
@@ -291,13 +323,13 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Applies to:** artifact: record:use-case, record:aggregate
 
-**Statement:** A delegated or temporary grant inside one tenant MUST be recorded as a role assignment with a validity window in `validFrom` and `validUntil`, held on an aggregate the access model reads and granted and revoked by its own use cases.
+**Statement:** A delegated or temporary grant inside one tenant MUST be recorded as a role assignment with a validity window in `validFrom` and `validUntil` and the bound scope instance, held on an aggregate the access model reads and granted and revoked by its own use cases.
 
-**Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the authorization guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant.
+**Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the authorization guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The assignment binds the scope instance the deputy reaches, the tenant or team, beside the dates. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant. Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order).
 
-**Example:** In Claimwick, a manager delegating team management to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the manager role to the deputy with `validFrom` of 2026-12-20 and `validUntil` of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The manage use case acting under it still declares `permission/manage-team`.
+**Example:** In Claimwick, a manager delegating team management to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the manager role to the deputy, bound to the manager's team, with `validFrom` of 2026-12-20 and `validUntil` of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The manage use case acting under it still declares `permission/manage-team`.
 
-**Reviewed for:** Which delegated or temporary grants inside one tenant lack a role assignment with `validFrom` and `validUntil` on an aggregate the access model reads, or lack their own granting and revoking use cases? Look at the assignments beside the actor holds and the use cases that act under them.
+**Reviewed for:** Which delegated or temporary grants inside one tenant lack a role assignment with `validFrom` and `validUntil` and the bound scope instance on an aggregate the access model reads, or lack their own granting and revoking use cases? Look at the assignments beside the actor holds and the use cases that act under them.
 
 ### Grant Across Tenants Only Through Declared Delegation
 
@@ -341,39 +373,43 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An external system MUST declare how personal data it holds is erased in `erasure`.
 
-**Rationale:** Personal data sent outside stays outside unless some operation or event removes it, so the erasure declaration states the call, the integration event, or why removal is impossible. An impossible erasure cites the Intent decision that accepts the limit, so the gap reads as an accepted decision rather than a missed edge.
+**Rationale:** Personal data sent outside stays outside unless some operation or event removes it, so the erasure declaration states the call, the integration event, or why removal does not run. An unsupported, manual or not-applicable erasure cites the Intent decision that accepts the limit, so the gap reads as an accepted decision rather than a missed edge.
 
-**Example:** A payout archive declares `{"mode": "impossible", "reason": "settled payouts belong to the bank"}` with the decision that accepts the limit, plus the sentence employees see.
+**Example:** A payout archive declares `{"mode": "unsupported", "reason": "settled payouts belong to the bank"}` with the decision that accepts the limit, plus the sentence employees see.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an external system without `erasure` and `reference-unknown` for an impossible erasure without an Intent decision.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system without `erasure` and `reference-unknown` for an unsupported, manual or not-applicable erasure without an Intent decision.
 
 ### Write a Summary on Every Actor and Role Page
 
 **ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
 
-**Strength:** required
+**Strength:** advisory
 
 **Applies to:** artifact: record:actor, record:role
 
-**Statement:** An actor or role page MUST carry a `summary` field.
+**Statement:** An actor or role page SHOULD carry a `summary` field.
 
-**Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
+**Departure:** A page whose fields already state who the party is and what the grant is for.
 
-**Checked by:** `litespec model check` reports `prose-missing` for an actor or role page without `summary`.
+**Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row. Settled by [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
+
+**Checked by:** `litespec model check` reports `prose-missing` as advisory for an actor or role page without `summary`.
 
 ### Write a Summary on Every External System Page
 
 **ID:** `litespec/core/access#write-a-summary-on-every-external-system-page`
 
-**Strength:** required
+**Strength:** advisory
 
 **Applies to:** artifact: record:external-system
 
-**Statement:** An external system page MUST carry a `summary` field.
+**Statement:** An external system page SHOULD carry a `summary` field.
 
-**Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
+**Departure:** A page whose operations already state what the outside system does for the product.
 
-**Checked by:** `litespec model check` reports `prose-missing` for an external system page without `summary`.
+**Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row. Settled by [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
+
+**Checked by:** `litespec model check` reports `prose-missing` as advisory for an external system page without `summary`.
 
 ### Define Each Scope Level in the Glossary
 
@@ -395,29 +431,31 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#name-each-permission-by-a-use-case-verb`
 
-**Strength:** required
+**Strength:** advisory
 
 **Applies to:** artifact: record:permission
 
-**Statement:** Each permission name MUST open with a verb from the use-case verb table, a glossary verb of kind command or either, or with `manage`.
+**Statement:** Each permission name SHOULD open with a verb from the use-case verb table, a glossary verb of kind command or either, or with `manage`.
 
-**Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product, and a project verb carries its kind in its glossary verb term, so a permission opens with a command or either verb from either list. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once), and glossary verbs by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).
+**Departure:** A permission name an access editor already lists under another verb.
+
+**Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product, and a project verb carries its kind in its glossary verb term, so a permission opens with a command or either verb from either list. The opening verb is a naming convention only: no permission implies another by its name, and `manage-` grants nothing beyond the use cases that cite the permission. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once), and glossary verbs by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary). Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order) and [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
 
 **Example:** `permission/approve-expense` opens with `approve` and `permission/manage-policy` opens with `manage`, so both pass. `permission/submit-expense` opens with the glossary verb `submit` and passes. `permission/handle-documents` opens with a word neither list states, so it is reported.
 
-**Checked by:** `litespec model check` reports `permission-verb-unknown` for a permission name whose opening verb is neither in the table, nor a glossary verb of kind command or either, nor `manage`.
+**Checked by:** `litespec model check` reports `permission-verb-unknown` as advisory for a permission name whose opening verb is neither in the table, nor a glossary verb of kind command or either, nor `manage`.
 
-### Keep Permission Lists to Entries
+### Keep Permission Sets to Entries
 
-**ID:** `litespec/core/access#keep-permission-lists-to-entries`
+**ID:** `litespec/core/access#keep-permission-sets-to-entries`
 
 **Strength:** required
 
-**Applies to:** artifact: record:permission-list
+**Applies to:** artifact: record:permission-set
 
 **Statement:** A module permissions file MUST hold permission entries only, and its explanation states only the risks and boundaries of those entries, without restating a permission's meaning or adding a grant.
 
-**Rationale:** Each permission is defined once, in its entry: its `meaning` is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so the explanation holds what the entries cannot. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
+**Rationale:** Each permission is defined once, in its entry: its `meaning` is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so the explanation holds what the entries cannot. A permission that guards a query or use case disclosing personal or financial data carries the `personal-data` or `access` risk, like a permission for a write. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once). Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing).
 
 **Reviewed for:** Which explanation files beside a permissions file restate a permission's meaning, add a grant, or name a future role? Look at the Risk and Boundaries sections beside each permissions file.
 

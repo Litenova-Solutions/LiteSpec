@@ -44,12 +44,12 @@
   <PageSection blockKey="claims" heading="claims" count={claims.length}>
     {#each claims as c, i (i)}
       {@const requirement = stringField(c, "requirement")}
-      <div class="border-b border-border py-2.5">
+      <div class="border-b border-slate-200 py-2.5">
         <div class="flex items-center gap-2 font-medium">
           <RecordIcon name="quote" class="size-3.5" />{stringField(c, "claim") ?? ""}
         </div>
         {#if requirement}
-          <p class="mt-1 mb-0 text-sm text-subtle-foreground">Backed by <RecordLink id={requirement} /></p>
+          <p class="mt-1 mb-0 text-sm text-slate-600">Backed by <RecordLink id={requirement} /></p>
         {:else}
           <p class="mt-1 mb-0 text-xs font-medium text-warn-foreground">No requirement backs this claim</p>
         {/if}

@@ -132,7 +132,7 @@ const lexicon: Lexicon = {
     },
     coded: {
       term: "Coded",
-      definition: "The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for.",
+      definition: "The computed state of a use case, rule, domain event, or aggregate state the stack's builder finds code for.",
     },
     covered: {
       term: "Covered",
@@ -145,8 +145,8 @@ const lexicon: Lexicon = {
 
 const manifest: Manifest = {
   project: { id: "product/library", title: "Riverside Library" },
-  roots: { consumer: "C:/work/shop", litespec: "C:/work/litespec" },
-  editor: "vscode://file/{root}/{path}:{line}",
+  release: "7.0.0",
+  links: "vscode://file/C:/work/shop/{path}:{line}",
   claims: [
     { layer: "intent", practice: "litespec" },
     { layer: "behavior", practice: "litespec" },
@@ -166,7 +166,7 @@ const manifest: Manifest = {
         reached: true,
         reachedBy: ["use-case/library.borrowing.borrow"],
       },
-      { id: "journey/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
+      { id: "flow/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
     ],
   },
   testRun: null,
@@ -204,12 +204,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /** A book over the fixture shards, booted and ready for assertions. */
-export async function fixtureBook(hash = "", opts: { editor?: string; claims?: LayerClaim[] } = {}): Promise<Book> {
+export async function fixtureBook(
+  hash = "",
+  opts: { links?: string | null; claims?: LayerClaim[]; coverage?: Manifest["intentCoverage"] } = {},
+): Promise<Book> {
   const data: Record<string, unknown> = structuredClone(shards);
   const manifestData = data["manifest"];
   if (isRecord(manifestData)) {
-    if (opts.editor !== undefined) manifestData["editor"] = opts.editor;
+    if (opts.links !== undefined) manifestData["links"] = opts.links;
     if (opts.claims !== undefined) manifestData["claims"] = opts.claims;
+    if (opts.coverage !== undefined) manifestData["intentCoverage"] = opts.coverage;
   }
   const loader: ShardLoader = {
     put(key: string, value: unknown): void {
@@ -221,6 +225,8 @@ export async function fixtureBook(hash = "", opts: { editor?: string; claims?: L
     load(key: string): Promise<unknown> {
       return Promise.resolve(structuredClone(data[key]));
     },
+    // Fixture shards never change, so a rebuild has nothing to forget.
+    reset(): void {},
   };
   const book = new Book(loader);
   await book.boot(hash);

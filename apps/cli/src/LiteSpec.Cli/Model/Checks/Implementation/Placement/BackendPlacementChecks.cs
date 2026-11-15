@@ -52,11 +52,11 @@ internal static class BackendPlacementChecks
                     continue;
                 }
 
-                // A view projection or reader carries its view mark as a technical class mark. The
-                // view's folder is its module Views folder, so only the view placement applies to it.
-                if (record.Type == "view")
+                // A read model projection or reader carries its read model mark as a technical class mark. The
+                // read model's folder is its module ReadModels folder, so only the read model placement applies to it.
+                if (record.Type == "read-model")
                 {
-                    if (!CheckViewPlacement(model, element, mark, record, findings))
+                    if (!CheckReadModelPlacement(model, element, mark, record, findings))
                     {
                         CheckBackendNamespace(model.Config, element, mark, record, PathOf(record), null, namespaces, findings);
                     }
@@ -144,7 +144,7 @@ internal static class BackendPlacementChecks
 
         if (!SameName(segments[0], path.Module!))
         {
-            if (record.Type is RecordTypes.Event or RecordTypes.Rule or RecordTypes.ExternalSystem)
+            if (record.Type is RecordTypes.DomainEvent or RecordTypes.Rule or RecordTypes.ExternalSystem)
             {
                 findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{segments[0]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
                 return true;
@@ -167,14 +167,14 @@ internal static class BackendPlacementChecks
         }
 
         if (path.Aggregate is null
-            || record.Type is not (RecordTypes.Event or RecordTypes.Rule or RecordTypes.Aggregate))
+            || record.Type is not (RecordTypes.DomainEvent or RecordTypes.Rule or RecordTypes.Aggregate))
         {
             return false;
         }
 
         // A rule exception or domain event another module names lives in its owner
         // Contracts folder, outside the aggregate folders the comparison below reads.
-        if (record.Type is RecordTypes.Event or RecordTypes.Rule
+        if (record.Type is RecordTypes.DomainEvent or RecordTypes.Rule
             && IsInModuleContracts(model.Config, element.File, path.Module!))
         {
             return false;
@@ -422,19 +422,19 @@ internal static class BackendPlacementChecks
     }
 
     /// <summary>
-    ///     Reports the folder a view projection or reader misses: the module Views folder named for the view's plural,
-    ///     <c>Views/&lt;ViewPlural&gt;/</c>, which holds files only. A view in another module folder is reported too.
+    ///     Reports the folder a read model projection or reader misses: the module ReadModels folder named for the read model's plural,
+    ///     <c>ReadModels/&lt;ReadModelPlural&gt;/</c>, which holds files only. A read model in another module folder is reported too.
     /// </summary>
     /// <param name="model">The loaded project model whose configuration names the layer roots.</param>
-    /// <param name="element">The marked code element that carries the view mark.</param>
-    /// <param name="mark">The view mark naming the view the folder should hold.</param>
-    /// <param name="view">The marked view record.</param>
+    /// <param name="element">The marked code element that carries the read model mark.</param>
+    /// <param name="mark">The read model mark naming the read model the folder should hold.</param>
+    /// <param name="readModel">The marked read model record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
-    private static bool CheckViewPlacement(ProjectModel model, MarkedElement element, CodeMark mark, Record view, List<Finding> findings)
+    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</follows>
+    private static bool CheckReadModelPlacement(ProjectModel model, MarkedElement element, CodeMark mark, Record readModel, List<Finding> findings)
     {
-        var path = PathOf(view);
+        var path = PathOf(readModel);
 
         if (!SourceRoots.IsProductRoot(model.Config.ModulesRoot)
             || path.Module is null
@@ -452,16 +452,16 @@ internal static class BackendPlacementChecks
         }
 
         var folders = raw[..^1];
-        var plural = ViewFolderOf(path.Name);
+        var plural = ReadModelFolderOf(path.Name);
 
         if (folders.Length >= 2
-            && string.Equals(folders[^2], "Views", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(folders[^2], "ReadModels", StringComparison.OrdinalIgnoreCase)
             && SameName(folders[^1], plural))
         {
             return false;
         }
 
-        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^1]}', but marks '{mark.RecordId}', so it belongs in '{raw[0]}/Views/{plural}/'.", mark.File, mark.Line, mark.RecordId));
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^1]}', but marks '{mark.RecordId}', so it belongs in '{raw[0]}/ReadModels/{plural}/'.", mark.File, mark.Line, mark.RecordId));
         return true;
     }
 
@@ -584,7 +584,7 @@ internal static class BackendPlacementChecks
         // aggregate names that aggregate instead of the rule home.
         var significant = placed.Where((segment, index) => index == 0 || !PlacelessSegments.Contains(segment)).ToList();
 
-        if (record.Type is RecordTypes.Event or RecordTypes.Rule
+        if (record.Type is RecordTypes.DomainEvent or RecordTypes.Rule
             && significant.Count >= 1
             && SameName(significant[0], path.Module!)
             && (IsInModuleContracts(config, element.File, path.Module!)
@@ -614,7 +614,7 @@ internal static class BackendPlacementChecks
     /// <summary>
     ///     Whether the element carries a backend placement: not a test, a frontend element, an
     ///     aggregate method, a technical class or a host endpoint. A technical class that carries a
-    ///     view mark is the one technical class with a placement, its module Views folder.
+    ///     read model mark is the one technical class with a placement, its module ReadModels folder.
     /// </summary>
     /// <param name="config">The project configuration naming the host roots.</param>
     /// <param name="element">The marked code element.</param>
@@ -624,6 +624,6 @@ internal static class BackendPlacementChecks
         && (element.Kind is not (CodeKind.Test or CodeKind.BrowserTest
                 or CodeKind.FrontendModule or CodeKind.FrontendRoute
                 or CodeKind.AggregateMethod or CodeKind.Technical)
-            || element.Marks.Any(mark => mark.RecordId.StartsWith("view/", StringComparison.Ordinal)))
+            || element.Marks.Any(mark => mark.RecordId.StartsWith("read-model/", StringComparison.Ordinal)))
         && !(element.Kind == CodeKind.Endpoint && IsHostEndpoint(config, element.File));
 }

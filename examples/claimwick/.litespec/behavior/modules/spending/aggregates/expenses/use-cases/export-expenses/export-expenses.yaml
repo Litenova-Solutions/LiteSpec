@@ -2,12 +2,13 @@ type: use-case
 id: use-case/spending.export-expenses
 title: Export Expenses
 summary: Finance collects the approved expenses so the payout batch can run.
+exposure: Signed-in finance staff reach this query through the expenses app under the export-expenses permission. A wrong file pays the wrong expenses, so the file carries every approved expense of the period and nothing else.
 kind: query
 access:
   grant: permission/export-expenses
   tenant: own
 serves:
-- journey/export-approved-expenses#s1
+- flow/export-approved-expenses#s1
 fulfills:
 - requirement/approval.decided-within-five-days
 reachedThrough:
@@ -17,7 +18,34 @@ output:
     file:
       fields:
       - name: rows
-        meaning: "The set of rows with one row per approved expense: its identity, amount, currency, approver and approval time."
+        meaning: The set of rows with one row per approved expense.
+        type: list
+        of:
+          fields:
+          - name: expenseId
+            meaning: The approved expense.
+            type: id
+            of: aggregate/spending.expense
+            required: true
+          - name: amount
+            meaning: The exact amount of the expense.
+            type: decimal
+            required: true
+          - name: currency
+            meaning: The ISO 4217 currency code of the amount.
+            type: text
+            required: true
+          - name: approver
+            meaning: The manager who approved the expense.
+            type: id
+            of: actor/manager
+            required: true
+          - name: approvedAt
+            meaning: The time the expense was approved.
+            type: date-time
+            required: true
+          unique:
+          - expenseId
       classification: internal
       reads:
       - aggregate/spending.expense
@@ -28,9 +56,6 @@ paging:
   reason: one file holds every approved expense of the period
 reads:
 - aggregate/spending.expense
-idempotency:
-  mode: none
-  reason: the query reads approved expenses without changing them
 records:
 - type: result
   id: result/export-expenses.exported
@@ -43,6 +68,7 @@ records:
   outcome: refusal
   code: spending.nothing-approved
   meaning: The state of an export with no approved expense awaiting it.
+  sentence: No approved expense awaits export, so there is no batch to send.
 - type: scenario
   id: scenario/export-expenses.exporting-approved-expenses-succeeds
   title: Exporting Approved Expenses Succeeds
@@ -50,6 +76,8 @@ records:
   when: Finance exports the approved expenses.
   then: The approved expenses are exported.
   result: result/export-expenses.exported
+  exercises:
+  - rule/expense.export-carries-approved
 - type: scenario
   id: scenario/export-expenses.exporting-with-nothing-approved-is-refused
   title: Exporting with Nothing Approved Is Refused
@@ -57,3 +85,5 @@ records:
   when: Finance exports the approved expenses.
   then: The export is refused because no approved expense awaits it.
   result: result/export-expenses.nothing-approved
+  exercises:
+  - rule/expense.export-carries-approved

@@ -1,6 +1,4 @@
-using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Code;
-using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Model;
@@ -12,14 +10,13 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 /// <summary>
 ///     The screen checks: every page has its screen record, a screen's offers
 ///     match its computed calls, a screen serves only steps its use cases serve,
-///     every browser or device step has a screen, every reachable refusal is
-///     shown, browser proofs confirm and are not duplicated, and a use case is
+///     every browser or device step has a screen, browser proofs confirm and are not duplicated, and a use case is
 ///     reached on each frontend that serves its entry point.
 /// </summary>
 /// <follows>litespec/core/edges#give-every-page-its-screen-record</follows>
 internal static class ScreenChecks
 {
-    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, refusal-sentence-missing, reader-missing and proves-duplicate.</summary>
+    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, reader-missing and proves-duplicate.</summary>
     /// <param name="model">The loaded project model that holds every record, each screen and each browser test.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -29,7 +26,6 @@ internal static class ScreenChecks
         CheckScreenCalls(model, findings);
         CheckScreenServes(model, findings);
         CheckStepUnscreened(model, findings);
-        CheckResultUnshown(model, findings);
         CheckBrowserProofs(model, findings);
         CheckProvesDuplicated(model, findings);
         CheckRouteSuiteMarks(model, findings);
@@ -286,7 +282,7 @@ internal static class ScreenChecks
         }
     }
 
-    /// <summary>Reports each journey step a screen serves that none of its offered use cases serves.</summary>
+    /// <summary>Reports each flow step a screen serves that none of its offered use cases serves.</summary>
     /// <param name="model">The loaded project model that holds each screen and use case record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenServes(ProjectModel model, List<Finding> findings)
@@ -316,16 +312,16 @@ internal static class ScreenChecks
         }
     }
 
-    /// <summary>Reports each journey step served by a browser or device use case that no screen serves.</summary>
-    /// <param name="model">The loaded project model that holds each journey, screen and use case record.</param>
+    /// <summary>Reports each flow step served by a browser or device use case that no screen serves.</summary>
+    /// <param name="model">The loaded project model that holds each flow, screen and use case record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckStepUnscreened(ProjectModel model, List<Finding> findings)
     {
         var screened = new HashSet<string>(ScreenRecords(model).SelectMany(screen => screen.Ids(RecordFields.Serves)), StringComparer.Ordinal);
 
-        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey))
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow))
         {
-            foreach (var step in journey.StepIds())
+            foreach (var step in flow.StepIds())
             {
                 if (screened.Contains(step))
                 {
@@ -343,130 +339,12 @@ internal static class ScreenChecks
                 {
                     findings.Add(new Finding(
                         "step-screen-missing",
-                        $"Journey step '{step}' is served by a browser or device use case but by no screen.",
-                        journey.File, journey.Line, step));
+                        $"Flow step '{step}' is served by a browser or device use case but by no screen.",
+                        flow.File, flow.Line, step));
                 }
             }
         }
     }
-
-    /// <summary>Reports each reachable refusal that its frontend dictionary and browser tests leave without a sentence.</summary>
-    /// <param name="model">The loaded project model that holds each screen, frontend and browser test.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckResultUnshown(ProjectModel model, List<Finding> findings)
-    {
-        // A frontend's dictionary and asserted codes are read once, however many routes it serves.
-        var dictionaries = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        var assertedBy = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-
-        foreach (var screen in ScreenRecords(model))
-        {
-            foreach (var route in ReadScreensFor(model, screen.Id))
-            {
-                var frontend = model.Config.Frontends.FirstOrDefault(candidate => candidate.Name == route.Frontend);
-
-                if (frontend is null)
-                {
-                    continue;
-                }
-
-                if (!dictionaries.TryGetValue(frontend.Name, out var dictionary))
-                {
-                    dictionary = RefusalDictionaryKeys(frontend);
-                    dictionaries[frontend.Name] = dictionary;
-                }
-
-                if (!assertedBy.TryGetValue(frontend.Name, out var asserted))
-                {
-                    asserted = new HashSet<string>(
-                        model.BrowserTests
-                            .Where(test => test.Frontend == frontend.Name)
-                            .SelectMany(test => test.Codes),
-                        StringComparer.Ordinal);
-                    assertedBy[frontend.Name] = asserted;
-                }
-
-                foreach (var useCaseId in screen.Ids(RecordFields.Offers))
-                {
-                    if (!Identifiers.TrySplit(useCaseId, out _, out _, out var useCaseName) || useCaseName.Length == 0)
-                    {
-                        continue;
-                    }
-
-                    foreach (var result in model.RecordsByHome[useCaseName].Where(record =>
-                        record.Type == RecordTypes.Result
-                        && !record.Derived
-                        && record.Field(RecordFields.Outcome) == "refusal"))
-                    {
-                        var code = result.Field(RecordFields.Code);
-
-                        if (code is null || dictionary.Contains(code) || asserted.Contains(code))
-                        {
-                            continue;
-                        }
-
-                        findings.Add(new Finding(
-                            "refusal-sentence-missing",
-                            $"Screen '{screen.Id}' reaches refusal '{code}' of '{useCaseId}' but has no sentence in frontend '{frontend.Name}'s refusal dictionary and no browser test asserting its code.",
-                            screen.File, screen.Line, SubjectOf(screen))
-                        {
-                            Reader = route.Reader,
-                            ReaderIsQualified = route.Reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    /// <summary>The refusal codes a frontend's dictionary holds a sentence for, read from its file or folder.</summary>
-    /// <param name="frontend">The frontend configuration that names the refusal dictionary file or folder.</param>
-    /// <returns>The refusal codes the dictionary holds a sentence for, or an empty set when it names none.</returns>
-    private static HashSet<string> RefusalDictionaryKeys(FrontendConfig frontend)
-    {
-        var keys = new HashSet<string>(StringComparer.Ordinal);
-        var path = frontend.RefusalDictionary;
-
-        if (path is null)
-        {
-            return keys;
-        }
-
-        IEnumerable<string> files = File.Exists(path)
-            ? [path]
-            : Directory.Exists(path)
-                ? Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
-                : [];
-
-        foreach (var file in files)
-        {
-            string text;
-
-            try
-            {
-                text = File.ReadAllText(file);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            foreach (Match match in DictionaryKey.Matches(text))
-            {
-                var code = match.Groups["code"].Value.Length > 0 ? match.Groups["code"].Value : match.Groups["code2"].Value;
-
-                if (code.Length > 0)
-                {
-                    keys.Add(code);
-                }
-            }
-        }
-
-        return keys;
-    }
-
-    /// <summary>Finds each refusal code key in a dictionary file, as a quoted key or a heading.</summary>
-    private static readonly Regex DictionaryKey = new(@"(?:^|[\s{,\""'])[""']?(?<code>[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+)[""']?\s*[:=]|^#{1,6}\s+(?<code2>[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+)\s*$", RegexOptions.Compiled | RegexOptions.Multiline);
 
     /// <summary>Reports each browser test claim that its screens and assertions leave unreached or that names no provable record.</summary>
     /// <param name="model">The loaded project model that holds each browser test and record.</param>

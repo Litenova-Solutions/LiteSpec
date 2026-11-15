@@ -38,13 +38,12 @@ public sealed class BookContentTests
         var script = Client();
         foreach (var words in new[]
         {
-            "authoritative value in",
+            ", within ",
             "Forwards through",
             "skips and logs",
-            "fresh within ",
             ", because ",
             "Skipped when",
-            "Runs by hand",
+            "Service level",
             "Not yet met",
             "Not yet tested",
             "Covered",
@@ -55,7 +54,7 @@ public sealed class BookContentTests
         }
     }
 
-    /// <summary>The client holds none of the replaced renderings: gap and deviation words, the retries column and the automation handler label.</summary>
+    /// <summary>The client holds none of the replaced renderings: gap and deviation words, the retries column, the automation handler label, the advisory freshness words and the manual job words.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void ClientHoldsNoneOfTheReplacedWords()
@@ -70,6 +69,9 @@ public sealed class BookContentTests
             "Not yet verified",
             "Retries",
             "Reaction handler",
+            "authoritative value in",
+            "fresh within ",
+            "Runs by hand",
         })
         {
             Assert.DoesNotContain(removed, script, StringComparison.Ordinal);
@@ -125,8 +127,6 @@ public sealed class BookContentTests
         foreach (var words in new[]
         {
             "not coded",
-            "not tested",
-            "Not implemented or not tested",
             "Has code",
             "Has tests",
             "scenarios pass",

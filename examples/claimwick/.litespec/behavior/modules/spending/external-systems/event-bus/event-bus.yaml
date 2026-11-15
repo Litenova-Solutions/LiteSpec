@@ -1,0 +1,9 @@
+type: external-system
+id: external-system/event-bus
+title: Event Bus
+summary: The event bus carries the spending module's integration events to the modules that read them.
+processes:
+- aggregate: aggregate/spending.expense
+  dataClass: expense-ledger
+- aggregate: aggregate/spending.expense
+  dataClass: submitter-contact

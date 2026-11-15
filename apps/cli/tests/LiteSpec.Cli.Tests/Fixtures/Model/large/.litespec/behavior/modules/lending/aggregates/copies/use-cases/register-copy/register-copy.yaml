@@ -6,13 +6,13 @@ access:
   grant: permission/manage-copies
   tenant: own
 serves:
-- journey/borrow-and-return#s1
+- flow/borrow-and-return#s1
 fulfills:
 - requirement/borrowing.copy-shelf-home
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/copy.copy-registered
+- domain-event/copy.copy-registered
 idempotency:
   mode: none
   reason: Each call registers its own copy, and registering the same barcode twice is refused.

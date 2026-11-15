@@ -1,6 +1,6 @@
 # Permissions
 
-The permission list names what each person may do in the spending module, with one permission for each allowed action. It concerns every role that uses the module. It matters because each use case checks one of these permissions before it runs.
+The permission set names what each person may do in the spending module, with one permission for each allowed action. It concerns every role that uses the module. It matters because each use case checks one of these permissions before it runs.
 
 ## Risk
 

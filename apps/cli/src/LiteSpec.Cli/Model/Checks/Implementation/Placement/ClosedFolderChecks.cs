@@ -25,11 +25,11 @@ internal static class ClosedFolderChecks
         "Domain", "Application", "Infrastructure", "WebApi",
     };
 
-    /// <summary>Fixed folders at a module, whatever its aggregates, use cases, triggers and views declare.</summary>
+    /// <summary>Fixed folders at a module, whatever its aggregates, use cases, triggers and read models declare.</summary>
     static readonly HashSet<string> ModuleFolders = new(StringComparer.OrdinalIgnoreCase)
     {
         "Contracts", "Domain", "Application", "Infrastructure",
-        "UseCases", "Notifications", "ExternalSystems", "Views",
+        "UseCases", "Notifications", "ExternalSystems", "ReadModels",
     };
 
     /// <summary>The kind folders a module Contracts folder holds: the sorted public surface.</summary>
@@ -139,7 +139,7 @@ internal static class ClosedFolderChecks
     /// <param name="modules">The declared module names.</param>
     /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
-    /// <param name="homes">The declared trigger and view folders by module, container and folder name.</param>
+    /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckModulesRoot(ConsumerConfig config, List<string> modules, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
     {
@@ -168,7 +168,7 @@ internal static class ClosedFolderChecks
     /// <param name="moduleName">The module folder name as written on disk.</param>
     /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
-    /// <param name="homes">The declared trigger and view folders by module, container and folder name.</param>
+    /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckModuleLevel(ConsumerConfig config, string module, string moduleName, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
     {
@@ -188,7 +188,7 @@ internal static class ClosedFolderChecks
                 }
                 else if (string.Equals(name, "Notifications", StringComparison.OrdinalIgnoreCase)
                     || string.Equals(name, "ExternalSystems", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(name, "Views", StringComparison.OrdinalIgnoreCase))
+                    || string.Equals(name, "ReadModels", StringComparison.OrdinalIgnoreCase))
                 {
                     CheckHomeLevel(config, child, moduleName, name, homes, findings);
                 }
@@ -257,15 +257,15 @@ internal static class ClosedFolderChecks
     }
 
     /// <summary>
-    ///     Reports every folder under a module Notifications, ExternalSystems or Views folder that names no declared
+    ///     Reports every folder under a module Notifications, ExternalSystems or ReadModels folder that names no declared
     ///     record of its kind, every file directly beside them, and every file or folder under a named child, which
     ///     holds files only.
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
-    /// <param name="container">The absolute Notifications, ExternalSystems or Views folder of one module.</param>
+    /// <param name="container">The absolute Notifications, ExternalSystems or ReadModels folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
-    /// <param name="containerName">The container folder name: Notifications, ExternalSystems or Views.</param>
-    /// <param name="homes">The declared trigger and view folders by module, container and folder name.</param>
+    /// <param name="containerName">The container folder name: Notifications, ExternalSystems or ReadModels.</param>
+    /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckHomeLevel(ConsumerConfig config, string container, string moduleName, string containerName, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
     {
@@ -273,7 +273,7 @@ internal static class ClosedFolderChecks
         {
             "Notifications" => "notification a reaction or job of the module sends",
             "ExternalSystems" => "external system a reaction or job of the module calls",
-            _ => "view of the module",
+            _ => "read model of the module",
         };
 
         foreach (var child in ChildFolders(container))
@@ -298,7 +298,7 @@ internal static class ClosedFolderChecks
     /// <summary>Reports every subfolder under a use case layer folder, which holds files only.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="folder">The absolute folder that holds files only.</param>
-    /// <param name="kind">The folder kind as printed: use case, Notifications, ExternalSystems or Views.</param>
+    /// <param name="kind">The folder kind as printed: use case, Notifications, ExternalSystems or ReadModels.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseFilesOnly(ConsumerConfig config, string folder, string kind, List<Finding> findings)
     {
@@ -541,15 +541,15 @@ internal static class ClosedFolderChecks
     }
 
     /// <summary>
-    ///     The declared trigger and view folders by module, container and folder name. A reaction or job that runs a use
+    ///     The declared trigger and read model folders by module, container and folder name. A reaction or job that runs a use
     ///     case takes no folder here, since its code sits in that use case's Application folder. A trigger that only sends
     ///     takes a Notifications folder, and one that only calls takes an ExternalSystems folder, each named for its first
-    ///     effect. Each view takes a Views folder, named for its plural.
+    ///     effect. Each read model takes a ReadModels folder, named for its plural.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <returns>The module, container and folder name of each trigger and view placed in a module folder.</returns>
+    /// <returns>The module, container and folder name of each trigger and read model placed in a module folder.</returns>
     /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
+    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</follows>
     private static List<(string Module, string Container, string Folder)> DeclaredTriggerHomes(ProjectModel model)
     {
         var homes = new List<(string Module, string Container, string Folder)>();
@@ -570,9 +570,9 @@ internal static class ClosedFolderChecks
                     homes.Add((path.Module, home.Container, home.Name));
                 }
             }
-            else if (record.Type == "view" && path.Name is not null)
+            else if (record.Type == "read-model" && path.Name is not null)
             {
-                homes.Add((path.Module, "Views", ViewFolderOf(path.Name)));
+                homes.Add((path.Module, "ReadModels", ReadModelFolderOf(path.Name)));
             }
         }
 

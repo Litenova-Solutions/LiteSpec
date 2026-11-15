@@ -585,9 +585,9 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
-                "\"eventPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"domainEventPage\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"type\",\"kind\"]," +
-                "\"properties\":{\"type\":{\"const\":\"event\"}," +
+                "\"properties\":{\"type\":{\"const\":\"domain-event\"}," +
                 "\"kind\":{\"enum\":[\"command\",\"query\"]}," +
                 "\"output\":{\"type\":\"object\"}}," +
                 "\"allOf\":[" +
@@ -595,8 +595,8 @@ public sealed partial class StandardsValidatorTests
                 "\"then\":{\"required\":[\"output\"]}}," +
                 "{\"if\":{\"required\":[\"kind\"],\"properties\":{\"kind\":{\"const\":\"command\"}}}," +
                 "\"then\":{\"not\":{\"required\":[\"output\"]}}}]}}}");
-            StandardsFixture.Write(root, "templates/consumer/event.yaml", StandardsFixture.Yaml(
-                "{\"type\":\"event\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
+            StandardsFixture.Write(root, "templates/consumer/domain-event.yaml", StandardsFixture.Yaml(
+                "{\"type\":\"domain-event\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
         },
         []);
 

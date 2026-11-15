@@ -156,7 +156,7 @@ public sealed class DotnetTransitiveKindTests
         WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
 
-            /// <implements>event/lending.loan-borrowed</implements>
+            /// <implements>domain-event/lending.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : ILoanEvent;
             """);
 
@@ -164,7 +164,7 @@ public sealed class DotnetTransitiveKindTests
         var domainEvent = Assert.Single(code.Events);
 
         Assert.Equal("LoanBorrowedEvent", domainEvent.Class);
-        Assert.Equal("event/lending.loan-borrowed", domainEvent.EventId);
+        Assert.Equal("domain-event/lending.loan-borrowed", domainEvent.EventId);
 
         var element = Assert.Single(code.Elements);
 

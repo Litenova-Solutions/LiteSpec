@@ -6,19 +6,19 @@ namespace LiteSpec.Cli.Tests.Consumer;
 /// <summary>Consumer validator cases for the required sections of each page kind.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    const string BriefPage = ".litespec/product/brief.yaml";
-    const string RequirementPage = ".litespec/product/pricing.yaml";
-    const string RequirementExplanation = ".litespec/product/pricing.md";
-    const string DecisionPage = ".litespec/product/decisions/0001-launch.yaml";
-    const string DecisionExplanation = ".litespec/product/decisions/0001-launch.md";
-    const string ActorPage = ".litespec/behavior/actors/customer.yaml";
-    const string ActorExplanation = ".litespec/behavior/actors/customer.md";
-    const string TutorialPage = ".litespec/guide/first-run.md";
-    const string HowToPage = ".litespec/guide/add-a-pack.md";
-    const string CommandPage = ".litespec/tools/fixture-up.md";
-    const string ReferencePage = ".litespec/reference/ports.md";
-    const string ConfigurationPage = ".litespec/tools/configuration.md";
-    const string UseCasePage = ".litespec/behavior/modules/orders/cancel-order.yaml";
+    const string BriefPage = ".litespec/intent/product.yaml";
+    const string RequirementPage = ".litespec/intent/features/pricing/pricing.yaml";
+    const string RequirementExplanation = ".litespec/intent/features/pricing/pricing.md";
+    const string DecisionPage = ".litespec/intent/decisions/0001-launch/0001-launch.yaml";
+    const string DecisionExplanation = ".litespec/intent/decisions/0001-launch/0001-launch.md";
+    const string ActorPage = ".litespec/intent/actors/customer/customer.yaml";
+    const string ActorExplanation = ".litespec/intent/actors/customer/customer.md";
+    const string TutorialPage = ".litespec/implementation/first-run.md";
+    const string HowToPage = ".litespec/implementation/add-a-pack.md";
+    const string CommandPage = ".litespec/implementation/fixture-up.md";
+    const string ReferencePage = ".litespec/implementation/ports.md";
+    const string ConfigurationPage = ".litespec/implementation/configuration.md";
+    const string UseCasePage = ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml";
     const string AggregateExplanation = ".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.md";
     const string ModuleExplanation = ".litespec/behavior/modules/orders/module.md";
 
@@ -167,7 +167,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/problems/slow-delivery.yaml",
+            ".litespec/intent/problems/slow-delivery/slow-delivery.yaml",
             """{"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","statement":"Orders take weeks to arrive."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
@@ -180,7 +180,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/features/approval-reminders.yaml",
+            ".litespec/intent/features/approval-reminders/approval-reminders.yaml",
             """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","advances":["goal/faster-delivery"]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
@@ -193,7 +193,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/constraints/tax-retention.yaml",
+            ".litespec/intent/constraints/tax-retention/tax-retention.yaml",
             """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","sources":[{"key":"tax-guidance","url":"https://example.com/tax","readOn":"2026-01-01"}],"kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
@@ -206,7 +206,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/constraints/tax-retention.yaml",
+            ".litespec/intent/constraints/tax-retention/tax-retention.yaml",
             """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","summary":"The tax office requires receipts for seven years.","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'sources'");
     }
@@ -219,9 +219,9 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/research/delivery-benchmarks.yaml",
+            ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.yaml",
             """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01","publishedOn":"January 2026"}]}""");
-        TestRecords.Explain(folder.Path, ".litespec/research/delivery-benchmarks.md", "# Delivery Benchmarks\n\nRivals deliver in two days.\n\n## Findings\n\nThe benchmarks state it [delivery benchmarks][delivery-benchmarks].\n\n## Source Notes\n\nOne report.\n");
+        TestRecords.Explain(folder.Path, ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.md", "# Delivery Benchmarks\n\nRivals deliver in two days.\n\n## Findings\n\nThe benchmarks state it [delivery benchmarks][delivery-benchmarks].\n\n## Source Notes\n\nOne report.\n");
         AssertProblem(RunConsumer(folder.Path), "publishedOn");
     }
 
@@ -233,22 +233,22 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/research/delivery-benchmarks.yaml",
+            ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.yaml",
             """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}]}""");
-        TestRecords.Explain(folder.Path, ".litespec/research/delivery-benchmarks.md", "# Delivery Benchmarks\n");
+        TestRecords.Explain(folder.Path, ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.md", "# Delivery Benchmarks\n");
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Findings'");
     }
 
-    /// <summary>Journey that omits where it starts.</summary>
-    /// <proves>litespec/core/intent#state-when-each-journey-starts</proves>
-    [Fact(DisplayName = "journey that omits where it starts")]
-    public void JourneyThatOmitsWhereItStarts()
+    /// <summary>Flow that omits where it starts.</summary>
+    /// <proves>litespec/core/intent#state-when-each-flow-starts</proves>
+    [Fact(DisplayName = "flow that omits where it starts")]
+    public void FlowThatOmitsWhereItStarts()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
+            ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml",
+            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'startedWhen'");
     }
 

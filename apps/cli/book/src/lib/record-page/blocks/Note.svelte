@@ -15,15 +15,15 @@
   const TONE: Record<NoteKind, { edge: string; icon: string }> = {
     info: { edge: "border-pattern-border", icon: "text-pattern-foreground" },
     warn: { edge: "border-warn-border", icon: "text-warn-foreground" },
-    quiet: { edge: "border-border", icon: "text-muted-foreground" },
+    quiet: { edge: "border-slate-300", icon: "text-slate-600" },
     good: { edge: "border-convention-border", icon: "text-convention-foreground" },
     bad: { edge: "border-warn-border", icon: "text-warn-foreground" },
   };
   const tone = $derived(TONE[kind]);
 </script>
 
-<div class="mb-5 grid grid-cols-[20px_minmax(0,1fr)] gap-2.5 border-l-[3px] py-0.5 pl-3.5 text-sm {tone.edge}">
-  <RecordIcon name={icon} class="mt-0.5 size-3.5 {tone.icon}" />
+<div class="mb-6 grid grid-cols-[20px_minmax(0,1fr)] gap-2 border-l-[3px] py-1 pl-4 text-sm {tone.edge}">
+  <RecordIcon name={icon} class="mt-1 size-3.5 {tone.icon}" />
   <div class="min-w-0">
     {#if html !== null}
       {@html html}

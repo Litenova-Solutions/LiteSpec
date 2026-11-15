@@ -75,7 +75,7 @@ export function lexiconResolveField(lex: Lexicon, field: string): string | null 
     if (nested < 0) break;
     candidate = candidate.slice(0, nested);
   }
-  // A leaf link field reads from its own row: journey steps name their actor.
+  // A leaf link field reads from its own row: flow steps name their actor.
   const leaf = field.slice(field.lastIndexOf(".") + 1);
   return leaf !== candidate && links.some((link) => link.field === leaf) ? leaf : null;
 }
@@ -96,7 +96,7 @@ function linkRow(lex: Lexicon, field: string, carrierType: string | null) {
   return { ...first, carriers: carriersOf(first.carriers) };
 }
 
-/** A link field's Links-table phrase, forward or inverse, for the carrier type. */
+/** A link field's Links-table phrase, forward or inverse, for the carrier type; a field with no phrase reads as its field label. */
 export function lexiconPhraseFor(
   lex: Lexicon,
   field: string,
@@ -105,7 +105,7 @@ export function lexiconPhraseFor(
 ): string {
   const row = linkRow(lex, field, carrierType);
   const text = row?.[dir];
-  if (row === null || row === undefined || !text) return field;
+  if (row === null || row === undefined || !text) return lexiconFieldLabel(lex, field);
   if (text.includes(" / ")) {
     const parts = text.split(" / ");
     const idx = carrierType ? row.carriers.indexOf(carrierType) : -1;

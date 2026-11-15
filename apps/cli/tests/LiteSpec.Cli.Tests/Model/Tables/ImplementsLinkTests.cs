@@ -33,7 +33,7 @@ public sealed class ImplementsLinkTests
         using var temp = TestCli.Temp("tables");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-notice-on-loan-overdue", Path.Combine(temp.Path, "send-notice-on-loan-overdue.yaml"), """{"triggeredBy": ["event/loan.overdue"]}"""));
+            TestModel.Record("reaction", "reaction/lending.send-notice-on-loan-overdue", Path.Combine(temp.Path, "send-notice-on-loan-overdue.yaml"), """{"triggeredBy": ["domain-event/loan.overdue"]}"""));
         model.Code.Reactions.Add(new CodeReaction(
             "SendNoticeOnLoanOverdueHandler", Path.Combine(temp.Path, "SendNoticeOnLoanOverdueHandler.cs"), 3, null));
         model.Implements.Add(new ImplementsLink("SendNoticeOnLoanOverdueHandler.cs", "reaction/lending.send-notice-on-loan-overdue", "reaction"));

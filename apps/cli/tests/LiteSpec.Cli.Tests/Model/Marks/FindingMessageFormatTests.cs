@@ -103,10 +103,10 @@ public sealed class FindingMessageFormatTests
         Assert.All(ours, AssertFormat);
     }
 
-    /// <summary>Screen Setting Constituent And Record Messages Start With A Subject And Identifier.</summary>
+    /// <summary>Screen Setting Part And Record Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
-    public void ScreenSettingConstituentAndRecordMessagesStartWithASubjectAndIdentifier()
+    public void ScreenSettingPartAndRecordMessagesStartWithASubjectAndIdentifier()
     {
         using var temp = TestCli.Temp("marks");
         var model = MixedModel(temp.Path);
@@ -116,7 +116,7 @@ public sealed class FindingMessageFormatTests
             "screen-unimplemented", "behavior-unrecorded", "screen-offers-drift", "screen-serves-drift",
             "step-screen-missing", "refusal-sentence-missing", "proves-unreached", "proves-duplicate",
             "setting-key-missing", "setting-unimplemented", "result-scenario-missing",
-            "constituent-parent-missing", "quality-alert-missing", "admission-invalid",
+            "part-parent-missing", "quality-alert-missing", "admission-invalid",
         };
 
         var findings = Checker.Check(model).Findings.Where(finding => codes.Contains(finding.Code)).ToList();
@@ -150,7 +150,7 @@ public sealed class FindingMessageFormatTests
 
         model.Records.Add(Rec("use-case", "use-case/lending.void-order", Path.Combine(root, "void.yaml"), """{"status": "reviewed", "kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
         model.Records.Add(Rec("aggregate", "aggregate/lending.order", Path.Combine(root, "order.yaml"), """{"status": "reviewed", "states": [{"name": "Open", "meaning": "The order runs."}]}"""));
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", Path.Combine(root, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.order"]}"""));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", Path.Combine(root, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "writes": ["aggregate/lending.order"]}"""));
 
         var handlerFile = Path.Combine(root, "src", "App", "Shared", "VoidOrderCommandHandler.cs");
         model.Code.Handlers.Add(new CodeHandler(
@@ -173,7 +173,7 @@ public sealed class FindingMessageFormatTests
         return model;
     }
 
-    /// <summary>A model triggering screen, setting, constituent and record findings without readers or files.</summary>
+    /// <summary>A model triggering screen, setting, part and record findings without readers or files.</summary>
     /// <param name="root">The fixture root folder the record files sit under.</param>
     /// <returns>The project model holding the triggering records.</returns>
     static ProjectModel MixedModel(string root)
@@ -188,8 +188,8 @@ public sealed class FindingMessageFormatTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("entry-point", "entry-point/app", Path.Combine(root, "app.yaml"), """{"status": "reviewed", "kind": "browser"}"""));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "kind": "query", "reachedThrough": ["entry-point/app"], "serves": ["journey/walk#s1"]}"""));
-        model.Records.Add(Rec("journey", "journey/walk", Path.Combine(root, "walk.yaml"), """{"status": "reviewed", "actor": ["actor/employee"], "steps": [{"id": "s1", "useCase": "use-case/lending.list-loans"}]}"""));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "kind": "query", "reachedThrough": ["entry-point/app"], "serves": ["flow/walk#s1"]}"""));
+        model.Records.Add(Rec("flow", "flow/walk", Path.Combine(root, "walk.yaml"), """{"status": "reviewed", "actor": ["actor/employee"], "steps": [{"id": "s1", "useCase": "use-case/lending.list-loans"}]}"""));
         model.Records.Add(Rec("result", "result/list-loans.refused", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "outcome": "refusal", "meaning": "The listing is refused.", "code": "lending.refused"}"""));
         model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "given": "A loan.", "when": "The employee lists loans.", "then": "Both are listed.", "result": "result/list-loans.listed"}"""));
         model.Records.Add(Rec("result", "result/list-loans.listed", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "outcome": "success", "meaning": "The loans are listed."}"""));

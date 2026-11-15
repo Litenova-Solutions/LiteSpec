@@ -205,7 +205,7 @@ public sealed class MarkLinkTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -219,7 +219,7 @@ public sealed class MarkLinkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense"), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense"), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5003 accepts a root method carrying one mark.</summary>
@@ -238,7 +238,7 @@ public sealed class MarkLinkTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -251,7 +251,7 @@ public sealed class MarkLinkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5002 reports a mark on a reading method.</summary>
@@ -380,7 +380,7 @@ public sealed class MarkLinkTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -394,7 +394,7 @@ public sealed class MarkLinkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5002 reports a proves mark on a handler.</summary>

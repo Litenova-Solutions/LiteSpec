@@ -70,7 +70,7 @@ sources:
     readOn: 2026-02-10
 ```
 
-The record-level `readOn` is gone: each source has its own. `readOn` says when someone read the source, not when the rule took effect. Keep the publication date, the read date and the start date apart, as `litespec/core/intent#record-research-with-read-sources` requires. This satisfies `litespec/core/intent#cite-a-source-for-each-constraint-rule` and `litespec/core/intent#answer-every-constraint`.
+There is no record-level `readOn`: each source has its own. `readOn` says when someone read the source, not when the rule took effect. Keep the publication date, the read date and the start date apart, as `litespec/core/intent#record-research-with-read-sources` requires. This satisfies `litespec/core/intent#cite-a-source-for-each-constraint-rule` and `litespec/core/intent#answer-every-constraint`.
 
 ### Set the Effective Date When the Rule Starts on a Date
 

@@ -8,7 +8,7 @@ access:
 reachedThrough:
   - entry-point/library-app
 raises:
-  - event/loan.loan-borrowed
+  - domain-event/loan.loan-borrowed
 records:
   - type: result
     id: result/borrow-copy.borrowed

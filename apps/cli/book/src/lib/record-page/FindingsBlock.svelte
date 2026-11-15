@@ -15,20 +15,20 @@
 </script>
 
 {#if list.length}
-  <PageSection blockKey="checks" heading="Findings" count={list.length} aside="what the checks found on this record">
-    <div class="border-t border-border">
+  <PageSection blockKey="checks" heading="Findings" count={list.length}>
+    <div class="border-t border-slate-200">
       {#each list as x, i (i)}
         {@const level = String(x.level ?? x.tier ?? "")}
         {@const label = x.covered ? "Covered" : checkLevelText(x.level ?? x.tier)}
-        <div class="grid grid-cols-[18px_minmax(0,1fr)_auto] gap-2 border-b border-border py-2.5 text-[0.84375rem]">
-          <RecordIcon name={x.covered ? "departure" : "alert"} class="mt-1 size-3.5 {x.covered ? 'text-muted-foreground' : 'text-warn-foreground'}" />
+        <div class="grid grid-cols-[18px_minmax(0,1fr)_auto] gap-2 border-b border-slate-200 py-2 text-sm">
+          <RecordIcon name={x.covered ? "departure" : "alert"} class="mt-1 size-3.5 {x.covered ? 'text-slate-600' : 'text-warn-foreground'}" />
           <div class="min-w-0">
-            <div class="font-medium text-foreground">{book.findingMeaning(String(x.code ?? ""))}</div>
-            <div class="mt-0.5 text-[0.8125rem] text-subtle-foreground">
+            <div class="font-medium text-slate-900">{book.findingMeaning(String(x.code ?? ""))}</div>
+            <div class="mt-1 text-sm text-slate-600">
               {@html String(x.messageHtml ?? "")}
             </div>
             <div class="mt-1 flex flex-wrap gap-2">
-              <span class="font-mono text-[0.71875rem] text-subtle-foreground">{String(x.code ?? "")}</span>
+              <span class="font-mono text-xs text-slate-600">{String(x.code ?? "")}</span>
               {#if x.path}
                 <span class={codeCls}>{String(x.path)}{x.line ? ":" + String(x.line) : ""}</span>
               {/if}

@@ -40,11 +40,11 @@ internal static class RecordPages
     public static string Project(string marks) =>
         $"schemaVersion: 1\nmarks: {marks}\npaths:\n  docs: .litespec\n  behaviorDocs: .litespec/behavior\n";
 
-    /// <summary>Builds an event page.</summary>
-    /// <param name="id">The event identifier.</param>
+    /// <summary>Builds a domain-event page.</summary>
+    /// <param name="id">The domain-event identifier.</param>
     /// <returns>The page text.</returns>
-    public static string EventPage(string id) =>
-        Page("{\"type\": \"event\", \"id\": \"" + id + "\", \"title\": \"Expense submitted\"}");
+    public static string DomainEventPage(string id) =>
+        Page("{\"type\": \"domain-event\", \"id\": \"" + id + "\", \"title\": \"Expense submitted\"}");
 
     /// <summary>Builds a rule-set page holding the entries.</summary>
     /// <param name="entries">The entry objects.</param>
@@ -54,7 +54,7 @@ internal static class RecordPages
 
     /// <summary>Builds a rule entry.</summary>
     /// <param name="id">The rule identifier.</param>
-    /// <param name="refusal">The refusal result or code, or null for no refusal.</param>
+    /// <param name="refusal">The refusal code, or null for no refusal.</param>
     /// <returns>The entry object.</returns>
     public static string RuleEntry(string id, string? refusal) =>
         "{\"type\": \"rule\", \"id\": \"" + id + "\", \"title\": \"A receipt is required\", \"kind\": \"precondition\", \"statement\": \"An expense carries a receipt.\""
@@ -86,7 +86,7 @@ internal static class RecordPages
         + (grant is null ? string.Empty : ", \"access\": {\"auth\": [\"session\"], \"grant\": \"" + grant + "\", \"tenant\": \"own\"}")
         + "}");
 
-    /// <summary>Builds a permission-list page holding one entry per identifier.</summary>
+    /// <summary>Builds a permission-set page holding one entry per identifier.</summary>
     /// <param name="ids">The permission identifiers.</param>
     /// <returns>The page text.</returns>
     public static string PermissionPage(params string[] ids)
@@ -98,7 +98,7 @@ internal static class RecordPages
             entries.Add("{\"type\": \"permission\", \"id\": \"" + id + "\", \"title\": \"A permission\", \"meaning\": \"Its meaning.\"}");
         }
 
-        return Page("{\"type\": \"permission-list\", \"records\": [" + string.Join(", ", entries) + "]}");
+        return Page("{\"type\": \"permission-set\", \"records\": [" + string.Join(", ", entries) + "]}");
     }
 
     /// <summary>Builds a permission entry with the group and risks the record states. The reach comes from the roles that allow it.</summary>
@@ -123,11 +123,11 @@ internal static class RecordPages
         return entry + "}";
     }
 
-    /// <summary>Builds a permission-list page holding the entries.</summary>
+    /// <summary>Builds a permission-set page holding the entries.</summary>
     /// <param name="entries">The entry objects.</param>
     /// <returns>The page text.</returns>
     public static string PermissionFactsPage(params string[] entries) =>
-        Page("{\"type\": \"permission-list\", \"records\": [" + string.Join(", ", entries) + "]}");
+        Page("{\"type\": \"permission-set\", \"records\": [" + string.Join(", ", entries) + "]}");
 
     /// <summary>Builds a role page with the scope and allows the record states.</summary>
     /// <param name="id">The role identifier.</param>

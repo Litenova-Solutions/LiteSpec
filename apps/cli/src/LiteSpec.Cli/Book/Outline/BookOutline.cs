@@ -38,9 +38,9 @@ static class BookOutline
     /// <summary>The record types that top the intent layer, in display order.</summary>
     static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "vision", "problem", "constraint", "research", "decision", "actor"];
     /// <summary>The record types under a module, in display order.</summary>
-    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "integration-event", "view"];
+    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "integration-event", "read-model"];
     /// <summary>The record types under an aggregate, in display order.</summary>
-    static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
+    static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "domain-event"];
     /// <summary>The list record types in the behavior layer, in display order.</summary>
     static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
     /// <summary>The record types in the governance layer, in display order.</summary>
@@ -154,6 +154,25 @@ static class BookOutline
             if (string.Equals(type, "product", StringComparison.Ordinal))
             {
                 layers["intent"].Children.Add(nodes[id]);
+                continue;
+            }
+
+            if (string.Equals(type, "feature", StringComparison.Ordinal) && SolvedProblems(record, byId, attached) is { Count: > 0 } solved)
+            {
+                // A standalone feature sits under each problem it solves, so the book groups it with every problem it answers.
+                foreach (var problem in solved)
+                {
+                    nodes[problem].Children.Add(nodes[id]);
+                }
+
+                continue;
+            }
+
+            if (string.Equals(type, "scenario", StringComparison.Ordinal)
+                && ShownResult(record, byId, attached) is { } shown)
+            {
+                // A use-case scenario groups under the result it shows; containment stays with its owner.
+                nodes[shown].Children.Add(nodes[id]);
                 continue;
             }
 
@@ -472,7 +491,7 @@ static class BookOutline
         return tail.Replace('_', ' ');
     }
 
-    /// <summary>Strips the step fragment of an id, such as journey/name#s1.</summary>
+    /// <summary>Strips the step fragment of an id, such as flow/name#s1.</summary>
     /// <param name="id">The identifier, optionally with a step fragment after a hash.</param>
     /// <returns>The identifier without its fragment, unchanged when it holds no hash.</returns>
     static string BaseId(string id)
@@ -550,8 +569,8 @@ static class BookOutline
             "term" => "glossary",
             "departure" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
-            "product" or "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
-            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "view" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
+            "product" or "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" => "intent",
+            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
             _ => "intent",
         };
 
@@ -842,4 +861,48 @@ static class BookOutline
     /// <param name="name">The property name to read.</param>
     /// <returns>The string value of the property, or null when the object or property is missing or the value is not a string.</returns>
     static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
+
+    /// <summary>The problems a feature solves that the outline places: each one a problem record attached to the tree.</summary>
+    /// <param name="record">The feature record.</param>
+    /// <param name="byId">The records by identifier.</param>
+    /// <param name="attached">Whether each record attaches to the tree.</param>
+    /// <returns>The attached problem identifiers, in the feature's order.</returns>
+    static List<string> SolvedProblems(JsonObject record, Dictionary<string, JsonObject> byId, Dictionary<string, bool> attached)
+    {
+        var solved = new List<string>();
+        foreach (var node in BookRender.Fields(record)?["solves"] as JsonArray ?? [])
+        {
+            if (node is JsonValue value
+                && value.TryGetValue<string>(out var problem)
+                && byId.TryGetValue(problem, out var target)
+                && string.Equals(StrProp(target, "type"), "problem", StringComparison.Ordinal)
+                && attached.TryGetValue(problem, out var ok)
+                && ok)
+            {
+                solved.Add(problem);
+            }
+        }
+
+        return solved;
+    }
+
+    /// <summary>The result a scenario shows, when the outline places that result; the grouping under it is presentation only.</summary>
+    /// <param name="record">The scenario record.</param>
+    /// <param name="byId">The records by identifier.</param>
+    /// <param name="attached">Whether each record attaches to the tree.</param>
+    /// <returns>The attached result identifier, or null when the scenario shows none.</returns>
+    static string? ShownResult(JsonObject record, Dictionary<string, JsonObject> byId, Dictionary<string, bool> attached)
+    {
+        var target = BookParents.FirstLink(record, "result");
+        if (target is not { Length: > 0 }
+            || !byId.TryGetValue(target, out var holder)
+            || !string.Equals(StrProp(holder, "type"), "result", StringComparison.Ordinal)
+            || !attached.TryGetValue(target, out var ok)
+            || !ok)
+        {
+            return null;
+        }
+
+        return target;
+    }
 }

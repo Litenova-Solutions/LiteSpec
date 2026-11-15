@@ -6,7 +6,7 @@ This page follows one use case, Submit expense, from its record into the .NET co
 
 ## The Record
 
-The use case names what it does and what it touches. Its file records the grant, the journey step it serves, the entry point that reaches it, the event it raises, the aggregate it changes and the policy it reads:
+The use case names what it does and what it touches. Its file records the grant, the flow step it serves, the entry point that reaches it, the domain event it raises, the aggregate it writes and the policy it reads:
 
 ```yaml
 type: use-case
@@ -18,24 +18,24 @@ access:
   grant: permission/request-expense
   tenant: own
 serves:
-- journey/submit-and-reimburse#s1
+- flow/submit-and-reimburse#s1
 fulfills:
 - requirement/approval.above-threshold-receipt
 reachedThrough:
 - entry-point/claimwick-app
 raises:
-- event/expense.submitted
-changes:
+- domain-event/expense.submitted
+writes:
 - aggregate/spending.expense
 reads:
 - aggregate/spending.policy
 ```
 
-The file also declares the input, the idempotency and the results. The input is an amount, a currency and an optional receipt. The idempotency mode is `none`, because each request mints a fresh expense identity. The two results are `result/submit-expense.submitted`, a success, and `result/submit-expense.receipt-missing`, a refusal with the code `spending.receipt-missing`. The file has two scenarios, and the tests below prove them.
+The file also declares the input, the idempotency and the results. The input is an amount, a currency and an optional receipt. The idempotency mode is `none`, because each request mints a fresh expense identity, and its replay is `acts-again`. The two results are `result/submit-expense.submitted`, a success, and `result/submit-expense.receipt-missing`, a refusal with the code `spending.receipt-missing` from the spending refusal set. The file has two scenarios, and the tests below prove them.
 
 ## The Rule Behind the Refusal
 
-The refusal answers one rule. The rule `rule/expense.receipt-required-above-threshold` states that an expense above the policy threshold needs a receipt, and it names the refusal `result/submit-expense.receipt-missing`. In code, the rule appears twice: as the exception that carries its stable code, and as the check in the aggregate that raises it.
+The refusal answers one rule. The rule `rule/expense.receipt-required-above-threshold` states that an expense above the policy threshold needs a receipt, and it names the refusal code `spending.receipt-missing`. In code, the rule appears twice: as the exception that carries its stable code, and as the check in the aggregate that raises it.
 
 The exception is `apps/api/src/Claimwick.Modules/Spending/Expenses/Domain/Exceptions/ExpenseReceiptMissingException.cs`. It is marked with `<implements>rule/expense.receipt-required-above-threshold</implements>` and returns the code `spending.receipt-missing`.
 

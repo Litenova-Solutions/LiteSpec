@@ -101,7 +101,7 @@ public sealed class PlacementDriftModuleLayoutTests
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Events", "ComingSoonPages", "Domain", "Events", "ComingSoonPagePublishedEvent.cs");
         WriteCode(file, "Library.Events.ComingSoonPages.Domain.Events", "ComingSoonPagePublishedEvent");
-        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "ComingSoonPagePublishedEvent", file, "event/coming-soon-page.published"));
+        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "ComingSoonPagePublishedEvent", file, "domain-event/coming-soon-page.published"));
 
         Assert.Empty(Run(model));
     }
@@ -200,7 +200,7 @@ public sealed class PlacementDriftModuleLayoutTests
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Contracts", "IntegrationEvents", "LoanBorrowedEvent.cs");
         WriteCode(file, "Library.Lending.Contracts.IntegrationEvents", "LoanBorrowedEvent");
-        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "event/loan.loan-borrowed"));
+        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "domain-event/loan.loan-borrowed"));
 
         Assert.Empty(Run(model));
     }
@@ -358,7 +358,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         var index = model.Records.FindIndex(record => record.Id == "reaction/lending.send-due-notice");
         var reaction = model.Records[index];
-        using var document = JsonDocument.Parse("""{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}""");
+        using var document = JsonDocument.Parse("""{"status": "reviewed", "triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}""");
 
         model.Records[index] = new LiteSpec.Cli.Model.Records.Record
         {
@@ -456,9 +456,9 @@ public sealed class PlacementDriftModuleLayoutTests
         model.Records.Add(Rec(RecordTypes.Scenario, "scenario/borrow-copy.borrowing-an-available-copy-succeeds", "lending/loans/use-case/borrow-copy/scenario/borrowing-an-available-copy-succeeds", root));
         model.Records.Add(Rec(RecordTypes.Rule, "rule/loan.request-names-an-existing-loan", "lending/loans/rule/request-names-an-existing-loan", root,
             """{"status": "reviewed", "governs": ["aggregate/lending.loan"]}"""));
-        model.Records.Add(Rec(RecordTypes.Event, "event/loan.loan-borrowed", "lending/loans/event/loan-borrowed", root));
+        model.Records.Add(Rec(RecordTypes.DomainEvent, "domain-event/loan.loan-borrowed", "lending/loans/domain-event/loan-borrowed", root));
         model.Records.Add(Rec(RecordTypes.Reaction, "reaction/lending.send-due-notice", "lending/reaction/send-due-notice", root,
-            """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"]}"""));
+            """{"status": "reviewed", "triggeredBy": ["domain-event/loan.loan-borrowed"]}"""));
         model.Records.Add(Rec(RecordTypes.Module, "module/billing", "billing", root));
         model.Records.Add(Rec(RecordTypes.Module, "module/admission", "admission", root));
         model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/admission.admission-gate", "admission/admission-gates", root));
@@ -468,7 +468,7 @@ public sealed class PlacementDriftModuleLayoutTests
             """{"status": "reviewed", "governs": ["aggregate/admission.admission-gate"]}"""));
         model.Records.Add(Rec(RecordTypes.Module, "module/events", "events", root));
         model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/events.coming-soon-page", "events/coming-soon-pages", root));
-        model.Records.Add(Rec(RecordTypes.Event, "event/coming-soon-page.published", "events/coming-soon-pages/event/published", root));
+        model.Records.Add(Rec(RecordTypes.DomainEvent, "domain-event/coming-soon-page.published", "events/coming-soon-pages/domain-event/published", root));
         model.Records.Add(Rec(RecordTypes.Module, "module/directory", "directory", root));
         model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/directory.directory", "directory/directory", root));
         model.Records.Add(Rec(RecordTypes.UseCase, "use-case/directory.search-accounts", "directory/directory/use-case/search-accounts", root));

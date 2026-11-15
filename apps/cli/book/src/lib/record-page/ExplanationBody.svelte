@@ -19,9 +19,9 @@
 {#each sections as s (s.key)}
   <PageSection blockKey={s.key} heading={s.h}>
     {#if s.kind === "risk"}
-      <div class="border-l-[3px] border-rule-border py-0.5 pl-3.5"><RenderedProse html={s.html} /></div>
+      <div class="border-l-[3px] border-rule-border py-1 pl-4"><RenderedProse html={s.html} /></div>
     {:else if s.kind === "example"}
-      <div class="border-l-[3px] border-border py-0.5 pl-3.5"><RenderedProse html={s.html} /></div>
+      <div class="border-l-[3px] border-slate-300 py-1 pl-4"><RenderedProse html={s.html} /></div>
     {:else if s.kind === "questions"}
       <Note kind="info" icon="question"><RenderedProse html={s.html} /></Note>
     {:else}

@@ -30,9 +30,7 @@
 {/if}
 <PageSection blockKey="run" heading="schedule">
   <FactGrid>
-    {#if jf.kind === "manual"}
-      <FactCell k="manual">Runs by hand</FactCell>
-    {:else if jf.schedule}
+    {#if jf.schedule}
       <FactCell k="schedule">
         {#if jf.schedule.every}
           Every {duration(String(jf.schedule.every))}
@@ -52,7 +50,7 @@
           : String(stringField(lease, "name") ?? "") + " for " + duration(stringField(lease, "duration") ?? "")}
       </FactCell>
     {/if}
-    {#if jf.runsWhere}<FactCell k="runsWhere">{jf.runsWhere}</FactCell>{/if}
+    {#if jf.runsWhen}<FactCell k="runsWhen">{jf.runsWhen}</FactCell>{/if}
     {#if jf.cursor}<FactCell k="cursor">{typeof jf.cursor === "string" ? jf.cursor : String(stringField(cursor, "name") ?? "")}</FactCell>{/if}
     {#if idem}
       <FactCell k="idempotency" html={idem.value} hint={idem.hint} />

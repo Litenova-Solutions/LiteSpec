@@ -23,10 +23,10 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
-                /// <implements>event/expense.approved</implements>
+                /// <implements>domain-event/expense.approved</implements>
                 public sealed record ExpenseApprovedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -40,7 +40,7 @@ public sealed class ActEventTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event(), Event("event/expense.approved", "Expense approved")],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent(), DomainEvent("domain-event/expense.approved", "Expense approved")],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5007 accepts a marked method raising only declared events.</summary>
@@ -59,7 +59,7 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -72,7 +72,7 @@ public sealed class ActEventTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5008 reports a declared event no marked method raises.</summary>
@@ -91,7 +91,7 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -103,7 +103,7 @@ public sealed class ActEventTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5008 reports once on the first marked method when none raises the event.</summary>
@@ -122,7 +122,7 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -139,7 +139,7 @@ public sealed class ActEventTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5008 accepts a declared event raised through a private helper.</summary>
@@ -158,7 +158,7 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -173,7 +173,7 @@ public sealed class ActEventTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5008 accepts a declared event another marked method raises.</summary>
@@ -192,7 +192,7 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -210,7 +210,7 @@ public sealed class ActEventTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5008 reports the unraised event when one method serves two use cases.</summary>
@@ -229,10 +229,10 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
-                /// <implements>event/expense.approved</implements>
+                /// <implements>domain-event/expense.approved</implements>
                 public sealed record ExpenseApprovedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -249,10 +249,10 @@ public sealed class ActEventTests
             [
                 ProjectFile(),
                 Aggregate(),
-                UseCase(raises: ["event/expense.submitted"]),
-                UseCase("use-case/spending.approve-expense", "Approve expense", raises: ["event/expense.submitted", "event/expense.approved"]),
-                Event(),
-                Event("event/expense.approved", "Expense approved"),
+                UseCase(raises: ["domain-event/expense.submitted"]),
+                UseCase("use-case/spending.approve-expense", "Approve expense", raises: ["domain-event/expense.submitted", "domain-event/expense.approved"]),
+                DomainEvent(),
+                DomainEvent("domain-event/expense.approved", "Expense approved"),
             ],
             assemblyName: "Shop.Domain");
 
@@ -272,7 +272,7 @@ public sealed class ActEventTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -284,6 +284,6 @@ public sealed class ActEventTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 }

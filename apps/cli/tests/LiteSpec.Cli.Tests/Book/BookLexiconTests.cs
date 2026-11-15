@@ -1,13 +1,12 @@
 using LiteSpec.Cli.Book.Lexicon;
 using LiteSpec.Cli.Tests.Support;
-using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book lexicon reads LiteSpec's own words: link phrases, type questions, layers, fields, glossary, sections and findings, and fails naming the file.</summary>
 public sealed class BookLexiconTests
 {
-    /// <summary>Each link reads in both directions, in the Links table's own phrases.</summary>
+    /// <summary>Each link reads in both directions, in the schema's own phrases.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void LinksReadInBothDirections()
@@ -15,114 +14,126 @@ public sealed class BookLexiconTests
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var links = lexicon.ToJson()["links"]!.AsArray();
-        var answers = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "folder")!.AsObject();
+        var answers = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "answers")!.AsObject();
         Assert.Equal("answers", answers["forward"]!.GetValue<string>());
         Assert.Equal("is answered by", answers["inverse"]!.GetValue<string>());
         Assert.Equal(
-            new List<string> { "feature" },
+            new List<string> { "flow" },
             answers["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
     }
 
     /// <summary>An aggregate transition mover reads as its transitions row, with or without the leading record type.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void TransitionsByResolvesToItsRow()
+    public void TransitionsMovedByResolvesToItsRow()
     {
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
-        Assert.True(lexicon.TryPhrase("transitions.by", "aggregate", out var forward, out var inverse));
+        Assert.True(lexicon.TryPhrase("transitions.movedBy", "aggregate", out var forward, out var inverse));
         Assert.Equal("is moved by", forward);
         Assert.Equal("moves", inverse);
 
-        Assert.True(lexicon.TryPhrase("aggregate.transitions.by", "aggregate", out forward, out inverse));
+        Assert.True(lexicon.TryPhrase("aggregate.transitions.movedBy", "aggregate", out forward, out inverse));
         Assert.Equal("is moved by", forward);
         Assert.Equal("moves", inverse);
     }
 
-    /// <summary>A nested effects path reads as its effects row; a leading record type reads the same; an unknown nested path reads nothing.</summary>
+    /// <summary>A nested effects path reads as its own row; a leading record type reads the same; an unknown nested path reads nothing.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void NestedEffectsCallsResolvesToEffectsRow()
+    public void NestedEffectsCallsResolvesToItsRow()
     {
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.True(lexicon.TryPhrase("effects.calls", "use-case", out var forward, out var inverse));
-        Assert.Equal("effects", forward);
-        Assert.Equal("is effected by", inverse);
+        Assert.Equal("calls", forward);
+        Assert.Equal("is called by", inverse);
 
         Assert.True(lexicon.TryPhrase("use-case.effects.sends", "use-case", out forward, out inverse));
-        Assert.Equal("effects", forward);
-        Assert.Equal("is effected by", inverse);
+        Assert.Equal("sends", forward);
+        Assert.Equal("is sent by", inverse);
 
         Assert.True(lexicon.TryPhrase("access.grant", "use-case", out forward, out inverse));
         Assert.Equal("is granted through", forward);
         Assert.Equal("grants", inverse);
 
-        Assert.False(lexicon.TryPhrase("except.fallback", "requirement", out _, out _));
+        Assert.False(lexicon.TryPhrase("except.unknown", "requirement", out _, out _));
     }
 
-    /// <summary>The actor row's two readings split by carrier: a journey is taken by, an external system acts as.</summary>
+    /// <summary>The flow actor rows read toward the flow: the flow actor is taken by, a step actor is performed by.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void ActorRowSplitsByCarrier()
+    public void ActorRowsReadFromTheirFlow()
     {
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
-        Assert.True(lexicon.TryPhrase("actor", "journey", out var forward, out var inverse));
+        Assert.True(lexicon.TryPhrase("actor", "flow", out var forward, out var inverse));
         Assert.Equal("is taken by", forward);
         Assert.Equal("takes", inverse);
 
-        Assert.True(lexicon.TryPhrase("actor", "external-system", out forward, out inverse));
-        Assert.Equal("acts as", forward);
-        Assert.Equal("is acted as by", inverse);
+        Assert.True(lexicon.TryPhrase("steps.actor", "flow", out forward, out inverse));
+        Assert.Equal("is performed by", forward);
+        Assert.Equal("performs", inverse);
     }
 
-    /// <summary>Rows sharing one field stay apart by carrier: each serves row keeps its own carriers.</summary>
+    /// <summary>One serves row merges every carrier: the flow and each record serving its steps.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void ServesRowsStayApartByCarrier()
+    public void ServesRowMergesEveryCarrier()
     {
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var serves = lexicon.Links.Where(link => link.Field == "serves").ToList();
-        Assert.Equal(2, serves.Count);
-        Assert.Equal(new List<string> { "use-case", "reaction", "job" }, serves[0].Carriers.ToList());
-        Assert.Equal(new List<string> { "journey" }, serves[1].Carriers.ToList());
+        Assert.Single(serves);
+        Assert.Equal(
+            new List<string> { "flow", "use-case", "reaction", "job", "screen" },
+            serves[0].Carriers.ToList());
 
-        Assert.True(lexicon.TryPhrase("serves", "journey", out var forward, out var inverse));
+        Assert.True(lexicon.TryPhrase("serves", "flow", out var forward, out var inverse));
+        Assert.Equal("serves", forward);
+        Assert.Equal("is served by", inverse);
+
+        Assert.True(lexicon.TryPhrase("serves", "use-case", out forward, out inverse));
         Assert.Equal("serves", forward);
         Assert.Equal("is served by", inverse);
     }
 
-    /// <summary>The terms row widens to every record type, since any record may use a term.</summary>
+    /// <summary>The terms row widens to every schema page, since any record may use a term.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void TermsRowCoversEveryRecordType()
+    public void TermsRowCoversEveryPage()
     {
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var terms = lexicon.Links.Single(link => link.Field == "terms");
-        Assert.Equal(RecordTypes.All.Count, terms.Carriers.Count);
-        Assert.Contains("product", terms.Carriers);
-        Assert.Contains("use-case", terms.Carriers);
-        Assert.Contains("term", terms.Carriers);
         Assert.Equal(
-            terms.Carriers.OrderBy(carrier => carrier, StringComparer.Ordinal).ToList(),
+            new List<string>
+            {
+                "requirement", "product", "permission", "rule", "result", "scenario", "domain-event",
+                "entry-point", "setting", "goal", "vision", "constraint", "research", "decision",
+                "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
+                "reaction", "job", "notification", "external-system", "integration-event",
+                "read-model", "runbook", "departure", "permission-set", "entry-point-set", "screen",
+                "setting-set", "rule-set", "refusal-set", "index", "tutorial", "how-to", "reference",
+                "command", "configuration", "glossary", "example-cast",
+            },
             terms.Carriers.ToList());
     }
 
-    /// <summary>A Written on cell naming a nested carrier keeps only the record types.</summary>
+    /// <summary>One basedOn row merges every carrier that rests on another record.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void BasedOnRowSkipsNonRecordCarriers()
+    public void BasedOnRowMergesEveryCarrier()
     {
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var basedOn = lexicon.Links.Single(link => link.Field == "basedOn");
-        Assert.Equal(new List<string> { "decision" }, basedOn.Carriers.ToList());
+        Assert.Equal(
+            new List<string> { "rule", "constraint", "decision", "external-system" },
+            basedOn.Carriers.ToList());
         Assert.True(lexicon.TryPhrase("basedOn", "decision", out var forward, out var inverse));
         Assert.Equal("is based on", forward);
         Assert.Equal("is a basis for", inverse);
@@ -144,7 +155,7 @@ public sealed class BookLexiconTests
         Assert.Equal("Which use cases exist?", useCase["question"]!.GetValue<string>());
 
         Assert.Equal("Research", types["research"]!.AsObject()["plural"]!.GetValue<string>());
-        Assert.Equal("Journeys", types["journey"]!.AsObject()["plural"]!.GetValue<string>());
+        Assert.Equal("Flows", types["flow"]!.AsObject()["plural"]!.GetValue<string>());
         Assert.Equal("External systems", types["external-system"]!.AsObject()["plural"]!.GetValue<string>());
     }
 
@@ -183,8 +194,11 @@ public sealed class BookLexiconTests
         Assert.Equal("Reopened when", lexicon.Fields["reopenedWhen"]);
         Assert.Equal("Pros", lexicon.Fields["pros"]);
         Assert.Equal("Cons", lexicon.Fields["cons"]);
-        Assert.Equal("Exclusions", lexicon.Fields["exclusions"]);
+        Assert.Equal("Excludes", lexicon.Fields["excludes"]);
         Assert.Equal("Addresses", lexicon.Fields["addresses"]);
+        Assert.Equal("Audience", lexicon.Fields["audience"]);
+        Assert.Equal("Requires", lexicon.Fields["requires"]);
+        Assert.Equal("Moved by", lexicon.Fields["movedBy"]);
         Assert.Equal("Condition", lexicon.Fields["condition"]);
         Assert.Equal("Read on", lexicon.Fields["readOn"]);
         Assert.Equal("Authority", lexicon.Fields["authority"]);
@@ -246,7 +260,6 @@ public sealed class BookLexiconTests
         Assert.Equal("Cache control", lexicon.Fields["cacheControl"]);
         Assert.Equal("Address", lexicon.Fields["address"]);
         Assert.Equal("Entry point", lexicon.Fields["entryPoint"]);
-        Assert.Equal("Floorplan", lexicon.Fields["floorplan"]);
         Assert.Equal("Offers", lexicon.Fields["offers"]);
         Assert.Equal("Implements", lexicon.Fields["implements"]);
         Assert.Equal("Timeout", lexicon.Fields["timeout"]);
@@ -266,7 +279,7 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("chosen"));
         Assert.False(lexicon.Fields.ContainsKey("changeWhen"));
         Assert.False(lexicon.Fields.ContainsKey("neverDoes"));
-        Assert.False(lexicon.Fields.ContainsKey("audience"));
+        Assert.False(lexicon.Fields.ContainsKey("floorplan"));
         Assert.False(lexicon.Fields.ContainsKey("aim"));
         Assert.False(lexicon.Fields.ContainsKey("historyLink"));
         Assert.False(lexicon.Fields.ContainsKey("on"));
@@ -379,37 +392,6 @@ public sealed class BookLexiconTests
         Assert.False(findings.ContainsKey("requirement-removed"));
     }
 
-    /// <summary>A page without its Links section fails, naming the page.</summary>
-    /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
-    [Fact]
-    public void MissingLinksTableFailsNamingTheFile()
-    {
-        using var temp = TestCli.Temp("book-lexicon");
-        var model = ModelPage().Replace("### Links", "### Gone", StringComparison.Ordinal);
-        var home = WriteHome(temp, model, ToolsPage(), GlossaryPage());
-        var modelFile = Path.Combine(home, "docs", "core", "model.md");
-        var exception = Assert.Throws<BookLexiconException>(() => BookLexicon.Load(home));
-        Assert.Equal(modelFile, exception.File);
-    }
-
-    /// <summary>A Links table in the old three-column shape fails, naming the page.</summary>
-    /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
-    [Fact]
-    public void OldLinksShapeFailsNamingTheFile()
-    {
-        using var temp = TestCli.Temp("book-lexicon");
-        var model = ModelPage()
-            .Replace(
-                "| Field | Written on | Points at | Reads as | Read back as |",
-                "| Field | Written on | Points at |",
-                StringComparison.Ordinal)
-            .Replace("|:---|:---|:---|:---|:---|", "|:---|:---|:---|", StringComparison.Ordinal);
-        var home = WriteHome(temp, model, ToolsPage(), GlossaryPage());
-        var modelFile = Path.Combine(home, "docs", "core", "model.md");
-        var exception = Assert.Throws<BookLexiconException>(() => BookLexicon.Load(home));
-        Assert.Equal(modelFile, exception.File);
-    }
-
     /// <summary>A missing carried page fails, naming the page.</summary>
     /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
@@ -427,6 +409,9 @@ public sealed class BookLexiconTests
         WriteFile(temp, ["docs", "core", "model.md"], model);
         WriteFile(temp, ["docs", "reference", "finding-codes.md"], tools);
         WriteFile(temp, ["docs", "reference", "glossary.md"], glossary);
+        var schema = Path.Combine(temp.Path, "schemas", "record.schema.yaml");
+        Directory.CreateDirectory(Path.GetDirectoryName(schema)!);
+        File.Copy(Path.Combine(TestCli.Repository, "schemas", "record.schema.yaml"), schema);
         return temp.Path;
     }
 
@@ -477,28 +462,12 @@ public sealed class BookLexiconTests
         | `feature` | intent | What is offered? |
         | `research` | intent | Which facts inform a choice? |
         | `requirement` | intent | What does the product guarantee? |
-        | `journey` | intent | Which steps reach one goal? |
+        | `flow` | intent | Which steps reach one goal? |
         | `use-case` | behavior | Which use cases exist? |
         | `reaction` | behavior | Which work answers an event? |
         | `job` | behavior | Which work runs on a schedule or by hand? |
         | `screen` | behavior | Which page does a person see? |
         | `external-system` | behavior | Which outside system exchanges what? |
-
-        ### Links
-
-        Each written link lives as a field on the record it starts from.
-
-        | Field | Written on | Points at | Reads as | Read back as |
-        |:---|:---|:---|:---|:---|
-        | folder | feature | Problems | answers | is answered by |
-        | `serves` | use case, reaction, job | Journey steps | serves | is served by |
-        | `serves` | journey | The goal it leads toward | serves | is served by |
-        | `effects` | use case, reaction, job | Use cases, notifications, integration events, operations | effects | is effected by |
-        | `transitions.by` | aggregate | The use case that moves the transition | is moved by | moves |
-        | `access.grant` | use case | A permission | is granted through | grants |
-        | `actor` | journey, external system | The actor taking the journey; the actor acted as | is taken by / acts as | takes / is acted as by |
-        | `terms` | any record | Terms | uses | is used by |
-        | `basedOn` | decision, data class | Constraints | is based on | is a basis for |
 
         ### Completion Stages
 

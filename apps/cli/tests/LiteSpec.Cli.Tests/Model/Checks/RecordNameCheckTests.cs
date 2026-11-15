@@ -15,7 +15,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader", "addresses": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader", "audience": ["actor/reader"]}"""));
 
         Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
@@ -29,7 +29,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader, loan-due-staff, none (no message)", "addresses": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader, loan-due-staff, none (no message)", "audience": ["actor/reader", "actor/staff"]}"""));
 
         Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
@@ -43,7 +43,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due", "addresses": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due", "audience": ["actor/reader"]}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "template-key-invalid").Message;
         Assert.Contains("loan-due", message, StringComparison.Ordinal);

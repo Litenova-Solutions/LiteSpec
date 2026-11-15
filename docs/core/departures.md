@@ -115,7 +115,7 @@ The `use-case-unimplemented` finding is covered, and the run passes, until 2027-
 
 **Statement:** A project MAY depart from a provision of Strength advisory without recording a departure, since an advisory provision binds no project.
 
-**Rationale:** A provision of Strength advisory is experience applied with judgement, and [Provision Scopes](scopes.md) says it records nothing. A departure from it would name a rule the provision never made. A provision whose Statement says should takes this strength for the same reason.
+**Rationale:** A provision of Strength advisory is experience applied with judgement, and [Provision Scopes](scopes.md) says it records nothing. A departure from it would name a rule the provision never made. A provision whose Statement says `SHOULD` or `SHOULD NOT` takes this strength for the same reason: the project sets the advice aside within the bounds its Departure states and records nothing. Only a provision of Strength required is departed from through a departure. Settled by [decision/0082-give-every-rule-one-home-and-one-strength](decision/0082-give-every-rule-one-home-and-one-strength).
 
 **Reviewed for:** Which departures name a provision of Strength advisory in their `covers`? Look at `covers` in each file under `.litespec/governance/departures/`.
 

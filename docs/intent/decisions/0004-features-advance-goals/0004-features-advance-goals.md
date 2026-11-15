@@ -4,7 +4,7 @@ A feature in LiteSpec is a capability that the product offers. Each feature solv
 
 ## Context
 
-A feature links to a goal with the word `serves`. The other records that use `serves` link to journey steps, not to goals. The same word therefore names two different kinds of target.
+A feature links to a goal with the word `serves`. The other records that use `serves` link to flow steps, not to goals. The same word therefore names two different kinds of target.
 
 ## Options
 
@@ -25,7 +25,7 @@ A feature's link to a goal is renamed from `serves` to `advances`. A feature's l
 
 ## Consequences
 
-The provision `litespec/core/intent#state-each-feature-with-its-offering` states the renamed fields. The word `serves` keeps one meaning for each record that uses it. A use case, a reaction, a job or a screen serves journey steps. A journey serves one goal.
+The provision `litespec/core/intent#state-each-feature-with-its-offering` states the renamed fields. The word `serves` keeps one meaning for each record that uses it. A use case, a reaction, a job or a screen serves flow steps. A flow serves one goal.
 
 ## Evidence
 

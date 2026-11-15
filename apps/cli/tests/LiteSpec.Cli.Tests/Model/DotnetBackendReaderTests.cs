@@ -270,7 +270,7 @@ public sealed class DotnetBackendReaderTests
         WriteSource(temp.Path, Path.Combine("Domain", "Lending", "Loans", "Events"), "LoanRenewedEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
 
-            /// <implements>event/loan.extended</implements>
+            /// <implements>domain-event/loan.extended</implements>
             public sealed record LoanRenewedEvent : IDomainEvent
             {
             }
@@ -278,7 +278,7 @@ public sealed class DotnetBackendReaderTests
 
         var domainEvent = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Events);
 
-        Assert.Equal("event/loan.extended", domainEvent.EventId);
+        Assert.Equal("domain-event/loan.extended", domainEvent.EventId);
     }
 
     /// <summary>On Handler With A Tag Links To Its Reaction.</summary>

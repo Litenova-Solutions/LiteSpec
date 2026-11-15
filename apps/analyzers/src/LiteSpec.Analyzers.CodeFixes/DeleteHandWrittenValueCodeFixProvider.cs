@@ -237,7 +237,7 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
     /// <returns>The value as text, or null when none applies.</returns>
     private static string? ExpectedValue(TraceabilityFix fix, string memberName)
     {
-        var recordType = memberName == "Classification" ? "event" : "rule";
+        var recordType = memberName == "Classification" ? "domain-event" : "rule";
 
         foreach (var mark in MarkReader.Read(fix.Member))
         {
@@ -245,7 +245,7 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
                 && fix.Store.Index.ById(mark.RecordId) is IRecordFields record
                 && record.Type == recordType)
             {
-                return recordType == "event" ? mark.RecordId : RefusalCode(fix, mark.RecordId);
+                return recordType == "domain-event" ? mark.RecordId : RefusalCode(fix, mark.RecordId);
             }
         }
 

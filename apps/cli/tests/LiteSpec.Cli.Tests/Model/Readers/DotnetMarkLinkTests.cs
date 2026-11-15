@@ -128,13 +128,13 @@ public sealed class DotnetMarkLinkTests
         WriteSource(temp.Path, "Domain", "LoanRenewedEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
 
-            /// <implements>event/loan.loan-borrowed</implements>
+            /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanRenewedEvent(Guid LoanId) : IDomainEvent;
             """);
 
         var domainEvent = Assert.Single(Read(temp.Path).Events);
 
-        Assert.Equal("event/loan.loan-borrowed", domainEvent.EventId);
+        Assert.Equal("domain-event/loan.loan-borrowed", domainEvent.EventId);
     }
 
     /// <summary>Event Without Mark Has Null Event Id.</summary>
@@ -270,17 +270,17 @@ public sealed class DotnetMarkLinkTests
         WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
 
-            /// <implements>event/loan.loan-borrowed</implements>
+            /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent
             {
-                public const string Classification = "event/loan.loan-borrowed";
+                public const string Classification = "domain-event/loan.loan-borrowed";
             }
             """);
 
         var element = Assert.Single(Read(temp.Path).Elements);
 
         Assert.Equal(CodeKind.DomainEvent, element.Kind);
-        Assert.Equal("event/loan.loan-borrowed", element.RuntimeValue);
+        Assert.Equal("domain-event/loan.loan-borrowed", element.RuntimeValue);
     }
 
     /// <summary>Event Without Classification Has Null Runtime Value.</summary>
@@ -293,7 +293,7 @@ public sealed class DotnetMarkLinkTests
         WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
 
-            /// <implements>event/loan.loan-borrowed</implements>
+            /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent;
             """);
 

@@ -68,7 +68,7 @@ static class ProofConfirmation
     }
 
     /// <summary>
-    ///     A journey step is exercised when a passing test proved a scenario of a
+    ///     A flow step is exercised when a passing test proved a scenario of a
     ///     use case that serves the step.
     /// </summary>
     /// <param name="model">The project model.</param>
@@ -683,7 +683,7 @@ static class ProofConfirmation
             foreach (var id in reaction.Ids(RecordFields.TriggeredBy))
             {
                 if (model.ById.TryGetValue(id, out var target)
-                    && target.Type is RecordTypes.Event or RecordTypes.IntegrationEvent)
+                    && target.Type is RecordTypes.DomainEvent or RecordTypes.IntegrationEvent)
                 {
                     trigger.Add(id);
                 }

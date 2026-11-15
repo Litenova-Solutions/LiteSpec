@@ -423,7 +423,7 @@ internal sealed class TraceabilityContext
             {
                 foreach (var mark in MarkReader.Read(member))
                 {
-                    if (mark.RecordId.StartsWith("event/", StringComparison.Ordinal))
+                    if (mark.RecordId.StartsWith("domain-event/", StringComparison.Ordinal))
                     {
                         return mark.RecordId;
                     }

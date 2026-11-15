@@ -35,7 +35,7 @@
 </script>
 
 {#if af.finishedWhen}
-  <div class="mb-6 grid grid-cols-[20px_1fr] gap-2.5 border-l-[3px] border-convention-foreground py-0.5 pl-3.5 text-[0.90625rem]">
+  <div class="mb-6 grid grid-cols-[20px_1fr] gap-2.5 border-l-[3px] border-convention-foreground py-0.5 pl-3.5 text-sm">
     <RecordIcon name="passing" class="mt-1 size-3.5 text-convention-foreground" />
     <div><b>Finished when</b> {af.finishedWhen}</div>
   </div>
@@ -43,18 +43,18 @@
 <SectionJump
   items={[
     { key: "states", label: "states", count: model.states.length },
-    { key: "flow", label: "transitions", count: af.transitions.length },
+    { key: "transition", label: "transitions", count: af.transitions.length },
     { key: "classes", label: "dataClasses", count: af.dataClasses.length },
     { key: "data", label: "data", count: af.data.length },
     { key: "rules", label: "Rules", count: ruleInputs.length },
-    { key: "events", label: "Events", count: evs.length },
+    { key: "events", label: "Domain events", count: evs.length },
   ]}
 />
 {#if model.states.length}
   <PageSection blockKey="states" heading="states" count={model.states.length}>
-    <div class="border-t border-border">
+    <div class="border-t border-slate-200">
       {#each model.states as s (s.name)}
-        <div class="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-1 sm:grid-cols-[180px_minmax(0,1fr)] border-b border-border py-2.5">
+        <div class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-4 gap-y-1 border-b border-slate-200 py-2.5">
           <div class="flex items-start gap-2 text-sm font-semibold">
             {s.name}
             {#if s.created}
@@ -63,31 +63,31 @@
               <Fact text="not reachable" />
             {/if}
           </div>
-          <p class="m-0 text-[0.84375rem] leading-snug text-subtle-foreground">{s.meaning}</p>
+          <p class="m-0 text-sm leading-snug text-slate-600">{s.meaning}</p>
         </div>
       {/each}
     </div>
   </PageSection>
 {/if}
-{#if model.flows.length}
-  <PageSection blockKey="flow" heading="transitions" count={af.transitions.length} aside="what moves the record from state to state">
+{#if model.transitions.length}
+  <PageSection blockKey="transition" heading="transitions" count={af.transitions.length}>
     <div class="grid gap-1.5">
-      {#each model.flows as flow (flow.from)}
-        <div class="grid grid-cols-[minmax(0,1fr)] items-start gap-x-2.5 gap-y-1 sm:grid-cols-[150px_minmax(0,1fr)] border-b border-border py-2.5 last:border-b-0">
-          <div class="pt-1 text-sm {flow.created ? 'font-medium text-muted-foreground' : 'font-semibold'}">
-            {flow.created ? "Created as" : flow.from}
+      {#each model.transitions as transition (transition.from)}
+        <div class="grid grid-cols-[180px_minmax(0,1fr)] items-start gap-x-2.5 gap-y-1 border-b border-slate-200 py-2.5 last:border-b-0">
+          <div class="pt-1 text-sm {transition.created ? 'font-medium text-slate-600' : 'font-semibold'}">
+            {transition.created ? "Created as" : transition.from}
           </div>
           <div>
-            {#each flow.targets as t (t.to)}
-              <div class="grid grid-cols-[18px_minmax(0,1fr)] items-baseline gap-x-2 gap-y-0.5 py-1 text-[0.84375rem] sm:grid-cols-[18px_150px_minmax(0,1fr)]">
-                <span class="text-muted-foreground"><RecordIcon name="arrow" class="size-3.5" /></span>
+            {#each transition.targets as t (t.to)}
+              <div class="grid grid-cols-[18px_180px_minmax(0,1fr)] items-baseline gap-x-2 gap-y-0.5 py-1 text-sm">
+                <span class="text-slate-600"><RecordIcon name="arrow" class="size-3.5" /></span>
                 <span class="font-medium">{t.to}</span>
-                <span class="col-start-2 flex flex-wrap gap-x-3.5 gap-y-1 sm:col-start-auto">
-                  {#each t.by as b, j (j)}
+                <span class="flex flex-wrap gap-x-3.5 gap-y-1">
+                  {#each t.movedBy as b, j (j)}
                     {#if b}
                       <RecordLink id={b} />
                     {:else}
-                      <span class="font-mono text-[0.6875rem] text-muted-foreground">no use case named</span>
+                      <span class="font-mono text-xs text-slate-600">no use case or job named</span>
                     {/if}
                   {/each}
                 </span>
@@ -100,7 +100,7 @@
   </PageSection>
 {/if}
 {#if af.dataClasses.length}
-  <PageSection blockKey="classes" heading="dataClasses" count={af.dataClasses.length} aside="what is kept, and what happens on erasure">
+  <PageSection blockKey="classes" heading="dataClasses" count={af.dataClasses.length}>
     <DataTable head={["Data class", "Fields", "Purpose", "Erasure"]} rows={model.classRows} />
   </PageSection>
 {/if}
@@ -115,5 +115,5 @@
   </PageSection>
 {/if}
 {#if evs.length}
-  <PageSection blockKey="events" heading="Events" count={evs.length}><RecordList ids={evs} /></PageSection>
+  <PageSection blockKey="events" heading="Domain events" count={evs.length}><RecordList ids={evs} /></PageSection>
 {/if}

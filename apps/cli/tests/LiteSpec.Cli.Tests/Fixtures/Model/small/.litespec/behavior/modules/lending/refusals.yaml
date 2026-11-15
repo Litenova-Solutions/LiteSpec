@@ -1,0 +1,24 @@
+type: refusal-set
+summary: The refusals the lending module returns, each with the problem type it maps to.
+records:
+- code: lending.copy-already-registered
+  meaning: The copy is already registered.
+  problemType: https://library.example/problems/copy-already-registered
+- code: lending.copy-on-loan
+  meaning: The copy is on loan.
+  problemType: https://library.example/problems/copy-on-loan
+- code: lending.copy-not-available
+  meaning: The copy is on loan or on hold for another reader.
+  problemType: https://library.example/problems/copy-not-available
+- code: lending.hold-already-waiting
+  meaning: The copy already has a hold waiting for this reader.
+  problemType: https://library.example/problems/hold-already-waiting
+- code: lending.hold-not-waiting
+  meaning: The hold is no longer waiting.
+  problemType: https://library.example/problems/hold-not-waiting
+- code: lending.extension-refused
+  meaning: The loan is not due within the extension window.
+  problemType: https://library.example/problems/extension-refused
+- code: lending.loan-not-active
+  meaning: The loan is already returned.
+  problemType: https://library.example/problems/loan-not-active

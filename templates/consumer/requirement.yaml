@@ -1,3 +1,5 @@
+# A requirement under a feature carries id requirement/<feature>.<name> in its feature's requirements folder.
+# A product requirement carries id requirement/<name> at intent/requirements/<name>/ and cites at least one constraint/, goal/ or problem/.
 type: requirement
 id: requirement/approval-reminders.remind-approver-after-three-days
 title: Remind Approver After Three Business Days

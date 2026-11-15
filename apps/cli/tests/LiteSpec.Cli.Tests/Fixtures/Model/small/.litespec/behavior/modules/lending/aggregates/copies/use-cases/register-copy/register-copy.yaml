@@ -10,7 +10,7 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/copy.copy-registered
+- domain-event/copy.copy-registered
 idempotency:
   mode: none
   reason: Each call registers its own copy, and registering the same barcode twice is refused.

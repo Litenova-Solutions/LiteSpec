@@ -1,0 +1,19 @@
+type: decision
+id: decision/0067-cite-requirements-on-each-flow-step
+title: Cite Requirements on Each Flow Step
+options:
+  - name: "Each step cites the requirements it carries, and the flow citations are computed"
+    pros: "Each promise sits on the step where it applies, numbers and limits live once in the cited requirement, and no flow-level cites drifts from its steps."
+    cons: "Every flow's citations move onto steps by hand, and failures that state a rule are reworded to state the experience."
+  - name: "Keep cites on the flow"
+    pros: "No record changes and citations stay in one list."
+    cons: "Nothing records which step carries which promise, steps restate requirements, and requirements attach through steps off the path."
+  - name: "Cite requirements from the serving use cases only"
+    pros: "Each requirement is cited once, where it is fulfilled."
+    cons: "The flow loses which step carries the promise, and a reader opens Behavior to read an Intent story."
+choice: "Each step cites the requirements it carries, and the flow citations are computed"
+consequences: "A step carries `cites` with the requirement identifiers it carries; the flow carries no `cites`, and the model reads the union of its steps. A step's `statement` and `failure` state what the person does and experiences: numbers, limits, and conditions stay in the cited requirement. A step names a person in `actor` or an external system in `system`, never a job or a reaction; jobs and reactions serve the step upward like use cases. A feature's in-scope flows stay the flows citing its requirements, now through their steps. The book lists each cited requirement under its step with its statement, `except`, and fallback. `litespec/core/intent#write-flow-steps-as-sentences-with-ids`, `litespec/core/intent#state-each-flow-blocker-as-a-step-failure`, `litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system`, and `litespec/core/model#serve-every-flow-step` state the step shape and its servers."
+reopenedWhen: "A requirement applies to a flow as a whole and to no single step, or a step needs a server the serves link cannot name."
+basedOn:
+  - research/intent-hierarchy-evidence
+  - research/cross-layer-trace-evidence

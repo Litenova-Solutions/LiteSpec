@@ -10,13 +10,15 @@ namespace LiteSpec.Cli.Book.Details;
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookProseFields
 {
-    /// <summary>Gets the prose fields the book renders as Markdown.</summary>
+    /// <summary>Gets the prose fields the book renders as Markdown: every field a view reads through the rendered HTML.</summary>
     public static IReadOnlyList<string> Prose { get; } =
     [
         "summary", "statement", "offering", "consequences",
         "refusals", "delivery", "impact",
         "prerequisites", "procedure", "verification", "recovery", "escalation",
         "exposure", "exit",
+        "description", "whatHappens", "whyItMatters", "situation", "purpose", "position",
+        "goal", "meaning", "boundary", "question", "reason", "rationale", "appliesBecause",
     ];
 
     /// <summary>Renders one record's prose fields to HTML with hash record links.</summary>

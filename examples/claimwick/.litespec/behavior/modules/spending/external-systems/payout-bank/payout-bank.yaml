@@ -1,0 +1,7 @@
+type: external-system
+id: external-system/payout-bank
+title: Payout Bank
+summary: The payout bank moves reimbursed money to employees. Claimwick sends one bank file per batch and reads back a settlement report.
+processes:
+- aggregate: aggregate/spending.expense
+  dataClass: expense-ledger

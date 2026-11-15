@@ -77,11 +77,11 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
         return null;
     }
 
-    /// <summary>The folder name a view takes under its module Views folder: the PascalCase plural of the view name.</summary>
-    /// <param name="name">The view name segment of its identifier, such as reimbursed-expense.</param>
+    /// <summary>The folder name a read model takes under its module ReadModels folder: the PascalCase plural of the read model name.</summary>
+    /// <param name="name">The read model name segment of its identifier, such as reimbursed-expense.</param>
     /// <returns>The plural folder name, such as ReimbursedExpenses.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
-    internal static string ViewFolderOf(string name)
+    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</follows>
+    internal static string ReadModelFolderOf(string name)
     {
         var pascal = Naming.Pascal(name);
 

@@ -122,7 +122,7 @@ public sealed class LifecycleCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "use-case/lending.nope"}"""));
+            Loan(temp.Path, """{"from": "Active", "to": "Returned", "movedBy": "use-case/lending.nope"}"""));
 
         Assert.Contains("transition-unknown", TestModel.Codes(model));
     }
@@ -135,7 +135,7 @@ public sealed class LifecycleCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "aggregate/lending.loan"}"""));
+            Loan(temp.Path, """{"from": "Active", "to": "Returned", "movedBy": "aggregate/lending.loan"}"""));
 
         Assert.Contains("transition-unknown", TestModel.Codes(model));
     }
@@ -148,7 +148,7 @@ public sealed class LifecycleCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned", "by": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),
+            Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned", "movedBy": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),
             TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));

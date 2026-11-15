@@ -1,4 +1,4 @@
-using Claimwick.Reporting.Views.ReimbursedExpenses;
+using Claimwick.Reporting.ReadModels.ReimbursedExpenses;
 
 namespace Claimwick.Reporting.UseCases.ListReimbursedExpenses.Application;
 

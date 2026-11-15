@@ -15,4 +15,4 @@ sources:
     readOn: 2026-10-30
     key: record-schema
 question: How do Behavior records find their parent today, and where does parentage rest on a file name or exist not at all?
-conclusion: Containment by identifier is sound and complete in the largest consumer, while results, scenarios, events, and rules find their parent only through file placement or a project-wide name lookup, and several Behavior types have no parent at all.
+conclusion: Containment by identifier is sound and complete in the largest consumer, while results, scenarios, domain events, and rules find their parent only through file placement or a project-wide name lookup, and several Behavior types have no parent at all.

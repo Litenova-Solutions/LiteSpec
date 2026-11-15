@@ -118,6 +118,8 @@ The validator holds each block to these rules.
 
 On a phone the drawing reflows unless a `wireframe compact` block says otherwise. A `row` or `split` stacks, an `aside` follows the main content, a table keeps its first two columns, and a drawer rises from the bottom.
 
+A screen's explanation file holds one fenced block with the info string `wireframe`, drawn in this language. Each action in the block names a use case the screen offers, each state names a glossary term of the record shown, and each refusal names a result of an offered use case. The book draws the block on the screen page.
+
 ### Starting a Catalog Entry from a LiteSpec Pattern
 
 A catalog entry may set `library` to one pattern ID, such as `litespec/frontend/patterns/record-detail#record-header`, to start from that pattern. The entry keeps the pattern's option IDs and names, so a choice stays comparable across products, and it may add options of its own.
@@ -321,6 +323,31 @@ The entry names the pattern's default option and records `owner` as the source, 
 **Example:** An option describes a menu listing sort fields rather than naming the component rendering it.
 
 **Reviewed for:** Which patterns name a component library outside their implementations? Look in the catalog entries outside implementations.
+
+### Draw Each Screen as a Wireframe Before It Is Built
+
+**ID:** `litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built`
+
+**Strength:** required
+
+**Applies to:** artifact: record:screen
+
+**Statement:** Each screen MUST carry one wireframe block in its explanation file, drawn in the wireframe language this page states.
+
+**Rationale:** The wireframe is the blueprint the screen is built from: the product owner settles the structure, the actions, and the words before any route exists, and the builder draws that drawing with the project's own components inside the page frame the screen names. Each action names a use case the screen offers, each state names a glossary term of the record shown, and each refusal names a result of an offered use case, so the drawing stays bound to the records. Proposed by decision 0089.
+
+**Example:** The Claimwick expense record carries this wireframe before its route exists.
+
+```wireframe
+page
+  breadcrumb "Expenses" "EXP-1042"
+  header
+    heading "EXP-1042"
+    status "Paid" positive
+    action primary "Message spender"
+```
+
+**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe block the wireframe language rejects, `wireframe-reference-unknown` for a wireframe action, state or refusal that names nothing the screen reaches, and `wording-alias` for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.
 
 ## Conventions
 

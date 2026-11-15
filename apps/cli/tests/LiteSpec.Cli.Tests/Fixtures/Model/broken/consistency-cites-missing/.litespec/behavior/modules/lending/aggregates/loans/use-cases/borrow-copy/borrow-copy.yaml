@@ -6,14 +6,14 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-  - journey/borrow-and-return#s2
+  - flow/borrow-and-return#s2
 fulfills:
   - requirement/borrowing.max-active-loans
 reachedThrough:
   - entry-point/library-app
 raises:
-  - event/loan.loan-borrowed
-changes:
+  - domain-event/loan.loan-borrowed
+writes:
   - aggregate/lending.loan
   - aggregate/lending.copy
 consistency:

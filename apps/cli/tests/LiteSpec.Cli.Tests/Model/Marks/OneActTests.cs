@@ -171,9 +171,9 @@ public sealed class OneActTests
                   "status": "reviewed",
                   "kind": "command",
                   "raises": [
-                    "event/loan.loan-borrowed"
+                    "domain-event/loan.loan-borrowed"
                   ],
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.loan"
                   ],
                   "records": [
@@ -219,8 +219,8 @@ public sealed class OneActTests
                   ],
                   "records": [
                     {
-                      "type": "event",
-                      "id": "event/loan.loan-borrowed",
+                      "type": "domain-event",
+                      "id": "domain-event/loan.loan-borrowed",
                       "title": "Loan borrowed",
                       "owner": "lending-team",
                       "status": "reviewed",
@@ -277,7 +277,7 @@ public sealed class OneActTests
             Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs", """
                 namespace Library.Domain.Lending.Loans.Events;
 
-                /// <implements>event/loan.loan-borrowed</implements>
+                /// <implements>domain-event/loan.loan-borrowed</implements>
                 public sealed record LoanBorrowedEvent(Guid LoanId, Guid ReaderId, DateOnly DueDate) : IDomainEvent;
                 """);
             Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/BadBorrowCopyScenarios.cs", """

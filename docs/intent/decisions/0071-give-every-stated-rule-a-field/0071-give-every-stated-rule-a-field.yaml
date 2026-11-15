@@ -1,0 +1,19 @@
+type: decision
+id: decision/0071-give-every-stated-rule-a-field
+title: Give Every Stated Rule a Field
+options:
+  - name: "A field for every stated rule, and a check where cheap and sure"
+    pros: "No rule lives only in prose, and reactions, scenarios, links, and domain events each face a check that proved itself on real records."
+    cons: "Records carry more fields, and each check must prove cheap and sure before it lands."
+  - name: "Prose rules with sampled review"
+    pros: "Records carry fewer fields."
+    cons: "Rules drift from behavior with no finding, and the checks miss what matters most."
+  - name: "A check for every rule"
+    pros: "Everything stated is verified."
+    cons: "Unsure checks report noise and train authors to ignore findings."
+choice: "A field for every stated rule, and a check where cheap and sure"
+consequences: "A reaction triggers only on its own module's domain event or on an integration event, reported as `reaction-trigger-foreign`. Scenarios name the rules they show in `exercises`, reported as `scenario-rule-unexercised` for a refusal scenario whose result's rule `exercises` lacks and for an input rule no scenario exercises. Every link is a typed identifier through the link and locality checks, including nested `boundBy`, output-group reads and widening, input `rules`, `onFailure` targets, and departure subjects. Domain events carry typed fields in `carries`, and `integration-event-field-uncarried` reports a payload field the translated domain event lacks. `refusal-generic-written` reports a hand-written generic refusal, `statement-word-vague` a vague word under `litespec/core/model#state-what-happens-in-every-behavior-statement`, `example-keys-drift` scenario example rows with differing keys, and `external-system-placement-wide` a product-level external system one module calls. `term-missing` ignores names from the example cast."
+reopenedWhen: "A stated rule needs a field the record cannot carry, or a landed check reports noise on real records."
+basedOn:
+  - research/check-coverage-evidence
+  - research/lower-layers-practice

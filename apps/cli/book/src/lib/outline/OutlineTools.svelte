@@ -33,17 +33,17 @@
   }
 
   function revealSelected(): void {
-    if (book.selected) book.expandTo(book.selected);
+    if (book.selected) outlineState.expandChain(book.selected);
     onRevealRequest();
   }
 </script>
 
-<div class="mt-2 flex flex-wrap items-center gap-1.5">
+<div class="mt-2 flex flex-wrap items-center gap-2">
   <Button variant="outline" size="sm" aria-expanded={outlineState.facetsOpen} aria-controls="facetPanel" onclick={toggleFacets} class="text-xs">
     <RecordIcon name="filter" class="size-3.5" />
     Filter
     {#if nActive > 0}
-      <span class="min-w-[18px] rounded-full bg-primary px-[5px] font-mono text-[0.65625rem] leading-[18px] text-primary-foreground">{nActive}</span>
+      <span class="min-w-[18px] rounded-sm bg-blue-700 px-1 text-xs leading-[18px] text-white tabular-nums">{nActive}</span>
     {/if}
   </Button>
   {#if book.view === "outline"}

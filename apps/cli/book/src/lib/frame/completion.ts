@@ -2,7 +2,7 @@
 // coverage percent, and the proof, lacks and completion judgements the store shows.
 
 import type { BookRecord, ProofState } from "./shard-types";
-import { isFlowType } from "./shard-types";
+import { isScenarioType } from "./shard-types";
 
 /** Whether a completion line expects nothing, has what it expects, or misses it. */
 export type CompletionMark = "none-expected" | "present" | "missing";
@@ -78,7 +78,7 @@ export function proofStateFor(readers: CompletionReaders, id: string): ProofStat
   const record = readers.get(id);
   if (record === undefined) return null;
   if (record.proof) return record.proof.state ?? null;
-  if (isFlowType(record.type)) {
+  if (isScenarioType(record.type)) {
     const states: ProofState[] = [];
     for (const scenario of readers.scenariosOf(id)) {
       const state = readers.get(scenario)?.proof?.state;

@@ -100,8 +100,8 @@ public sealed class FactoryActTests
                   ],
                   "records": [
                     {
-                      "type": "event",
-                      "id": "event/order.order-submitted",
+                      "type": "domain-event",
+                      "id": "domain-event/order.order-submitted",
                       "title": "Order submitted",
                       "owner": "lending-team",
                       "status": "reviewed",
@@ -127,9 +127,9 @@ public sealed class FactoryActTests
                   "status": "reviewed",
                   "kind": "command",
                   "raises": [
-                    "event/order.order-submitted"
+                    "domain-event/order.order-submitted"
                   ],
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.order"
                   ],
                   "records": [
@@ -157,7 +157,7 @@ public sealed class FactoryActTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.order"
                   ],
                   "records": [
@@ -202,7 +202,7 @@ public sealed class FactoryActTests
             Write(temp.Path, "apps/api/src/Library.Domain/Lending/Orders/OrderSubmittedEvent.cs", """
                 namespace Library.Domain.Lending.Orders;
 
-                /// <implements>event/order.order-submitted</implements>
+                /// <implements>domain-event/order.order-submitted</implements>
                 public sealed record OrderSubmittedEvent(Guid OrderId) : IDomainEvent;
                 """);
             Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/SubmitOrder/SubmitOrderCommand.cs", """

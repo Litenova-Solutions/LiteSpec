@@ -23,6 +23,7 @@ static class NewCommand
                litespec new <document-style> <name> [--root <path>]
                litespec new decision <name> [--root <path>]
                litespec new requirement <feature>.<name> [--root <path>]
+               litespec new requirement <name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
                litespec new use-case <id> --kind command|query [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
@@ -52,9 +53,10 @@ static class NewCommand
         with the title filled in and the fixed sections of the type. The command
         refuses an identifier a record already carries.
 
-        new requirement <feature>.<name> writes a requirement file of its own in its
-        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The
-        feature record <feature> must exist; the command refuses an unknown feature.
+        new requirement <feature>.<name> writes a requirement file of its own in its feature's requirements/
+        folder: intent/features/<feature>/requirements/<name>/<name>.yaml. The feature record <feature> must
+        exist; the command refuses an unknown feature. new requirement <name> writes a product requirement at
+        intent/requirements/<name>/<name>.yaml, which cites the constraint, goal or problem it comes from.
         A requirement takes no explanation file, because its statement is its lead;
         add <name>.md beside it only when the requirement needs an example.
 
@@ -196,31 +198,14 @@ static class NewCommand
                 return 2;
             }
 
-            if (type == "feature" && homeName is null)
+            // A feature stands alone under the product, so its identifier carries no home.
+            if (type == "feature" && homeName is not null)
             {
-                return CommandFailure.UsageError("New feature needs a problem: use litespec new feature <problem>.<name>.", Usage, json: false);
+                return CommandFailure.UsageError("A feature stands alone: use litespec new feature <name>.", Usage, json: false);
             }
 
-            if (type == RecordTypes.Requirement && homeName is null)
-            {
-                return CommandFailure.UsageError("New requirement needs a feature: use litespec new requirement <feature>.<name>.", Usage, json: false);
-            }
-
-            // A feature lives in its problem's folder, but its identifier carries no home:
-            // the problem picks the folder and the identifier is feature/<name>.
+            // A requirement names its feature (<feature>.<name>); one with no feature is a product requirement.
             var identifierHome = homeName;
-
-            if (type == "feature")
-            {
-                if (!Identifiers.ValidName(homeName!, false) || Identifiers.AllDigitsName(homeName!))
-                {
-                    CliHost.Error.WriteLine($"'{homeName}' is not a valid problem name.");
-                    return 2;
-                }
-
-                full = $"feature/{name}";
-                identifierHome = null;
-            }
 
             if (RecordPages.GrammarError(type, identifierHome, name, full) is { } grammar)
             {
@@ -294,11 +279,11 @@ static class NewCommand
         }
 
         // A requirement lives in its feature's folder, so the feature record must exist first.
-        var requirementFolder = type == RecordTypes.Requirement ? RecordPages.FeatureFolder(records, homeName!) : null;
+        var requirementFolder = type == RecordTypes.Requirement && homeName is not null ? RecordPages.FeatureFolder(records, homeName) : null;
 
-        if (type == RecordTypes.Requirement && requirementFolder is null)
+        if (type == RecordTypes.Requirement && homeName is not null && requirementFolder is null)
         {
-            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <problem>.{homeName}.");
+            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature {homeName}.");
             return 2;
         }
 
@@ -354,9 +339,11 @@ static class NewCommand
             explanation = FillTitle(explanationTemplate, title);
         }
 
-        var target = requirementFolder is null
-            ? RecordPages.PagePath(config, type, homeName, name)
-            : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
+        var target = type == RecordTypes.Requirement && homeName is null
+            ? Path.Combine(RecordPages.DocsRoot(config), "intent", "requirements", name, name + RecordFiles.Extension)
+            : requirementFolder is null
+                ? RecordPages.PagePath(config, type, homeName, name)
+                : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
 
         if (File.Exists(target))
         {

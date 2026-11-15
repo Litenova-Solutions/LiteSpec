@@ -46,11 +46,11 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** A cached query MUST state its accepted staleness as a `freshness` object with `mode` of `bounded` and its duration in `within`.
+**Statement:** A cached query MUST state its accepted staleness as a `freshness` object with `mode` of `eventual` and its duration in `within`.
 
 **Rationale:** Accepted staleness is the contract each caller relies on: it states how stale a read may be before it counts as a defect. The served query states it as `{"mode": "bounded", "within": "PT5M"}` on its output, so the cache and the query share one bound that is reviewed with the use case.
 
-**Reviewed for:** Which cached queries lack a bounded freshness object with its duration on their output? Look at the served query beside each cache.
+**Reviewed for:** Which cached queries lack an eventual freshness object with its duration on their output? Look at the served query beside each cache.
 
 ### Remove Unjustified Caches
 
@@ -138,7 +138,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Statement:** A cache owner SHOULD use a short expiry when precise invalidation costs more than recomputation.
 
-**Deviation:** A measured staleness and operating-cost decision permits a longer expiry.
+**Departure:** A measured staleness and operating-cost decision permits a longer expiry.
 
 **Rationale:** Precise invalidation costs design and code, while a short expiry costs one recomputation per window. When recomputation is cheaper, a short expiry bounds staleness without the machinery. A longer expiry then needs a measured decision that says the extra staleness is worth its saving.
 

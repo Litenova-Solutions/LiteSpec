@@ -9,12 +9,14 @@
   import FactCell from "../blocks/FactCell.svelte";
   import FactGrid from "../blocks/FactGrid.svelte";
   import { tdHtml } from "../page-html";
-  import { requirementFields, stringField } from "../page-values";
+  import { reachStateWord, requirementFields, stringField } from "../page-values";
 
   // A requirement: its departures, its measure, and the values it takes over time.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const qf = $derived(requirementFields(r.fields ?? {}));
+  const reach = $derived(r.intentCoverage?.reachedBy ?? []);
+  const reachClaims = $derived(r.intentCoverage?.claims ?? []);
 </script>
 
 {#if qf.except.length}
@@ -23,11 +25,11 @@
       {@const fallback = stringField(x, "fallback") ?? ""}
       {@const fb = stripStep(fallback)}
       {@const fx = book.get(fb)}
-      <div class="border-b border-border py-2.5">
+      <div class="border-b border-slate-200 py-2.5">
         <div class="flex items-center gap-2 font-medium">
           <RecordIcon name="alert" class="size-3.5" />Except {stringField(x, "condition") ?? ""}
         </div>
-        <p class="mt-1 mb-0 text-sm text-subtle-foreground">
+        <p class="mt-1 mb-0 text-sm text-slate-600">
           Then the fallback holds: <RecordLink id={fallback} />{fx ? ", " + String(fx.fields?.statement ?? "") : ""}
         </p>
       </div>
@@ -62,5 +64,14 @@
         ];
       })}
     />
+  </PageSection>
+{/if}
+{#if reach.length}
+  <PageSection blockKey="reach" heading="reachedBy" count={reach.length}>
+    <ul class="m-0 list-none p-0">
+      {#each reach as rid (rid)}
+        <li class="flex items-baseline gap-2 py-1"><RecordLink id={rid} /><span class="text-xs text-slate-600">{reachStateWord(reachClaims, rid)}</span></li>
+      {/each}
+    </ul>
   </PageSection>
 {/if}

@@ -1,0 +1,15 @@
+type: screen
+id: screen/claimwick-app.new-expense
+title: New Expense
+summary: An employee files a new expense with its amount, currency, and receipt.
+address: /expenses/new
+offers:
+- use-case/spending.submit-expense
+serves:
+- flow/submit-and-reimburse#s1
+pageFrame:
+  pattern: form-page
+  option: one-section-one-column-of-fields-cancel-beside-save
+leadsTo:
+- screen/claimwick-app.expense-list
+- screen/claimwick-app.expense-record

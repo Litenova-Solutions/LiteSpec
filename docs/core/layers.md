@@ -47,9 +47,9 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Statement:** Each record below Intent MUST be written from a record in the record layer above it.
 
-**Rationale:** Each record layer rests on the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. An agent either writes the missing record above such code or removes the code, so the specification wins where Intent has spoken.
+**Rationale:** Each record layer rests on the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. An agent either writes the missing record above such code or reports it, so the specification wins where Intent has spoken.
 
-**Example:** An agent that finds a guard in code with no record above it writes the requirement or rule, or removes the guard.
+**Example:** An agent that finds a guard in code with no record above it writes the requirement or rule, or reports the gap. Behavior with no record above it is recorded or reported, never removed for lack of a record.
 
 **Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal or a screen call to no endpoint, and reports `mark-missing` for a code element that carries no mark.
 
@@ -91,11 +91,11 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case, record:reaction, record:job, record:view; layer: implementation; trace: yes
+**Applies to:** artifact: record:use-case, record:reaction, record:job, record:read-model; layer: implementation; trace: yes
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 
-**Rationale:** The stack pages fix the code shapes, so the handler, the repository call, and the published event each have one prescribed form. An observable outcome, edge, write, or access grant outside the records splits the project into a specification that says one thing and code that does another. The checks `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` report the excess, and analyzer `LS2012` reports a handler that authorizes itself.
+**Rationale:** The stack pages fix the code shapes, so the handler, the repository call, and the published domain event each have one prescribed form. An observable outcome, edge, write, or access grant outside the records splits the project into a specification that says one thing and code that does another. The checks `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` report the excess, and analyzer `LS2012` reports a handler that authorizes itself.
 
 **Example:** A handler that returns a code no result declares fails `result-undeclared`; the fix declares the result or removes the code.
 

@@ -949,7 +949,7 @@ page
 
 Never ship the single next-payout tile as the page: one arrival without the ones after it cannot plan a month.
 
-**Reviewed for:** Which built payout view differs from the wireframe its catalog entry chose? Open the built upcoming, weekly, and journey views beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built payout view differs from the wireframe its catalog entry chose? Open the built upcoming, weekly, and past views beside the catalog entry recording the chosen option and its reason.
 
 #### `upcoming-payouts-with-the-sales-each-one-holds`: Upcoming Payouts with the Expenses Each One Holds
 

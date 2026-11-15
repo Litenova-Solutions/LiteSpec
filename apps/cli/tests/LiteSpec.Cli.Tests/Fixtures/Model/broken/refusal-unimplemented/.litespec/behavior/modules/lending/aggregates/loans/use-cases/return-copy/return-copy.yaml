@@ -6,13 +6,13 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-  - journey/borrow-and-return#s5
+  - flow/borrow-and-return#s5
 fulfills:
   - requirement/borrowing.loan-period-days
 reachedThrough:
   - entry-point/library-app
 raises:
-  - event/loan.loan-returned
+  - domain-event/loan.loan-returned
 records:
   - type: result
     id: result/return-copy.returned

@@ -24,7 +24,7 @@ No use case names a type in another use-case folder. A message, result, result p
 
 ## Consequences
 
-The module closed set loses `Jobs/` and `WebApi/`, gains `Notifications/`, `ExternalSystems/` and `Views/`, and `Contracts/` keeps `Identifiers/`, `IntegrationEvents/` and `Ports/`. The aggregate loses `WebApi/`. `code-placement-drift` reads a trigger's folder from its record's effects. LS2019 drops its exemption.
+The module closed set loses `Jobs/` and `WebApi/`, gains `Notifications/`, `ExternalSystems/` and `ReadModels/`, and `Contracts/` keeps `Identifiers/`, `IntegrationEvents/` and `Ports/`. The aggregate loses `WebApi/`. `code-placement-drift` reads a trigger's folder from its record's effects. LS2019 drops its exemption.
 
 The provision `litespec/workspace/naming#place-each-trigger-with-what-it-runs` states the new placement, and its identifier names the placement it states.
 

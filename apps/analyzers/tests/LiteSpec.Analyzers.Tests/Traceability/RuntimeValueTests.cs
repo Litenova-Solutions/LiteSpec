@@ -7,10 +7,10 @@ namespace LiteSpec.Analyzers.Tests.Traceability;
 /// <summary>Tests for LS5005, the hand-written runtime value drifting from its record.</summary>
 public sealed class RuntimeValueTests
 {
-    /// <summary>LS5005 reports an event Classification differing from its event.</summary>
+    /// <summary>LS5005 reports an event Classification differing from its record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "LS5005 reports an event Classification differing from its event")]
+    [Fact(DisplayName = "LS5005 reports an event Classification differing from its record")]
     public Task ReportsAnEventClassificationDrift() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
             [("Source.cs", """
@@ -18,13 +18,13 @@ public sealed class RuntimeValueTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent : IDomainEvent
                 {
-                    public const string {|LS5005:Classification|} = "event/expense.placed";
+                    public const string {|LS5005:Classification|} = "domain-event/expense.placed";
                 }
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5005 accepts an event without a hand-written Classification.</summary>
@@ -38,16 +38,16 @@ public sealed class RuntimeValueTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
-    /// <summary>LS5005 accepts an event Classification equal to its event.</summary>
+    /// <summary>LS5005 accepts an event Classification equal to its record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "LS5005 accepts an event Classification equal to its event")]
+    [Fact(DisplayName = "LS5005 accepts an event Classification equal to its record")]
     public Task AcceptsAnEventClassificationEqualToItsEvent() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
             [("Source.cs", """
@@ -55,13 +55,13 @@ public sealed class RuntimeValueTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent : IDomainEvent
                 {
-                    public const string Classification = "event/expense.submitted";
+                    public const string Classification = "domain-event/expense.submitted";
                 }
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5005 reports an exception Code differing from its rule refusal.</summary>
@@ -138,10 +138,10 @@ public sealed class RuntimeValueTests
             [ProjectFile(), Rule(), Result()],
             assemblyName: "Shop.Domain");
 
-    /// <summary>LS5005 ignores a rule naming no refusal result with a code.</summary>
+    /// <summary>LS5005 ignores a rule that names no refusal code.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "LS5005 ignores a rule naming no refusal result with a code")]
+    [Fact(DisplayName = "LS5005 ignores a rule that names no refusal code")]
     public Task IgnoresARuleWithoutARefusalCode() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
             [("Source.cs", """
@@ -160,7 +160,7 @@ public sealed class RuntimeValueTests
                     public override string Code => "spending.other-code";
                 }
                 """)],
-            [ProjectFile(), Rule(refusal: "result/submit-expense.ghost")],
+            [ProjectFile(), Rule(refusal: null)],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5005 reports an exception Code differing from its bare refusal code.</summary>
@@ -213,31 +213,6 @@ public sealed class RuntimeValueTests
             [ProjectFile(), Rule(refusal: "spending.receipt-missing")],
             assemblyName: "Shop.Domain");
 
-    /// <summary>LS5005 ignores a refusal pointing at a success result with a code.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "LS5005 ignores a refusal pointing at a success result with a code")]
-    public Task IgnoresARefusalToASuccessResult() =>
-        Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
-            [("Source.cs", """
-                using System;
-
-                namespace Claimwick.Spending;
-
-                public abstract class DomainException : Exception
-                {
-                    public virtual string Code => "base";
-                }
-
-                /// <implements>rule/spending.receipt-required</implements>
-                public sealed class ReceiptRequiredException : DomainException
-                {
-                    public override string Code => "spending.other-code";
-                }
-                """)],
-            [ProjectFile(), Rule(), Result(outcome: "success", code: "spending.receipt-missing")],
-            assemblyName: "Shop.Domain");
-
     /// <summary>LS5005 does not run outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
@@ -249,12 +224,12 @@ public sealed class RuntimeValueTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent : IDomainEvent
                 {
-                    public const string Classification = "event/expense.placed";
+                    public const string Classification = "domain-event/expense.placed";
                 }
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Application");
 }

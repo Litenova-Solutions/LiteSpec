@@ -63,7 +63,7 @@
     {#if text}
       <p class="text-sm font-semibold">{text.title}</p>
       <p class="text-sm leading-relaxed">{@html inline(book, text.text)}</p>
-      <p class="flex items-center gap-1.5 text-xs text-muted-foreground"><RecordIcon name="book" class="size-3.5" />From LiteSpec: {text.source}</p>
+      <p class="flex items-center gap-2 text-xs text-slate-600"><RecordIcon name="book" class="size-3.5" />From LiteSpec: {text.source}</p>
     {/if}
   </Popover.Content>
 </Popover.Root>

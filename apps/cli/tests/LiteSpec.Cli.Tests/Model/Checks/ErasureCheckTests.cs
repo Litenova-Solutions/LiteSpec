@@ -66,7 +66,6 @@ public sealed class ErasureCheckTests
 
     /// <summary>Erasure Position With Enforcement Covers The Data.</summary>
     /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
-    /// <proves>litespec/core/privacy#schedule-every-data-class-for-retention</proves>
     [Fact]
     public void ErasurePositionWithEnforcementCoversTheData()
     {
@@ -106,7 +105,7 @@ public sealed class ErasureCheckTests
     }
 
     /// <summary>Retention Without Enforcement Reports.</summary>
-    /// <proves>litespec/core/privacy#schedule-every-data-class-for-retention</proves>
+    /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void RetentionWithoutEnforcementReports()
     {

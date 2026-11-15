@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
@@ -28,7 +29,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "problems", "ghost-pain", "features", "borrowing", "borrowing.yaml"), """{}"""),
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "problems", "ghost-pain", "features", "borrowing", "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
@@ -106,18 +107,58 @@ public sealed class ReachCheckTests
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>Requirement Cited By Journey Passes.</summary>
+    /// <summary>Requirement Cited By Flow Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void RequirementCitedByJourneyPasses()
+    public void RequirementCitedByFlowPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"cites": ["requirement/borrowing.max-loans"]}"""));
+            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"steps": [{"id": "s1", "statement": "A ghost borrows a copy.", "cites": ["requirement/borrowing.max-loans"]}]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
+    }
+
+    /// <summary>Quality Requirement With A Check Reaches Behavior.</summary>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
+    [Fact]
+    public void QualityRequirementWithACheckReachesBehavior()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.list-loans-latency", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "quality", "statement": "Listing loans answers within 300 milliseconds at p95.", "stimulus": "Two hundred readers list their loans in the first hour of the term.", "environment": "Normal operation, the search index warm.", "response": "Each listing answers from the index.", "measure": "p95 latency of listing loans", "check": "route-suite"}"""));
+
+        Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
+    }
+
+    /// <summary>Quality Requirement Proved By A Test Reaches Behavior.</summary>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
+    [Fact]
+    public void QualityRequirementProvedByATestReachesBehavior()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.list-loans-latency", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "quality", "statement": "Listing loans answers within 300 milliseconds at p95.", "stimulus": "Two hundred readers list their loans in the first hour of the term.", "environment": "Normal operation, the search index warm.", "response": "Each listing answers from the index.", "measure": "p95 latency of listing loans"}"""));
+        model.Proves.Add(new ProvesLink("BorrowingStaysFast", "requirement/borrowing.list-loans-latency", true, true, false));
+
+        Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
+    }
+
+    /// <summary>Quality Requirement With No Check And No Proving Test Reports Intent Unreached.</summary>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
+    [Fact]
+    public void QualityRequirementWithNoCheckAndNoProvingTestReportsIntentUnreached()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.list-loans-latency", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "quality", "statement": "Listing loans answers within 300 milliseconds at p95.", "stimulus": "Two hundred readers list their loans in the first hour of the term.", "environment": "Normal operation, the search index warm.", "response": "Each listing answers from the index.", "measure": "p95 latency of listing loans"}"""));
+
+        Assert.Contains("intent-unreached", TestModel.Codes(model));
     }
 
     /// <summary>Research Without Citer Reports Intent Unreached.</summary>
@@ -148,21 +189,6 @@ public sealed class ReachCheckTests
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>Research Cited By Served Journey Passes.</summary>
-    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
-    [Fact]
-    public void ResearchCitedByServedJourneyPasses()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("research", "research/ghost-study", Path.Combine(temp.Path, "ghost-study.yaml"), "{}"),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"cites": ["research/ghost-study"], "steps": [{"id": "s1", "statement": "Take the copy."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"serves": ["journey/borrow-and-return#s1"]}"""));
-
-        Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
-    }
-
     /// <summary>Decision Deciding Unreached Record Reports Intent Unreached.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
@@ -177,23 +203,23 @@ public sealed class ReachCheckTests
         Assert.Contains("intent-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>A use case a reaction runs needs no journey of its own.</summary>
+    /// <summary>A use case a reaction runs needs no flow of its own.</summary>
     /// <proves>litespec/core/model#connect-every-behavior-record-to-intent</proves>
     [Fact]
-    public void UseCaseRunByAReactionSkipsJourneyMissing()
+    public void UseCaseRunByAReactionSkipsFlowMissing()
     {
         using var temp = TestCli.Temp("checks");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), """{"owners": ["lending-team"], "size": "large"}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["journey/borrow#s1"]}"""),
-            TestModel.Record("reaction", "reaction/lending.hold-on-borrow", Path.Combine(temp.Path, "hold.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["flow/borrow#s1"]}"""),
+            TestModel.Record("reaction", "reaction/lending.hold-on-borrow", Path.Combine(temp.Path, "hold.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""),
             TestModel.Record("use-case", "use-case/lending.hold-copy", Path.Combine(temp.Path, "hold-copy.yaml"), """{"kind": "command"}"""));
 
         var findings = Checker.Check(model).Findings;
 
-        Assert.DoesNotContain(findings, finding => finding.Code == "use-case-journey-missing" && finding.Subject == "use-case/lending.hold-copy");
-        Assert.DoesNotContain(findings, finding => finding.Code == "use-case-journey-missing" && finding.Subject == "use-case/lending.borrow-copy");
+        Assert.DoesNotContain(findings, finding => finding.Code == "use-case-flow-missing" && finding.Subject == "use-case/lending.hold-copy");
+        Assert.DoesNotContain(findings, finding => finding.Code == "use-case-flow-missing" && finding.Subject == "use-case/lending.borrow-copy");
     }
 
     /// <summary>A technical decision under a module skips the Intent reach rule.</summary>
@@ -250,7 +276,7 @@ public sealed class ReachCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""));
 
-        Assert.Contains("role-orphaned", TestModel.Codes(model));
+        Assert.Contains("role-unused", TestModel.Codes(model));
     }
 
     /// <summary>Role Held Passes.</summary>
@@ -265,7 +291,7 @@ public sealed class ReachCheckTests
             TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader-role.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""),
             TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), "{}"));
 
-        Assert.DoesNotContain("role-orphaned", TestModel.Codes(model));
+        Assert.DoesNotContain("role-unused", TestModel.Codes(model));
     }
 
     /// <summary>Permission Without Role Reports Permission Orphan.</summary>
@@ -278,7 +304,7 @@ public sealed class ReachCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("permission", "permission/ghost-read", Path.Combine(temp.Path, "ghost-read.yaml"), "{}"));
 
-        Assert.Contains("permission-orphaned", TestModel.Codes(model));
+        Assert.Contains("permission-unused", TestModel.Codes(model));
     }
 
     /// <summary>Permission Allowed Passes.</summary>
@@ -292,7 +318,7 @@ public sealed class ReachCheckTests
             TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""),
             TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), "{}"));
 
-        Assert.DoesNotContain("permission-orphaned", TestModel.Codes(model));
+        Assert.DoesNotContain("permission-unused", TestModel.Codes(model));
     }
 
     /// <summary>Two Decisions Deciding One Record Report Decision Conflict.</summary>
@@ -353,7 +379,7 @@ public sealed class ReachCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "role-orphaned");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "role-unused");
         Assert.Equal("Role 'role/ghost' is held by no actor.", finding.Message);
         Assert.Equal("role/ghost", finding.Subject);
     }
@@ -368,7 +394,7 @@ public sealed class ReachCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("permission", "permission/ghost-read", Path.Combine(temp.Path, "ghost-read.yaml"), "{}"));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "permission-orphaned");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "permission-unused");
         Assert.Equal("Permission 'permission/ghost-read' is allowed by no role.", finding.Message);
         Assert.Equal("permission/ghost-read", finding.Subject);
     }

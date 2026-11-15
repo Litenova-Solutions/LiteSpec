@@ -39,19 +39,19 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Reviewed for:** Which navigation state lives outside the one controller, and which screens navigate instead of raising events? Look in the controller and the screens.
 
-### Route App Links to Journey Entry Screens
+### Route App Links to Flow Entry Screens
 
-**ID:** `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`
+**ID:** `litespec/frontend/mobile/screens#route-app-links-to-flow-entry-screens`
 
 **Strength:** required
 
-**Statement:** A screen a journey can be entered from MUST open directly from its app link, with the controller resolving the link to that screen and its record.
+**Statement:** A screen a flow can be entered from MUST open directly from its app link, with the controller resolving the link to that screen and its record.
 
-**Rationale:** A journey that starts outside the app, in a message or a browser page, lands on the screen the link names rather than on the first screen with the work still to find. The controller resolves the link, so a cold start and a link that arrives while the app runs open the same screen with the same history behind it. Each stack page names how its platform delivers the link to the controller.
+**Rationale:** A flow that starts outside the app, in a message or a browser page, lands on the screen the link names rather than on the first screen with the work still to find. The controller resolves the link, so a cold start and a link that arrives while the app runs open the same screen with the same history behind it. Each stack page names how its platform delivers the link to the controller.
 
 **Example:** An approval message for expense EXP-1042 carries an app link that opens the approval screen for EXP-1042, with the expenses list behind it for back.
 
-**Reviewed for:** Which journey entry screens open the first screen instead of the screen and record their app link names, and which links resolve outside the one controller? Look in the app link handling and the controller.
+**Reviewed for:** Which flow entry screens open the first screen instead of the screen and record their app link names, and which links resolve outside the one controller? Look in the app link handling and the controller.
 
 ### Follow the System Back Gesture
 

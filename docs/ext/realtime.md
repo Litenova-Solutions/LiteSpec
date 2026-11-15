@@ -12,9 +12,9 @@ Live updates reach open screens in seconds through a realtime transport the brow
 
 Activation scope: `local`.
 
-Applicable specification kinds: `use-case`, `journey`.
+Applicable specification kinds: `use-case`, `flow`.
 
-A use case or journey selects this extension for live updates after the team measures polling against the update target: the polling interval, the visible delay, the request cost, and the required update speed. The selection also names the accepted cost of disconnects and missed messages: how the client recovers when the connection drops or a notification never arrives.
+A use case or flow selects this extension for live updates after the team measures polling against the update target: the polling interval, the visible delay, the request cost, and the required update speed. The selection also names the accepted cost of disconnects and missed messages: how the client recovers when the connection drops or a notification never arrives.
 
 ## Baseline Relationship
 

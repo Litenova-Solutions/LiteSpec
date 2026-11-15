@@ -158,14 +158,15 @@ $defs:
     - actor
     - role
     - permission
-    - journey
+    - flow
     - module
     - aggregate
     - rule
     - use-case
     - result
     - scenario
-    - event
+    - domain-event
+    - read-model
     - entry-point
     - external-system
     - reaction

@@ -113,7 +113,7 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick.Modules/Organizations/UseCases/WelcomeNotice/Application/WelcomeNoticeText.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick.Modules/Organizations/Notifications/TeamRenamed/TeamRenamedText.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick.Modules/Organizations/ExternalSystems/PayoutBank/PayoutBankAdapter.cs", ArchitectureLayer.Application)]
-    [InlineData("Claimwick.Modules/Organizations/Views/ReimbursedExpenses/ReimbursedExpenseOnEmployeeReimbursedProjection.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/ReadModels/ReimbursedExpenses/ReimbursedExpenseOnEmployeeReimbursedProjection.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Team.cs", ArchitectureLayer.None)]
     public void ResolvesAModuleFile(string filePath, ArchitectureLayer expected) =>
         Assert.Equal(expected, ArchitectureLayerResolver.FileLayer(filePath, "Claimwick", BackendLayout.Modules, null));

@@ -1,0 +1,12 @@
+type: departure
+id: departure/screens-without-routes
+title: Screens Without Routes
+summary: The expense record and the new expense form are recorded but have no route yet.
+covers:
+- screen-unimplemented
+subject:
+- screen/claimwick-app.expense-record
+- screen/claimwick-app.new-expense
+reason: The two screens were specified before their routes were built, so no route carries their mark yet.
+exit: The gap closes when each screen gains its route carrying its mark.
+expiresOn: 2027-06-01

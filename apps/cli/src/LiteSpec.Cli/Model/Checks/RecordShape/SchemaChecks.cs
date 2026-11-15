@@ -16,8 +16,20 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
 internal static class SchemaChecks
 {
-    /// <summary>The journey field that a journey no longer carries; its paths are branches now.</summary>
-    const string RemovedJourneyBranchField = "betweenSteps";
+    /// <summary>The flow field that a flow no longer carries; its paths are branches now.</summary>
+    const string RemovedFlowBranchField = "betweenSteps";
+
+    /// <summary>The product field naming the problems the product addresses; the model holds no constant for it.</summary>
+    const string ProductAddresses = "addresses";
+
+    /// <summary>The observation date key on a goal.</summary>
+    const string DateField = "date";
+
+    /// <summary>The problem type key of a refusal.</summary>
+    const string ProblemTypeField = "problemType";
+
+    /// <summary>The unknown-outcome key of an operation.</summary>
+    const string UnknownField = "unknown";
 
     /// <summary>Runs the schema checks on every record.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
@@ -103,13 +115,21 @@ internal static class SchemaChecks
         {
             case RecordTypes.Product:
                 RequireString(record, RecordFields.Boundary, findings);
-                RequireIds(record, RecordFields.Addresses, 1, findings);
+                RequireIds(record, ProductAddresses, 1, findings);
+
+                // Only an excludes entry overrides a requirement; the list holds plain sentences.
+                if (record.Has(RecordFields.Excludes))
+                {
+                    RequireArray(record, RecordFields.Excludes, 0, findings);
+                }
+
                 break;
 
             case RecordTypes.Goal:
                 RequireString(record, RecordFields.Statement, findings);
                 RequireString(record, RecordFields.Measure, findings);
                 RequireString(record, RecordFields.Target, findings);
+                CheckObservations(record, findings);
                 break;
 
             case RecordTypes.Vision:
@@ -141,6 +161,12 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Rationale, findings);
                 CheckSetBy(record, findings);
 
+                // A requirement with no feature stands at product level, and cites what it comes from.
+                if (IsProductRequirement(record) && !CitesOriginOf(model, record))
+                {
+                    findings.Add(new Finding("requirement-cites-missing", $"Product requirement '{record.Id}' cites no constraint, goal or problem it comes from.", record.File, record.Line, SubjectOf(record)));
+                }
+
                 if (record.Field(RecordFields.Kind) == "policy")
                 {
                     RequireArray(record, RecordFields.Values, 1, findings);
@@ -168,6 +194,8 @@ internal static class SchemaChecks
                     findings.Add(new Finding("field-invalid", $"Feature '{record.Id}' names serves and advances holds its goal.", record.File, record.Line, SubjectOf(record)));
                 }
 
+                // A feature stands on its own and names the problems it solves.
+                RequireIds(record, RecordFields.Solves, 1, findings);
                 break;
 
             case RecordTypes.Actor:
@@ -184,20 +212,26 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Meaning, findings);
                 break;
 
-            case RecordTypes.Journey:
+            case RecordTypes.Flow:
                 RequireIds(record, RecordFields.Actor, 1, findings);
-                RequireIds(record, RecordFields.Serves, 1, findings);
+                CheckFlowReason(record, findings);
                 RequireString(record, RecordFields.StartedWhen, findings);
                 RequireString(record, RecordFields.FinishedWhen, findings);
                 RequireArray(record, RecordFields.Steps, 1, findings);
 
-                // The order of steps changes only through branches; the removed betweenSteps prose is refused.
-                if (record.Has(RemovedJourneyBranchField))
+                // Requirements are cited by each step, so the flow itself holds no cites.
+                if (record.Has(RecordFields.Cites))
                 {
-                    findings.Add(new Finding("record-invalid", $"Journey '{record.Id}' holds {RemovedJourneyBranchField}; state each path in {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' holds cites; each step cites the requirements it carries.", record.File, record.Line, SubjectOf(record)));
                 }
 
-                CheckJourneyBranches(record, findings);
+                // The order of steps changes only through branches; the removed betweenSteps prose is refused.
+                if (record.Has(RemovedFlowBranchField))
+                {
+                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' holds {RemovedFlowBranchField}; state each path in {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                CheckFlowBranches(record, findings);
                 break;
 
             case RecordTypes.Module:
@@ -215,26 +249,44 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Rule:
-                RequireEnum(record, RecordFields.Kind, ["invariant", "precondition", "calculation", "cross-aggregate", "atomicity", "reservation", "commercial-data", "default"], findings);
+                RequireEnum(record, RecordFields.Kind, ["invariant", "precondition", "calculation", "atomicity", "reservation", "frozen-value"], findings);
                 RequireString(record, RecordFields.Statement, findings);
                 RequireIds(record, RecordFields.Governs, 1, findings);
 
-                // An atomicity rule names the aggregates it binds, so the use case's changes can equal them.
+                // An atomicity rule names the aggregates it binds, so the use case's writes can equal them.
                 if (record.Field(RecordFields.Kind) == "atomicity")
                 {
                     RequireIds(record, RecordFields.Binds, 1, findings);
+                }
+
+                // A rule that refuses names its refusal code, which the module's refusal set holds.
+                if (record.Has(RecordFields.Refusal))
+                {
+                    RequireString(record, RecordFields.Refusal, findings);
+                    CheckRefusalCode(model, record, record.Field(RecordFields.Refusal), findings);
                 }
 
                 break;
 
             case RecordTypes.UseCase:
                 RequireEnum(record, RecordFields.Kind, ["command", "query"], findings);
-                // A use case only a reaction or a job runs has no door of its own: only the
+                // A use case only a reaction or a job runs has no entry point of its own: only the
                 // rest must name one.
                 if (!RunTargets(model).Contains(record.Id))
                 {
                     RequireIds(record, RecordFields.ReachedThrough, 1, findings);
                 }
+
+                // Exposure states the stake of an entry point use case in plain words.
+                if (record.Has(RecordFields.ReachedThrough) && !record.Has(RecordFields.Exposure))
+                {
+                    findings.Add(new Finding("exposure-missing", $"Use case '{record.Id}' is reached through an entry point and states no exposure.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                CheckExposureNames(record, findings);
+                CheckBackground(model, record, findings);
+                CheckInputs(model, record, findings);
+                CheckOutputs(record, findings);
                 CheckIdempotency(record, findings);
                 CheckEffectFailurePolicy(record, findings);
                 break;
@@ -242,6 +294,23 @@ internal static class SchemaChecks
             case RecordTypes.Reaction:
             case RecordTypes.Job:
                 RequireArray(record, RecordFields.Effects, 1, findings);
+
+                // Failure handling and idempotency are required on every reaction and job, and no reaction or job writes.
+                if (!record.Has(RecordFields.OnFailure))
+                {
+                    findings.Add(new Finding("record-invalid", $"{FindingText.Label(record.Type)} '{record.Id}' states no onFailure.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                if (!record.Has(RecordFields.Idempotency))
+                {
+                    findings.Add(new Finding("record-invalid", $"{FindingText.Label(record.Type)} '{record.Id}' states no idempotency.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                if (record.Has(RecordFields.Writes))
+                {
+                    findings.Add(new Finding("field-invalid", $"{FindingText.Label(record.Type)} '{record.Id}' holds writes; a reaction or job writes through the use case it runs.", record.File, record.Line, SubjectOf(record)));
+                }
+
                 CheckRunsAtMostOne(record, findings);
                 CheckIdempotency(record, findings);
                 CheckFailurePolicy(record, findings);
@@ -251,14 +320,22 @@ internal static class SchemaChecks
                 CheckSetBy(record, findings);
                 break;
 
-            case RecordTypes.View:
+            case RecordTypes.ReadModel:
                 RequireString(record, RecordFields.Summary, findings);
                 RequireIds(record, RecordFields.KeyedBy, 1, findings);
                 RequireArray(record, RecordFields.Fields, 1, findings);
-                RequireString(record, RecordFields.Freshness, findings);
+                CheckFreshness(record, findings);
+
+                // A read model is read by its queries, which carry its fulfilment; it fulfils nothing itself.
+                if (record.Has(RecordFields.Fulfills))
+                {
+                    findings.Add(new Finding("field-invalid", $"Read model '{record.Id}' holds fulfills; the query that reads it fulfils the requirement.", record.File, record.Line, SubjectOf(record)));
+                }
+
                 break;
 
             case RecordTypes.ExternalSystem:
+                CheckExternalSystem(record, findings);
                 break;
 
             case RecordTypes.Result:
@@ -276,6 +353,11 @@ internal static class SchemaChecks
                     {
                         findings.Add(new Finding("field-invalid", $"Result '{record.Id}' has code '{code}', which is not a refusal code.", record.File, record.Line, SubjectOf(record)));
                     }
+                    else if (record.Field(RecordFields.Code) is { } written)
+                    {
+                        CheckGenericRefusal(record, written, findings);
+                        CheckRefusalCode(model, record, written, findings);
+                    }
                 }
 
                 break;
@@ -284,16 +366,56 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Given, findings);
                 RequireString(record, RecordFields.When, findings);
                 RequireString(record, RecordFields.Then, findings);
-                RequireString(record, RecordFields.Result, findings);
+
+                // A use case scenario names its result; a reaction or job scenario names its result or its outcome.
+                if (!record.Has(RecordFields.Result) && !record.Has(RecordFields.Outcome))
+                {
+                    findings.Add(new Finding("record-invalid", $"Scenario '{record.Id}' names neither result nor outcome.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                CheckExampleKeys(record, findings);
                 break;
 
-            case RecordTypes.Event:
+            case RecordTypes.DomainEvent:
                 RequireString(record, RecordFields.Meaning, findings);
                 RequireArray(record, RecordFields.Carries, 0, findings);
+                CheckCarries(record, findings);
+                break;
+
+            case RecordTypes.Notification:
+                RequireIds(record, RecordFields.Audience, 1, findings);
+                RequireIds(record, RecordFields.DeliveredThrough, 1, findings);
+
+                if (record.Has(RecordFields.Consent))
+                {
+                    findings.Add(new Finding("field-invalid", $"Notification '{record.Id}' holds consent as prose; name the rule in requiresConsent.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                if (record.Field(RecordFields.Channel) == "webhook")
+                {
+                    findings.Add(new Finding("field-invalid", $"Notification '{record.Id}' names the webhook channel; a webhook to a system is an outbound integration event.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                break;
+
+            case RecordTypes.IntegrationEvent:
+                RequireIds(record, RecordFields.Through, 1, findings);
+
+                if (record.Field(RecordFields.Direction) == "in")
+                {
+                    RequireIds(record, RecordFields.ArrivesThrough, 1, findings);
+                }
+
                 break;
 
             case RecordTypes.EntryPoint:
                 RequireEnum(record, RecordFields.Kind, ["browser", "api", "webhook", "device", "cli", "mcp", "served-content"], findings);
+
+                if (record.Has(RecordFields.Fulfills) && record.Field(RecordFields.Kind) != "served-content")
+                {
+                    findings.Add(new Finding("field-invalid", $"Entry point '{record.Id}' holds fulfills, which only a served-content entry point carries; the use case it reaches fulfills the requirement.", record.File, record.Line, SubjectOf(record)));
+                }
+
                 break;
 
             case RecordTypes.Screen:
@@ -352,7 +474,7 @@ internal static class SchemaChecks
         }
     }
 
-    /// <summary>Reports each link whose target record type the linking field forbids, and each step or actor a journey names wrongly.</summary>
+    /// <summary>Reports each link whose target record type the linking field forbids, and each step or actor a flow names wrongly.</summary>
     /// <param name="model">The loaded project model that resolves each link target.</param>
     /// <param name="record">The record whose links are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -391,9 +513,9 @@ internal static class SchemaChecks
                     findings.Add(new Finding("field-invalid", $"Record '{record.Id}' links {property.Name} to '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
-                // A journey cites the requirements it shows; every other cites names
+                // A flow cites the requirements it shows; every other cites names
                 // a goal, problem, feature, constraint, research or decision.
-                if (property.Name == RecordFields.Cites && resolved.Type == RecordTypes.Requirement && record.Type != RecordTypes.Journey)
+                if (property.Name == RecordFields.Cites && resolved.Type == RecordTypes.Requirement && record.Type != RecordTypes.Flow)
                 {
                     findings.Add(new Finding("field-invalid", $"Record '{record.Id}' links cites to '{target}', which is a requirement.", record.File, record.Line, SubjectOf(record)));
                 }
@@ -402,7 +524,7 @@ internal static class SchemaChecks
             }
         }
 
-        if (record.Type == RecordTypes.Journey
+        if (record.Type == RecordTypes.Flow
             && record.Raw.TryGetProperty(RecordFields.Steps, out var steps)
             && steps.ValueKind == JsonValueKind.Array)
         {
@@ -419,7 +541,7 @@ internal static class SchemaChecks
                     && model.ById.TryGetValue(id, out var resolved)
                     && resolved.Type != RecordTypes.UseCase)
                 {
-                    findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 if (step.TryGetProperty(RecordFields.Actor, out var actor)
@@ -428,14 +550,33 @@ internal static class SchemaChecks
                     && model.ById.TryGetValue(actorId, out var actorRecord)
                     && actorRecord.Type != RecordTypes.Actor)
                 {
-                    findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' names actor '{actorId}', which is a {actorRecord.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' names actor '{actorId}', which is a {actorRecord.Type}.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                // A step performs with an external system only; jobs and reactions never appear in a step.
+                if (step.TryGetProperty(RecordFields.System, out var system)
+                    && system.ValueKind == JsonValueKind.String
+                    && system.GetString() is { } systemId
+                    && model.ById.TryGetValue(systemId, out var systemRecord)
+                    && systemRecord.Type != RecordTypes.ExternalSystem)
+                {
+                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' names system '{systemId}' in a step, which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                // A step cites the requirements it carries, and nothing else.
+                foreach (var cited in LinkStrings(step, RecordFields.Cites))
+                {
+                    if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && citedRecord.Type != RecordTypes.Requirement)
+                    {
+                        findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' step cites '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
+                    }
                 }
             }
         }
     }
 
     /// <summary>
-    ///     Whether the link fragment names a journey step or an external-system
+    ///     Whether the link fragment names a flow step or an external-system
     ///     operation its record holds. The citation check reads only the base id,
     ///     so a missing step or operation is reported here.
     /// </summary>
@@ -455,9 +596,9 @@ internal static class SchemaChecks
 
         if (Identifiers.TrySplitStep(target, out _, out _))
         {
-            if (resolved.Type == RecordTypes.Journey && !resolved.StepIds().Contains(target, StringComparer.Ordinal))
+            if (resolved.Type == RecordTypes.Flow && !resolved.StepIds().Contains(target, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' serves '{target}', which names no step of the journey.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' serves '{target}', which names no step of the flow.", record.File, record.Line, SubjectOf(record)));
             }
 
             return;
@@ -504,12 +645,12 @@ internal static class SchemaChecks
         || DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _);
 
     /// <summary>
-    ///     Reports a journey branch that lacks its step, condition or nextStep, and a branch whose
-    ///     step or nextStep names no step of the journey. The end of a path is written as end.
+    ///     Reports a flow branch that lacks its step, condition or nextStep, and a branch whose
+    ///     step or nextStep names no step of the flow. The end of a path is written as end.
     /// </summary>
-    /// <param name="record">The journey record whose branches are read.</param>
+    /// <param name="record">The flow record whose branches are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckJourneyBranches(Record record, List<Finding> findings)
+    private static void CheckFlowBranches(Record record, List<Finding> findings)
     {
         if (!record.Raw.TryGetProperty(RecordFields.Branches, out var branches))
         {
@@ -534,7 +675,7 @@ internal static class SchemaChecks
         {
             if (branch.ValueKind != JsonValueKind.Object)
             {
-                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 
@@ -542,18 +683,402 @@ internal static class SchemaChecks
             {
                 if (Str(branch, field) is not { Length: > 0 })
                 {
-                    findings.Add(new Finding("record-invalid", $"Journey '{record.Id}' has a branch with no {field}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' has a branch with no {field}.", record.File, record.Line, SubjectOf(record)));
                 }
             }
 
             if (Str(branch, RecordFields.Step) is { Length: > 0 } step && !stepTargets.Contains($"{record.Id}#{step}"))
             {
-                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' branches from step '{step}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' branches from step '{step}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (Str(branch, RecordFields.NextStep) is { Length: > 0 } next && next != "end" && !stepTargets.Contains($"{record.Id}#{next}"))
             {
-                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' branches to step '{next}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' branches to step '{next}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>The refusal names a product derives for every use case, which no result states by hand.</summary>
+    private static readonly string[] GenericRefusals = ["forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old"];
+
+    /// <summary>The modes a read model's freshness may state.</summary>
+    private static readonly string[] FreshnessModes = ["immediate", "snapshot", "eventual"];
+
+    /// <summary>The handling an unknown external outcome may name.</summary>
+    private static readonly string[] UnknownHandlings = ["dedupe-key", "reconcile", "retry-safe"];
+
+    /// <summary>A permission or entry point identifier written in prose.</summary>
+    private static readonly Regex ProseReference = new(@"(entry-point|permission)/[a-z0-9][a-z0-9-]*", RegexOptions.CultureInvariant);
+
+    /// <summary>The permission identifiers written in a grant.</summary>
+    private static readonly Regex GrantPermission = new(@"permission/[a-z0-9][a-z0-9-]*", RegexOptions.CultureInvariant);
+
+    /// <summary>Whether a requirement sits at product level, outside every feature folder.</summary>
+    /// <param name="record">The requirement record whose file path is read.</param>
+    /// <returns>True when the requirement file lies under the product requirements folder.</returns>
+    private static bool IsProductRequirement(Record record) =>
+        record.File.Replace('\\', '/').Contains("/intent/requirements/", StringComparison.Ordinal);
+
+    /// <summary>Whether a product requirement cites a constraint, goal or problem it comes from.</summary>
+    /// <param name="model">The loaded project model that resolves each cited identifier.</param>
+    /// <param name="record">The requirement record whose cites are read.</param>
+    /// <returns>True when one cited record is a constraint, a goal or a problem.</returns>
+    private static bool CitesOriginOf(ProjectModel model, Record record) =>
+        record.Ids(RecordFields.Cites).Any(id =>
+            model.ById.TryGetValue(Identifiers.BaseId(id), out var resolved)
+            && resolved.Type is RecordTypes.Constraint or RecordTypes.Goal or RecordTypes.Problem);
+
+    /// <summary>Reports a flow that does not state exactly one reason, serves or answers, held as a list of one item.</summary>
+    /// <param name="record">The flow record whose reason fields are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFlowReason(Record record, List<Finding> findings)
+    {
+        var serves = record.Has(RecordFields.Serves);
+        var answers = record.Has(RecordFields.Answers);
+
+        if (!serves && !answers)
+        {
+            findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' states neither serves nor answers.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (serves && answers)
+        {
+            findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' states serves and answers together.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        var field = serves ? RecordFields.Serves : RecordFields.Answers;
+        if (!IsOneIdList(record, field))
+        {
+            findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' holds its {field} as a list of exactly one identifier.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Whether a record holds the named field as a list of exactly one string.</summary>
+    /// <param name="record">The record to read.</param>
+    /// <param name="name">The field name.</param>
+    /// <returns>True when the field is an array of one string.</returns>
+    private static bool IsOneIdList(Record record, string name) =>
+        record.Raw.ValueKind == JsonValueKind.Object
+        && record.Raw.TryGetProperty(name, out var value)
+        && value.ValueKind == JsonValueKind.Array
+        && value.GetArrayLength() == 1
+        && value[0].ValueKind == JsonValueKind.String;
+
+    /// <summary>Reports each goal observation that holds no date, value and source, or a date that is no date.</summary>
+    /// <param name="record">The goal record whose observations are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckObservations(Record record, List<Finding> findings)
+    {
+        if (!record.Has(RecordFields.Observations))
+        {
+            return;
+        }
+
+        RequireArray(record, RecordFields.Observations, 0, findings);
+
+        if (!record.Raw.TryGetProperty(RecordFields.Observations, out var list) || list.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var entry in list.EnumerateArray())
+        {
+            var date = Str(entry, DateField);
+            var value = Str(entry, RecordFields.Value);
+            var source = Str(entry, RecordFields.Source);
+
+            if (date is null || value is null || source is null)
+            {
+                findings.Add(new Finding("field-invalid", $"Goal '{record.Id}' holds an observation with no date, value and source.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (!ValidDate(date))
+            {
+                findings.Add(new Finding("field-invalid", $"Goal '{record.Id}' holds observation date '{date}', which is not a date.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>Whether a refusal code names one of the generic refusals the product derives.</summary>
+    /// <param name="code">The refusal code under test, bare or with its module prefix.</param>
+    /// <returns>True when the name after the module prefix is a generic refusal; otherwise false.</returns>
+    private static bool IsGenericRefusal(string code)
+    {
+        var name = code.Contains('.', StringComparison.Ordinal) ? code[(code.IndexOf('.', StringComparison.Ordinal) + 1)..] : code;
+        return GenericRefusals.Contains(name, StringComparer.Ordinal);
+    }
+
+    /// <summary>Reports a result that writes a generic refusal by hand, which the product derives.</summary>
+    /// <param name="record">The result record that holds the code.</param>
+    /// <param name="code">The refusal code the result writes.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckGenericRefusal(Record record, string code, List<Finding> findings)
+    {
+        if (IsGenericRefusal(code))
+        {
+            findings.Add(new Finding("refusal-generic-written", $"Result '{record.Id}' writes refusal '{code}' by hand; the product derives it and no result states it.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a refusal code that is neither derived nor named in the refusal set of its module.</summary>
+    /// <param name="model">The loaded project model that holds each module's refusal set.</param>
+    /// <param name="record">The record that names the refusal code.</param>
+    /// <param name="code">The refusal code under test, or null when the record names none.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRefusalCode(ProjectModel model, Record record, string? code, List<Finding> findings)
+    {
+        if (code is not { Length: > 0 } || IsGenericRefusal(code) || record.Module is not { Length: > 0 } module)
+        {
+            return;
+        }
+
+        if (!model.RefusalSets.Any(entry => entry.Module == module && entry.Code == code))
+        {
+            findings.Add(new Finding("refusal-code-unknown", $"Record '{record.Id}' names refusal '{code}', which the refusal set of module '{module}' does not declare.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a read model whose freshness is not an object with a known mode and an ISO 8601 within.</summary>
+    /// <param name="record">The read model record whose freshness is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFreshness(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Freshness, out var freshness) || freshness.ValueKind != JsonValueKind.Object)
+        {
+            findings.Add(new Finding("record-invalid", $"Read model '{record.Id}' states no freshness object.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        var mode = Str(freshness, RecordFields.Mode);
+
+        if (mode is null || !FreshnessModes.Contains(mode, StringComparer.Ordinal))
+        {
+            findings.Add(new Finding("field-invalid", $"Read model '{record.Id}' holds freshness mode '{mode ?? "none"}' outside {string.Join(", ", FreshnessModes)}.", record.File, record.Line, SubjectOf(record)));
+        }
+
+        if (Str(freshness, RecordFields.Within) is { } within && !IsoDuration.IsMatch(within))
+        {
+            findings.Add(new Finding("field-invalid", $"Read model '{record.Id}' holds freshness within '{within}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports each permission or entry point a use case's exposure names that its reachedThrough or access does not hold.</summary>
+    /// <param name="record">The use case record whose exposure is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckExposureNames(Record record, List<Finding> findings)
+    {
+        if (record.Field(RecordFields.Exposure) is not { Length: > 0 } exposure)
+        {
+            return;
+        }
+
+        var reached = record.Ids(RecordFields.ReachedThrough).ToHashSet(StringComparer.Ordinal);
+        var granted = AccessPermissions(record);
+
+        foreach (Match match in ProseReference.Matches(exposure))
+        {
+            var id = match.Value;
+            var held = id.StartsWith("entry-point/", StringComparison.Ordinal) ? reached.Contains(id) : granted.Contains(id);
+
+            if (!held)
+            {
+                findings.Add(new Finding("exposure-reference-drift", $"Use case '{record.Id}' names '{id}' in exposure, which its reachedThrough or access does not hold.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>The permission identifiers a use case's access grant names.</summary>
+    /// <param name="record">The use case record whose access grant is read.</param>
+    /// <returns>Each permission identifier the grant names, including those inside self(...).</returns>
+    private static HashSet<string> AccessPermissions(Record record)
+    {
+        var found = new HashSet<string>(StringComparer.Ordinal);
+
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Access, out var access)
+            || access.ValueKind != JsonValueKind.Object)
+        {
+            return found;
+        }
+
+        foreach (var grant in LinkStrings(access, RecordFields.Grant))
+        {
+            foreach (Match match in GrantPermission.Matches(grant))
+            {
+                found.Add(match.Value);
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Reports a use case with a background and fewer than two scenarios of its own.</summary>
+    /// <param name="model">The loaded project model that holds every scenario.</param>
+    /// <param name="record">The use case record whose background is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckBackground(ProjectModel model, Record record, List<Finding> findings)
+    {
+        if (!record.Has(RecordFields.Background) || !Identifiers.TrySplit(record.Id, out _, out _, out var name))
+        {
+            return;
+        }
+
+        var count = model.Records.Count(scenario =>
+            scenario.Type == RecordTypes.Scenario
+            && Identifiers.TrySplit(scenario.Id, out _, out var home, out _)
+            && home == name);
+
+        if (count < 2)
+        {
+            findings.Add(new Finding("background-scenarios-missing", $"Use case '{record.Id}' states a background with {count} scenario(s); a background needs at least two.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports an input that is a verified claim with no verifier, an unknown verifier, or a rule that is no rule record.</summary>
+    /// <param name="model">The loaded project model that resolves each verifier and rule.</param>
+    /// <param name="record">The use case record whose input array is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckInputs(ProjectModel model, Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Input, out var inputs) || inputs.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var input in inputs.EnumerateArray())
+        {
+            if (input.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var name = Str(input, RecordFields.Name) ?? "";
+            var verifiedBy = Str(input, RecordFields.VerifiedBy);
+
+            if (verifiedBy is { Length: > 0 } verifier && !model.ById.ContainsKey(Identifiers.BaseId(verifier)))
+            {
+                findings.Add(new Finding("reference-unknown", $"Use case '{record.Id}' input '{name}' names verifiedBy '{verifier}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            foreach (var rule in LinkStrings(input, RecordFields.Rules))
+            {
+                if (!model.ById.TryGetValue(Identifiers.BaseId(rule), out var resolved))
+                {
+                    findings.Add(new Finding("reference-unknown", $"Use case '{record.Id}' input '{name}' names rule '{rule}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+                }
+                else if (resolved.Type != RecordTypes.Rule)
+                {
+                    findings.Add(new Finding("field-invalid", $"Use case '{record.Id}' input '{name}' names rule '{rule}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                }
+            }
+        }
+    }
+
+    /// <summary>Reports an output field that states no type, when the output is a list of fields.</summary>
+    /// <param name="record">The use case record whose output list is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckOutputs(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Output, out var outputs) || outputs.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var output in outputs.EnumerateArray())
+        {
+            if (output.ValueKind == JsonValueKind.Object
+                && Str(output, RecordFields.Name) is { Length: > 0 } name
+                && Str(output, RecordFields.Type) is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"Use case '{record.Id}' output field '{name}' states no type.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (output.ValueKind == JsonValueKind.Object
+                && Str(output, RecordFields.Type) == "list"
+                && output.TryGetProperty(RecordFields.Of, out var rows))
+            {
+                Behavior.ContractChecks.CheckRowShape(record, "Use case", "output", Str(output, RecordFields.Name) ?? "(no name)", rows, findings);
+            }
+        }
+    }
+
+    /// <summary>Reports an external system's prose send, receive or failure field, and each operation with an unknown outcome that names no handling.</summary>
+    /// <param name="record">The external system record whose fields are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckExternalSystem(Record record, List<Finding> findings)
+    {
+        foreach (var field in new[] { RecordFields.Sends, RecordFields.Receives, RecordFields.Failure })
+        {
+            if (record.Has(field))
+            {
+                findings.Add(new Finding("field-invalid", $"External system '{record.Id}' holds {field} as prose; its typed operations hold it.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+
+        if (!record.Raw.TryGetProperty(RecordFields.Operations, out var operations) || operations.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var operation in operations.EnumerateArray())
+        {
+            if (operation.ValueKind != JsonValueKind.Object || !operation.TryGetProperty(UnknownField, out _))
+            {
+                continue;
+            }
+
+            var handling = Str(operation, RecordFields.OnUnknown);
+
+            if (handling is null || !UnknownHandlings.Contains(handling, StringComparer.Ordinal))
+            {
+                findings.Add(new Finding("record-invalid", $"External system '{record.Id}' holds an operation with an unknown outcome and no onUnknown of {string.Join(", ", UnknownHandlings)}.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>Reports a scenario whose example rows do not share one set of keys.</summary>
+    /// <param name="record">The scenario record whose example rows are compared.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckExampleKeys(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Examples, out var rows) || rows.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        var shapes = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var row in rows.EnumerateArray())
+        {
+            if (row.ValueKind == JsonValueKind.Object)
+            {
+                shapes.Add(string.Join(",", row.EnumerateObject().Select(property => property.Name).Order(StringComparer.Ordinal)));
+            }
+        }
+
+        if (shapes.Count > 1)
+        {
+            findings.Add(new Finding("example-keys-drift", $"Scenario '{record.Id}' holds example rows with differing keys.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a domain event payload entry that names no field or no type.</summary>
+    /// <param name="record">The domain event record whose carries list is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckCarries(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Carries, out var carries) || carries.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var entry in carries.EnumerateArray())
+        {
+            if (Str(entry, RecordFields.Name) is not { Length: > 0 } || Str(entry, RecordFields.Type) is not { Length: > 0 })
+            {
+                findings.Add(new Finding("field-invalid", $"Domain event '{record.Id}' carries a field with no name and no type.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -953,15 +1478,15 @@ internal static class SchemaChecks
             CheckRetryObject(record, retry, where, findings);
         }
 
-        if (!policy.TryGetProperty(RecordFields.Then, out var then)
+        if (!policy.TryGetProperty(RecordFields.IfExhausted, out var then)
             || then.ValueKind != JsonValueKind.String
             || then.GetString() is not { Length: > 0 })
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} retry with no then.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} retry with no ifExhausted.", record.File, record.Line, SubjectOf(record)));
         }
         else if (then.GetString() != "dead-letter")
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} then '{then.GetString()}' outside dead-letter.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} ifExhausted '{then.GetString()}' outside dead-letter.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

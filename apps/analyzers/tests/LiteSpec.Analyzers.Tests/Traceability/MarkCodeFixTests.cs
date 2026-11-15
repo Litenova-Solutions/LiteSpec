@@ -496,7 +496,7 @@ public sealed class MarkCodeFixTests
 
             public interface IDomainEvent;
 
-            /// <implements>event/expense.submitted</implements>
+            /// <implements>domain-event/expense.submitted</implements>
             public sealed record ExpenseSubmittedEvent : IDomainEvent;
             """,
             """
@@ -504,11 +504,11 @@ public sealed class MarkCodeFixTests
 
             public interface IDomainEvent;
 
-            /// <implements>event/expense.submitted</implements>
+            /// <implements>domain-event/expense.submitted</implements>
             public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
             """,
             "Declare type partial",
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             "Shop.Domain");
 
     /// <summary>Delete value removes the drifting hand-written Classification.</summary>
@@ -522,10 +522,10 @@ public sealed class MarkCodeFixTests
 
             public interface IDomainEvent;
 
-            /// <implements>event/expense.submitted</implements>
+            /// <implements>domain-event/expense.submitted</implements>
             public sealed partial record ExpenseSubmittedEvent : IDomainEvent
             {
-                public const string Classification = "event/expense.placed";
+                public const string Classification = "domain-event/expense.placed";
             }
             """,
             """
@@ -533,13 +533,13 @@ public sealed class MarkCodeFixTests
 
             public interface IDomainEvent;
 
-            /// <implements>event/expense.submitted</implements>
+            /// <implements>domain-event/expense.submitted</implements>
             public sealed partial record ExpenseSubmittedEvent : IDomainEvent
             {
             }
             """,
-            "Delete hand-written 'Classification' (the record states 'event/expense.submitted')",
-            [ProjectFile(), Event()],
+            "Delete hand-written 'Classification' (the record states 'domain-event/expense.submitted')",
+            [ProjectFile(), DomainEvent()],
             "Shop.Domain");
 
     /// <summary>Delete value removes the hand-written value equal to the record.</summary>
@@ -553,10 +553,10 @@ public sealed class MarkCodeFixTests
 
             public interface IDomainEvent;
 
-            /// <implements>event/expense.submitted</implements>
+            /// <implements>domain-event/expense.submitted</implements>
             public sealed record ExpenseSubmittedEvent : IDomainEvent
             {
-                public const string Classification = "event/expense.submitted";
+                public const string Classification = "domain-event/expense.submitted";
             }
             """,
             """
@@ -564,13 +564,13 @@ public sealed class MarkCodeFixTests
 
             public interface IDomainEvent;
 
-            /// <implements>event/expense.submitted</implements>
+            /// <implements>domain-event/expense.submitted</implements>
             public sealed record ExpenseSubmittedEvent : IDomainEvent
             {
             }
             """,
             "Delete hand-written 'Classification' equal to the record",
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             "Shop.Domain");
 
     /// <summary>Fix All converts every mark across the solution.</summary>

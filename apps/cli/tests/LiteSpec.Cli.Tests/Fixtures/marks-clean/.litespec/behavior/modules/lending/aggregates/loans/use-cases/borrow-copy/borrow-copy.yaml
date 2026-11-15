@@ -5,8 +5,8 @@ kind: command
 reachedThrough:
   - entry-point/library-api
 raises:
-  - event/loan.loan-borrowed
-changes:
+  - domain-event/loan.loan-borrowed
+writes:
   - aggregate/lending.loan
 records:
   - type: result

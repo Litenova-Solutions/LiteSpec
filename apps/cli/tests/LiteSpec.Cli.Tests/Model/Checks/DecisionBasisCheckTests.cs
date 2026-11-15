@@ -4,7 +4,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves a technical decision names its basis in basedOn, and cites never names a requirement outside a journey.</summary>
+/// <summary>Proves a technical decision names its basis in basedOn, and cites never names a requirement outside a flow.</summary>
 public sealed class DecisionBasisCheckTests
 {
     /// <summary>Technical Decision Naming Requirement Passes Links.</summary>

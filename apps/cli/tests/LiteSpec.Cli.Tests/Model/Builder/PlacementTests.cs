@@ -30,12 +30,12 @@ public sealed class PlacementTests
             id: module/finance
             title: Finance
             """);
-        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/payout.yaml", """
+        Write(temp.Path, ".litespec/intent/features/payout/payout.yaml", """
             type: feature
             id: feature/payout
             title: Payout
             """);
-        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/requirements/request-payout/request-payout.yaml", """
+        Write(temp.Path, ".litespec/intent/features/payout/requirements/request-payout/request-payout.yaml", """
             type: requirement
             id: requirement/payout.request-payout
             title: Request payout
@@ -61,7 +61,7 @@ public sealed class PlacementTests
                 result: result/request-payout.requested
             """);
         Write(temp.Path, ".litespec/behavior/modules/finance/permissions.yaml", """
-            type: permission-list
+            type: permission-set
             title: Permissions
             records:
               - type: permission
@@ -84,8 +84,8 @@ public sealed class PlacementTests
         AssertPlaced(model, "product/claimwick", ".litespec/intent", null);
         AssertPlaced(model, "goal/faster-reimbursement", ".litespec/intent/goals", null);
         AssertPlaced(model, "module/finance", ".litespec/behavior/modules/finance", "finance");
-        AssertPlaced(model, "feature/payout", ".litespec/intent/problems/payouts-wait/features/payout", null);
-        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/problems/payouts-wait/features/payout/requirements/request-payout", null);
+        AssertPlaced(model, "feature/payout", ".litespec/intent/features/payout", null);
+        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/features/payout/requirements/request-payout", null);
         AssertPlaced(model, "aggregate/finance.payout", ".litespec/behavior/modules/finance/aggregates/payouts", "finance");
         AssertPlaced(model, "use-case/finance.request-payout", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
         AssertPlaced(model, "result/request-payout.requested", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");

@@ -109,7 +109,7 @@ public sealed class ReactionTriggerTests
           "id": "reaction/lending.send-notice-on-loan-borrowed",
           "title": "Send notice on loan borrowed",
           "triggeredBy": [
-            "event/loan.loan-borrowed"
+            "domain-event/loan.loan-borrowed"
           ],
           "effects": [
             {

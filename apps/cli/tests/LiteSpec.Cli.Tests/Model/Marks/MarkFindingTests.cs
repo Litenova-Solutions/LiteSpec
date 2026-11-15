@@ -91,9 +91,9 @@ public sealed class MarkFindingTests
         using var fixture = MarksFixture.Prepare("drift");
         var drifts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "runtime-value-drift");
 
-        var finding = Assert.Single(drifts, found => found.Subject == "event/loan.loan-borrowed");
+        var finding = Assert.Single(drifts, found => found.Subject == "domain-event/loan.loan-borrowed");
         Assert.Contains("Classification", finding.Message);
-        Assert.Contains("event/loan.placed", finding.Message);
+        Assert.Contains("domain-event/loan.placed", finding.Message);
     }
 
     /// <summary>Exception Code Drifting From Its Result Reports Runtime Value Drift.</summary>

@@ -1,7 +1,7 @@
 // The trace's local model: the goal-to-behavior trace, the words for
 // implementation kinds, and the kept-by sentences. Every band word comes from
 // the lexicon's layer labels; the store supplies records and relations.
-import { capitalize, isFlowType, pluralize, stripStep } from "$lib/frame";
+import { capitalize, isScenarioType, pluralize, stripStep } from "$lib/frame";
 import type { Book, BookRecord, BookTest, ImplKind } from "$lib/frame";
 
 /** A goal nothing serves reads as a gap in the trace and the Intent tree. */
@@ -86,30 +86,39 @@ export interface DownEntry {
 export function downOf(book: Book, id: string): DownEntry[] {
   void book.rev;
   const t = book.typeOf(id);
+  const self = stripStep(id) ?? "";
   const out: DownEntry[] = [];
-  const add = (list: readonly string[] | null | undefined, phrase: string) => {
+  // A record that carries the link reads its phrase from the lexicon's Links table, by the field it carries.
+  const linked = (list: readonly string[] | null | undefined, field: string) => {
     for (const raw of list ?? []) {
       const x = stripStep(raw) ?? "";
-      if (book.has(x) && x !== (stripStep(id) ?? "")) out.push({ id: x, phrase });
+      if (book.has(x) && x !== self) out.push({ id: x, phrase: book.phraseFor(field, book.typeOf(x), "inverse") });
     }
   };
-  if (t === "product") add(book.order.filter((x) => book.typeOf(x) === "goal"), "a goal of the product");
-  if (t === "product") add(book.order.filter((x) => book.typeOf(x) === "vision"), "a vision of the product");
+  // Records reached by containment, not by a link field, read in the trace's own words.
+  const contained = (list: readonly string[], phrase: string) => {
+    for (const raw of list) {
+      const x = stripStep(raw) ?? "";
+      if (book.has(x) && x !== self) out.push({ id: x, phrase });
+    }
+  };
+  if (t === "product") contained(book.order.filter((x) => book.typeOf(x) === "goal"), "a goal of the product");
+  if (t === "product") contained(book.order.filter((x) => book.typeOf(x) === "vision"), "a vision of the product");
   if (t === "vision") {
-    add(book.ins(id, "basedOn"), "is based on this vision");
-    add(book.ins(id, "cites"), "cites this vision");
+    linked(book.ins(id, "basedOn"), "basedOn");
+    linked(book.ins(id, "cites"), "cites");
   }
-  if (t === "goal") add(book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature"), "serves this goal");
-  if (t === "problem") add(book.kids(id).filter((child) => book.typeOf(child) === "feature"), "answers this problem");
-  if (t === "feature") add(book.ins(id, "cites"), "cites this feature");
-  if (t === "requirement") add(book.ins(id, "fulfills"), "fulfills this requirement");
-  if (t === "journey") add(book.ins(id, "serves"), "serves a step");
-  if (isFlowType(t)) {
-    add(book.ins(id, "offers"), "offers it");
-    add(book.resultsOf(id), "how it ends");
+  if (t === "goal") linked(book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature"), "advances");
+  if (t === "problem") linked(book.ins(id, "solves").filter((x) => book.typeOf(x) === "feature"), "solves");
+  if (t === "feature") linked(book.ins(id, "cites"), "cites");
+  if (t === "requirement") linked(book.ins(id, "fulfills"), "fulfills");
+  if (t === "flow") linked(book.ins(id, "serves"), "serves");
+  if (isScenarioType(t)) {
+    linked(book.ins(id, "offers"), "offers");
+    contained(book.resultsOf(id), "how it ends");
   }
-  if (t === "result") add(book.shownByOf(id), "shows this result");
-  if (t === "aggregate") add(book.ins(id, "changes"), "changes it");
+  if (t === "result") contained(book.shownByOf(id), "shows this result");
+  if (t === "aggregate") linked(book.ins(id, "writes"), "writes");
   return out;
 }
 
@@ -149,7 +158,7 @@ export function buildTrace(book: Book, id: string): TraceModel {
   // Above a use case, results and scenarios are walked through but not listed,
   // so the trace reaches code and tests without the detail.
   const top = book.typeOf(id);
-  const quiet = !isFlowType(top) && top !== "result" && top !== "scenario" && top !== "rule";
+  const quiet = !isScenarioType(top) && top !== "result" && top !== "scenario" && top !== "rule";
   for (const x of up) {
     seen[x] = true;
     rows.push({ kind: "rec", id: x, depth: 0, phrase: "", here: false, showPh: false });

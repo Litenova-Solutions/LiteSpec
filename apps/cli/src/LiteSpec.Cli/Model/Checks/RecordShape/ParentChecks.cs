@@ -12,8 +12,8 @@ internal static class ParentChecks
     /// <summary>Types whose parent is the identifier home, so a missing home is reported here.</summary>
     private static readonly HashSet<string> HomeParentedTypes = new(StringComparer.Ordinal)
     {
-        "use-case", "reaction", "job", "notification", "setting", "view", "aggregate",
-        "rule", "event", "result", "scenario", "screen",
+        "use-case", "reaction", "job", "notification", "setting", "read-model", "aggregate",
+        "rule", "domain-event", "result", "scenario", "screen",
     };
 
     /// <summary>Whether the record reports a missing identifier home through the parent check.</summary>
@@ -50,8 +50,8 @@ internal static class ParentChecks
                 case "feature":
                     CheckFeatureParent(model, record, findings);
                     break;
-                case "journey":
-                    CheckJourneyParent(model, record, findings);
+                case "flow":
+                    CheckFlowParent(model, record, findings);
                     break;
                 case "scenario":
                     CheckScenarioParent(model, record, findings);
@@ -67,14 +67,14 @@ internal static class ParentChecks
                 case "job":
                 case "notification":
                 case "setting":
-                case "view":
+                case "read-model":
                 case "aggregate":
                     CheckModuleHome(model, record, unreadableModules, findings);
                     break;
                 case "rule":
                     CheckRuleHome(model, record, aggregates, unreadableModules, findings);
                     break;
-                case "event":
+                case "domain-event":
                     CheckEventHome(record, aggregates, findings);
                     break;
                 default:
@@ -83,67 +83,61 @@ internal static class ParentChecks
         }
     }
 
-    /// <summary>Reports a feature outside a problem's features folder, or in a folder whose problem record is missing.</summary>
-    /// <param name="model">The loaded project model that holds the problem records.</param>
-    /// <param name="record">The feature record whose folder names its problem.</param>
+    /// <summary>Reports a feature outside the product's features folder. A feature stands on its own, so its parent is the product, and the problems it solves are named in solves.</summary>
+    /// <param name="model">The loaded project model that holds the feature records.</param>
+    /// <param name="record">The feature record whose file path is read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFeatureParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        if (RecordPlacement.ProblemOf(record.File) is not { } problem)
+        if (!record.File.Replace('\\', '/').Contains("/intent/features/", StringComparison.Ordinal))
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Feature '{record.Id}' sits outside a problem's features folder, so it has no parent problem.",
-                record.File, record.Line, SubjectOf(record)));
-        }
-        else if (!model.ById.ContainsKey($"problem/{problem}"))
-        {
-            findings.Add(new Finding(
-                "record-parent-missing",
-                $"Feature '{record.Id}' sits in the folder of problem '{problem}', which holds no problem record.",
+                $"Feature '{record.Id}' sits outside the product's intent/features folder, so it has no parent product.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
 
-    /// <summary>Reports a journey serving no goal.</summary>
-    /// <param name="model">The loaded project model that resolves each serves target.</param>
-    /// <param name="record">The journey record whose serves field is inspected.</param>
+    /// <summary>Reports a flow whose reason, serves or answers, names no goal, problem or constraint.</summary>
+    /// <param name="model">The loaded project model that resolves each reason target.</param>
+    /// <param name="record">The flow record whose serves and answers fields are inspected.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckJourneyParent(ProjectModel model, Record record, List<Finding> findings)
+    private static void CheckFlowParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        var serves = record.Ids(RecordFields.Serves);
+        var reasons = record.Ids(RecordFields.Serves).Concat(record.Ids(RecordFields.Answers)).ToList();
 
-        if (serves.Count == 0)
+        if (reasons.Count == 0)
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Journey '{record.Id}' has no parent and 'serves' names no goal.",
+                $"Flow '{record.Id}' has no parent and names neither 'serves' nor 'answers'.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
 
-        if (serves.Any(target =>
-            model.ById.TryGetValue(target, out var resolved) && resolved.Type == RecordTypes.Goal))
+        if (reasons.Any(target =>
+            model.ById.TryGetValue(target, out var resolved)
+            && resolved.Type is RecordTypes.Goal or RecordTypes.Problem or RecordTypes.Constraint))
         {
             return;
         }
 
-        // A dangling serves target is reference-unknown, so one defect draws one finding.
-        if (serves.Any(target => !ServesResolves(model, target)))
+        // A dangling reason target is reference-unknown, so one defect draws one finding.
+        if (reasons.Any(target => !ServesResolves(model, target)))
         {
             return;
         }
 
         findings.Add(new Finding(
             "record-parent-missing",
-            $"Journey '{record.Id}' has no parent and 'serves' names no goal.",
+            $"Flow '{record.Id}' has no parent and names no goal, problem or constraint.",
             record.File, record.Line, SubjectOf(record)));
     }
 
-    /// <summary>Whether the serves target names a record or an existing journey step.</summary>
-    /// <param name="model">The loaded project model that resolves the target record and its journey steps.</param>
+    /// <summary>Whether the serves target names a record or an existing flow step.</summary>
+    /// <param name="model">The loaded project model that resolves the target record and its flow steps.</param>
     /// <param name="target">The serves identifier under test.</param>
-    /// <returns>True when the target names a record or a step of an existing journey; otherwise false.</returns>
+    /// <returns>True when the target names a record or a step of an existing flow; otherwise false.</returns>
     private static bool ServesResolves(ProjectModel model, string target)
     {
         if (model.ById.ContainsKey(target))
@@ -151,26 +145,20 @@ internal static class ParentChecks
             return true;
         }
 
-        return Identifiers.TrySplitStep(target, out var journeyId, out _)
-            && model.ById.TryGetValue(journeyId, out var journey)
-            && journey.StepIds().Contains(target, StringComparer.Ordinal);
+        return Identifiers.TrySplitStep(target, out var flowId, out _)
+            && model.ById.TryGetValue(flowId, out var flow)
+            && flow.StepIds().Contains(target, StringComparer.Ordinal);
     }
 
-    /// <summary>Reports a scenario naming no result, else a use case no record holds.</summary>
-    /// <param name="model">The loaded project model that resolves the use case named by the home.</param>
-    /// <param name="record">The scenario record whose result field and home are inspected.</param>
+    /// <summary>
+    ///     Reports a scenario whose home names no use case, reaction or job. A use case scenario names its result;
+    ///     a reaction or job scenario names its result or its outcome.
+    /// </summary>
+    /// <param name="model">The loaded project model that resolves the use case, reaction or job named by the home.</param>
+    /// <param name="record">The scenario record whose result, outcome and home are inspected.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScenarioParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        if (record.Ids(RecordFields.Result).Count == 0)
-        {
-            findings.Add(new Finding(
-                "record-parent-missing",
-                $"Scenario '{record.Id}' has no parent and 'result' names no result.",
-                record.File, record.Line, SubjectOf(record)));
-            return;
-        }
-
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
@@ -180,11 +168,43 @@ internal static class ParentChecks
             return;
         }
 
-        if (ModelBuilder.UseCaseOf(model, home) is null)
+        // A scenario stored in a reaction or job file belongs to that record, even when a use case shares the name.
+        var inAutomationFile = model.Records.Any(candidate =>
+            candidate.File == record.File
+            && candidate.Type is RecordTypes.Reaction or RecordTypes.Job);
+
+        if (!inAutomationFile && ModelBuilder.UseCaseOf(model, home) is not null)
+        {
+            if (record.Ids(RecordFields.Result).Count == 0)
+            {
+                findings.Add(new Finding(
+                    "record-parent-missing",
+                    $"Scenario '{record.Id}' has no parent and 'result' names no result.",
+                    record.File, record.Line, SubjectOf(record)));
+            }
+
+            return;
+        }
+
+        var automation = inAutomationFile || model.Records.Any(candidate =>
+            candidate.Type is RecordTypes.Reaction or RecordTypes.Job
+            && Identifiers.TrySplit(candidate.Id, out _, out _, out var name)
+            && name == home);
+
+        if (!automation)
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Scenario '{record.Id}' has no parent and its home '{home}' names no use case.",
+                $"Scenario '{record.Id}' has no parent and its home '{home}' names no use case, reaction or job.",
+                record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (!record.Has(RecordFields.Result) && !record.Has(RecordFields.Outcome))
+        {
+            findings.Add(new Finding(
+                "record-parent-missing",
+                $"Scenario '{record.Id}' has no parent and names neither result nor outcome.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -281,7 +301,7 @@ internal static class ParentChecks
             RecordTypes.Job => "Job",
             RecordTypes.Notification => "Notification",
             RecordTypes.Setting => "Setting",
-            RecordTypes.View => "View",
+            RecordTypes.ReadModel => "Read model",
             _ => "Aggregate",
         };
 

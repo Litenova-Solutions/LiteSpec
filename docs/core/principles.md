@@ -24,7 +24,7 @@ Where Intent states a promise, the record wins over the code: code that disagree
 
 ### Derivation Between Records Only
 
-One record derives from another: generic refusals derive from access and input, and views derive from the records they list. Derivation runs between records, in one direction, from the authored source to what cites it. Code is not a source for a record.
+One record derives from another: generic refusals derive from access and input, and read models derive from the records they list. Derivation runs between records, in one direction, from the authored source to what cites it. Code is not a source for a record.
 
 ### Declared Edges, Not Mechanism Bans
 
@@ -36,7 +36,7 @@ LiteSpec favors modules, aggregates, domain events, use cases, reactions, and jo
 
 ### One Source for Each Fact
 
-Each fact lives in exactly one home: a requirement on its requirement page, a rule on its home page, a use case on its page, a term in the glossary, stack versions in the manifest. Completion derives from the model; nobody types it by hand. The [model page](model.md) defines the common fields and the computed links.
+Each fact is authored once, in its source home: a requirement on its requirement page, a rule on its home page, a use case on its page, a term in the glossary, stack versions in the manifest. A record states a fact derived from another record only when a reader needs it there, and a check holds each stated copy equal to its source. Completion derives from the model; nobody types it by hand. The [model page](model.md) defines the common fields and the computed links.
 
 ### Mechanical Proof of Boundaries
 
@@ -120,7 +120,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Statement:** A record MUST take each derived value from another record.
 
-**Rationale:** Derivation between records keeps one authored source behind every value: the source changes once and each derived view follows. Generic refusals derive from access and input, and each view derives from the records it lists, so readers trace every derived value to the record that states it.
+**Rationale:** Derivation between records keeps one authored source behind every value: the source changes once and each derived read model follows. Generic refusals derive from access and input, and each read model derives from the records it lists, so readers trace every derived value to the record that states it.
 
 **Reviewed for:** Which derived values lack an authored source record? Trace each derived value to the record it cites.
 
@@ -236,11 +236,11 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Applies to:** artifact: any
 
-**Statement:** A consumer MUST author each record once in its home file and derive every other appearance from the model.
+**Statement:** A consumer MUST author each fact once as its source and state it elsewhere only under a check that compares the copy with the source.
 
-**Rationale:** Two homes for one fact become two facts with the next edit: each copy changes on its own schedule while readers guess which one rules. Deriving every other appearance from the model keeps the authored record as the single place a change lands. Completion computed from the model stays true without anyone typing it by hand.
+**Rationale:** One source behind every fact keeps each change landing in one place: the source changes once and each stated copy follows under its check. A record states a fact derived from another record only when a reader needs it there, and the check reports a copy that drifts from its source. Judgments stay computed: completion derives from the model and nobody types it by hand. Settled by [decision/0069-state-each-copy-under-a-check](decision/0069-state-each-copy-under-a-check).
 
-**Reviewed for:** Each fact on the changed pages traces to one authored record, with every other appearance derived from the model.
+**Reviewed for:** Each fact on the changed pages traces to one authored source, with every stated copy equal to its source under its check.
 
 ### Locate Package Versions in the Manifest
 

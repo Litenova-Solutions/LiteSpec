@@ -4,7 +4,7 @@ Say what page this is and what a person does on it. A reader who has read nothin
 
 ## Task
 
-Say the job the person does here, in one or two sentences.
+Say the job the person does here, in one or two sentences, then draw the screen in one wireframe block. Each action in the block names a use case the screen offers, each state names a glossary term, and each refusal names a result of an offered use case.
 
 ## States
 

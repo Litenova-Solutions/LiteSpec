@@ -12,4 +12,4 @@ The records give the receipt no data fields of its own. The expense keeps the re
 
 ## Example
 
-Ava submits a meal below the 25 EUR threshold without a receipt. The meal is Submitted. Later she attaches the receipt to the meal. The receipt sits on the expense, and `event/receipt.attached` carries the receipt identity and the expense identity.
+Ava submits a meal below the 25 EUR threshold without a receipt. The meal is Submitted. Later she attaches the receipt to the meal. The receipt sits on the expense, and `domain-event/receipt.attached` carries the receipt identity and the expense identity.

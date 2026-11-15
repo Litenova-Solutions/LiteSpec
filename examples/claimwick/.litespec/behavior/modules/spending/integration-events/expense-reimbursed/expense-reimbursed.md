@@ -4,7 +4,7 @@ The expense-reimbursed event tells other modules that finance paid an approved e
 
 ## Consumers
 
-The reporting module builds `view/reporting.reimbursed-expense` from this event. The view keeps the employee, the amount, the currency and the reimbursement time of each expense.
+The reporting module builds `read-model/reporting.reimbursed-expense` from this event. The read model keeps the employee, the amount, the currency and the reimbursement time of each expense.
 
 ## Compatibility
 

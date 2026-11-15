@@ -17,8 +17,8 @@ public sealed class IdentifiersTests
     [InlineData("citation", "no records here", false)]
     [InlineData("shared", "litespec/core/scope#keep-one-bounded-context", true)]
     [InlineData("shared", "litespec/core/scope", false)]
-    [InlineData("event", "event/expense.submitted", true)]
-    [InlineData("event", "event/expense", false)]
+    [InlineData("domain-event", "domain-event/expense.submitted", true)]
+    [InlineData("domain-event", "domain-event/expense", false)]
     [InlineData("refusal", "lending.copy-not-available", true)]
     [InlineData("refusal", "lending", false)]
     [InlineData("implements", "<implements>use-case/lending.borrow-copy</implements>", true)]
@@ -33,7 +33,7 @@ public sealed class IdentifiersTests
         {
             "citation" => Identifiers.Citation,
             "shared" => Identifiers.SharedCitation(),
-            "event" => Identifiers.EventId,
+            "domain-event" => Identifiers.DomainEventId,
             "refusal" => Identifiers.RefusalCode(),
             "implements" => Identifiers.ImplementsTag,
             "proves" => Identifiers.ProvesTag,

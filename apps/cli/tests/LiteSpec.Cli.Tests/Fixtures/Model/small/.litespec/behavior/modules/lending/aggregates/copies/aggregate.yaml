@@ -12,25 +12,28 @@ states:
 transitions:
 - from: "-"
   to: Available
-  by: use-case/lending.register-copy
+  movedBy: use-case/lending.register-copy
 - from: Available
   to: OnLoan
 - from: OnLoan
   to: Available
 - from: Available
   to: Retired
-  by: use-case/lending.retire-copy
+  movedBy: use-case/lending.retire-copy
 records:
-- type: event
-  id: event/copy.copy-registered
+- type: domain-event
+  id: domain-event/copy.copy-registered
   title: Copy registered
   meaning: A copy was registered.
   carries:
-  - copyId
-  - shelf
-- type: event
-  id: event/copy.copy-retired
+  - name: copyId
+    type: text
+  - name: shelf
+    type: text
+- type: domain-event
+  id: domain-event/copy.copy-retired
   title: Copy retired
   meaning: A copy was retired.
   carries:
-  - copyId
+  - name: copyId
+    type: text

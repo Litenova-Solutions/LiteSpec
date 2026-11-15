@@ -142,17 +142,17 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("mark-missing", codes);
     }
 
-    /// <summary>Event With A Record Passes.</summary>
+    /// <summary>Domain Event With A Record Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void EventWithARecordPasses()
+    public void DomainEventWithARecordPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("event", "event/ghost.raised", Path.Combine(temp.Path, "ghost.yaml"), """{"meaning": "A ghost was raised.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/ghost.raised", Path.Combine(temp.Path, "ghost.yaml"), """{"meaning": "A ghost was raised.", "carries": []}"""));
         model.Code.Events.Add(new CodeDomainEvent(
-            "GhostRaisedEvent", Path.Combine(temp.Path, "GhostRaisedEvent.cs"), 3, "event/ghost.raised"));
+            "GhostRaisedEvent", Path.Combine(temp.Path, "GhostRaisedEvent.cs"), 3, "domain-event/ghost.raised"));
 
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }

@@ -28,7 +28,7 @@ A [module](../reference/glossary.md) is one business area organizing language, r
 
 ### The Folder Tree
 
-Every node (product root, module, aggregate, use case) holds the layer folders its level allows. Each level has a closed set of folder names, so a check refuses anything else. Every folder name is a product noun (a module, an aggregate), a business act (a use case), one of the four layers, or a record kind the product speaks (`Notifications`, `ExternalSystems`, `Views`, and inside Domain `Events` and `Exceptions`). No folder groups by mechanism, such as `Commands`, `Queries`, `Handlers` or `Models`, or by caller. Inside a layer folder, subfolders are free (`Application/Pipeline/`, `Infrastructure/Development/`), because the folder already states the layer and the lowest-folder rule already placed the type.
+Every node (product root, module, aggregate, use case) holds the layer folders its level allows. Each level has a closed set of folder names, so a check refuses anything else. Every folder name is a product noun (a module, an aggregate), a business act (a use case), one of the four layers, or a record kind the product speaks (`Notifications`, `ExternalSystems`, `ReadModels`, and inside Domain `Events` and `Exceptions`). No folder groups by mechanism, such as `Commands`, `Queries`, `Handlers` or `Models`, or by caller. Inside a layer folder, subfolders are free (`Application/Pipeline/`, `Infrastructure/Development/`), because the folder already states the layer and the lowest-folder rule already placed the type.
 
 ```text
 {Product}/
@@ -53,29 +53,29 @@ Every node (product root, module, aggregate, use case) holds the layer folders i
       TeamWelcome/            a reaction that only sends this notification
     ExternalSystems/
       DirectorySync/          a reaction that only calls this external system
-    Views/
-      MemberAccounts/         a view of another module's published facts
+    ReadModels/
+      MemberAccounts/         a read model of another module's published facts
 ```
 
 | Level | Allowed folders |
 |:---|:---|
 | Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
-| Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `UseCases/`, `Notifications/`, `ExternalSystems/`, `Views/`, one per declared aggregate |
+| Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `UseCases/`, `Notifications/`, `ExternalSystems/`, `ReadModels/`, one per declared aggregate |
 | Module `Contracts/` | `Identifiers/`, `IntegrationEvents/`, `Ports/` |
 | Module `UseCases/` | one per declared module use case |
 | Module `Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `ExternalSystems/` | one per external system a reaction or job of the module only calls |
-| Module `Views/` | one per declared view of the module |
+| Module `ReadModels/` | one per declared read model of the module |
 | Aggregate | `Domain/`, `Application/`, `Infrastructure/`, `UseCases/` |
 | Aggregate `UseCases/` | one per declared use case |
 | Use case | `Application/`, and `WebApi/` when the use case has an endpoint |
-| Use case `Application/` and `WebApi/`, and each folder under `Notifications/`, `ExternalSystems/` and `Views/` | Files only |
+| Use case `Application/` and `WebApi/`, and each folder under `Notifications/`, `ExternalSystems/` and `ReadModels/` | Files only |
 
 A typed identifier another module names lives in its owner's `Contracts/Identifiers/` folder, so the one rule "another module only through `Contracts/`" covers identifiers too. Each module `Contracts/` folder sorts its public surface by kind: `Identifiers/`, `IntegrationEvents/` and `Ports/`. A module publishes no command and no refusal: another module triggers its acts through an integration event its reaction answers, and refuses with its own refusals. Shared-kernel values stay in the product `Domain/`. Product-wide HTTP plumbing (Problem Details, authentication, OpenAPI, rate limiting) stays in the host. The product `WebApi/` folder holds only what endpoints of two or more modules compile against, such as the endpoint contract and the current actor. `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers` decides between the aggregate, module and product layer folders for behavior such as a port, a rule calculation or an adapter; across modules a type is never shared, and the owning module publishes it in `Contracts/`. A message, result, result part, transport model or mapping belongs to one use case and sits in its folder under `litespec/backend/architecture#give-each-use-case-its-own-models`. Inside a use case, the file's role suffix in `litespec/workspace/naming#use-architectural-suffixes` picks its layer folder: `Endpoint`, `RequestModel` and `ResponseModel` sit in `WebApi/`, while `Command`, `Query`, `Result`, `Handler`, `Validator` and the use case's own steps sit in `Application/`. A trigger lives with what it runs: the event handler of a reaction and the class of a job sit in the `Application/` folder of the use case they run, or, when they run none, in the module `Notifications/` folder of the notification they send or the `ExternalSystems/` folder of the system they call. An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder. A module with one aggregate of its own name stays flat. The models stay separate and the flow is one way: request model, command, aggregate, result, response model. The endpoint maps in and out, and the handler returns a result, never the aggregate.
 
 ### Commands and Queries
 
-CQRS separates the command and query models inside the one Application layer: a command mutates one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing. A use case whose record declares `consistency: atomic` over several aggregates is the declared exception, naming each aggregate it changes. A reaction answers its trigger by running one command or sending a notification, and a scheduled or manual job runs one command per item in its selection; neither travels the command pipeline itself. A handler sends no command, query or event: only an endpoint, a reaction's event handler and a job send a message. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
+CQRS separates the command and query models inside the one Application layer: a command mutates one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing. A use case whose record declares `consistency: atomic` over several aggregates is the declared exception, naming each aggregate it changes. A reaction answers its trigger by running one command or sending a notification, and a scheduled or one-off job runs one command per item in its selection; neither travels the command pipeline itself. A handler sends no command, query or event: only an endpoint, a reaction's event handler and a job send a message. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
 
 ### What Each Layer May Touch
 
@@ -87,7 +87,7 @@ CQRS separates the command and query models inside the one Application layer: a 
 | A use case folder | Any type in another use case folder |
 | A module | Another module's types outside its `Contracts/`, and any module outside its `dependsOn` |
 
-A module that needs to know another module's state keeps its own view of it, built from the owner's published integration events. A command whose decision needs the owner's current value asks one question through a decision port in the owner's `Contracts/Ports/` folder, and a screen that only shows another module's data calls the owner's own query. A module loads the other module's aggregate or repository in no case. A command changes only its own module's aggregates; an act on another module's aggregate is that module's use case, triggered by an integration event its reaction answers. A reaction to another module's fact subscribes to the published integration event, never to the domain event.
+A module that needs to know another module's state keeps its own read model of it, built from the owner's published integration events. A command whose decision needs the owner's current value asks one question through a decision port in the owner's `Contracts/Ports/` folder, and a screen that only shows another module's data calls the owner's own query. A module loads the other module's aggregate or repository in no case. A command changes only its own module's aggregates; an act on another module's aggregate is that module's use case, triggered by an integration event its reaction answers. A reaction to another module's fact subscribes to the published integration event, never to the domain event.
 
 ### From Records to Code
 
@@ -185,7 +185,7 @@ The placement check asserts the folder names directly, because a rule only a rev
 fail when a type path contains Shared, Common, Util, Helpers, Core, or Misc
 ```
 
-**Reviewed for:** Which module, aggregate, use case, notification, external-system or view folders resolve to no declared record, use a folder name their level forbids, or carry a technical-grouping name? Look at the folder paths in each module.
+**Reviewed for:** Which module, aggregate, use case, notification, external-system or read-model folders resolve to no declared record, use a folder name their level forbids, or carry a technical-grouping name? Look at the folder paths in each module.
 
 ### Place a Type at the Lowest Folder That Holds Its Consumers
 
@@ -289,13 +289,13 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **Applies to:** artifact: command-handler, port, query-handler
 
-**Statement:** A module needing another module's data MUST read it through its own view built from the owner's integration events, through a decision port in the owner's `Contracts/Ports/` folder, or, on a screen, through the owner's own query.
+**Statement:** A module needing another module's data MUST read it through its own read model built from the owner's integration events, through a decision port in the owner's `Contracts/Ports/` folder, or, on a screen, through the owner's own query.
 
-**Rationale:** A module that loaded another module's aggregate or repository would couple its reads to the owner's consistency boundary and storage. A general reader in the owner's `Contracts/` is the same coupling one step removed: it grows a method per caller, and no record says which fields cross. A view names each field it copies from a published event, under `litespec/backend/application#read-another-modules-state-through-a-view`. A decision port answers one current-value question under `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`. A screen joins each owner's query under `litespec/frontend/data#compose-a-screen-from-each-owners-query`.
+**Rationale:** A module that loaded another module's aggregate or repository would couple its reads to the owner's consistency boundary and storage. A general reader in the owner's `Contracts/` is the same coupling one step removed: it grows a method per caller, and no record says which fields cross. A read model names each field it copies from a published event, under `litespec/backend/application#read-another-modules-state-through-a-read-model`. A decision port answers one current-value question under `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`. A screen joins each owner's query under `litespec/frontend/data#compose-a-screen-from-each-owners-query`.
 
-**Example:** In the Claimwick product, the reporting module reads reimbursed expenses through its own `view/reporting.reimbursed-expense`, filled from the spending module's expense-reimbursed integration event; it loads no spending aggregate, no spending repository and no spending reader.
+**Example:** In the Claimwick product, the reporting module reads reimbursed expenses through its own `read-model/reporting.reimbursed-expense`, filled from the spending module's expense-reimbursed integration event; it loads no spending aggregate, no spending repository and no spending reader.
 
-**Reviewed for:** Which cross-module reads load another module's aggregate or repository, or call a reader that returns the owner's state for any caller instead of a view, a decision port or a screen joining owner queries? Look at the cross-module reads beside the `Contracts/Ports/` folders.
+**Reviewed for:** Which cross-module reads load another module's aggregate or repository, or call a reader that returns the owner's state for any caller instead of a read model, a decision port or a screen joining owner queries? Look at the cross-module reads beside the `Contracts/Ports/` folders.
 
 ### Restrict Commands to Their Own Module Aggregates
 

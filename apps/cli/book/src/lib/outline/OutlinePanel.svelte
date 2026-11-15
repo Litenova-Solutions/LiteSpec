@@ -12,7 +12,8 @@
   import { buildOutlineRows, ROW_HEIGHT, securityGroups, type OutlineRow as OutlineRowData } from "./outline-rows";
 
   // The book's left navigation: view tabs, tools and filters over the
-  // virtualized outline, or the security groups.
+  // virtualized outline, or the security groups. Every row keeps one fixed
+  // height per kind, so the virtualizer never measures.
   const outlinesReady = $derived.by(() => (book.man?.layers ?? []).every((l) => book.isLayerLoaded(l.key)));
   const outlineLoading = $derived(book.anyFilter() && !outlinesReady);
   const rows = $derived.by((): OutlineRowData[] => {
@@ -23,10 +24,15 @@
   const models = $derived.by(() => ({
     security: !outlineLoading && book.view === "security" ? securityGroups(book) : [],
   }));
-  const navKeys = $derived.by((): string[] => {
-    if (book.view === "outline")
-      return rows.flatMap((r) => (r.kind === "record" ? [r.id] : []));
-    return models.security.flatMap((g) => g.items.map((i) => i.id));
+  // The best search hit while a query is active, for the outline's marker.
+  const bestHit = $derived(book.query ? book.bestSearchHit() : null);
+
+  // The outline publishes its rendered record order so keyboard moves follow
+  // the displayed sort, grouping and filtering.
+  $effect(() => {
+    if (book.view !== "outline") return;
+    const list = rows;
+    book.setNavOrder(list.flatMap((row) => (row.kind === "record" ? [row.id] : [])));
   });
 
   let loadingOutlines = false;
@@ -41,7 +47,7 @@
   const virtStore = createVirtualizer<HTMLDivElement, HTMLElement>({
     count: 0,
     getScrollElement: () => scrollEl,
-    estimateSize: () => 28,
+    estimateSize: () => 32,
     overscan: 8,
   });
   let virt: SvelteVirtualizer<HTMLDivElement, HTMLElement> | null = null;
@@ -58,23 +64,6 @@
       getItemKey: (i) => list[i]?.key ?? i,
     });
   });
-
-  // Layer descriptions size to their text; every other row keeps its height.
-  function measure(node: HTMLElement, enabled: boolean) {
-    let on = false;
-    const apply = (v: boolean) => {
-      if (!virt) return;
-      if (v && !on) {
-        virt.measureElement(node);
-        on = true;
-      } else if (!v && on) {
-        virt.measureElement(null);
-        on = false;
-      }
-    };
-    apply(enabled);
-    return { update: apply, destroy: () => { if (on) virt?.measureElement(null); } };
-  }
 
   const rkSel = (key: string) => `[data-rk="${key.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"]`;
   function rowEl(key: string) {
@@ -129,28 +118,35 @@
     const doFocus = tick !== lastTick;
     lastTick = tick;
     if (!sel || !scrollEl) return;
+    // A selection the reader made by clicking a row is already in view; only
+    // outside selections scroll the outline, and only to a row outside it.
+    const fromOutline = untrack(() => outlineState.fromOutline);
+    if (!doFocus && fromOutline === sel) return;
+    if (fromOutline !== null) untrack(() => { outlineState.fromOutline = null; });
     void reveal(sel, doFocus);
   });
 
   async function switchView(v: View) {
     if (v === book.view) return;
     await book.setView(v);
-    if (v === "security") {
-      const first = navKeys[0];
-      if (first && first !== book.selected) void book.select(first);
-    }
   }
 </script>
 
 <div class="flex h-full flex-col">
-  <div class="border-b px-3 pt-3 pb-2">
+  <div class="border-b border-slate-200 px-4 py-3">
     <ViewTabs onViewChange={(v) => void switchView(v)} />
     <OutlineTools onRevealRequest={() => outlineState.requestReveal()} />
     <FilterPanel />
   </div>
-  <div bind:this={scrollEl} class="min-h-0 flex-1 overflow-y-auto px-2.5 py-1.5">
+  <div
+    bind:this={scrollEl}
+    role="tabpanel"
+    id="viewpanel"
+    aria-labelledby={book.view === "outline" ? "viewtab-outline" : "viewtab-security"}
+    class="min-h-0 flex-1 overflow-y-auto px-2 py-2"
+  >
     {#if outlineLoading}
-      <p class="mx-2 my-2 text-xs text-muted-foreground">Loading the outline.</p>
+      <p class="mx-2 my-2 text-xs text-slate-600">Loading the outline.</p>
     {:else if book.view === "outline"}
       {@const items = $virtStore.getVirtualItems()}
       <div role="tree" aria-label="Outline" class="relative w-full" style="height: {$virtStore.getTotalSize()}px">
@@ -159,10 +155,9 @@
           {#if row}
             <div
               data-index={item.index}
-              use:measure={row.kind === "desc"}
               style="position: absolute; top: 0; left: 0; width: 100%; height: {item.size}px; transform: translateY({item.start}px);"
             >
-              <OutlineRow {row} />
+              <OutlineRow {row} bestHit={bestHit} />
             </div>
           {/if}
         {/each}

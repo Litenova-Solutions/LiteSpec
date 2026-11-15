@@ -77,7 +77,7 @@ internal static class GeneratedSourceWriter
             if (type.Kind == CodeKind.DomainEvent
                 && type.IsPartial
                 && !type.HasClassification
-                && FirstWithPrefix(type.MarkIds, "event/") is string eventId
+                && FirstWithPrefix(type.MarkIds, "domain-event/") is string eventId
                 && events.Contains(eventId))
             {
                 context.AddSource(HintName("LiteSpecEvent", type), EventText(type, eventId));

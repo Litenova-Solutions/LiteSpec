@@ -10,10 +10,10 @@ Each run selects the decided expenses past their retention. The job sends `use-c
 
 ## Failure Handling
 
-The records do not describe what happens when a run fails. They name the runbook `runbook/clear-stuck-reimbursements`, but they do not say how that runbook applies to a failed erasure run.
+A failed run retries up to three times with a growing delay, and a failure past the last retry dead-letters the selection for one day. The next nightly run then selects the same expenses again.
 
-The erasure use case finds nothing left to erase on a repeat call. A rerun of the job should therefore leave expenses that were already erased unchanged. The records do not test a rerun, so this is an inference.
+The erasure use case finds nothing left to erase on a repeat call, and an erased expense shows the Erased state. A rerun of the job therefore leaves expenses that were already erased unchanged: it recognizes them by state.
 
 ## Example
 
-Ava's 48.90 EUR train fare was reimbursed, and its retention is 7 years. Once the 7 years have passed, the job selects the fare on its next daily run. The job then runs the erasure, which pseudonymizes Ava's name on the expense. The 48.90 EUR amount stays on file. The records do not say from which date the 7 years count, so this example gives no run date.
+Ava's 48.90 EUR train fare was reimbursed on 2026-11-12, and its retention is 7 years counted from the reimbursement. The retention ends on 2033-11-12, so the job selects the fare on its first daily run past that date. The job then runs the erasure, which pseudonymizes Ava's name on the expense. The 48.90 EUR amount stays on file.

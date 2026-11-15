@@ -12,12 +12,22 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises:
-- event/expense.personal-data-erased
-changes:
+- domain-event/expense.personal-data-erased
+input:
+- name: expense
+  meaning: The decided expense whose personal data is erased.
+  type: id
+  of: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+writes:
 - aggregate/spending.expense
 idempotency:
-  mode: none
+  mode: state
   reason: the first call deletes the expense, so a repeat finds nothing to erase
+  replay: acts-again
+  recognizedBy: the aggregate state already holds the outcome this command sets
 audit:
   level: none
   target: no audit trail; the example stores no audit entry
@@ -27,6 +37,13 @@ records:
   title: Erased
   outcome: success
   meaning: The personal data of the expense is erased.
+- type: result
+  id: result/erase-personal-data.retention-not-ended
+  title: Retention Not Ended
+  outcome: refusal
+  code: spending.retention-not-ended
+  meaning: The retention of the expense has not ended.
+  sentence: The retention of this expense has not ended, so its personal data stays.
 - type: scenario
   id: scenario/erase-personal-data.erasing-personal-data-succeeds
   title: Erasing Personal Data Succeeds
@@ -34,3 +51,14 @@ records:
   when: Finance erases the personal data of the expense.
   then: The personal data of the expense is erased.
   result: result/erase-personal-data.erased
+  exercises:
+  - rule/expense.erased-after-retention
+- type: scenario
+  id: scenario/erase-personal-data.erasing-before-retention-ends-is-refused
+  title: Erasing Before Retention Ends Is Refused
+  given: An expense was reimbursed this week.
+  when: Finance erases the personal data of the expense.
+  then: The erasure is refused because the retention of the expense has not ended.
+  result: result/erase-personal-data.retention-not-ended
+  exercises:
+  - rule/expense.erased-after-retention

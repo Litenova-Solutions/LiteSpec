@@ -5,7 +5,7 @@
 
 ## Intent
 
-The shared UI package is a constrained construction language: the ready-made controls, the interaction behavior, the page layouts, and the named visual values every screen draws with. This page states how the workspace governs that language: the visual authority, the design contract, the floorplan set, and the route suite that proves every route. Frontend teams and agents apply it whenever they add or change a screen, a component, or a named value, so every page of one kind looks and behaves as one page.
+The shared UI package is a constrained construction language: the ready-made controls, the interaction behavior, the page layouts, and the named visual values every screen draws with. This page states how the workspace governs that language: the visual authority, the design contract, the token roles and limits, the screen blueprint, the floorplan set, and the route suite that proves every route. Frontend teams and agents apply it whenever they add or change a screen, a component, or a named value, so every page of one kind looks and behaves as one page.
 
 ## Concepts
 
@@ -49,6 +49,10 @@ The domain fills the slots, so a floorplan invents no state, action, or refusal.
 
 A floorplan exposes its name on its frame. A reviewer and the route suite read that name to learn which floorplan a route composes.
 
+### The Screen Blueprint
+
+A screen record carries its blueprint: `pageFrame` names the page-frame pattern it follows and the option the product catalog chose, and `leadsTo` names the screens a person reaches from it in one step. Its explanation file holds one `wireframe` block, drawn in the wireframe language the [UI patterns](patterns.md) page states. Each action in the block names a use case the screen offers, each state names a glossary term of the record shown, and each refusal names a result of an offered use case. The book draws the wireframe on the screen page, the navigation map of each entry point from `leadsTo`, and each flow as a strip of the screens of its steps in step order.
+
 ### The Tone Set
 
 A tone names what a state means. The set is closed: a page picks one of them rather than a color.
@@ -62,6 +66,38 @@ A tone names what a state means. The set is closed: a page picks one of them rat
 | `info` | The page is explaining rather than reporting |
 
 The mapping from a state code to a tone lives in one table in each application. A user then sees the same color for the same state on every screen.
+
+### The Token Roles and Limits
+
+LiteSpec names each token role once, and the project supplies the values in one token file in the W3C Design Tokens format, version 2025.10. The file is JSON: each token carries `$value` and `$type`, and aliases use braces. The table states the limit each role meets, measured in WCAG 2 relative luminance. A scheme is a top-level group named `light` or `dark`, and the project declares the schemes it ships. The manifest baseline values are defaults chosen because they pass every limit.
+
+| Role | Limit |
+|:---|:---|
+| `page`, `card` | The card reads as a separate surface on the page |
+| `card-edge` | Differs from `page` and `card`, at least 1.2:1 against the page |
+| `separator` | Contrast against `card` no greater than the card edge's |
+| `control-boundary` | Reaches 3:1 on `card` |
+| `text`, `muted-text` | Reach 4.5:1 on `page` and `card` |
+| `focus-ring` | Reaches 3:1 on `card` and `page` |
+| `primary`, `primary-text` | `primary-text` reaches 4.5:1 on `primary` |
+| `tone.<name>` | Each tone's `text` reaches 4.5:1 on its `fill` |
+| `chart.1` to `chart.3` | Each reaches 3:1 on `card`, and every pair stays apart under protanopia and deuteranopia simulation |
+| `magnitude` | Steps rise monotonically in lightness |
+
+Each tone of the Tone Set carries `text`, `fill`, and `edge`. Chart separation is CIE76 delta E of at least 10 after Machado 2009 simulation at severity 1.0.
+
+### The Interface Quality Requirements
+
+The consumer preset ships six product-level quality requirements with `litespec init`, so every project starts with them. Each carries `kind: quality` with its measure and target, and cites the constraint or goal the project names. A project tightens one by editing its own record. The route suite and the token check prove them.
+
+| Requirement | It holds |
+|:---|:---|
+| `requirement/ui-text-contrast` | Body text reaches 4.5:1 and large text 3:1 in each declared scheme |
+| `requirement/ui-control-boundary` | Each field, select, checkbox, radio, and switch boundary reaches 3:1 against its surface |
+| `requirement/ui-focus-indicator` | Each focus indicator reaches 3:1 against the surface beside it |
+| `requirement/ui-chart-series` | Each chart color reaches 3:1 against its surface, and every pair stays apart under color-vision simulation |
+| `requirement/ui-reflow` | No clipped content at 320 CSS pixels |
+| `requirement/ui-target-size` | Every pointer target meets 24 by 24 CSS pixels or its spacing |
 
 ### The Command Surface
 
@@ -90,7 +126,7 @@ The route suite is one specification per frontend that visits every route. It as
 | Target size | Every pointer target meets the minimum size or spacing |
 | Keyboard | Every interactive element is reachable and shows a focus indicator at 3:1 contrast against its surroundings |
 | Route change | Following a link moves focus to the new route's top-level heading |
-| Color scheme | The accessibility check passes in each color scheme the design contract declares |
+| Color scheme | The accessibility check passes in each color scheme the project declares |
 | Motion | Under the reduced-motion setting, no spatial, scaling, or looping animation runs |
 | Announcements | Asynchronous status changes announce through the platform's polite or assertive live region, both present when the route loads |
 
@@ -98,9 +134,9 @@ The suite discovers its routes from the application route definition rather than
 
 ### Result Proof
 
-A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/edges#show-every-refusal-a-screen-can-reach`: every refusal a screen can reach through its computed `calls` has a dictionary sentence or a browser test asserting its code. Success results are proved through their scenarios as [Frontend Testing](testing.md) states.
+A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`: every refusal a screen can reach through its computed `calls` carries its sentence on its result or has a browser test asserting its code. Success results are proved through their scenarios as [Frontend Testing](testing.md) states.
 
-Result proof for routes follows `litespec/core/edges#show-every-refusal-a-screen-can-reach`. That Behavior provision is the one result obligation for a screen: every refusal a screen can reach through its computed `calls` has a sentence in the frontend's refusal dictionary or a browser test asserting the code, checked by `refusal-sentence-missing`. The screen's computed `calls`, not a route's declared calls, name the refusals in scope, and success results stay proved through their scenarios. For example, the expense form's screen reaches `spending.receipt-missing` through its computed `calls`, and that refusal has a sentence in the Claimwick web dictionary.
+Result proof for routes follows `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`. That Behavior provision is the one result obligation for a screen: every written refusal of a use case the screen offers carries its `sentence` on the result record, the sentence a person reads, and `refusal-sentence-missing` checks it from the records alone. A browser test asserting the code does not stand in for the sentence, and a derived refusal carries none of its own. Success results stay proved through their scenarios. For example, the expense form offers the use case that raises `spending.receipt-missing`, and that refusal carries its sentence on its result.
 
 ## Standards
 
@@ -140,20 +176,21 @@ Result proof for routes follows `litespec/core/edges#show-every-refusal-a-screen
 
 **Applies to:** artifact: any
 
-**Statement:** A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Brand, Tokens, Patterns, Do, Do Not, Motion, Browser Support, Voice.
+**Statement:** A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Baseline, Tokens, Page Frames, Vocabulary, Motion, Browser Support.
 
-**Rationale:** An author that has read no contract picks their own tokens, motion, browser features, and voice for each page. The picks differ on the next page, and the user sees the difference as clutter: same product, different looks. One design contract published with the shared UI package keeps every answer in one file. Motion states the durations and what each becomes under the reduced-motion setting, and Browser Support states the target every platform feature is judged against. A Vocabulary section naming the composites a page reaches for is optional.
+**Rationale:** An author that has read no contract picks their own tokens, motion, browser features, and components for each page. The picks differ on the next page, and the user sees the difference as clutter: same product, different looks. One design contract published with the shared UI package keeps every answer in one file. Baseline names the pinned design baseline and its version, Tokens names the path of the token values file, Page Frames maps each page-frame pattern the product uses to the component that implements it, Vocabulary names the composites a page reaches for, Motion states the durations and what each becomes under the reduced-motion setting, and Browser Support states the target every platform feature is judged against. The contract names no screen: each screen names its own page frame on its record. Proposed by decision 0089.
 
-**Example:** The metadata block names the package and the floorplans it provides.
+**Example:** The metadata block names the package, the token file, and the component behind each page frame.
 
 ```yaml
 schemaVersion: 2
 package: "@claimwick/ui"
 profile: application-balanced
-patterns:
-  - work-page
-  - list-page
-  - entity-page
+tokens: tokens/claimwick.tokens.json
+pageFrames:
+  list-page: ListPage
+  record-page: EntityPage
+  form-page: FormPage
 ```
 
 **Checked by:** `litespec model check` reports `ui-design-contract-invalid` tagged `[litespec/frontend/ui#publish-a-design-contract]` for a missing contract, a missing metadata block, a package mismatch, or a missing required section. Run it at the consumer root.
@@ -166,23 +203,23 @@ patterns:
 
 **Applies to:** artifact: any
 
-**Statement:** The `Patterns` section of the design contract MUST list every floorplan the package provides, each with a when-to-use rule.
+**Statement:** The `Page Frames` section of the design contract MUST map each page-frame pattern the product uses to the floorplan component that implements it, each with a when-to-use rule.
 
-**Rationale:** A floorplan with no when-to-use rule leaves the choice to resemblance: two authors pick different floorplans for one kind of page, and the kind ships in two layouts. Listing every floorplan with its rule in the design contract's Patterns section makes the choice mechanical. A floorplan outside the list is a design decision for the package, not a route-level choice.
+**Rationale:** A floorplan with no when-to-use rule leaves the choice to resemblance: two authors pick different floorplans for one kind of page, and the kind ships in two layouts. Mapping each page-frame pattern to its floorplan component with its rule in the design contract's Page Frames section makes the choice mechanical. A floorplan outside the map is a design decision for the package, not a route-level choice. Proposed by decision 0089.
 
-**Example:** The section states each floorplan and the question that selects it.
+**Example:** The section states each page frame, its component, and the question that selects it.
 
 ```markdown
-## Patterns
+## Page Frames
 
-| Floorplan | Component | Use it when the user |
+| Page frame | Component | Use it when the user |
 |:---|:---|:---|
 | `list-page` | `ListPage` | Finds one record among many. The page shows the result count. |
-| `entity-page` | `EntityPage` | Acts on one record: its facts, its state, and the actions that state permits. |
+| `record-page` | `EntityPage` | Acts on one record: its facts, its state, and the actions that state permits. |
 | `form-page` | `FormPage` | Supplies the input of one command, with one primary action. |
 ```
 
-**Reviewed for:** Which floorplans miss the design contract Patterns section or their when-to-use rule? Look in the design contract.
+**Reviewed for:** Which page frames miss the design contract Page Frames section, their component, or their when-to-use rule? Look in the design contract.
 
 ### Compose Each Route from One Floorplan
 
@@ -242,6 +279,22 @@ patterns:
 
 **Reviewed for:** Which routes name neither their page type reference nor, for a freestyle route, their decision record? Look in the route sources.
 
+### Lead Each Screen to the Screens a Person Reaches Next
+
+**ID:** `litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next`
+
+**Strength:** required
+
+**Applies to:** artifact: record:screen
+
+**Statement:** Each screen MUST name in `leadsTo` every screen a person reaches from it in one step.
+
+**Rationale:** The screens and their links are the navigation, drawn from the records before any route exists: the book draws each entry point's screens as a map of places and connections, and each flow as a strip of its screens in step order. A screen no other screen leads to strands its readers unless it starts its entry point, and a screen that leads nowhere and offers no use case ends their task with nothing done. Proposed by decision 0089.
+
+**Example:** The Claimwick expense list names the expense record and the new expense form in `leadsTo`, so a reader reaches either in one step.
+
+**Checked by:** `litespec model check` reports `screen-unreachable` for a screen no other screen leads to that is not its entry point's start, and `screen-dead-end` for a screen that leads nowhere and offers no use case. Run it at the consumer root.
+
 ### Select a Tone from the Closed Set
 
 **ID:** `litespec/frontend/ui#select-a-tone-from-the-closed-set`
@@ -266,37 +319,50 @@ patterns:
 
 **Statement:** An application MUST use the shared token definition and declare no value, with no literal color in any shipped definition.
 
-**Rationale:** One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first has no opinion about. A definition the shared package ships declares no literal color, so every value traces to the declared baseline.
+**Rationale:** One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first has no opinion about. A definition the shared package ships declares no literal color, so every value traces to the one token file the design contract names.
 
 **Reviewed for:** Which applications declare their own token value, and which shipped definitions carry a literal color? Look in the application and shared token definitions.
 
-### Hold the Declared Base Color
+### Meet the Limits of Every Token Role
 
-**ID:** `litespec/frontend/ui#hold-the-declared-base-color`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded departure.
-
-**Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks intentional. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded departure keeps the deliberate choice visible in the design contract instead of hidden in the tokens.
-
-**Reviewed for:** Which token values sit outside the declared baseline without a recorded departure? Look in the token definitions and the departure records.
-
-### Keep Separators at the Subtle Step
-
-**ID:** `litespec/frontend/ui#keep-separators-at-the-subtle-step`
+**ID:** `litespec/frontend/ui#meet-the-limits-of-every-token-role`
 
 **Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** A structural separator MUST NOT be darker than the border step the declared base color publishes.
+**Statement:** Every token value in each declared color scheme MUST meet the limit the Concepts table states for its role.
 
-**Rationale:** A separator darker than its neighbors reads as emphasis, so authors stop trusting the token and start picking weights by eye. The border step the declared base color publishes keeps every structural separator at one weight, so weight carries no accidental meaning. An input's boundary is not a separator: it shows where a control is, and `litespec/frontend/ui#give-every-input-a-visible-boundary` sets its contrast.
+**Rationale:** Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while waving through a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no departure while they meet the limits. Proposed by decision 0089.
 
-**Reviewed for:** Which structural separators run darker than the published border step? Look in the token definitions and the rendered separators.
+**Example:** The Claimwick card edge differs from the page by 1.2:1 in both schemes, so cards read as separate surfaces while separators stay quieter.
+
+**Checked by:** `litespec model check` reports `token-limit-failed` for a token role that misses its limit in a declared scheme. Run it at the consumer root.
+
+### Keep Token Values in One Token File
+
+**ID:** `litespec/frontend/ui#keep-token-values-in-one-token-file`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A project MUST keep every token value in the one token file the design contract's Tokens section names, written in the W3C Design Tokens format, version 2025.10.
+
+**Rationale:** One token file gives every value one home that design tools and token converters read: the components read the stylesheet generated from that file, and the check reads the file to judge every limit. Values scattered across stylesheets leave each limit to a hand-run script that runs once and is forgotten. Proposed by decision 0089.
+
+**Example:** Claimwick keeps its values in `tokens/claimwick.tokens.json`, and generates its component stylesheet from that file.
+
+```json
+{
+  "card": {
+    "$value": "#ffffff",
+    "$type": "color"
+  }
+}
+```
+
+**Reviewed for:** Which token values live outside the named token file, or break the W3C Design Tokens format? Look in the token file and the stylesheets.
 
 ### Give Every Input a Visible Boundary
 

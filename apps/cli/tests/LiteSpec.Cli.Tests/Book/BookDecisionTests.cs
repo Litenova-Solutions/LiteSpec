@@ -261,7 +261,7 @@ public sealed class BookDecisionTests
             array.Add(record);
         }
 
-        return new JsonObject
+        return BookStores.WithIntentCoverage(new JsonObject
         {
             ["records"] = array,
             ["links"] = new JsonObject
@@ -269,7 +269,7 @@ public sealed class BookDecisionTests
                 ["implements"] = implements ?? new JsonArray(),
                 ["follows"] = follows ?? new JsonArray(),
             },
-        };
+        });
     }
 
     static JsonObject Link(string path, string to) =>

@@ -87,7 +87,14 @@ static class TestCli
         using var error = new StringWriter();
         var stdout = TextWriter.Synchronized(output);
         var stderr = TextWriter.Synchronized(error);
-        var status = CliHost.Run(new CliRun(stdout, stderr, workingDirectory ?? Repository, variables), args);
+        // A command that serves until interrupted (the live book) must fail the case, not hang the test host.
+        var run = Task.Run(() => CliHost.Run(new CliRun(stdout, stderr, workingDirectory ?? Repository, variables), args));
+        if (!run.Wait(TimeSpan.FromMinutes(3)))
+        {
+            throw new TimeoutException($"litespec {string.Join(' ', args)} did not finish in three minutes.");
+        }
+
+        var status = run.Result;
         stdout.Flush();
         stderr.Flush();
         return new CliResult(status, output.ToString(), error.ToString());

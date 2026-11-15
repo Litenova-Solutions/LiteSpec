@@ -6,4 +6,4 @@
   let { type }: Props = $props();
 </script>
 
-<span class="font-mono text-[0.6875rem] text-muted-foreground" data-explain={"type:" + type}>{book.typeTag(type)}</span>
+<span class="font-mono text-xs text-slate-600" data-explain={"type:" + type}>{book.typeTag(type)}</span>

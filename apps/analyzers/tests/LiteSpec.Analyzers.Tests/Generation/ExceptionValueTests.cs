@@ -21,7 +21,7 @@ public sealed class ExceptionValueTests
                     {
                     }
 
-                    public abstract string Code { get; }
+                    public virtual string Code => "";
                 }
 
                 /// <implements>rule/expense.receipt-required</implements>
@@ -34,8 +34,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "result/submit-expense.receipt-missing"),
-                RecordPages.ResultEntry("result/submit-expense.receipt-missing", "refusal", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecException.Shop.Orders.ReceiptRequiredException.g.cs", out var part), "The exception part is missing.");
         Assert.Contains("public override string Code => \"expense.receipt-missing\";", part, StringComparison.Ordinal);
@@ -69,8 +68,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "result/submit-expense.receipt-missing"),
-                RecordPages.ResultEntry("result/submit-expense.receipt-missing", "refusal", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecException.Shop.Orders.ReceiptRequiredException.g.cs", out var part), "The exception part is missing.");
         Assert.Contains("public string Code => \"expense.receipt-missing\";", part, StringComparison.Ordinal);

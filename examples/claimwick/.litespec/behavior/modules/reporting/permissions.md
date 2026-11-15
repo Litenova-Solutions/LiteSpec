@@ -1,6 +1,6 @@
 # Permissions
 
-The permission list names what each person may do in the reporting module, with one permission for each allowed action. It concerns finance, which lists the reimbursed expenses. It matters because the list shows the employee each expense was paid to.
+The permission set names what each person may do in the reporting module, with one permission for each allowed action. It concerns finance, which lists the reimbursed expenses. It matters because the list shows the employee each expense was paid to.
 
 ## Risk
 

@@ -30,7 +30,7 @@ Each scope level a role names has a glossary term that states what the level cov
 
 `scope` is removed from `holds` entries and from permission entries, and `holds` becomes a list of role identifiers. The Access page's concepts for actors, roles and scopes and permissions match this rule, and the rule that the role is the scope's only home is stated once there.
 
-`model check` reports `scope-term-missing` for a role scope with no glossary term titled with the level name and Scope, and `permission-verb-unknown` for a permission name whose verb is not in the table. The permission-list explanations state Risk and Boundaries, with Boundaries naming what a reader might assume a permission allows but it does not.
+`model check` reports `scope-term-missing` for a role scope with no glossary term titled with the level name and Scope, and `permission-verb-unknown` for a permission name whose verb is not in the table. The permission-set explanations state Risk and Boundaries, with Boundaries naming what a reader might assume a permission allows but it does not.
 
 ## Revisit Conditions
 

@@ -95,7 +95,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            ".litespec/product/decisions/0001-launch.md",
+            ".litespec/intent/decisions/0001-launch/0001-launch.md",
             raw => ReplaceFirst(raw, "## Context", "## Notes"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
@@ -115,7 +115,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            ".litespec/product/decisions/0001-launch.md",
+            ".litespec/intent/decisions/0001-launch/0001-launch.md",
             raw => ReplaceFirst(raw, "## Context", "## Notes"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
@@ -131,7 +131,7 @@ public sealed partial class ConsumerValidatorTests
             Assert.Equal("page-section-missing", (string?)finding["code"]);
             Assert.Equal("blocking", (string?)finding["outcome"]);
             Assert.Contains("requires an H2 'Context'", (string?)finding["message"] ?? string.Empty, StringComparison.Ordinal);
-            Assert.Equal(".litespec/product/decisions/0001-launch.md", (string?)finding["path"]);
+            Assert.Equal(".litespec/intent/decisions/0001-launch/0001-launch.md", (string?)finding["path"]);
             Assert.Equal(1, (int?)finding["line"]);
             Assert.Equal("decision/0001-launch", (string?)finding["subject"]);
         });

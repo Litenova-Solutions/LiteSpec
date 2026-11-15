@@ -210,15 +210,15 @@ public sealed class AutomationNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Core", layer: "Application");
 
-    /// <summary>LS2007 accepts a view projection filed in a module Views folder, whatever its name.</summary>
+    /// <summary>LS2007 accepts a read-model projection filed in a module ReadModels folder, whatever its name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 accepts a view projection filed in a module Views folder")]
-    public Task AcceptsAViewProjectionInAViewsFolder() =>
+    [Fact(DisplayName = "LS2007 accepts a read-model projection filed in a module ReadModels folder")]
+    public Task AcceptsAReadModelProjectionInAReadModelsFolder() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>(
             [
-                ("Claimwick.Modules/Reporting/Views/ReimbursedExpenses/ReimbursedExpenseProjector.cs", """
-                    namespace Claimwick.Reporting.Views.ReimbursedExpenses;
+                ("Claimwick.Modules/Reporting/ReadModels/ReimbursedExpenses/ReimbursedExpenseProjector.cs", """
+                    namespace Claimwick.Reporting.ReadModels.ReimbursedExpenses;
 
                     public interface IEventHandler<TEvent> { }
 
@@ -232,11 +232,11 @@ public sealed class AutomationNamingAnalyzerTests
             assemblyName: "Claimwick.Modules",
             layer: "Application");
 
-    /// <summary>LS2007 accepts a projection named {View}On{Fact}Projection outside a Views folder.</summary>
+    /// <summary>LS2007 accepts a projection named {ReadModel}On{Fact}Projection outside a ReadModels folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 accepts a projection named for its view and fact")]
-    public Task AcceptsAProjectionNamedForItsViewAndFact() =>
+    [Fact(DisplayName = "LS2007 accepts a projection named for its read model and fact")]
+    public Task AcceptsAProjectionNamedForItsReadModelAndFact() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>(
             [
                 ("Claimwick.Modules/Reporting/ReimbursedExpenseOnExpenseReimbursedProjection.cs", """

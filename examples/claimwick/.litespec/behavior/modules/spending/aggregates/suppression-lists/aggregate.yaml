@@ -1,0 +1,6 @@
+type: aggregate
+id: aggregate/spending.suppression-list
+title: Suppression List
+summary: The suppression list names the managers who get no approval reminder, so the reminder reaction skips them.
+kind: store
+owner: aggregate/spending.policy

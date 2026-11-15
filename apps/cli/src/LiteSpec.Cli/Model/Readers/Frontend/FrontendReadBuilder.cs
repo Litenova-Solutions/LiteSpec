@@ -125,7 +125,7 @@ static class FrontendReadBuilder
             [
                 .. facts.Tests.Select(test => new CodeBrowserTest(
                     frontend.Name, test.Title, Absolute(frontend, test.File), test.Line,
-                    test.Proves, test.Journey, test.Gotos, test.Codes, test.Texts, facts.Reader)),
+                    test.Proves, test.Flow, test.Gotos, test.Codes, test.Texts, facts.Reader)),
             ],
             Findings = findings,
             TypeScriptQualified = facts.Reader == Finding.TypeScriptReader && facts.Qualified,

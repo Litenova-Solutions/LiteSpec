@@ -49,7 +49,7 @@ public static class KindReader
     private const string IntegrationEventPrefix = "integration-event/";
 
     /// <summary>The record id prefix a view mark names.</summary>
-    private const string ViewPrefix = "view/";
+    private const string ReadModelPrefix = "read-model/";
 
     /// <summary>The attribute names that mark a test method.</summary>
     private static readonly HashSet<string> TestAttributeNames = new HashSet<string>(StringComparer.Ordinal)
@@ -648,7 +648,7 @@ public static class KindReader
 
         // An integration event contract and a view type are technical by their mark: a record,
         // an interface or a class with no method carries it, as the mark names the type's role.
-        if (HasMark(type, IntegrationEventPrefix) || HasMark(type, ViewPrefix))
+        if (HasMark(type, IntegrationEventPrefix) || HasMark(type, ReadModelPrefix))
         {
             return true;
         }

@@ -5,6 +5,10 @@ import { breaksIntentChain, downOf } from "./trace-model";
 describe("the trace down from a vision", () => {
   it("leads to the decisions based on it and the requirements citing it", async () => {
     const book = await fixtureBook();
+    book.lex = { ...book.lex, links: [
+      { field: "basedOn", carriers: "decision", forward: "is based on the vision", inverse: "is based on this vision" },
+      { field: "cites", carriers: "requirement", forward: "cites the vision", inverse: "cites this vision" },
+    ] };
     book.rec["vision/branch-lending"] = {
       type: "vision",
       title: "Branch Lending",

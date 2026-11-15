@@ -83,63 +83,6 @@ static class BookLexiconParsers
         return layers;
     }
 
-    /// <summary>The Links-table rows: one entry per row, split per carrier when the row reads two ways.</summary>
-    /// <param name="file">The carried page.</param>
-    /// <param name="lines">The page lines.</param>
-    /// <returns>The link phrases, in table row order.</returns>
-    public static List<LexiconLink> ParseLinks(string file, string[] lines)
-    {
-        var at = BookLexiconTables.HeadingIndex(lines, "Links");
-        if (at < 0)
-        {
-            throw new BookLexiconException(file, $"'{file}' holds no '### Links' section.");
-        }
-
-        var links = new List<LexiconLink>();
-        foreach (var row in BookLexiconTables.TableRows(file, BookLexiconTables.SectionBody(lines, at),
-            ["Field", "Written on", "Points at", "Reads as", "Read back as"], "Links"))
-        {
-            var field = BookLexiconTables.StripCode(row[0]);
-            var carriers = CarriersFor(file, field, row[1]);
-            var forwards = row[3].Split(" / ", StringSplitOptions.None).Select(phrase => phrase.Trim()).ToList();
-            var inverses = row[4].Split(" / ", StringSplitOptions.None).Select(phrase => phrase.Trim()).ToList();
-            if (carriers.Count > 1 && forwards.Count == carriers.Count && inverses.Count == carriers.Count)
-            {
-                for (var i = 0; i < carriers.Count; i++)
-                {
-                    links.Add(new LexiconLink(field, [carriers[i]], forwards[i], inverses[i]));
-                }
-            }
-            else
-            {
-                links.Add(new LexiconLink(field, carriers, row[3], row[4]));
-            }
-        }
-
-        return links;
-    }
-
-    /// <summary>The Written on cell as record-type ids: any record widens to every type, and carriers that name no record type are skipped.</summary>
-    /// <param name="file">The carried page.</param>
-    /// <param name="field">The link field.</param>
-    /// <param name="writtenOn">The Written on cell.</param>
-    /// <returns>The carrier record types.</returns>
-    public static IReadOnlyList<string> CarriersFor(string file, string field, string writtenOn)
-    {
-        if (writtenOn.Trim().Equals("any record", StringComparison.OrdinalIgnoreCase))
-        {
-            return RecordTypes.All.OrderBy(type => type, StringComparer.Ordinal).ToList();
-        }
-
-        // A row may also name nested carriers, such as a data class, which the
-        // book never phrases from a record, so only record types are kept.
-        return writtenOn
-            .Split(',', StringSplitOptions.TrimEntries)
-            .Select(carrier => carrier.ToLowerInvariant().Replace(' ', '-'))
-            .Where(carrier => RecordTypes.All.Contains(carrier))
-            .ToList();
-    }
-
     /// <summary>The model-page sections the mockup explains from: first paragraph and source each.</summary>
     /// <param name="file">The carried page.</param>
     /// <param name="lines">The page lines.</param>

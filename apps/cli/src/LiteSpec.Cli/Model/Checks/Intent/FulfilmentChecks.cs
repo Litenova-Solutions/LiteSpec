@@ -32,6 +32,8 @@ internal static class FulfilmentChecks
             .SelectMany(record => record.Ids(RecordFields.BasedOn))
             .ToHashSet(StringComparer.Ordinal);
 
+        var proved = model.Proves.Select(link => link.Claim).ToHashSet(StringComparer.Ordinal);
+
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
         {
             if (!FulfilledKinds.Contains(requirement.Field(RecordFields.Kind) ?? ""))
@@ -43,7 +45,12 @@ internal static class FulfilmentChecks
             // it: the decision names it in basedOn instead of a rule or use case.
             var decided = requirement.Field(RecordFields.Kind) == "quality" && served.Contains(requirement.Id);
 
-            if (!fulfilled.Contains(requirement.Id) && !decided)
+            // A quality requirement naming its check is proved by that check's run,
+            // and one a test proves is proved by the test: neither needs a Behavior record.
+            var checkProved = requirement.Field(RecordFields.Kind) == "quality"
+                && (requirement.Field(RecordFields.Check) is { Length: > 0 } || proved.Contains(requirement.Id));
+
+            if (!fulfilled.Contains(requirement.Id) && !decided && !checkProved)
             {
                 findings.Add(new Finding("requirement-fulfillment-missing", $"Requirement '{requirement.Id}' is fulfilled by no {OrList(RecordTypes.FulfillingTypes)}.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }

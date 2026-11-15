@@ -9,11 +9,11 @@
   const TONE = {
     passing: "text-convention-foreground border-convention-border bg-convention",
     failing: "text-warn-foreground border-warn-border bg-warn",
-    awaiting: "border-border bg-muted text-muted-foreground",
-    unconfirmed: "border-border bg-muted text-muted-foreground",
-    unproved: "border-border bg-muted text-muted-foreground",
-    indirect: "border-border bg-muted text-muted-foreground",
-    norun: "border-border bg-muted text-muted-foreground",
+    awaiting: "border-slate-200 bg-slate-100 text-slate-600",
+    unconfirmed: "border-slate-200 bg-slate-100 text-slate-600",
+    unproved: "border-slate-200 bg-slate-100 text-slate-600",
+    indirect: "border-slate-200 bg-slate-100 text-slate-600",
+    norun: "border-slate-200 bg-slate-100 text-slate-600",
   } satisfies Record<ProofState, string>;
   const tone = $derived(state === null ? "" : TONE[state]);
   const label = $derived(state === null ? "" : (text ?? proofLabel(state)));
@@ -22,7 +22,7 @@
 {#if state !== null}
   <button
     type="button"
-    class={cn("inline-flex items-center gap-1 rounded-sm border px-1.5 text-xs", tone)}
+    class={cn("inline-flex items-center gap-1 rounded-sm border px-2 text-xs", tone)}
     data-explain={state}
   ><RecordIcon name={state} class="size-3.5" />{label}</button>
 {/if}

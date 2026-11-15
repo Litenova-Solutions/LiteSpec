@@ -11,7 +11,7 @@ This extension adds executable BDD scenarios for cross-layer examples that need 
 
 Activation scope: `local`.
 
-Applicable specification kinds: `use-case`, `journey`.
+Applicable specification kinds: `use-case`, `flow`.
 
 The consumer enables `bdd` when a critical example needs both business-language review and execution through a public system boundary; routine unit behavior stays in narrower tests.
 

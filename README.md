@@ -18,7 +18,7 @@ A project describes itself with records: written statements of fixed types, join
 | Layer | What It Holds |
 |:---|:---|
 | Intent | Goals, requirements, and decisions that state what the product promises. |
-| Behavior | Use cases, journeys, and rules that state how the system keeps the promises. |
+| Behavior | Use cases, flows, and rules that state how the system keeps the promises. |
 | Implementation | The code and screens that carry the behavior. |
 | Proof | The tests and checks that show the code matches the records. |
 
@@ -35,13 +35,13 @@ A project names the record layers it claims in `layers` in `.litespec/project.ya
 
 `litespec model check`, the book, `litespec rules` and the analyzers report only what applies to the claimed layers.
 
-Each check also has a check level. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched.
+Each check also has a check level, which says what a finding rests on. Whether a finding blocks follows from the strength of the provision it reports: a finding on a required provision blocks unless a departure parks it, and a finding on an advisory provision never blocks. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched.
 
 | Check level | Meaning |
 |:---|:---|
-| G | Reads records only. Always blocks. |
-| S | Reads code through a stack reader. Blocks where the reader is qualified, and reports otherwise. |
-| A | Advisory. Reports; `--release` makes the release-readiness findings block. |
+| G | Reads records only. |
+| S | Reads code through a stack reader. A finding counts only where the reader is qualified. |
+| A | Release readiness. `--release` makes these findings block, and a claimed layer without a working reader blocks. |
 
 The tool renders the model as a book that a reader reads offline. The analyzers apply the same rules inside a .NET build.
 

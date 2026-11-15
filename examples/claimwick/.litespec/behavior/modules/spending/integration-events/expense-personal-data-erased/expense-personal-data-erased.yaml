@@ -13,10 +13,11 @@ payload:
   of: aggregate/spending.expense
   required: true
   classification: internal
+through: external-system/event-bus
 delivery: The broker delivers each event at least once, in erasure order.
-addresses: permission/remove-personal-data
+requires: permission/remove-personal-data
 trust: payload
-translates: event/expense.personal-data-erased
+translates: domain-event/expense.personal-data-erased
 dataschema: https://schemas.claimwick.dev/expense-personal-data-erased/v1
 terms:
 - term/expense

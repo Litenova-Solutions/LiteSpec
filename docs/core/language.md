@@ -17,13 +17,13 @@ Every field name belongs to one of eight word classes. The class decides the nam
 | Class | Form | Reading test | Examples |
 |:---|:---|:---|:---|
 | 1. Identity | fixed words | none | `type`, `id`, `title`, `terms`, `records` |
-| 2. Link to many records | active present-tense verb | "journey serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `changes`, `covers`, `addresses` |
-| 3. Link to one record in a role | singular noun naming the role | "the journey's actor is traveller" | `actor`, `fallback`, `runbook`, `result`, `host`, `refusal` |
-| 4. Link where the target acts on this record | `<participle>By`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `releasedBy`, `computedBy`, `triggeredBy` |
+| 2. Link to many records | active present-tense verb | "flow serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `writes`, `covers`, `requires` |
+| 3. Link to one record in a role | singular noun naming the role | "the flow's actor is traveller" | `actor`, `audience`, `fallback`, `runbook`, `result`, `host`, `refusal` |
+| 4. Link where the target acts on this record | `<participle>By`, `<participle>Through`, `<participle>In` or `<participle>From`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `movedBy`, `boundBy`, `widenedBy`, `triggeredBy`, `reachedThrough`, `surfacesIn` |
 | 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `direction`, `trust`, `reach`, `lifecycle`, `level` |
 | 6. Prose | singular noun for what the text is; plural noun for a list of sentences | "its statement is ..." | `statement`, `meaning`, `rationale`, `summary`, `conclusion`, `failure` |
-| 7. Condition | `<participle or adjective>When` for a named condition; `condition` inside an entry | "it is frozenWhen ..." | `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen` |
-| 8. Reason | `<participle>Because`, or `reason` alone | "it appliesBecause ..." | `appliesBecause`, `reason` |
+| 7. Condition | `<verb, participle or adjective>When` for a named condition; `condition` inside an entry | "it is frozenWhen ..." | `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen`, `runsWhen` |
+| 8. Reason | `<participle>Because`, or `reason` alone | "it appliesBecause ..." | `appliesBecause`, `exemptBecause`, `reason` |
 
 Dates and booleans follow the classes: a recorded date ends in `On` (`readOn`, `expiresOn`); a validity start is `effectiveFrom`; a boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix.
 
@@ -33,11 +33,11 @@ Every piece of text a project writes falls into one of these kinds. The kind dec
 
 | Kind of text | Form | Example |
 |:---|:---|:---|
-| What holds: requirement, rule, goal and problem statements, journey steps, result meanings | Present tense, active voice, third person, one complete sentence ending in a period, no modal words | "A room the traveller starts to book is held for them for 10 minutes." |
-| What happened: event and integration-event meanings | Past tense, one sentence | "The buyer placed the order." |
+| What holds: requirement, rule, goal and problem statements, flow steps, result meanings | Present tense, active voice, third person, one complete sentence ending in a period, no modal words | "A room the traveller starts to book is held for them for 10 minutes." |
+| What happened: domain-event and integration-event meanings | Past tense, one sentence | "The buyer placed the order." |
 | A state something is in: aggregate state names, proof words | Past participle or adjective | `Held`, `Paid`, `withdrawn`, `verified`, `stale` |
 | What to do: runbook steps, procedure steps | Imperative, one action per step | "Restart the payment worker." |
-| A condition: `*When`, `condition`, `skippedWhen` | A clause that completes "when ...", without the word | "the application links to no event" |
+| A condition: `*When`, `condition`, `skippedWhen` | A clause that completes "when ...", without the word | "the application links to no domain event" |
 | A reason: `rationale`, `*Because`, departure `reason` | A clause that completes "because ...", without the word | "partners will not share the no-show risk" |
 | A definition: `meaning` of a term, a field, a setting | A noun phrase starting with A, An or The, at most 25 words, no leading verb | "A confirmed reservation of one room for one stay." |
 | A title | The record's name in Title Case, no period | `use-case/orders.place-order` is titled "Place Order" |
@@ -60,10 +60,10 @@ Each value below takes the written form its row gives. The last column names the
 | `statement` (vision) | Where the product heads, as a present-tense fact about the product once it is there | Ends in a period |
 | `statement` (problem) | The pain as it happens today, present tense | Ends in a period |
 | step `statement` | Actor first, present tense: "The traveller pays for the booking." | Starts with "The" or an actor title; ends in a period |
-| `meaning` | A noun phrase starting with "A" or "An", no leading verb, at most 25 words | Starts with A, An or The; word count |
+| `meaning` | A noun phrase starting with "A" or "An", no leading verb, at most 25 words; a domain-event or result `meaning` states its sentence in its text-kind form | Starts with A, An or The, or ends in a period for a domain event or a result; word count |
 | `rationale`, `*Because` | A clause completing "because ..." | Does not start with "because" |
 | `*When`, `condition` | A clause completing "when ..." | Does not start with "when" or "if" |
-| `failure` | What the person experiences, present tense, never a code | Contains no refusal-code pattern |
+| `failure` | What the person sees and can do next, present tense, never a code or a rule | Contains no refusal-code pattern |
 | `title` | Title Case noun phrase, no period | Title Case; no final period |
 
 ### Names for Records
@@ -77,7 +77,7 @@ Each record type takes the name form its row gives, in the word class of what th
 | problem | the pain as a short clause | `rooms-sell-out-at-checkout` |
 | feature | the offer as a noun phrase | `room-hold` |
 | requirement | the assertion | `room-held-during-checkout` |
-| journey | the task as a verb phrase | `book-a-room` |
+| flow | the task as a verb phrase | `book-a-room` |
 | constraint | the rule's subject | `total-price-display` |
 | research | the evidence subject | `partner-hold-limits` |
 | decision | number and subject | `0001-room-hold-length` |
@@ -85,16 +85,16 @@ Each record type takes the name form its row gives, in the word class of what th
 | module | plural noun of the business area | `orders` |
 | aggregate | singular noun | `order`, `ticket-resale` |
 | rule | the assertion, keeping its negation word | `order.checkout-commits-with-holds`, `expense.approver-is-not-submitter` |
-| event | `<aggregate>.<past participle>` | `order.placed` |
+| domain-event | `<aggregate>.<past participle>` | `order.placed` |
 | integration event | `<aggregate>-<past participle>` | `order-placed` |
 | reaction | `<verb>-<what>-on-<fact>` | `issue-credit-note-on-refund-succeeded` |
 | job | `<verb>-<what>`, with the verb of the use case it runs | `expire-lapsed-ticket-resales` |
-| view | singular noun phrase for what it keeps one row per | `refundable-order` |
+| read-model | singular noun phrase for what it keeps one row per | `refundable-order` |
 | aggregate state | past participle or adjective | `withdrawn`, `Listed` |
 | notification | `<subject>-<event>` noun phrase | `order-confirmation` |
 | setting | noun phrase naming the value | `checkout-hold-window` |
 | data class | noun phrase naming the data | `buyer-contact` |
-| entry point, external system | noun naming the door or system | `webshop`, `payout-bank` |
+| entry point, external system | noun naming the entry point or system | `webshop`, `payout-bank` |
 | external operation | verb first | `create-charge` |
 | screen | `<entry-point>.<noun>` | `webshop.basket` |
 | runbook | verb first, what the reader does | `clear-stuck-refunds` |
@@ -111,7 +111,7 @@ Names an outside standard fixes stay exactly as that standard spells them. Gherk
 
 ### Identifier Forms
 
-An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row. A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and an event home is an aggregate name. A use-case name is unique across the project, so a result cites only that name; an aggregate name is unique across the project, so a rule cites only that name. A reaction, job, view, notification and setting home is the module that owns it. An integration event has no module home. A rule name keeps the negation its statement makes. A journey step identifier is `journey/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`; scenarios may point at derived results, which are never written as records.
+An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row. A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and a domain-event home is an aggregate name. A use-case name is unique among use cases, so a result cites only that name; an aggregate name is unique among aggregates, so a rule cites only that name. Names are unique per record type, not across the product, so `actor/owner` and `role/owner` coexist. A reaction, job, read-model, notification and setting home is the module that owns it. An integration event has no module home. A rule name keeps the negation its statement makes. A flow step identifier is `flow/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`; scenarios may point at derived results, which are never written as records.
 
 ### Name Rules
 
@@ -122,7 +122,7 @@ The name is the last segment of the identifier. Every name follows these rules:
 - Count the decision number as a word.
 - Let a person choose the name; no tool builds one by stripping words from a sentence.
 
-Use case and aggregate names stay unique across the project.
+Names stay unique per record type, not across the product.
 
 ### Wire Codes
 
@@ -134,7 +134,7 @@ Resolution means every identifier citation names a record that exists. The model
 
 ### Finding Codes and Tool Names
 
-A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of the words in the problem-word table below, each with one meaning.
+A finding code reads as `<subject>-<problem>`: the subject is a record type, field or part as the glossary spells it, using `read-model`, `flow`, `part` and `atomicity`, and the problem is one of the words in the problem-word table below, each with one meaning.
 
 | Problem | Meaning | Example |
 |:---|:---|:---|
@@ -144,6 +144,7 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `unrecorded` | true in code but written in no record | `behavior-unrecorded` |
 | `unimplemented` | declared but built nowhere | `use-case-unimplemented` |
 | `unreached` | built but reached by no flow | `use-case-unreached` |
+| `unreachable` | a screen no other screen leads to | `screen-unreachable` |
 | `unverified` | a use case holds scenarios with no passing proof | `use-case-unverified` |
 | `drift` | the built thing differs from its record | `setting-key-drift` |
 | `invalid` | a value breaks its form | `field-invalid` |
@@ -156,6 +157,15 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `uncited` | a named thing does not cite back | `constraint-effect-uncited` |
 | `unchanged` | a value still holds what its template wrote | `template-value-unchanged` |
 | `break` | a contract the base published no longer holds | `contract-break` |
+| `foreign` | a link reaches into another module where only its own module may be named | `reaction-trigger-foreign` |
+| `uncarried` | a published field is carried by no field of its source | `integration-event-field-uncarried` |
+| `unexercised` | a rule is shown by no scenario that should show it | `scenario-rule-unexercised` |
+| `vague` | a statement uses a word that names no act | `statement-word-vague` |
+| `wide` | a record sits higher than every record that uses it | `external-system-placement-wide` |
+| `written` | a thing the model derives is written by hand | `refusal-generic-written` |
+| `alias` | a retired name used where the glossary term exists | `wording-alias` |
+| `failed` | a limit the subject did not meet | `token-limit-failed` |
+| `dead-end` | a screen that leads nowhere and offers no use case | `screen-dead-end` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
@@ -171,9 +181,9 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
-**Rationale:** One grammar with no exceptions list means a reader who learned `cites` on a journey reads `cites` on a requirement without a second look. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
+**Rationale:** One grammar with no exceptions list means a reader who learned `cites` on a flow reads `cites` on a requirement without a second look. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
 
-**Example:** The Claimwick journey `submit-an-expense` cites its goal in `cites` and states each step in `statement`.
+**Example:** The Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
 **Reviewed for:** Which fields break their word class? Look at the field names the change adds, beside the word-class table.
 
@@ -213,7 +223,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every project text MUST use the form the text-kind table gives its kind.
 
-**Rationale:** Each kind of text has one reader and one job: a requirement promises, an event reports, and a runbook step instructs. One form per kind means the tense and voice tell the reader what the text does before a word is weighed. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
+**Rationale:** Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice tell the reader what the text does before a word is weighed. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
 
 **Example:** A Claimwick requirement states "An expense above the threshold waits for its approver."
 
@@ -229,7 +239,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** Values are read far more than they are written, in records, in the book, and in tool output. One written form per value means a period or a capital letter is never a styling choice but part of the value. The value-style table ends each row with the mechanical test the value meets. Settled by [decision/0011-one-grammar-for-names-and-values](decision/0011-one-grammar-for-names-and-values) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
 
-**Example:** A Claimwick journey step states "The traveller pays for the booking."
+**Example:** A Claimwick flow step states "The traveller pays for the booking."
 
 **Reviewed for:** Which statement, meaning, rationale, condition, failure, or title values miss the value style of their row? Look at the values the change adds, beside the value-style table.
 
@@ -255,9 +265,9 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every record name MUST use the name form the record-name table gives its type.
 
-**Rationale:** A name in the word class of what the record is tells a reader the type before the identifier is opened: a verb opens a use case, a noun phrase opens a goal, and a past participle opens an event. One name form per type keeps listings scannable and citations writable by hand. The record-name table holds the Intent forms beside the Behavior and governance forms.
+**Rationale:** A name in the word class of what the record is tells a reader the type before the identifier is opened: a verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event. One name form per type keeps listings scannable and citations writable by hand. The record-name table holds the Intent forms beside the Behavior and governance forms. Settled by [decision/0077-use-the-standard-term-for-each-concept](decision/0077-use-the-standard-term-for-each-concept).
 
-**Example:** Claimwick names the journey `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`.
+**Example:** Claimwick names the flow `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`.
 
 **Reviewed for:** Which record names miss the name form of their type? Look at the identifiers the change adds, beside the record-name table.
 
@@ -313,7 +323,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** A message that states a fact survives every reader: the terminal and the book both show what is true. Advice belongs in the finding table on the [model page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
-**Example:** A journey step with no serving use case reports `Journey step 'book-a-room#s3' is served by no use case.`
+**Example:** A flow step with no serving use case reports `Flow step 'book-a-room#s3' is served by no use case.`
 
 **Reviewed for:** Which finding messages instruct instead of stating a fact, or open without the subject and identifier? Look at the messages the change adds.
 
@@ -341,7 +351,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** A reader who meets `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.
 
-**Example:** `event/expense.submitted` names an event of the expense aggregate.
+**Example:** `domain-event/expense.submitted` names a domain event of the expense aggregate.
 
 **Checked by:** `litespec model check` reports `identifier-invalid` for an identifier outside the form its type uses.
 
@@ -510,7 +520,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [Project Model](model.md) states the form each type uses, and the Identifier Forms section above states the name rules and checks.
 
-**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
+**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `flow/submit-and-reimburse#s2` is the second step of a flow.
 
 **Checked by:** `litespec model check` reports `identifier-invalid` for a record identifier outside the declared grammar.
 

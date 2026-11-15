@@ -5,10 +5,14 @@ records:
 - type: rule
   id: rule/spending.receipt-filed-once
   title: Receipt Filed Once
-  kind: cross-aggregate
+  kind: invariant
   statement: A receipt file supports one expense across spending.
   governs:
   - aggregate/spending.receipt
+  binds:
+  - aggregate/spending.expense
+  - aggregate/spending.receipt
+  refusal: spending.receipt-already-filed
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt

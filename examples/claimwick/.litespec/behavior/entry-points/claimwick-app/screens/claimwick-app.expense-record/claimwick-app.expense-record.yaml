@@ -1,0 +1,20 @@
+type: screen
+id: screen/claimwick-app.expense-record
+title: Expense Record
+summary: A reader sees one expense with its state and the actions that state permits.
+address: /expenses/{expenseId}
+offers:
+- use-case/spending.approve-expense
+- use-case/spending.attach-receipt
+- use-case/spending.erase-personal-data
+- use-case/spending.refuse-expense
+- use-case/spending.reimburse-expense
+serves:
+- flow/submit-and-reimburse#s2
+- flow/submit-and-reimburse#s3
+- flow/submit-and-reimburse#s4
+pageFrame:
+  pattern: record-page
+  option: summary-sections-aside-for-history
+leadsTo:
+- screen/claimwick-app.expense-list

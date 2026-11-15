@@ -16,15 +16,14 @@ export const book = new Book(window.BookData);
 export { Book, type Explanation } from "./book.svelte";
 export { capitalize, dedupe, formatCount, formatLabel, pluralize, stripStep } from "./text";
 export { cn, type WithElementRef, type WithoutChild, type WithoutChildrenOrChild } from "./cn";
-export { duration, editorHref, esc, inline, recordRefHtml, safeHref, srcHref } from "./html";
+export { duration, esc, inline, recordRefHtml, safeHref, sourceLinkHref, srcHref } from "./html";
+export { startLive } from "./live";
 export { fixtureBook } from "./fixture";
 export { proofLabel, proofRank, proofWord } from "./proof-order";
 export { layerStats } from "./relations";
 export { completionLines, coveragePercent } from "./completion";
 export { copyText } from "./clipboard";
-export { theme } from "./theme.svelte";
-export { preferences } from "./preferences.svelte";
-export { MODULE_MEMBER_TYPES, isFlowType } from "./shard-types";
+export { MODULE_MEMBER_TYPES, isScenarioType } from "./shard-types";
 export type {
   BookRecord,
   BookTest,
@@ -32,6 +31,7 @@ export type {
   ImplKind,
   LayerKey,
   ProofState,
+  ReachClaim,
   RecordFields,
   SecurityItem,
   SortKey,

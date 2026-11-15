@@ -81,9 +81,9 @@ A Standard states one testable obligation:
 ```markdown
 ### Keep Shared UI in One Package
 
-**Statement:** A workspace MUST hold its shared primitives and composites in one shared UI package.
+**Statement:** A workspace SHOULD hold its shared primitives and composites in one shared UI package.
 
-**Deviation:** Only with SHOULD or SHOULD NOT: the bounded reason that permits a departure.
+**Departure:** Only with SHOULD or SHOULD NOT: the bounded reason that permits setting the advice aside.
 
 **Rationale:** Why the rule exists.
 
@@ -94,8 +94,8 @@ A Standard states one testable obligation:
 - A different obligation, prohibition, or permission is a separate provision.
 - Conditions and scope belong in the Statement sentence.
 - Every other paragraph of the provision sits under a Rationale or an Example label and adds no obligation.
-- A Deviation appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
-- `SHOULD` keeps the standard's rule with a recorded departure; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a departure.
+- A Departure appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
+- `SHOULD` states advice a project applies with judgment and records nothing for; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a departure.
 
 A Convention states a default a project may replace:
 
@@ -233,7 +233,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Strength:** required
 
-**Statement:** A capitalized modal MUST appear only in a Statement, a Deviation, a Default, or a Replacement.
+**Statement:** A capitalized modal MUST appear only in a Statement, a Departure, a Default, or a Replacement.
 
 **Rationale:** Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 
@@ -247,7 +247,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A Standards provision MUST carry the modal its Strength line grades.
 
-**Rationale:** The Strength line tells a reader how binding a provision is, and the modal in its Statement says the same thing in words: a required provision obliges with must or must not, while an advisory one suggests with neither. A permission on its own reads as optional advice under a required label, so a permission either joins the provision it relaxes or becomes an obligation. When the two disagree, each reader picks the one that suits the change, and the grade means nothing.
+**Rationale:** The Strength line tells a reader how binding a provision is, and the modal in its Statement says the same thing in words: a required provision obliges with must or must not, while an advisory one advises with should, should not, or may. A permission on its own reads as optional advice under a required label, so a permission either joins the provision it relaxes or becomes an obligation. When the two disagree, each reader picks the one that suits the change, and the grade means nothing. Settled by [decision/0082-give-every-rule-one-home-and-one-strength](decision/0082-give-every-rule-one-home-and-one-strength).
 
 **Example:** A required provision states that a use case declares its kind with must, while an advisory provision suggests a naming shape without it.
 
@@ -477,7 +477,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `### Keep Business Invariants in Domain` owns one obligation about where invariants are enforced.
 
-**Checked by:** `litespec-maintain validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, `STANDARD_DEVIATION_NORMATIVE`, `STANDARD_DEVIATION_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEPARTURE`, `STANDARD_UNEXPECTED_DEPARTURE`, `STANDARD_DEPARTURE_NORMATIVE`, `STANDARD_DEPARTURE_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Identify Actionable Conventions
 
@@ -489,7 +489,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A Convention heading under `## Conventions` makes each replaceable default traceable: a project cites exactly the default it replaces. Without the contract, defaults hide in prose and replacements cite paragraphs instead of identifiers.
 
-**Checked by:** `litespec-maintain validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_DEVIATION`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_DEPARTURE`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Attach Examples to Their Provisions
 

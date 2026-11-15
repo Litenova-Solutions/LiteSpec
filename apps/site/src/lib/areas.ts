@@ -14,7 +14,7 @@ export interface Group {
   areas: string[];
 }
 
-// The five groups of the docs folders, in journey order: understand, do, look
+// The five groups of the docs folders, in flow order: understand, do, look
 // up. The folders stay where they are, because provision IDs derive from page
 // paths; only the navigation groups them. docs/assets/ holds diagrams, not
 // pages. docs/intent/ holds LiteSpec's own research and decisions, so it sits

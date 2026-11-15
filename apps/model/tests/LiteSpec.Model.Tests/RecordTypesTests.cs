@@ -20,7 +20,7 @@ public sealed class RecordTypesTests
         Assert.DoesNotContain("requirement-page", RecordTypes.PageStyles);
     }
 
-    /// <summary>Cites links the seven reason types and the requirements a journey shows.</summary>
+    /// <summary>Cites links the seven reason types and the requirements a flow shows.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void CitesLinksReasonsAndRequirements()
@@ -30,14 +30,16 @@ public sealed class RecordTypesTests
         Assert.False(RecordTypes.LinkTargets.ContainsKey("features"));
     }
 
-    /// <summary>Addresses links the actors a page speaks to and the permission an event needs.</summary>
+    /// <summary>Audience links the actors a page speaks to, and requires links actors and permissions.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact]
-    public void AddressesLinksActorsAndPermissions()
+    public void AudienceAndRequiresLinkActorsAndPermissions()
     {
-        Assert.True(RecordTypes.LinkTargets["addresses"].SetEquals(
+        Assert.True(RecordTypes.LinkTargets["audience"].SetEquals(
+            ["actor"]));
+        Assert.True(RecordTypes.LinkTargets["requires"].SetEquals(
             ["actor", "permission"]));
-        Assert.False(RecordTypes.LinkTargets.ContainsKey("audience"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("addresses"));
     }
 
     /// <summary>The reaction and the job are Behavior record types with a home, and automation is gone.</summary>
@@ -79,29 +81,29 @@ public sealed class RecordTypesTests
         Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
     }
 
-    /// <summary>A view links the aggregate it is keyed by, the integration events it takes fields from and removes rows on, and the use cases that read it.</summary>
-    /// <proves>litespec/core/automation#declare-each-view-field-from-a-published-field</proves>
+    /// <summary>A read model links the aggregate it is keyed by, the integration events it takes fields from and removes rows on, and the use cases that read it.</summary>
+    /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
     [Fact]
-    public void ViewLinksItsSourcesAndReaders()
+    public void ReadModelLinksItsSourcesAndReaders()
     {
-        Assert.Contains("view", RecordTypes.All);
-        Assert.Contains("view", RecordTypes.WithHome);
-        Assert.Equal("behavior", RecordTypes.LayerByType["view"]);
+        Assert.Contains("read-model", RecordTypes.All);
+        Assert.Contains("read-model", RecordTypes.WithHome);
+        Assert.Equal("behavior", RecordTypes.LayerByType["read-model"]);
         Assert.True(RecordTypes.LinkTargets["keyedBy"].SetEquals(["aggregate"]));
         Assert.True(RecordTypes.LinkTargets["from"].SetEquals(["integration-event"]));
         Assert.True(RecordTypes.LinkTargets["erasedBy"].SetEquals(["integration-event"]));
         Assert.True(RecordTypes.LinkTargets["removedBy"].SetEquals(["integration-event"]));
-        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "setting", "view"]));
+        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "setting", "read-model"]));
     }
 
-    /// <summary>A view is a technical type that code implements, and its record home is its module's views folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</proves>
+    /// <summary>A read model is a technical type that code implements, and its record home is its module's read-models folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</proves>
     [Fact]
-    public void ViewHomeIsTheModuleViewsFolder()
+    public void ReadModelHomeIsTheModuleReadModelsFolder()
     {
-        Assert.Contains("views", RecordFolders.BehaviorModuleFolders);
-        Assert.Equal("behavior/modules/reporting/views/reimbursed-expense/reimbursed-expense.yaml", RecordFolders.ScaffoldPath("view", "reporting", "reimbursed-expense"));
-        Assert.True(RecordFolders.Places("view", ["behavior", "modules", "reporting", "views", "reimbursed-expense"], "reimbursed-expense.yaml"));
+        Assert.Contains("read-models", RecordFolders.BehaviorModuleFolders);
+        Assert.Equal("behavior/modules/reporting/read-models/reimbursed-expense/reimbursed-expense.yaml", RecordFolders.ScaffoldPath("read-model", "reporting", "reimbursed-expense"));
+        Assert.True(RecordFolders.Places("read-model", ["behavior", "modules", "reporting", "read-models", "reimbursed-expense"], "reimbursed-expense.yaml"));
     }
 
     /// <summary>The reaction trigger links the events that set it off, and the old trigger is gone.</summary>
@@ -110,7 +112,7 @@ public sealed class RecordTypesTests
     public void TriggeredByLinksEvents()
     {
         Assert.True(RecordTypes.LinkTargets["triggeredBy"].SetEquals(
-            ["event", "integration-event"]));
+            ["domain-event", "integration-event"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("on"));
     }
 
@@ -122,9 +124,9 @@ public sealed class RecordTypesTests
         Assert.Empty(RecordTypes.LinkTargets["freshness"]);
         Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
             ["external-system", "integration-event"]));
-        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["reaction", "job"]));
+        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["job", "use-case"]));
         Assert.True(RecordTypes.LinkTargets["dataClasses"].SetEquals(
-            ["reaction", "job", "decision", "requirement"]));
+            ["job", "use-case", "decision", "requirement"]));
     }
 
     /// <summary>BasedOn links the records a limit or a choice rests on, and the renamed fields are gone.</summary>
@@ -153,18 +155,18 @@ public sealed class RecordTypesTests
 
         var steps = rows
             .Where(row => row.Field == "serves"
-                && row.PointsAt.Contains("journey step", StringComparison.OrdinalIgnoreCase)
-                && !row.WrittenOn.Contains("screen", StringComparison.OrdinalIgnoreCase))
+                && row.PointsAt.Contains("flow step", StringComparison.OrdinalIgnoreCase))
             .ToList();
         Assert.Single(steps);
+        Assert.Contains("screen", WritersOf(steps[0]));
         Assert.Equal(
-            WritersOf(steps[0]),
+            WritersOf(steps[0]).Where(type => type != "screen").OrderBy(type => type, StringComparer.Ordinal).ToList(),
             RecordTypes.StepServingTypes.OrderBy(type => type, StringComparer.Ordinal).ToList());
 
         var linked = RecordTypes.FulfillingTypes
             .Concat(RecordTypes.StepServingTypes)
             .Distinct(StringComparer.Ordinal)
-            .Where(type => type != "rule")
+            .Where(type => type != "rule" && type != "entry-point")
             .OrderBy(type => type, StringComparer.Ordinal)
             .ToList();
         Assert.Equal(linked, RecordTypes.UpLinkedTypes.OrderBy(type => type, StringComparer.Ordinal).ToList());

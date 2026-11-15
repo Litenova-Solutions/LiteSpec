@@ -13,7 +13,7 @@ public sealed class MarkRulesTests
     [Theory(DisplayName = "RecordTypes names the expected record types for every kind")]
     [InlineData(CodeKind.AggregateRoot, "aggregate")]
     [InlineData(CodeKind.AggregateMethod, "use-case")]
-    [InlineData(CodeKind.DomainEvent, "event")]
+    [InlineData(CodeKind.DomainEvent, "domain-event")]
     [InlineData(CodeKind.RuleException, "rule")]
     [InlineData(CodeKind.Handler, "use-case")]
     [InlineData(CodeKind.EventHandler, "reaction")]
@@ -23,7 +23,7 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Endpoint, "use-case")]
     [InlineData(CodeKind.FrontendModule, "use-case")]
     [InlineData(CodeKind.Test, "scenario,rule,requirement,decision,external-system,integration-event,litespec")]
-    [InlineData(CodeKind.Technical, "aggregate,use-case,reaction,job,external-system,event,rule,notification,setting,integration-event,view")]
+    [InlineData(CodeKind.Technical, "aggregate,use-case,reaction,job,external-system,domain-event,rule,notification,setting,integration-event,read-model")]
     public void RecordTypesNamesExpectedTypes(CodeKind kind, string expected)
     {
         var types = MarkRules.RecordTypes(kind);
@@ -103,7 +103,7 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "reaction/spending.remind-approver"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "job/spending.remind-approvers"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "external-system/payments"));
-        Assert.True(MarkRules.Accepts(CodeKind.Technical, "event/expense.submitted"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "domain-event/expense.submitted"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "rule/spending.receipt-required"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "notification/spending.approval-reminder"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "setting/spending.max-open-expenses"));
@@ -151,7 +151,7 @@ public sealed class MarkRulesTests
     [Fact(DisplayName = "Accepts rejects another type, an empty name, and a prefix without a slash")]
     public void AcceptsRejectsOtherTypes()
     {
-        Assert.False(MarkRules.Accepts(CodeKind.Handler, "event/expense.submitted"));
+        Assert.False(MarkRules.Accepts(CodeKind.Handler, "domain-event/expense.submitted"));
         Assert.False(MarkRules.Accepts(CodeKind.Handler, "use-case/"));
         Assert.False(MarkRules.Accepts(CodeKind.Handler, "use-case"));
         Assert.False(MarkRules.Accepts(CodeKind.Handler, "use-casex/spending.submit-expense"));

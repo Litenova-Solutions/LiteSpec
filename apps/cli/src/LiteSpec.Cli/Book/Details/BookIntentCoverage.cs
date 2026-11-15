@@ -6,106 +6,67 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Book.Details;
 
 /// <summary>
-///     The Intent coverage status in the book's JSON shape: computed from the
-///     model the book renders when the store carries none, and read back from
-///     the store when the command computed it from the built model. The status
-///     covers each requirement and each journey step, and the share reached.
+///     The Intent coverage status in the book's JSON shape. The build computes it once with
+///     IntentCoverage.Compute from the built model; this file writes its counts to the manifest,
+///     its entries to the coverage shard, and reads it back. The status covers every item the
+///     model computes, and the share reached.
 /// </summary>
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookIntentCoverage
 {
-    /// <summary>Computes the Intent coverage from a parsed model object.</summary>
-    /// <param name="store">The parsed model object that holds the records array.</param>
-    /// <returns>The computed Intent coverage status.</returns>
-    public static IntentCoverage Compute(JsonObject store)
-    {
-        var fulfilledBy = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        var servedBy = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-
-        void Add(Dictionary<string, List<string>> map, string target, string source)
-        {
-            if (target.Length == 0 || source.Length == 0)
-            {
-                return;
-            }
-
-            if (!map.TryGetValue(target, out var list))
-            {
-                list = [];
-                map[target] = list;
-            }
-
-            if (!list.Contains(source, StringComparer.Ordinal))
-            {
-                list.Add(source);
-            }
-        }
-
-        var records = (store["records"] as JsonArray ?? []).OfType<JsonObject>().ToList();
-
-        foreach (var record in records)
-        {
-            var type = BookRender.StrProp(record, "type") ?? "";
-            var id = BookRender.StrProp(record, "id") ?? "";
-
-            if (RecordTypes.FulfillingTypes.Contains(type, StringComparer.Ordinal))
-            {
-                foreach (var target in TargetsOf(record, "fulfills"))
-                {
-                    Add(fulfilledBy, target, id);
-                }
-            }
-
-            if (RecordTypes.StepServingTypes.Contains(type, StringComparer.Ordinal))
-            {
-                foreach (var target in TargetsOf(record, "serves"))
-                {
-                    Add(servedBy, target, id);
-                }
-            }
-        }
-
-        var requirements = records
-            .Where(record => BookRender.StrProp(record, "type") == "requirement" && !BookRender.IsTrue(record["derived"]))
-            .Select(record => BookRender.StrProp(record, "id") ?? "")
-            .Where(id => id.Length > 0)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(id => id, StringComparer.Ordinal)
-            .ToList();
-
-        var steps = new List<string>();
-        foreach (var journey in records
-            .Where(record => BookRender.StrProp(record, "type") == "journey" && !BookRender.IsTrue(record["derived"]))
-            .OrderBy(record => BookRender.StrProp(record, "id") ?? "", StringComparer.Ordinal))
-        {
-            var journeyId = BookRender.StrProp(journey, "id") ?? "";
-            if (journeyId.Length == 0)
-            {
-                continue;
-            }
-
-            foreach (var step in BookRender.Fields(journey)?["steps"] as JsonArray ?? [])
-            {
-                if (step is JsonObject entry && BookRender.StrProp(entry, "id") is { Length: > 0 } stepId)
-                {
-                    steps.Add(journeyId + "#" + stepId);
-                }
-            }
-        }
-
-        return IntentCoverage.Build(requirements, steps, fulfilledBy, servedBy);
-    }
-
-    /// <summary>The Intent coverage a store carries, computed from its records when it carries none.</summary>
-    /// <param name="store">The parsed model object that holds the records array and may hold the coverage.</param>
+    /// <summary>The Intent coverage a store carries: the status the build computed from the model with IntentCoverage.Compute.</summary>
+    /// <param name="store">The model object the build wrote the carried coverage into.</param>
     /// <returns>The Intent coverage status for the store.</returns>
     public static IntentCoverage Of(JsonObject store) =>
-        store["intentCoverage"] is JsonObject carried ? FromJson(carried) : Compute(store);
+        store["intentCoverage"] is JsonObject carried
+            ? FromJson(carried)
+            : throw new InvalidOperationException("The model object carries no Intent coverage.");
 
-    /// <summary>One Intent coverage status as its JSON object for the manifest shard.</summary>
+    /// <summary>One Intent coverage status as its JSON object with counts, share and entries.</summary>
     /// <param name="coverage">The Intent coverage status.</param>
     /// <returns>The JSON object with the counts, the share and one entry per item.</returns>
     public static JsonObject ToJson(IntentCoverage coverage)
+    {
+        var json = SummaryJson(coverage);
+        json["entries"] = EntriesJson(coverage);
+        return json;
+    }
+
+    /// <summary>One Intent coverage status as the manifest shard holds it: counts and share, without entries.</summary>
+    /// <param name="coverage">The Intent coverage status.</param>
+    /// <returns>The JSON object with the counts and the share.</returns>
+    public static JsonObject SummaryJson(IntentCoverage coverage) =>
+        new JsonObject
+        {
+            ["reached"] = coverage.Reached,
+            ["total"] = coverage.Total,
+            ["share"] = JsonValue.Create(coverage.Share),
+            ["requirements"] = new JsonObject
+            {
+                ["reached"] = coverage.RequirementsReached,
+                ["total"] = coverage.RequirementsTotal,
+            },
+            ["steps"] = new JsonObject
+            {
+                ["reached"] = coverage.StepsReached,
+                ["total"] = coverage.StepsTotal,
+            },
+            ["problems"] = new JsonObject
+            {
+                ["reached"] = coverage.ProblemsReached,
+                ["total"] = coverage.ProblemsTotal,
+            },
+            ["constraints"] = new JsonObject
+            {
+                ["reached"] = coverage.ConstraintsReached,
+                ["total"] = coverage.ConstraintsTotal,
+            },
+        };
+
+    /// <summary>One Intent coverage status as the coverage shard holds it: the bare entries list.</summary>
+    /// <param name="coverage">The Intent coverage status.</param>
+    /// <returns>The entries, one per requirement, flow step, problem and constraint.</returns>
+    public static JsonArray EntriesJson(IntentCoverage coverage)
     {
         var entries = new JsonArray();
         foreach (var entry in coverage.Entries)
@@ -125,23 +86,7 @@ static class BookIntentCoverage
             });
         }
 
-        return new JsonObject
-        {
-            ["reached"] = coverage.Reached,
-            ["total"] = coverage.Total,
-            ["share"] = JsonValue.Create(coverage.Share),
-            ["requirements"] = new JsonObject
-            {
-                ["reached"] = coverage.RequirementsReached,
-                ["total"] = coverage.RequirementsTotal,
-            },
-            ["steps"] = new JsonObject
-            {
-                ["reached"] = coverage.StepsReached,
-                ["total"] = coverage.StepsTotal,
-            },
-            ["entries"] = entries,
-        };
+        return entries;
     }
 
     /// <summary>Reads one Intent coverage status from its JSON object.</summary>

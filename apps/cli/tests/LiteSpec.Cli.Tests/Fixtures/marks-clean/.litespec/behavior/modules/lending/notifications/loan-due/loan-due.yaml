@@ -2,7 +2,7 @@ type: notification
 id: notification/lending.loan-due
 title: Loan due
 template: loan-due-reader
-addresses:
+audience:
   - actor/reader
 channel:
   - email

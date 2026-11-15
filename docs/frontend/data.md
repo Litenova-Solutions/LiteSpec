@@ -217,7 +217,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Statement:** A screen that shows data from several modules MUST call each owning module's own query and join the answers itself, rather than call one query that reads another module's data.
 
-**Rationale:** A query that exists only to show another module's data couples two modules for the sake of one page: the owner grows a reader method named for that page, and the reading module calls it in its query handler. The screen already knows both answers it needs. Calling each owner's query side by side keeps every query inside its own module, and the screen record's `offers` lists both use cases, so the composition is visible in the model. Settled by [decision/0065-read-another-module-through-a-view](decision/0065-read-another-module-through-a-view).
+**Rationale:** A query that exists only to show another module's data couples two modules for the sake of one page: the owner grows a reader method named for that page, and the reading module calls it in its query handler. The screen already knows both answers it needs. Calling each owner's query side by side keeps every query inside its own module, and the screen record's `offers` lists both use cases, so the composition is visible in the model. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
 **Example:** A finance page that shows each reimbursed expense beside its payout status calls the spending module's list-expenses query and the payout module's list-payouts query, and joins the two lists by expense identifier in the page.
 

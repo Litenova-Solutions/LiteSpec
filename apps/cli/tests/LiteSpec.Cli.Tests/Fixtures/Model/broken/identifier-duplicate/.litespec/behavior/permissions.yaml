@@ -1,4 +1,4 @@
-type: permission-list
+type: permission-set
 title: Permissions
 records:
   - type: permission

@@ -115,6 +115,7 @@ public sealed class Expense : AggregateRoot<Guid>
     public void Erase()
     {
         ReceiptId = null;
+        State = new ExpenseErasedState();
         RaiseDomainEvent(new ExpensePersonalDataErasedEvent(Id));
     }
 

@@ -4,13 +4,13 @@ Attach Receipt lets an employee add a receipt to a submitted expense. It concern
 
 ## Flow
 
-The employee sends the receipt for a submitted expense. Spending refuses the receipt with `spending.expense-decided` when the expense is already decided. Otherwise the receipt sits on the expense, and `event/receipt.attached` is raised. No audit entry is stored.
+The employee sends the receipt for a submitted expense. Spending refuses the receipt with `spending.expense-decided` when the expense is already decided. Otherwise the receipt sits on the expense, and `domain-event/receipt.attached` is raised. No audit entry is stored.
 
 A repeat attachment of the same receipt to the same submitted expense leaves the same receipt attached.
 
 ## Example
 
-Ava submits a meal below the 25 EUR threshold without a receipt. The meal is Submitted. Later she attaches the receipt to the meal. The receipt sits on the expense, and `event/receipt.attached` carries the receipt and expense identities.
+Ava submits a meal below the 25 EUR threshold without a receipt. The meal is Submitted. Later she attaches the receipt to the meal. The receipt sits on the expense, and `domain-event/receipt.attached` carries the receipt and expense identities.
 
 ## Edge Cases
 

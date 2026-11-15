@@ -8,15 +8,17 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="sm:max-w-lg">
+  <Dialog.Content class="max-w-lg">
     <Dialog.Header>
       <Dialog.Title>Keyboard shortcuts</Dialog.Title>
     </Dialog.Header>
-    <dl class="grid grid-cols-[150px_1fr] items-center gap-x-4 gap-y-2.5 text-sm">
+    <dl class="grid grid-cols-[180px_minmax(0,1fr)] items-center gap-x-4 gap-y-2 text-sm">
       <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>/</Kbd> or <Kbd>Ctrl K</Kbd></dt>
       <dd>Filter the navigation</dd>
       <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>j</Kbd><Kbd>k</Kbd></dt>
       <dd>Next and previous record in the navigation</dd>
+      <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>Home</Kbd><Kbd>End</Kbd></dt>
+      <dd>First and last record in the navigation</dd>
       <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>u</Kbd></dt>
       <dd>Up to the parent record</dd>
       <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>[</Kbd><Kbd>]</Kbd></dt>

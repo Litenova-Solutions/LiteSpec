@@ -10,7 +10,7 @@ sealed class FakeRecord : IRecordFields
     private readonly Dictionary<string, string> fields;
     private readonly Dictionary<string, IReadOnlyList<string>> lists;
 
-    /// <summary>Initializes a new instance of the <see cref="FakeRecord"/> class.Builds the record with the identity, the fields and the id lists.</summary>
+    /// <summary>Initializes a new instance of the <see cref="FakeRecord"/> class with the identity, the fields and the id lists.</summary>
     /// <param name="type">The record type, kebab-case.</param>
     /// <param name="id">The identifier.</param>
     /// <param name="fields">The string fields.</param>

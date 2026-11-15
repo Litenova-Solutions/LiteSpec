@@ -15,17 +15,17 @@
 
 {#if book.has(b)}
   <span class="inline-flex max-w-full items-center gap-1">
-    <button type="button" data-go={b} class="inline-flex min-w-0 items-center gap-1.5 rounded-sm text-left hover:underline">
-      <RecordIcon name={t} class="size-3.5 text-muted-foreground" />
-      <span class="truncate">{book.title(b)}{#if suffix}<span class="text-muted-foreground"> {suffix}</span>{/if}</span>
+    <a href={"#" + encodeURIComponent(b)} data-go={b} class="inline-flex min-w-0 items-center gap-2 rounded-sm text-left hover:underline">
+      <RecordIcon name={t} class="size-3.5 text-slate-600" />
+      <span class="truncate">{book.title(b)}{#if suffix}<span class="text-slate-600"> {suffix}</span>{/if}</span>
       <TypeTag type={t} />
-    </button>
+    </a>
     {#if href}
-      <a {href} class="text-muted-foreground hover:text-foreground" title={"Open " + r?.src?.path + " in the editor"} aria-label="Open the source"><RecordIcon name="ext" class="size-3.5" /></a>
+      <a {href} class="text-slate-600 hover:text-slate-900" title={"Open " + r?.src?.path} aria-label="Open the source"><RecordIcon name="ext" class="size-3.5" /></a>
     {/if}
   </span>
 {:else}
-  <span class="inline-flex items-center gap-1.5 text-muted-foreground" title="No record with this identifier is in the book">
+  <span class="inline-flex items-center gap-2 text-slate-600" title="No record with this identifier is in the book">
     <RecordIcon name={t} class="size-3.5" /><span>{b}</span><TypeTag type={t} />
   </span>
 {/if}

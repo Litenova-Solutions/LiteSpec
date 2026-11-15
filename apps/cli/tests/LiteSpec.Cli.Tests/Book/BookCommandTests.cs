@@ -48,16 +48,16 @@ public sealed class BookCommandTests
             "Per-record pages still ship.");
 
         var shell = File.ReadAllText(Path.Combine(temp.Path, "index.html"));
-        Assert.Contains("<script src=\"assets/book.js\"></script>", shell, StringComparison.Ordinal);
+        Assert.Contains("<script src=\"assets/book.js\" defer></script>", shell, StringComparison.Ordinal);
         Assert.Contains("<link rel=\"stylesheet\" href=\"assets/book.css\">", shell, StringComparison.Ordinal);
         Assert.Contains("<div id=\"app\"></div>", shell, StringComparison.Ordinal);
         Assert.Contains("<noscript>", shell, StringComparison.Ordinal);
-        Assert.Contains("Library", shell, StringComparison.Ordinal);
+        Assert.Matches("<title>[^<]+</title>", shell);
         Assert.DoesNotContain("{{title}}", shell, StringComparison.Ordinal);
         Assert.DoesNotContain("{{noscript}}", shell, StringComparison.Ordinal);
     }
 
-    /// <summary>The manifest carries the project, roots, editor template, totals, layers, shard map, search shards, unplaced ids and generation date, and no approvals.</summary>
+    /// <summary>The manifest carries the project, source links, release, claims, coverage, totals, layers, shard map, search shards, unplaced ids and generation date, and no approvals.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void ManifestCarriesTheBookContract()
@@ -75,11 +75,15 @@ public sealed class BookCommandTests
         Assert.Equal("product/library", project["id"]!.GetValue<string>());
         Assert.Equal("Library", project["title"]!.GetValue<string>());
 
-        var roots = manifest["roots"]!.AsObject();
-        Assert.True(roots["consumer"]!.GetValue<string>().Length > 0);
-        Assert.True(roots["litespec"]!.GetValue<string>().Length > 0);
+        // A static export without --links links no sources.
+        Assert.Null(manifest["links"]);
+        Assert.True(manifest["release"]!.GetValue<string>().Length > 0);
 
-        Assert.Equal("vscode://file/{root}/{path}:{line}", manifest["editor"]!.GetValue<string>());
+        var claims = manifest["claims"]!.AsArray();
+        Assert.Equal(
+            new[] { "intent", "behavior", "implementation", "proof" },
+            claims.Select(node => node!.AsObject()["layer"]!.GetValue<string>()).ToList());
+        Assert.NotNull(manifest["intentCoverage"]);
 
         var totals = manifest["totals"]!.AsObject();
         var total = totals.Sum(pair => pair.Value!.GetValue<int>());
@@ -193,7 +197,7 @@ public sealed class BookCommandTests
         Assert.NotEmpty(lexicon["links"]!.AsArray());
     }
 
-    /// <summary>The --root and --editor values reach the manifest; --editor none suppresses source links.</summary>
+    /// <summary>The --links value reaches the manifest with the consumer root filled in; --links none leaves it empty.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
     public void RootAndEditorOptionsReachTheManifest()
@@ -204,23 +208,24 @@ public sealed class BookCommandTests
             "book",
             "--root", consumer.Path,
             "--out", Path.Combine(temp.Path, "out"),
-            "--editor", "none");
+            "--links", "none");
         Assert.Equal(0, result.Status);
 
         var manifest = ReadShard(Path.Combine(temp.Path, "out", "data", "manifest.js"), "manifest");
-        Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
-        Assert.Equal("none", manifest["editor"]!.GetValue<string>());
+        Assert.Null(manifest["links"]);
 
-        using var custom = TestCli.Temp("book-editor");
+        using var custom = TestCli.Temp("book-links");
         result = TestCli.Run(
             "book",
             "--root", consumer.Path,
             "--out", custom.Path,
-            "--editor", "myeditor://open?f={root}/{path}&l={line}");
+            "--links", "myeditor://open?f={root}/{path}&l={line}");
         Assert.Equal(0, result.Status);
 
         manifest = ReadShard(Path.Combine(custom.Path, "data", "manifest.js"), "manifest");
-        Assert.Equal("myeditor://open?f={root}/{path}&l={line}", manifest["editor"]!.GetValue<string>());
+        Assert.Equal(
+            "myeditor://open?f=" + Path.GetFullPath(consumer.Path) + "/{path}&l={line}",
+            manifest["links"]!.GetValue<string>());
     }
 
     /// <summary>A screen capture the model lists is copied into the book output and its shard names the book path.</summary>
@@ -245,34 +250,31 @@ public sealed class BookCommandTests
         Assert.Contains("assets/captures/screen-library-app-search/home.png", shard, StringComparison.Ordinal);
     }
 
-    /// <summary>The consumer root defaults to the consumer found from the working directory, and the output to its book folder.</summary>
+    /// <summary>
+    ///     The consumer root defaults to the consumer found from the working directory. The book has no
+    ///     default output folder: without --out it serves live, so every run here names --out.
+    /// </summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void RootAndOutDefaultToTheConsumerAndItsBookFolder()
+    public void RootDefaultsToTheConsumerFoundFromTheWorkingDirectory()
     {
         using var consumer = ModelFixture.Prepare("small");
 
-        // No --out: the book lands in .litespec/book under the consumer root.
-        var result = TestCli.Run("book", "--root", consumer.Path);
-        Assert.Equal(0, result.Status);
-
-        var bookDir = Path.Combine(consumer.Path, ".litespec", "book");
-        Assert.True(File.Exists(Path.Combine(bookDir, "index.html")), "index.html was not written to the default book folder.");
-        var manifest = ReadShard(Path.Combine(bookDir, "data", "manifest.js"), "manifest");
-        Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
-
         // No --root: the consumer is found by walking up from the working directory.
+        // The filled template carries the found root, so the manifest shows it.
         using var temp = TestCli.Temp("book");
-        result = TestCli.Run(
-            ["book", "--out", Path.Combine(temp.Path, "cwd-out")],
+        var result = TestCli.Run(
+            ["book", "--out", Path.Combine(temp.Path, "cwd-out"), "--links", "link:{root}|{path}:{line}"],
             workingDirectory: Path.Combine(consumer.Path, ".litespec", "behavior"));
         Assert.Equal(0, result.Status);
 
         // The operating system hands the CLI its working directory resolved, so on macOS a consumer under
         // /var arrives as /private/var. The reported root is the consumer folder when it carries the
         // consumer's own folder name and holds its project file, in either form.
-        manifest = ReadShard(Path.Combine(temp.Path, "cwd-out", "data", "manifest.js"), "manifest");
-        var found = manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>();
+        var manifest = ReadShard(Path.Combine(temp.Path, "cwd-out", "data", "manifest.js"), "manifest");
+        var template = manifest["links"]!.GetValue<string>();
+        Assert.StartsWith("link:", template, StringComparison.Ordinal);
+        var found = template["link:".Length..template.IndexOf('|')];
         Assert.Equal(Path.GetFileName(Path.GetFullPath(consumer.Path)), Path.GetFileName(found));
         Assert.True(File.Exists(Path.Combine(found, ".litespec", "project.yaml")), $"The reported root '{found}' holds no project file.");
     }

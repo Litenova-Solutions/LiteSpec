@@ -1,6 +1,10 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Book;
+using LiteSpec.Cli.Book.Lexicon;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -161,7 +165,9 @@ public sealed class BookHygieneTests
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
-        Assert.Equal("myeditor://open?f={root}/{path}&l={line}", manifest["editor"]!.GetValue<string>());
+        Assert.Equal(
+            "myeditor://open?f=" + temp.Path + "/{path}&l={line}",
+            manifest["links"]!.GetValue<string>());
 
         // Record shards carry the path and line; the template lives only in the manifest.
         var sources = 0;
@@ -188,17 +194,24 @@ public sealed class BookHygieneTests
         Assert.True(sources > 0, "No record carries a source path to check.");
     }
 
-    /// <summary>Editor none keeps the manifest template at none and ships no editor link.</summary>
+    /// <summary>No source link template keeps the manifest links empty and ships no editor link.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
     public void EditorNoneSuppressesSourceLinks()
     {
         using var temp = TestCli.Temp("book-hygiene");
-        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp), "none");
+        var build = BookSiteBuilder.Build(
+            BookStores.WithIntentCoverage(BookTestBooks.LoadFixture("Book/review.json")),
+            temp.Path,
+            BookLexicon.Load(TestCli.Repository),
+            null,
+            LayerClaims.All,
+            "2026-01-01T00:00:00.000Z");
+        build.Site.WriteTo(Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
-        Assert.Equal("none", manifest["editor"]!.GetValue<string>());
+        Assert.Null(manifest["links"]);
 
         foreach (var file in Directory.GetFiles(data, "*.js"))
         {
@@ -227,7 +240,7 @@ public sealed class BookHygieneTests
         Assert.DoesNotContain("Tier 3", client, StringComparison.Ordinal);
         Assert.DoesNotContain("tierb", client, StringComparison.Ordinal);
         Assert.DoesNotContain("mchip", client, StringComparison.Ordinal);
-        Assert.DoesNotContain("avatar", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-slot=\"avatar\"", client, StringComparison.Ordinal);
         Assert.DoesNotContain("data-slot=\"badge\"", client, StringComparison.Ordinal);
     }
 
@@ -244,13 +257,6 @@ public sealed class BookHygieneTests
 
     static IEnumerable<string> HtmlOf(JsonObject detail)
     {
-        if (detail["bodyHtml"] is JsonValue body
-            && body.TryGetValue<string>(out var html)
-            && html.Length > 0)
-        {
-            yield return html;
-        }
-
         var sections = detail["sections"] as JsonObject;
         if (sections?["intro"] is JsonValue intro
             && intro.TryGetValue<string>(out var lead)

@@ -117,7 +117,7 @@ describe("book", () => {
           reached: true,
           reachedBy: ["use-case/library.borrowing.borrow"],
         },
-        { id: "journey/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
+        { id: "flow/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
       ],
     });
   });
@@ -183,5 +183,117 @@ describe("book", () => {
       folder: "behavior/library/borrowing",
       module: "library",
     });
+  });
+
+  it("reads problem and constraint coverage entries", async () => {
+    const book = await fixtureBook("", {
+      coverage: {
+        reached: 2,
+        total: 4,
+        share: 0.5,
+        requirements: { reached: 1, total: 1 },
+        steps: { reached: 0, total: 1 },
+        problems: { reached: 1, total: 1 },
+        constraints: { reached: 0, total: 1 },
+        entries: [
+          { id: "requirement/borrow-book.main", kind: "requirement", reached: true, reachedBy: ["feature/borrow-book"] },
+          { id: "flow/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
+          { id: "problem/slow-borrowing", kind: "problem", reached: true, reachedBy: ["feature/borrow-book"] },
+          { id: "constraint/one-branch", kind: "constraint", reached: false, reachedBy: [] },
+        ],
+      },
+    });
+    const coverage = book.intentCoverage();
+    expect(coverage?.entries.map((entry) => entry.kind)).toEqual(["requirement", "step", "problem", "constraint"]);
+    expect(coverage?.problems).toEqual({ reached: 1, total: 1 });
+    expect(coverage?.constraints).toEqual({ reached: 0, total: 1 });
+  });
+
+  it("re-selecting the current record pushes no history entry", async () => {
+    const book = await fixtureBook();
+    const pushes: string[] = [];
+    const push = history.pushState.bind(history);
+    history.pushState = ((...args: [unknown, string, string?]) => {
+      pushes.push(String(args[2] ?? ""));
+      return push(...args);
+    }) as typeof history.pushState;
+    try {
+      await book.select("feature/borrow-book");
+      const count = pushes.length;
+      await book.select("feature/borrow-book");
+      expect(pushes.length).toBe(count);
+    } finally {
+      history.pushState = push;
+    }
+  });
+
+  it("keeps other open branches when the selection moves", async () => {
+    const book = await fixtureBook();
+    book.expanded = { "goal/faster-borrowing": true, "feature/borrow-book": true };
+    await book.select("use-case/library.borrowing.borrow");
+    expect(book.expanded["goal/faster-borrowing"]).toBe(true);
+    expect(book.expanded["feature/borrow-book"]).toBe(true);
+    expect(book.expanded["use-case/library.borrowing.borrow"]).toBe(true);
+  });
+
+  it("shows the record before its shards arrive", async () => {
+    const book = await fixtureBook();
+    const pending = book.select("feature/checkout");
+    expect(book.selected).toBe("feature/checkout");
+    await pending;
+    expect(book.selected).toBe("feature/checkout");
+  });
+
+  it("bumps only the security revision when the security shard arrives", async () => {
+    const book = await fixtureBook();
+    const outline = book.outlineRev;
+    const rec = book.recRev;
+    const search = book.searchRev;
+    const security = book.securityRev;
+    const rev = book.rev;
+    await book.setView("security");
+    expect(book.securityRev).toBeGreaterThan(security);
+    expect(book.outlineRev).toBe(outline);
+    expect(book.recRev).toBe(rec);
+    expect(book.searchRev).toBe(search);
+    expect(book.rev).toBeGreaterThan(rev);
+  });
+
+  it("follows the rendered outline order for keyboard moves", async () => {
+    const book = await fixtureBook();
+    expect(book.navOrder()).toContain("feature/borrow-book");
+    book.setNavOrder(["feature/borrow-book", "goal/faster-borrowing"]);
+    expect(book.navOrder()).toEqual(["feature/borrow-book", "goal/faster-borrowing"]);
+  });
+
+  it("finds the first direct match for the search box", async () => {
+    const book = await fixtureBook();
+    expect(book.firstMatch()).toBeNull();
+    book.setQuery("Borrow Book");
+    expect(book.firstMatch()).toBe("feature/borrow-book");
+  });
+
+  it("replaces the history entry when asked", async () => {
+    const book = await fixtureBook();
+    const replaces: string[] = [];
+    const pushes: string[] = [];
+    const replace = history.replaceState.bind(history);
+    const push = history.pushState.bind(history);
+    history.replaceState = ((...args: [unknown, string, string?]) => {
+      replaces.push(String(args[2] ?? ""));
+      return replace(...args);
+    }) as typeof history.replaceState;
+    history.pushState = ((...args: [unknown, string, string?]) => {
+      pushes.push(String(args[2] ?? ""));
+      return push(...args);
+    }) as typeof history.pushState;
+    try {
+      await book.select("feature/borrow-book", { replace: true });
+      expect(replaces.length).toBeGreaterThan(0);
+      expect(pushes.length).toBe(0);
+    } finally {
+      history.replaceState = replace;
+      history.pushState = push;
+    }
   });
 });

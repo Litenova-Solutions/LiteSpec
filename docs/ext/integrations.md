@@ -12,7 +12,7 @@ External integrations connect the product to providers it does not control, whic
 
 Activation scope: `local`.
 
-Applicable specification kinds: `use-case`, `rule`, `journey`.
+Applicable specification kinds: `use-case`, `rule`, `flow`.
 
 The consumer enables `integrations` for each use case that calls an external system, receives an inbound integration event, or uses a provider SDK.
 
@@ -36,7 +36,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** The external-system record bounds the dependency: its summary names the party behind it, `litespec/core/edges#describe-every-external-system-operation` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
 
-**Reviewed for:** Which providers lack an external system page in the Behavior systems home that names operations and erasure? Look at the external system pages beside the home.
+**Reviewed for:** Which providers lack an external system page in the Behavior external systems that names operations and erasure? Look at the external system pages.
 
 ### Call Only Declared Operations
 
@@ -64,7 +64,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
 
-**Deviation:** A project that keeps an inline provider call records a departure naming the compensation that undoes it.
+**Departure:** A project that keeps an inline provider call records a departure naming the compensation that undoes it.
 
 **Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a departure naming the compensation that undoes it.
 
@@ -182,15 +182,15 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Applies to:** artifact: any
 
-**Statement:** An integration MUST map provider errors to project-owned results and stable diagnostics.
+**Statement:** An integration MUST map each provider error to a rejected, accepted, or unknown outcome with its project-owned result and stable diagnostics, and name the handling of the unknown case in `onUnknown`.
 
-**Rationale:** Each provider reports failure in its own codes and shapes. Mapping them to project-owned results with stable diagnostics keeps the project's failure contract steady while providers change theirs.
+**Rationale:** Each provider reports failure in its own codes and shapes. Mapping them to project-owned results with stable diagnostics keeps the project's failure contract steady while providers change theirs. A rejected outcome names the provider's refusal, an accepted outcome names what the provider took, and an unknown outcome names a call whose effect stayed uncertain, such as a timeout. The unknown case names its handling in `onUnknown`: `dedupe-key` reuses the provider deduplication key on retry, `reconcile` settles the effect out of band, and `retry-safe` repeats a call the receiver tolerates twice.
 
 The project's own error catalog holds the stable codes. `litespec/backend/api#return-stable-problem-details` returns a code from that catalog. An integration that invents one code per provider creates one code space per provider. A client that branches on failure learns every code space. A provider's own error taxonomy is the input to the mapping, not its output.
 
-**Example:** A rejected payout file and an unsettled batch both map to the project's `payout-refused` code. The provider's own code travels in diagnostics.
+**Example:** A rejected payout file and an unsettled batch both map to the project's `payout-refused` code. The provider's own code travels in diagnostics. A payout call that times out maps to unknown with `onUnknown: dedupe-key`, so the retry reuses the provider key instead of paying twice.
 
-**Reviewed for:** Which provider errors miss their mapping to project-owned results and stable diagnostics? Look at the integration failure mappings.
+**Reviewed for:** Which provider errors miss their rejected, accepted, or unknown outcome with project-owned results and stable diagnostics, and which unknown cases name no `onUnknown` handling? Look at the integration failure mappings.
 
 ### Exclude Provider Internals
 
@@ -216,7 +216,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Statement:** An inbound integration event MUST declare `trust` as trigger-only or payload with its correlation.
 
-**Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook` gives each inbound fact one door.
+**Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states how each inbound fact arrives: the record names in `arrivesThrough` the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in `through` the external system it travels through.
 
 **Reviewed for:** Which inbound integration events declare neither trigger-only nor payload trust, with their correlation? Look at each inbound integration event record.
 
@@ -228,15 +228,15 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Applies to:** artifact: endpoint
 
-**Statement:** An inbound provider handler MUST verify signature, timestamp tolerance, replay protection, content type, size, schema, and event identity before processing.
+**Statement:** An inbound provider handler MUST verify signature, timestamp tolerance, replay protection, content type, size, schema, and event identity before processing on a webhook arrival, and event identity, schema, size, and replay protection on a subscribed broker or stream arrival.
 
-**Rationale:** An inbound message arrives from the network, where anyone can send bytes. Signature, timestamp tolerance, replay protection, content type, size, schema, and event identity each guard a different part of that trust boundary. Skipping any one leaves its attack open.
+**Rationale:** An inbound message arrives from the network, where anyone can send bytes. Signature, timestamp tolerance, replay protection, content type, size, schema, and event identity each guard a different part of that trust boundary. Skipping any one leaves its attack open. A subscribed broker or stream arrival authenticates at the subscription, so each message carries no per-message signature: the handler verifies event identity, schema, size, and replay protection on each message.
 
-Order matters here. Verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is not the bytes that the signature covered.
+Order matters on a webhook arrival. Verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is not the bytes that the signature covered.
 
 **Example:** A failed signature returns `401` with no body. A message that names the failed check tells an unauthenticated caller how to pass it.
 
-**Reviewed for:** Which inbound provider handlers skip signature, timestamp tolerance, replay protection, content type, size, schema, or event identity checks? Look at the inbound handlers.
+**Reviewed for:** Which webhook inbound handlers skip a check their arrival requires, and which subscription inbound handlers skip event identity, schema, size, or replay protection? Look at the inbound handlers.
 
 ### Process Duplicate Messages Safely
 
@@ -292,7 +292,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Statement:** An integration test MUST cover timeout, connection failure, transient response, permanent response, malformed payload, rate limit, duplicate delivery, and unexpected response shape.
 
-**Rationale:** Timeout, connection failure, transient and permanent responses, malformed payloads, rate limits, duplicate delivery, and unexpected shapes each exercise a different path through retry, mapping, and idempotency. A mode without a test leaves its path unverified. The suite covers all eight so each path proves itself.
+**Rationale:** Timeout, connection failure, transient and permanent responses, malformed payloads, rate limits, duplicate delivery, and unexpected shapes each exercise a different path through retry, mapping, and idempotency. A mode without a test leaves its path unverified. The suite covers all eight so each path proves itself. The timeout mode exercises the unknown outcome: the test shows which `onUnknown` handling the retry follows.
 
 An unexpected response shape is the mode a provider produces without failing. A well-formed response can carry a field that moved, a type that changed, or a value no one planned for. The response parses. The behavior is still wrong. Every other listed mode reports that response as an error. A provider that versions its API changes shape on a schedule. A pinned version still changes on the day the provider raises it.
 

@@ -1,0 +1,19 @@
+type: decision
+id: decision/0072-generate-the-links-table-from-the-schema
+title: Generate the Links Table from the Schema
+options:
+  - name: "Schema annotations generate the Links table and the book labels"
+    pros: "One meaning and one reads-as phrase stands behind each link, the docs and the book cannot drift from the schema, and a link without phrases fails validate."
+    cons: "Every link property gains two annotations, and the generator owns the table body."
+  - name: "Keep the hand-written table"
+    pros: "No tooling changes and the table stays hand-tuned."
+    cons: "Missing rows, rows for non-links, wrong rows, and invented book labels return with every edit."
+  - name: "Derive labels in the book only"
+    pros: "The book reads consistently."
+    cons: "The docs table still drifts from the schema it claims to state."
+choice: "Schema annotations generate the Links table and the book labels"
+consequences: "Each link property in `schemas/record.schema.yaml` carries `x-reads-as` and `x-read-back-as`; `litespec-maintain` writes the Links table between `<!-- generated:links -->` and `<!-- /generated:links -->`, and the book takes every connection label from the same annotations. Intent links point up a layer; effect and structure links follow the effect graph within Behavior; `decides`, `allows`, and `holds` are the only down-links. Screen `serves` stays explicit under `litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve`. Notification `addresses` becomes `audience`, integration-event `addresses` becomes `requires`, consistency `cites` becomes `boundBy`, output-group `cites` becomes `widenedBy`, and `triggeredBy` reads triggers and is triggered by. `fulfills` leaves read models and entry points: the query reading a read model fulfills the requirement."
+reopenedWhen: "A link needs a meaning its two phrases cannot carry, or generation blocks a shape the schema must add."
+basedOn:
+  - research/field-naming-evidence
+  - research/naming-grammar-evidence

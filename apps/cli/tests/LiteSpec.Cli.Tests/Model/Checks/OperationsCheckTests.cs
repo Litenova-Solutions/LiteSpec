@@ -453,8 +453,8 @@ public sealed class OperationsCheckTests
         }
     }
 
-    const string FeatureFile = ".litespec/intent/problems/slow-desk-loans/features/performance/performance.yaml";
-    const string RequirementFile = ".litespec/intent/problems/slow-desk-loans/features/performance/requirements/list-loans-latency/list-loans-latency.yaml";
+    const string FeatureFile = ".litespec/intent/features/performance/performance.yaml";
+    const string RequirementFile = ".litespec/intent/features/performance/requirements/list-loans-latency/list-loans-latency.yaml";
     const string ListLoansFile = ".litespec/behavior/modules/lending/aggregates/loans/use-cases/list-loans/list-loans.yaml";
     const string RunbookFile = ".litespec/implementation/runbooks/slow-listings/slow-listings.yaml";
     const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing/0003-term-start-listing.yaml";
@@ -473,7 +473,10 @@ public sealed class OperationsCheckTests
           "type": "feature",
           "id": "feature/performance",
           "title": "Performance",
-          "offering": "Loan listings answer within 300 milliseconds at p95 during term start."
+          "offering": "Loan listings answer within 300 milliseconds at p95 during term start.",
+          "solves": [
+            "problem/slow-desk-loans"
+          ]
         }
         """;
 

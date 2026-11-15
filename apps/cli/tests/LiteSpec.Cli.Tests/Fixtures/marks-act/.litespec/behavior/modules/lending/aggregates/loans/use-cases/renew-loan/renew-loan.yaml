@@ -3,8 +3,8 @@ id: use-case/lending.renew-loan
 title: Renew loan
 kind: command
 raises:
-  - event/loan.loan-renewed
-changes:
+  - domain-event/loan.loan-renewed
+writes:
   - aggregate/lending.loan
 records:
   - type: result

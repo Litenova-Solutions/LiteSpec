@@ -5,3 +5,5 @@ summary: Employees reach spending through the expenses app.
 kind: browser
 auth:
 - session
+density: application-balanced
+voice: Claimwick addresses the employee plainly and names the next step on every screen.

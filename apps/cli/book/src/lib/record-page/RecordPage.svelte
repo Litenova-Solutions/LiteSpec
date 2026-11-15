@@ -27,20 +27,16 @@
   const leadInline = $derived(r && leadPlain ? inline(book, leadPlain, r.src ?? null) : "");
 
   $effect(() => {
-    if (id) document.getElementById("record-title")?.focus({ preventScroll: true });
+    if (!id) return;
+    // A move inside the outline leaves focus in the tree so arrow keys keep
+    // working; any other navigation moves focus to the record title.
+    if (!book.focusTitle) return;
+    document.getElementById("record-title")?.focus({ preventScroll: true });
   });
 </script>
 
 {#if !r || !id}
-  <nav class="mb-[18px] flex flex-wrap items-center gap-1.5 text-[0.8125rem] text-muted-foreground" aria-label="Location">
-    <b class="font-semibold text-foreground">{id ?? ""}</b>
-  </nav>
-  <h1 id="record-title" tabindex="-1" class="outline-none m-0 mb-1.5 max-w-[72ch] text-[2.125rem] leading-[1.15] font-semibold tracking-[-0.03em]">{id ?? ""}</h1>
-  <p class="mt-0 mb-2 text-sm font-semibold text-subtle-foreground">Record</p>
-  <div class="mb-[18px] flex flex-wrap items-center gap-x-3.5 gap-y-2 text-xs text-muted-foreground">
-    <code class="font-mono text-xs font-medium text-foreground">{id ?? ""}</code>
-  </div>
-  <p class="mx-2 mt-0 mb-2 text-xs text-muted-foreground">No record with this identifier is in the book.</p>
+  <RecordHeader id={id ?? ""} r={null} />
 {:else if r.type === "layer"}
   <RecordHeader {id} {r} />
   {@const Layer = TYPES["layer"] ?? GenericType}
@@ -53,7 +49,7 @@
   {#if leadHtml}
     <div class="mb-6 max-w-[72ch]"><RenderedProse html={leadHtml} lead /></div>
   {:else if leadInline}
-    <p class="mt-0 mb-6 max-w-[72ch] text-lg leading-relaxed" use:glossaryLinks={leadInline}>{@html leadInline}</p>
+    <p class="mt-0 mb-6 max-w-[72ch] text-base leading-relaxed text-slate-900" use:glossaryLinks={leadInline}>{@html leadInline}</p>
   {/if}
   <CompletionBlock {r} />
   <FieldTable {id} {r} />

@@ -104,13 +104,13 @@ public sealed class PlacementCheckTests
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Billing", "Invoices", "Domain", "Events", "LoanBorrowedEvent.cs");
-        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "event/loan.loan-borrowed"));
+        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "domain-event/loan.loan-borrowed"));
 
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("Domain event 'LoanBorrowedEvent' sits in module folder 'Billing', but marks 'event/loan.loan-borrowed'.", finding.Message);
-        Assert.Equal("event/loan.loan-borrowed", finding.Subject);
+        Assert.Equal("Domain event 'LoanBorrowedEvent' sits in module folder 'Billing', but marks 'domain-event/loan.loan-borrowed'.", finding.Message);
+        Assert.Equal("domain-event/loan.loan-borrowed", finding.Subject);
     }
 
     /// <summary>A domain event in its aggregate reports nothing.</summary>
@@ -122,7 +122,7 @@ public sealed class PlacementCheckTests
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Events", "LoanBorrowedEvent.cs");
         WriteCode(file, "Library.Lending.Loans.Events", "LoanBorrowedEvent");
-        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "event/loan.loan-borrowed"));
+        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "domain-event/loan.loan-borrowed"));
 
         Assert.Empty(Run(model));
     }
@@ -418,35 +418,35 @@ public sealed class PlacementCheckTests
         Assert.Contains(placed, finding => finding.Message == "File 'apps/api/src/Library.Modules/Lending/Loans/WebApi/LoanResponseModel.cs' holds a message, result or transport model outside a use case folder.");
     }
 
-    /// <summary>A view projection in its module's view folder reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</proves>
+    /// <summary>A read-model projection in its module's read-models folder reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</proves>
     [Fact]
-    public void ModuleLayoutViewProjectionInViewsFolderReportsNothing()
+    public void ModuleLayoutReadModelProjectionInReadModelsFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        model.Records.Add(Rec("view", "view/lending.reimbursed-expense", "lending/view/reimbursed-expense", temp.Path));
-        var file = ProductFile(temp.Path, "Lending", "Views", "ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection.cs");
-        WriteCode(file, "Library.Lending.Views.ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection");
-        model.Code.Elements.Add(Element(CodeKind.Technical, "ReimbursedExpenseOnLoanBorrowedProjection", file, "view/lending.reimbursed-expense"));
+        model.Records.Add(Rec("read-model", "read-model/lending.reimbursed-expense", "lending/read-model/reimbursed-expense", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "ReadModels", "ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection.cs");
+        WriteCode(file, "Library.Lending.ReadModels.ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection");
+        model.Code.Elements.Add(Element(CodeKind.Technical, "ReimbursedExpenseOnLoanBorrowedProjection", file, "read-model/lending.reimbursed-expense"));
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>A view projection outside its view's Views folder reports the folder the view takes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</proves>
+    /// <summary>A read-model projection outside its read model's ReadModels folder reports the folder the read model takes.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</proves>
     [Fact]
-    public void ModuleLayoutViewProjectionOutsideViewsFolderReportsPlacementDrift()
+    public void ModuleLayoutReadModelProjectionOutsideReadModelsFolderReportsPlacementDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        model.Records.Add(Rec("view", "view/lending.reimbursed-expense", "lending/view/reimbursed-expense", temp.Path));
+        model.Records.Add(Rec("read-model", "read-model/lending.reimbursed-expense", "lending/read-model/reimbursed-expense", temp.Path));
         var file = ProductFile(temp.Path, "Lending", "Loans", "Projections", "ReimbursedExpenseOnLoanBorrowedProjection.cs");
-        model.Code.Elements.Add(Element(CodeKind.Technical, "ReimbursedExpenseOnLoanBorrowedProjection", file, "view/lending.reimbursed-expense"));
+        model.Code.Elements.Add(Element(CodeKind.Technical, "ReimbursedExpenseOnLoanBorrowedProjection", file, "read-model/lending.reimbursed-expense"));
 
         var placed = Run(model);
 
-        Assert.Contains(placed, finding => finding.Message == "Technical class 'ReimbursedExpenseOnLoanBorrowedProjection' sits in folder 'Projections', but marks 'view/lending.reimbursed-expense', so it belongs in 'Lending/Views/ReimbursedExpenses/'.");
+        Assert.Contains(placed, finding => finding.Message == "Technical class 'ReimbursedExpenseOnLoanBorrowedProjection' sits in folder 'Projections', but marks 'read-model/lending.reimbursed-expense', so it belongs in 'Lending/ReadModels/ReimbursedExpenses/'.");
     }
 
     /// <summary>A command in its use case's Application folder reports nothing.</summary>
@@ -532,7 +532,7 @@ public sealed class PlacementCheckTests
         model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/lending.loan", "lending/loans", root));
         model.Records.Add(Rec(RecordTypes.UseCase, "use-case/lending.borrow-copy", "lending/loans/use-case/borrow-copy", root));
         model.Records.Add(Rec(RecordTypes.Scenario, "scenario/borrow-copy.borrowing-an-available-copy-succeeds", "lending/loans/use-case/borrow-copy/scenario/borrowing-an-available-copy-succeeds", root));
-        model.Records.Add(Rec(RecordTypes.Event, "event/loan.loan-borrowed", "lending/loans/use-case/borrow-copy/event/loan-borrowed", root));
+        model.Records.Add(Rec(RecordTypes.DomainEvent, "domain-event/loan.loan-borrowed", "lending/loans/use-case/borrow-copy/domain-event/loan-borrowed", root));
 
         return model;
     }

@@ -146,10 +146,10 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{"carries": ["loanId"]}"""),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"direction": "out", "translates": "event/loan.loan-borrowed"}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command", "raises": ["event/loan.loan-borrowed"]}"""),
-            TestModel.Record("use-case", "use-case/finance.record-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "use-cases", "record-loan", "record-loan.yaml"), """{"kind": "command", "raises": ["event/loan.loan-borrowed"]}"""));
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{"carries": ["loanId"]}"""),
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"direction": "out", "translates": "domain-event/loan.loan-borrowed"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-borrowed"]}"""),
+            TestModel.Record("use-case", "use-case/finance.record-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "use-cases", "record-loan", "record-loan.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-borrowed"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "event-publisher-invalid");
         Assert.Equal("G", finding.Tier);
@@ -167,9 +167,9 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{"carries": ["loanId"]}"""),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"direction": "out", "translates": "event/loan.loan-borrowed"}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command", "raises": ["event/loan.loan-borrowed"]}"""));
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{"carries": ["loanId"]}"""),
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"direction": "out", "translates": "domain-event/loan.loan-borrowed"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-borrowed"]}"""));
 
         Assert.DoesNotContain("event-publisher-invalid", TestModel.Codes(model));
     }

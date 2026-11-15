@@ -1,0 +1,19 @@
+type: decision
+id: decision/0080-solve-problems-with-standalone-features
+title: Solve Problems with Standalone Features
+options:
+  - name: "Features stand alone with solves; product-wide commitments stand as product requirements"
+    pros: "Each offer is written once however many problems it answers, the book groups a feature under every problem it solves, and commitments with no offer gain a home."
+    cons: "Every feature moves to intent/features/ with solves, and invented features split into product requirements."
+  - name: "Keep features under their problem"
+    pros: "No feature moves and no home is added."
+    cons: "An offer spanning two problems belongs to neither yet sits under one, and commitments with no offer stay homeless or hide under invented features."
+  - name: "Stand features alone but keep commitments under features"
+    pros: "Features move once."
+    cons: "Tenant isolation and audit integrity still wait on an offer to hang from."
+choice: "Features stand alone with solves; product-wide commitments stand as product requirements"
+consequences: "A feature lives at `intent/features/<name>/` under the product with identifier `feature/<name>`, and names the problems it answers in required `solves` with one or more `problem/` identifiers; `advances` stays. Requirements under a feature live at `intent/features/<feature>/requirements/<name>/` with identifier `requirement/<feature>.<name>`; product-level requirements live at `intent/requirements/<name>/` with identifier `requirement/<name>` under the product, citing at least one `constraint/`, `goal/`, or `problem/`. The book groups features under each problem they solve. `litespec/core/intent#solve-problems-with-standalone-features` and `litespec/core/intent#place-product-wide-commitments-as-product-requirements` state the homes. This decision rewrites the feature homes of `decision/0060-put-child-records-in-typed-folders` in place."
+reopenedWhen: "A feature answers problems so unrelated that one offer misleads, or a product commitment needs an offer to be built."
+basedOn:
+  - research/intent-hierarchy-evidence
+  - research/established-traceability-practice

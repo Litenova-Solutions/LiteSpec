@@ -14,10 +14,10 @@
 </script>
 
 {#if pairs ? rows.length > 0 : true}
-  <dl class="grid grid-cols-[minmax(0,1fr)] gap-x-5 gap-y-1 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-y-2.5 text-[0.90625rem]">
+  <dl class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
     {#if pairs}
       {#each rows as p (p.label)}
-        <dt class="text-muted-foreground">{book.fieldLabel(p.label)}</dt>
+        <dt class="text-slate-600">{book.fieldLabel(p.label)}</dt>
         <dd class="m-0 min-w-0">{@html p.html}</dd>
       {/each}
     {:else}

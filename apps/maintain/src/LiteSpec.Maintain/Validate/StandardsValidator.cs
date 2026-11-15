@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.CommandLine;
+using LiteSpec.Maintain.ProvisionIndex;
 using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Standards;
 
@@ -116,6 +117,11 @@ internal static class StandardsValidator
         context.Manifest.CheckManifest(activeIds, provisionsByPage);
         context.Manifest.CheckAnalyzerRelease(parsedPages);
         context.Records.CheckRecords(parsedPages, activeIds);
+
+        // The glossary homes and the link annotations are the contracts the concept table and the
+        // Links table are generated from, so a missing one is reported where the table is read.
+        Concepts.Check(resolved, Add);
+        LinkTable.Check(resolved, Add);
 
         // The provision index and its data file are derived. A stale page would send a
         // reader to the wrong heading, so the gate compares both with the active standards.

@@ -16,7 +16,7 @@ The screen is `apps/web/src/routes/expenses/+page.svelte`. The route folder name
 </script>
 ```
 
-The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`, with the address `/expenses` and the floorplan `list-page`. The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
+The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`, with the address `/expenses`. Which floorplan the route composes lives in the frontend design contract, not on the record. The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
 
 ## The Use Case Code
 
@@ -64,7 +64,7 @@ A decision whose source is `recommended` stands until an owner chooses otherwise
 ```text
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.submit-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
-.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
+.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
 ```
 
-The check reports no finding on the screen itself. The use cases and journey steps that the screen does not reach are reported as covered by departures, as [The Model and Its Checks](model-and-checks.md) shows.
+The check reports no finding on the screen itself. The use cases and flow steps that the screen does not reach are reported as covered by departures, as [The Model and Its Checks](model-and-checks.md) shows.

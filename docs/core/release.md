@@ -20,7 +20,7 @@ Completion is computed from proof: has code, has tests, scenarios pass. The buil
 
 ### The Release Gate
 
-The gate admits a release when its G checks are green, its scenarios are verified, its S checks are green where the reader is qualified, and every departure it relies on is in effect. A departure is in effect while it is present and, when it sets `expiresOn`, before that date. G checks read records only and always block; every missing required link is G. S checks read code through a stack reader: they block where that reader is qualified and report otherwise. A checks report without blocking, except the release-readiness findings `--release` names. `litespec model check --release` makes the release-readiness findings block, so the gate is a command. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment and rollback rules on top of this gate.
+The gate admits a release when its blocking checks are green, its scenarios are verified, and every departure it relies on is in effect. A departure is in effect while it is present and, when it sets `expiresOn`, before that date. Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a departure parks it, and a finding on an advisory provision never blocks. The level letter states what a finding rests on: G findings read records only, S findings read code through a stack reader and report without blocking where that reader is not qualified, and A findings report without blocking, except the release-readiness findings `--release` names. `litespec model check --release` makes the release-readiness findings block, so the gate is a command. Under `--release`, a claimed layer whose reader is missing or failing blocks. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment and rollback rules on top of this gate.
 
 ### The Verification Report
 
@@ -30,13 +30,13 @@ Each change ships with a verification report beside it: the exact commands run, 
 
 A stack reader is qualified by fixtures: a known good tree it passes and a known bad tree where it reports each planted defect. Only a qualified reader gates its scope with S checks; elsewhere the same checks report without blocking.
 
-### Verified Behavior and Journey Evidence
+### Verified Behavior and Flow Evidence
 
-A use case is coded when its handler exists, and verified when every one of its scenarios has a passing proof through the public boundary, as the [model page](model.md) states. A journey test proves that connected use cases produce one observable product outcome through the deployed public boundary, catching the wiring, permission, and data defects that narrower suites miss.
+A use case is coded when its handler exists, and verified when every one of its scenarios has a passing proof through the public boundary, as the [model page](model.md) states. A flow test proves that connected use cases produce one observable product outcome through the deployed public boundary, catching the wiring, permission, and data defects that narrower suites miss.
 
 ### The Release Record
 
-Each release creates one release record for its immutable artifact. The record names the source commit and the immutable artifact reference, and lists the included journeys, use cases, and extensions. It stays non-authoritative: specifications own behavior and scenarios, so the record links outward instead of restating them. Release records live under `.litespec/releases/` unless the project records another location. A project that selects the [Delivery extension](../ext/delivery.md) adds the evidence and operating readiness lists that extension states.
+Each release creates one release record for its immutable artifact. The record names the source commit and the immutable artifact reference, and lists the included flows, use cases, and extensions. It stays non-authoritative: specifications own behavior and scenarios, so the record links outward instead of restating them. Release records live under `.litespec/releases/` unless the project records another location. A project that selects the [Delivery extension](../ext/delivery.md) adds the evidence and operating readiness lists that extension states.
 
 ### Boundaries Select Checks
 
@@ -46,7 +46,7 @@ Each changed boundary adds the checks written for it. A change that touches seve
 |:---|:---|
 | Backend | The release build and the backend test suites |
 | Frontend | Frozen installation, lint, type checking, tests, and the production build |
-| Journey | Its journey tests through the deployed boundary |
+| Flow | Its flow tests through the deployed boundary |
 | Intent or Behavior | G checks with the book |
 | Extension | The verification its extension states |
 
@@ -62,19 +62,19 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 ## Standards
 
-### Verify Connected Journeys
+### Verify Connected Flows
 
-**ID:** `litespec/core/release#verify-connected-journeys`
+**ID:** `litespec/core/release#verify-connected-flows`
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A completed journey MUST connect verified use cases to one observable outcome through a deployed public boundary.
+**Statement:** A completed flow MUST connect verified use cases to one observable outcome through a deployed public boundary.
 
-**Rationale:** Use cases that pass in isolation can still fail together: wiring, permissions, and data cross boundaries the isolated tests never touch. A journey test that runs verified use cases to one observable outcome through the deployed public boundary proves the connected path customers actually take.
+**Rationale:** Use cases that pass in isolation can still fail together: wiring, permissions, and data cross boundaries the isolated tests never touch. A flow test that runs verified use cases to one observable outcome through the deployed public boundary proves the connected path customers actually take.
 
-**Reviewed for:** Which completed journeys lack a passing test through the deployed boundary? Look at the journey tests beside each included journey.
+**Reviewed for:** Which completed flows lack a passing test through the deployed boundary? Look at the flow tests beside each included flow.
 
 ### Run Boundary-Selected Checks
 
@@ -84,7 +84,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Applies to:** artifact: any
 
-**Statement:** A release change MUST run every check selected by its changed backend, frontend, journey, Intent, Behavior, and extension boundaries.
+**Statement:** A release change MUST run every check selected by its changed backend, frontend, flow, Intent, Behavior, and extension boundaries.
 
 **Rationale:** Each boundary carries failures the others cannot see: frontend checks say nothing about migrations, and backend suites say nothing about rendered screens. Running every check the changed boundaries select keeps each change evidenced where its failure lives. A narrow category that passes alone certifies only part of the change.
 
@@ -118,19 +118,19 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which frontend changes lack a passing install, lint, type, test, or build result? Look at the frontend reports beside the change.
 
-### Run Journey Checks
+### Run Flow Checks
 
-**ID:** `litespec/core/release#run-journey-checks`
+**ID:** `litespec/core/release#run-flow-checks`
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A journey change MUST run its journey tests.
+**Statement:** A flow change MUST run its flow tests.
 
-**Rationale:** A journey change alters the connected path, so only a journey test through the deployed public boundary can prove it still reaches its outcome. Narrower suites keep passing while the journey itself breaks.
+**Rationale:** A flow change alters the connected path, so only a flow test through the deployed public boundary can prove it still reaches its outcome. Narrower suites keep passing while the flow itself breaks.
 
-**Reviewed for:** Which journey changes lack passing journey tests? Look at the journey reports against the deployed boundary.
+**Reviewed for:** Which flow changes lack passing flow tests? Look at the flow reports against the deployed boundary.
 
 ### Run Consistency Checks
 
@@ -282,11 +282,11 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Applies to:** artifact: any
 
-**Statement:** A release record MUST list included journeys, use cases, and selected applicable extensions.
+**Statement:** A release record MUST list included flows, use cases, and selected applicable extensions.
 
-**Rationale:** The behavior boundary of an artifact is exactly its journeys, use cases, and extensions. Listing them tells operators and reviewers what the artifact contains and, by omission, what it does not.
+**Rationale:** The behavior boundary of an artifact is exactly its flows, use cases, and extensions. Listing them tells operators and reviewers what the artifact contains and, by omission, what it does not.
 
-**Reviewed for:** Which records omit an included journey, use case, or extension? Look at the behavior list on each release record.
+**Reviewed for:** Which records omit an included flow, use case, or extension? Look at the behavior list on each release record.
 
 ### Keep Release Records Non-Authoritative
 
@@ -354,6 +354,6 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/release#verify-connected-journeys` and `litespec/core/release#identify-immutable-release-artifacts`.
+This informative example demonstrates `litespec/core/release#verify-connected-flows` and `litespec/core/release#identify-immutable-release-artifacts`.
 
-A reimbursement release includes verified submit, approve, and reimburse use cases. The submit-and-reimburse journey passes against the deployed API and database, and the record names the source commit and the image digest as the immutable artifact reference.
+A reimbursement release includes verified submit, approve, and reimburse use cases. The submit-and-reimburse flow passes against the deployed API and database, and the record names the source commit and the image digest as the immutable artifact reference.

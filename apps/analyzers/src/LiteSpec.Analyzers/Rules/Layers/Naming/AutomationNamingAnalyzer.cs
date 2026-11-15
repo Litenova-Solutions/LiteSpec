@@ -49,7 +49,7 @@ public sealed class AutomationNamingAnalyzer : LayerAnalyzer
             return;
         }
 
-        if (IsReaction(type) && !IsViewProjection(type) && !HasReactionName(type.Name))
+        if (IsReaction(type) && !IsReadModelProjection(type) && !HasReactionName(type.Name))
         {
             context.ReportDiagnostic(Diagnostic.Create(
                 Descriptors.LS2007, type.Locations[0], type.Name, "reaction", "{Action}On{Fact}Handler"));
@@ -80,12 +80,12 @@ public sealed class AutomationNamingAnalyzer : LayerAnalyzer
 
     /// <summary>
     ///     Returns true when the type is a view projection: a reaction named {View}On{Fact}Projection, or
-    ///     one filed in a Views folder of a module. A projection rebuilds a view row and publishes nothing,
+    ///     one filed in a ReadModels folder of a module. A projection rebuilds a view row and publishes nothing,
     ///     so it keeps the view's name rather than the reaction shape.
     /// </summary>
     /// <param name="type">The type under inspection.</param>
     /// <returns>True when the type is a view projection; otherwise false.</returns>
-    private static bool IsViewProjection(INamedTypeSymbol type)
+    private static bool IsReadModelProjection(INamedTypeSymbol type)
     {
         if (type.Name.EndsWith("Projection", StringComparison.Ordinal))
         {
@@ -97,7 +97,7 @@ public sealed class AutomationNamingAnalyzer : LayerAnalyzer
             var path = reference.SyntaxTree.FilePath ?? string.Empty;
             foreach (var segment in path.Split('/', '\\'))
             {
-                if (segment.Equals("Views", StringComparison.Ordinal))
+                if (segment.Equals("ReadModels", StringComparison.Ordinal))
                 {
                     return true;
                 }

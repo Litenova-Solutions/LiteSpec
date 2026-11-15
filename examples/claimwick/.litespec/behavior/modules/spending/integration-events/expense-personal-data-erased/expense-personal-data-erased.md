@@ -4,7 +4,7 @@ The expense-personal-data-erased event tells other modules that the personal dat
 
 ## Consumers
 
-The reporting module clears the employee of the matching row in `view/reporting.reimbursed-expense`. The amount and the reimbursement time stay, because the tax file keeps them.
+The reporting module clears the employee of the matching row in `read-model/reporting.reimbursed-expense`. The amount and the reimbursement time stay, because the tax file keeps them.
 
 ## Compatibility
 

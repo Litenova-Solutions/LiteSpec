@@ -18,7 +18,7 @@ public sealed class RegistryTests
 
                 public interface ICommandHandler<TCommand, TResult>;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
 
                 /// <implements>use-case/spending.submit-expense</implements>
@@ -28,11 +28,11 @@ public sealed class RegistryTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("events.yaml", RecordPages.EventPage("event/expense.submitted")),
+                ("domain-events.yaml", RecordPages.DomainEventPage("domain-event/expense.submitted")),
                 ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
-        Assert.Contains("[\"Shop.Spending.ExpenseSubmittedEvent\"] = new string[] { \"event/expense.submitted\" },", registry, StringComparison.Ordinal);
+        Assert.Contains("[\"Shop.Spending.ExpenseSubmittedEvent\"] = new string[] { \"domain-event/expense.submitted\" },", registry, StringComparison.Ordinal);
         Assert.Contains("[\"Shop.Spending.SubmitExpenseCommandHandler\"] = new string[] { \"use-case/spending.submit-expense\" },", registry, StringComparison.Ordinal);
         Assert.Contains("[\"use-case/spending.submit-expense\"] = \"permission/submit-expense\",", registry, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -49,14 +49,14 @@ public sealed class RegistryTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
 
                 internal sealed class UnmarkedHelper
                 {
                 }
                 """),
-            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("domain-events.yaml", RecordPages.DomainEventPage("domain-event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.DoesNotContain("UnmarkedHelper", registry, StringComparison.Ordinal);
@@ -96,7 +96,7 @@ public sealed class RegistryTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("domain-events.yaml", RecordPages.DomainEventPage("domain-event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("new System.Collections.Generic.Dictionary<string, string[]>();", registry, StringComparison.Ordinal);

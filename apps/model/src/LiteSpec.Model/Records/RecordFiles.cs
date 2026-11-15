@@ -90,7 +90,9 @@ public static class RecordFiles
             records.Add(record);
         }
 
+        // A refusal set lists codes, not records: its entries are read by the refusal reader.
         if (root.Kind == JsonKind.Object
+            && type != RecordTypes.RefusalSet
             && root.TryGetProperty(RecordFields.Records, out var entries)
             && entries.Kind == JsonKind.Array)
         {

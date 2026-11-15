@@ -48,11 +48,11 @@
         {/if}
       </FactCell>
     </FactGrid>
-    <div class="mt-[18px] mb-2 text-[0.8125rem] font-semibold text-subtle-foreground">actor, through roles that allow the grant</div>
+    <div class="mt-6 mb-2 text-sm font-semibold text-slate-600">Actors</div>
     {#if who.length}
       <RecordList ids={who.map((w) => w.id)} />
     {:else}
-      <p class="m-0 text-sm text-subtle-foreground">{grant === "anonymous" || grant === "system" ? "grant: " + grant : "No role allows this permission."}</p>
+      <p class="m-0 text-sm text-slate-600">{grant === "anonymous" || grant === "system" ? "grant: " + grant : "No role allows this permission."}</p>
     {/if}
   </PageSection>
 {/if}

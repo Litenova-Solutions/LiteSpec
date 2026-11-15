@@ -11,7 +11,7 @@ states:
 transitions:
   - from: Active
     to: Returned
-    by: use-case/lending.no-such-use-case
+    movedBy: use-case/lending.no-such-use-case
 data:
   - name: borrower-email
     meaning: The address overdue notices go to.
@@ -35,7 +35,7 @@ records:
     statement: A loan has one borrower.
     governs:
       - use-case/lending.borrow-copy
-    refusal: result/borrow-copy.copy-unavailable
+    refusal: lending.copy-not-available
     basedOn: []
     fulfills:
       - requirement/borrowing.max-active-loans
@@ -49,26 +49,34 @@ records:
     basedOn: []
     fulfills:
       - requirement/borrowing.loan-period-days
-  - type: event
-    id: event/loan.loan-borrowed
+  - type: domain-event
+    id: domain-event/loan.loan-borrowed
     title: Loan borrowed
     meaning: A copy was lent.
     carries:
-      - loanId
-      - copyId
-      - readerId
-      - dueDate
-  - type: event
-    id: event/loan.loan-returned
+      - name: loanId
+        type: text
+      - name: copyId
+        type: text
+      - name: readerId
+        type: text
+      - name: dueDate
+        type: text
+  - type: domain-event
+    id: domain-event/loan.loan-returned
     title: Loan returned
     meaning: A copy was returned.
     carries:
-      - loanId
-      - returnedAt
-  - type: event
-    id: event/loan.loan-extended
+      - name: loanId
+        type: text
+      - name: returnedAt
+        type: text
+  - type: domain-event
+    id: domain-event/loan.loan-extended
     title: Loan extended
     meaning: A loan was extended.
     carries:
-      - loanId
-      - newDueDate
+      - name: loanId
+        type: text
+      - name: newDueDate
+        type: text

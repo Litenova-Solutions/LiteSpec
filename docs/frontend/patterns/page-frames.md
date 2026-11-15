@@ -11,7 +11,7 @@ This page holds the layout pattern for each kind of page: home, list, queue, rec
 
 ### How to Read a Pattern
 
-Each pattern answers one layout question, such as how a list page arranges its search, filters, table, and paging. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+Each pattern answers one layout question, such as how a list page arranges its search, filters, table, and paging. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language. The slug in each pattern ID, such as `record-page`, is the key a screen's `pageFrame` and the design contract's Page Frames section cite.
 
 ### The Running Example
 

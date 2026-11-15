@@ -92,7 +92,7 @@ public sealed class MarkPresenceTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
 
                 /// <implements>aggregate/spending.expense</implements>
@@ -105,7 +105,7 @@ public sealed class MarkPresenceTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5001 ignores a method that raises nothing.</summary>
@@ -146,7 +146,7 @@ public sealed class MarkPresenceTests
 
                 public sealed record {|LS5001:ExpenseSubmittedEvent|} : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5001 reports a rule exception without a mark.</summary>

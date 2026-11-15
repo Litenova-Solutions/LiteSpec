@@ -8,7 +8,7 @@ LiteSpec allows 3 ways for a record to earn a parent, and the book may use no fo
 
 The 3 ways are identifier containment, a required single link, and no parent, which places the record as a top-level list under its own layer. The record states 2 corollaries. A parent must be read from the child's own identifier or fields, never by inverting another record's link without saying so. Book labels must be a record type, a field name, a status or a glossary term, so any other outline node is an invented grouping. The record gives no confidence for these rules.
 
-Product, goal, problem, constraint, research, journey and actor are correctly flat. Nothing in their identifiers holds a parent, and none carries a required parent link. The record gives high confidence for this verdict. It measures each verdict against the governing provision, the identifier table, the Links table and the containment paragraph.
+Product, goal, problem, constraint, research, flow and actor are correctly flat. Nothing in their identifiers holds a parent, and none carries a required parent link. The record gives high confidence for this verdict. It measures each verdict against the governing provision, the identifier table, the Links table and the containment paragraph.
 
 Feature has 2 candidate parents, and LiteSpec picks neither. The builder nests a feature under the first problem that claims it. Its placed-once guard silently drops any second parent, which leaves 71 features with no `solves` as unlabelled roots beside the live features. The record gives high confidence for this verdict.
 
@@ -16,11 +16,11 @@ The builder invents a `requirement-page/<file path>` node from the source file. 
 
 All 74 decisions land in one Intent list. Of them, 71 are technical decisions that belong under Implementation. A reader therefore meets implementation choices inside a layer that must never contain mechanism. The record gives high confidence for this verdict.
 
-Term is split across Intent and Behavior by its `layer` field. That field says which clock the word follows, not where the entry lives. The glossary is one list, and the split gives it 2 homes. Journey is correctly flat, because its `goal` is a sentence, not an identifier. Nesting journeys under goals needs a model change first, not a builder choice. The record gives high confidence for these verdicts.
+Term is split across Intent and Behavior by its `layer` field. That field says which clock the word follows, not where the entry lives. The glossary is one list, and the split gives it 2 homes. Flow is correctly flat, because its `goal` is a sentence, not an identifier. Nesting flows under goals needs a model change first, not a builder choice. The record gives high confidence for these verdicts.
 
 Behavior is mostly right. Aggregates sit under modules by identifier prefix. Scenarios group under their result through the scenario's own `result` field. Screens nest under the entry point that both their field and their identifier name. The builder correctly ignores `host` for placement. The record gives high confidence for this verdict.
 
-The outline has 4 placements that are wrong or fragile. Rules file under the first aggregate they govern, not under their identifier home, so a cross-aggregate rule lands under an aggregate it only governs. The record notes that `governs` is trace, not parentage. Events collect onto aggregates through use-case `raises` lists, not through the aggregate their identifier names. An event that no use case raises is therefore misplaced. The record gives high confidence for these verdicts.
+The outline has 4 placements that are wrong or fragile. Rules file under the first aggregate they govern, not under their identifier home, so a cross-aggregate rule lands under an aggregate it only governs. The record notes that `governs` is trace, not parentage. Domain events collect onto aggregates through use-case `raises` lists, not through the aggregate their identifier names. A domain event that no use case raises is therefore misplaced. The record gives high confidence for these verdicts.
 
 Results and scenarios attach through shared files. A scenario on a reaction page has no outlined parent, although the specification allows it there. Reactions, jobs, notifications and settings claim a module only when their source path has a module segment. Any other record becomes a Behavior root through the stray sweep. The sweep appends every unplaced record, whatever its type, and it promotes records whose module lies outside the sample to roots beside the modules. The record gives high confidence for these verdicts.
 
@@ -34,13 +34,13 @@ Implementation and Proof have no place in the outline, which the record calls th
 
 LiteSpec already defines both parents in its code marks. Code sits under the record it implements, tests sit under the lowest record they prove, and findings sit under their subject. Source links on each entry cover file locations. The record gives high confidence for this claim.
 
-The outline has 5 gaps that belong to LiteSpec, not to the builder. Feature needs a primary-parent rule. Requirement needs a stated tree home, the feature that holds it as an entry, with links kept as trace. Journey needs a goal identifier field. Rule needs its identifier home resolved as a typed reference. Governance needs its attach-by-link rule stated once. The record gives no confidence for these gaps.
+The outline has 5 gaps that belong to LiteSpec, not to the builder. Feature needs a primary-parent rule. Requirement needs a stated tree home, the feature that holds it as an entry, with links kept as trace. Flow needs a goal identifier field. Rule needs its identifier home resolved as a typed reference. Governance needs its attach-by-link rule stated once. The record gives no confidence for these gaps.
 
 A sixth and smaller gap is that a platform-wide setting still carries a module-shaped identifier. LiteSpec must either name the module value that setting carries or admit a platform group. The record gives no confidence for this gap.
 
 The investigation proposes 11 outline rules. They set 4 layer roots with governance beside them, and they place each record once: by identifier, then by required link, then by type list. Intent is ordered with requirements under their feature, and decisions are split by home. Features nest by a stated precedence, and extra links count as trace.
 
-The other proposed rules order Behavior by module, access, published set and operations. They place rules and events by identifier home and state the records outside the book in one note. They keep one undivided glossary and place Implementation and Proof under the records their marks name. They link governance without nesting it. A record that cannot be placed becomes a build finding, and no stray sweep remains. The record states no confidence for these rules.
+The other proposed rules order Behavior by module, access, published set and operations. They place rules and domain events by identifier home and state the records outside the book in one note. They keep one undivided glossary and place Implementation and Proof under the records their marks name. They link governance without nesting it. A record that cannot be placed becomes a build finding, and no stray sweep remains. The record states no confidence for these rules.
 
 ## Source Notes
 

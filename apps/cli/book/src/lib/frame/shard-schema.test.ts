@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseBookEdgeJson,
   parseBookRecord,
+  parseIntentCoverageEntries,
   parseLexicon,
   parseManifest,
   parseOutlineNodes,
@@ -123,8 +124,8 @@ describe("shard-schema", () => {
   it("parses the manifest with its project and shard map", () => {
     const manifest = parseManifest({
       project: { id: "product/a", title: "A" },
-      roots: { consumer: "C:/shop", litespec: "C:/litespec" },
-      editor: "vscode://file/{root}/{path}:{line}",
+      release: "7.0.0",
+      links: "vscode://file/C:/shop/{path}:{line}",
       totals: { feature: 1 },
       layers: [{ key: "intent", label: "Intent", outline: ["outline-intent"] }],
       shardOf: { "feature/a": "records-a" },
@@ -135,5 +136,87 @@ describe("shard-schema", () => {
     expect(manifest.project.id).toBe("product/a");
     expect(manifest.layers.length).toBe(1);
     expect(() => parseManifest({ project: { id: "product/a", title: "A" } })).toThrow();
+  });
+
+  it("reads records with or without the whole-page explanation", () => {
+    expect(
+      parseBookRecord("feature/a", { type: "feature", title: "A", fields: {} }).bodyHtml,
+    ).toBeUndefined();
+    expect(
+      parseBookRecord("feature/a", { type: "feature", title: "A", fields: {}, bodyHtml: "<p>A</p>" }).bodyHtml,
+    ).toBe("<p>A</p>");
+  });
+
+  it("reads problem and constraint coverage entries and rejects any other kind", () => {
+    const manifest = parseManifest({
+      project: { id: "product/a", title: "A" },
+      release: "7.0.0",
+      links: null,
+      totals: {},
+      layers: [],
+      shardOf: {},
+      search: [],
+      unplaced: [],
+      generatedOn: "2026-01-02T00:00:00.000Z",
+      intentCoverage: {
+        reached: 2,
+        total: 4,
+        share: 0.5,
+        requirements: { reached: 1, total: 1 },
+        steps: { reached: 0, total: 1 },
+        entries: [
+          { id: "requirement/a", kind: "requirement", reached: true, reachedBy: [] },
+          { id: "flow/a#s1", kind: "step", reached: false, reachedBy: [] },
+          { id: "problem/a", kind: "problem", reached: true, reachedBy: [] },
+          { id: "constraint/a", kind: "constraint", reached: false, reachedBy: [] },
+        ],
+      },
+    });
+    expect(manifest.intentCoverage?.entries.map((entry) => entry.kind)).toEqual([
+      "requirement",
+      "step",
+      "problem",
+      "constraint",
+    ]);
+    expect(() =>
+      parseIntentCoverageEntries([{ id: "goal/a", kind: "goal", reached: false, reachedBy: [] }]),
+    ).toThrow();
+  });
+
+  it("reads coverage counts without entries, for the on-demand entries shard", () => {
+    const manifest = parseManifest({
+      project: { id: "product/a", title: "A" },
+      release: "7.0.0",
+      links: null,
+      totals: {},
+      layers: [],
+      shardOf: {},
+      search: [],
+      unplaced: [],
+      generatedOn: "2026-01-02T00:00:00.000Z",
+      intentCoverage: {
+        reached: 1,
+        total: 2,
+        share: 0.5,
+        requirements: { reached: 1, total: 1 },
+        steps: { reached: 0, total: 1 },
+      },
+    });
+    expect(manifest.intentCoverage?.entries).toEqual([]);
+    expect(
+      parseIntentCoverageEntries([{ id: "requirement/a", kind: "requirement", reached: true, reachedBy: [] }]),
+    ).toEqual([{ id: "requirement/a", kind: "requirement", reached: true, reachedBy: [] }]);
+  });
+
+  it("reads the lexicon without finding meanings, for the on-demand findings shard", () => {
+    const lexicon = parseLexicon({
+      types: { feature: { label: "Feature", plural: "Features", layer: "intent", question: "What?" } },
+      layers: { intent: { label: "Intent", writes: "product people" } },
+      links: [],
+      sections: {},
+      glossary: {},
+      fields: {},
+    });
+    expect(lexicon.findings).toEqual({});
   });
 });

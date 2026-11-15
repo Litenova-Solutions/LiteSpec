@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
@@ -139,6 +140,12 @@ static class RecordReader
         List<PageBody> bodies,
         List<Finding> problems)
     {
+        // A module's refusal set holds refusal codes, not records; RefusalSetReader reads it.
+        if (Path.GetFileName(file) == "refusals.yaml")
+        {
+            return;
+        }
+
         var scan = RecordFiles.Scan(file, SourceTree.Read(file));
 
         problems.AddRange(scan.Problems);
@@ -257,33 +264,60 @@ static class RecordReader
                 continue;
             }
 
-            if (ModelBuilder.GrantedPermission(useCase) is not null
-                && taken.Add($"result/{name}.forbidden"))
+            foreach (var code in RefusalSetReader.DeriveFor(useCase))
             {
-                derived.Add(DerivedResult(
-                    config,
-                    useCase,
-                    $"result/{name}.forbidden",
-                    "Forbidden",
-                    "The caller lacks the grant the use case requires.",
-                    forbiddenCode));
-            }
+                var id = $"result/{name}.{code}";
 
-            if (ModelBuilder.HasValidatedInput(useCase)
-                && taken.Add($"result/{name}.invalid-input"))
-            {
+                if (!taken.Add(id))
+                {
+                    continue;
+                }
+
                 derived.Add(DerivedResult(
                     config,
                     useCase,
-                    $"result/{name}.invalid-input",
-                    "Invalid input",
-                    "An input value breaks the rules the use case declares.",
-                    invalidInputCode));
+                    id,
+                    DerivedTitle(code),
+                    DerivedMeaning(code),
+                    code switch
+                    {
+                        "forbidden" => forbiddenCode,
+                        "invalid-input" => invalidInputCode,
+                        _ => code,
+                    }));
             }
         }
 
         records.AddRange(derived);
     }
+
+    /// <summary>The title of a derived generic refusal result.</summary>
+    /// <param name="code">The generic refusal code.</param>
+    /// <returns>The result title.</returns>
+    private static string DerivedTitle(string code) => code switch
+    {
+        "forbidden" => "Forbidden",
+        "invalid-input" => "Invalid input",
+        "not-found" => "Not found",
+        "conflict" => "Conflict",
+        "unauthenticated" => "Unauthenticated",
+        "sign-in-too-old" => "Sign in too old",
+        _ => code,
+    };
+
+    /// <summary>The meaning of a derived generic refusal result.</summary>
+    /// <param name="code">The generic refusal code.</param>
+    /// <returns>The result meaning.</returns>
+    private static string DerivedMeaning(string code) => code switch
+    {
+        "forbidden" => "The caller lacks the grant the use case requires.",
+        "invalid-input" => "An input value breaks the rules the use case declares.",
+        "not-found" => "The record the input names does not exist.",
+        "conflict" => "The record changed since the caller read it.",
+        "unauthenticated" => "The caller is not signed in.",
+        "sign-in-too-old" => "The caller's sign-in is older than the window the use case requires.",
+        _ => code,
+    };
 
     /// <summary>One derived generic result, carried by its use case's page.</summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>

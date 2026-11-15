@@ -8,8 +8,10 @@ namespace LiteSpec.Cli.Model.CompletionStages;
 /// <param name="Proof">Whether proof is known: known when the model holds a test run, else unknown.</param>
 /// <param name="HeldBy">The ids holding the record back, at most ten, with parked children named after them.</param>
 /// <param name="Counts">The labelled done and of counts behind the stage.</param>
+/// <param name="Outcome">A goal's outcome: "not measured" until it holds observations, then "measured"; empty for every other record.</param>
 sealed record Completion(
     string Stage,
     string Proof,
     IReadOnlyList<string> HeldBy,
-    IReadOnlyDictionary<string, CompletionCount> Counts);
+    IReadOnlyDictionary<string, CompletionCount> Counts,
+    string Outcome = "");

@@ -25,31 +25,35 @@
 </script>
 
 {#if all.length}
-  <ol class="m-0 list-decimal border-t border-border pr-0 pb-0 pl-7">
+  <ol class="m-0 list-decimal border-t border-slate-200 pr-0 pb-0 pl-8">
     {#each shown as id (id)}
       {@const t = book.typeOf(id)}
       {@const stmt = statement(id)}
       {@const isExpanded = expanded[id] ?? false}
-      <li class="border-b border-border py-2 text-[0.90625rem] marker:font-mono marker:text-xs marker:text-muted-foreground">
+      <li class="border-b border-slate-200 py-2 text-sm marker:font-mono marker:text-xs marker:text-slate-600">
         {#if book.has(id)}
-          <button type="button" class="font-medium underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go={id}>
+          <a
+            href={"#" + encodeURIComponent(id)}
+            data-go={id}
+            class="font-medium text-blue-700 underline decoration-slate-300 underline-offset-2 hover:decoration-blue-700"
+          >
             {book.title(id)}
-          </button>
+          </a>
         {:else}
-          <span class="text-muted-foreground" title="No record with this identifier is in the book">{id}</span>
+          <span class="text-slate-600" title="No record with this identifier is in the book">{id}</span>
         {/if}
-        <span class="float-right inline-flex items-center gap-2 text-xs text-muted-foreground">
+        <span class="float-right inline-flex items-center gap-2 text-xs text-slate-600">
           <TypeTag type={t} />
         </span>
         {#if stmt}
-          <div class="mt-0.5 text-[0.8125rem] leading-snug text-muted-foreground">
+          <div class="mt-1 text-xs leading-snug text-slate-600">
             {#if stmt.length <= 220}
               {stmt}
             {:else}
               {isExpanded ? stmt : stmt.slice(0, 220) + "..."}{" "}
               <button
                 type="button"
-                class="cursor-pointer font-semibold text-highlight-foreground underline underline-offset-2"
+                class="cursor-pointer font-semibold text-blue-700 underline underline-offset-2"
                 onclick={() => (expanded[id] = !isExpanded)}
               >
                 {isExpanded ? "Show less" : "Show more"}

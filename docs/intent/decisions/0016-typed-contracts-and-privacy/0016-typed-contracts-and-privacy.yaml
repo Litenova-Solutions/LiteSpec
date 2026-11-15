@@ -15,7 +15,7 @@ options:
     pros: The stack already generates and enforces its own contracts.
     cons: Records then restate contracts instead of driving them, and pseudonymized data stays personal data under GDPR Recital 26.
 choice: Typed fields with honest privacy positions
-consequences: "`litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/edges#describe-every-integration-event-for-its-direction` carry the typed fields, and `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` with `litespec/core/privacy#schedule-every-data-class-for-retention` carry the privacy positions."
+consequences: "`litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/edges#describe-every-integration-event-for-its-direction` carry the typed fields, and `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` carries the privacy positions."
 reopenedWhen: A contract field appears that no listed type can carry.
 basedOn:
   - research/lower-layers-practice

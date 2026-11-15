@@ -8,7 +8,7 @@ import Code from "./Code.svelte";
 import Constraint from "./Constraint.svelte";
 import Decision from "./Decision.svelte";
 import EntryPoint from "./EntryPoint.svelte";
-import Event from "./Event.svelte";
+import DomainEvent from "./DomainEvent.svelte";
 import Departure from "./Departure.svelte";
 import ExternalSystem from "./ExternalSystem.svelte";
 import Feature from "./Feature.svelte";
@@ -18,7 +18,7 @@ import Goal from "./Goal.svelte";
 import GroupingPage from "./GroupingPage.svelte";
 import IntegrationEvent from "./IntegrationEvent.svelte";
 import Job from "./Job.svelte";
-import Journey from "./Journey.svelte";
+import Flow from "./Flow.svelte";
 import Layer from "./Layer.svelte";
 import Module from "./Module.svelte";
 import Notification from "./Notification.svelte";
@@ -40,7 +40,7 @@ import Term from "./Term.svelte";
 import Test from "./Test.svelte";
 import UseCase from "./UseCase.svelte";
 import Vision from "./Vision.svelte";
-import View from "./View.svelte";
+import ReadModel from "./ReadModel.svelte";
 
 export type TypeProps = { id: string; r: BookRecord };
 
@@ -54,12 +54,12 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   decision: Decision,
   constraint: Constraint,
   research: Research,
-  journey: Journey,
+  flow: Flow,
   actor: Actor,
   module: Module,
   aggregate: Aggregate,
   rule: Rule,
-  event: Event,
+  "domain-event": DomainEvent,
   "use-case": UseCase,
   scenario: Scenario,
   result: Result,
@@ -77,7 +77,7 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   term: Term,
   layer: Layer,
   "integration-event": IntegrationEvent,
-  view: View,
+  "read-model": ReadModel,
   "architecture-layer": GroupingPage,
   folder: GroupingPage,
   frontend: GroupingPage,

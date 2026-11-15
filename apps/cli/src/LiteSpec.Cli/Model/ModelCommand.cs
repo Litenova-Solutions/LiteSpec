@@ -362,16 +362,19 @@ static class ModelCommand
             },
             config.IsContinuousIntegration);
 
-        return release && severity.Outcome == Outcome.Reported && IsReleaseReadiness(finding)
+        return release && severity.Outcome != Outcome.Covered && IsReleaseReadiness(finding)
             ? new Severity(Outcome.Blocking)
             : severity;
     }
 
-    /// <summary>Whether the finding gates a release: an unverified use case.</summary>
+    /// <summary>
+    ///     Whether the finding gates a release: an unverified use case, or a reader missing for a claimed layer. A
+    ///     departure with an expiry parks either one before it reaches this decision, so a covered finding never gates.
+    /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding gates a release.</returns>
     static bool IsReleaseReadiness(Finding finding) =>
-        finding.Code == "use-case-unverified";
+        finding.Code is "use-case-unverified" or "reader-missing";
 
     /// <summary>One finding's printed line: its path, line, level, code and message.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>

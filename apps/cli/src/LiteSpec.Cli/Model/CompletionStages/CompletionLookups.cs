@@ -30,7 +30,7 @@ sealed class CompletionLookups
     /// <summary>The implementation decisions based on each record, in model order.</summary>
     readonly Dictionary<string, List<Record>> decisionsBasedOn;
 
-    /// <summary>The records serving each journey step, in model order.</summary>
+    /// <summary>The records serving each flow step, in model order.</summary>
     readonly Dictionary<string, List<Record>> servers;
 
     /// <summary>The proves links by the record they claim, in model order.</summary>
@@ -51,7 +51,7 @@ sealed class CompletionLookups
     /// <summary>Gets the ids a follows link reaches.</summary>
     public HashSet<string> Followed { get; }
 
-    /// <summary>Gets the stage of each journey step worked out so far.</summary>
+    /// <summary>Gets the stage of each flow step worked out so far.</summary>
     public Dictionary<string, string> StepStages { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Initializes a new instance of the <see cref="CompletionLookups"/> class, indexing the model's records and links once.</summary>
@@ -111,8 +111,8 @@ sealed class CompletionLookups
         return fulfillers.OrderBy(record => record.Id, StringComparer.Ordinal).ToList();
     }
 
-    /// <summary>The records serving a journey step.</summary>
-    /// <param name="step">The journey step id.</param>
+    /// <summary>The records serving a flow step.</summary>
+    /// <param name="step">The flow step id.</param>
     /// <returns>The records serving the step, in model order.</returns>
     public List<Record> ServersOf(string step) =>
         servers.TryGetValue(step, out var found) ? found : NoRecords;

@@ -20,7 +20,7 @@ public static class Prose
     const RegexOptions PlainOptions = RegexOptions.Compiled;
 
     /// <summary>The pattern of a labeled paragraph prefix.</summary>
-    static readonly Regex LabelPrefix = new(@"^\s*\*\*(?:Statement|Deviation|Rationale|Example|Default|Replacement):\*\*\s*", WordOptions);
+    static readonly Regex LabelPrefix = new(@"^\s*\*\*(?:Statement|Departure|Rationale|Example|Default|Replacement):\*\*\s*", WordOptions);
     /// <summary>The pattern of an inline code span.</summary>
     static readonly Regex InlineCode = new(@"`[^`]*`", PlainOptions);
     /// <summary>The pattern of an image.</summary>

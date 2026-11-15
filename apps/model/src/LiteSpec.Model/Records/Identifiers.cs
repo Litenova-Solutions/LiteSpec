@@ -20,9 +20,9 @@ public static class Identifiers
         @"\blitespec/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*#[a-z0-9]+(?:-[a-z0-9]+)*",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>The pattern of a whole event record id, such as <c>event/expense.submitted</c>.</summary>
-    public static readonly Regex EventId = new Regex(
-        @"^event/[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*$",
+    /// <summary>The pattern of a whole domain event record id, such as <c>domain-event/expense.submitted</c>.</summary>
+    public static readonly Regex DomainEventId = new Regex(
+        @"^domain-event/[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>The pattern of an implements anchor on a reaction or job.</summary>
@@ -190,15 +190,15 @@ public static class Identifiers
         || (character >= '0' && character <= '9');
 
     /// <summary>
-    ///     Splits a journey step link of the form journey/name#step into the journey id and the step.
+    ///     Splits a flow step link of the form flow/name#step into the flow id and the step.
     /// </summary>
-    /// <param name="id">The journey step link to split.</param>
-    /// <param name="journey">The journey id before the number sign.</param>
+    /// <param name="id">The flow step link to split.</param>
+    /// <param name="flow">The flow id before the number sign.</param>
     /// <param name="step">The step after the number sign.</param>
-    /// <returns>True when the link splits into a journey id and a step.</returns>
-    public static bool TrySplitStep(string id, out string journey, out string step)
+    /// <returns>True when the link splits into a flow id and a step.</returns>
+    public static bool TrySplitStep(string id, out string flow, out string step)
     {
-        journey = "";
+        flow = "";
         step = "";
 
         var hash = id.IndexOf('#');
@@ -208,15 +208,15 @@ public static class Identifiers
             return false;
         }
 
-        journey = id.Substring(0, hash);
+        flow = id.Substring(0, hash);
         step = id.Substring(hash + 1);
 
-        return journey.StartsWith("journey/", StringComparison.Ordinal) && step.Length > 0;
+        return flow.StartsWith("flow/", StringComparison.Ordinal) && step.Length > 0;
     }
 
     /// <summary>
-    ///     The link without its number-sign fragment: a journey step resolves through its
-    ///     journey, and an external-system operation through its system.
+    ///     The link without its number-sign fragment: a flow step resolves through its
+    ///     flow, and an external-system operation through its system.
     /// </summary>
     /// <param name="id">The link to read.</param>
     /// <returns>The link without its fragment.</returns>

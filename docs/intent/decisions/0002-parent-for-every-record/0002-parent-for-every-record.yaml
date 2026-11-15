@@ -7,7 +7,7 @@ options:
     cons: Authors must write the missing origins, and the book must stop inventing groupings where no parent exists yet.
   - name: Parents only below the requirements
     pros: The checker is already dense there and every enforced check passes.
-    cons: "It leaves the measured top gaps in place: most requirements name no origin, no check reads a feature goal or a journey goal, and the book invents Intent groupings."
+    cons: "It leaves the measured top gaps in place: most requirements name no origin, no check reads a feature goal or a flow goal, and the book invents Intent groupings."
   - name: Advisory parents at tier A
     pros: Existing projects are not blocked on day one, and staged promotion matches the skeptic evidence on training and theatre.
     cons: Regulated practice gates the chain rather than advising it, and a link rule the builder cannot check rots exactly as the skeptic sources describe.

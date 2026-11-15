@@ -403,7 +403,7 @@ public sealed class SettingsCheckTests
             + "  \"id\": \"" + id + "\",\n"
             + "  \"title\": \"" + title + "\",\n"
             + "  \"template\": \"" + template + "\",\n"
-            + "  \"addresses\": [\n    \"actor/reader\"\n  ],\n"
+            + "  \"audience\": [\n    \"actor/reader\"\n  ],\n"
             + "  \"channel\": [\n    \"email\"\n  ],\n"
             + "  \"consent\": \"Readers accept notices at signup.\",\n"
             + "  \"frequency\": \"once\"" + paramsJson + ",\n"

@@ -133,9 +133,9 @@ public sealed class LinkExportTests
         Assert.Equal(
             ["integration-event/payout-voided"],
             ModelBuilder.TargetsOf(Element("""{"mode": "event", "event": "integration-event/payout-voided"}""")));
-        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "none", "reason": "money has moved"}""")));
-        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "never", "reason": "the hold never releases"}""")));
-        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "impossible", "reason": "the processor keeps no erasure call"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "not-applicable", "reason": "money has moved"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "unsupported", "reason": "the hold never releases"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "manual", "reason": "the processor keeps no erasure call"}""")));
     }
 
     /// <summary>Wave6 Effects Triggers And Steps Export Their Ids As Links.</summary>
@@ -150,8 +150,8 @@ public sealed class LinkExportTests
             ["notification/lending.due-reminder"],
             ModelBuilder.TargetsOf(Element("""{"sends": "notification/lending.due-reminder"}""")));
         Assert.Equal(
-            ["event/loan.loan-borrowed"],
-            ModelBuilder.TargetsOf(Element("""{"event": "event/loan.loan-borrowed"}""")));
+            ["domain-event/loan.loan-borrowed"],
+            ModelBuilder.TargetsOf(Element("""{"event": "domain-event/loan.loan-borrowed"}""")));
         Assert.Equal(
             ["use-case/lending.release-hold"],
             ModelBuilder.TargetsOf(Element("""{"id": "release", "runs": "use-case/lending.release-hold", "guard": "the hold is expired"}""")));

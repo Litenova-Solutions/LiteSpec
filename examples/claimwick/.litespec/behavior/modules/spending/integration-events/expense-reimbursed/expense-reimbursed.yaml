@@ -34,10 +34,11 @@ payload:
   type: date-time
   required: true
   classification: internal
+through: external-system/event-bus
 delivery: The broker delivers each event at least once, in reimbursement order.
-addresses: permission/post-reimbursement
+requires: permission/post-reimbursement
 trust: payload
-translates: event/expense.reimbursed
+translates: domain-event/expense.reimbursed
 dataschema: https://schemas.claimwick.dev/expense-reimbursed/v1
 terms:
 - term/expense

@@ -14,7 +14,7 @@ An aggregate is one thing the module keeps true. Spending has three, each in its
 | Receipt | `receipts/aggregate.yaml` | entity | Attached |
 | Policy | `policies/aggregate.yaml` | entity | Active |
 
-The Expense aggregate file shows the pattern every aggregate follows: its states, its transitions with the use case that moves each one, its data with a classification, its data classes with their retention, and its events:
+The Expense aggregate file shows the pattern every aggregate follows: its states, its transitions with the use case that moves each one, its data with a classification, its data classes with their retention, and its domain events:
 
 ```yaml
 type: aggregate
@@ -34,15 +34,15 @@ states:
 transitions:
 - from: "-"
   to: Submitted
-  by: use-case/spending.submit-expense
+  movedBy: use-case/spending.submit-expense
 - from: Submitted
   to: Approved
-  by: use-case/spending.approve-expense
+  movedBy: use-case/spending.approve-expense
 ```
 
-The `dataClasses` list of the same file gives each piece of data its retention. The `submitter-contact` class holds the employee who submitted the expense, is personal, and is erased by `job/spending.erase-expired-personal-data` after seven years. The `expense-ledger` class holds the amount, receipt and state, is kept for seven years under a statute, and is never erased. The bare business facts stay for the tax file.
+The `dataClasses` list of the same file gives each piece of data its retention. The `submitter-contact` class holds the employee who submitted the expense, is personal, and carries its period of seven years from the end of the financial year, its basis in the tax constraint, its purpose, its enforcement by `job/spending.erase-expired-personal-data`, and its exceptions. The `expense-ledger` class holds the amount, receipt and state, is kept for seven years under a statute, and is never erased. The bare business facts stay for the tax file.
 
-The five events the aggregate raises are `event/expense.submitted`, `event/expense.approved`, `event/expense.refused`, `event/expense.reimbursed` and `event/expense.personal-data-erased`. The receipt aggregate raises `event/receipt.attached`.
+The five domain events the aggregate raises are `domain-event/expense.submitted`, `domain-event/expense.approved`, `domain-event/expense.refused`, `domain-event/expense.reimbursed` and `domain-event/expense.personal-data-erased`. The receipt aggregate raises `domain-event/receipt.attached`.
 
 ## The Rules
 
@@ -55,7 +55,7 @@ A rule states one condition the module enforces. The Spending module has nine, i
 | `rules/spending-rules.yaml` | 1 |
 | `policies/rules/policy-rules.yaml` | 1 |
 
-The first rule in the expense file shows its shape. It names its kind, the use cases it governs, the refusal it returns, and the requirement it fulfills:
+The first rule in the expense file shows its shape. It names its kind, the use cases it governs, the refusal code it returns, and the requirement it fulfills:
 
 ```yaml
 - type: rule
@@ -65,33 +65,33 @@ The first rule in the expense file shows its shape. It names its kind, the use c
   statement: An expense above the policy threshold needs a receipt.
   governs:
   - use-case/spending.submit-expense
-  refusal: result/submit-expense.receipt-missing
+  refusal: spending.receipt-missing
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt
 ```
 
-The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, and that an export carries only approved expenses. Each rule has a refusal result with a stable code.
+The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, and that an export carries only approved expenses. Each rule names a refusal code from the module's refusal set in `behavior/modules/spending/refusals.yaml`, and each refusal result carries one of those codes.
 
 ## The Use Cases
 
-A use case is one thing an actor does through the system. The module has nine, each in a file of its own. Every use case names its grant and the entry point that reaches it. Most also name the journey step they serve, and the erasure use case serves none, because a scheduled promise is a requirement that a job fulfills:
+A use case is one thing an actor does through the system. The module has nine, each in a file of its own. Every use case names its grant and the entry point that reaches it. Most also name the flow step they serve, and the erasure use case serves none, because a scheduled promise is a requirement that a job fulfills:
 
 | Use case | Kind | Grant | Serves | Raises |
 |:---|:---|:---|:---|:---|
-| Submit expense | command | `permission/request-expense` | `journey/submit-and-reimburse#s1` | `event/expense.submitted` |
-| Attach receipt | command | `permission/request-expense` | `journey/submit-and-reimburse#s2` | `event/receipt.attached` |
-| Approve expense | command | `permission/approve-expense` | `journey/submit-and-reimburse#s3` | `event/expense.approved` |
-| Refuse expense | command | `permission/approve-expense` | `journey/submit-and-reimburse#s3` | `event/expense.refused` |
-| Reimburse expense | command | `permission/post-reimbursement` | `journey/submit-and-reimburse#s4` | `event/expense.reimbursed` |
-| List expenses | query | `permission/list-expenses` | `journey/submit-and-reimburse#s5` | none |
-| Change receipt threshold | command | `permission/manage-policy` | `journey/set-receipt-threshold#s1` | none |
-| Export expenses | query | `permission/export-expenses` | `journey/export-approved-expenses#s1` | none |
-| Erase personal data | command | `permission/remove-personal-data` | none | `event/expense.personal-data-erased` |
+| Submit expense | command | `permission/request-expense` | `flow/submit-and-reimburse#s1` | `domain-event/expense.submitted` |
+| Attach receipt | command | `permission/request-expense` | `flow/submit-and-reimburse#s2` | `domain-event/receipt.attached` |
+| Approve expense | command | `permission/approve-expense` | `flow/submit-and-reimburse#s3` | `domain-event/expense.approved` |
+| Refuse expense | command | `permission/approve-expense` | `flow/submit-and-reimburse#s3` | `domain-event/expense.refused` |
+| Reimburse expense | command | `permission/post-reimbursement` | `flow/submit-and-reimburse#s4` | `domain-event/expense.reimbursed` |
+| List expenses | query | `permission/list-expenses` | `flow/submit-and-reimburse#s5` | none |
+| Change receipt threshold | command | `permission/manage-policy` | `flow/set-receipt-threshold#s1` | none |
+| Export expenses | query | `permission/export-expenses` | `flow/export-approved-expenses#s1` | none |
+| Erase personal data | command | `permission/remove-personal-data` | none | `domain-event/expense.personal-data-erased` |
 
 The Submit expense file lists its inputs, its results and its scenarios. It takes an amount, a currency and an optional receipt, and it has two results: `result/submit-expense.submitted`, and the refusal `result/submit-expense.receipt-missing` with the code `spending.receipt-missing`. Its two scenarios are the ones the acceptance tests prove, as [A Use Case in Code](a-use-case-in-code.md) shows.
 
-The journey steps run in the order the journey file gives them. Submit expense serves `journey/submit-and-reimburse#s1` and Attach receipt serves `journey/submit-and-reimburse#s2`; the journey file names no use case, so each use case points up to the step it serves.
+The flow steps run in the order the flow file gives them. Submit expense serves `flow/submit-and-reimburse#s1` and Attach receipt serves `flow/submit-and-reimburse#s2`; the flow file names no use case, so each use case points up to the step it serves.
 
 ## The Entry Point and the Screen
 
@@ -106,24 +106,23 @@ address: /expenses
 offers:
 - use-case/spending.list-expenses
 serves:
-- journey/submit-and-reimburse#s5
-floorplan: list-page
+- flow/submit-and-reimburse#s5
 ```
 
-The screen offers only List expenses. The other eight use cases are reached through the entry point but have no screen yet, which the departures in [The Model and Its Checks](model-and-checks.md) account for.
+The screen offers only List expenses. The other eight use cases are reached through the entry point but have no screen yet, which the departures in [The Model and Its Checks](model-and-checks.md) account for. Which floorplan the route composes lives in the frontend design contract, not on the record.
 
 ## The Reaction, Job, Notification and Settings
 
 Four records act outside a single request:
 
-- The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` is triggered by `event/expense.submitted`. A submitted expense that waits past three business days without a decision earns one reminder to its approver.
-- The notification `notification/spending.approval-reminder` is the reminder itself. It goes by email to a manager, once per expense, using the template `approval-reminder-manager`.
-- The job `job/spending.erase-expired-personal-data` runs every day in the Europe/Amsterdam timezone. It erases the personal data of decided expenses past their retention. It sends `use-case/spending.erase-personal-data` once for each selected expense, asynchronously.
+- The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` is triggered by `domain-event/expense.submitted`. A submitted expense that waits past three business days without a decision earns one reminder to its approver. The reaction declares its outcomes, its failure handling and its idempotency.
+- The notification `notification/spending.approval-reminder` is the reminder itself. It names the manager as its audience, email as its channel, the external system that delivers it, and the rule that requires consent, once per expense.
+- The job `job/spending.erase-expired-personal-data` runs every day in the Europe/Amsterdam timezone. It erases the personal data of decided expenses past their retention. It declares its outcomes, its failure handling and its idempotency, and it sends `use-case/spending.erase-personal-data` once for each selected expense, asynchronously.
 - The settings file holds two values. `setting/spending.receipt-threshold` defaults to EUR 25, its range is EUR 0 to EUR 500, and the product sets it. `setting/spending.approval-reminder-delay` defaults to 48 hours, its range is 1 to 120 hours, and the operator sets it through the configuration key `Spending:ApprovalReminderDelay`.
 
 ## The Permissions and the Access Chain
 
-The permission list in `behavior/modules/spending/permissions.yaml` names seven permissions. Two carry a risk: `permission/post-reimbursement` carries `money`, and `permission/remove-personal-data` carries `personal-data`. The roles allow these permissions: the employee role allows submitting and listing, the approver role allows approving and managing the policy, and the finance role allows reimbursing, exporting and erasing, and it also allows listing the reimbursed expenses, which the reporting module names in `permission/list-reimbursed-expenses`. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
+The permission set in `behavior/modules/spending/permissions.yaml` names seven permissions. Two carry a risk: `permission/post-reimbursement` carries `money`, and `permission/remove-personal-data` carries `personal-data`. The roles allow these permissions: the employee role allows submitting and listing, the approver role allows approving and managing the policy, and the finance role allows reimbursing, exporting and erasing, and it also allows listing the reimbursed expenses, which the reporting module names in `permission/list-reimbursed-expenses`. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
 
 ## The Reporting Module
 
@@ -138,9 +137,9 @@ dependsOn:
 - module/spending
 ```
 
-The module keeps one row for each reimbursed expense in `view/reporting.reimbursed-expense`. The view is keyed by `aggregate/spending.expense`. Each of its four fields takes its value from one payload field of `integration-event/expense-reimbursed`, and the employee field is personal. The employee field names `integration-event/expense-personal-data-erased` as the event that erases it, so the row keeps the amount and the reimbursement time when the personal data is erased. The view allows a freshness of five seconds.
+The module keeps one row for each reimbursed expense in `read-model/reporting.reimbursed-expense`. The read model is keyed by `aggregate/spending.expense`. Each of its four fields takes its value from one payload field of `integration-event/expense-reimbursed`, and the employee field is personal. The employee field names `integration-event/expense-personal-data-erased` as the event that erases it, so the row keeps the amount and the reimbursement time when the personal data is erased. The read model declares freshness `{mode: eventual, within: PT5S}`: a reader sees a row at most five seconds old.
 
-The query `use-case/reporting.list-reimbursed-expenses` reads the view. Its grant is `permission/list-reimbursed-expenses`, which the permission list tags as personal data, because each row names the employee who was paid. The query fulfills `requirement/approval.reimbursed-expenses-listed`, and the finance role allows it.
+The query `use-case/reporting.list-reimbursed-expenses` reads the read model. Its grant is `permission/list-reimbursed-expenses`, which the permission set tags as personal data, because each row names the employee who was paid. The query fulfills `requirement/approval.reimbursed-expenses-listed`, and the finance role allows it.
 
 ## The External System
 
@@ -148,4 +147,4 @@ The payout bank is the one external system the module talks to. It is in `behavi
 
 ## Counting the Records
 
-Every count on these pages comes from the folder, not from memory. The Spending module holds 3 aggregates, 9 rules, 9 use cases, 2 settings, 1 job, 1 reaction, 1 notification and 3 integration events. The Reporting module holds 1 view and 1 use case. The entry point holds 1 screen, and the payout bank is the one external system. The product holds 3 actors, 3 roles and 3 journeys. Run `dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root examples/claimwick` to see the model's view of the same records, and [The Model and Its Checks](model-and-checks.md) shows that output.
+Every count on these pages comes from the folder, not from memory. The Spending module holds 3 aggregates, 9 rules, 9 use cases, 2 settings, 1 job, 1 reaction, 1 notification and 3 integration events. The Reporting module holds 1 read model and 1 use case. The entry point holds 1 screen, and the payout bank is the one external system. The product holds 3 actors, 3 roles and 3 flows. Run `dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root examples/claimwick` to see the model's view of the same records, and [The Model and Its Checks](model-and-checks.md) shows that output.

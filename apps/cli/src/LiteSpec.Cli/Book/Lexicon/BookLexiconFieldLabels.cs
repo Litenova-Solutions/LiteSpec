@@ -10,7 +10,7 @@ static class BookLexiconFieldLabels
     public static IReadOnlyDictionary<string, string> Labels { get; } =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["boundary"] = "Boundary", ["exclusions"] = "Exclusions", ["addresses"] = "Addresses",
+            ["boundary"] = "Boundary", ["excludes"] = "Excludes", ["addresses"] = "Addresses", ["audience"] = "Audience", ["requires"] = "Requires", ["movedBy"] = "Moved by", ["ifExhausted"] = "If exhausted", ["exemptBecause"] = "Exempt because", ["boundBy"] = "Bound by", ["widenedBy"] = "Widened by", ["parts"] = "Parts", ["solves"] = "Solves", ["answers"] = "Answers", ["observations"] = "Observations", ["outcomes"] = "Outcomes",
             ["source"] = "Source", ["authority"] = "Authority", ["applies"] = "Applies", ["appliesBecause"] = "Applies because",
             ["question"] = "Question", ["sources"] = "Sources", ["readOn"] = "Read on", ["conclusion"] = "Conclusion",
             ["options"] = "Options", ["choice"] = "Choice", ["pros"] = "Pros", ["cons"] = "Cons", ["reopenedWhen"] = "Reopened when",
@@ -24,8 +24,8 @@ static class BookLexiconFieldLabels
             ["dataClasses"] = "Data classes", ["steps"] = "Steps", ["cursor"] = "Cursor",
             ["binds"] = "Binds",
             ["refusal"] = "Refusal",
-            ["input"] = "Input", ["output"] = "Output", ["origin"] = "Origin", ["paging"] = "Paging", ["builtAsynchronously"] = "Built asynchronously",
-            ["changes"] = "Changes", ["reads"] = "Reads", ["consistency"] = "Consistency", ["effects"] = "Effects",
+            ["input"] = "Input", ["output"] = "Output", ["origin"] = "Origin", ["paging"] = "Paging",
+            ["writes"] = "Writes", ["reads"] = "Reads", ["consistency"] = "Consistency", ["effects"] = "Effects",
             ["idempotency"] = "Idempotency", ["audit"] = "Audit", ["level"] = "Level", ["access"] = "Access", ["computedBy"] = "Computed by",
             ["triggeredBy"] = "Triggered by", ["skippedWhen"] = "Skipped when", ["runs"] = "Runs", ["sends"] = "Sends", ["publishes"] = "Publishes",
             ["calls"] = "Calls", ["forEach"] = "For each", ["onFailure"] = "On failure", ["onExhausted"] = "On exhausted",
@@ -36,7 +36,7 @@ static class BookLexiconFieldLabels
             ["outcome"] = "Outcome",
             ["given"] = "Given", ["when"] = "When", ["then"] = "Then", ["examples"] = "Examples",
             ["carries"] = "Carries", ["path"] = "Path", ["contentType"] = "Content type", ["cacheControl"] = "Cache control", ["versioning"] = "Versioning",
-            ["address"] = "Address", ["entryPoint"] = "Entry point", ["floorplan"] = "Floorplan", ["offers"] = "Offers", ["implements"] = "Implements",
+            ["address"] = "Address", ["entryPoint"] = "Entry point", ["offers"] = "Offers", ["implements"] = "Implements",
             ["receives"] = "Receives", ["failure"] = "Failure", ["operations"] = "Operations", ["timeout"] = "Timeout", ["onTimeout"] = "On timeout",
             ["erasure"] = "Erasure", ["acceptedBy"] = "Accepted by",
             ["keyedBy"] = "Keyed by", ["from"] = "From", ["accumulate"] = "Accumulate", ["erasedBy"] = "Erased by", ["removedBy"] = "Removed by", ["freshness"] = "Freshness",
@@ -48,7 +48,7 @@ static class BookLexiconFieldLabels
             ["template"] = "Template", ["channel"] = "Channel", ["consent"] = "Consent", ["frequency"] = "Frequency",
             ["dedupKey"] = "Dedup key", ["params"] = "Params", ["locale"] = "Locale", ["suppressedWhen"] = "Suppressed when", ["claims"] = "Claims",
             ["schedule"] = "Schedule", ["batchSize"] = "Batch size", ["lease"] = "Lease", ["serviceLevel"] = "Service level",
-            ["runsWhere"] = "Runs where", ["guard"] = "Guard",
+            ["runsWhen"] = "Runs when", ["guard"] = "Guard",
             ["valueType"] = "Value type", ["default"] = "Default", ["range"] = "Range", ["unit"] = "Unit", ["atBound"] = "At bound", ["secret"] = "Secret", ["restart"] = "Restart",
             ["releasedBy"] = "Released by", ["frozenWhen"] = "Frozen when", ["history"] = "History",
             ["value"] = "Value", ["trigger"] = "Trigger", ["severity"] = "Severity",
@@ -63,5 +63,7 @@ static class BookLexiconFieldLabels
             ["refusals"] = "Refusals", ["delivery"] = "Delivery",
             ["impact"] = "Impact", ["prerequisites"] = "Prerequisites", ["procedure"] = "Procedure", ["verification"] = "Verification",
             ["recovery"] = "Recovery", ["escalation"] = "Escalation", ["exit"] = "Exit", ["key"] = "Key",
+            ["brand"] = "Brand", ["density"] = "Density", ["voice"] = "Voice", ["pageFrame"] = "Page frame",
+            ["leadsTo"] = "Leads to", ["sentence"] = "Sentence", ["sentences"] = "Sentences", ["wireframe"] = "Wireframe",
         };
 }

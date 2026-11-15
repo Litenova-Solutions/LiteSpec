@@ -200,7 +200,7 @@ public sealed class NodeFrontendReaderTests
               name: 'web',
               modules: [{ folder: 'src/lib/modules/spending/expenses/list-expenses', file: 'src/lib/modules/spending/expenses/list-expenses/litespec.ts', line: 3, marks: ['use-case/spending.list-expenses'] }],
               routes: [{ file: 'src/routes/expenses/+page.svelte', line: 4, address: '/expenses', marks: ['screen/app.expense-list'], calls: [{ operation: 'ListExpenses', file: 'src/routes/expenses/+page.svelte', line: 9 }] }],
-              tests: [{ file: 'tests/e2e/expenses.spec.ts', line: 7, title: 'lists the expenses', proves: ['scenario/list-expenses.listing-succeeds'], journey: null, gotos: ['/expenses'], codes: [], texts: ['Expenses'] }],
+              tests: [{ file: 'tests/e2e/expenses.spec.ts', line: 7, title: 'lists the expenses', proves: ['scenario/list-expenses.listing-succeeds'], flow: null, gotos: ['/expenses'], codes: [], texts: ['Expenses'] }],
               diagnostics: []
             }]
           }));

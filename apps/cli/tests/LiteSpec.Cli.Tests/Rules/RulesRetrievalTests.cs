@@ -90,7 +90,7 @@ public sealed class RulesRetrievalTests
             }
 
             var type = record[..slash].ToLowerInvariant();
-            string[] candidates = type == "event" ? [type, "domain-event"] : [type];
+            string[] candidates = [type];
 
             if (candidates.Any(candidate => artifacts.Contains(candidate)))
             {

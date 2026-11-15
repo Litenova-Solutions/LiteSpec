@@ -14,9 +14,9 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.yaml"), """{"kind": "command", "raises": ["event/loan.loan-returned"]}"""),
-            TestModel.Record("event", "event/loan.loan-returned", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was returned.", "carries": []}"""),
-            TestModel.Record("reaction", "reaction/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.yaml"), """{"triggeredBy": ["event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-returned"]}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-returned", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was returned.", "carries": []}"""),
+            TestModel.Record("reaction", "reaction/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.yaml"), """{"triggeredBy": ["domain-event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}]}"""));
 
         Assert.Contains("effect-loop-invalid", TestModel.Codes(model));
     }
@@ -29,7 +29,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.yaml"), """{"triggeredBy": ["event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.yaml"), """{"triggeredBy": ["domain-event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "The copy was returned again."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "Returning the same copy again changes nothing."}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -42,7 +42,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.return-twice-on-loan-returned", Path.Combine(temp.Path, "twice.yaml"), """{"triggeredBy": ["event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}, {"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.return-twice-on-loan-returned", Path.Combine(temp.Path, "twice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}, {"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "a reaction or job runs at most one use case"));
     }
@@ -68,10 +68,10 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.yaml"), """{}"""));
 
-        Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
+        Assert.DoesNotContain("notification-effect-missing", TestModel.Codes(model));
     }
 
     /// <summary>Scheduled Job Effects Sends Edge Satisfies Notification Sender.</summary>
@@ -85,7 +85,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"sends": "notification/lending.loan-due", "timing": "async"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.yaml"), """{}"""));
 
-        Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
+        Assert.DoesNotContain("notification-effect-missing", TestModel.Codes(model));
     }
 
     /// <summary>Reaction Without Effects Reports Record Shape.</summary>
@@ -96,7 +96,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"]}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no effects"));
     }
@@ -109,15 +109,15 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was lent.", "carries": []}"""),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.yaml"), """{}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "outcomes": [{"name": "completed", "meaning": "The due notice was sent."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "Resending the same notice is harmless."}}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was lent.", "carries": []}"""),
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.yaml"), """{"audience": ["actor/reader"], "deliveredThrough": "external-system/mailer"}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <summary>Key Placeholder Naming No Input Field Reports.</summary>
-    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
     [Fact]
     public void KeyPlaceholderNamingNoInputFieldReports()
     {
@@ -131,7 +131,7 @@ public sealed class RecordShapeCheckTests
     }
 
     /// <summary>Key Without Placeholder Reports.</summary>
-    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
     [Fact]
     public void KeyWithoutPlaceholderReports()
     {
@@ -145,7 +145,7 @@ public sealed class RecordShapeCheckTests
     }
 
     /// <summary>Unknown Scope Reports.</summary>
-    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
     [Fact]
     public void UnknownScopeReports()
     {
@@ -158,7 +158,7 @@ public sealed class RecordShapeCheckTests
     }
 
     /// <summary>Valid Key And Scope Pass Shape.</summary>
-    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
     [Fact]
     public void ValidKeyAndScopePassShape()
     {
@@ -170,15 +170,15 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
-    /// <summary>Reaction Key Names Event Fields Unchecked.</summary>
-    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
+    /// <summary>Reaction Key Names Domain Event Fields Unchecked.</summary>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
     [Fact]
-    public void ReactionKeyNamesEventFieldsUnchecked()
+    public void ReactionKeyNamesDomainEventFieldsUnchecked()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
 
         Assert.False(Reports(model, "record-invalid", "idempotency key"));
     }
@@ -191,7 +191,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
 
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
@@ -217,7 +217,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {}}"""));
 
         Assert.True(Reports(model, "record-invalid", "onFailure with no mode"));
     }
@@ -243,7 +243,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "5 seconds", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "5 seconds", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
     }
@@ -256,7 +256,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "ifExhausted": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "retry initialDelay with no duration"));
     }
@@ -269,7 +269,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "no positive maxAttempts"));
     }
@@ -282,35 +282,35 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "then": "dead-letter"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "ifExhausted": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "onFailure with no retry"));
     }
 
-    /// <summary>Missing Then Reports.</summary>
+    /// <summary>Missing IfExhausted Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void MissingThenReports()
+    public void MissingIfExhaustedReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}}}"""));
 
-        Assert.True(Reports(model, "record-invalid", "retry with no then"));
+        Assert.True(Reports(model, "record-invalid", "retry with no ifExhausted"));
     }
 
-    /// <summary>Unknown Then Reports.</summary>
+    /// <summary>Unknown IfExhausted Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void UnknownThenReports()
+    public void UnknownIfExhaustedReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "requeue"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "requeue"}}"""));
 
-        Assert.True(Reports(model, "record-invalid", "then 'requeue' outside dead-letter"));
+        Assert.True(Reports(model, "record-invalid", "ifExhausted 'requeue' outside dead-letter"));
     }
 
     /// <summary>Structured OnFailure Passes Shape.</summary>
@@ -321,9 +321,9 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT1M", "backoff": "exponential"}, "then": "dead-letter"}}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was lent.", "carries": []}"""),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.yaml"), """{}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "outcomes": [{"name": "completed", "meaning": "The due notice was sent."}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT1M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}, "idempotency": {"mode": "none", "reason": "Resending the same notice is harmless."}}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was lent.", "carries": []}"""),
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.yaml"), """{"audience": ["actor/reader"], "deliveredThrough": "external-system/mailer"}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -336,7 +336,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "skip-and-log"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "skip-and-log"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -349,7 +349,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "discard"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -375,7 +375,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "effect onFailure retry with no positive maxAttempts"));
     }

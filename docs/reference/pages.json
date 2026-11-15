@@ -825,7 +825,7 @@
       "style": "index",
       "area": "backend",
       "title": "Overview",
-      "intent": "The pages in this folder state the extensions only a .NET backend offers: executable acceptance scenarios and layer projects for backends that package each layer as its own project. A local extension stays inactive until one use case, journey, or module meets the criterion its page states; the project extension applies to the whole backend once selected. A use case is one command or query, a journey is the steps to one goal, and a module is one business area; authors turn to these pages when shared examples need business-language review, or when the backend keeps the five-project packaging.",
+      "intent": "The pages in this folder state the extensions only a .NET backend offers: executable acceptance scenarios and layer projects for backends that package each layer as its own project. A local extension stays inactive until one use case, flow, or module meets the criterion its page states; the project extension applies to the whole backend once selected. A use case is one command or query, a flow is the steps to one goal, and a module is one business area; authors turn to these pages when shared examples need business-language review, or when the backend keeps the five-project packaging.",
       "sections": [
         "Intent",
         "How the Pages Fit Together",
@@ -997,7 +997,7 @@
       "style": "standard",
       "area": "core",
       "title": "Agent Operating Protocol",
-      "intent": "An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need the task authorizer before the agent acts. Following them keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check.",
+      "intent": "An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need an explicit task instruction before the agent acts. Following them keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1026,7 +1026,7 @@
       "style": "standard",
       "area": "core",
       "title": "Automation",
-      "intent": "Automation states the work that runs without a request: the reactions answering events, the jobs running on schedule, once, or by hand, and the views a module keeps current from another module\u0027s published events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Automation states the work that runs without a request: the reactions answering events, the jobs running on schedule or once, and the read models a module keeps current from another module\u0027s published events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1097,7 +1097,7 @@
       "style": "standard",
       "area": "core",
       "title": "Intent Layer",
-      "intent": "Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1186,7 +1186,7 @@
       "style": "standard",
       "area": "core",
       "title": "Privacy and Retention",
-      "intent": "Privacy and Retention states how the product handles personal data: the data classes with their erasure positions, the retention schedule, and the extended erasure needs of referenced rows, child rows, handed-over data, requested reach, export guards, conflicts, and restore sweeps. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Privacy and Retention states how the product handles personal data: the data classes with their erasure positions and retention, and the extended erasure needs of referenced rows, child rows, handed-over data, requested reach, export guards, conflicts, and restore sweeps. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1316,7 +1316,7 @@
       "style": "explanation",
       "area": "example",
       "title": "The Claimwick Product",
-      "intent": "Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its Intent records as they are written in \u0060examples/claimwick/.litespec/intent/\u0060, from the product brief down to the journey that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.",
+      "intent": "Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its Intent records as they are written in \u0060examples/claimwick/.litespec/intent/\u0060, from the product brief down to the flow that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.",
       "sections": [
         "Intent",
         "The Product Brief",
@@ -1327,7 +1327,7 @@
         "The Research",
         "The Decision",
         "The Constraint",
-        "The Journey"
+        "The Flow"
       ]
     },
     {
@@ -2082,7 +2082,7 @@
       "style": "standard",
       "area": "frontend",
       "title": "Controlled UI Governance",
-      "intent": "The shared UI package is a constrained construction language: the ready-made controls, the interaction behavior, the page layouts, and the named visual values every screen draws with. This page states how the workspace governs that language: the visual authority, the design contract, the floorplan set, and the route suite that proves every route. Frontend teams and agents apply it whenever they add or change a screen, a component, or a named value, so every page of one kind looks and behaves as one page.",
+      "intent": "The shared UI package is a constrained construction language: the ready-made controls, the interaction behavior, the page layouts, and the named visual values every screen draws with. This page states how the workspace governs that language: the visual authority, the design contract, the token roles and limits, the screen blueprint, the floorplan set, and the route suite that proves every route. Frontend teams and agents apply it whenever they add or change a screen, a component, or a named value, so every page of one kind looks and behaves as one page.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2371,12 +2371,12 @@
       ]
     },
     {
-      "file": "docs/guide/write-a-feature-under-a-problem.md",
-      "path": "guide/write-a-feature-under-a-problem",
+      "file": "docs/guide/write-a-feature.md",
+      "path": "guide/write-a-feature",
       "style": "how-to",
       "area": "guide",
-      "title": "Write a Feature Under a Problem",
-      "intent": "A feature is one answer to a problem, advancing a goal. It lives in the features folder of the one problem it answers: one record file at \u0060.litespec/intent/problems/\u003Cproblem\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder in the feature\u0027s \u0060requirements/\u0060 folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.",
+      "title": "Write a Feature",
+      "intent": "A feature is one offering that solves problems and advances goals. It stands alone in its own folder at \u0060.litespec/intent/features/\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its parent the product: one record file states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder in the feature\u0027s \u0060requirements/\u0060 folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2385,12 +2385,12 @@
       ]
     },
     {
-      "file": "docs/guide/write-a-journey.md",
-      "path": "guide/write-a-journey",
+      "file": "docs/guide/write-a-flow.md",
+      "path": "guide/write-a-flow",
       "style": "how-to",
       "area": "guide",
-      "title": "Write a Journey",
-      "intent": "A journey states the path one actor takes toward one goal, from the state in which it starts to the state in which it ends, one step at a time. This guide writes one journey record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "title": "Write a Flow",
+      "intent": "A flow states the path one actor takes toward one goal or one problem, from the state in which it starts to the state in which it ends, one step at a time. This guide writes one flow record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2521,7 +2521,7 @@
       "path": "intent/decisions/0005-journeys-serve-a-goal/0005-journeys-serve-a-goal",
       "style": "decision",
       "area": "intent",
-      "title": "Journeys Serve a Goal",
+      "title": "Flows Serve a Goal",
       "intent": "",
       "sections": [
         "Context",
@@ -3125,7 +3125,7 @@
       "path": "intent/decisions/0048-state-the-start-and-branches-of-each-journey/0048-state-the-start-and-branches-of-each-journey",
       "style": "decision",
       "area": "intent",
-      "title": "State the Start and Branches of Each Journey",
+      "title": "State the Start and Branches of Each Flow",
       "intent": "",
       "sections": [
         "Context",
@@ -3140,22 +3140,7 @@
       "path": "intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences",
       "style": "decision",
       "area": "intent",
-      "title": "Use Literal Journey Words and Concrete Consequences",
-      "intent": "",
-      "sections": [
-        "Context",
-        "Options",
-        "Decision",
-        "Consequences",
-        "Revisit Conditions"
-      ]
-    },
-    {
-      "file": "docs/intent/decisions/0050-feature-inside-the-problem-it-answers/0050-feature-inside-the-problem-it-answers.md",
-      "path": "intent/decisions/0050-feature-inside-the-problem-it-answers/0050-feature-inside-the-problem-it-answers",
-      "style": "decision",
-      "area": "intent",
-      "title": "Put Each Feature Inside the Problem It Answers",
+      "title": "Use Literal Flow Words and Concrete Consequences",
       "intent": "",
       "sections": [
         "Context",
@@ -3378,11 +3363,411 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0065-read-another-module-through-a-view/0065-read-another-module-through-a-view.md",
-      "path": "intent/decisions/0065-read-another-module-through-a-view/0065-read-another-module-through-a-view",
+      "file": "docs/intent/decisions/0065-read-another-module-through-a-read-model/0065-read-another-module-through-a-read-model.md",
+      "path": "intent/decisions/0065-read-another-module-through-a-read-model/0065-read-another-module-through-a-read-model",
       "style": "decision",
       "area": "intent",
-      "title": "Read Another Module Through a View",
+      "title": "Read Another Module Through a Read Model",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0066-name-the-record-a-flow-exists-for/0066-name-the-record-a-flow-exists-for.md",
+      "path": "intent/decisions/0066-name-the-record-a-flow-exists-for/0066-name-the-record-a-flow-exists-for",
+      "style": "decision",
+      "area": "intent",
+      "title": "Name the Record a Flow Exists For",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0067-cite-requirements-on-each-flow-step/0067-cite-requirements-on-each-flow-step.md",
+      "path": "intent/decisions/0067-cite-requirements-on-each-flow-step/0067-cite-requirements-on-each-flow-step",
+      "style": "decision",
+      "area": "intent",
+      "title": "Cite Requirements on Each Flow Step",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0068-call-ordered-steps-a-flow/0068-call-ordered-steps-a-flow.md",
+      "path": "intent/decisions/0068-call-ordered-steps-a-flow/0068-call-ordered-steps-a-flow",
+      "style": "decision",
+      "area": "intent",
+      "title": "Call Ordered Steps a Flow",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0069-state-each-copy-under-a-check/0069-state-each-copy-under-a-check.md",
+      "path": "intent/decisions/0069-state-each-copy-under-a-check/0069-state-each-copy-under-a-check",
+      "style": "decision",
+      "area": "intent",
+      "title": "State Each Copy Under a Check",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0070-keep-one-source-for-each-fact/0070-keep-one-source-for-each-fact.md",
+      "path": "intent/decisions/0070-keep-one-source-for-each-fact/0070-keep-one-source-for-each-fact",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep One Source for Each Fact",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0071-give-every-stated-rule-a-field/0071-give-every-stated-rule-a-field.md",
+      "path": "intent/decisions/0071-give-every-stated-rule-a-field/0071-give-every-stated-rule-a-field",
+      "style": "decision",
+      "area": "intent",
+      "title": "Give Every Stated Rule a Field",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0072-generate-the-links-table-from-the-schema/0072-generate-the-links-table-from-the-schema.md",
+      "path": "intent/decisions/0072-generate-the-links-table-from-the-schema/0072-generate-the-links-table-from-the-schema",
+      "style": "decision",
+      "area": "intent",
+      "title": "Generate the Links Table from the Schema",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0073-type-every-output-and-declare-refusal-sets/0073-type-every-output-and-declare-refusal-sets.md",
+      "path": "intent/decisions/0073-type-every-output-and-declare-refusal-sets/0073-type-every-output-and-declare-refusal-sets",
+      "style": "decision",
+      "area": "intent",
+      "title": "Type Every Output and Declare Refusal Sets",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0074-declare-access-settings-and-deadlines/0074-declare-access-settings-and-deadlines.md",
+      "path": "intent/decisions/0074-declare-access-settings-and-deadlines/0074-declare-access-settings-and-deadlines",
+      "style": "decision",
+      "area": "intent",
+      "title": "Declare Access Settings and Deadlines",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0075-draw-the-boundary-around-outside-traffic/0075-draw-the-boundary-around-outside-traffic.md",
+      "path": "intent/decisions/0075-draw-the-boundary-around-outside-traffic/0075-draw-the-boundary-around-outside-traffic",
+      "style": "decision",
+      "area": "intent",
+      "title": "Draw the Boundary Around Outside Traffic",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0076-remove-shapes-nothing-needs/0076-remove-shapes-nothing-needs.md",
+      "path": "intent/decisions/0076-remove-shapes-nothing-needs/0076-remove-shapes-nothing-needs",
+      "style": "decision",
+      "area": "intent",
+      "title": "Remove Shapes Nothing Needs",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0077-use-the-standard-term-for-each-concept/0077-use-the-standard-term-for-each-concept.md",
+      "path": "intent/decisions/0077-use-the-standard-term-for-each-concept/0077-use-the-standard-term-for-each-concept",
+      "style": "decision",
+      "area": "intent",
+      "title": "Use the Standard Term for Each Concept",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0078-place-each-record-by-its-content/0078-place-each-record-by-its-content.md",
+      "path": "intent/decisions/0078-place-each-record-by-its-content/0078-place-each-record-by-its-content",
+      "style": "decision",
+      "area": "intent",
+      "title": "Place Each Record by Its Content",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0079-cover-the-behavior-reviewers-found-missing/0079-cover-the-behavior-reviewers-found-missing.md",
+      "path": "intent/decisions/0079-cover-the-behavior-reviewers-found-missing/0079-cover-the-behavior-reviewers-found-missing",
+      "style": "decision",
+      "area": "intent",
+      "title": "Cover the Behavior Reviewers Found Missing",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0080-solve-problems-with-standalone-features/0080-solve-problems-with-standalone-features.md",
+      "path": "intent/decisions/0080-solve-problems-with-standalone-features/0080-solve-problems-with-standalone-features",
+      "style": "decision",
+      "area": "intent",
+      "title": "Solve Problems with Standalone Features",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0081-own-scenarios-and-declare-outcomes/0081-own-scenarios-and-declare-outcomes.md",
+      "path": "intent/decisions/0081-own-scenarios-and-declare-outcomes/0081-own-scenarios-and-declare-outcomes",
+      "style": "decision",
+      "area": "intent",
+      "title": "Own Scenarios and Declare Outcomes",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0082-give-every-rule-one-home-and-one-strength/0082-give-every-rule-one-home-and-one-strength.md",
+      "path": "intent/decisions/0082-give-every-rule-one-home-and-one-strength/0082-give-every-rule-one-home-and-one-strength",
+      "style": "decision",
+      "area": "intent",
+      "title": "Give Every Rule One Home and One Strength",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0083-evaluate-access-in-one-order/0083-evaluate-access-in-one-order.md",
+      "path": "intent/decisions/0083-evaluate-access-in-one-order/0083-evaluate-access-in-one-order",
+      "style": "decision",
+      "area": "intent",
+      "title": "Evaluate Access in One Order",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0084-give-read-models-their-semantics/0084-give-read-models-their-semantics.md",
+      "path": "intent/decisions/0084-give-read-models-their-semantics/0084-give-read-models-their-semantics",
+      "style": "decision",
+      "area": "intent",
+      "title": "Give Read Models Their Semantics",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0085-bind-proof-to-code-and-outcomes/0085-bind-proof-to-code-and-outcomes.md",
+      "path": "intent/decisions/0085-bind-proof-to-code-and-outcomes/0085-bind-proof-to-code-and-outcomes",
+      "style": "decision",
+      "area": "intent",
+      "title": "Bind Proof to Code and Outcomes",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0086-set-one-agent-authority-boundary/0086-set-one-agent-authority-boundary.md",
+      "path": "intent/decisions/0086-set-one-agent-authority-boundary/0086-set-one-agent-authority-boundary",
+      "style": "decision",
+      "area": "intent",
+      "title": "Set One Agent Authority Boundary",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0087-keep-prose-checks-advisory-and-names-per-type/0087-keep-prose-checks-advisory-and-names-per-type.md",
+      "path": "intent/decisions/0087-keep-prose-checks-advisory-and-names-per-type/0087-keep-prose-checks-advisory-and-names-per-type",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Prose Checks Advisory and Names per Type",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0088-serve-the-book-live-and-export-it/0088-serve-the-book-live-and-export-it.md",
+      "path": "intent/decisions/0088-serve-the-book-live-and-export-it/0088-serve-the-book-live-and-export-it",
+      "style": "decision",
+      "area": "intent",
+      "title": "Serve the Book Live and Export It",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0089-specify-the-ui-as-a-blueprint/0089-specify-the-ui-as-a-blueprint.md",
+      "path": "intent/decisions/0089-specify-the-ui-as-a-blueprint/0089-specify-the-ui-as-a-blueprint",
+      "style": "decision",
+      "area": "intent",
+      "title": "Specify the UI as a Blueprint",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0090-make-the-book-an-explorer/0090-make-the-book-an-explorer.md",
+      "path": "intent/decisions/0090-make-the-book-an-explorer/0090-make-the-book-an-explorer",
+      "style": "decision",
+      "area": "intent",
+      "title": "Make the Book an Explorer",
       "intent": "",
       "sections": [
         "Context",
@@ -3922,6 +4307,19 @@
       ]
     },
     {
+      "file": "docs/reference/concepts.md",
+      "path": "reference/concepts",
+      "style": "reference",
+      "area": "reference",
+      "title": "Concepts",
+      "intent": "Use this generated page to find the one page that owns each glossary concept, and the provisions that page holds. A concept is stated on its home page; every other page cites the concept rather than restating its rule.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/reference/decision-records.md",
       "path": "reference/decision-records",
       "style": "reference",
@@ -4061,7 +4459,7 @@
       "style": "command",
       "area": "tools",
       "title": "Book Command",
-      "intent": "\u0060litespec book\u0060 - Generate the project book, one offline shell with sharded data, from a consumer root.",
+      "intent": "\u0060litespec book\u0060 - Serve the project book live from memory on localhost, or write it as a static site with \u0060--out\u0060.",
       "sections": [
         "Name",
         "Synopsis",
@@ -4201,7 +4599,7 @@
       "style": "tutorial",
       "area": "tutorial",
       "title": "Model a Behavior Module",
-      "intent": "A behavior module gathers one business area\u0027s glossary terms, aggregates, rules, use cases, reactions, jobs, views, notifications, settings, events, and permissions into record files that the model builder, the tool that checks the project, reads. This tutorial works through one kind of record at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.",
+      "intent": "A behavior module gathers one business area\u0027s glossary terms, aggregates, rules, use cases, reactions, jobs, read models, notifications, settings, domain events, and permissions into record files that the model builder, the tool that checks the project, reads. This tutorial works through one kind of record at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",

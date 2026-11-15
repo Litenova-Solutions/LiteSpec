@@ -20,7 +20,7 @@ LiteSpec already implements the regulated shape below the requirement line. Its 
 
 The goal methods confirm the shape and name one missing middle. KAOS refines strategic goals into requirements assigned to responsible agents. `i*` captures why actors depend on each other. Neither method leaves a goal free-floating. LiteSpec's `except` and `fallback` already cover obstacles in product words, so LiteSpec should not import refinement logic. The record gives no confidence for this claim.
 
-Impact mapping has 4 levels: goal, actor, impact and deliverable. It exposes LiteSpec's missing middle. No impact record states the behavior change that a feature aims to cause, although a journey's `finishedWhen` comes close. The record gives no confidence for this claim.
+Impact mapping has 4 levels: goal, actor, impact and deliverable. It exposes LiteSpec's missing middle. No impact record states the behavior change that a feature aims to cause, although a flow's `finishedWhen` comes close. The record gives no confidence for this claim.
 
 Opportunity solution trees match LiteSpec well, with outcome, opportunity, solution and experiment. LiteSpec is stronger at the experiment level, because its scenarios are executable proofs. User story mapping's backbone already exists in LiteSpec, and the check `step-use-case-missing` covers it. OKRs match the goal shape almost exactly. Goals carry no authority in LiteSpec, so scoring them would give numbers that have no authority there. The record gives no confidence for these claims.
 
@@ -36,7 +36,7 @@ Maintenance is the known failure mode, because teams neglect links as a nuisance
 
 Deep trees cost agility. A 5-level backlog hierarchy reduces transparency and adaptability. So requirements must not become hostage to feature gardening, and the origin rule must accept `basedOn` or a deciding decision beside `feature`. The record names 3 genuine limits. Cross-cutting constraints legitimately parent many requirements. Background work needs an escape. Small projects should not face the new gates. The record gives no confidence for these claims.
 
-The investigation ranks 6 rules that LiteSpec can adopt. Every requirement names one origin: a feature, a `basedOn` entry or a deciding decision. The journey gets a goal link. Every feature names `solves` and `serves`. Intent orphans are computed as advisory only, with named tolerances. Each child has one written parent, and every inverse is computed. Changed records render their downstream proofs suspect in the book. The record states no confidence for these rules.
+The investigation ranks 6 rules that LiteSpec can adopt. Every requirement names one origin: a feature, a `basedOn` entry or a deciding decision. The flow gets a goal link. Every feature names `solves` and `serves`. Intent orphans are computed as advisory only, with named tolerances. Each child has one written parent, and every inverse is computed. Changed records render their downstream proofs suspect in the book. The record states no confidence for these rules.
 
 The record rejects 4 approaches with evidence. They are AND/OR refinement, OKR scoring, mandatory leaf-to-leaf links and a rule that only features may be parents. The record gives no confidence for these rejections.
 

@@ -9,6 +9,7 @@
 ```bash
 litespec new <type> <id> [--root <path>] [--help]
 litespec new requirement <feature>.<name> [--root <path>]
+litespec new requirement <name> [--root <path>]
 litespec new decision <name> [--root <path>]
 litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
 litespec new use-case <id> --kind command|query [--root <path>]
@@ -20,11 +21,11 @@ litespec new entry <page-id> <type> <name> [--root <path>]
 
 This command creates one record file from the template for its type, with every required field already filled. For an article type (research or decision) or for a type on a layer the project lists in `explanations.layers`, it also writes the explanation file beside the record, from the explanation template for its type, `templates/consumer/<type>.md`, with the title filled in. For a document style it writes the `.md` document from its template. It reserves the identifier before any prose exists, so two authors working in parallel never mint the same identifier twice. The second author learns the clash at creation and picks another name.
 
-`<type>` is the record type or page style, such as `reaction`, `job`, or `use-case`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. `new <type> <id>` writes a named record in its own folder named for it, as `<name>/<name>.yaml`, with its explanation `<name>.md` beside the record file. The command writes this folder layout only. The folder sits where its type's home is: a reaction under `.litespec/behavior/modules/<module>/reactions/<name>/`, a job under `.litespec/behavior/modules/<module>/jobs/<name>/`, a notification under `.litespec/behavior/modules/<module>/notifications/<name>/`, a view under `.litespec/behavior/modules/<module>/views/<name>/`, and a decision under `.litespec/intent/decisions/<number>-<name>/`. A module file is `.litespec/behavior/modules/<module>/module.yaml`, since a module is declared only in Behavior; an aggregate file is `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml`. A use-case folder starts under `.litespec/behavior/modules/<module>/use-cases/<name>/`; move it under its aggregate's `use-cases/` folder once the use case names one. The command refuses an identifier a record already carries.
+`<type>` is the record type or page style, such as `reaction`, `job`, or `use-case`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. `new <type> <id>` writes a named record in its own folder named for it, as `<name>/<name>.yaml`, with its explanation `<name>.md` beside the record file. The command writes this folder layout only. The folder sits where its type's home is: a reaction under `.litespec/behavior/modules/<module>/reactions/<name>/`, a job under `.litespec/behavior/modules/<module>/jobs/<name>/`, a notification under `.litespec/behavior/modules/<module>/notifications/<name>/`, a read model under `.litespec/behavior/modules/<module>/read-models/<name>/`, and a decision under `.litespec/intent/decisions/<number>-<name>/`. A module file is `.litespec/behavior/modules/<module>/module.yaml`, since a module is declared only in Behavior; an aggregate file is `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml`. A use-case folder starts under `.litespec/behavior/modules/<module>/use-cases/<name>/`; move it under its aggregate's `use-cases/` folder once the use case names one. The command refuses an identifier a record already carries.
 
 Every record a type can hold gets one title. The command writes that Title Case title, such as `Decided Within Five Days`, to the record's YAML `title` and to the H1 of its explanation file, so the two always match.
 
-`new requirement <feature>.<name>` writes the requirement as its own named record in the feature's `requirements/` folder, `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml`, from `templates/consumer/requirement.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled. The feature segment names the feature whose folder holds the requirement.
+`new requirement <feature>.<name>` writes the requirement as its own named record in the feature's `requirements/` folder, `.litespec/intent/features/<feature>/requirements/<name>/<name>.yaml`, from `templates/consumer/requirement.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled. The feature segment names the feature whose folder holds the requirement. `new requirement <name>` writes a product-level requirement at `.litespec/intent/requirements/<name>/<name>.yaml`, with its identifier `requirement/<name>`.
 
 The command writes no explanation file for a requirement, because the explanation is optional. The author adds `<name>.md` beside the record file only when the statement needs prose.
 
@@ -34,11 +35,11 @@ Run it before writing any new record, as `litespec/core/model#scaffold-pages-and
 
 `new result` and `new scenario` append one entry to a use-case file's `records` instead of scaffolding a file. The entry lands in house order, successes first, then refusals in precedence order, then scenarios, so a new refusal follows the existing refusals and a new scenario lands last; the file is written back in canonical form. The entry id is `result/<use-case>.<name>` or `scenario/<use-case>.<name>` from the use case's own name. `<use-case-id>` is the use-case identifier, with or without the `use-case/` prefix. `--code` is required for a refusal and carries `<module>.<reason>`; on a success it becomes the first of `codes`. `--result` names the scenario's result, written or derived. The command refuses a duplicate id and an unknown use case.
 
-`new entry` appends one entry to a list file's `records` instead of scaffolding a file. `<page-id>` is the file's consumer-relative path, because list files carry no record identifier. The type belongs on the file: a rule on a rule-set file, a permission on the permission list, a setting on a setting set. The entry id is `<type>/<home>.<name>` from the file's home, or `permission/<name>`; the home is the file's existing entries' home, else the file stem for a rule and the parent modules folder for a setting. The entry lands last with every required field filled from its template; the file is written back in canonical form. The command refuses a duplicate id and an unknown file.
+`new entry` appends one entry to a list file's `records` instead of scaffolding a file. `<page-id>` is the file's consumer-relative path, because list files carry no record identifier. The type belongs on the file: a rule on a rule-set file, a permission on the permission set, a setting on a setting set. The entry id is `<type>/<home>.<name>` from the file's home, or `permission/<name>`; the home is the file's existing entries' home, else the file stem for a rule and the parent modules folder for a setting. The entry lands last with every required field filled from its template; the file is written back in canonical form. The command refuses a duplicate id and an unknown file.
 
 A requirement is no list entry. `new entry` takes no `requirement`; `new requirement` scaffolds each one as its own record.
 
-A release record starts from `templates/consumer/release-record.md`: copy it to `.litespec/releases/<date>.md` and fill every placeholder. The template carries the source commit and artifact reference, the included journeys, use cases, and extensions, the evidence results, and the operating readiness a release record holds.
+A release record starts from `templates/consumer/release-record.md`: copy it to `.litespec/releases/<date>.md` and fill every placeholder. The template carries the source commit and artifact reference, the included flows, use cases, and extensions, the evidence results, and the operating readiness a release record holds.
 
 ## Arguments
 
@@ -119,13 +120,19 @@ Scaffold a requirement under its feature:
 litespec new requirement approval.decided-within-five-days
 ```
 
+Scaffold a product-level requirement:
+
+```bash
+litespec new requirement monthly-close-checklist
+```
+
 Append a rule under the page's home:
 
 ```bash
 litespec new entry .litespec/behavior/rules/spending-rules.yaml rule receipt-filed-once
 ```
 
-Append a permission to the permission list:
+Append a permission to the permission set:
 
 ```bash
 litespec new entry .litespec/behavior/modules/spending/permissions.yaml permission approve-expense
@@ -139,4 +146,4 @@ litespec new entry .litespec/behavior/modules/spending/settings/receipt-settings
 
 ## Underneath
 
-This command reads `templates/consumer/<type>.yaml` from the release the tool carries and writes the record file; a use case reads `use-case-command.yaml` or `use-case-query.yaml` by its `--kind`. The record file opens with a marker line that names its template, and `model check` reports `template-value-unchanged` for a scaffold that keeps a text or number the template copied; it also reads `templates/consumer/<type>.md` and writes the explanation file beside the record, and for a document style it reads `templates/consumer/<type>.md` and writes the document. A requirement writes its record file alone, in the feature's folder. The `decision` path allocates the next number from the one decision sequence, prints the provisions whose statement matches the name's words in identifier order, and then writes. It splits the name on hyphens, skips words shorter than three letters, and matches a plural word against its singular; it prints nothing when no statement matches or the carried release cannot be read. The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`. The `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.
+This command reads `templates/consumer/<type>.yaml` from the release the tool carries and writes the record file; a use case reads `use-case-command.yaml` or `use-case-query.yaml` by its `--kind`. The record file opens with a marker line that names its template, and `model check` reports `template-value-unchanged` for a scaffold that keeps a text or number the template copied; it also reads `templates/consumer/<type>.md` and writes the explanation file beside the record, and for a document style it reads `templates/consumer/<type>.md` and writes the document. A requirement writes its record file alone, in its feature's `requirements/` folder or at product level. The `decision` path allocates the next number from the one decision sequence, prints the provisions whose statement matches the name's words in identifier order, and then writes. It splits the name on hyphens, skips words shorter than three letters, and matches a plural word against its singular; it prints nothing when no statement matches or the carried release cannot be read. The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`. The `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.

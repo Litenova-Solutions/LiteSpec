@@ -9,8 +9,8 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves a requirement is a page of its own in its feature's folder: it is refused inside a feature file, its identifier names its folder's feature, its explanation stays optional, and it reaches Behavior and its feature.</summary>
 public sealed class RequirementPageTests
 {
-    const string Requirement = ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml";
-    const string RequirementExplanation = ".litespec/product/pricing/requirements/flat-fee/flat-fee.md";
+    const string Requirement = ".litespec/intent/features/pricing/requirements/flat-fee/flat-fee.yaml";
+    const string RequirementExplanation = ".litespec/intent/features/pricing/requirements/flat-fee/flat-fee.md";
 
     /// <summary>A requirement entry left in a feature file is refused with a message naming the folder to use.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
@@ -88,12 +88,12 @@ public sealed class RequirementPageTests
     public void RequirementInItsFeatureFolderReachesBehavior()
     {
         using var temp = TestCli.Temp("requirement-reach");
-        var features = Path.Combine(temp.Path, ".litespec", "intent", "problems", "ghost-pain", "features", "borrowing");
+        var borrowing = Path.Combine(temp.Path, ".litespec", "intent", "features", "borrowing");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(features, "borrowing.yaml"), """{}"""),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(features, "max-loans", "max-loans.yaml"), """{"kind": "functional", "statement": "A reader borrows a limited number of copies."}"""),
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(borrowing, "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(borrowing, "requirements", "max-loans", "max-loans.yaml"), """{"kind": "functional", "statement": "A reader borrows a limited number of copies."}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         var codes = TestModel.Codes(model);
@@ -109,8 +109,8 @@ public sealed class RequirementPageTests
         var model = JsonNode.Parse("""
             {
               "records": [
-                { "type": "feature", "id": "feature/borrowing", "file": ".litespec/intent/problems/slow-desk-loans/features/borrowing/borrowing.yaml" },
-                { "type": "requirement", "id": "requirement/other.max-loans", "file": ".litespec/intent/problems/slow-desk-loans/features/borrowing/requirements/max-loans/max-loans.yaml" }
+                { "type": "feature", "id": "feature/borrowing", "file": ".litespec/intent/features/borrowing/borrowing.yaml" },
+                { "type": "requirement", "id": "requirement/other.max-loans", "file": ".litespec/intent/features/borrowing/requirements/max-loans/max-loans.yaml" }
               ]
             }
             """)!.AsObject();

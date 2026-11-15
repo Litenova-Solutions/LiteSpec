@@ -79,6 +79,11 @@ public sealed class BookViewsTests
             {
                 Assert.Null(ancestors[pair.Key]);
             }
+            else if (string.Equals(Str(pair.Value, "type"), "scenario", StringComparison.Ordinal) && ResultOf(pair.Value) is { } shown)
+            {
+                // A use-case scenario groups under the result it shows, not under its use case.
+                Assert.Equal(shown, ancestors[pair.Key]);
+            }
             else
             {
                 Assert.Equal(parent, ancestors[pair.Key]);
@@ -86,14 +91,14 @@ public sealed class BookViewsTests
         }
 
         // Spot placements across the parent rules.
-        Assert.Equal("problem/slow-desk-queues", Str(details["feature/self-checkout"], "parent"));
+        Assert.Equal("product/library", Str(details["feature/self-checkout"], "parent"));
         Assert.Equal("feature/self-checkout", Str(details["requirement/self-checkout.max-wait"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.borrow-copy"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.return-copy"], "parent"));
         Assert.Equal("use-case/lending.borrow-copy", Str(details["result/borrow-copy.borrowed"], "parent"));
-        Assert.Equal("result/borrow-copy.borrowed", Str(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "parent"));
+        Assert.Equal("use-case/lending.borrow-copy", Str(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["rule/loan.one-loan-per-copy"], "parent"));
-        Assert.Equal("aggregate/lending.loan", Str(details["event/loan.loan-due"], "parent"));
+        Assert.Equal("aggregate/lending.loan", Str(details["domain-event/loan.loan-due"], "parent"));
         var reactions = details.Keys.Where(id => Str(details[id], "type") == "reaction").ToList();
         Assert.NotEmpty(reactions);
         foreach (var reactionId in reactions)
@@ -108,11 +113,11 @@ public sealed class BookViewsTests
         }
         Assert.Equal("entry-point/library-app", Str(details["screen/library-app.search"], "parent"));
         Assert.Equal("module/lending", Str(details["integration-event/loan-borrowed"], "parent"));
-        Assert.Equal("product/library", Str(details["journey/borrowing"], "parent"));
+        Assert.Equal("product/library", Str(details["flow/borrowing"], "parent"));
 
         // Group nodes carry their layer and type; record nodes carry their records shard.
-        // The journey nests under the product, so it leaves no group behind.
-        Assert.Null(TryFindNode(tops, "intent/journey"));
+        // The flow nests under the product, so it leaves no group behind.
+        Assert.Null(TryFindNode(tops, "intent/flow"));
         var roleGroup = FindNode(tops, "behavior/role");
         Assert.Equal("group", Str(roleGroup, "kind"));
         foreach (var top in tops)
@@ -154,7 +159,7 @@ public sealed class BookViewsTests
 
         var known = FindNode(tops, "finding/2");
         Assert.Equal("finding", Str(known, "kind"));
-        Assert.Equal("journey/borrowing", parents["finding/2"]);
+        Assert.Equal("flow/borrowing", parents["finding/2"]);
     }
 
     /// <summary>A record detail renders its explanation as text: headings, spans, lists, tables, code and quotes.</summary>
@@ -165,8 +170,7 @@ public sealed class BookViewsTests
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var loan = ReadRecords(Path.Combine(temp.Path, "data"))["aggregate/lending.loan"];
-        var html = Str(loan, "bodyHtml") ?? "";
-        Assert.Contains("<h3 id=\"body-bounds\">Bounds</h3>", html, StringComparison.Ordinal);
+        var html = BodyOf(loan);
         Assert.Contains("<strong>one copy</strong>", html, StringComparison.Ordinal);
         Assert.Contains("<em>one member</em>", html, StringComparison.Ordinal);
         Assert.Contains("<code>three weeks</code>", html, StringComparison.Ordinal);
@@ -197,7 +201,7 @@ public sealed class BookViewsTests
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
-        var html = Str(ReadRecords(Path.Combine(temp.Path, "data"))["runbook/overdue-notice"], "bodyHtml") ?? "";
+        var html = BodyOf(ReadRecords(Path.Combine(temp.Path, "data"))["runbook/overdue-notice"]);
         Assert.Contains("<code>&lt;code&gt;LOAN-1&lt;/code&gt;</code>", html, StringComparison.Ordinal);
         Assert.DoesNotContain("<code>LOAN-1</code>", html, StringComparison.Ordinal);
     }
@@ -336,40 +340,36 @@ public sealed class BookViewsTests
         var links = ReadShard(Path.Combine(data, "lexicon.js"), "lexicon")["links"]!.AsArray();
 
         Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "use-case"));
-        Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "journey"));
+        Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "flow"));
         Assert.Equal(("advances", "is advanced by"), Phrases(links, "advances", "feature"));
         Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "requirement"));
-        Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "journey"));
+        Assert.Equal(("answers", "is answered by"), Phrases(links, "answers", "flow"));
         Assert.Equal(("fulfills", "is fulfilled by"), Phrases(links, "fulfills", "use-case"));
-        Assert.Equal(("answers", "is answered by"), Phrases(links, "folder", "feature"));
-        Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "journey"));
-        Assert.Equal(("acts as", "is acted as by"), Phrases(links, "actor", "external-system"));
+        Assert.Equal(("solves", "is solved by"), Phrases(links, "solves", "feature"));
+        Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "flow"));
+        Assert.Equal(("triggers", "is triggered by"), Phrases(links, "triggeredBy", "reaction"));
 
         // Each edge key below joins to its row by the field after the carrier prefix.
         // A nested key joins when a row names the key or its longest dotted prefix.
         var eventReaction = details.Keys.First(id =>
             Str(details[id], "type") == "reaction"
-            && HasEdge(Arr(details[id], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
-        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "journey/borrowing", "use-case.serves"));
+            && HasEdge(Arr(details[id], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "flow/borrowing", "use-case.serves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
         Assert.True(HasEdge(Arr(details["requirement/self-checkout.max-wait"], "out"), "feature/self-checkout", "requirement.cites"));
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "out"), "requirement/self-checkout.max-wait", "journey.cites"));
         Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "use-case/lending.borrow-copy", "rule.governs"));
         Assert.True(HasEdge(Arr(details["decision/self-checkout-kiosk"], "out"), "feature/self-checkout", "decision.decides"));
-        Assert.True(HasEdge(Arr(details[eventReaction], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "out"), "actor/member", "journey.actor"));
-        Assert.True(HasEdge(Arr(details["external-system/fine-payments"], "out"), "actor/member", "external-system.actor"));
+        Assert.True(HasEdge(Arr(details[eventReaction], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
+        Assert.True(HasEdge(Arr(details["flow/borrowing"], "out"), "actor/member", "flow.actor"));
         foreach (var (key, carrier) in new[]
         {
             ("use-case.serves", "use-case"),
             ("feature.advances", "feature"),
             ("requirement.cites", "requirement"),
-            ("journey.cites", "journey"),
             ("rule.governs", "rule"),
             ("decision.decides", "decision"),
             ("reaction.triggeredBy", "reaction"),
-            ("journey.actor", "journey"),
-            ("external-system.actor", "external-system"),
+            ("flow.actor", "flow"),
         })
         {
             var bare = key[(carrier.Length + 1)..];
@@ -423,7 +423,7 @@ public sealed class BookViewsTests
         Assert.Single(open);
         Assert.Equal("use-case-unimplemented", Str(open[0]!.AsObject(), "code"));
         Assert.False(BoolOf(open[0]!.AsObject()["covered"]));
-        var known = Arr(details["journey/borrowing"], "findings");
+        var known = Arr(details["flow/borrowing"], "findings");
         Assert.Single(known);
         Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
 
@@ -479,7 +479,7 @@ public sealed class BookViewsTests
         Assert.Equal(false, machine["measurePassed"]?.GetValue<bool>());
         var kept = Obj(measured, "keptBy");
         Assert.Equal(3, kept.Count);
-        Assert.Null(kept["journey"]);
+        Assert.Null(kept["flow"]);
 
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
         Assert.Equal("2026-10-20", manifest["testRun"]!.AsObject()["date"]!.GetValue<string>());
@@ -488,7 +488,7 @@ public sealed class BookViewsTests
         Assert.True(BoolOf(Obj(fulfilled, "machine")["met"]));
     }
 
-    /// <summary>A reaction detail carries its triggers, what it sends and what it fulfills; a notification carries its addresses and channel.</summary>
+    /// <summary>A reaction detail carries its triggers, what it sends and what it fulfills; a notification carries its audience and channel.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void ReactionAndNotificationDetailsCarryTriggerAndAudience()
@@ -498,16 +498,16 @@ public sealed class BookViewsTests
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var reactionId = details.Keys.First(id =>
             Str(details[id], "type") == "reaction"
-            && HasEdge(Arr(details[id], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
+            && HasEdge(Arr(details[id], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
         var reaction = details[reactionId];
-        Assert.True(HasEdge(Arr(reaction, "out"), "event/loan.loan-due", "reaction.triggeredBy"));
+        Assert.True(HasEdge(Arr(reaction, "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
         Assert.True(HasEdge(Arr(reaction, "out"), "notification/lending.due-reminder", "reaction.effects.sends"));
         Assert.True(HasEdge(Arr(reaction, "out"), "requirement/self-checkout.max-wait", "reaction.fulfills"));
 
         var notification = details["notification/lending.due-reminder"];
         var fields = Obj(notification, "fields");
         Assert.Equal("email", Str(fields, "channel"));
-        Assert.True(HasString(Arr(fields, "addresses"), "actor/member"));
+        Assert.True(HasString(Arr(fields, "audience"), "actor/member"));
         Assert.True(HasEdge(Arr(notification, "in"), reactionId, "reaction.effects.sends"));
     }
 
@@ -529,16 +529,16 @@ public sealed class BookViewsTests
         Assert.Equal("runbook/overdue-notice", Str(fields, "runbook"));
     }
 
-    /// <summary>A journey detail carries its chapter: steps, serving, promises and outcomes.</summary>
+    /// <summary>A flow detail carries its chapter: steps, serving, promises and outcomes.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void JourneyDetailCarriesItsChapter()
+    public void FlowDetailCarriesItsChapter()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
-        var journey = details["journey/borrowing"];
-        var fields = Obj(journey, "fields");
+        var flow = details["flow/borrowing"];
+        var fields = Obj(flow, "fields");
         Assert.Null(fields["aim"]);
         Assert.Equal("actor/member", Str(fields, "actor"));
         Assert.Equal("The member leaves the desk with the copy before closing.", Str(fields, "finishedWhen"));
@@ -547,15 +547,15 @@ public sealed class BookViewsTests
         Assert.Equal("The member borrows a copy before closing.", Str(steps[0]!.AsObject(), "statement"));
         Assert.Equal("The desk renews the loan.", Str(steps[1]!.AsObject(), "failure"));
 
-        var servers = Obj(journey, "stepServers");
+        var servers = Obj(flow, "stepServers");
         Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
         Assert.Empty(servers["s2"] as JsonArray ?? new JsonArray());
-        Assert.Empty(Obj(journey, "stepScreens")["s1"] as JsonArray ?? new JsonArray());
-        Assert.Empty(Arr(journey, "exercised"));
+        Assert.Empty(Obj(flow, "stepScreens")["s1"] as JsonArray ?? new JsonArray());
+        Assert.Empty(Arr(flow, "exercised"));
 
-        Assert.True(HasEdge(Arr(journey, "out"), "requirement/self-checkout.max-wait", "journey.cites"));
-        Assert.True(HasEdge(Arr(journey, "out"), "actor/member", "journey.actor"));
-        Assert.True(HasEdge(Arr(journey, "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(flow, "out"), "requirement/self-checkout.max-wait", "flow.cites"));
+        Assert.True(HasEdge(Arr(flow, "out"), "actor/member", "flow.actor"));
+        Assert.True(HasEdge(Arr(flow, "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>A setting detail carries its meaning and default; a use-case detail carries its access grant and what it serves.</summary>
@@ -574,7 +574,7 @@ public sealed class BookViewsTests
         var access = Obj(Obj(useCase, "fields"), "access");
         Assert.Equal("permission/borrow-copy", Str(access, "grant"));
         Assert.Equal("own", Str(access, "tenant"));
-        Assert.True(HasString(Arr(Obj(useCase, "fields"), "serves"), "journey/borrowing#s1"));
+        Assert.True(HasString(Arr(Obj(useCase, "fields"), "serves"), "flow/borrowing#s1"));
         Assert.True(HasString(Arr(Obj(useCase, "fields"), "reachedThrough"), "entry-point/library-app"));
         var keys = Arr(useCase, "out").OfType<JsonObject>().Select(edge => Str(edge, "key")).ToList();
         Assert.Contains("use-case.serves", keys);
@@ -582,7 +582,7 @@ public sealed class BookViewsTests
         Assert.Contains("use-case.raises", keys);
         Assert.Contains("use-case.reachedThrough", keys);
         Assert.Contains("use-case.access.grant", keys);
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["flow/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>The search shards cover statements, summaries and explanation heads for every record.</summary>
@@ -606,7 +606,7 @@ public sealed class BookViewsTests
         Assert.Equal("requirement", wait[2]);
         Assert.Equal("A member waits less than two minutes at the desk.", wait[3]);
         Assert.Equal("One copy lent to one member.", rows.Single(row => row[0] == "aggregate/lending.loan")[3]);
-        Assert.Equal("", rows.Single(row => row[0] == "journey/borrowing")[3]);
+        Assert.Equal("", rows.Single(row => row[0] == "flow/borrowing")[3]);
         Assert.Contains(
             "Members scan and go",
             rows.Single(row => row[0] == "feature/self-checkout")[3],
@@ -744,7 +744,7 @@ public sealed class BookViewsTests
             .Select(edge => Str(edge, "id"))
             .ToList();
         Assert.Equal(3, fulfilling.Count);
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["flow/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>Whether a product-parented type tops its own layer instead of nesting under the product.</summary>
@@ -753,6 +753,22 @@ public sealed class BookViewsTests
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
             or "departure" or "term";
+
+    /// <summary>The result a scenario shows, from its outgoing result edge, or null when it shows none.</summary>
+    /// <param name="detail">The scenario detail whose outgoing edges are read.</param>
+    /// <returns>The shown result identifier, or null when the detail holds no result edge.</returns>
+    static string? ResultOf(JsonObject detail)
+    {
+        foreach (var edge in detail["out"] as JsonArray ?? new JsonArray())
+        {
+            if (edge is JsonObject link && Str(link, "key") == "scenario.result")
+            {
+                return Str(link, "id");
+            }
+        }
+
+        return null;
+    }
 
     /// <summary>The forward and inverse phrases of one link row for one carrier type.</summary>
     /// <param name="links">The lexicon link rows to search.</param>
@@ -933,6 +949,16 @@ public sealed class BookViewsTests
 
         Walk(node);
         return records;
+    }
+
+    /// <summary>The explanation HTML of a record detail: its intro and each section body, in order.</summary>
+    /// <param name="detail">The record detail that holds the sections.</param>
+    /// <returns>The intro HTML followed by each section body.</returns>
+    static string BodyOf(JsonObject? detail)
+    {
+        var sections = detail?["sections"] as JsonObject;
+        var bodies = (sections?["list"] as JsonArray ?? new JsonArray()).Select(item => Str(item as JsonObject, "html") ?? "");
+        return (Str(sections, "intro") ?? "") + string.Concat(bodies);
     }
 
     static string? Str(JsonObject? obj, string name) =>

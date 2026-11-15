@@ -51,7 +51,7 @@ export interface TestFacts {
   line: number;
   title: string;
   proves: string[];
-  journey: string | null;
+  flow: string | null;
   gotos: string[];
   codes: string[];
   texts: string[];

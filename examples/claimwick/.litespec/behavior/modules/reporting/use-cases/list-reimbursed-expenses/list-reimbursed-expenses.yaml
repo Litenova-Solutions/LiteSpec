@@ -2,6 +2,7 @@ type: use-case
 id: use-case/reporting.list-reimbursed-expenses
 title: List Reimbursed Expenses
 summary: Finance lists the reimbursed expenses with the employee each one was paid to.
+exposure: Signed-in finance staff reach this query through the expenses app under the list-reimbursed-expenses permission. Each row names the employee who was paid, so the list stays inside finance.
 kind: query
 access:
   grant: permission/list-reimbursed-expenses
@@ -15,12 +16,39 @@ output:
     rows:
       fields:
       - name: expenses
-        meaning: "The set of rows with one row per reimbursed expense: its identity, employee, amount, currency and reimbursement time, newest first."
+        meaning: The set of rows with one row per reimbursed expense, newest first.
+        type: list
+        of:
+          fields:
+          - name: expenseId
+            meaning: The reimbursed expense.
+            type: id
+            of: aggregate/spending.expense
+            required: true
+          - name: employeeId
+            meaning: The employee the expense was paid to.
+            type: id
+            of: actor/employee
+            required: true
+          - name: amount
+            meaning: The exact amount paid.
+            type: decimal
+            required: true
+          - name: currency
+            meaning: The ISO 4217 currency code of the amount.
+            type: text
+            required: true
+          - name: reimbursedAt
+            meaning: The time the payment was posted.
+            type: date-time
+            required: true
+          unique:
+          - expenseId
       classification: internal
       reads:
       - aggregate/spending.expense
       freshness:
-        mode: bounded
+        mode: snapshot
         within: PT5S
 paging:
   mode: pages
@@ -29,10 +57,7 @@ paging:
   defaultLimit: 25
   maxLimit: 100
 reads:
-- view/reporting.reimbursed-expense
-idempotency:
-  mode: none
-  reason: the query reads reimbursed expenses without changing them
+- read-model/reporting.reimbursed-expense
 records:
 - type: result
   id: result/list-reimbursed-expenses.listed
@@ -46,3 +71,4 @@ records:
   when: Finance lists the reimbursed expenses.
   then: Both expenses are listed with the employee each was paid to.
   result: result/list-reimbursed-expenses.listed
+  exercises: []

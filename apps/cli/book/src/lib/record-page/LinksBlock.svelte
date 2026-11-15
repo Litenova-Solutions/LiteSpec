@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book, dedupe } from "$lib/frame";
+  import { book } from "$lib/frame";
   import PageSection from "./blocks/PageSection.svelte";
   import RecordList from "./blocks/RecordList.svelte";
   import { relationLabelOf } from "./page-values";
@@ -14,19 +14,30 @@
     phraseFor: (field, carrier, dir) => book.phraseFor(field, carrier, dir),
     typeOf: (rid) => book.typeOf(rid),
   };
-  const groups = $derived(
-    dedupe(rows.map((x) => x.label)).map((label) => {
-      const items = rows.filter((x) => x.label === label);
+  // One pass over the links: each label keeps its first-seen order.
+  const groups = $derived.by(() => {
+    const order: string[] = [];
+    const byLabel = new Map<string, typeof rows>();
+    for (const row of rows) {
+      const hit = byLabel.get(row.label);
+      if (hit) hit.push(row);
+      else {
+        byLabel.set(row.label, [row]);
+        order.push(row.label);
+      }
+    }
+    return order.map((label) => {
+      const items = byLabel.get(label) ?? [];
       return { label, items, heading: relationLabelOf(label, items, selfType, lookup) };
-    }),
-  );
+    });
+  });
 </script>
 
 {#if rows.length}
   <PageSection blockKey="links" heading="Links" count={rows.length}>
     {#each groups as g (g.label)}
-      <div class="mb-[18px] last:mb-0">
-        <h3 class="m-0 mb-1.5 text-sm font-semibold">{g.heading} ({g.items.length})</h3>
+      <div class="mb-4 last:mb-0">
+        <h3 class="m-0 mb-2 text-sm font-semibold text-slate-900 tabular-nums">{g.heading} ({g.items.length})</h3>
         <RecordList ids={g.items.map((x) => x.id)} limit={8} moreKey={id + "|" + g.label} />
       </div>
     {/each}

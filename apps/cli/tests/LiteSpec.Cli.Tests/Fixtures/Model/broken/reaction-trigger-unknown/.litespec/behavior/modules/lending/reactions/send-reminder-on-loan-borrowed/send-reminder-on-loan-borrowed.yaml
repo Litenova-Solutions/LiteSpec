@@ -2,7 +2,7 @@ type: reaction
 id: reaction/lending.send-reminder-on-loan-borrowed
 title: Remind overdue
 triggeredBy:
-  - event/loan.no-such-event
+  - domain-event/loan.no-such-event
 effects:
   - runs: use-case/lending.return-copy
     timing: async

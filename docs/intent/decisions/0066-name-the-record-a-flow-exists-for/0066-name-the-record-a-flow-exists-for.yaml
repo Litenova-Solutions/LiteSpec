@@ -1,0 +1,20 @@
+type: decision
+id: decision/0066-name-the-record-a-flow-exists-for
+title: Name the Record a Flow Exists For
+options:
+  - name: "One reason per flow, in serves for a goal and answers for a problem or constraint"
+    pros: "Each flow names its honest reason, goal completion counts only the flows that move the measure, and the trace from a flow to its reason reads true."
+    cons: "Authors choose the reason for every enabling and duty flow, and flows that served a goal for convenience move to answers."
+  - name: "Keep one goal per flow"
+    pros: "No record changes and every flow keeps its goal."
+    cons: "Enabling and duty flows stay attached to goals they do not move, goal completion waits on flows outside it, and the trace misleads."
+  - name: "One link field with four target types"
+    pros: "One field holds every reason."
+    cons: "Several target sets and two meanings sit under one verb, which decision/0004-features-advance-goals removed from features for the same reason."
+choice: "One reason per flow, in serves for a goal and answers for a problem or constraint"
+consequences: "A flow carries exactly one of `serves` (one `goal/` identifier) and `answers` (one `problem/` or `constraint/` identifier), each a list of exactly one identifier (minItems 1, maxItems 1), because the field grammar gives one name one shape; both present or neither is `record-invalid`. Only `serves` counts as a goal mover: `goal-mover-missing` counts serving flows, `intent-unreached` counts `answers`, and a goal's in-scope flows are the flows serving it. A constraint is answered by a requirement or a flow; a problem is reached by a feature, a requirement, or a flow that answers it. `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for` states the reason beside the flow. The book renders the link with the reads-as phrase for its target type. This decision reopens `decision/0005-journeys-serve-a-goal` on its own reopenedWhen."
+reopenedWhen: "A flow appears whose reason is neither a goal it moves nor a problem or constraint it answers."
+basedOn:
+  - research/intent-hierarchy-evidence
+  - research/cross-layer-trace-evidence
+  - research/established-traceability-practice

@@ -26,7 +26,7 @@ internal sealed class CodeMap
         "UseCases",
         "Notifications",
         "ExternalSystems",
-        "Views",
+        "ReadModels",
         "Events",
         "Exceptions",
     };

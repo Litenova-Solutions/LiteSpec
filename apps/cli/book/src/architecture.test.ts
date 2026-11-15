@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 // folders under src/lib; each one is imported from outside only through its
 // index.ts. The vendored ui/ folder is exempt from the code rules.
 
-const modules = ["frame", "record", "record-page", "outline", "trace", "shell"];
+const modules = ["frame", "record", "record-page", "outline", "trace", "shell", "wireframe"];
 
 // Every source file under src, as Vite reads it, keyed by its path below src.
 const raw: Record<string, string> = import.meta.glob(["./**/*.ts", "./**/*.svelte", "!./**/*.test.ts", "!./lib/ui/**"], { query: "?raw", import: "default", eager: true });
@@ -49,10 +49,11 @@ describe("the book's structure", () => {
     const allowed: Record<string, string[]> = {
       frame: [],
       record: ["frame", "ui"],
-      "record-page": ["frame", "record", "ui"],
+      "record-page": ["frame", "record", "wireframe", "ui"],
       outline: ["frame", "record", "ui"],
       trace: ["frame", "record", "ui"],
       shell: ["frame", "record", "ui"],
+      wireframe: [],
     };
     const found = violations((file, text) => {
       const own = moduleOf(file);
@@ -125,9 +126,8 @@ describe("the book's structure", () => {
     expect(found).toEqual([]);
   });
 
-  it("touches browser storage only in the frame's theme and preferences", () => {
-    const allowed = new Set(["lib/frame/theme.svelte.ts", "lib/frame/preferences.svelte.ts"]);
-    const found = violations((file, text) => (!allowed.has(file) && /\b(localStorage|sessionStorage)\b/.test(text) ? ["browser storage"] : []));
+  it("touches no browser storage", () => {
+    const found = violations((_file, text) => (/\b(localStorage|sessionStorage)\b/.test(text) ? ["browser storage"] : []));
     expect(found).toEqual([]);
   });
 });

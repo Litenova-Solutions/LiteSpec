@@ -10,7 +10,7 @@ Your project does not adopt all of LiteSpec. It makes five choices in `.litespec
 
 | Choice | Options | What it changes |
 |:---|:---|:---|
-| Size | `small` or `large` | Which record types the project keeps. A large project adds problems, features, journeys, scenarios, and an Acceptance test project. |
+| Size | `small` or `large` | Which record types the project keeps. A large project adds problems, features, flows, scenarios, and an Acceptance test project. |
 | Shape | `server` or `client-only` | Whether the project has its own backend. A client-only project has no API and applies only the backend principles about modeling the domain. |
 | Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, `blazor`, or `android` for a frontend. |
 | Extensions | Any of the listed extensions, or none | Extra capabilities with their own rules, such as audit, multitenancy, an outbox, or realtime updates. |

@@ -25,7 +25,7 @@ Selected once for the whole project:
 
 ## Local Extensions
 
-Selected per record, for the use cases, entry points, jobs, journeys, modules, rules, or aggregates the criterion names:
+Selected per record, for the use cases, entry points, jobs, flows, modules, rules, or aggregates the criterion names:
 
 - [Caching](cache.md): staleness contracts and recovery for a repeated expensive read that traces or load tests name.
 - [Concurrency and Idempotency](concurrency.md): versions, client keys, and fingerprints where writes can overlap or retries can duplicate an effect.

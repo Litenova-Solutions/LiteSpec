@@ -17,7 +17,7 @@ public static class MarkRules
     /// <summary>The record types a use-case mark names.</summary>
     private static readonly string[] UseCaseTypes = ["use-case"];
     /// <summary>The record types an event mark names.</summary>
-    private static readonly string[] EventTypes = ["event"];
+    private static readonly string[] EventTypes = ["domain-event"];
     /// <summary>The record types a rule mark names.</summary>
     private static readonly string[] RuleTypes = ["rule"];
     /// <summary>The record types a reaction mark names.</summary>
@@ -38,7 +38,7 @@ public static class MarkRules
     private static readonly string[] TechnicalImplementsTypes =
     [
         "aggregate", "use-case", "reaction", "job", "external-system",
-        "event", "rule", "notification", "setting", "integration-event", "view",
+        "domain-event", "rule", "notification", "setting", "integration-event", "read-model",
     ];
     /// <summary>The record types a follows mark names.</summary>
     private static readonly string[] FollowsTypes = ["litespec", "decision", "departure"];

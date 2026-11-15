@@ -12,18 +12,18 @@ public sealed class ActEventsTests
     public void UndeclaredPerMethodAndEvent()
     {
         var findings = ActEvents.Check(
-            ["event/expense.submitted"],
+            ["domain-event/expense.submitted"],
             [
-                new ActMethodRaises(["event/expense.submitted", "event/expense.approved"]),
-                new ActMethodRaises(["event/expense.approved", "event/expense.paid"]),
+                new ActMethodRaises(["domain-event/expense.submitted", "domain-event/expense.approved"]),
+                new ActMethodRaises(["domain-event/expense.approved", "domain-event/expense.paid"]),
             ]);
 
         Assert.Equal(
             new[]
             {
-                ("act-event-undeclared", 0, "event/expense.approved"),
-                ("act-event-undeclared", 1, "event/expense.approved"),
-                ("act-event-undeclared", 1, "event/expense.paid"),
+                ("act-event-undeclared", 0, "domain-event/expense.approved"),
+                ("act-event-undeclared", 1, "domain-event/expense.approved"),
+                ("act-event-undeclared", 1, "domain-event/expense.paid"),
             },
             Of(findings));
     }
@@ -34,14 +34,14 @@ public sealed class ActEventsTests
     public void UnraisedOnceOnFirstMethod()
     {
         var findings = ActEvents.Check(
-            ["event/expense.submitted"],
+            ["domain-event/expense.submitted"],
             [
                 new ActMethodRaises(Array.Empty<string>()),
                 new ActMethodRaises(Array.Empty<string>()),
             ]);
 
         Assert.Equal(
-            new[] { ("act-event-unimplemented", 0, "event/expense.submitted") },
+            new[] { ("act-event-unimplemented", 0, "domain-event/expense.submitted") },
             Of(findings));
     }
 
@@ -51,7 +51,7 @@ public sealed class ActEventsTests
     public void NoMethodsYieldsNothing()
     {
         var findings = ActEvents.Check(
-            ["event/expense.submitted"],
+            ["domain-event/expense.submitted"],
             Array.Empty<ActMethodRaises>());
 
         Assert.Empty(findings);
@@ -63,10 +63,10 @@ public sealed class ActEventsTests
     public void AllRaisedYieldsNothing()
     {
         var findings = ActEvents.Check(
-            ["event/expense.submitted", "event/expense.approved"],
+            ["domain-event/expense.submitted", "domain-event/expense.approved"],
             [
-                new ActMethodRaises(["event/expense.submitted"]),
-                new ActMethodRaises(["event/expense.approved"]),
+                new ActMethodRaises(["domain-event/expense.submitted"]),
+                new ActMethodRaises(["domain-event/expense.approved"]),
             ]);
 
         Assert.Empty(findings);
@@ -78,14 +78,14 @@ public sealed class ActEventsTests
     public void RaisedUnionAcrossMethods()
     {
         var findings = ActEvents.Check(
-            ["event/expense.submitted", "event/expense.approved"],
+            ["domain-event/expense.submitted", "domain-event/expense.approved"],
             [
-                new ActMethodRaises(["event/expense.submitted"]),
+                new ActMethodRaises(["domain-event/expense.submitted"]),
                 new ActMethodRaises(Array.Empty<string>()),
             ]);
 
         Assert.Equal(
-            new[] { ("act-event-unimplemented", 0, "event/expense.approved") },
+            new[] { ("act-event-unimplemented", 0, "domain-event/expense.approved") },
             Of(findings));
     }
 
@@ -95,11 +95,11 @@ public sealed class ActEventsTests
     public void DuplicateRaisesYieldOneUnraised()
     {
         var findings = ActEvents.Check(
-            ["event/expense.submitted", "event/expense.submitted"],
+            ["domain-event/expense.submitted", "domain-event/expense.submitted"],
             [new ActMethodRaises(Array.Empty<string>())]);
 
         Assert.Equal(
-            new[] { ("act-event-unimplemented", 0, "event/expense.submitted") },
+            new[] { ("act-event-unimplemented", 0, "domain-event/expense.submitted") },
             Of(findings));
     }
 
@@ -110,10 +110,10 @@ public sealed class ActEventsTests
     {
         var findings = ActEvents.Check(
             Array.Empty<string>(),
-            [new ActMethodRaises(["event/expense.approved", "event/expense.approved"])]);
+            [new ActMethodRaises(["domain-event/expense.approved", "domain-event/expense.approved"])]);
 
         Assert.Equal(
-            new[] { ("act-event-undeclared", 0, "event/expense.approved") },
+            new[] { ("act-event-undeclared", 0, "domain-event/expense.approved") },
             Of(findings));
     }
 

@@ -5,7 +5,10 @@ records:
   id: setting/spending.receipt-threshold
   title: Receipt Threshold
   valueType: money
-  default: EUR 25
+  default:
+    amount: 25
+    currency: EUR
+  dated: true
   range: EUR 0 to EUR 500
   unit: EUR
   setBy: product
@@ -16,7 +19,7 @@ records:
   id: setting/spending.approval-reminder-delay
   title: Approval Reminder Delay
   valueType: duration
-  default: 48 hours
+  default: PT72H
   range: 1-120 hours
   unit: hours
   setBy: operator

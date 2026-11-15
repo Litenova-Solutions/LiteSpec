@@ -117,7 +117,7 @@ litespec model check --root ../consumer --since main
 
 ## Underneath
 
-The model holds every record, each with its identifier, its folder path, and its resolved links. It names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links and the computed `coded`, `verified`, `stale`, and `reachable` state of each record. Computed states are never written on a record; the book shows them. The model also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`.
+The model holds every record, each with its identifier, its folder path, and its resolved links. It names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links and the computed `coded`, `verified`, `stale`, and `reachable` state of each record. Computed states are never written on a record; the book shows them. The model also lists each unmarked Domain part under the aggregate whose folder holds it, or under `kernel`, in `parts`.
 
 Each screen lists its `operations`, its `useCases`, and its `calls`, where each call pairs one operation with the use case it reaches. The `calls` links carry one link per such pair, so a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 

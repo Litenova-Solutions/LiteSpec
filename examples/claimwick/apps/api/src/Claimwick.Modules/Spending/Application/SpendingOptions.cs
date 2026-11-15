@@ -8,5 +8,5 @@ public sealed class SpendingOptions
     public const string SectionName = "Spending";
 
     /// <summary>How long an expense waits before the product reminds its manager.</summary>
-    public TimeSpan ApprovalReminderDelay { get; init; } = TimeSpan.FromHours(48);
+    public TimeSpan ApprovalReminderDelay { get; init; } = TimeSpan.FromHours(72);
 }

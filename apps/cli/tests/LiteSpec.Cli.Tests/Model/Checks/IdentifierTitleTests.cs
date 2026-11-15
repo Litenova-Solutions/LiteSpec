@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the identifier-title check: every page record takes its identifier name from its title words in title order, and names its record file for it, at tier G.</summary>
+/// <summary>Proves the identifier-title check: every page record takes its identifier name from its title words in title order, and names its record file for it, at tier A.</summary>
 public sealed class IdentifierTitleTests
 {
     /// <summary>Name Words Inside Title Words Pass.</summary>
@@ -30,7 +30,7 @@ public sealed class IdentifierTitleTests
             TestModel.Record("requirement", "requirement/approval.no-self-approval", Path.Combine(temp.Path, ".litespec", "intent", "no-self-approval.yaml"), """{"title": "Nobody Approves Their Own Expense"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-title-invalid");
-        Assert.Equal("G", finding.Tier);
+        Assert.Equal("A", finding.Tier);
         Assert.Equal("Nobody Approves Their Own Expense 'requirement/approval.no-self-approval' carries an identifier name that is not a word subsequence of its title.", finding.Message);
         Assert.Equal("requirement/approval.no-self-approval", finding.Subject);
     }
@@ -46,7 +46,7 @@ public sealed class IdentifierTitleTests
             TestModel.Record("requirement", "requirement/tax.vat-return-by-hand", Path.Combine(temp.Path, ".litespec", "intent", "vat-return-by-hand.yaml"), """{"title": "VAT Returns Miss Amounts or Use Wrong Boxes"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-title-invalid");
-        Assert.Equal("G", finding.Tier);
+        Assert.Equal("A", finding.Tier);
         Assert.Equal("VAT Returns Miss Amounts or Use Wrong Boxes 'requirement/tax.vat-return-by-hand' carries an identifier name that is not a word subsequence of its title.", finding.Message);
         Assert.Equal("requirement/tax.vat-return-by-hand", finding.Subject);
     }
@@ -88,7 +88,7 @@ public sealed class IdentifierTitleTests
             TestModel.Record("requirement", "requirement/borrowing.hold-pickup-window", Path.Combine(temp.Path, ".litespec", "intent", "holds.yaml"), """{"title": "Hold Pickup Window"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-title-invalid");
-        Assert.Equal("G", finding.Tier);
+        Assert.Equal("A", finding.Tier);
         Assert.Equal("Hold Pickup Window 'requirement/borrowing.hold-pickup-window' sits in file 'holds.yaml' but its identifier names 'hold-pickup-window'.", finding.Message);
         Assert.Equal("requirement/borrowing.hold-pickup-window", finding.Subject);
     }

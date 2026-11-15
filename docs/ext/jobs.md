@@ -11,7 +11,7 @@ Work that outlives a request runs in a Worker: scheduled jobs from a timetable a
 
 Activation scope: `local`.
 
-Applicable specification kinds: `job`, `use-case`, `journey`.
+Applicable specification kinds: `job`, `use-case`, `flow`.
 
 The consumer enables `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on a job record with its `kind`, `schedule`, and run fields, as the [automation page](../core/automation.md) states. Selecting it replaces `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request` for scheduled work: a Worker runs the scheduler.
 
@@ -70,20 +70,6 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 **Rationale:** A batch that fails halfway resumes instead of restarting: the cursor holds where the run stopped. Without it, the next run replays finished items or skips unfinished ones, and a scenario covering the remainder resumes has no stated position to assert.
 
 **Reviewed for:** Which batch jobs name no resume position in their cursor, or have no scenario for the remainder after a halfway failure? Look at the job records and the scenario tests.
-
-### Run Manual Jobs Under Their Guard
-
-**ID:** `litespec/ext/jobs#run-manual-jobs-under-their-guard`
-
-**Strength:** required
-
-**Applies to:** artifact: job
-
-**Statement:** A manual job run MUST stay inside its `runsWhere` under its `guard`.
-
-**Rationale:** Manual work is interactive platform work with no aggregate, such as a rehearsal harness, so no model bounds where it runs or who runs it. `runsWhere` names the deployment scope it may touch and the guard names who may run it and when. The [automation page](../core/automation.md) states the record fields, and the `job-guard-missing` check reports a manual job with no guard.
-
-**Checked by:** `litespec model check` reports `job-guard-missing` (level G) for a manual job with no `guard`; each manual run stays inside its `runsWhere`.
 
 ### Run Scheduled Jobs in Worker
 
@@ -633,7 +619,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Statement:** Each report SHOULD have its query plans and indexes reviewed against representative data.
 
-**Deviation:** A report over a small fixed data set justifies skipping the review.
+**Departure:** A report over a small fixed data set justifies skipping the review.
 
 **Rationale:** A query that flies over a hundred local rows can scan millions in production. The team reviews query plans and indexes against representative data, so the true cost shows before the report ships rather than after it slows the database.
 

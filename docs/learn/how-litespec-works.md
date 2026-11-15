@@ -25,8 +25,8 @@ Every record answers one layer's question, and each layer is written from the la
 
 | Layer | Question | Records |
 |:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role |
-| Behavior | How does the system behave to keep the promises? | Aggregate, rule, event, integration event, use case, result, scenario, reaction, job, view, notification, setting, permission, entry point, screen, external system |
+| Intent | Why build it, and what do we promise? | Product, goal, problem, feature, requirement, constraint, decision, research, flow, actor, role |
+| Behavior | How does the system behave to keep the promises? | Aggregate, rule, domain event, integration event, use case, result, scenario, reaction, job, read model, notification, setting, permission, entry point, screen, external system |
 | Implementation | How is it built? | Code, technical decisions, runbooks |
 | Proof | How do we know it holds? | Tests, check results, the computed completion, the rendered book |
 
@@ -41,16 +41,16 @@ The folder is part of the record: it names the parent, and every other folder na
 ```text
 .litespec/intent/
   product.yaml
-  goals/  constraints/  decisions/  research/  actors/  roles/  journeys/
+  goals/  constraints/  decisions/  research/  actors/  roles/  flows/
+  features/
+    approval/
+      approval.yaml        the feature, naming its problems in solves
+      requirements/
+        decided-within-five-days/
+          decided-within-five-days.yaml   a requirement, in its own folder
   problems/
     expenses-wait-weeks/
       expenses-wait-weeks.yaml
-      features/
-        approval/
-          approval.yaml        the feature
-          requirements/
-            decided-within-five-days/
-              decided-within-five-days.yaml   a requirement, in its own folder
 .litespec/behavior/
   modules/
     spending/
@@ -98,19 +98,19 @@ A specification is a tree, and no reader reads the whole tree at once.
 
 ### Why Before How
 
-Read Intent before Behavior: start at the product record with its goals, problems, features, constraints, decisions, and research, then read the Behavior modules with their aggregates, rules, use cases, and surrounding reactions, jobs, views, notifications, and settings. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
+Read Intent before Behavior: start at the product record with its goals, problems, features, constraints, decisions, and research, then read the Behavior modules with their aggregates, rules, use cases, and surrounding reactions, jobs, read models, notifications, and settings. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
 
-### One Journey End to End
+### One Flow End to End
 
-Follow one journey from its goal to its proof: the goal and its requirements, the journey page with its start, its steps and its branches, each step's serving use cases, and the tests the model links to each scenario. When every scenario on the journey is proven, the journey holds.
+Follow one flow from its reason to its proof: the goal or problem and its requirements, the flow page with its start, its steps and its branches, each step's serving use cases, and the tests the model links to each scenario. When every scenario on the flow is proven, the flow holds.
 
 ### One Module End to End
 
-Follow one module from its aggregates to its proof: the module page, each aggregate with its states and rules, each use case with its access and scenarios, the reactions, jobs, views, notifications, and settings around them, and the tests the model links to each scenario. When every scenario in the module is proven, the module holds.
+Follow one module from its aggregates to its proof: the module page, each aggregate with its states and rules, each use case with its access and scenarios, the reactions, jobs, read models, notifications, and settings around them, and the tests the model links to each scenario. When every scenario in the module is proven, the module holds.
 
 ### Which Track to Take
 
-A product person takes the journey track and a developer or agent takes the module track; both read why before how, and both end at Proof, where passing tests show the promises hold.
+A product person takes the flow track and a developer or agent takes the module track; both read why before how, and both end at Proof, where passing tests show the promises hold.
 
 ## The Tools
 
@@ -125,7 +125,7 @@ The `litespec` command line reads a consumer project and reports what it finds; 
 | `litespec model check` | Consumer | Records, code marks, routes and test runs | Findings with levels |
 | `litespec model query` | Consumer | One record with its links | The record and its links |
 | `litespec model render` | Consumer | The model | The marked regions of your pages |
-| `litespec book` | Consumer | Records, marks and findings | One offline site |
+| `litespec book` | Consumer | Records, marks and findings | A live book on localhost, or one static site with `--out` |
 | `litespec-maintain validate` | LiteSpec | Pages, templates, manifest and links | Diagnostics |
 | `litespec-maintain provisions` | LiteSpec | The active standards | The provision index |
 

@@ -26,7 +26,7 @@ public sealed class ConventionIdsTests
         Assert.False(ConventionIds.IsConventionId("decision/0002-store-loans-as-documents"));
         Assert.False(ConventionIds.IsConventionId("departure/export-review-bypass"));
         Assert.False(ConventionIds.IsConventionId("use-case/lending.borrow-copy"));
-        Assert.False(ConventionIds.IsConventionId("journey/walk#start"));
+        Assert.False(ConventionIds.IsConventionId("flow/walk#start"));
         Assert.False(ConventionIds.IsConventionId("demo/conventions#"));
         Assert.False(ConventionIds.IsConventionId("/conventions#confirm-large-payouts"));
         Assert.False(ConventionIds.IsConventionId("demo/conventions"));

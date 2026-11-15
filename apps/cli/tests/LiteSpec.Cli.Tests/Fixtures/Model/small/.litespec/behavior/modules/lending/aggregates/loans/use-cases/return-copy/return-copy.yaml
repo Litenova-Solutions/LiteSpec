@@ -10,7 +10,7 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/loan.loan-returned
+- domain-event/loan.loan-returned
 idempotency:
   mode: none
   reason: Each call returns its own copy, and returning an inactive loan is refused.

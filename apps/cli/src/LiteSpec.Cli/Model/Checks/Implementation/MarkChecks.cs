@@ -200,30 +200,30 @@ internal static class MarkChecks
         SourceRoots.ModulePath(config, file);
 
     /// <summary>
-    ///     Whether a view mark sits on a type inside a module's <c>Views</c> folder. A view is built
+    ///     Whether a read model mark sits on a type inside a module's <c>ReadModels</c> folder. A read model is built
     ///     by several types, such as its document, its reader and its projections, and a projection
-    ///     implements an event handler, so the folder names the view's code rather than the kind.
-    ///     Several types may carry the same view mark.
+    ///     implements an event handler, so the folder names the read model's code rather than the kind.
+    ///     Several types may carry the same read model mark.
     /// </summary>
     /// <param name="model">The loaded project model that holds the consumer configuration.</param>
     /// <param name="element">The marked code element that carries the mark.</param>
     /// <param name="mark">The mark under test.</param>
-    /// <returns>True when the mark names a view and the element sits in a module Views folder.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
+    /// <returns>True when the mark names a read model and the element sits in a module ReadModels folder.</returns>
+    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</follows>
     private static bool IsViewMarkInViewsFolder(ProjectModel model, MarkedElement element, CodeMark mark)
     {
-        if (!mark.RecordId.StartsWith(RecordTypes.View + "/", StringComparison.Ordinal))
+        if (!mark.RecordId.StartsWith(RecordTypes.ReadModel + "/", StringComparison.Ordinal))
         {
             return false;
         }
 
-        // The folders above the file name, read from the path as written: a Views folder below
-        // another folder is a module's Views folder. The module layout drops layer folders, so
+        // The folders above the file name, read from the path as written: a ReadModels folder below
+        // another folder is a module's ReadModels folder. The module layout drops layer folders, so
         // the raw path is read rather than the module segments.
         var folders = element.File.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
 
         return folders.Length > 2
-            && folders[1..^1].Any(folder => string.Equals(folder, "Views", StringComparison.OrdinalIgnoreCase));
+            && folders[1..^1].Any(folder => string.Equals(folder, "ReadModels", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -545,7 +545,7 @@ internal static class MarkChecks
             {
                 var record = element.Marks
                     .Select(mark => model.ById.TryGetValue(mark.RecordId, out var found) ? found : null)
-                    .FirstOrDefault(found => found?.Type == RecordTypes.Event);
+                    .FirstOrDefault(found => found?.Type == RecordTypes.DomainEvent);
 
                 if (record is null || actual == record.Id)
                 {
@@ -574,8 +574,7 @@ internal static class MarkChecks
     /// <param name="model">The loaded project model that resolves the result records the rule refusal names.</param>
     /// <param name="rule">The rule record whose refusal code is wanted.</param>
     /// <returns>The refusal code the rule states, or null when it states none.</returns>
-    private static string? RefusalCodeOf(ProjectModel model, Record rule) =>
-        RefusalCode.Of(rule, id => model.ById.TryGetValue(id, out var result) ? result : null);
+    private static string? RefusalCodeOf(ProjectModel model, Record rule) => RefusalCode.Of(rule);
 
     /// <summary>Reports each guarded use case whose handler calls no aggregate method marked with the use case.</summary>
     /// <param name="model">The loaded project model that holds each handler and aggregate method.</param>
@@ -625,7 +624,7 @@ internal static class MarkChecks
     /// <param name="useCase">The use case record whose changes field is inspected.</param>
     /// <returns>True when the use case changes an aggregate that is no store; otherwise false.</returns>
     private static bool ChangesGuardedAggregate(ProjectModel model, Record useCase) =>
-        useCase.Ids(RecordFields.Changes).Any(id =>
+        useCase.Ids(RecordFields.Writes).Any(id =>
             !model.ById.TryGetValue(id, out var changed)
             || changed.Type != RecordTypes.Aggregate
             || changed.Field(RecordFields.Kind) is not "store");

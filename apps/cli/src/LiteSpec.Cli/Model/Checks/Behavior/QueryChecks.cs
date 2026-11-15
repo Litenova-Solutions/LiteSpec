@@ -70,7 +70,7 @@ internal static class QueryChecks
 
             foreach (var group in include.EnumerateObject().OrderBy(entry => entry.Name, StringComparer.Ordinal))
             {
-                foreach (var cited in LinkStrings(group.Value, RecordFields.Cites).Order(StringComparer.Ordinal))
+                foreach (var cited in LinkStrings(group.Value, RecordFields.WidenedBy).Order(StringComparer.Ordinal))
                 {
                     // An unknown target is left to reference-unknown.
                     if (!model.ById.TryGetValue(cited, out var target))

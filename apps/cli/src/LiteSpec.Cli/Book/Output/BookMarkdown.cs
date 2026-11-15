@@ -10,32 +10,41 @@ namespace LiteSpec.Cli.Book.Output;
 ///     everything it does not generate, so prose can never inject markup.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
-static class BookMarkdown
+static partial class BookMarkdown
 {
     /// <summary>The pattern of one inline code span delimited by backticks.</summary>
-    static readonly Regex CodeSpan = new("`([^`\n]+)`", RegexOptions.Compiled);
+    [GeneratedRegex("`([^`\n]+)`")]
+    private static partial Regex CodeSpan();
     /// <summary>The pattern of one Markdown link with its label and destination.</summary>
-    static readonly Regex MdLink = new(@"\[([^\]\n]+)\]\(([^)\s]+)\)", RegexOptions.Compiled);
+    [GeneratedRegex(@"\[([^\]\n]+)\]\(([^)\s]+)\)")]
+    private static partial Regex MdLink();
     /// <summary>The pattern of one reference link with its label and source key, citing a research source.</summary>
-    static readonly Regex RefLink = new(@"\[([^\]\n]+)\]\[([^\]\n]+)\]", RegexOptions.Compiled);
+    [GeneratedRegex(@"\[([^\]\n]+)\]\[([^\]\n]+)\]")]
+    private static partial Regex RefLink();
     /// <summary>The pattern of one bare HTTP or HTTPS address in running text.</summary>
-    static readonly Regex RawUrl = new(@"(?<![""'=])\bhttps?://[^\s<]+", RegexOptions.Compiled);
+    [GeneratedRegex(@"(?<![""'=])\bhttps?://[^\s<]+")]
+    private static partial Regex RawUrl();
     /// <summary>The pattern of one bold span delimited by double asterisks.</summary>
-    static readonly Regex Bold = new(@"\*\*([^*\n]+)\*\*", RegexOptions.Compiled);
+    [GeneratedRegex(@"\*\*([^*\n]+)\*\*")]
+    private static partial Regex Bold();
     /// <summary>The pattern of one italic span delimited by single asterisks.</summary>
-    static readonly Regex Italic = new(@"\*([^*\n]+)\*", RegexOptions.Compiled);
+    [GeneratedRegex(@"\*([^*\n]+)\*")]
+    private static partial Regex Italic();
     /// <summary>The pattern of one record identifier with an optional fragment, covering every record type prefix.</summary>
-    static readonly Regex RecordId = new(
-        @"\b((?:product|goal|vision|problem|feature|constraint|research|decision|requirement|journey|term|module|aggregate|rule|event|integration-event|reaction|job|notification|setting|view|use-case|result|scenario|actor|role|permission|entry-point|screen|external-system|runbook|departure|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)",
-        RegexOptions.Compiled);
+    [GeneratedRegex(@"\b((?:product|goal|vision|problem|feature|constraint|research|decision|requirement|flow|term|module|aggregate|rule|event|integration-event|reaction|job|notification|setting|view|use-case|result|scenario|actor|role|permission|entry-point|screen|external-system|runbook|departure|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)")]
+    private static partial Regex RecordId();
     /// <summary>The pattern of one heading line with its level marks and text.</summary>
-    static readonly Regex Heading = new(@"^(#{1,6})\s+(.*)$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^(#{1,6})\s+(.*)$")]
+    private static partial Regex Heading();
     /// <summary>The pattern of one horizontal rule line.</summary>
-    static readonly Regex Rule = new(@"^\s*(?:---|\*\*\*|___)\s*$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^\s*(?:---|\*\*\*|___)\s*$")]
+    private static partial Regex Rule();
     /// <summary>The pattern of one list item line with its indentation and text.</summary>
-    static readonly Regex ListItem = new(@"^(\s*)(?:[-*+]|\d+[.)])\s+(.*)$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^(\s*)(?:[-*+]|\d+[.)])\s+(.*)$")]
+    private static partial Regex ListItem();
     /// <summary>The pattern of one table delimiter line that separates the header from the rows.</summary>
-    static readonly Regex TableDelimiter = new(@"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$")]
+    private static partial Regex TableDelimiter();
 
     /// <summary>Renders Markdown to HTML fragments. Record ids link through <paramref name="linkRecord"/> and source keys through <paramref name="linkSource"/>.</summary>
     /// <param name="markdown">The Markdown text to render.</param>
@@ -90,7 +99,7 @@ static class BookMarkdown
                 continue;
             }
 
-            var heading = Heading.Match(line);
+            var heading = Heading().Match(line);
             if (heading.Success)
             {
                 Flush();
@@ -110,7 +119,7 @@ static class BookMarkdown
                 continue;
             }
 
-            if (Rule.IsMatch(line))
+            if (Rule().IsMatch(line))
             {
                 Flush();
                 html.AppendLine("<hr>");
@@ -134,14 +143,14 @@ static class BookMarkdown
                 continue;
             }
 
-            if (line.Contains('|') && index + 1 < lines.Length && TableDelimiter.IsMatch(lines[index + 1]))
+            if (line.Contains('|') && index + 1 < lines.Length && TableDelimiter().IsMatch(lines[index + 1]))
             {
                 Flush();
                 html.Append(RenderTable(lines, ref index, linkRecord, linkSource));
                 continue;
             }
 
-            if (ListItem.IsMatch(line))
+            if (ListItem().IsMatch(line))
             {
                 Flush();
                 html.Append(RenderList(lines, ref index, linkRecord, linkSource));
@@ -227,7 +236,7 @@ static class BookMarkdown
         var items = new List<string>();
         while (index < lines.Length)
         {
-            var match = ListItem.Match(lines[index]);
+            var match = ListItem().Match(lines[index]);
             if (match.Success)
             {
                 items.Add(match.Groups[2].Value.Trim());
@@ -266,14 +275,14 @@ static class BookMarkdown
     {
         var escaped = BookRender.Esc(text);
         var codes = new List<string>();
-        escaped = CodeSpan.Replace(escaped, match =>
+        escaped = CodeSpan().Replace(escaped, match =>
         {
             codes.Add($"<code>{match.Groups[1].Value}</code>");
             return $"\u0000C{codes.Count - 1}\u0000";
         });
 
         var links = new List<string>();
-        escaped = MdLink.Replace(escaped, match =>
+        escaped = MdLink().Replace(escaped, match =>
         {
             var label = Parts(match.Groups[1].Value);
             var href = match.Groups[2].Value;
@@ -291,7 +300,7 @@ static class BookMarkdown
         });
         if (linkSource is not null)
         {
-            escaped = RefLink.Replace(escaped, match =>
+            escaped = RefLink().Replace(escaped, match =>
             {
                 var label = Parts(match.Groups[1].Value);
                 var url = linkSource(match.Groups[2].Value);
@@ -300,7 +309,7 @@ static class BookMarkdown
             });
         }
 
-        escaped = RawUrl.Replace(escaped, match =>
+        escaped = RawUrl().Replace(escaped, match =>
         {
             var url = match.Value.TrimEnd('.', ',', ';', ':', '!', '?', ')');
             var tail = match.Value[url.Length..];
@@ -308,12 +317,12 @@ static class BookMarkdown
             return $"\u0000L{links.Count - 1}\u0000";
         });
 
-        escaped = Bold.Replace(escaped, "<strong>$1</strong>");
-        escaped = Italic.Replace(escaped, "<em>$1</em>");
+        escaped = Bold().Replace(escaped, "<strong>$1</strong>");
+        escaped = Italic().Replace(escaped, "<em>$1</em>");
 
         if (linkRecord is not null)
         {
-            escaped = RecordId.Replace(escaped, match =>
+            escaped = RecordId().Replace(escaped, match =>
             {
                 var target = linkRecord(match.Groups[1].Value);
                 if (target is null || !BookRender.IsSafeHref(target.Value.Href))
@@ -345,7 +354,7 @@ static class BookMarkdown
     /// <returns>The hash link, or null when the target is no record identifier or names no record.</returns>
     static string? RecordHref(string href, Func<string, (string Href, string Title)?>? linkRecord)
     {
-        var id = linkRecord is null || href.Length == 0 ? null : RecordId.Match(href).Groups[1].Value;
+        var id = linkRecord is null || href.Length == 0 ? null : RecordId().Match(href).Groups[1].Value;
         if (id is null || id.Length != href.Length)
         {
             return null;
@@ -366,8 +375,8 @@ static class BookMarkdown
     /// <returns>The label with bold and italic spans rendered as HTML.</returns>
     static string Parts(string text)
     {
-        text = Bold.Replace(text, "<strong>$1</strong>");
-        return Italic.Replace(text, "<em>$1</em>");
+        text = Bold().Replace(text, "<strong>$1</strong>");
+        return Italic().Replace(text, "<em>$1</em>");
     }
 
     /// <summary>Derives the anchor slug of one heading text.</summary>

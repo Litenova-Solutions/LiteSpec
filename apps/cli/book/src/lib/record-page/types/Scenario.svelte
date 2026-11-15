@@ -1,7 +1,7 @@
 <script lang="ts">
   import { book, esc, pluralize, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { EditorFileLink, ProofMark } from "$lib/record";
+  import { SourceFileLink, ProofMark } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import DataTable from "../blocks/DataTable.svelte";
@@ -29,7 +29,7 @@
 </script>
 
 <PageSection blockKey="gwt" heading="Given, When, Then">
-  <div class="border-l-[3px] border-border py-0.5 pl-3.5">
+  <div class="border-l-[3px] border-slate-200 py-0.5 pl-3.5">
     <GivenWhenThen given={sf.given ?? ""} when={sf.when ?? ""} then={sf.then ?? ""} />
   </div>
 </PageSection>
@@ -53,7 +53,7 @@
   <FactGrid>
     <FactCell k="Proof" hint={testPath ? "" : proofText}>
       <ProofMark state={proofState} />
-      {#if testPath}<div class="mt-1"><EditorFileLink path={testPath} line={testLine} label={testName} /></div>{/if}
+      {#if testPath}<div class="mt-1"><SourceFileLink path={testPath} line={testLine} label={testName} /></div>{/if}
     </FactCell>
     <FactCell k="Test run" hint={testRun?.date ? book.dateHint(String(testRun.date)) : "the model holds no test run"}>
       {testRun?.date ? book.fmtDate(String(testRun.date)) : "None recorded"}

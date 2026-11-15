@@ -10,7 +10,7 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/loan.loan-extended
+- domain-event/loan.loan-extended
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.

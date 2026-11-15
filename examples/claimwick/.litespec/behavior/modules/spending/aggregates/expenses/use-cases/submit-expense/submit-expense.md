@@ -6,7 +6,7 @@ Submit Expense is how an employee files a work cost so that a manager can decide
 
 The employee sends the amount, its currency and the receipt, when one is attached. Spending checks the receipt rule against the receipt threshold in the policy. An expense above the threshold with no receipt is refused with `spending.receipt-missing`.
 
-Otherwise spending stores the expense as Submitted and raises `event/expense.submitted`. Each request creates a new expense with a new identity. A repeated request therefore submits a second expense. The records do not describe a check for repeated requests.
+Otherwise spending stores the expense as Submitted and raises `domain-event/expense.submitted`. Each request creates a new expense with a new identity, and a repeated request returns the first result: the requestId key recognizes the repeat.
 
 ## Example
 

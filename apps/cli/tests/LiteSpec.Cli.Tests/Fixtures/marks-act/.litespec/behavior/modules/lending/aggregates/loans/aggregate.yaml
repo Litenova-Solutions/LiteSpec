@@ -5,14 +5,14 @@ states:
   - name: Active
     meaning: The loan is open.
 records:
-  - type: event
-    id: event/loan.loan-borrowed
+  - type: domain-event
+    id: domain-event/loan.loan-borrowed
     title: Loan borrowed
     meaning: A copy was lent.
     carries:
       - loanId
-  - type: event
-    id: event/loan.loan-renewed
+  - type: domain-event
+    id: domain-event/loan.loan-renewed
     title: Loan renewed
     meaning: A loan was renewed.
     carries:

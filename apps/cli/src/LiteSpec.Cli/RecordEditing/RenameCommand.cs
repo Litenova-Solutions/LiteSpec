@@ -715,11 +715,11 @@ static class RenameCommand
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
             [RecordTypes.UseCase] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Result, RecordTypes.Scenario },
-            [RecordTypes.Aggregate] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Event, RecordTypes.Rule },
+            [RecordTypes.Aggregate] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.DomainEvent, RecordTypes.Rule },
             [RecordTypes.Module] = new HashSet<string>(StringComparer.Ordinal)
             {
                 RecordTypes.UseCase, RecordTypes.Aggregate, RecordTypes.Reaction, RecordTypes.Job,
-                RecordTypes.Notification, RecordTypes.Setting, RecordTypes.Rule, RecordTypes.View,
+                RecordTypes.Notification, RecordTypes.Setting, RecordTypes.Rule, RecordTypes.ReadModel,
             },
             [RecordTypes.Feature] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Requirement },
             [RecordTypes.EntryPoint] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Screen },

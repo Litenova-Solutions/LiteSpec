@@ -79,7 +79,7 @@ static class BookIndexBuilder
                         from.Add(new Backlink(BookRender.StrProp(record, "id") ?? "", field));
 
                         // A step or operation target also links its carrying record, so the
-                        // journey and system pages list what serves and calls them.
+                        // flow and system pages list what serves and calls them.
                         var hash = id.IndexOf('#');
                         if (hash > 0 && id[..hash] is { Length: > 0 } baseId && baseId != id)
                         {

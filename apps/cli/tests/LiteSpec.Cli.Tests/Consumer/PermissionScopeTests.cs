@@ -91,7 +91,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/permissions.yaml",
+            ".litespec/behavior/modules/orders/permissions.yaml",
             meta => FirstPermission(meta)["group"] = "orders");
         AssertClean(RunConsumer(folder.Path));
     }
@@ -104,7 +104,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/permissions.yaml",
+            ".litespec/behavior/modules/orders/permissions.yaml",
             meta => FirstPermission(meta)["scope"] = "self");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'scope'");
     }
@@ -117,7 +117,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/permissions.yaml",
+            ".litespec/behavior/modules/orders/permissions.yaml",
             meta => FirstPermission(meta)["reach"] = "self");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'reach'");
     }
@@ -130,7 +130,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/roles/customer.yaml",
+            ".litespec/intent/roles/customer/customer.yaml",
             meta => meta.Remove("scope"));
         AssertProblem(RunConsumer(folder.Path), "missing required property 'scope'");
     }
@@ -152,7 +152,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/actors/customer.yaml",
+            ".litespec/intent/actors/customer/customer.yaml",
             meta => meta["holds"] = new JsonArray(new JsonObject { ["role"] = "role/customer", ["scope"] = "self" }));
         AssertRejected(RunConsumer(folder.Path));
     }

@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests
 {
-    const string RequirementPage = ".litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml";
+    const string RequirementPage = ".litespec/intent/features/approval/approval.yaml";
     const string RulePage = ".litespec/behavior/rules/spending-rules.yaml";
     const string PermissionPage = ".litespec/behavior/access/permissions.yaml";
     const string SettingPage = ".litespec/behavior/modules/spending/settings.yaml";
@@ -39,7 +39,7 @@ public sealed class NewEntryTests
 
     const string PermissionJson = """
         {
-          "type": "permission-list",
+          "type": "permission-set",
           "title": "Permissions",
           "records": [
             {
@@ -319,8 +319,8 @@ public sealed class NewEntryTests
             .Replace("<source commit>", "9f2c4ab1e0d34f7a8b6c5d2e1f0a3948576c1d2e", StringComparison.Ordinal)
             .Replace("<artifact reference>", "registry.example.com/shop:2026-08-21", StringComparison.Ordinal)
             .Replace(
-                "- journey/<name> (<the outcome it proves, or remove this line>)",
-                "- None; the release ships no journey.",
+                "- flow/<name> (<the outcome it proves, or remove this line>)",
+                "- None; the release ships no flow.",
                 StringComparison.Ordinal)
             .Replace(
                 "- use-case/<module>.<name> (<the behavior it ships, or remove this line>)",
@@ -334,7 +334,7 @@ public sealed class NewEntryTests
             .Replace("<the test result with its reference>", "Pass (fixture suites, 41 passing)", StringComparison.Ordinal)
             .Replace("<the contract result with its reference>", "Pass (no contract change)", StringComparison.Ordinal)
             .Replace("<the security result with its reference>", "Pass (no open item)", StringComparison.Ordinal)
-            .Replace("<the journey result with its reference>", "Pass (no journey included)", StringComparison.Ordinal)
+            .Replace("<the flow result with its reference>", "Pass (no flow included)", StringComparison.Ordinal)
             .Replace("<the schema result with its reference>", "Pass (no migration)", StringComparison.Ordinal)
             .Replace("<the backup result with its reference>", "Pass (nightly backup restored on 2026-08-20)", StringComparison.Ordinal)
             .Replace("<the deployment result with its reference>", "Pass (staging deploy 118)", StringComparison.Ordinal)
@@ -364,7 +364,7 @@ public sealed class NewEntryTests
         var temp = TestCli.Temp("new-entry");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, RequirementPage, FeatureJson);
-        TestRecords.Write(temp.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/nobody-approves-own-expense/nobody-approves-own-expense.yaml", """
+        TestRecords.Write(temp.Path, ".litespec/intent/features/approval/requirements/nobody-approves-own-expense/nobody-approves-own-expense.yaml", """
             {
               "type": "requirement",
               "id": "requirement/approval.nobody-approves-own-expense",

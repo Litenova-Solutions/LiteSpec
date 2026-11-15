@@ -26,7 +26,7 @@ A browser suite needs a deployment, and nothing in the suite starts one, so the 
 
 ### Reaching a Screen
 
-A browser test reaches a screen when a `page.goto` literal or template in the test matches that screen's `address` template. A test confirms a scenario when, in the same test, an assertion holds the refusal `code` or the success result's declared text or code, and the reached screen offers the scenario's use case. Click-through navigation inference is out of scope: a journey test uses one `page.goto` per screen it proves on.
+A browser test reaches a screen when a `page.goto` literal or template in the test matches that screen's `address` template. A test confirms a scenario when, in the same test, an assertion holds the refusal `code` or the success result's declared text or code, and the reached screen offers the scenario's use case. Click-through navigation inference is out of scope: a flow test uses one `page.goto` per screen it proves on.
 
 ### Element Queries
 
@@ -67,7 +67,7 @@ Four related rules live on other pages:
 
 **Example:** The browser specification at `apps/web/tests/expenses/list-expenses.spec.ts` in the Claimwick example carries `proves("scenario/list-expenses.listing-own-expenses-succeeds")`.
 
-**Checked by:** `litespec model check` reports `mark-unknown` (level S) for a `proves` annotation naming no record a test may prove, or naming a journey.
+**Checked by:** `litespec model check` reports `mark-unknown` (level S) for a `proves` annotation naming no record a test may prove, or naming a flow.
 
 ### Reach a Screen That Offers the Scenario's Use Case
 
@@ -125,19 +125,19 @@ Four related rules live on other pages:
 
 **Checked by:** `litespec model check` reports `proves-duplicate` (level A) for a scenario with `proves` marks on more than one test.
 
-### Name the Journey a Journey Test Covers
+### Name the Flow a Flow Test Covers
 
-**ID:** `litespec/frontend/testing#name-the-journey-a-journey-test-covers`
+**ID:** `litespec/frontend/testing#name-the-flow-a-flow-test-covers`
 
 **Strength:** required
 
-**Statement:** A browser test that drives several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
+**Statement:** A browser test that drives several screens MUST carry a `flow` annotation naming the flow and a `proves` mark for each scenario it drives and asserts.
 
-**Rationale:** A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The `journey` annotation tells a reader which journey the test rehearses without claiming that the journey itself is proven. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
+**Rationale:** A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The `flow` annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
-**Example:** The submit-and-reimburse journey test carries `journey: journey/submit-and-reimburse` and proves the scenarios it drives and asserts on each screen it reaches.
+**Example:** The submit-and-reimburse flow test carries `flow: flow/submit-and-reimburse` and proves the scenarios it drives and asserts on each screen it reaches.
 
-**Reviewed for:** Which browser tests that drive several screens carry a `journey` annotation naming the journey and a `proves` mark for each scenario they drive and assert? Look in the browser tests and their annotations.
+**Reviewed for:** Which browser tests that drive several screens carry a `flow` annotation naming the flow and a `proves` mark for each scenario they drive and assert? Look in the browser tests and their annotations.
 
 ### Test Observable States
 
@@ -147,7 +147,7 @@ Four related rules live on other pages:
 
 **Statement:** A frontend test SHOULD assert observable behavior in each state applicable to what the test covers: loading, empty, error, forbidden, not-found, pending, validation, and success.
 
-**Deviation:** A logic test asserts only the states its level reaches.
+**Departure:** A logic test asserts only the states its level reaches.
 
 **Rationale:** An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test's situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success, ties the test to the reader's view. The scenario states which states its situation reaches, so a logic test asserts only states its level reaches. The project records each state as a term with labels per language.
 

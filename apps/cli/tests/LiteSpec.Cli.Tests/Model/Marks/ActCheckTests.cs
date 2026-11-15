@@ -32,10 +32,10 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
-    /// <summary>Fan Out Command With No Changes Reports Nothing.</summary>
+    /// <summary>Fan Out Command With No Writes Reports Nothing.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
-    public void FanOutCommandWithNoChangesReportsNothing()
+    public void FanOutCommandWithNoWritesReportsNothing()
     {
         using var temp = WritePassConsumer();
         var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
@@ -77,7 +77,7 @@ public sealed class ActCheckTests
         var finding = Assert.Single(undeclared);
         Assert.Equal("use-case/lending.renew-loan", finding.Subject);
         Assert.Contains("Loan.Borrow", finding.Message);
-        Assert.Contains("event/loan.loan-borrowed", finding.Message);
+        Assert.Contains("domain-event/loan.loan-borrowed", finding.Message);
     }
 
     /// <summary>Use Case Sharing The Method Reports No Undeclared For Its Listed Event.</summary>
@@ -101,7 +101,7 @@ public sealed class ActCheckTests
 
         var finding = Assert.Single(unraised);
         Assert.Equal("use-case/lending.renew-loan", finding.Subject);
-        Assert.Contains("event/loan.loan-renewed", finding.Message);
+        Assert.Contains("domain-event/loan.loan-renewed", finding.Message);
     }
 
     /// <summary>Use Case Whose Shared Method Raises Its Event Reports No Unraised.</summary>
@@ -236,7 +236,7 @@ public sealed class ActCheckTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.loan"
                   ],
                   "records": [
@@ -289,7 +289,7 @@ public sealed class ActCheckTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.outbox"
                   ],
                   "records": [
@@ -440,9 +440,9 @@ public sealed class ActCheckTests
                   "status": "reviewed",
                   "kind": "command",
                   "raises": [
-                    "event/loan.loan-borrowed"
+                    "domain-event/loan.loan-borrowed"
                   ],
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.loan"
                   ],
                   "records": [
@@ -477,8 +477,8 @@ public sealed class ActCheckTests
                   ],
                   "records": [
                     {
-                      "type": "event",
-                      "id": "event/loan.loan-borrowed",
+                      "type": "domain-event",
+                      "id": "domain-event/loan.loan-borrowed",
                       "title": "Loan borrowed",
                       "owner": "lending-team",
                       "status": "reviewed",
@@ -512,7 +512,7 @@ public sealed class ActCheckTests
             Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs", """
                 namespace Library.Domain.Lending.Loans.Events;
 
-                /// <implements>event/loan.loan-borrowed</implements>
+                /// <implements>domain-event/loan.loan-borrowed</implements>
                 public sealed record LoanBorrowedEvent(Guid LoanId, Guid ReaderId, DateOnly DueDate) : IDomainEvent;
                 """);
 

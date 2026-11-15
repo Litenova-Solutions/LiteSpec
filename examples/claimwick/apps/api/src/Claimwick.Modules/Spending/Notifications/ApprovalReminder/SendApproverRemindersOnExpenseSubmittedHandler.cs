@@ -1,3 +1,4 @@
+using Claimwick.Spending.Application;
 using Claimwick.Spending.Expenses.Domain.Events;
 
 namespace Claimwick.Spending.Notifications.ApprovalReminder;

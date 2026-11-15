@@ -15,4 +15,4 @@ sources:
     readOn: 2026-10-30
     key: model
 question: Where does one field name carry two concepts, or one concept carry two names, across the record types?
-conclusion: The field set is mostly systematic, but five collisions - two status-like fields with unrelated values, the bare `by`, `source` with five meanings, `serves` with three target sets, and the journey `goal` sentence beside the goal record - already produce invalid or misleading consumer data.
+conclusion: The field set is mostly systematic, but five collisions - two status-like fields with unrelated values, the bare `by`, `source` with five meanings, `serves` with three target sets, and the flow `goal` sentence beside the goal record - already produce invalid or misleading consumer data.

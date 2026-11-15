@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Model.Checks;
 using LiteSpec.Cli.Model.Checks.Behavior;
 using LiteSpec.Cli.Model.Checks.Governance;
 using LiteSpec.Cli.Model.Checks.Implementation;
@@ -90,13 +91,15 @@ static class Checker
         ClosedFolderChecks.Run,
         MarkChecks.Run,
         ScreenChecks.Run,
+        UiBlueprintChecks.Run,
+        TokenLimitChecks.Run,
         WriteChecks.Run,
         ResultChecks.Run,
         EffectChecks.Run,
         ApiOperationChecks.Run,
         ReasonlessNameChecks.Run,
         RepositoryUseChecks.Run,
-        ConstituentChecks.Run,
+        PartChecks.Run,
         OperationsChecks.Run,
         SettingChecks.Run,
         DependencyChecks.Run,
@@ -112,7 +115,7 @@ static class Checker
         IntentChecks.Run,
         GraphChecks.RunStepUnserved,
         EffectLoopChecks.Run,
-        ViewChecks.Run,
+        ReadModelChecks.Run,
         ConsistencyChecks.RunConsistency,
         QueryChecks.RunQueryOutput,
         QueryChecks.RunPaging,
@@ -121,12 +124,12 @@ static class Checker
         ConsistencyChecks.RunReservation,
         GraphChecks.RunNotificationSender,
         RequirementChecks.Run,
-        AutomationChecks.RunJobGuard,
+        AutomationChecks.RunOutcomes,
         AutomationChecks.RunSchedule,
         ProseChecks.Run,
         ConsistencyChecks.RunManyAggregates,
-        ConsistencyChecks.RunAtomicGroupDrift,
-        ConsistencyChecks.RunAtomicGroupInvalid,
+        ConsistencyChecks.RunAtomicityDrift,
+        ConsistencyChecks.RunAtomicityInvalid,
         ContractChecks.RunTypedInputs,
         GraphChecks.RunExercises,
         ContractChecks.RunDoors,
@@ -198,6 +201,10 @@ static class Checker
             var code = string.Compare(left.Code, right.Code, StringComparison.Ordinal);
             return code != 0 ? code : string.Compare(left.Message, right.Message, StringComparison.Ordinal);
         });
+
+        findings = FindingStrength.Apply(
+            findings,
+            LiteSpecHome.Root is { } home && Directory.Exists(Path.Combine(home, "docs")) ? Provisions.Collect(home) : []);
 
         return Suppress(model, findings);
     }

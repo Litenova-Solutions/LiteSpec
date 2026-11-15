@@ -24,6 +24,6 @@ Every command accepts `--help`, and `model check` accepts `--format json` for a 
 - [Scaffold Record](new.md): creates a record file and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning file.
 - [Rename Record](rename.md): renames a record identifier and rewrites every link.
 - [Model Builder](model.md): checks the project model with the consumer pass, formats record files, renders generated outputs, and answers record queries.
-- [Book](book.md): generates the project book from the consumer root: one offline shell with the outline and security views.
+- [Book](book.md): serves the project book live on localhost, or writes the static book with `--out`.
 - [Rules Query](rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
 - [Skill](skill.md): installs or removes the litespec skill.

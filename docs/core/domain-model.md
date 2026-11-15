@@ -43,34 +43,32 @@ An aggregate is one thing the product keeps consistent and changes in one step, 
 
 An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Lifecycle, Data and Retention, Example and Limits live in the explanation file beside the record file.
 
-`transitions` lists every allowed change with the use case moving it: each entry names the state left in `from`, the state entered in `to`, and the moving use case in `by`. A creation, the change that brings an instance into being, writes `-` as the state left. `data` lists the fields the aggregate keeps, each with name, meaning, classification, and data class. Each data class declares how its fields erase:
+`transitions` lists every allowed change with the use case or job moving it: each entry names the state left in `from`, the state entered in `to`, and the moving use case or job in `movedBy`. A creation, the change that brings an instance into being, writes `-` as the state left. A transition moved by time carries `after` with the ISO 8601 duration from entering its source state, and `movedBy` names the job. `data` lists the fields the aggregate keeps, each with name, meaning, classification, and data class. Each data class declares how its fields erase and how long they are kept:
 
 | Field | Meaning |
 |:---|:---|
 | `name`, `classification`, `fields` | The class, its `public`, `internal`, `personal`, or `sensitive` handling, and its fields. |
 | `purpose` | Why the data is kept. |
 | `onErasure` | `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`. |
-| `basis` | `statute`, `business`, or `engineering`. |
-| `period` | The retention period as an ISO duration, or `{ "mode": "none", "reason": "..." }`. |
-| `enforcedBy` | `reaction/...`, `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
+| `basis` | The constraint, requirement, and decision identifiers behind the retention. |
+| `period`, `periodStartsAt` | The retention period as an ISO 8601 duration, or `{ "mode": "none", "reason": "..." }`, with the date it counts from: a `domain-event/` identifier, a state transition written `<state> to <state>`, or `financial-year-end` or `calendar-year-end`. |
+| `enforcedBy` | The `job/` or `use-case/` identifiers carrying out the erasure. |
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
-| `exceptions` | Per-field erasure positions differing from the class. |
+| `exceptions` | Per-field erasure positions differing from the class, and the retention conflicts with the winning duty and its basis. |
 | `reason`, `basedOn` | The reason of an exemption, and the Intent records accepting retained or exempt personal data. |
 
 ### Rules
 
-A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule. An invariant an aggregate enforces lives under its aggregate or its module. A cross-aggregate rule spans aggregates and lives as an entry on a rule page; a module rule lives in `behavior/modules/<m>/rules/`; `module.yaml` holds no rules. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move. State a rule once per refusal: when two use cases enforce the same condition with different refusals, write one rule for each refusal, with each rule naming its own refusal in `refusal`. One `refusal` field holds one refusal, as `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces` states, and each use case declares its own refusals, as `litespec/core/use-cases#end-every-use-case-in-named-results` states, so a condition refused two ways is two rules.
+A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule. A rule's scope comes from its home: an invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`; `module.yaml` holds no rules. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move. State one rule per condition: one rule states one condition and names its refusal code from the module's refusal set, and every use case that can break it lists the refusal result citing that code.
 
 | Kind | Meaning |
 |:---|:---|
 | `invariant` | Holds after every change. |
 | `precondition` | Guards the behavior before it runs. |
 | `calculation` | Derives a value, proven by an examples table. |
-| `cross-aggregate` | Spans aggregates and lives on a rule page. |
 | `atomicity` | Names one atomic write group in `binds`. |
 | `reservation` | Holds a claim until a use case releases it, named in `releasedBy` as a use-case id, or `{ "mode": "never", "reason": "..." }` with its cost. |
-| `commercial-data` | Freezes a commercial value, with `frozenWhen` and `retainedIn`. |
-| `default` | States a model default. |
+| `frozen-value` | Freezes a commercial value, with `frozenWhen` and `retainedIn`. |
 
 A query and a command showing and recording one value both cite the same calculation rule in `computedBy`. Code carries a mark naming the rule, and never the reverse.
 
@@ -81,7 +79,7 @@ A domain event is an immutable statement that a business fact completed, named i
 | Field | Meaning |
 |:---|:---|
 | `meaning` | What happened, in one sentence. |
-| `carries` | The facts arriving with the event. |
+| `carries` | The typed fields arriving with the event, each with `name` and `type` from the input value types. An integration event publishes only fields its translated domain event carries. |
 
 ## Standards
 
@@ -201,9 +199,9 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Applies to:** artifact: aggregate
 
-**Statement:** Each entity MUST list every allowed state change with its use case in `transitions`, including the creation that enters its first state.
+**Statement:** Each entity MUST list every allowed state change with the use case or job moving it in `transitions`, including the creation that enters its first state.
 
-**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case.
+**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case or job moving it in `movedBy` shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. A transition moved by time names the job in `movedBy` with the duration from entering its source state in `after`. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state, use case, or job.
 
 **Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `transition-unknown` (level G) for a transition naming a missing state or use case.
 
@@ -217,11 +215,27 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each rule MUST state its kind and its statement.
 
-**Rationale:** The kind decides how the rule is proved: an invariant on every change, a precondition before the behavior, a calculation through its examples, a cross-aggregate rule where aggregates meet, an atomicity rule naming its bound group, a reservation through its release, a commercial-data rule through its frozen value, a default through the value the model holds. A rule without a kind leaves each reader to prove it a different way, and the checks no place to confirm it.
+**Rationale:** The kind decides how the rule is proved: an invariant on every change, a precondition before the behavior, a calculation through its examples, an atomicity rule naming its bound group, a reservation through its release, and a frozen-value rule through its frozen value. A rule without a kind leaves each reader to prove it a different way, and the checks no place to confirm it.
 
 **Example:** `rule/expense.reimbursed-once` is an invariant stating "an expense is reimbursed at most once", checked on every reimbursement.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a rule entry without `kind` or `statement`.
+
+### State What Each Rule Governs
+
+**ID:** `litespec/core/domain-model#state-what-each-rule-governs`
+
+**Strength:** required
+
+**Applies to:** artifact: record:rule
+
+**Statement:** Each rule MUST name what it constrains in `governs`.
+
+**Rationale:** A rule that names no governed record constrains nothing a reader can find: the condition floats beside the records it should hold. Naming the constrained aggregates and use cases in `governs` pins each rule to its records. The governed records match the links naming the rule: input `rules`, consistency bindings, calculation links, scenario `exercises`, and result refusals. A rule governs records of its own module.
+
+**Example:** The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results citing its code.
+
+**Checked by:** `litespec model check` reports `rule-governs-drift` for `governs` disagreeing with the links that name the rule.
 
 ### Bind Every Atomic Write Group in Its Rule
 
@@ -237,7 +251,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The hold rule binds the hold and the copy aggregates, so a hold without its copy never stands.
 
-**Checked by:** `litespec model check` reports `atomic-group-drift` (level G) for an atomic use case whose `changes` differs from its rule's `binds`, and `atomic-group-invalid` (level A) for a group binding more than 4 aggregates.
+**Checked by:** `litespec model check` reports `atomicity-drift` (level G) for an atomic use case whose `writes` differs from its rule's `binds`, and `atomicity-invalid` (level A) for a group binding more than 4 aggregates.
 
 ### Keep the Negation Word in the Rule Name
 
@@ -255,20 +269,6 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Checked by:** `litespec model check` reports `rule-name-invalid` for a rule whose statement says `not`, `no`, `never`, or `cannot` while its name keeps no restricting word or uniqueness.
 
-### Keep Cross-Aggregate Rules on a Rule Page
-
-**ID:** `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`
-
-**Strength:** required
-
-**Applies to:** artifact: record:rule
-
-**Statement:** A rule spanning aggregates MUST live as an entry on a rule page.
-
-**Rationale:** An aggregate page holds what one aggregate guarantees; a rule spanning aggregates guarantees what no single aggregate owns. Giving such rules their own page keeps each aggregate page a true account of its aggregate, and gathers the shared rules where a reviewer judges them together.
-
-**Reviewed for:** Which cross-aggregate rules sit outside a rule page? Look at the rule entries beside their aggregate pages.
-
 ### Name the Refusal a Broken Rule Produces
 
 **ID:** `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`
@@ -277,11 +277,11 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Applies to:** artifact: record:rule
 
-**Statement:** Each rule whose breach refuses a use case MUST name the refusal in `refusal`.
+**Statement:** Each rule whose breach refuses a use case MUST name the refusal code in `refusal`.
 
-**Rationale:** A guarded rule without a named refusal leaves the ending unnamed: callers branch on a refusal the records never predicted. Naming the refusal ties the rule to the result the use case declares, so the breach and the ending stay one fact.
+**Rationale:** A guarded rule without a named refusal leaves the ending unnamed: callers branch on a refusal the records never predicted. Naming the refusal code from the module's refusal set ties the rule to every result citing that code, so the breach and the ending stay one fact. The [Use Cases page](use-cases.md) states the refusal set.
 
-**Reviewed for:** Which guarded rules name no refusal in `refusal`? Look at the rule entries beside the results they refuse.
+**Reviewed for:** Which guarded rules name no refusal code in `refusal`? Look at the rule entries beside the results citing their code.
 
 ### Release Every Reservation by a Named Use Case
 
@@ -297,19 +297,19 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Checked by:** `litespec model check` reports `reservation-release-missing` for a reservation rule whose `releasedBy` names neither a use case nor `{ "mode": "never", "reason": "..." }` with its cost.
 
-### Freeze Every Commercial Data Value
+### Freeze Every Frozen Value
 
-**ID:** `litespec/core/domain-model#freeze-every-commercial-data-value`
+**ID:** `litespec/core/domain-model#freeze-every-frozen-value`
 
 **Strength:** required
 
 **Applies to:** artifact: record:rule
 
-**Statement:** Each commercial-data rule MUST name when the value freezes in `frozenWhen` and where its retained facts live in `retainedIn`.
+**Statement:** Each frozen-value rule MUST name when the value freezes in `frozenWhen` and where its retained facts live in `retainedIn`.
 
 **Rationale:** A price, fee, or rate read live changes under settled business: a refund follows today price instead of the price at sale. Naming when the value freezes pins each reading to its moment, and the retained link keeps the earlier values reachable for audit and dispute.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a commercial-data rule without `frozenWhen` or `retainedIn`.
+**Checked by:** `litespec model check` reports `record-invalid` for a frozen-value rule without `frozenWhen` or `retainedIn`.
 
 ### Compute Shared Values from One Calculation Rule
 
@@ -347,11 +347,11 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Applies to:** artifact: domain-event
 
-**Statement:** Each event MUST state its meaning and the facts it carries.
+**Statement:** Each event MUST state its meaning and the typed fields it carries.
 
-**Rationale:** An event without a meaning is a name every reaction interprets alone; facts without a carries list are reconstructed from code at each reaction. Stating both on the entry lets each reaction trust what happened and what arrived with it.
+**Rationale:** An event without a meaning is a name every reaction interprets alone; facts without a carries list are reconstructed from code at each reaction. Stating the meaning with the typed `carries` fields lets each reaction trust what happened and what arrived with it. An integration event publishes only fields its translated domain event carries.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an event entry without `meaning` or `carries`.
+**Checked by:** `litespec model check` reports `record-invalid` for an event entry without `meaning` or `carries`, and `integration-event-field-uncarried` for an integration-event payload field its translated domain event does not carry.
 
 ### Name Every Event in the Past Tense
 
@@ -365,7 +365,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** An event names a fact that completed, so the past tense tells a reader the business already moved: `submitted` reports, while `submit` orders. The past tense also pairs each event with the act raising it.
 
-**Example:** The expense aggregate raises `event/expense.submitted` for a completed submission.
+**Example:** The expense aggregate raises `domain-event/expense.submitted` for a completed submission.
 
 **Reviewed for:** Which event names read as an order rather than a completed fact? Look at the event entries beside their raising acts.
 

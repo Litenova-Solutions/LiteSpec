@@ -1,6 +1,6 @@
 # Claimwick App
 
-Claimwick App is the browser app where people use the spending features of Claimwick. Every spending use case in these records is reached through it, so it is the only door into the module. It matters because it decides who can come in and how they sign in before any use case runs.
+Claimwick App is the browser app where people use the spending features of Claimwick. Every spending use case in these records is reached through it, so it is the only entry point into the module. It matters because it decides who can come in and how they sign in before any use case runs.
 
 ## Audience
 

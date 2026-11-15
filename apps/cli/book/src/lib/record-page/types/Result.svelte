@@ -15,7 +15,7 @@
 
 {#if code}
   <PageSection blockKey="code" heading="Refusal code">
-    <span class="{codeCls} px-2.5 py-1 text-[0.8125rem]">{code}</span>
+    <span class="{codeCls} px-2.5 py-1 text-sm">{code}</span>
   </PageSection>
 {/if}
 {#if sc.length}

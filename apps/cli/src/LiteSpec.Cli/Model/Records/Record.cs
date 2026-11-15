@@ -137,11 +137,11 @@ sealed class Record : IRecordFields
         return [];
     }
 
-    /// <summary>The journey's step targets: journey/name#step for each step carrying an id.</summary>
-    /// <returns>The step targets of the journey, or an empty list for any other record type.</returns>
+    /// <summary>The flow's step targets: flow/name#step for each step carrying an id.</summary>
+    /// <returns>The step targets of the flow, or an empty list for any other record type.</returns>
     public IReadOnlyList<string> StepIds()
     {
-        if (Type != RecordTypes.Journey
+        if (Type != RecordTypes.Flow
             || Raw.ValueKind != JsonValueKind.Object
             || !Raw.TryGetProperty(RecordFields.Steps, out var steps)
             || steps.ValueKind != JsonValueKind.Array)
@@ -164,6 +164,118 @@ sealed class Record : IRecordFields
 
         return ids;
     }
+
+    /// <summary>
+    ///     The requirement identifiers a flow carries: the union of its steps' <c>cites</c>, in step
+    ///     order with each identifier once. A flow holds no citations of its own, so this is its
+    ///     computed citation list.
+    /// </summary>
+    /// <returns>The cited requirement identifiers of the flow, or an empty list for any other record type.</returns>
+    public IReadOnlyList<string> StepCitations()
+    {
+        if (Type != RecordTypes.Flow
+            || Raw.ValueKind != JsonValueKind.Object
+            || !Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            || steps.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var ids = new List<string>();
+
+        foreach (var step in steps.EnumerateArray())
+        {
+            if (step.ValueKind != JsonValueKind.Object || !step.TryGetProperty(RecordFields.Cites, out var cites))
+            {
+                continue;
+            }
+
+            var citedIds = cites.ValueKind == JsonValueKind.Array
+                ? cites.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.String).Select(entry => entry.GetString()!)
+                : Enumerable.Empty<string>();
+
+            foreach (var cited in citedIds)
+            {
+                if (!ids.Contains(cited, StringComparer.Ordinal))
+                {
+                    ids.Add(cited);
+                }
+            }
+        }
+
+        return ids;
+    }
+
+    /// <summary>The object entries of an array field, such as a reaction's outcomes or an aggregate's transitions.</summary>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>Each object entry of the array, in order; empty when the field is not an array.</returns>
+    public IReadOnlyList<JsonElement> Objects(string name)
+    {
+        if (Raw.ValueKind != JsonValueKind.Object
+            || !Raw.TryGetProperty(name, out var value)
+            || value.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return value.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object).ToList();
+    }
+
+    /// <summary>Reads a boolean field, such as a setting's <c>dated</c> or a flag a use case states.</summary>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>True when the field is the boolean true; otherwise false.</returns>
+    public bool Flag(string name) =>
+        Raw.ValueKind == JsonValueKind.Object
+        && Raw.TryGetProperty(name, out var value)
+        && value.ValueKind == JsonValueKind.True;
+
+    /// <summary>
+    ///     The names a reaction or job declares as its outcomes: the <c>name</c> of each entry of its
+    ///     <c>outcomes</c>, in order. One of completed, skipped, suppressed, failed, retry-scheduled or nothing-selected.
+    /// </summary>
+    /// <returns>The outcome names, or an empty list when the record declares none.</returns>
+    public IReadOnlyList<string> OutcomeNames() =>
+        Objects(RecordFields.Outcomes)
+            .Select(entry => entry.TryGetProperty(RecordFields.Name, out var name) && name.ValueKind == JsonValueKind.String ? name.GetString() ?? "" : "")
+            .Where(name => name.Length > 0)
+            .ToList();
+
+    /// <summary>
+    ///     The transitions an aggregate declares, each with its source and target state, and the job that moves it
+    ///     (<c>movedBy</c>) and the duration after entering the source state (<c>after</c>) when it is timed.
+    /// </summary>
+    /// <returns>The transitions in declaration order; empty for any other record type or when none are declared.</returns>
+    public IReadOnlyList<TransitionFact> Transitions() =>
+        Objects(RecordFields.Transitions)
+            .Select(entry => new TransitionFact(
+                TextOf(entry, RecordFields.From),
+                TextOf(entry, RecordFields.To),
+                TextOf(entry, RecordFields.MovedBy),
+                TextOf(entry, RecordFields.After)))
+            .ToList();
+
+    /// <summary>
+    ///     The aggregate data classes an external system processes (<c>processes</c>): each aggregate with the
+    ///     data class of that aggregate the system holds.
+    /// </summary>
+    /// <returns>The processed aggregate and data class pairs, in declaration order.</returns>
+    public IReadOnlyList<ProcessFact> Processes() =>
+        Objects(RecordFields.Processes)
+            .Select(entry => new ProcessFact(
+                TextOf(entry, RecordFields.Aggregate),
+                TextOf(entry, RecordFields.DataClass)))
+            .ToList();
+
+    /// <summary>Reads one string member of a JSON object, or an empty string when it is missing or not a string.</summary>
+    /// <param name="entry">The object to read.</param>
+    /// <param name="name">The member name.</param>
+    /// <returns>The string value, or an empty string.</returns>
+    private static string TextOf(JsonElement entry, string name) =>
+        entry.ValueKind == JsonValueKind.Object
+        && entry.TryGetProperty(name, out var value)
+        && value.ValueKind == JsonValueKind.String
+            ? value.GetString() ?? ""
+            : "";
 
     /// <summary>Whether the record carries the field.</summary>
     /// <param name="name">The field name to test for.</param>

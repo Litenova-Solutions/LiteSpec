@@ -6,13 +6,13 @@ access:
   grant: permission/manage-copies
   tenant: own
 serves:
-- journey/borrow-and-return#s8
+- flow/borrow-and-return#s8
 fulfills:
 - requirement/borrowing.copy-shelf-home
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/copy.copy-retired
+- domain-event/copy.copy-retired
 idempotency:
   mode: none
   reason: Each call retires its own copy, and retiring a copy on loan is refused.

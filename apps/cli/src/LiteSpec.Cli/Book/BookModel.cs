@@ -5,9 +5,9 @@ using LiteSpec.Cli.Book.Output;
 namespace LiteSpec.Cli.Book;
 
 /// <summary>
-///     The book's model words and addresses: the navigation layers, the type and
-///     link labels, the precedence order, and the URL of every page, plus the
-///     entry points the index builder and the review queries keep under this name.
+///     The book's model words and addresses: the navigation layers, the type labels and the
+///     precedence order, plus the entry points the index builder and the review queries keep under
+///     this name. Connection labels come from the carried schema, never from this file.
 /// </summary>
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookModel
@@ -18,8 +18,8 @@ static class BookModel
         new("Why", ["product", "goal", "vision", "constraint", "research", "decision", "requirement"]),
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
-        new("Journeys", ["journey"]),
-        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "reaction", "job", "notification", "setting", "view"]),
+        new("Flows", ["flow"]),
+        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "integration-event", "reaction", "job", "notification", "setting", "read-model"]),
         new("Entry Points", ["entry-point", "external-system"]),
         new("Running It", ["runbook"]),
         new("How We Build", ["departure"]),
@@ -42,18 +42,18 @@ static class BookModel
             ["actor"] = ("Actor", "Actors"),
             ["role"] = ("Role", "Roles"),
             ["permission"] = ("Permission", "Permissions"),
-            ["journey"] = ("Journey", "Journeys"),
+            ["flow"] = ("Flow", "Flows"),
             ["module"] = ("Module", "Modules"),
             ["aggregate"] = ("Aggregate", "Aggregates"),
             ["rule"] = ("Rule", "Rules"),
             ["use-case"] = ("Use case", "Use cases"),
             ["result"] = ("Result", "Results"),
             ["scenario"] = ("Scenario", "Scenarios"),
-            ["event"] = ("Event", "Events"),
+            ["domain-event"] = ("Domain event", "Domain events"),
             ["integration-event"] = ("Integration event", "Integration events"),
             ["reaction"] = ("Reaction", "Reactions"),
             ["job"] = ("Job", "Jobs"),
-            ["view"] = ("View", "Views"),
+            ["read-model"] = ("Read model", "Read models"),
             ["notification"] = ("Notification", "Notifications"),
             ["setting"] = ("Setting", "Settings"),
             ["entry-point"] = ("Entry point", "Entry points"),
@@ -61,89 +61,6 @@ static class BookModel
             ["runbook"] = ("Runbook", "Runbooks"),
             ["departure"] = ("Departure", "Departures"),
             ["term"] = ("Term", "Terms"),
-        };
-
-    /// <summary>
-    ///     The outgoing link fields, in display order with their headings. Refusal
-    ///     renders as rule sentences instead, so it stays out of this list.
-    /// </summary>
-    public static readonly IReadOnlyList<(string Field, string Label)> LinkLabels =
-    [
-        ("decides", "Decides"),
-        ("basedOn", "Based On"),
-        ("affects", "Affects"),
-
-        ("serves", "Serves"),
-        ("cites", "Cites"),
-        ("fulfills", "Fulfills"),
-        ("governs", "Governs"),
-        ("computedBy", "Computed By"),
-        ("raises", "Raises"),
-        ("triggeredBy", "Triggered By"),
-        ("runs", "Runs"),
-        ("sends", "Sends"),
-        ("calls", "Calls"),
-        ("binds", "Binds"),
-        ("exercises", "Exercises"),
-        ("changes", "Changes"),
-        ("reads", "Reads"),
-        ("translates", "Translates"),
-        ("enforcedBy", "Enforced By"),
-        ("acceptedBy", "Accepted By"),
-        ("allows", "Allows"),
-        ("reachedThrough", "Reached Through"),
-        ("dependsOn", "Depends On"),
-        ("terms", "Terms"),
-        ("result", "Illustrates"),
-        ("actor", "Actor"),
-        ("runbook", "Runbook"),
-        ("subject", "About"),
-        ("replaces", "Replaces"),
-        ("covers", "Covers"),
-    ];
-
-    /// <summary>The incoming link headings by field.</summary>
-    public static readonly IReadOnlyDictionary<string, string> LinkInverseLabels =
-        new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["decides"] = "Decided By",
-            ["basedOn"] = "Basis For",
-            ["affects"] = "Problems Affecting This",
-
-            ["serves"] = "Served By",
-            ["cites"] = "Cited By",
-            ["fulfills"] = "Fulfilled By",
-            ["except"] = "Excepted By",
-            ["fallback"] = "Fallback For",
-            ["governs"] = "Governed By",
-            ["computedBy"] = "Computes",
-            ["raises"] = "Raised By",
-            ["triggeredBy"] = "Triggered By",
-            ["runs"] = "Run By",
-            ["sends"] = "Sent By",
-            ["calls"] = "Called By",
-            ["binds"] = "Bound By",
-            ["exercises"] = "Exercised By",
-            ["effects"] = "Effect For",
-            ["changes"] = "Changed By",
-            ["reads"] = "Read By",
-            ["translates"] = "Translated By",
-            ["releasedBy"] = "Releases",
-            ["enforcedBy"] = "Enforces",
-            ["acceptedBy"] = "Accepts",
-            ["dataClasses"] = "Data Class For",
-            ["access"] = "Access For",
-            ["allows"] = "Allowed By",
-            ["reachedThrough"] = "Entry For",
-            ["dependsOn"] = "Depended On By",
-            ["terms"] = "Used By",
-            ["result"] = "Illustrated By",
-            ["actor"] = "Systems For",
-            ["runbook"] = "Runbook For",
-            ["subject"] = "Departures",
-            ["replaces"] = "Replaced By",
-            ["refusal"] = "Refusal For",
-            ["covers"] = "Covered By",
         };
 
     /// <summary>The record types in precedence order.</summary>
@@ -191,5 +108,4 @@ static class BookModel
     /// <returns>The sort title.</returns>
     public static string SortTitle(JsonObject record) =>
         BookRender.IsTruthy(record["title"]) ? BookRender.Str(record["title"]) : BookRender.PropText(record, "id");
-
 }

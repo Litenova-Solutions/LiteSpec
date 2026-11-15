@@ -31,7 +31,7 @@
     <FactGrid>
       <FactCell k="mode">{capitalize(modeWord(o.mode))}</FactCell>
       {#if retry}<FactCell k="retry">{retry}</FactCell>{/if}
-      {#if o.then}<FactCell k="then">{modeWord(o.then)}</FactCell>{/if}
+      {#if o.ifExhausted}<FactCell k="if exhausted">{modeWord(o.ifExhausted)}</FactCell>{/if}
       {#if dead}
         <FactCell k="deadLetter" hint={dead.action ? String(dead.action) : ""}>After {duration(String(dead.after ?? ""))}</FactCell>
       {/if}

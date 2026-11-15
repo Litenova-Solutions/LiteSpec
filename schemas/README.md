@@ -42,7 +42,7 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Standards/Schemas/`: `Jso
 
 ### Record Schema
 
-`record.schema.yaml` owns the record file of every consumer record page: 38 page shapes from product brief through feature, requirement, aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference. A requirement is a page of its own in its feature's folder. The other entry records, for permissions, rules, results, scenarios, events, entry points, and settings, sit on the page that holds them. `litespec model check` validates each record file through it and then checks the sections the schema cannot see.
+`record.schema.yaml` owns the record file of every consumer record page: 39 page shapes from product brief through feature, requirement, aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference. A requirement is a page of its own in its feature's folder. The other entry records, for permissions, rules, results, scenarios, domain events, entry points, and settings, sit on the page that holds them. A refusal set page holds a module's refusal codes. `litespec model check` validates each record file through it and then checks the sections the schema cannot see.
 
 ### Language Schema
 
@@ -50,7 +50,7 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Standards/Schemas/`: `Jso
 
 ### Design Contract Schema
 
-`design-contract.schema.yaml` (`schemaVersion` 1, `kind` design-contract) owns the metadata block that opens the `DESIGN.md` a shared UI package ships: the package name, the density profile, the shell, and the floorplans it provides. `litespec model check` validates the block through it and then checks that the package implements what the block promises.
+`design-contract.schema.yaml` (`schemaVersion` 1, `kind` design-contract) owns the metadata block that opens the `DESIGN.md` a shared UI package ships: the package name, the density profile, the floorplans it provides, and the floorplan each screen composes. `litespec model check` validates the block through it and then checks that the package implements what the block promises.
 
 ### UI Pattern Catalog Schema
 

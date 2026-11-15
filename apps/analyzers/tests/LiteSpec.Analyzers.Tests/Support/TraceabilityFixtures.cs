@@ -30,7 +30,7 @@ internal static class TraceabilityFixtures
     /// <summary>A use-case page with its raises list.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
-    /// <param name="raises">The identifiers of the events the use case raises, or null for the default raised event.</param>
+    /// <param name="raises">The identifiers of the domain events the use case raises, or null for the default raised domain event.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) UseCase(
         string id = "use-case/spending.submit-expense",
@@ -41,20 +41,20 @@ internal static class TraceabilityFixtures
               "type": "use-case",
               "id": "{{id}}",
               "title": "{{title}}",
-              "raises": [{{string.Join(", ", (raises ?? ["event/expense.submitted"]).Select(Quote))}}]
+              "raises": [{{string.Join(", ", (raises ?? ["domain-event/expense.submitted"]).Select(Quote))}}]
             }
             """);
 
-    /// <summary>An event page.</summary>
+    /// <summary>A domain-event page.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
     /// <returns>The path and source text of the additional file.</returns>
-    public static (string Path, string Source) Event(
-        string id = "event/expense.submitted",
+    public static (string Path, string Source) DomainEvent(
+        string id = "domain-event/expense.submitted",
         string title = "Expense submitted") =>
         Page(FileOf(id), $$"""
             {
-              "type": "event",
+              "type": "domain-event",
               "id": "{{id}}",
               "title": "{{title}}"
             }
@@ -63,22 +63,25 @@ internal static class TraceabilityFixtures
     /// <summary>A rule page with its refusal.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
-    /// <param name="refusal">The identifier of the refusing result, or null when the rule names no refusal.</param>
+    /// <param name="refusal">The refusal code the rule names, or null when the rule names no refusal.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Rule(
         string id = "rule/spending.receipt-required",
         string title = "Receipt required",
-        string? refusal = "result/submit-expense.receipt-missing") =>
-        Page(FileOf(id), $$"""
+        string? refusal = "spending.receipt-missing")
+    {
+        var refusalLine = refusal is null ? "" : $",\n  \"refusal\": \"{refusal}\"";
+
+        return Page(FileOf(id), $$"""
             {
               "type": "rule",
               "id": "{{id}}",
               "title": "{{title}}",
               "kind": "precondition",
-              "statement": "An expense over twenty euros carries a receipt.",
-              "refusal": "{{refusal}}"
+              "statement": "An expense over twenty euros carries a receipt."{{refusalLine}}
             }
             """);
+    }
 
     /// <summary>A result page with its outcome and code.</summary>
     /// <param name="id">The record identifier of the page.</param>

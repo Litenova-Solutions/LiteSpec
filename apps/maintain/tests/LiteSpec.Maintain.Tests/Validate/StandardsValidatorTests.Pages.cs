@@ -96,6 +96,27 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Sample\n\nOne sample term. It has another definition sentence.\n"),
         [MaintainerDiagnostics.Codes.GlossaryDefinition]);
 
+    /// <summary>Glossary term with no Home line.</summary>
+    /// <proves>litespec/core/model#render-generated-regions-from-the-model</proves>
+    [Fact(DisplayName = "glossary term with no home")]
+    public void GlossaryHomeMissing() => Check(
+        root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Sample\n\n### Sample Term\n\nOne sample term.\n"),
+        [MaintainerDiagnostics.Codes.GlossaryHomeMissing]);
+
+    /// <summary>Glossary term whose Home names no page.</summary>
+    /// <proves>litespec/core/model#render-generated-regions-from-the-model</proves>
+    [Fact(DisplayName = "glossary term whose home names no page")]
+    public void GlossaryHomeUnknown() => Check(
+        root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Sample\n\n### Sample Term\n\nOne sample term.\n\nHome: docs/core/missing.md\n"),
+        [MaintainerDiagnostics.Codes.GlossaryHomeUnknown]);
+
+    /// <summary>A link property with no reads-as and read-back-as annotation.</summary>
+    /// <proves>litespec/core/model#render-generated-regions-from-the-model</proves>
+    [Fact(DisplayName = "link property with no annotations")]
+    public void LinkAnnotationMissing() => Check(
+        root => StandardsFixture.Write(root, "schemas/record.schema.yaml", "oneOf:\n- $ref: '#/$defs/flowPage'\n$defs:\n  flowPage:\n    type: object\n    properties:\n      type:\n        const: flow\n      serves:\n        $ref: '#/$defs/goalId'\n  goalId:\n    type: string\n"),
+        [MaintainerDiagnostics.Codes.LinkAnnotationMissing]);
+
     /// <summary>Glossary term order.</summary>
     /// <proves>litespec/core/authoring#order-glossary-groups-alphabetically</proves>
     [Fact(DisplayName = "glossary term order")]

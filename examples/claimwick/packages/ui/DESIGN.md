@@ -2,62 +2,42 @@
 schemaVersion: 2
 package: "@claimwick/ui"
 profile: application-balanced
-patterns:
-  - list-page
-  - entity-page
+tokens: tokens/claimwick.tokens.json
+pageFrames:
+  list-page: ListPage
+  record-page: EntityPage
+  form-page: FormPage
 ---
 
 # Claimwick shared UI package design contract
 
 Read this before composing anything. The list below is the whole of it. A screen that needs a pattern outside it needs a decision first.
 
-## Brand
+## Baseline
 
-State who the reader is and what they came to do. Name the one thing this surface is accountable for.
-
-Three words it is: clear, direct, dependable.
-
-Three words it is not: decorative, vague, hurried.
+shadcn-svelte 1.7.0, style nova on bits-ui, baseColor neutral, font geist. The manifest documents these values as defaults that pass every token limit.
 
 ## Tokens
 
-Values live in the global CSS entry. Change them there. A color written into a component is a color nobody can theme and nobody can find.
+Values live in tokens/claimwick.tokens.json, in the W3C Design Tokens format, version 2025.10. The file carries the light and dark schemes, and the component stylesheet is generated from it. Change a value there. A color written into a component is a color nobody can theme and nobody can find.
 
-| Token | Utility | What it is for |
+## Page Frames
+
+The page frames this package provides, each mapped to the floorplan that implements it. A route composes exactly one of them, or names the decision behind a freestyle layout.
+
+| Page frame | Component | Use it when the user |
 |:---|:---|:---|
-| Surface | `bg-background` | The page. |
-| Elevated | `bg-card` with `border` | A card, a panel, a popover. |
-| Quiet | `text-muted-foreground` | A label, a hint, a count. |
-| Primary | `bg-primary` | The one action that is the point of the screen. |
+| `list-page` | `ListPage` | Finds one record among many. The page shows the result count. |
+| `record-page` | `EntityPage` | Acts on one record: its facts, its state, and the actions that state permits. |
+| `form-page` | `FormPage` | Supplies the input of one command, with one primary action. |
 
 ## Vocabulary
 
-The composites applications compose from, listed by the entry point that exports each one. Name the ones a page reaches for, one sentence each.
+The composites applications compose from. Name the ones a page reaches for, one sentence each.
 
 - A `button` is the only clickable element. A `div` carrying an `onClick` is refused.
 - A `badge` is a state in one word, and its tone is one of five.
 - A `card` is a grouped fact set, never a screen.
-
-## Patterns
-
-The floorplans this package provides. A route composes exactly one of them, or names the decision behind a freestyle layout.
-
-| Floorplan | Component | Use it when the reader |
-|:---|:---|:---|
-| `list-page` | `ListPage` | Finds one record among many. The page shows the result count. |
-| `entity-page` | `EntityPage` | Acts on one record: its facts, its state, and the actions that state permits. |
-
-## Do
-
-- Lead with the action the reader can take now.
-- Put the deadline beside the work, never in a tooltip.
-- Say what a disabled control is waiting for.
-
-## Do Not
-
-- Do not decorate. A border earns its place, a color earns its place, and nothing else does.
-- Do not nest a card inside a card.
-- Do not ship a button whose success is a paragraph. Success is a `role=status` announcement, and failure is `role=alert`.
 
 ## Motion
 
@@ -74,11 +54,3 @@ A number is never animated. The number is the answer.
 ## Browser Support
 
 Baseline widely available. Every platform feature this package and its routes use has worked in every major browser for at least 30 months, or the file that uses it carries a fallback beside it.
-
-## Voice
-
-Name the reader and write to them. State the words this product uses and the words it refuses.
-
-| Say | Not |
-|:---|:---|
-| attach a receipt | attach a docket |

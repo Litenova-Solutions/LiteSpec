@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Builder;
 /// <summary>
 ///     Proves the proof shapes a shared harness writes confirm their claim: a probe table, a step that requests
 ///     a route itself, a then step that asserts inside its class, a use case observed after it runs in a given
-///     step, and a use case a reaction sets off from its producer's raised event.
+///     step, and a use case a reaction sets off from its producer's raised domain event.
 /// </summary>
 public sealed class ProofReaderTests
 {
@@ -99,10 +99,10 @@ public sealed class ProofReaderTests
         Assert.False(Confirmed(Extend, ObservedScenarios("new RegisterCopySteps().RegisterACopy(\"copy-1\")")));
     }
 
-    /// <summary>A when step driving the producer confirms when a reaction runs the claimed use case from the producer's raised event.</summary>
+    /// <summary>A when step driving the producer confirms when a reaction runs the claimed use case from the producer's raised domain event.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void ReactionRunningTheUseCaseFromTheProducersEventConfirms()
+    public void ReactionRunningTheUseCaseFromTheProducersDomainEventConfirms()
     {
         Assert.True(Confirmed(Extend, ProducerScenarios, effects: true));
     }
@@ -311,7 +311,7 @@ public sealed class ProofReaderTests
           "id": "reaction/lending.extend-loan-on-loan-borrowed",
           "title": "Extend loan on loan borrowed",
           "triggeredBy": [
-            "event/loan.loan-borrowed"
+            "domain-event/loan.loan-borrowed"
           ],
           "effects": [
             {

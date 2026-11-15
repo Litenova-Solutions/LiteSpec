@@ -11,17 +11,17 @@ public sealed class ClaimwickExampleTests
 {
     static readonly string Root = Path.Combine(TestCli.Repository, "examples", "claimwick");
 
-    /// <summary>The Claimwick example passes the model check with only covered findings.</summary>
+    /// <summary>The Claimwick example passes the model check with no blocking finding.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
-    [Fact(DisplayName = "the Claimwick example passes the model check with only covered findings")]
+    [Fact(DisplayName = "the Claimwick example passes the model check with no blocking finding")]
     public void PassesModelCheck()
     {
         var result = TestCli.Run("model", "check", "--root", Root);
         AssertPasses(result);
-        // 16 long-standing covered findings, the use-case-unverified findings the no-test-run
-        // departure holds for every use case, and the reporting query that no screen and no
-        // journey step reaches yet: the example ships code and proofs but no run.
-        Assert.Contains("0 findings, 0 blocking, 28 covered.", result.Output);
+        // The covered findings sit under their departures. Six use cases no screen calls yet are
+        // advisory. The six UI quality requirements are proved by token and route runs, so no
+        // Behavior record fulfills them and they report nothing.
+        Assert.Contains("6 findings, 0 blocking, 20 covered.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

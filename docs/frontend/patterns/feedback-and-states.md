@@ -143,7 +143,7 @@ page
       item: text "Add a policy" · text muted "A name, a code and its ceiling" · action primary "New policy"
 ```
 
-**Rationale:** The steps to a first expense live once, on Home, with progress. Each list page keeps a plain one-line empty state. Setup is a journey across pages, so it gets one place rather than seven.
+**Rationale:** The steps to a first expense live once, on Home, with progress. Each list page keeps a plain one-line empty state. Setup spans pages, so it gets one place rather than seven.
 
 **Cost:** The guide has to know what is done, which is a read across several modules. It also needs a way to be dismissed, or it stays on Home after the company has paid 10,000 expenses.
 

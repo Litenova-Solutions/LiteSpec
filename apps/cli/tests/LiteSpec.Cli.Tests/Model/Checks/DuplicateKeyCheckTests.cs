@@ -24,15 +24,15 @@ public sealed class DuplicateKeyCheckTests
         """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/a", "readOn": "2026-01-10"}, {"key": "ordinance", "url": "https://example.com/b", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
         "Record 'constraint/library-privacy-law' names source key 'ordinance' twice.")]
     [InlineData(
-        "journey",
-        "journey/loan-desk",
+        "flow",
+        "flow/loan-desk",
         """{"actor": "actor/librarian", "steps": [{"id": "scan-copy", "statement": "Scan the copy."}, {"id": "scan-copy", "statement": "Scan it again."}]}""",
-        "Record 'journey/loan-desk' names step id 'scan-copy' twice.")]
+        "Record 'flow/loan-desk' names step id 'scan-copy' twice.")]
     [InlineData(
-        "journey",
-        "journey/loan-desk",
+        "flow",
+        "flow/loan-desk",
         """{"actor": "actor/librarian", "steps": [{"id": "s1", "statement": "Scan the copy."}, {"id": "s2", "statement": "Shelve the copy."}], "branches": [{"step": "s1", "condition": "The copy is damaged.", "nextStep": "end"}, {"step": "s1", "condition": "The copy is damaged again.", "nextStep": "end"}]}""",
-        "Record 'journey/loan-desk' names the branch 's1 to end' twice.")]
+        "Record 'flow/loan-desk' names the branch 's1 to end' twice.")]
     [InlineData(
         "external-system",
         "external-system/card-gateway",
@@ -72,7 +72,7 @@ public sealed class DuplicateKeyCheckTests
     }
 
     /// <summary>Two branches that leave one step for different steps pass, since one step may hold several paths.</summary>
-    /// <proves>litespec/core/intent#branch-a-journey-only-between-its-steps</proves>
+    /// <proves>litespec/core/intent#branch-a-flow-only-between-its-steps</proves>
     [Fact]
     public void BranchesFromOneStepToDifferentStepsPass()
     {
@@ -80,8 +80,8 @@ public sealed class DuplicateKeyCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
-                "journey",
-                "journey/loan-desk",
+                "flow",
+                "flow/loan-desk",
                 Path.Combine(temp.Path, ".litespec", "record.yaml"),
                 """{"actor": "actor/librarian", "steps": [{"id": "s1", "statement": "Scan the copy."}, {"id": "s2", "statement": "Shelve the copy."}], "branches": [{"step": "s1", "condition": "The copy is damaged.", "nextStep": "end"}, {"step": "s1", "condition": "The copy is on hold.", "nextStep": "s2"}]}"""));
 

@@ -4,7 +4,7 @@ Every LiteSpec record has one parent. The parent is the record that the record s
 
 ## Context
 
-Above the requirements, the hierarchy is written as rationale prose, not as required links. No check reads a feature goal or a journey goal. The book teaches a second hierarchy beside the model's own, and that second hierarchy invents groupings where the model has no parent.
+Above the requirements, the hierarchy is written as rationale prose, not as required links. No check reads a feature goal or a flow goal. The book teaches a second hierarchy beside the model's own, and that second hierarchy invents groupings where the model has no parent.
 
 ## Options
 

@@ -29,7 +29,7 @@ The browser suite discovers its routes from the generated route tree rather than
 | Keyboard | Every interactive element is reachable, and the focused element's computed outline is not `none` and reaches 3:1 against the background next to it |
 | Target size | Every pointer target meets the minimum size or spacing |
 | Route change | After a client-side navigation through a link, `document.activeElement` is the route's `h1` |
-| Color scheme | The root's computed `color-scheme` names each scheme the design contract declares, and axe reports zero violations with each one emulated |
+| Color scheme | The root's computed `color-scheme` names each scheme the project declares, and axe reports zero violations with each one emulated |
 | Motion | With `prefers-reduced-motion: reduce` emulated, `document.getAnimations()` holds no running transform, scale, or infinitely repeating animation once the route settles |
 | Announcements | One `role="status"` region and one `role="alert"` region exist when the route loads, and asynchronous status changes announce through them |
 
@@ -58,7 +58,7 @@ A product records its UI pattern choices in one catalog, and each chosen pattern
 
 ### Rules Kept on the Base Page
 
-The UI rules for the baseline, floorplans, layout, page references, tones, tokens, the base color, styling, route checks, result proof, and change evidence live on [Controlled UI Governance](../ui.md). The web stacks add the registry, suite marks, CSS decisions, and source rules this page states.
+The UI rules for the baseline, floorplans, layout, page references, tones, tokens, token limits, screen navigation, styling, route checks, result proof, and change evidence live on [Controlled UI Governance](../ui.md). The web stacks add the registry, suite marks, CSS decisions, and source rules this page states.
 
 - Baseline pin: `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`
 - Floorplan composition: `litespec/frontend/ui#compose-each-route-from-one-floorplan`
@@ -66,10 +66,12 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 - Page reference: `litespec/frontend/ui#derive-each-page-type-from-a-named-reference`
 - State tones: `litespec/frontend/ui#select-a-tone-from-the-closed-set`
 - Token definition: `litespec/frontend/ui#keep-tokens-in-one-definition`
-- Base color: `litespec/frontend/ui#hold-the-declared-base-color`
+- Token limits: `litespec/frontend/ui#meet-the-limits-of-every-token-role`
+- Token file: `litespec/frontend/ui#keep-token-values-in-one-token-file`
+- Screen navigation: `litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next`
 - Styling gate: `litespec/frontend/ui#restrict-styling-to-semantic-tokens`
 - Route checks: `litespec/frontend/ui#check-every-route`
-- Result proof: `litespec/core/edges#show-every-refusal-a-screen-can-reach`
+- Result proof: `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`
 - Change evidence: `litespec/frontend/ui#prove-ui-behavior-and-appearance`
 
 ## Standards

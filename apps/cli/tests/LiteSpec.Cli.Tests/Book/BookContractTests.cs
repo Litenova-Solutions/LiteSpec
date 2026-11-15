@@ -184,9 +184,9 @@ public sealed class BookContractTests
     public void ComputedFieldsKeepTheirShapes()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
-        var journey = details["journey/borrowing"];
-        var servers = Assert.IsType<JsonObject>(journey["stepServers"]);
-        var screens = Assert.IsType<JsonObject>(journey["stepScreens"]);
+        var flow = details["flow/borrowing"];
+        var servers = Assert.IsType<JsonObject>(flow["stepServers"]);
+        var screens = Assert.IsType<JsonObject>(flow["stepScreens"]);
         foreach (var steps in new[] { servers, screens })
         {
             foreach (var pair in steps)
@@ -195,7 +195,7 @@ public sealed class BookContractTests
             }
         }
 
-        Assert.IsType<JsonArray>(journey["exercised"]);
+        Assert.IsType<JsonArray>(flow["exercised"]);
         Assert.IsType<JsonObject>(details["requirement/self-checkout.max-wait"]["keptBy"]);
         var seenScreen = false;
         var seenConstraint = false;
@@ -255,7 +255,7 @@ public sealed class BookContractTests
             list.Add(record.DeepClone());
         }
 
-        return new JsonObject
+        return BookStores.WithIntentCoverage(new JsonObject
         {
             ["records"] = list,
             ["code"] = new JsonObject
@@ -285,7 +285,7 @@ public sealed class BookContractTests
             ["findings"] = new JsonArray(),
             ["covered"] = new JsonArray(),
             ["testRun"] = null,
-        };
+        });
     }
 
     static JsonObject Record(string type, string id, string title, string status = "draft", string? effective = null, string fieldsJson = "{}", string? explanation = null)

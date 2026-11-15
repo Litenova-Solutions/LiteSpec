@@ -14,3 +14,6 @@ public sealed record ExpenseRefusedState(Guid RefusedBy, DateTimeOffset DecidedA
 
 /// <summary>The expense was reimbursed.</summary>
 public sealed record ExpenseReimbursedState(DateTimeOffset ReimbursedAt) : ExpenseState;
+
+/// <summary>The personal data of the expense was erased after its retention.</summary>
+public sealed record ExpenseErasedState : ExpenseState;

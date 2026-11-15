@@ -86,7 +86,7 @@ public sealed class ResultScenarioCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
-            TestModel.Record("reaction", "reaction/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/spending.expense-submitted"], "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
+            TestModel.Record("reaction", "reaction/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["domain-event/spending.expense-submitted"], "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
             Entry("scenario", "scenario/submit-expense.clerk-emailed-on-submission", Path.Combine(temp.Path, "notify.md"), """{"given": "An expense was submitted.", "when": "The clerk is emailed.", "then": "The clerk holds the submitted expense.", "result": "result/submit-expense.submitted"}""", "reaction/spending.email-clerk-on-expense-submitted"));
 
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));

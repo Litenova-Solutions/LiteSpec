@@ -46,7 +46,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Statement:** An audit adoption decision MUST record its audited categories, threshold, access model, integrity method, and records entry.
 
-**Rationale:** Which actions to audit, how long to keep them, and how to protect them are policy choices, so the project declares them once in the adoption decision. A reviewer reads the declared policy before reading the implementation instead of reconstructing it from the code, which would give two reviewers two different policies.
+**Rationale:** Which actions to audit, how long to keep them, and how to protect them are policy choices, so the project declares them once in the adoption decision. A reviewer reads the declared policy before reading the implementation instead of reconstructing it from the code, which would give two reviewers two different policies. The records entry declares where audit records live: the store that holds them and, where tenants exist, that authentication events live in the global trail apart from tenant activity.
 
 **Reviewed for:** Which adoption decisions lack categories, threshold, access model, integrity method, or records entry? Look at the adoption decision behind the audited Commands.
 
@@ -164,7 +164,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Statement:** An audit record MUST contain actor, action, target, outcome, business time, record time, and tenant, fixed where the tenancy extension is absent.
 
-**Rationale:** Actor, action, target, outcome, the two times, and the tenant together answer who attempted what, against whose data, with what result, and when. Business time states when the action happened and record time states when the evidence was written, so a delayed write stays visible as a delay. A record missing any of them leaves the accountability question half answered.
+**Rationale:** Actor, action, target, outcome, the two times, and the tenant together answer who attempted what, against whose data, with what result, and when. Business time states when the action happened and record time states when the evidence was written, so a delayed write stays visible as a delay. The actor carries its kind beside its identifier, and the target carries its own identity apart from the actor, keeping who acted and what was acted on in separate fields. A record missing any of them leaves the accountability question half answered.
 
 **Reviewed for:** Which records lack actor, action, target, outcome, business time, record time, or tenant? Look at the stored audit rows.
 
@@ -194,7 +194,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Statement:** An audit record with a `denied` or `failed` outcome MUST carry the refusal `code` that the attempt produced.
 
-**Rationale:** A refused permission and an exhausted precondition need different responses, but both look like failure without a code. The refusal `code` tells the reviewer which one the attempt produced. It also lets trend queries count one kind of refusal across the whole trail.
+**Rationale:** A refused permission and an exhausted precondition need different responses, but both look like failure without a code. The refusal `code` tells the reviewer which one the attempt produced. It also lets trend queries count one kind of refusal across the whole trail. The operation, the outcome, and the refusal code stay separate fields, so a reviewer reads a validation refusal as a failed attempt, not as a denied access.
 
 **Reviewed for:** Which denied or failed records lack the refusal code? Look at the unsuccessful audit rows.
 
@@ -252,9 +252,9 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Statement:** An audit record MUST carry an outcome of `succeeded`, `denied`, or `failed`.
 
-**Rationale:** A trail of successes is a change history, not evidence. The refused attempt carries the security signal, and the failed attempt carries the operating signal. Three outcomes keep both signals in the same trail as the successes they qualify.
+**Rationale:** A trail of successes is a change history, not evidence. The refused attempt carries the security signal, and the failed attempt carries the operating signal. Three outcomes keep both signals in the same trail as the successes they qualify. A validation refusal records `failed` with its refusal code; `denied` stays for a refused authorization, so recording a validation refusal as denied would accuse the actor of an access refusal they did not meet.
 
-**Example:** `succeeded` names a committed change, `denied` names a refused authorization, and `failed` names a permitted attempt that did not complete.
+**Example:** `succeeded` names a committed change, `denied` names a refused authorization, and `failed` names a permitted attempt that did not complete. An expense refused for a missing receipt records `failed` with the receipt refusal code, while an approval by an actor without the permission records `denied` with the forbidden code.
 
 **Reviewed for:** Which records lack a succeeded, denied, or failed outcome? Look at the outcome column.
 
@@ -424,11 +424,11 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **Applies to:** artifact: any
 
-**Statement:** An audit record describing an action inside tenant-owned data MUST carry the identity of that tenant.
+**Statement:** Every audit record MUST carry the scope it belongs to: an action inside tenant-owned data carries the identity of that tenant, and an authentication event that belongs to no tenant lives in the global trail apart from tenant activity.
 
-**Rationale:** The tenant is the filter for every read of the trail: each customer reads its own records and no one else's. A record without a tenant identity serves an internal reviewer and no customer. Scoping every record at write time keeps that filter exact.
+**Rationale:** The tenant is the filter for every read of the trail: each customer reads its own records and no one else's. A record without a tenant identity serves an internal reviewer and no customer. Scoping every record at write time keeps that filter exact. Authentication events belong to no tenant: a sign-in attempt names an account, not a tenant, so those events live in the global trail apart from tenant activity, where a reviewer reads sign-in evidence without opening any tenant's data.
 
-**Reviewed for:** Which records on tenant-owned data lack the tenant identity? Look at the tenant column.
+**Reviewed for:** Which records on tenant-owned data lack the tenant identity, and which authentication events sit inside a tenant's trail instead of the global trail? Look at the tenant column and the global trail.
 
 ### Enforce Append-Only Through Storage Privilege
 
@@ -474,7 +474,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An audit store SHOULD publish a periodic checkpoint of its chain head to a destination that the store's own operators cannot rewrite.
 
-**Deviation:** A store whose recorded threat model excludes its own operators publishes no checkpoint.
+**Departure:** A store whose recorded threat model excludes its own operators publishes no checkpoint.
 
 **Rationale:** A chain proves that records agree with each other, but anyone holding the store can recompute the whole chain and keep it agreeing. A checkpoint held somewhere the operators cannot rewrite fixes the chain as it stood at that moment. A later recomputation disagrees with the checkpoint, which exposes it.
 
@@ -492,7 +492,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An audit deployment MUST verify its integrity chain on a recurring schedule and raise an alert on a break.
 
-**Rationale:** Tamper evidence nobody checks proves nothing: a break sits in the store until someone looks. Scheduled verification turns the chain into a standing claim the deployment re-proves on each run. The alert carries the break to an operator instead of waiting for the next review.
+**Rationale:** Tamper evidence nobody checks proves nothing: a break sits in the store until someone looks. Scheduled verification turns the chain into a standing claim the deployment re-proves on each run. Verification recomputes the chain and checks its head against the external checkpoint, so it detects a changed or truncated tail since the last checkpoint. The alert carries the break to an operator instead of waiting for the next review.
 
 **Reviewed for:** Which deployments run no scheduled chain verification with an alert? Look at the integrity job and its alerts.
 

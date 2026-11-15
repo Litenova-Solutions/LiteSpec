@@ -28,12 +28,26 @@ public sealed class BookOutlineTests
     public void ParentRulesMatchTheModelPage()
     {
         var table = ReadPlacementTable();
-        Assert.Equal(BookParents.Rules.Count, table.Count);
         foreach (var pair in BookParents.Rules)
         {
             Assert.True(table.TryGetValue(pair.Key, out var row), $"The Placement Table names no '{pair.Key}'.");
             Assert.Equal(pair.Value.ParentTypes, row.Parents);
             Assert.Equal(pair.Value.FoundThrough, row.ParentCell);
+        }
+
+        // Every record type in the table has a rule; any other row names a container page style, never a placed record.
+        foreach (var row in table)
+        {
+            if (RecordTypes.All.Contains(row.Key))
+            {
+                Assert.True(BookParents.Rules.ContainsKey(row.Key), $"No parent rule for '{row.Key}'.");
+            }
+            else
+            {
+                Assert.True(
+                    RecordTypes.ContainerStyles.Contains(row.Key),
+                    $"The Placement Table names '{row.Key}', which is neither a record type nor a container page.");
+            }
         }
     }
 
@@ -86,10 +100,10 @@ public sealed class BookOutlineTests
             outline.Layers.Select(layer => layer.Id).ToArray());
     }
 
-    /// <summary>A feature parents the problem whose features folder holds it; its advances entries never move it, and a feature outside a problem folder stays unplaced.</summary>
-    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
+    /// <summary>A feature parents the product with or without its file; its advances entries never move it.</summary>
+    /// <proves>litespec/core/intent#solve-problems-with-standalone-features</proves>
     [Fact]
-    public void FeatureParentsItsProblemByFile()
+    public void FeatureParentsTheProduct()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -103,20 +117,20 @@ public sealed class BookOutlineTests
                 {
                     ["advances"] = Links("goal/faster-borrowing"),
                 },
-                file: ".litespec/intent/problems/slow-queues/features/self-checkout.yaml"));
+                file: ".litespec/intent/features/self-checkout.yaml"));
 
         var outline = BookOutline.Build(model);
 
-        Assert.Equal("problem/slow-queues", outline.ParentOf["feature/self-checkout"]);
+        Assert.Equal("product/library", outline.ParentOf["feature/self-checkout"]);
         var placed = RecordIds(outline.Layers);
         Assert.Equal(1, placed.Count(id => string.Equals(id, "feature/self-checkout", StringComparison.Ordinal)));
         Assert.DoesNotContain("feature/self-checkout", outline.Unplaced);
 
-        var problem = Find(outline.Layers, "problem/slow-queues");
-        Assert.NotNull(problem);
-        Assert.Contains(problem!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
+        var product = Find(outline.Layers, "product/library");
+        Assert.NotNull(product);
+        Assert.Contains(product!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
 
-        var homeless = Model(
+        var fileless = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
@@ -126,8 +140,8 @@ public sealed class BookOutlineTests
                 "approved",
                 new JsonObject { ["advances"] = Links("goal/faster-borrowing") }));
 
-        Assert.Null(BookParents.ParentOf(homeless, "feature/self-checkout"));
-        Assert.Contains("feature/self-checkout", BookOutline.Build(homeless).Unplaced);
+        Assert.Equal("product/library", BookParents.ParentOf(fileless, "feature/self-checkout"));
+        Assert.DoesNotContain("feature/self-checkout", BookOutline.Build(fileless).Unplaced);
     }
 
     /// <summary>Records with no parent land only in Unplaced, with no outline node and no invented group.</summary>
@@ -138,25 +152,25 @@ public sealed class BookOutlineTests
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
-            Record("feature", "feature/orphan", "Orphan", "draft"),
+            Record("permission", "permission/orphan", "Orphan", "draft"),
             Record("requirement", "requirement/nowhere.orphan-need", "Orphan Need", "draft"),
             Record("screen", "screen/kiosk.lone", "Lone", "draft"));
 
         var outline = BookOutline.Build(model);
 
-        Assert.Null(outline.ParentOf["feature/orphan"]);
+        Assert.Null(outline.ParentOf["permission/orphan"]);
         Assert.Null(outline.ParentOf["requirement/nowhere.orphan-need"]);
         Assert.Null(outline.ParentOf["screen/kiosk.lone"]);
-        Assert.Contains("feature/orphan", outline.Unplaced);
+        Assert.Contains("permission/orphan", outline.Unplaced);
         Assert.Contains("requirement/nowhere.orphan-need", outline.Unplaced);
         Assert.Contains("screen/kiosk.lone", outline.Unplaced);
         Assert.DoesNotContain("product/library", outline.Unplaced);
 
         var placed = RecordIds(outline.Layers);
-        Assert.DoesNotContain("feature/orphan", placed);
+        Assert.DoesNotContain("permission/orphan", placed);
         Assert.DoesNotContain("requirement/nowhere.orphan-need", placed);
         Assert.DoesNotContain("screen/kiosk.lone", placed);
-        Assert.Null(Find(outline.Layers, "feature/orphan"));
+        Assert.Null(Find(outline.Layers, "permission/orphan"));
         Assert.Null(Find(outline.Layers, "requirement/nowhere.orphan-need"));
         Assert.Null(Find(outline.Layers, "screen/kiosk.lone"));
 
@@ -184,7 +198,7 @@ public sealed class BookOutlineTests
         Assert.Null(Find(outline.Layers, "rule/loan.one-loan-per-copy"));
     }
 
-    /// <summary>A requirement parents its feature by identifier home; its cites never move it.</summary>
+    /// <summary>A feature requirement parents its feature by identifier home; a product-level requirement parents the product; cites never move either.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void RequirementParentsItsFeatureByIdentifierHome()
@@ -198,7 +212,7 @@ public sealed class BookOutlineTests
                 "feature/self-checkout",
                 "Self Checkout",
                 "approved",
-                file: ".litespec/intent/problems/slow-queues/features/self-checkout.yaml"),
+                file: ".litespec/intent/features/self-checkout.yaml"),
             Record(
                 "requirement",
                 "requirement/self-checkout.max-wait",
@@ -225,12 +239,25 @@ public sealed class BookOutlineTests
 
         Assert.Null(BookParents.ParentOf(missing, "requirement/self-checkout.max-wait"));
         Assert.Contains("requirement/self-checkout.max-wait", BookOutline.Build(missing).Unplaced);
+
+        // A product-level requirement carries no feature segment and parents the product.
+        var productLevel = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record(
+                "requirement",
+                "requirement/evening-access",
+                "Evening Access",
+                "approved",
+                new JsonObject { ["cites"] = Links("constraint/opening-hours") }));
+
+        Assert.Equal("product/library", BookParents.ParentOf(productLevel, "requirement/evening-access"));
+        Assert.DoesNotContain("requirement/evening-access", BookOutline.Build(productLevel).Unplaced);
     }
 
-    /// <summary>A scenario parents only under the result it shows; a missing one is reported, never defaulted to the use case.</summary>
+    /// <summary>A scenario parents the use case, reaction or job it exercises; a use-case scenario groups under the result it shows.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void ScenarioParentsOnlyUnderItsShownResult()
+    public void ScenarioParentsItsOwnerAndGroupsUnderItsResult()
     {
         var shown = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -244,17 +271,50 @@ public sealed class BookOutlineTests
                 "reviewed",
                 new JsonObject { ["result"] = Links("result/borrow-copy.borrowed") }));
 
-        Assert.Equal("result/borrow-copy.borrowed", BookParents.ParentOf(shown, "scenario/borrow-copy.borrowing-succeeds"));
+        Assert.Equal("use-case/lending.borrow-copy", BookParents.ParentOf(shown, "scenario/borrow-copy.borrowing-succeeds"));
         var placed = BookOutline.Build(shown);
         Assert.DoesNotContain("scenario/borrow-copy.borrowing-succeeds", placed.Unplaced);
         var result = Find(placed.Layers, "result/borrow-copy.borrowed");
         Assert.NotNull(result);
         Assert.Contains(result!.Children, child => string.Equals(child.Id, "scenario/borrow-copy.borrowing-succeeds", StringComparison.Ordinal));
 
-        var missing = Model(
+        // Without its result the scenario stays under its use case: the result groups it, never parents it.
+        var unshown = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed"),
+            Record(
+                "scenario",
+                "scenario/borrow-copy.borrowing-succeeds",
+                "Borrowing Succeeds",
+                "reviewed",
+                new JsonObject { ["result"] = Links("result/borrow-copy.borrowed") }));
+
+        Assert.Equal("use-case/lending.borrow-copy", BookParents.ParentOf(unshown, "scenario/borrow-copy.borrowing-succeeds"));
+        var grouped = BookOutline.Build(unshown);
+        Assert.DoesNotContain("scenario/borrow-copy.borrowing-succeeds", grouped.Unplaced);
+        var useCase = Find(grouped.Layers, "use-case/lending.borrow-copy");
+        Assert.NotNull(useCase);
+        Assert.Contains(useCase!.Children, child => string.Equals(child.Id, "scenario/borrow-copy.borrowing-succeeds", StringComparison.Ordinal));
+
+        // A reaction scenario parents its reaction by identifier home.
+        var reaction = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record("reaction", "reaction/lending.send-due-reminder", "Send Due Reminder", "reviewed"),
+            Record(
+                "scenario",
+                "scenario/send-due-reminder.reminder-sends",
+                "Reminder Sends",
+                "reviewed"));
+
+        Assert.Equal("reaction/lending.send-due-reminder", BookParents.ParentOf(reaction, "scenario/send-due-reminder.reminder-sends"));
+        Assert.DoesNotContain("scenario/send-due-reminder.reminder-sends", BookOutline.Build(reaction).Unplaced);
+
+        // A scenario whose use case, reaction or job is missing stays unplaced.
+        var missing = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
             Record(
                 "scenario",
                 "scenario/borrow-copy.borrowing-succeeds",
@@ -488,25 +548,25 @@ public sealed class BookOutlineTests
                 .ToList());
     }
 
-    /// <summary>A view parents its module by its folder and sorts after the reactions of that module.</summary>
+    /// <summary>A read model parents its module by its folder and sorts after the reactions of that module.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void ViewParentsItsModuleByFolderAndSortsAfterReactions()
+    public void ReadModelParentsItsModuleByFolderAndSortsAfterReactions()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("module", "module/reporting", "Reporting", "reviewed", file: ".litespec/behavior/modules/reporting/module.yaml"),
             Record("reaction", "reaction/reporting.refresh-loan-totals", "Refresh Loan Totals", "reviewed", file: ".litespec/behavior/modules/reporting/reactions/refresh-loan-totals/refresh-loan-totals.yaml"),
-            Record("view", "view/reporting.loan-borrowing", "Loan Borrowing", "reviewed", file: ".litespec/behavior/modules/reporting/views/loan-borrowing/loan-borrowing.yaml"));
+            Record("read-model", "read-model/reporting.loan-borrowing", "Loan Borrowing", "reviewed", file: ".litespec/behavior/modules/reporting/read-models/loan-borrowing/loan-borrowing.yaml"));
 
-        Assert.Equal("module/reporting", BookParents.ParentOf(model, "view/reporting.loan-borrowing"));
+        Assert.Equal("module/reporting", BookParents.ParentOf(model, "read-model/reporting.loan-borrowing"));
 
         var outline = BookOutline.Build(model);
-        Assert.DoesNotContain("view/reporting.loan-borrowing", outline.Unplaced);
+        Assert.DoesNotContain("read-model/reporting.loan-borrowing", outline.Unplaced);
         var module = Find(outline.Layers, "module/reporting");
         Assert.NotNull(module);
         Assert.Equal(
-            new[] { "reaction", "view" },
+            new[] { "reaction", "read-model" },
             module!.Children
                 .Where(child => string.Equals(child.Kind, "record", StringComparison.Ordinal))
                 .Select(child => child.Type)
@@ -547,14 +607,14 @@ public sealed class BookOutlineTests
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("goal", "goal/faster-borrowing", "Faster Borrowing", "approved"),
-            Record("journey", "journey/borrowing", "Borrowing", "approved"),
+            Record("flow", "flow/borrowing", "Borrowing", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record("term", "term/loan", "Loan", "approved"),
             Record("departure", "departure/kiosk-cache", "Kiosk Cache", "approved"));
 
         Assert.Null(BookParents.ParentOf(model, "product/library"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "goal/faster-borrowing"));
-        Assert.Equal("product/library", BookParents.ParentOf(model, "journey/borrowing"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "flow/borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "module/lending"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "term/loan"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "departure/kiosk-cache"));
@@ -813,7 +873,7 @@ public sealed class BookOutlineTests
         Assert.DoesNotContain("reaction/copies.send-due-reminder", outline.Unplaced);
     }
 
-    /// <summary>An event parents the aggregate whose folder holds its file, even when its home names no aggregate.</summary>
+    /// <summary>A domain event parents the aggregate whose folder holds its file, even when its home names no aggregate.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void EventParentsItsAggregateFolder()
@@ -828,19 +888,19 @@ public sealed class BookOutlineTests
                 "reviewed",
                 file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
-                "event",
-                "event/other.loan-borrowed",
+                "domain-event",
+                "domain-event/other.loan-borrowed",
                 "Loan Borrowed",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/aggregates/loans/events/loan-borrowed.yaml"));
+                file: ".litespec/behavior/modules/lending/aggregates/loans/domain-events/loan-borrowed.yaml"));
 
-        Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "event/other.loan-borrowed"));
+        Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "domain-event/other.loan-borrowed"));
 
         var outline = BookOutline.Build(model);
-        Assert.DoesNotContain("event/other.loan-borrowed", outline.Unplaced);
+        Assert.DoesNotContain("domain-event/other.loan-borrowed", outline.Unplaced);
         var loan = Find(outline.Layers, "aggregate/lending.loan");
         Assert.NotNull(loan);
-        Assert.Contains(loan!.Children, child => string.Equals(child.Id, "event/other.loan-borrowed", StringComparison.Ordinal));
+        Assert.Contains(loan!.Children, child => string.Equals(child.Id, "domain-event/other.loan-borrowed", StringComparison.Ordinal));
     }
 
     static JsonObject Record(
@@ -888,7 +948,7 @@ public sealed class BookOutlineTests
             array.Add(record);
         }
 
-        return new JsonObject { ["records"] = array };
+        return BookStores.WithIntentCoverage(new JsonObject { ["records"] = array });
     }
 
     static JsonObject FullModel(
@@ -906,7 +966,7 @@ public sealed class BookOutlineTests
             array.Add(record);
         }
 
-        return new JsonObject
+        return BookStores.WithIntentCoverage(new JsonObject
         {
             ["records"] = array,
             ["code"] = code ?? new JsonObject(),
@@ -915,7 +975,7 @@ public sealed class BookOutlineTests
             ["browserTests"] = browserTests ?? new JsonArray(),
             ["findings"] = findings ?? new JsonArray(),
             ["covered"] = known ?? new JsonArray(),
-        };
+        });
     }
 
     static JsonArray Links(params string[] ids)
@@ -1003,8 +1063,7 @@ public sealed class BookOutlineTests
         for (var index = start; index < lines.Length; index++)
         {
             if (lines[index].Contains("| Type |", StringComparison.Ordinal)
-                && lines[index].Contains("| Parent |", StringComparison.Ordinal)
-                && lines[index].Contains("| Folder |", StringComparison.Ordinal))
+                && lines[index].Contains("| Containment |", StringComparison.Ordinal))
             {
                 header = index;
                 break;
@@ -1015,8 +1074,8 @@ public sealed class BookOutlineTests
 
         var heads = lines[header].Split('|').Select(cell => cell.Trim()).ToList();
         var typeAt = heads.IndexOf("Type");
-        var parentAt = heads.IndexOf("Parent");
-        Assert.True(typeAt >= 0 && parentAt >= 0, "The placement table names no Type or Parent column.");
+        var parentAt = heads.IndexOf("Containment");
+        Assert.True(typeAt >= 0 && parentAt >= 0, "The placement table names no Type or Containment column.");
 
         var table = new Dictionary<string, (List<string> Parents, string ParentCell)>(StringComparer.Ordinal);
         for (var index = header + 2; index < lines.Length; index++)
@@ -1042,13 +1101,18 @@ public sealed class BookOutlineTests
 
     static List<string> ParentsFor(string type, string parentCell, int index)
     {
-        // The folder node depends on the type: a rule sits under an aggregate, a
-        // module or the product, and an external system under a module or the product.
-        if (string.Equals(parentCell, "its folder node", StringComparison.Ordinal))
+        // The scope node of a rule is an aggregate, a module or the product.
+        if (string.Equals(parentCell, "its scope node", StringComparison.Ordinal))
         {
-            return string.Equals(type, "rule", StringComparison.Ordinal)
-                ? ["aggregate", "module", "product"]
-                : ["product", "module"];
+            Assert.True(string.Equals(type, "rule", StringComparison.Ordinal), $"Placement table row {index + 1} gives '{type}' the rule scope node.");
+            return ["aggregate", "module", "product"];
+        }
+
+        // That record of a scenario is the use case, reaction or job whose file holds it.
+        if (string.Equals(parentCell, "that record", StringComparison.Ordinal))
+        {
+            Assert.True(string.Equals(type, "scenario", StringComparison.Ordinal), $"Placement table row {index + 1} gives '{type}' the scenario parent.");
+            return ["use-case", "reaction", "job"];
         }
 
         var parents = new List<string>();

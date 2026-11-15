@@ -61,7 +61,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Statement:** An aggregate root MUST be the only public mutation entry point for every invariant its transaction protects.
 
-**Rationale:** If outside code could set properties or call child mutations, it could change data without passing the root's checks. The root stands as the only public mutation entry point, so every change passes the invariant the transaction protects. A command with `consistency: atomic` changes every aggregate its `changes` names in one transaction, citing the rule in `cites` when it changes more than one.
+**Rationale:** If outside code could set properties or call child mutations, it could change data without passing the root's checks. The root stands as the only public mutation entry point, so every change passes the invariant the transaction protects. A command with `consistency: atomic` changes every aggregate its `writes` names in one transaction, citing the rule in `boundBy` when it changes more than one.
 
 **Reviewed for:** Which invariants admit a public mutation outside their aggregate root? Look at the public mutation entry points of each aggregate.
 
@@ -149,7 +149,7 @@ A root created with its children composes them inside the same factory call. The
 
 Checks run before replacement, and replacement runs before recording. A method that replaces state before checking an invariant leaves a rejected aggregate holding the new state.
 
-**Example:** In the Claimwick product, `use-case/spending.reimburse-expense` ends with `result/reimburse-expense.reimbursed` when the expense is approved, and with `result/reimburse-expense.not-approved` when it is not. The handler calls one business method, and the method checks the state, replaces it, and records `event/expense.reimbursed`.
+**Example:** In the Claimwick product, `use-case/spending.reimburse-expense` ends with `result/reimburse-expense.reimbursed` when the expense is approved, and with `result/reimburse-expense.not-approved` when it is not. The handler calls one business method, and the method checks the state, replaces it, and records `domain-event/expense.reimbursed`.
 
 An unapproved expense keeps its state, and the refusal carries the stable code `spending.not-approved`.
 
@@ -165,7 +165,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Statement:** A command handler changing an entity aggregate MUST change it by calling a root method marked with the handler's use case.
 
-**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only runs other commands and lists nothing in `changes`, performs no act on a root, so it needs no marked call.
+**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only runs other commands and lists nothing in `writes`, performs no act on a root, so it needs no marked call.
 
 **Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
@@ -199,7 +199,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Rationale:** The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep. The raised event carries every field its integration events publish, because each integration event is built from its domain event alone under `litespec/backend/application#emit-declared-integration-events-after-commit`.
 
-**Example:** `use-case/spending.submit-expense` raises `event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
+**Example:** `use-case/spending.submit-expense` raises `domain-event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
 
 **Checked by:** `litespec model check` reports `act-event-undeclared` (level S) for a marked method raising an event its use case does not list, and `act-event-unimplemented` (level S) for a listed event no marked method raises.
 
@@ -211,11 +211,11 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Applies to:** artifact: aggregate
 
-**Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
+**Statement:** Each aggregate method that changes state MUST raise a domain event named for the past tense of its verb.
 
 **Rationale:** The command raises nothing; the aggregate root raises its domain event inside its own method. An event named for another verb tells the reader the act finished under a name the code never spoke, and reactions subscribe to a vocabulary the aggregate does not own. The event name takes the past tense of the act's verb, as `litespec/core/domain-model#name-every-event-in-the-past-tense` requires for every event. An event name may place the past tense as a whole word followed by a complement that opens with a preposition or particle. A method that sets a state names that state in its event, and a method may raise further events for the consequences of its act, as long as one of its events names the act itself.
 
-**Example:** In the Claimwick product, `Approve` on an expense raises `event/expense.approved` and passes. `Approve` raising `event/expense.signed-off` is reported, because that name belongs to another act.
+**Example:** In the Claimwick product, `Approve` on an expense raises `domain-event/expense.approved` and passes. `Approve` raising `domain-event/expense.signed-off` is reported, because that name belongs to another act.
 
 **Reviewed for:** Which state-changing aggregate methods raise an event named for another verb? Look at the events each changed aggregate method raises.
 
@@ -359,21 +359,21 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Reviewed for:** Which domain repositories serve more than one aggregate, expose non-Domain types, or offer a composable query, session, or generic CRUD surface? Look at each repository interface.
 
-### Place Every Constituent Type in Its Aggregate's Folder
+### Place Every Part Type in Its Aggregate's Folder
 
-**ID:** `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
+**ID:** `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`
 
 **Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** A Domain constituent type, meaning an identifier, a state type, a closed set, a child entity, a value object, or a repository interface, MUST sit in the `Domain/` folder of the aggregate it belongs to, or in the product `Domain/` folder, and a row or projection a port returns is no constituent.
+**Statement:** A Domain part type, meaning an identifier, a state type, a closed set, a child entity, a value object, or a repository interface, MUST sit in the `Domain/` folder of the aggregate it belongs to, or in the product `Domain/` folder, and a row or projection a port returns is no part.
 
-**Rationale:** A constituent serves no record of its own: it is part of its aggregate, whose record already states the states, transitions, and data the constituent holds. A mark on each would write that fact a second time, and the two copies would drift. The folder already says which aggregate a constituent belongs to, so the builder derives the link from it, and a type in a folder that holds no aggregate root and is not the product `Domain/` folder is the one place the derivation fails. A domain service that holds one rule calculation is not a constituent: it carries its `rule/` mark. A row or projection a read port returns is not a constituent either: it is the port's answer, shaped for a reader, and it sits with its port in Application.
+**Rationale:** A part serves no record of its own: it is part of its aggregate, whose record already states the states, transitions, and data the part holds. A mark on each would write that fact a second time, and the two copies would drift. The folder already says which aggregate a part belongs to, so the builder derives the link from it, and a type in a folder that holds no aggregate root and is not the product `Domain/` folder is the one place the derivation fails. A domain service that holds one rule calculation is not a part: it carries its `rule/` mark. A row or projection a read port returns is not a part either: it is the port's answer, shaped for a reader, and it sits with its port in Application.
 
-**Example:** Claimwick's `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Expenses/Domain/` and carry no mark; the builder lists them as constituents of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
+**Example:** Claimwick's `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Expenses/Domain/` and carry no mark; the builder lists them as parts of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
 
-**Checked by:** `litespec model check` reports `constituent-parent-missing` (level A) for an unmarked Domain type whose folder holds no aggregate root and is not the product `Domain/` folder, and the model output lists each constituent under its aggregate.
+**Checked by:** `litespec model check` reports `part-parent-missing` (level A) for an unmarked Domain type whose folder holds no aggregate root and is not the product `Domain/` folder, and the model output lists each part under its aggregate.
 
 ### Declare Cross-Record Keys on the Aggregate
 
@@ -435,7 +435,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **Statement:** An aggregate MUST store another aggregate's typed identifier rather than an object reference.
 
-**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A typed identifier keeps each aggregate loadable on its own: Application loads each aggregate through its domain repository when a command coordinates several, with `consistency: atomic` citing the rule in `cites`.
+**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A typed identifier keeps each aggregate loadable on its own: Application loads each aggregate through its domain repository when a command coordinates several, with `consistency: atomic` citing the rule in `boundBy`.
 
 **Reviewed for:** Which aggregates store another aggregate as an object reference instead of a typed identifier? Look at the fields of each aggregate.
 

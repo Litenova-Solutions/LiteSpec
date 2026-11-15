@@ -1,0 +1,4 @@
+type: external-system
+id: external-system/mail-relay
+title: Mail Relay
+summary: The mail relay delivers the spending module's emails to managers.

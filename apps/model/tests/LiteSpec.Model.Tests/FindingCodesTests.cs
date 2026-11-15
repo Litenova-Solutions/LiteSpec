@@ -99,13 +99,12 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("job-name-invalid", "G")]
+    [InlineData("job-name-invalid", "A")]
     [InlineData("reaction-trigger-unknown", "G")]
-    [InlineData("job-guard-missing", "G")]
     [InlineData("reaction-unimplemented", "S")]
     [InlineData("job-unimplemented", "S")]
-    [InlineData("atomic-group-drift", "G")]
-    [InlineData("atomic-group-invalid", "A")]
+    [InlineData("atomicity-drift", "G")]
+    [InlineData("atomicity-invalid", "A")]
     public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -207,9 +206,7 @@ public sealed class FindingCodesTests
     /// <returns>True when the code follows the subject-problem grammar; otherwise false.</returns>
     static bool FollowsGrammar(string code)
     {
-        var dash = code.LastIndexOf('-');
-
-        return dash > 0 && dash < code.Length - 1 && ProblemWords.Contains(code[(dash + 1)..]);
+        return ProblemWords.Any(word => code.Length > word.Length + 1 && code.EndsWith("-" + word, StringComparison.Ordinal));
     }
 
     /// <summary>Gets the problem words of the finding-code grammar, as the problem-word table on the record language page lists them.</summary>
@@ -218,6 +215,8 @@ public sealed class FindingCodesTests
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
         "drift", "invalid", "duplicate", "expired", "unverified", "break",
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
+        "foreign", "uncarried", "unexercised", "vague", "wide", "written",
+        "unreachable", "alias", "failed", "dead-end",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

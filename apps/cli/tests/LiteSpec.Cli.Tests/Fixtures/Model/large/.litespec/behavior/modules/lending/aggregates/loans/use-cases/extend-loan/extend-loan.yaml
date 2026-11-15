@@ -6,13 +6,13 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-- journey/borrow-and-return#s3
+- flow/borrow-and-return#s3
 fulfills:
 - requirement/borrowing.loan-period-days
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/loan.loan-extended
+- domain-event/loan.loan-extended
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.

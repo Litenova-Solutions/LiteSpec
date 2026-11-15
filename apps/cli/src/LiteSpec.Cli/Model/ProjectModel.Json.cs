@@ -398,7 +398,7 @@ sealed partial class ProjectModel
                 }
 
                 writer.WriteEndArray();
-                WriteNullable(writer, "journey", test.Journey);
+                WriteNullable(writer, "flow", test.Flow);
                 writer.WriteStartArray("gotos");
 
                 foreach (var target in test.Gotos)
@@ -586,15 +586,15 @@ sealed partial class ProjectModel
 
             writer.WriteEndObject();
 
-            writer.WriteStartObject("constituents");
+            writer.WriteStartObject("parts");
 
-            foreach (var entry in Constituents.OrderBy(left => left.Key, StringComparer.Ordinal))
+            foreach (var entry in Parts.OrderBy(left => left.Key, StringComparer.Ordinal))
             {
                 writer.WriteStartArray(entry.Key);
 
-                foreach (var constituent in entry.Value.OrderBy(left => left, StringComparer.Ordinal))
+                foreach (var part in entry.Value.OrderBy(left => left, StringComparer.Ordinal))
                 {
-                    writer.WriteStringValue(constituent);
+                    writer.WriteStringValue(part);
                 }
 
                 writer.WriteEndArray();

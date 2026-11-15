@@ -65,7 +65,7 @@ properties:
         type: string
         minLength: 1
   size:
-    description: The size of this project. Small requires the core record types with Architecture and Integration test projects; large adds problems, features, journeys and scenarios with the Acceptance project.
+    description: The size of this project. Small requires the core record types with Architecture and Integration test projects; large adds problems, features, flows and scenarios with the Acceptance project.
     type: string
     enum:
     - small
@@ -203,9 +203,6 @@ properties:
           description: The browser or device entry point this frontend serves. Screens it drafts and use cases it reaches are read through this entry point.
           type: string
           pattern: '^entry-point/[a-z0-9][a-z0-9-]*$'
-        refusalDictionary:
-          description: 'The refusal dictionary for this frontend: the file or folder holding one sentence per refusal code, which refusal-sentence-missing reads.'
-          $ref: '#/$defs/projectPath'
         routeSuite:
           description: 'The route suite for this frontend: the file or folder the route-suite check reads.'
           $ref: '#/$defs/projectPath'

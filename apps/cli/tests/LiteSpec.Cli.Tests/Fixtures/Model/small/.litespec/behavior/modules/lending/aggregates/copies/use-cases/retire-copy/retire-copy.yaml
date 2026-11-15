@@ -10,7 +10,7 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/copy.copy-retired
+- domain-event/copy.copy-retired
 idempotency:
   mode: none
   reason: Each call retires its own copy, and retiring a copy on loan is refused.

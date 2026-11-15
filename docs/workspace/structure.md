@@ -40,7 +40,7 @@ The model builder writes generated working files under `.litespec/model/` while 
     glossary.yaml
     intent/
       product.yaml
-      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ journeys/
+      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/
       modules/
         {module}/
           module.yaml
@@ -60,11 +60,11 @@ The model builder writes generated working files under `.litespec/model/` while 
       modules/
         {module}/
           permissions.yaml
-          use-cases/ rules/ reactions/ jobs/ views/ notifications/ settings/ integration-events/ external-systems/
+          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/
           {aggregate}/
             aggregate.yaml
             {use-case}/{use-case}.yaml  results and scenarios as entries
-            events/ rules/
+            domain-events/ rules/
     implementation/
       decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/
       operations/
@@ -104,7 +104,7 @@ The example places neither the backend application nor a frontend application at
 
 A named record lives in its own folder, `<name>/<name>.yaml`, with its explanation `<name>.md` beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature's folder.
 
-An entry lives in its home file: permissions in their module's permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
+An entry lives in its home file: permissions in their module's permissions file, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
 
 **Reviewed for:** The workspace tree matches the canonical tree in this section, with each record at its type's home under `.litespec/`.
 

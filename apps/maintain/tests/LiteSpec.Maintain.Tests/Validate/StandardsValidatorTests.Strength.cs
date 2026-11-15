@@ -51,7 +51,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "required statement holding only SHOULD")]
     public void RequiredStatementHoldingOnlyShould() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Consumers MUST keep", "Consumers SHOULD keep")),
-        [MaintainerDiagnostics.Codes.StandardStrengthModal, MaintainerDiagnostics.Codes.StandardMissingDeviation]);
+        [MaintainerDiagnostics.Codes.StandardStrengthModal, MaintainerDiagnostics.Codes.StandardMissingDeparture]);
 
     /// <summary>Advisory statement holding MUST.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -75,7 +75,7 @@ public sealed partial class StandardsValidatorTests
         {
             var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required", "**Strength:** advisory");
             page = StandardsFixture.ReplaceFirst(page, "Consumers MUST keep", "Consumers SHOULD keep");
-            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Deviation:** A draft topic keeps its boundary by review.\n\n**Rationale:** The boundary gives reviewers one testable result.");
+            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Departure:** A draft topic keeps its boundary by review.\n\n**Rationale:** The boundary gives reviewers one testable result.");
             StandardsFixture.Write(root, "docs/core/topic.md", page);
             StandardsFixture.RebuildIndex(root);
         },
@@ -107,7 +107,7 @@ public sealed partial class StandardsValidatorTests
         {
             var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required", "**Strength:** advisory");
             page = StandardsFixture.ReplaceFirst(page, "Consumers MUST keep the topic inside its declared boundary.", "Consumers SHOULD keep the topic inside its declared boundary, and MAY rely on neighboring pages otherwise.");
-            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Deviation:** A draft topic keeps its boundary by review.\n\n**Rationale:** The boundary gives reviewers one testable result.");
+            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Departure:** A draft topic keeps its boundary by review.\n\n**Rationale:** The boundary gives reviewers one testable result.");
             StandardsFixture.Write(root, "docs/core/topic.md", page);
         },
         [MaintainerDiagnostics.Codes.StandardModalCount]);

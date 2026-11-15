@@ -7,15 +7,16 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Book.Details;
 
 /// <summary>
-///     The lookups the record details read: outline layers, fulfilling counts, journey
+///     The lookups the record details read: outline layers, fulfilling counts, flow
 ///     servers, tests, findings, screen routes and calls, and code entries, each
 ///     grouped once from the model and the outline.
 /// </summary>
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
-static class BookDetailSources
+static partial class BookDetailSources
 {
     /// <summary>A record or provision identifier a finding message quotes, such as 'goal/approve-claims', shown as code.</summary>
-    static readonly Regex QuotedIds = new("'([a-z-]+/[^']+)'", RegexOptions.Compiled);
+    [GeneratedRegex("'([a-z-]+/[^']+)'")]
+    private static partial Regex QuotedIds();
 
     /// <summary>Gets the layer keys the outline roots may name.</summary>
     static HashSet<string> KnownLayers { get; } = new(StringComparer.Ordinal)
@@ -23,7 +24,7 @@ static class BookDetailSources
         "intent", "behavior", "implementation", "proof", "governance", "glossary",
     };
 
-    /// <summary>Gets the record types that may serve a journey step.</summary>
+    /// <summary>Gets the record types that may serve a flow step.</summary>
     static HashSet<string> StepServerTypes { get; } = new(StringComparer.Ordinal)
     {
         "use-case", "reaction", "job", "notification", "screen",
@@ -120,7 +121,7 @@ static class BookDetailSources
         return kept;
     }
 
-    /// <summary>The records serving each journey step id, such as journey/name#s1.</summary>
+    /// <summary>The records serving each flow step id, such as flow/name#s1.</summary>
     /// <param name="index">The model index.</param>
     /// <returns>The serving record ids per step id.</returns>
     public static Dictionary<string, List<string>> ServedBy(BookIndex index)
@@ -282,7 +283,7 @@ static class BookDetailSources
                 ["tier"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level")),
                 ["level"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier")),
                 ["message"] = message,
-                ["messageHtml"] = BookMarkdown.Inline(QuotedIds.Replace(message, "`$1`"), LinkRecord, null),
+                ["messageHtml"] = BookMarkdown.Inline(QuotedIds().Replace(message, "`$1`"), LinkRecord, null),
                 ["covered"] = covered,
                 ["outcome"] = finding["outcome"]?.DeepClone(),
                 ["reason"] = finding["reason"]?.DeepClone(),

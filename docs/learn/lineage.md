@@ -8,7 +8,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Takes:** the aggregate as the unit of consistency, the module inside one bounded context, the ubiquitous language shared by people and code, and the domain event as the record of something completed.
 
-**Words:** aggregate, module, glossary, event.
+**Words:** aggregate, module, glossary, domain event.
 
 **Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, which the builder checks. State no invariant guards is a store.
 
@@ -18,7 +18,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** reaction, with `triggeredBy`, `runs`, `sends` or `calls` in `effects`, and `onFailure`; job, with `kind`, `schedule`, and `runs`, `sends` or `calls` in `effects`.
 
-**Differs:** A reaction is its own record, not a use case kind: it names the events it answers in `triggeredBy`, runs at most one use case through `effects`, and never writes an aggregate directly. A job carries scheduled and manual work the same way, with its `kind` and `schedule`. Each is proven by scenarios like any other record, and each names its trigger in words the builder reads.
+**Differs:** A reaction is its own record, not a use case kind: it names the domain events it answers in `triggeredBy`, runs at most one use case through `effects`, and never writes an aggregate directly. A job carries scheduled work the same way, with its `kind` and `schedule`. Each is proven by scenarios like any other record, and each names its trigger in words the builder reads.
 
 ## CQRS
 
@@ -34,7 +34,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** scenario, with given, when, then and an optional `examples` field; example, the narrative section in the explanation file.
 
-**Differs:** Scenarios are grouped under their result: each one names exactly one result, and each is proven by a passing test through the public boundary. A test's expected values come only from the scenario's then, never from running the code. The book shows Then clauses as context in journey detail, so product readers see the promised endings without opening Behavior.
+**Differs:** Scenarios are grouped under their result: each one names exactly one result, and each is proven by a passing test through the public boundary. A test's expected values come only from the scenario's then, never from running the code. The book shows Then clauses as context in flow detail, so product readers see the promised endings without opening Behavior.
 
 ## Requirements Engineering
 
@@ -48,9 +48,9 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Takes:** the goal at the center, with actors, impacts, and deliverables reasoned outward from it; and the job as progress in a situation, stable while solutions churn.
 
-**Words:** goal, problem, feature, journey.
+**Words:** goal, problem, feature, flow.
 
-**Differs:** LiteSpec fixes the map as typed records and links: a feature answers one problem and advances goals, and a journey holds product sentences with ids toward one goal. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
+**Differs:** LiteSpec fixes the map as typed records and links: a feature stands alone, solves problems and advances goals, and a flow holds product sentences with ids toward the record it exists for. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
 
 ## Decision Records
 
@@ -74,7 +74,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** invariant, precondition.
 
-**Differs:** LiteSpec adds calculation, cross-aggregate, atomicity, reservation, commercial-data, and default as rule kinds, so computed values, rules across aggregates, atomic writes, held capacity, frozen commercial values, and fallback values each have a home. Each rule is proven by scenarios, each violation ends in a refusal with a stable code, and refusals are ordered so the first match wins.
+**Differs:** LiteSpec adds calculation, atomicity, reservation, and frozen-value as rule kinds, so computed values, atomic writes, held capacity, and frozen commercial values each have a home. Each rule is proven by scenarios, each violation ends in a refusal with a stable code, and refusals are ordered so the first match wins.
 
 ## Next
 

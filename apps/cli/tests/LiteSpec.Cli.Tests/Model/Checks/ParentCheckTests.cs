@@ -6,24 +6,23 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the parent check: every record with a required written parent names it, at tier G.</summary>
 public sealed class ParentCheckTests
 {
-    /// <summary>Feature In Its Problem Folder Passes.</summary>
-    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
+    /// <summary>Feature In The Features Folder Passes.</summary>
+    /// <proves>litespec/core/intent#solve-problems-with-standalone-features</proves>
     [Fact]
-    public void FeatureInItsProblemFolderPasses()
+    public void FeatureInTheFeaturesFolderPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("problem", "problem/overdue-loans", Path.Combine(temp.Path, "problems", "overdue-loans", "overdue-loans.yaml"), "{}"),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "problems", "overdue-loans", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, ".litespec", "intent", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Feature Outside A Problem Folder Reports.</summary>
-    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
+    /// <summary>Feature Outside The Features Folder Reports.</summary>
+    /// <proves>litespec/core/intent#solve-problems-with-standalone-features</proves>
     [Fact]
-    public void FeatureOutsideAProblemFolderReports()
+    public void FeatureOutsideTheFeaturesFolderReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -32,83 +31,83 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/hold-queue' sits outside a problem's features folder, so it has no parent problem.", finding.Message);
+        Assert.Equal("Feature 'feature/hold-queue' sits outside the product's intent/features folder, so it has no parent product.", finding.Message);
         Assert.Equal("feature/hold-queue", finding.Subject);
     }
 
-    /// <summary>Feature In A Problem Folder Without Its Problem Reports.</summary>
-    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
+    /// <summary>Feature In A Problem Folder Reports.</summary>
+    /// <proves>litespec/core/intent#solve-problems-with-standalone-features</proves>
     [Fact]
-    public void FeatureInAProblemFolderWithoutItsProblemReports()
+    public void FeatureInAProblemFolderReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "problems", "ghost", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, ".litespec", "intent", "problems", "ghost", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/hold-queue' sits in the folder of problem 'ghost', which holds no problem record.", finding.Message);
+        Assert.Equal("Feature 'feature/hold-queue' sits outside the product's intent/features folder, so it has no parent product.", finding.Message);
         Assert.Equal("feature/hold-queue", finding.Subject);
     }
 
-    /// <summary>Journey Serving Goal Passes.</summary>
+    /// <summary>Flow Serving Goal Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void JourneyServingGoalPasses()
+    public void FlowServingGoalPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Journey Serving Step Reports.</summary>
+    /// <summary>Flow Serving Step Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void JourneyServingStepReports()
+    public void FlowServingStepReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["journey/renew-loan#s1"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
-            TestModel.Record("journey", "journey/renew-loan", Path.Combine(temp.Path, "renew.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader renews the loan."}]}"""),
+            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["flow/renew-loan#s1"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("flow", "flow/renew-loan", Path.Combine(temp.Path, "renew.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader renews the loan."}]}"""),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Journey 'journey/borrow-and-return' has no parent and 'serves' names no goal.", finding.Message);
-        Assert.Equal("journey/borrow-and-return", finding.Subject);
+        Assert.Equal("Flow 'flow/borrow-and-return' has no parent and names no goal, problem or constraint.", finding.Message);
+        Assert.Equal("flow/borrow-and-return", finding.Subject);
     }
 
-    /// <summary>Journey Without Serves Reports.</summary>
+    /// <summary>Flow Without Serves Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void JourneyWithoutServesReports()
+    public void FlowWithoutServesReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
+            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Journey 'journey/borrow-and-return' has no parent and 'serves' names no goal.", finding.Message);
-        Assert.Equal("journey/borrow-and-return", finding.Subject);
+        Assert.Equal("Flow 'flow/borrow-and-return' has no parent and names neither 'serves' nor 'answers'.", finding.Message);
+        Assert.Equal("flow/borrow-and-return", finding.Subject);
     }
 
-    /// <summary>Journey With Dangling Serves Stays Silent.</summary>
+    /// <summary>Flow With Dangling Serves Stays Silent.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void JourneyWithDanglingServesStaysSilent()
+    public void FlowWithDanglingServesStaysSilent()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
+            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
         Assert.Contains("reference-unknown", TestModel.Codes(model));
@@ -160,7 +159,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Scenario 'scenario/no-such-case.filing-succeeds' has no parent and its home 'no-such-case' names no use case.", finding.Message);
+        Assert.Equal("Scenario 'scenario/no-such-case.filing-succeeds' has no parent and its home 'no-such-case' names no use case, reaction or job.", finding.Message);
         Assert.Equal("scenario/no-such-case.filing-succeeds", finding.Subject);
     }
 
@@ -316,35 +315,35 @@ public sealed class ParentCheckTests
         Assert.Equal("rule/nope.loan-period", finding.Subject);
     }
 
-    /// <summary>Event With Aggregate Passes.</summary>
+    /// <summary>Domain Event With Aggregate Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void EventWithAggregatePasses()
+    public void DomainEventWithAggregatePasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Event With Missing Aggregate Reports.</summary>
+    /// <summary>Domain Event With Missing Aggregate Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void EventWithMissingAggregateReports()
+    public void DomainEventWithMissingAggregateReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("event", "event/nope.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/nope.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Event 'event/nope.loan-borrowed' has no parent and its home 'nope' names no aggregate.", finding.Message);
-        Assert.Equal("event/nope.loan-borrowed", finding.Subject);
+        Assert.Equal("Event 'domain-event/nope.loan-borrowed' has no parent and its home 'nope' names no aggregate.", finding.Message);
+        Assert.Equal("domain-event/nope.loan-borrowed", finding.Subject);
     }
 
     /// <summary>Reaction With Missing Module Reports.</summary>
@@ -355,7 +354,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/nope.email-clerk-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
+            TestModel.Record("reaction", "reaction/nope.email-clerk-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);

@@ -18,10 +18,10 @@ public sealed class PartialTypeTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record {|LS5006:ExpenseSubmittedEvent|} : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5006 reports a marked exception that is not partial.</summary>
@@ -59,10 +59,10 @@ public sealed class PartialTypeTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5006 ignores an unmarked event.</summary>
@@ -78,7 +78,7 @@ public sealed class PartialTypeTests
 
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5006 does not run outside Domain.</summary>
@@ -92,10 +92,10 @@ public sealed class PartialTypeTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Application");
 
     /// <summary>LS5006 accepts a two-part event with every part partial.</summary>
@@ -110,7 +110,7 @@ public sealed class PartialTypeTests
 
                     public interface IDomainEvent;
 
-                    /// <implements>event/expense.submitted</implements>
+                    /// <implements>domain-event/expense.submitted</implements>
                     public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                     """),
                 ("Second.cs", """
@@ -119,7 +119,7 @@ public sealed class PartialTypeTests
                     public sealed partial record ExpenseSubmittedEvent;
                     """),
             ],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5006 reports the enclosing type of a nested partial event.</summary>
@@ -135,11 +135,11 @@ public sealed class PartialTypeTests
 
                 public sealed class {|LS5006:ExpenseEvents|}
                 {
-                    /// <implements>event/expense.submitted</implements>
+                    /// <implements>domain-event/expense.submitted</implements>
                     public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                 }
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 
     /// <summary>LS5006 accepts a nested event with a partial enclosing type.</summary>
@@ -155,10 +155,10 @@ public sealed class PartialTypeTests
 
                 public sealed partial class ExpenseEvents
                 {
-                    /// <implements>event/expense.submitted</implements>
+                    /// <implements>domain-event/expense.submitted</implements>
                     public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                 }
                 """)],
-            [ProjectFile(), Event()],
+            [ProjectFile(), DomainEvent()],
             assemblyName: "Shop.Domain");
 }

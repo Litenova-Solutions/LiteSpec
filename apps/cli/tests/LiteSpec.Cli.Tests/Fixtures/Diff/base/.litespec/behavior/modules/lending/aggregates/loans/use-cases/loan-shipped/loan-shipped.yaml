@@ -11,4 +11,4 @@ payload:
     classification: internal
     type: id
     of: aggregate/lending.loan
-translates: event/loan.loan-borrowed
+translates: domain-event/loan.loan-borrowed

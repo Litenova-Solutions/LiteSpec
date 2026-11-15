@@ -11,8 +11,8 @@
   let { label, html = null, children }: Props = $props();
 </script>
 
-<dt class="text-muted-foreground">{book.fieldLabel(label)}</dt>
-<dd class="m-0 min-w-0 max-sm:mb-1.5">
+<dt class="text-slate-600">{book.fieldLabel(label)}</dt>
+<dd class="m-0 min-w-0">
   {#if html !== null}
     {@html html}
   {:else}

@@ -386,8 +386,8 @@ static class NodeFrontendReader
                 ArrayOf(element, "calls", call => new CallFact(Text(call, "operation"), Text(call, "file"), Line(call))))),
             Tests: ArrayOf(entry, "tests", element => new BrowserTestFact(
                 Text(element, "file"), Line(element), Text(element, "title"), Strings(element, "proves"),
-                element.TryGetProperty("journey", out var journey) && journey.ValueKind == JsonValueKind.String
-                    ? journey.GetString()
+                element.TryGetProperty("flow", out var flow) && flow.ValueKind == JsonValueKind.String
+                    ? flow.GetString()
                     : null,
                 Strings(element, "gotos"), Strings(element, "codes"), Strings(element, "texts"))),
             Diagnostics: ArrayOf(entry, "diagnostics", element => new FrontendDiagnostic(

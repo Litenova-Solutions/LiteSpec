@@ -23,7 +23,7 @@
       {#if subj}
         <RecordLink id={subj} />
       {:else}
-        <span class="font-mono text-[0.6875rem] text-muted-foreground">none</span>
+        <span class="font-mono text-xs text-slate-600">none</span>
       {/if}
     </DefinitionRow>
     {#if r.src}

@@ -2,7 +2,7 @@
 
 ## Intent
 
-The pages in this folder state the extensions only a .NET backend offers: executable acceptance scenarios and layer projects for backends that package each layer as its own project. A local extension stays inactive until one use case, journey, or module meets the criterion its page states; the project extension applies to the whole backend once selected. A use case is one command or query, a journey is the steps to one goal, and a module is one business area; authors turn to these pages when shared examples need business-language review, or when the backend keeps the five-project packaging.
+The pages in this folder state the extensions only a .NET backend offers: executable acceptance scenarios and layer projects for backends that package each layer as its own project. A local extension stays inactive until one use case, flow, or module meets the criterion its page states; the project extension applies to the whole backend once selected. A use case is one command or query, a flow is the steps to one goal, and a module is one business area; authors turn to these pages when shared examples need business-language review, or when the backend keeps the five-project packaging.
 
 ## How the Pages Fit Together
 

@@ -20,7 +20,7 @@ The five Behavior pages hold the records; this page holds the overview, the mapp
 | [Use Cases](use-cases.md) | Commands, queries, results, scenarios, and settings. |
 | [Automation](automation.md) | Reactions and jobs. |
 | [Edges and Screens](edges.md) | Integration events, notifications, entry points, screens, and external systems. |
-| [Privacy and Retention](privacy.md) | Data classes and the retention schedule. |
+| [Privacy and Retention](privacy.md) | Data classes with their erasure positions and retention. |
 
 ### Modules as Product Areas
 
@@ -34,7 +34,7 @@ src/<Layer>/<Module>/<Aggregate>/<UseCase>     code
 
 The reader finds a use case by module, then aggregate, then use case. Intent holds no module folder: a feature sits under the problem it answers, and the Behavior records that fulfill its requirements name the module. The module is also the seam where a monolith would later split into services. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `behavior/modules/` that names no declared module gets a blocking finding.
 
-A record under a module is linked only from records in that module. A link from another module is a blocking finding, because the record is then not local and belongs at product level. A product-level record may be linked from one module or many.
+A record under a module is linked from another module only along a declared module dependency or through an integration event, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states. A product-level record may be linked from one module or many.
 
 ### Spec to Design Mapping
 
@@ -51,25 +51,26 @@ The specification names only what carries business meaning. Child entities and v
 | rule, invariant | an invariant checked on every change |
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
-| rule, cross-aggregate | a stored constraint, or a reaction or job reaching eventual consistency with a state guard |
-| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `cites`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
+| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `boundBy`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
 | rule, atomicity | one atomic write group across the aggregates it binds |
 | rule, reservation | a held claim with its release |
-| rule, commercial-data | a frozen commercial value with its history |
-| rule, default | a default value the model holds |
-| event | a domain event raised through the root |
+| rule, frozen-value | a frozen commercial value with its history |
+| domain event | a domain event raised through the root |
 | integration event | a published fact in CloudEvents form |
 | use case, command | one handler behind the use case |
 | use case, query | one read behind the use case |
 | reaction | one reaction answering its events |
 | job, scheduled | one job running on its schedule |
 | job, one-off | one job running once |
-| job, manual | one job a person runs |
-| view | one module's copy of another module's published facts, with one projection per source event |
-| notification | one rendered message to the actors it addresses |
+| read model | one module's copy of another module's published facts, with one projection per source event |
+| notification | one rendered message to its audience |
 | setting | one tunable value with its range and setter |
 | result | one ending per result, each refusal with its code |
 | scenario | an executable example proving the scenario |
+
+### Quotas and Rate Limits
+
+A quota a customer's plan sets is a rule: it bounds what the customer may do, refuses with a refusal code, and differs by plan. A technical rate limit stays in the extensions: it protects the platform, not the plan.
 
 ## Standards
 
@@ -123,26 +124,26 @@ The specification names only what carries business meaning. Child entities and v
 
 **Reviewed for:** Which module, aggregate, and use-case explanation files lack an Example section from the cast where a case would add to the records, without a recorded project convention? Look at the Example sections beside the module, aggregate, and use-case record files.
 
-### Group Cross-Aggregate Rules by Theme
+### Group Module Rules by Theme
 
-**ID:** `litespec/core/behavior#group-cross-aggregate-rules-by-theme`
+**ID:** `litespec/core/behavior#group-module-rules-by-theme`
 
 **Strength:** default
 
 **Applies to:** artifact: record:rule-set
 
-**Default:** Each rule-set record file holds the cross-aggregate rules of one theme, named in its `summary`.
+**Default:** Each rule-set record file holds the module rules of one theme, named in its `summary`.
 
 **Replacement:** A project names its rule-page grouping in its documentation.
 
-**Rationale:** Cross-aggregate rules share no aggregate to gather them, so an ungrouped rule set becomes a list of unrelated checks. One theme per rule set, stated in its `summary`, keeps each rule set reviewable as one decision about what holds across the domain.
+**Rationale:** Module rules share no aggregate to gather them, so an ungrouped rule set becomes a list of unrelated checks. One theme per rule set, stated in its `summary`, keeps each rule set reviewable as one decision about what holds across the domain.
 
 **Reviewed for:** Which rule sets state no theme in `summary` without a recorded project convention? Look at the `summary` of each rule-set record file.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, `litespec/core/use-cases#grant-each-use-case-scoped-access`, `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`, `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`, `litespec/core/use-cases#bound-every-caller-supplied-input-value`, `litespec/core/use-cases#state-the-consistency-of-every-use-case`, `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/use-cases#name-the-idempotency-of-every-use-case`, `litespec/core/use-cases#state-the-audit-position-of-every-command`, `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, `litespec/core/use-cases#name-the-result-each-scenario-ends-in`, `litespec/core/use-cases#prove-every-written-result-with-a-scenario`, `litespec/core/use-cases#write-every-scenario-in-given-when-then`, `litespec/core/use-cases#exercise-rules-from-scenarios`, `litespec/core/use-cases#share-scenario-setup-in-background`, `litespec/core/use-cases#record-attempts-behind-recorded-refusals`, `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`, `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`, `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`, `litespec/core/access#grant-every-use-case-through-a-declared-grant`, `litespec/core/access#scope-every-grant-to-its-tenant-reach`, `litespec/core/edges#describe-every-integration-event-for-its-direction`, `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`, `litespec/core/edges#give-each-entry-point-a-kind`, `litespec/core/edges#give-every-screen-an-address-or-a-host`, and `litespec/core/edges#match-a-screens-offers-to-its-calls`.
+This informative example demonstrates `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, `litespec/core/use-cases#grant-each-use-case-scoped-access`, `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`, `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`, `litespec/core/use-cases#bound-every-caller-supplied-input-value`, `litespec/core/use-cases#state-the-consistency-of-every-use-case`, `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/use-cases#name-the-idempotency-of-every-command`, `litespec/core/use-cases#state-the-audit-position-of-every-command`, `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, `litespec/core/use-cases#name-the-result-each-scenario-ends-in`, `litespec/core/use-cases#prove-every-written-result-with-a-scenario`, `litespec/core/use-cases#write-every-scenario-in-given-when-then`, `litespec/core/use-cases#exercise-rules-from-scenarios`, `litespec/core/use-cases#share-scenario-setup-in-background`, `litespec/core/use-cases#record-attempts-behind-recorded-refusals`, `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`, `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`, `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`, `litespec/core/access#grant-every-use-case-through-a-declared-grant`, `litespec/core/access#scope-every-grant-to-its-tenant-reach`, `litespec/core/edges#describe-every-integration-event-for-its-direction`, `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`, `litespec/core/edges#give-each-entry-point-a-kind`, `litespec/core/edges#give-every-screen-an-address-or-a-host`, and `litespec/core/edges#match-a-screens-offers-to-its-calls`.
 
-**Hold queue.** A reader who finds the copy lent places a hold. The place-hold command serves the hold journey step and fulfills the pickup-window requirement. It declares the place-hold permission with own tenant scope in `access`, and the library browser door reaching it carries session auth. Its caller-supplied pickup code declares its type with the code-shape rule bounding it. The write commits atomically over the hold aggregate, and the hold-placed integration event, declared with its typed payload and trust, is emitted after commit. The derived forbidden and invalid-input refusals come first, then the written refusals in precedence order, ahead of the hold-placed result. Each scenario states its given, when, and then from the shared background, names the rules it exercises, and ends in a named result, so every written result meets its scenario. The command audits at required level with idempotency keyed on the request.
+**Hold queue.** A reader who finds the copy lent places a hold. The place-hold command serves the hold flow step and fulfills the pickup-window requirement. It declares the place-hold permission with own tenant scope in `access`, and the library browser entry point reaching it carries session auth. Its caller-supplied pickup code declares its type with the code-shape rule bounding it. The write commits atomically over the hold aggregate, and the hold-placed integration event, declared with its typed payload and trust, is emitted after commit. The derived refusals come first, then the written refusals in precedence order, ahead of the hold-placed result. Each scenario states its given, when, and then from the shared background, names the rules it exercises, and ends in a named result, so every written result meets its scenario. The command audits at required level with idempotency keyed on the request.
 
-**Self-checkout scan.** A kiosk records each scan attempt. The record-self-checkout-scan command arrives through the device door with a system grant, writes each attempt on its own, and keys idempotency on `{nonce}` scoped to the login. Its recorded refusals for unknown, retired, and already-lent barcodes store each attempt with its reason, while malformed scans store nothing, and its checked-out result lists `borrow` and `renew` codes. A retired barcode refusal names its replacement and is never reused. The kiosk screen carries its address and offers the scan use case.
+**Self-checkout scan.** A kiosk records each scan attempt. The record-self-checkout-scan command arrives through the device entry point with a system grant, writes each attempt on its own, and keys idempotency on `{nonce}` scoped to the login. Its recorded refusals for unknown, retired, and already-lent barcodes store each attempt with its reason, while malformed scans store nothing, and its checked-out result lists `borrow` and `renew` codes. A retired barcode refusal names its replacement and is never reused. The kiosk screen carries its address and offers the scan use case.

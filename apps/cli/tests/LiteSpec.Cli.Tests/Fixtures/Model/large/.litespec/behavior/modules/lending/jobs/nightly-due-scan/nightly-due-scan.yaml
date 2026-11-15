@@ -7,5 +7,28 @@ schedule:
   timezone: Europe/Amsterdam
 effects:
 - sends: notification/lending.loan-due
+outcomes:
+- name: completed
+  meaning: Every loan due within the notice window was sent its notice.
+- name: nothing-selected
+  meaning: No loan fell due within the notice window.
+- name: failed
+  meaning: The scan could not finish after every retry.
+- name: retry-scheduled
+  meaning: The scan failed and another attempt is scheduled.
+onFailure:
+  mode: retry
+  retry:
+    maxAttempts: 3
+    initialDelay: PT5M
+    maxDelay: PT1H
+    backoff: exponential
+  ifExhausted: dead-letter
+  deadLetter:
+    after: P1D
+    action: The loans stay on the list, and the next nightly run selects them again.
+idempotency:
+  mode: state
+  recognizedBy: the notice already sent for the loan, so a rerun sends each notice once
 fulfills:
 - requirement/borrowing.loan-period-days

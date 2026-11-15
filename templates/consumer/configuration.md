@@ -25,7 +25,7 @@ State which source wins when two of them set one value. List the sources from st
 3. The project file.
 4. The stated default.
 
-## Notes
+## Behavior
 
 Optional. Remove this section when the settings need no note.
 

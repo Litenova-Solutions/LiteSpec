@@ -1,0 +1,19 @@
+type: decision
+id: decision/0075-draw-the-boundary-around-outside-traffic
+title: Draw the Boundary Around Outside Traffic
+options:
+  - name: "Every outside touch names its arrival, its system, its consent, and its failure"
+    pros: "Inbound traffic arrives through a named webhook or subscription, conflicts, consent, and notifications each have a field, and exports and cross-module reads follow stated patterns."
+    cons: "Every integration event names its system and arrival, and consent moves from prose to records."
+  - name: "Keep arrival, consent, and failure in prose"
+    pros: "Records carry fewer fields."
+    cons: "Broker consumers break a webhook-only rule, consent strings drift from the data, and failure handling stays unwritten."
+  - name: "One generic outside-call record for every touch"
+    pros: "One shape covers calls, integration events, and messages."
+    cons: "A message to a person and a call to a system share fields neither fully needs."
+choice: "Every outside touch names its arrival, its system, its consent, and its failure"
+consequences: "Every integration event names its external system in `through`; an inbound one names in `arrivesThrough` a webhook entry point or a subscribed external system. `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states the arrival. Under the concurrency extension a command states `conflicts` with what conflicts, which write wins, and the loser's refusal. Consent is recorded data an aggregate holds and a rule requires; a notification or use case names that rule in `requiresConsent`. A notification is a message to a person with `audience`, content, consent, and channel, naming its delivering system in `deliveredThrough`; the `webhook` channel is removed. A file export cites its row and size settings and keeps its resume mark as aggregate state; one table states when another module's state is read through a read model, asked through a decision port, or composed on a screen. A quota a plan sets is a rule; a technical rate limit stays in the extensions."
+reopenedWhen: "Outside traffic arrives with no entry point or external system to name in arrivesThrough, or a touch needs a shape between a message and a call."
+basedOn:
+  - research/lower-layers-practice
+  - research/behavior-containment-evidence

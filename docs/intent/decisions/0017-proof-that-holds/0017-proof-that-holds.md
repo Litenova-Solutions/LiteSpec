@@ -25,7 +25,7 @@ Proof state lives in `.litespec/proof/proofs.json`, which is committed. The file
 
 A finding blocks or reports by its check level. The finding `use-case-unverified` reports by default. `litespec model check --release` makes the release-readiness items block. `litespec model check --since <ref>` blocks only on what changed since `<ref>`.
 
-The 4 proof words are `coded`, `verified`, `tested` and `exercised`. `coded` means that code was found. `verified` means that a use case or a requirement has fulfillers that are all verified. `tested` means that a test passes with an assertion. `exercised` means that a journey step ran.
+The 4 proof words are `coded`, `verified`, `tested` and `exercised`. `coded` means that code was found. `verified` means that a use case or a requirement has fulfillers that are all verified. `tested` means that a test passes with an assertion. `exercised` means that a flow step ran.
 
 Finding codes follow `<subject>-<problem>` with 15 problem words. An unknown code fails the build. The book renders the in-memory model and judges nothing itself.
 

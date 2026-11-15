@@ -36,7 +36,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 - [Use Cases](core/use-cases.md): the commands, queries, results, scenarios, and settings.
 - [Automation](core/automation.md): the reactions and jobs that run without a request.
 - [Edges and Screens](core/edges.md): the integration events, notifications, entry points, screens, and external systems.
-- [Privacy and Retention](core/privacy.md): the data classes and the retention schedule.
+- [Privacy and Retention](core/privacy.md): the data classes and their retention.
 - [Access](core/access.md): the actors, roles, permissions, access each use case declares, entry points, and external systems.
 - [Agent Operating Protocol](core/agent.md): how agents select context, write below decided Intent, raise questions, and report completion.
 - [Authoring Standard](core/authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
@@ -176,7 +176,7 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 - [CLI overview](tools/README.md): every shipped command with its arguments, options, and exit codes.
 - [Initialize Consumer](tools/init.md): writes `.litespec/project.yaml` for a new consumer from a preset.
 - [Model Builder](tools/model.md): checks the project model, formats record files, renders generated regions, and answers record queries.
-- [Book](tools/book.md): builds the project book from the records: one offline shell with the Outline and Security views.
+- [Book](tools/book.md): serves the project book live on localhost, or writes the static book with `--out`.
 
 ### Maintain
 
@@ -227,7 +227,7 @@ Readers who are new to LiteSpec start with the [Learn overview](learn/README.md)
 One product worked end to end, from its first record to a passing check.
 
 - [Example overview](example/README.md): the Claimwick product the example follows, and the reading order for its pages.
-- [The Claimwick Product](example/the-product.md): the Intent records: brief, goal, problem, feature, requirements, research, decision, constraint, and journey.
+- [The Claimwick Product](example/the-product.md): the Intent records: brief, goal, problem, feature, requirements, research, decision, constraint, and flow.
 - [Modules and Records](example/modules-and-records.md): the Spending module as Behavior records: aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and settings around them.
 - [A Use Case in Code](example/a-use-case-in-code.md): Submit expense from its record into .NET code and tests.
 - [The Claimwick Screen](example/the-screen.md): the expenses screen, the generated client it reads, the shared UI package it composes, and the full model check.
@@ -246,9 +246,9 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Add a Blazor Frontend](guide/add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](guide/add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write a Problem](guide/write-a-problem.md): write one problem with its failure cases, evidence and resolution criteria.
-- [Write a Feature Under a Problem](guide/write-a-feature-under-a-problem.md): write one feature with its requirements under the problem it answers.
+- [Write a Feature](guide/write-a-feature.md): write one feature with its requirements and the problems it solves.
 - [Write a Constraint](guide/write-a-constraint.md): write one outside rule with its sources, its scope, its rules and the requirements that hold its effect.
-- [Write a Journey](guide/write-a-journey.md): write one actor's path toward one goal, from its start through its steps, blockers and branches.
+- [Write a Flow](guide/write-a-flow.md): write one actor's path toward one goal or one problem, from its start through its steps, blockers and branches.
 - [Write a Research Record](guide/write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.
 - [Write Code for a Use Case](guide/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Build an Audit Trail](guide/audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.

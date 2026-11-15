@@ -4,7 +4,7 @@ A contract in LiteSpec is the set of fields that a use case takes as input, or t
 
 ## Context
 
-Event payloads and use-case inputs carry no type or schema. Trusted payloads still claim that their fields are fit to act on. The position `pseudonymize` sits among the erasure positions, although pseudonymized data stays personal data.
+Domain-event payloads and use-case inputs carry no type or schema. Trusted payloads still claim that their fields are fit to act on. The position `pseudonymize` sits among the erasure positions, although pseudonymized data stays personal data.
 
 ## Options
 
@@ -27,7 +27,7 @@ Use-case inputs and integration-event payload fields carry a `type` and a `requi
 
 ## Consequences
 
-The provisions `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/edges#describe-every-integration-event-for-its-direction` carry the typed fields. The provisions `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` and `litespec/core/privacy#schedule-every-data-class-for-retention` carry the privacy positions.
+The provisions `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/edges#describe-every-integration-event-for-its-direction` carry the typed fields. The provision `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` carries the privacy positions.
 
 ## Evidence
 

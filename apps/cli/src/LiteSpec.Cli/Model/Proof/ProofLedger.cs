@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -93,7 +94,14 @@ sealed class ProofLedger
                     ? methodHash.GetString() ?? ""
                     : "";
 
-                entries[property.Name] = new ProofEntry(scenario, test, run, method);
+                var marks = property.Value.TryGetProperty("marks", out var marksHash)
+                    ? marksHash.GetString() ?? ""
+                    : "";
+                var commit = property.Value.TryGetProperty("commit", out var commitId)
+                    ? commitId.GetString() ?? ""
+                    : "";
+
+                entries[property.Name] = new ProofEntry(scenario, test, run, method, marks, commit);
             }
         }
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException or InvalidOperationException)
@@ -239,19 +247,95 @@ sealed class ProofLedger
     /// <param name="scenarioHash">The scenario semantic hash in this build.</param>
     /// <param name="testHash">The proving test files hash in this build.</param>
     /// <param name="methodHash">The proving test methods hash in this build.</param>
+    /// <param name="marksHash">The proving code marks hash in this build.</param>
     /// <param name="run">The identity of the passing run in this build.</param>
+    /// <param name="commit">The commit the passing run was made on.</param>
     /// <returns>True when the recorded proof for the same run carries a moved hash.</returns>
-    public bool Stale(string scenario, string scenarioHash, string testHash, string methodHash, string run)
+    public bool Stale(string scenario, string scenarioHash, string testHash, string methodHash, string marksHash, string run, string commit)
     {
         if (entries.TryGetValue(scenario, out var entry) && entry.Run == run)
         {
-            return entry.Scenario != scenarioHash || entry.Test != testHash;
+            return entry.Scenario != scenarioHash || entry.Test != testHash || entry.Marks != marksHash;
         }
 
-        entries[scenario] = new ProofEntry(scenarioHash, testHash, run, methodHash);
+        entries[scenario] = new ProofEntry(scenarioHash, testHash, run, methodHash, marksHash, commit);
         Changed = true;
 
         return false;
+    }
+
+    /// <summary>
+    ///     The source commit a passing run is read at: the checked-out HEAD of the consumer. Empty when the
+    ///     consumer is not a git checkout, so a proof then carries no commit.
+    /// </summary>
+    /// <param name="config">The consumer configuration holding the project root.</param>
+    /// <returns>The full commit identifier, or empty when none can be read.</returns>
+    public static string CommitOf(ConsumerConfig config)
+    {
+        var result = ProcessRunner.Git(config.Root, "rev-parse", "HEAD");
+
+        return result.Status == 0 ? result.Stdout.Trim() : "";
+    }
+
+    /// <summary>
+    ///     The hash of the files carrying a mark of the behavior a scenario proves: the scenario itself, the
+    ///     use case, reaction or job whose file holds it, and the records its result, outcome and exercises name.
+    ///     Each file's path and text are hashed in path order, as the test files are, so an edit to any marked
+    ///     file after the run stales the proof. A file that is missing hashes as empty.
+    /// </summary>
+    /// <param name="model">The built project model holding the records and the code elements.</param>
+    /// <param name="scenario">The scenario record whose proved behavior is hashed.</param>
+    /// <returns>The sixteen-hex-character hash of the marked files.</returns>
+    public static string MarksHashOf(ProjectModel model, Record scenario)
+    {
+        var owners = new HashSet<string>(StringComparer.Ordinal) { scenario.Id };
+
+        foreach (var field in new[] { RecordFields.Result, RecordFields.Outcome, RecordFields.Exercises })
+        {
+            foreach (var id in scenario.Ids(field))
+            {
+                owners.Add(id);
+            }
+        }
+
+        foreach (var owner in model.Records.Where(record =>
+            !record.Derived
+            && record.File == scenario.File
+            && record.Id != scenario.Id
+            && (record.Type == RecordTypes.UseCase || record.Type == RecordTypes.Reaction || record.Type == RecordTypes.Job)))
+        {
+            owners.Add(owner.Id);
+        }
+
+        var files = new SortedSet<string>(StringComparer.Ordinal);
+
+        foreach (var element in model.Code.Elements.Where(element => element.Marks.Any(mark => owners.Contains(mark.RecordId))))
+        {
+            files.Add(element.File);
+        }
+
+        var hasher = new Sha256();
+
+        foreach (var file in files)
+        {
+            var full = Path.IsPathRooted(file) ? file : Path.Combine(model.Config.Root, file);
+            var relative = PathText.Relative(model.Config.Root, full)
+                .Replace(Path.DirectorySeparatorChar, '/')
+                .Replace(Path.AltDirectorySeparatorChar, '/');
+
+            hasher.Append(Encoding.UTF8.GetBytes(relative + "\n"));
+
+            if (File.Exists(full))
+            {
+                var text = File.ReadAllText(full)
+                    .Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\r", "\n", StringComparison.Ordinal);
+
+                hasher.Append(Encoding.UTF8.GetBytes(text));
+            }
+        }
+
+        return Convert.ToHexString(hasher.Finish()).ToLowerInvariant()[..16];
     }
 
     /// <summary>Writes the ledger when a build recorded a new proof.</summary>
@@ -280,6 +364,8 @@ sealed class ProofLedger
                 writer.WriteString("test", entry.Value.Test);
                 writer.WriteString("run", entry.Value.Run);
                 writer.WriteString("method", entry.Value.Method);
+                writer.WriteString("marks", entry.Value.Marks);
+                writer.WriteString("commit", entry.Value.Commit);
                 writer.WriteEndObject();
             }
 

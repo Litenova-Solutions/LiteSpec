@@ -161,7 +161,7 @@ public sealed class BookScaleTests
             records.Add(entry);
         }
 
-        return new JsonObject
+        return BookStores.WithIntentCoverage(new JsonObject
         {
             ["version"] = 1,
             ["root"] = ".",
@@ -193,7 +193,7 @@ public sealed class BookScaleTests
             ["findings"] = new JsonArray(),
             ["covered"] = new JsonArray(),
             ["testRun"] = null,
-        };
+        });
     }
 
     static List<JsonObject> ScaleEntries()

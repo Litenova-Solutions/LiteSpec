@@ -46,7 +46,7 @@ What each field means and what reads it:
 
 - `schemaVersion` is the shape of this file, `1` in this release. The editor finds the schema from the first-line comment `# yaml-language-server: $schema=<url>`, which `litespec init` writes; no key in the data names it.
 - `project` names the project. `litespec model check` checks it against the schema. See the `project` object below.
-- `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, journeys, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
+- `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, flows, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
 - `layers` names the record layers the project claims and the practice each follows. See the `layers` object below.
 - `explanations` names the record layers whose every record page carries an explanation file. See the `explanations` object below.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, and a client-only project names no backend stack. `litespec init` writes it from the preset, `litespec model check` checks the backend count, and the model builder applies the shape.
@@ -228,7 +228,6 @@ What each field means and what reads it:
 | `path` | string | yes | none |
 | `platform` | string | yes | none |
 | `entryPoint` | string | no | the entry points of its screens |
-| `refusalDictionary` | string | no | none |
 | `routeSuite` | string | no | none |
 | `visualGoldens` | string | no | none |
 | `ui` | object | no | none |
@@ -239,7 +238,6 @@ What each field means and what reads it:
 - `path` is the frontend directory, such as `"apps/web"`. `litespec model check` reports a frontend whose directory does not exist.
 - `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it, so a frontend outside the controlled UI contract still declares that position instead of omitting the field. A `react` or `svelte` frontend is controlled and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
 - `entryPoint` names the browser or device entry point the frontend serves, such as `"entry-point/claimwick-app"`. The model builder reads the frontend's screens, use cases and records file through it. Without it, the entry points its screens name decide, and before any screen exists every browser entry point does.
-- `refusalDictionary` names the file or folder holding that frontend's refusal dictionary: one sentence per refusal code, keyed by the refusal `code`. The model builder reads it for `refusal-sentence-missing`, so a refusal a screen can reach is shown from that frontend's own words.
 - `routeSuite` names the file or folder holding that frontend's route suite. The model builder reads it for the route-suite `proves` check, so the suite has a named subject instead of a convention.
 - `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.
 - `ui` holds `profile`, which is required, and `globalCss`, which is optional. The profile is one of `public-light`, `application-balanced`, or `admin-dense`. The `globalCss` value is the one stylesheet the frontend declares, and it imports the shared package tokens. `litespec model check` checks the profile value and the stylesheet path.

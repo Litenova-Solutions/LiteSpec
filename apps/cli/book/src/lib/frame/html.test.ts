@@ -1,18 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { fixtureBook } from "./fixture";
-import { duration, editorHref, inline, provisionHref, recordRefHtml, safeHref, srcHref } from "./html";
+import { duration, inline, recordRefHtml, safeHref, sourceLinkHref, srcHref } from "./html";
 
 describe("links and inline text", () => {
-  it("opens sources through the configured editor template", async () => {
+  it("opens project sources through the manifest's source link template", async () => {
     const book = await fixtureBook();
     expect(srcHref(book, { path: ".litespec/intent/brief.yaml", line: 4 })).toBe("vscode://file/C:/work/shop/.litespec/intent/brief.yaml:4");
-    expect(srcHref(book, { path: "docs/core/model.md", litespec: true })).toBe("vscode://file/C:/work/litespec/docs/core/model.md");
-    expect(provisionHref(book, "litespec/core/model#organize-the-book-by-the-record-layers")).toBe("vscode://file/C:/work/litespec/docs/core/model.md");
   });
 
-  it("writes no source link when the editor is none", async () => {
-    const book = await fixtureBook("", { editor: "none" });
-    expect(editorHref(book, "C:/work/shop", "a.yaml", 1)).toBeNull();
+  it("writes LiteSpec's own files as plain text, never as links", async () => {
+    const book = await fixtureBook();
+    expect(srcHref(book, { path: "docs/core/model.md", litespec: true })).toBeNull();
+  });
+
+  it("writes no source link when the manifest names none", async () => {
+    const book = await fixtureBook("", { links: null });
+    expect(sourceLinkHref(book, "a.yaml", 1)).toBeNull();
     expect(srcHref(book, { path: "a.yaml", line: 1 })).toBeNull();
   });
 
@@ -28,7 +31,7 @@ describe("links and inline text", () => {
   it("links a record named in code and leaves an unknown one as code", async () => {
     const book = await fixtureBook();
     expect(inline(book, "See `feature/checkout`.")).toBe(
-      'See <button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">Checkout</button>.',
+      'See <a href="#feature/checkout" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">Checkout</a>.',
     );
     expect(inline(book, "See `feature/missing`.")).toBe("See <code>feature/missing</code>.");
     expect(inline(book, "<b>x</b>")).toBe("&lt;b&gt;x&lt;/b&gt;");
@@ -37,20 +40,20 @@ describe("links and inline text", () => {
   it("builds one record link with its title or a given label", async () => {
     const book = await fixtureBook();
     expect(recordRefHtml(book, "feature/checkout")).toBe(
-      '<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">Checkout</button>',
+      '<a href="#feature/checkout" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">Checkout</a>',
     );
     expect(recordRefHtml(book, "feature/checkout", "the checkout")).toBe(
-      '<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">the checkout</button>',
+      '<a href="#feature/checkout" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">the checkout</a>',
     );
     expect(inline(book, "[the checkout](feature/checkout)")).toBe(
-      '<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">the checkout</button>',
+      '<a href="#feature/checkout" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">the checkout</a>',
     );
   });
 
   it("resolves a relative link against the record's own file", async () => {
     const book = await fixtureBook();
     expect(inline(book, "[terms](../terms.md)", { path: ".litespec/intent/goals/sell.yaml" })).toBe(
-      '<a href="vscode://file/C:/work/shop/.litespec/intent/terms.md" title="Open ../terms.md in the editor">terms</a>',
+      '<a href="vscode://file/C:/work/shop/.litespec/intent/terms.md" title="Open ../terms.md">terms</a>',
     );
   });
 

@@ -26,7 +26,7 @@ public sealed class DotnetParseOnceTests
         WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
 
-            /// <implements>event/lending.loan-borrowed</implements>
+            /// <implements>domain-event/lending.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent;
             """);
         WriteSource(temp.Path, "WebApi", "BorrowCopyEndpoint.cs", """

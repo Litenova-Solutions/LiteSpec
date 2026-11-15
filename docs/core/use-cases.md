@@ -11,43 +11,41 @@ Use Cases states what the system does and what it answers: the commands and quer
 
 ### Use Cases
 
-A use case is one goal a single test proves through the public boundary: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who may act in `access`, the entry points reaching it in `reachedThrough`, the aggregates and views it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results.
+A use case is one goal a single test proves through the public boundary: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the flow steps it serves in `serves`, the requirements it carries in `fulfills`, who may act in `access`, the entry points reaching it in `reachedThrough`, the aggregates and read models it touches in `writes` and `reads`, the events it raises in `raises`, and how it ends in its results.
 
 | Field | Meaning |
 |:---|:---|
-| `access` | `{ grant, tenant }`: grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`; tenant of `own`, `cross`, `public`, or `none`. The door the call arrives through declares `auth`, as the [Access page](access.md) states. |
-| `input` | `{ name, meaning, type, of, many, required, rules, origin, classification }` entries; `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, or `id`; `of` names the record an `id` refers to or the choices of a `choice`; `many` is true when the field holds a list of values of its type; `required` states whether the caller sends the field; origin is `caller`, `claim`, or `derived`. |
-| `changes`, `reads` | Aggregate ids changed, and aggregate, view and setting ids read, including `store` aggregates. A view is the module's own copy of another module's state, as the [Automation page](automation.md#views) states. |
-| `consistency` | `{ mode, cites }`: mode of `atomic`, `per-record`, or `compensated`. An atomic write across aggregates cites its `atomicity` rule in `cites`. |
+| `access` | `{ grant, tenant }`: grant of `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`; tenant of `own`, `cross`, `public`, or `none`. The entry point the call arrives through declares `auth`, as the [Access page](access.md) states. |
+| `input` | `{ name, meaning, type, of, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }` entries; `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`; `of` names the record an `id` refers to or the row shape of a `list`; `choices` names the allowed values of a `choice`; a `file` field carries `contentTypes` with its media types and `maxSize` with its limit; a `list` field carries in `of` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields; `many` is true when the field holds a list of values of its type; `required` states whether the caller sends the field; `rules` names the `rule/` identifiers bounding the value; origin is `caller`, `claim`, `verified-claim`, or `derived`; a `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
+| `writes`, `reads` | Aggregate ids written, and aggregate, read-model and setting ids read, including `store` aggregates. A read model is the module's own copy of another module's state, as the [Automation page](automation.md) states. |
+| `consistency` | `{ mode, boundBy }`, on a command writing two or more aggregates only: mode of `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`. A query carries no `consistency`. |
 | `effects` | `{ sends / calls, timing, onFailure, onExhausted, before, forEach }` entries with exactly one verb; timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A use case runs no other use case and declares no integration event: a reaction runs what follows, and an outbound integration event names the event it translates. |
-| `idempotency` | `{ mode, key, scope, reason }`: mode of `key`, `state`, `not-pending`, or `none`; `key` templates `{field}` placeholders over the input field names; `scope` is `tenant`, `account`, `login`, or `global`. |
-| `audit` | `{ level, target }` with level of `required`, `optional`, or `none`, or `{ exempt }` with its justification. A level of `none` is not audited; async work audits at request time. |
-| `background` | The shared Given every scenario starts from, optional. |
+| `idempotency` | `{ mode, key, scope, reason, replay, recognizedBy }`, on a command only: mode of `key`, `state`, or `none`; `key` templates `{field}` placeholders over the input field names; `scope` is `tenant`, `account`, `login`, or `global`; `replay` is `returns-first-result`, `refuses`, or `acts-again`; mode `state` also carries `recognizedBy` naming the state checked. A query carries no `idempotency`. |
+| `audit` | `{ level, target }` with level of `required`, `optional`, or `none`, or `{ exemptBecause }` with its justification. A level of `none` is not audited; async work audits at request time. |
+| `background` | The Given shared by every scenario of the use case, optional. A use case carrying `background` holds at least two scenarios. |
 
 Each consistency mode defines its promise for the writes of the one use case:
 
 | Mode | Means |
 |:---|:---|
-| `atomic` | Every write in `changes` commits as one group |
+| `atomic` | Every write in `writes` commits as one group |
 | `per-record` | Each write commits on its own; a failure leaves earlier writes in place |
-| `compensated` | Each write names the undo that runs when a later write fails |
 
-No mode reaches past the use case: every edge to another record runs after the commit.
+No mode reaches past the use case: every edge to another record runs after the commit. A command writing one aggregate is atomic by definition and carries no `consistency`.
 
-Each effect entry carries the one `onFailure` shape: `{ mode, retry, then, deadLetter, surfacesIn, runbook }` with `mode` of `retry`, `skip-and-log`, or `discard`; `retry` and `then` accompany `mode: retry`, and `deadLetter`, `surfacesIn`, and `runbook` stay optional. `onExhausted` names the act when retries run out. `before` orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
+Each effect entry carries the one `onFailure` shape: `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }` with `mode` of `retry`, `skip-and-log`, or `discard`; `retry` and `ifExhausted` accompany `mode: retry`, and `deadLetter`, `surfacesIn`, and `runbook` stay optional. `onExhausted` names the act when retries run out. `before` orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
-`summary` states what the use case is, in one paragraph. Each use case carries `summary`, and a command describes its steps under Flow in its explanation file, as [Write Prose on Every Use Case](#write-prose-on-every-use-case) states. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
+`summary` states what the use case is, in one paragraph. Each use case carries `summary`, and a command describes its steps under Flow in its explanation file, as [Write Prose on Every Use Case](#write-prose-on-every-use-case) states. `exposure` states in plain words who reaches the use case, through which entry points, under which permission, and what is at stake if it goes wrong. Example and Notes live in the explanation file beside the record file.
 
 ### Queries
 
-A query reads without changing and declares what its readers receive. Its output groups fields into named `include` groups, each with its fields, classification, the aggregates it reads, and freshness. Freshness is an object whose `mode` names the case: `{ "mode": "immediate" }`, `{ "mode": "snapshot" }`, `{ "mode": "bounded", "within": "PT5M" }`, or `{ "mode": "advisory", "authority": "<record id>" }` naming the record holding the authoritative value and exposing the gap as a typed output field. A query whose aggregates lag reads from a read model: data shaped for the query, served without loading an aggregate. A command may declare its output as a list of `{ name, meaning }`.
+A query reads without changing and declares what its readers receive. Its output groups fields into named `include` groups, each with its fields, classification, the aggregates it reads, and freshness. Freshness is `{ mode, within }`: `mode` is `immediate`, `snapshot`, or `eventual`, and `within` is the ISO 8601 duration a lagging read stays behind its source, present when the mode allows lag. A query whose aggregates lag reads from a read model: data shaped for the query, served without loading an aggregate. A command may declare its output as a list of `{ name, meaning, type }`.
 
 | Field | Meaning |
 |:---|:---|
-| `output.include` | Named groups of `{ fields, classification, reads, freshness, visibleWhen, cites }`; each field carries `name` and `meaning`. |
-| `visibleWhen`, `cites` | The optional visibility condition and the requirement widening visibility beyond the aggregates in `reads`. |
+| `output.include` | Named groups of `{ fields, classification, reads, freshness, visibleWhen, widenedBy }`; each field carries `name`, `meaning`, and `type`. |
+| `visibleWhen`, `widenedBy` | The optional visibility condition and the requirement widening visibility beyond the aggregates in `reads`. |
 | `paging` | `{ "mode": "pages", order, cursor | offset, defaultLimit, maxLimit }`, or `{ "mode": "none", "reason": "..." }`. |
-| `builtAsynchronously` | Present on a query whose aggregates lag, with a `{ "mode": "bounded", "within": "..." }` or `{ "mode": "advisory", "authority": "..." }` freshness and a lag scenario. |
 
 ### Use-Case Verbs
 
@@ -98,35 +96,36 @@ A reaction is named for its trigger and a job for the use case it runs, as the [
 
 ### Results and Refusals
 
-Each use case ends in named results: child records with an `outcome` of `success` or `refusal`, a `code` on a refusal, and a `meaning`. Refusals stand in precedence order with the derived refusals first, as [Order Every Refusal List by Precedence](#order-every-refusal-list-by-precedence) states. A refusal is a rejection or error in industry words; the record word stays refusal. A code in use is retired with its replacement named and never reused, as [Retire Refusal Codes with Their Replacements](#retire-refusal-codes-with-their-replacements) states.
+Each use case ends in named results: child records with an `outcome` of `success` or `refusal`, a `code` on a refusal, and a `meaning`. Each module declares its refusal codes once in `behavior/modules/<m>/refusals.yaml`, as [Declare Each Module's Refusals Once](#declare-each-modules-refusals-once) states, and a result's `code` names a code from its module's set. A rule's `refusal` names a refusal code from the same set, and every result carrying that code is the rule's refusal in that use case. Refusals stand in precedence order with the derived refusals first, as [Order Every Refusal List by Precedence](#order-every-refusal-list-by-precedence) states. A refusal is a rejection or error in industry words; the record word stays refusal. A code in use is retired with its replacement named and never reused, as [Retire Refusal Codes with Their Replacements](#retire-refusal-codes-with-their-replacements) states.
 
 | Field | Meaning |
 |:---|:---|
-| `code`, `meaning` | The stable refusal code, such as `spending.receipt-missing`, and what it means. |
+| `code`, `meaning` | The stable refusal code from the module's refusal set, such as `spending.receipt-missing`, and what it means. |
 | `recorded` | Set where the attempt and its reason are stored; a validating refusal stores nothing. |
 | `codes` | The closed list of recorded outcomes inside a success. |
 
-Generic refusals for forbidden access and invalid input are derived from `access` and `input` and never written as records. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`, and scenarios may point at derived results.
+The generic refusals are derived and never written as records: `forbidden` from the grant in `access`, `invalid-input` from the rules in `input`, `not-found` from the named target, `conflict` from the state the call met, `unauthenticated` from the missing caller, and `sign-in-too-old` from the recent-sign-in window the [Access page](access.md) states. A derived generic result takes the form `result/<use-case>.<name>`, and scenarios may point at derived results.
 
 ### Scenarios
 
-A scenario proves one ending: a child record with `given`, `when`, `then`, an optional `examples` table, and the `result` it ends in. One test proves each scenario through the public boundary, and a proof goes stale when either of its proof hashes changes. The book groups scenarios under their result.
+A scenario proves one ending of the behavior it exercises: an entry in the file of its use case, and that use case is its parent. A reaction or job scenario is an entry in the file of its reaction or job, as the [Automation page](automation.md) states. The scenario carries `given`, `when`, `then`, an optional `examples` table, and the `result` it ends in. One test proves each scenario through the public boundary, and a proof goes stale when either of its proof hashes changes. The book groups a use case's scenarios under their result.
 
 | Field | Meaning |
 |:---|:---|
-| `given`, `when`, `then` | The situation, the action, and the assertion. |
-| `examples` | The worked example rows. |
+| `given`, `when`, `then` | The situation, the action, and the assertion on the scenario's own operation. |
+| `examples` | The worked example rows, with one shared set of keys. |
 | `result` | The written or derived result the scenario ends in. |
 | `exercises` | The rules the scenario shows, optional. |
 
 ### Settings
 
-A setting is one tunable value with its type, range, unit, setter, and bound behavior. A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement; a model invariant is a rule instead. A product-wide setting lives at product level. The `setting-set` page style holds many settings. A setting set carries `summary`, and its explanation file holds Notes.
+A setting is one tunable value with its type, range, unit, setter, and bound behavior. A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement; a model invariant is a rule instead. A product-wide setting lives at product level. The `setting-set` page style holds many settings. A setting set carries `summary`, and its explanation file holds Notes. A use case, reaction, or job names the settings it reads in `reads`.
 
 | Field | Meaning |
 |:---|:---|
 | `valueType` | `integer`, `duration`, `money`, `boolean`, `text`, or `choice`. A money setting holds an amount with an ISO 4217 currency, as the [Record Language](language.md) states. |
-| `default`, `range`, `unit` | The value, the min-max or choices, and the unit. |
+| `default`, `range`, `unit` | The default in the setting's `valueType`, the min-max or choices, and the unit. A money default holds an amount with its currency, a duration default holds an ISO 8601 duration, and a choice default names one of its `choices`. |
+| `dated` | `true` when each value applies from a date and never changes a posted record. |
 | `setBy` | `product`, `operator`, or `tenant`. |
 | `key` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`. Operator settings name it, as [Name the Configuration Key of Every Operator Setting](#name-the-configuration-key-of-every-operator-setting) states. |
 | `atBound` | `refuse`, `truncate`, or `degrade`. |
@@ -207,7 +206,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each command use case MUST share its verb with the aggregate method its handler calls.
 
-**Rationale:** The use case is the doorway into one aggregate act. A different word at the door and at the act means two meanings have merged, or the use case is misnamed, and each reader guesses which word tells the truth. A handler calling no aggregate method answers to no act, so queries and ports stay out of this rule. A command that records a request for work an event handler finishes after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires, performs the request: its method starts with `Request` and passes.
+**Rationale:** The use case names one aggregate act. A different word in the use-case name and in the act means two meanings have merged, or the use case is misnamed, and each reader guesses which word tells the truth. A handler calling no aggregate method answers to no act, so queries and ports stay out of this rule. A command that records a request for work an event handler finishes after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires, performs the request: its method starts with `Request` and passes.
 
 **Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported; the project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedEvent`.
 
@@ -221,11 +220,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each use case MUST name a journey step in `serves` or a requirement in `fulfills`.
+**Statement:** Each use case MUST name a flow step in `serves` or a requirement in `fulfills`.
 
-**Rationale:** A use case serving nothing and fulfilling nothing is behavior nobody asked for: it ships without a promise behind it and stays when the promise changes. Naming a journey step or a requirement ties each behavior to the intent it carries. The `record-link-missing` check reports a use case with neither field, and `step-use-case-missing` reports a journey step no use case serves.
+**Rationale:** A use case serving nothing and fulfilling nothing is behavior nobody asked for: it ships without a promise behind it and stays when the promise changes. Naming a flow step or a requirement ties each behavior to the intent it carries. The `record-link-missing` check reports a use case with neither field, and `step-use-case-missing` reports a flow step no use case serves.
 
-**Example:** The reimburse-expense command serves `journey/submit-and-reimburse#s4` and fulfills `requirement/approval.expense-reimbursed-at-most-once`.
+**Example:** The reimburse-expense command serves `flow/submit-and-reimburse#s4` and fulfills `requirement/approval.expense-reimbursed-at-most-once`.
 
 **Checked by:** `litespec model check` reports `record-link-missing` for a use case with neither `serves` nor `fulfills`.
 
@@ -239,9 +238,9 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST declare its grant and its tenant scope in `access`.
 
-**Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who may act and how far the call reaches beside the behavior. The [Access page](access.md) states the grant forms and the tenant meanings, and the door the call arrives through states how the caller proved identity. The authorization guard enforces the grant (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and `LS2012` reports a handler that authorizes itself.
+**Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the grant of `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who may act and how far the call reaches beside the behavior. The [Access page](access.md) states the grant forms and the tenant meanings, and the entry point the call arrives through states how the caller proved identity. The authorization guard enforces the grant (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and `LS2012` reports a handler that authorizes itself.
 
-**Example:** The reimburse-expense command declares the reimburse-expense permission with own tenant scope, reached through a session door, while the self-checkout scan declares a system grant through a device door.
+**Example:** The reimburse-expense command declares the reimburse-expense permission with own tenant scope, reached through a session entry point, while the self-checkout scan declares a system grant through a device entry point.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a use-case page without `access` carrying grant and tenant scope.
 
@@ -255,9 +254,25 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case a caller reaches from outside MUST name the entry points that reach it in `reachedThrough`.
 
-**Rationale:** A use case with no named door is reachable from anywhere or nowhere: readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction or a job runs has no door of its own, and the `runs` edge of that reaction or job already shows how it is reached.
+**Rationale:** A use case with no named entry point is reachable from anywhere or nowhere: readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction or a job runs has no entry point of its own, and the `runs` edge of that reaction or job already shows how it is reached.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a live use case that names no entry point and that nothing runs, and `reference-unknown` for a `reachedThrough` entry naming no entry point.
+
+### State the Exposure of Every Use Case
+
+**ID:** `litespec/core/use-cases#state-the-exposure-of-every-use-case`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each use case reached through an entry point MUST state its exposure in plain words: who reaches it, through which entry points, under which permission, and what is at stake if it goes wrong.
+
+**Rationale:** An exposure that restates the fields tells a reader nothing the fields do not already say, while a use case with no exposure leaves each reader to judge the stake alone. Stating who reaches the use case, through which entry points, under which permission, and what is at stake keeps the human judgement beside the entry points and the grant it names. An entry point or permission the exposure names matches `reachedThrough` and `access`, so the words stay current with the declaration.
+
+**Example:** The reimburse-expense exposure states that an approver reaches the command through the approval screen under the reimburse-expense permission, and that a wrong payout moves money to the wrong account.
+
+**Checked by:** `litespec model check` reports `exposure-missing` for a use case with an entry point and no `exposure`, and `exposure-reference-drift` for an entry point or permission named in `exposure` that `reachedThrough` or `access` lacks.
 
 ### Describe Every Use Case Input with Origin and Classification
 
@@ -269,18 +284,19 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use-case input MUST declare its name, meaning, type, origin, and classification.
 
-**Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, and `id`, the origin of `caller`, `claim`, or `derived`, and the classification states what arrives, what it is, and how far to trust it. An `id` field names the record it refers to in `of`, and a `choice` field names its choices there; other types carry no `of`. `required` states whether the caller sends the field, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time. Settled by [decision/0016-typed-contracts-and-privacy](decision/0016-typed-contracts-and-privacy) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
+**Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, and `id`, the origin of `caller`, `claim`, `verified-claim`, or `derived`, and the classification states what arrives, what it is, and how far to trust it. An `id` field names the record it refers to in `of`, a `choice` field names its allowed values in `choices`, a `file` field names its media types in `contentTypes` with its limit in `maxSize`, and a `list` field names its row shape in `of`; other types carry no `of` and no `choices`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`, as [Mark Inputs a Provider Verified](#mark-inputs-a-provider-verified) states. `rules` names the `rule/` identifiers bounding the value. `required` states whether the caller sends the field, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time. Settled by [decision/0016-typed-contracts-and-privacy](decision/0016-typed-contracts-and-privacy) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:**
 
 ```json
 "input": [
   { "name": "expenseId", "type": "id", "of": "aggregate/spending.expense", "origin": "caller" },
-  { "name": "amount", "type": "money", "rules": ["the amount is positive"], "origin": "caller" }
+  { "name": "amount", "type": "money", "rules": ["rule/spending.positive-amount"], "origin": "caller" },
+  { "name": "lines", "type": "list", "of": { "fields": [{ "name": "amount", "type": "money", "required": true, "meaning": "The line amount." }], "minItems": 1 }, "origin": "caller" }
 ]
 ```
 
-**Checked by:** `litespec model check` reports `record-invalid` for a use-case input without name, meaning, or type, without `of` on an `id` or `choice` field, or with `of` on another type.
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case input without name, meaning, or type, without `of` on an `id` or `list` field, without `choices` on a `choice` field, or with `of` or `choices` on another type.
 
 ### Bound Every Caller-Supplied Input Value
 
@@ -298,19 +314,35 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Reviewed for:** Which caller-supplied money or access inputs lack a cited bounding rule? Look beside each input with `origin: caller` on a money or access path.
 
-### Name Every Aggregate a Use Case Changes or Reads
+### Mark Inputs a Provider Verified
 
-**ID:** `litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads`
+**ID:** `litespec/core/use-cases#mark-inputs-a-provider-verified`
 
 **Strength:** required
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each use case MUST name every aggregate it changes in `changes` and every aggregate it reads in `reads`.
+**Statement:** Each input carrying a claim a provider validated MUST declare `origin: verified-claim` with the entry point or external system that validated it in `verifiedBy`.
 
-**Rationale:** A write no record names is invisible: the handler touches a second aggregate, the second aggregate changes, and no diff shows it. Naming every touched aggregate, including `store` aggregates, states the read and write footprint beside the behavior. The `write-undeclared` check reports a write outside `changes`.
+**Rationale:** A provider claim filed as caller input is trusted on faith: a forged subject or email passes as verified, and access follows. Declaring the claim with the entry point or external system that checked its issuer, audience, signature, and expiry ties each trusted value to the boundary that earned the trust. A caller never supplies such an input.
 
-**Checked by:** `litespec model check` reports `write-undeclared` for a write outside `changes` and `reference-unknown` for an unknown aggregate.
+**Example:** The library sign-in command declares the provider subject with `origin: verified-claim` and `verifiedBy` naming the provider sign-in entry point.
+
+**Checked by:** `litespec model check` reports `input-claim-unverified` for a claim-shaped input with `origin: caller` on an entry point that authenticates through a provider.
+
+### Name Every Aggregate a Use Case Writes or Reads
+
+**ID:** `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each use case MUST name every aggregate it writes in `writes` and every aggregate it reads in `reads`.
+
+**Rationale:** A write no record names is invisible: the handler touches a second aggregate, the second aggregate changes, and no diff shows it. Naming every touched aggregate, including `store` aggregates, states the read and write footprint beside the behavior. The `write-undeclared` check reports a write outside `writes`.
+
+**Checked by:** `litespec model check` reports `write-undeclared` for a write outside `writes` and `reference-unknown` for an unknown aggregate.
 
 ### State the Consistency of Every Use Case
 
@@ -320,13 +352,13 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each use case MUST declare its write consistency in `consistency`.
+**Statement:** Each command writing two or more aggregates MUST declare its write consistency in `consistency`.
 
-**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` commits every write in `changes` as one group, `per-record` commits each write on its own, and `compensated` names the undo of each write. An atomic write across aggregates cites its `atomicity` rule in `cites`, and `changes` holds exactly the aggregates the rule binds; a group above 4 aggregates is reported. Atomic consistency never spans an `async` edge. The [Domain Model page](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `cites`, `atomic-group-drift` reports `changes` differing from the bound group, and `atomic-group-invalid` reports a group above 4 aggregates.
+**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` commits every write in `writes` as one group, and `per-record` commits each write on its own. An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `writes` holds exactly the aggregates the rule binds; a group above 4 aggregates is reported. Atomic consistency never spans an `async` edge. A command writing one aggregate is atomic by definition and carries no `consistency`, and a query carries none. The [Domain Model page](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` reports `writes` differing from the bound group, and `atomicity-invalid` reports a group above 4 aggregates. Settled by [decision/0076-remove-shapes-nothing-needs](decision/0076-remove-shapes-nothing-needs).
 
 **Example:** The reimburse-expense command declares atomic consistency citing the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts.
 
-**Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `cites`, `atomic-group-drift` for `changes` differing from the bound group, `atomic-group-invalid` (level A) for a group above 4 aggregates, and `atomic-group-duplicate` (level A) for a command saving more than one atomic write group.
+**Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` for `writes` differing from the bound group, `atomicity-invalid` (level A) for a group above 4 aggregates, and `atomicity-duplicate` (level A) for a command saving more than one atomic write group; `litespec model check` reports `record-invalid` for a query carrying `consistency`.
 
 ### Declare Every Effect with One Verb and Its Timing
 
@@ -340,7 +372,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. A use case declares each edge with exactly one verb of `sends` or `calls`, with its timing of `inline`, `after-commit`, or `async`, and its failure handling, so every coupling is data. Timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. A use case declares no `runs` and no `emits`: a reaction to its raised fact runs what follows, and the integration events it publishes follow from `raises` and the `translates` field of each outbound integration event. The `effect-undeclared` check reports an edge the records never declared.
 
-**Example:** The reimburse-expense command declares no effect: it raises its reimbursed fact, the expense-reimbursed integration event translates that fact, and the reporting module's view answers the published event.
+**Example:** The reimburse-expense command declares no effect: it raises its reimbursed fact, the expense-reimbursed integration event translates that fact, and the reporting module's read model answers the published event.
 
 **Checked by:** `litespec model check` reports `effect-undeclared` for an edge the records never declared and `effect-timing-invalid` for a command `sends` or `calls` effect with `inline` timing; `litespec model check` reports `record-invalid` for an effect entry without exactly one verb or its timing.
 
@@ -358,7 +390,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Example:** In the library product, borrowing a copy raises the loan-borrowed fact, and the send-due-notice reaction answers it in its own transaction instead of the borrow command sending the notice.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a use-case effect that names `runs`, `emits` or `sharesTransaction`.
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case effect that names `runs` or `emits`.
 
 ### Keep the Effect Graph Free of Cycles
 
@@ -388,19 +420,35 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Reviewed for:** Which use cases raise domain events that `raises` does not name? Look at `raises` beside each use-case page.
 
-### Name the Idempotency of Every Use Case
+### Name the Idempotency of Every Command
 
-**ID:** `litespec/core/use-cases#name-the-idempotency-of-every-use-case`
+**ID:** `litespec/core/use-cases#name-the-idempotency-of-every-command`
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: command
 
-**Statement:** Each use case MUST declare its idempotency mode with the key, scope, or reason that mode needs.
+**Statement:** Each command MUST declare its idempotency mode with the key, scope, or reason that mode needs.
 
-**Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode of `key`, `state`, or `not-pending`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. A reaction key names fields of the triggering event and a job key names fields of its run window instead, which the record does not list, so its placeholders are not checked. The self-checkout scan keys on `{nonce}` scoped to the login.
+**Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode of `key`, `state`, or `none`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. A query carries no `idempotency`: a read is idempotent by kind. A reaction or job carries its own `idempotency`, as the [Automation page](automation.md) states. The self-checkout scan keys on `{nonce}` scoped to the login.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a use case without an idempotency mode or without the key, scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder, a placeholder naming no input field, or a scope outside `tenant`, `account`, `login`, and `global`.
+**Checked by:** `litespec model check` reports `record-invalid` for a command without an idempotency mode or without the key, scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder, a placeholder naming no input field, or a scope outside `tenant`, `account`, `login`, and `global`; `litespec model check` reports `record-invalid` for a query carrying `idempotency`.
+
+### State What a Replay Does
+
+**ID:** `litespec/core/use-cases#state-what-a-replay-does`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case; when: command
+
+**Statement:** Each command carrying `idempotency` MUST state what a recognized replay does in `replay` and how the command recognizes it.
+
+**Rationale:** A repeat the command recognizes but handles nowhere runs twice or fails without telling why: a double payout, or a refusal that hides the first success. Stating `returns-first-result`, `refuses`, or `acts-again` tells the caller what the repeat brings. A keyed command recognizes the repeat by the key the caller sends; a state command names the state it checks in `recognizedBy`, such as the posted entry the second booking meets.
+
+**Example:** The reimburse-expense command replays with `returns-first-result`, so a retried payout returns the first reimbursement instead of posting again.
+
+**Checked by:** `litespec model check` reports `idempotency-replay-missing` for a command `idempotency` without `replay`, or mode `state` without `recognizedBy`.
 
 ### State the Audit Position of Every Command
 
@@ -410,11 +458,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:use-case; when: command
 
-**Statement:** Each command MUST declare its audit level and target, or its exemption with its justification.
+**Statement:** Each command MUST declare its audit level and target, or its exemption with its justification in `exemptBecause`.
 
-**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the level of `required`, `optional`, or `none` with its target, or the exemption with its justification, states the audit beside the change. A level of `none` is not audited; async work audits at request time.
+**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the level of `required`, `optional`, or `none` with its target, or the exemption with its justification in `exemptBecause`, states the audit beside the change. A level of `none` is not audited; async work audits at request time.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a command without an audit level and target or an exemption with its justification.
+**Checked by:** `litespec model check` reports `record-invalid` for a command without an audit level and target or an exemption with its justification in `exemptBecause`.
 
 ### Declare Every Query Output
 
@@ -440,9 +488,9 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:use-case; when: query
 
-**Statement:** Each include group visible to more roles than the aggregates it reads MUST cite the requirement widening it in `cites`.
+**Statement:** Each include group visible to more roles than the aggregates it reads MUST cite the requirement widening it in `widenedBy`.
 
-**Rationale:** A read showing more than the aggregates it reads is a quiet widening: roles see figures their own grants never allowed, and no requirement states the view. Citing the requirement in `cites` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
+**Rationale:** A read showing more than the aggregates it reads is a quiet widening: roles see figures their own grants never allowed, and no requirement states the view. Citing the requirement in `widenedBy` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
 
 **Checked by:** `litespec model check` reports `widening-cites-missing` for a widened include group with no cited requirement.
 
@@ -460,19 +508,37 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Checked by:** `litespec model check` reports `paging-undeclared` for a collection query with no paging.
 
-### Mark Every Lagging Query as Built Asynchronously
+### Type Every Output Field
 
-**ID:** `litespec/core/use-cases#mark-every-lagging-query-as-built-asynchronously`
+**ID:** `litespec/core/use-cases#type-every-output-field`
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case; when: query
+**Applies to:** artifact: record:use-case
 
-**Statement:** Each query reading lagging aggregates MUST set `builtAsynchronously` with a `{ "mode": "bounded", "within": "..." }` or `{ "mode": "advisory", "authority": "..." }` freshness and a lag scenario.
+**Statement:** Each output field MUST carry its value type.
 
-**Rationale:** A read built asynchronously without a mark is trusted as fresh: screens show yesterday figures as now, and nobody warned them. Marking the query, with a `{ "mode": "bounded", "within": "..." }` or `{ "mode": "advisory", "authority": "..." }` freshness and one scenario covering the lag, states the staleness beside the promise.
+**Rationale:** An output field without a type returns whatever its author fetched: readers and screens guess the shape from code. Carrying the value type from the input types on every field of an `include` group and of a command output states the shape beside the promise, so the builder compares the records with the generated contract. A list of rows takes `type: list` with its row shape in `of`, as the input types state. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
 
-**Reviewed for:** Which lagging queries lack `builtAsynchronously` with a bounded or advisory freshness and a lag scenario? Look at the queries beside the aggregates they read.
+**Example:** The list-expenses query types its amount field `money` and its lines field `list` with the row shape in `of`.
+
+**Checked by:** `litespec model check` reports `record-invalid` for an output field without `type`.
+
+### Declare Each Module's Refusals Once
+
+**ID:** `litespec/core/use-cases#declare-each-modules-refusals-once`
+
+**Strength:** required
+
+**Applies to:** artifact: record:refusal-set
+
+**Statement:** Each module MUST declare its refusal codes once in `behavior/modules/<m>/refusals.yaml` with each code's meaning and problem type.
+
+**Rationale:** Refusal codes declared per use case drift: one use case retires a code while its neighbor keeps it, and the same breach reports two codes. Declaring each code once per module with its meaning and its RFC 9457 problem type keeps one code behind every result citing it. The code reads `<module>.<name>`; the problem type is a URI or a short type name. A result's `code` names a code from its module's set, and a rule's `refusal` names the same code, so every result carrying it is that rule's refusal in its use case. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
+
+**Example:** The spending module declares `spending.receipt-missing` with its meaning and its problem type, and the submit-expense refusal cites that code.
+
+**Checked by:** `litespec model check` reports `refusal-code-unknown` for a result code missing from its module's refusal set.
 
 ### End Every Use Case in Named Results
 
@@ -532,7 +598,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST list its refusals so the first match wins.
 
-**Rationale:** Two refusals matching one call need an order: without precedence, each architecture layer picks its own refusal, and callers branch on a different code per stack. The derived refusals come first, forbidden then invalid input, followed by the written refusals in the order the page lists them, so the first match is the one every architecture layer reports.
+**Rationale:** Two refusals matching one call need an order: without precedence, each architecture layer picks its own refusal, and callers branch on a different code per stack. The derived refusals come first, unauthenticated, forbidden, sign-in-too-old, invalid input, not found, then conflict, followed by the written refusals in the order the page lists them, so the first match is the one every architecture layer reports.
 
 **Reviewed for:** Which refusal lists stand out of precedence order, or place a written refusal ahead of a derived one? Look at the refusal entries on each use-case page.
 
@@ -576,11 +642,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:result
 
-**Statement:** A use case MUST NOT write a generic forbidden or invalid-input refusal as a record.
+**Statement:** A use case MUST NOT write a generic refusal as a record.
 
-**Rationale:** Hand-written generic refusals multiply: hundreds of pages each declare their own forbidden, and each drifts in wording and code. Deriving them from the grant in `access` and the rules in `input` keeps one forbidden and one invalid input per use case, current with the grant: the builder derives `result/<use-case>.forbidden` and `result/<use-case>.invalid-input`. Scenarios point at the derived results without anyone writing them.
+**Rationale:** Hand-written generic refusals multiply: hundreds of pages each declare their own forbidden, and each drifts in wording and code. Deriving them keeps one of each per use case, current with the grant, the inputs, the target, the state, the caller, and the sign-in: the builder derives `result/<use-case>.forbidden`, `result/<use-case>.invalid-input`, `result/<use-case>.not-found`, `result/<use-case>.conflict`, `result/<use-case>.unauthenticated`, and `result/<use-case>.sign-in-too-old`. Scenarios point at the derived results without anyone writing them.
 
-**Reviewed for:** Which use-case pages write a generic forbidden or invalid-input refusal as a record? Look at the results on each use-case page beside the derived names.
+**Checked by:** `litespec model check` reports `refusal-generic-written` for a use case writing a generic refusal as a record.
 
 ### Name the Result Each Scenario Ends In
 
@@ -592,7 +658,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each scenario MUST name the result it ends in, written or derived.
 
-**Rationale:** A scenario that names no result illustrates behavior without asserting an ending: it reads well and proves nothing. Naming the result ties each example to the ending it walks toward, so every test knows what to assert. The `scenario-result-unknown` check reports a scenario ending in an unknown result.
+**Rationale:** A scenario that names no result illustrates behavior without asserting an ending: it reads well and proves nothing. Naming the result ties each example to the ending it walks toward, so every test knows what to assert. A reaction or job scenario names a result or an outcome instead, as the [Automation page](automation.md) states. The `scenario-result-unknown` check reports a scenario ending in an unknown result.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a scenario entry without `result`, and `scenario-result-unknown` for a scenario ending in an unknown result.
 
@@ -622,7 +688,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each scenario MUST state its `given`, `when`, and `then`.
 
-**Rationale:** The three steps separate the situation from the action and the action from the assertion: collapsing them blurs what was true, what moved, and what the test checks. Stating all three keeps each example readable by a person and provable by a test.
+**Rationale:** The three steps separate the situation from the action and the action from the assertion: collapsing them blurs what was true, what moved, and what the test checks. Stating all three keeps each example readable by a person and provable by a test. Example rows of one scenario share one set of keys.
 
 **Example:**
 
@@ -638,7 +704,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 }
 ```
 
-**Checked by:** `litespec model check` reports `record-invalid` for a scenario entry without `given`, `when`, or `then`.
+**Checked by:** `litespec model check` reports `record-invalid` for a scenario entry without `given`, `when`, or `then`, and `example-keys-drift` for example rows of one scenario with differing keys.
 
 ### Exercise Rules from Scenarios
 
@@ -650,11 +716,43 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** A scenario MUST name the rules it shows in `exercises`.
 
-**Rationale:** A rule proved only through a test mark hides which example walks it: readers open the rule and find no story. Naming the shown rules in `exercises` ties each example to the rules it walks, so every rule meets its stories.
+**Rationale:** A rule proved only through a test mark hides which example walks it: readers open the rule and find no story. Naming the shown rules in `exercises` ties each example to the rules it walks, so every rule meets its stories. A refusal scenario names the rule behind its result, and the scenarios of a use case together walk every rule its inputs cite.
 
 **Example:** A scenario walking a second hold on one copy names `rule/lending.one-hold-per-copy` in `exercises`.
 
-**Reviewed for:** Which scenarios show rules without naming them in `exercises`? Look at the scenarios beside the rules they walk.
+**Checked by:** `litespec model check` reports `scenario-rule-unexercised` for a refusal scenario whose result's rule is not in `exercises`, or an input rule no scenario of the use case exercises.
+
+### Keep Each Scenario Inside Its Operation
+
+**ID:** `litespec/core/use-cases#keep-each-scenario-inside-its-operation`
+
+**Strength:** required
+
+**Applies to:** artifact: record:scenario
+
+**Statement:** Each scenario MUST assert only its own operation's results, state, and raised events in `then`.
+
+**Rationale:** A scenario asserting a later operation's effect ties two operations in one test: the first operation changes, the second breaks, and the failure points at the wrong record. Asserting only the scenario's own results, state, and raised events keeps each test on its record. An effect of a later operation belongs to a flow test. Settled by [decision/0081-own-scenarios-and-declare-outcomes](decision/0081-own-scenarios-and-declare-outcomes).
+
+**Example:** The submit-expense scenario asserts the stored expense and its submitted fact, and leaves the approver payout to the flow test walking both operations.
+
+**Reviewed for:** Which scenarios assert state, results, or events of a later operation? Look at `then` beside the scenario's own operation.
+
+### Give Each Rule Boundary Its Own Scenario
+
+**ID:** `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
+
+**Strength:** required
+
+**Applies to:** artifact: record:scenario
+
+**Statement:** Each rule boundary a use case exercises MUST have its own scenario at the boundary.
+
+**Rationale:** A boundary shown only from the safe side proves nothing about the edge: expiry, attempt limits, and one-time use each fail exactly at the line. Giving each boundary named in `exercises` its own scenario at the line pins the edge as a checked fact. Settled by [decision/0071-give-every-stated-rule-a-field](decision/0071-give-every-stated-rule-a-field).
+
+**Example:** The hold expiry rule carries one scenario collecting on the last pickup day and one collecting after the lapse.
+
+**Reviewed for:** Which exercised rule boundaries lack a scenario at the boundary? Look at `exercises` beside the scenarios of the use case.
 
 ### Share Scenario Setup in Background
 
@@ -666,11 +764,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** A use case MUST hold the shared Given of its scenarios in `background`.
 
-**Rationale:** Every scenario repeating the same setup buries the step that differs: readers reread one Given on each story. Holding the shared Given once in `background` leaves each scenario its own situation, action, and assertion.
+**Rationale:** Every scenario repeating the same setup buries the step that differs: readers reread one Given on each story. Holding the shared Given once in `background` leaves each scenario its own situation, action, and assertion. Company narrative belongs in the explanation file, not in `background`.
 
 **Example:** `background` holds that the employee has a session and one submitted expense awaits approval, and each approval scenario starts there.
 
-**Reviewed for:** Which use cases repeat shared setup across scenarios instead of holding it in `background`? Look at the givens beside each use-case page.
+**Checked by:** `litespec model check` reports `background-scenarios-missing` for a use case with `background` and fewer than two scenarios.
 
 ### Write Prose on Every Use Case
 
@@ -698,7 +796,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each setting MUST declare its value type, range, unit, setter, and bound behavior, with the requirement behind a commercial, legal, or varying default.
 
-**Rationale:** A default no requirement holds is a figure nobody stated: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of product, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-requirement-missing` check reports such a default with no cited requirement.
+**Rationale:** A default no requirement holds is a figure nobody stated: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of product, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The default takes the setting's `valueType`: a duration default holds an ISO 8601 duration, a money default holds an amount with its currency, and a choice default names one of its `choices`. A setting whose values apply from a date carries `dated: true`, and no value change touches a posted record. The `setting-requirement-missing` check reports such a default with no cited requirement.
 
 **Example:** The receipt threshold declares money with a product-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
 
@@ -714,11 +812,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST name the settings it reads in `reads`.
 
-**Rationale:** A setting read by a use case no record names is a coupling readers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the settings in `reads` beside the use case states the coupling where the reader lives, so each change to the range or default meets its readers. The setting's readers are computed as the inverse, never written. Settled by [decision/0012-use-cases-read-their-settings](decision/0012-use-cases-read-their-settings) on the evidence in [research/behavior-containment-evidence](research/behavior-containment-evidence) and [research/field-naming-evidence](research/field-naming-evidence).
+**Rationale:** A setting read by a use case no record names is a coupling readers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the settings in `reads` beside the use case states the coupling where the reader lives, so each change to the range or default meets its readers. The setting's readers are computed as the inverse, never written. A setting no use case, reaction, or job reads is a finding. Settled by [decision/0012-use-cases-read-their-settings](decision/0012-use-cases-read-their-settings) on the evidence in [research/behavior-containment-evidence](research/behavior-containment-evidence) and [research/field-naming-evidence](research/field-naming-evidence).
 
 **Example:** The submit-expense use case names `setting/spending.receipt-threshold` in `reads`, so a move of the threshold meets the submission story.
 
-**Reviewed for:** Which use cases read a setting that `reads` does not name? Look at the use cases beside the settings they read.
+**Checked by:** `litespec model check` reports `setting-unused` for a setting no record `reads`.
 
 ### Name the Configuration Key of Every Operator Setting
 

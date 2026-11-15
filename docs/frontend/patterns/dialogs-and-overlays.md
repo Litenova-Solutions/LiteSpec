@@ -99,7 +99,7 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 
 **Statement:** A toast raised while a modal dialog is open SHOULD wait until the dialog closes.
 
-**Deviation:** A toast that reports the result of the command the open dialog just sent shows with the dialog.
+**Departure:** A toast that reports the result of the command the open dialog just sent shows with the dialog.
 
 **Rationale:** The page behind a modal is inert, so a toast raised over it can be neither read nor used. Waiting until the dialog closes delivers the news when the reader can act on it. The toast still arrives; it only arrives late enough to be heard.
 
@@ -113,7 +113,7 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 
 **Statement:** The page behind a modal overlay SHOULD keep its scroll position and its layout width while the overlay opens and closes.
 
-**Deviation:** A page that rebuilds its layout while the overlay is open keeps its new scroll position and width.
+**Departure:** A page that rebuilds its layout while the overlay is open keeps its new scroll position and width.
 
 **Rationale:** A page that jumps or shifts sideways when the overlay opens loses the reader's row in the list behind. Keeping the scroll position and the layout width holds the reader's place through the interruption. Closing the overlay then returns to the same view, not to a nearby one.
 

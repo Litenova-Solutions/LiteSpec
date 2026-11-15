@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { book, editorHref, esc } from "$lib/frame";
   import type { BookRecord, RecordFields } from "$lib/frame";
+  import { esc } from "$lib/frame";
   import { RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
-  import { codeCls, provisionLinkHtml } from "../page-html";
+  import { codeCls, provisionHtml } from "../page-html";
   import { proseOf } from "../page-prose";
   import { stringField, stringList } from "../page-values";
 
@@ -16,20 +16,11 @@
   const consequences = $derived(proseOf(r, "consequences"));
   const paths = $derived(stringList(f, "paths"));
   const reason = $derived(stringField(f, "reason"));
-  const covers = $derived.by(() => {
-    if (Array.isArray(f.covers)) {
-      const href = editorHref(book, book.man?.roots?.litespec ?? "", "docs/tools/model.md");
-      return f.covers
-        .map((c) =>
-          href
-            ? `<a class="${codeCls}" href="${esc(href)}" title="Open the finding codes in LiteSpec">${esc(c)}</a>`
-            : `<span class="${codeCls}">${esc(c)}</span>`,
-        )
-        .join(" ");
-    }
-    return provisionLinkHtml(book, f.covers);
-  });
+  const covers = $derived(
+    Array.isArray(f.covers) ? f.covers.map((c) => `<span class="${codeCls}">${esc(c)}</span>`).join(" ") : provisionHtml(f.covers),
+  );
 </script>
+
 
 {#if exit}
   <PageSection blockKey="exit" heading="exit"><RenderedProse html={exit} /></PageSection>

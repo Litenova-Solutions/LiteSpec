@@ -18,11 +18,11 @@ The third collision is that `source` carries 5 meanings. It marks the origin on 
 
 The fourth collision is that `serves` spans 3 target sets across 1,807 records. A feature serves goals, a use case, reaction or job serves steps or goals, and a screen serves steps. A feature contributes to a goal, while a use case names the step it serves. The record gives no confidence for this claim.
 
-The fifth collision is that `goal` is both a record type and a required prose sentence on all 112 journeys. The journey link change must resolve it. The record gives no confidence for this claim.
+The fifth collision is that `goal` is both a record type and a required prose sentence on all 112 flows. The flow link change must resolve it. The record gives no confidence for this claim.
 
-The consumer already shows bad data from 2 collisions. All 111 features carry milestone-style `by` values. Of the use-case `serves` values, 11 name a whole journey, where the schema allows only a journey step or a goal. The record gives no confidence for these claims.
+The consumer already shows bad data from 2 collisions. All 111 features carry milestone-style `by` values. Of the use-case `serves` values, 11 name a whole flow, where the schema allows only a flow step or a goal. The record gives no confidence for these claims.
 
-The record judges several smaller overloads as keep-and-document. `steps` on journeys and `steps` on coordination aggregates overlap, so the aggregate side should be renamed, which touches 6 records. `values` on requirements and terms overlap, so the term side should become `codes`. `subject` is shared by exceptions and integration events. `scope`, `check` and `code` keep consistent cores. The record gives no confidence for these judgements.
+The record judges several smaller overloads as keep-and-document. `steps` on flows and `steps` on coordination aggregates overlap, so the aggregate side should be renamed, which touches 6 records. `values` on requirements and terms overlap, so the term side should become `codes`. `subject` is shared by exceptions and integration events. `scope`, `check` and `code` keep consistent cores. The record gives no confidence for these judgements.
 
 The `*Because` suffix needs repair only where it holds links. The nested `consistency.because` holds a rule list, and `wideningBecause` holds a requirement link. Both should become verb-form link names. The effect-level `onFailure` is a string, while the page-level `onFailure` is a structured object. This is the most mechanical inconsistency in the schemas. The effect-level string should take the structured shape, or be named `onFailurePolicy`. The record gives no confidence for these claims.
 

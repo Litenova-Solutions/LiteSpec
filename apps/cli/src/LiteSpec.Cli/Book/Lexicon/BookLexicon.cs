@@ -68,7 +68,7 @@ sealed class BookLexicon
         var model = BookLexiconTables.ReadLines(modelFile);
         var layers = BookLexiconParsers.ParseLayers(modelFile, model);
         var types = BookLexiconParsers.ParseTypes(modelFile, model);
-        var links = BookLexiconParsers.ParseLinks(modelFile, model);
+        var links = BookLexiconSchema.Links(Path.Combine(liteSpecRoot, "schemas", "record.schema.yaml"));
         var sections = BookLexiconParsers.ParseSections(modelFile, model);
         var findings = BookLexiconParsers.ParseFindings(toolsFile, BookLexiconTables.ReadLines(toolsFile));
         var glossary = BookLexiconParsers.ParseGlossary(glossaryFile, BookLexiconTables.ReadLines(glossaryFile));

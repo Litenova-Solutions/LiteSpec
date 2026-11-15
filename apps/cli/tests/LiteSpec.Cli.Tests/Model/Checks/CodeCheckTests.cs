@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class CodeCheckTests
 {
     /// <summary>Handler Taking An Undeclared Repository Reports.</summary>
-    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
+    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads</proves>
     [Fact]
     public void HandlerTakingAnUndeclaredRepositoryReports()
     {
@@ -26,7 +26,7 @@ public sealed class CodeCheckTests
     }
 
     /// <summary>Handler Taking A Declared Repository Passes.</summary>
-    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
+    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads</proves>
     [Fact]
     public void HandlerTakingADeclaredRepositoryPasses()
     {
@@ -44,7 +44,7 @@ public sealed class CodeCheckTests
     }
 
     /// <summary>Repository Serves The Aggregate Its Implementation Marks.</summary>
-    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
+    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads</proves>
     [Fact]
     public void RepositoryServesTheAggregateItsImplementationMarks()
     {
@@ -53,7 +53,7 @@ public sealed class CodeCheckTests
         var repositoryFile = Path.Combine(temp.Path, "LoanBookRepository.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "changes": ["aggregate/lending.loan"]}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "writes": ["aggregate/lending.loan"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""));
         model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", handlerFile,
@@ -208,7 +208,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "raises": ["event/loan.loan-borrowed"]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-borrowed"]}"""));
         model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Dispatches: [new CodeDispatch("publishes", "LoanBorrowedIntegrationEvent", "", file, 13)]));
@@ -226,7 +226,7 @@ public sealed class CodeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy", "timing": "async"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy", "timing": "async"}]}"""));
         model.Code.Reactions.Add(new CodeReaction(
             "LoanBorrowedReaction", file, 3, null, "reaction/lending.notify-on-borrow",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9)]));
@@ -244,7 +244,7 @@ public sealed class CodeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
         model.Code.Reactions.Add(new CodeReaction(
             "LoanBorrowedReaction", file, 3, null, "reaction/lending.notify-on-borrow",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9)]));
@@ -282,7 +282,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "PushPassOnLoanReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.push-pass-on-loan", Path.Combine(temp.Path, "push.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"calls": "external-system/wallet#push"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.push-pass-on-loan", Path.Combine(temp.Path, "push.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"calls": "external-system/wallet#push"}]}"""));
         model.Code.Reactions.Add(new CodeReaction(
             "PushPassOnLoanReaction", file, 3, null, "reaction/lending.push-pass-on-loan",
             Dispatches: [new CodeDispatch("calls", "PushAsync", "IWalletPasses", file, 9)]));

@@ -12,4 +12,4 @@ payload:
     type: id
     of: aggregate/lending.loan
     required: true
-translates: event/loan.loan-borrowed
+translates: domain-event/loan.loan-borrowed

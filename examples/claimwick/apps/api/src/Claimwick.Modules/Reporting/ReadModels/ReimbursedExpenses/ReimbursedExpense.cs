@@ -1,0 +1,10 @@
+namespace Claimwick.Reporting.ReadModels.ReimbursedExpenses;
+
+/// <summary>One reimbursed expense as reporting keeps it: who was paid, how much and when.</summary>
+/// <implements>read-model/reporting.reimbursed-expense</implements>
+public sealed record ReimbursedExpense(
+    Guid Id,
+    Guid? EmployeeId,
+    decimal Amount,
+    string Currency,
+    DateTimeOffset ReimbursedAt);

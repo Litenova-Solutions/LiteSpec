@@ -15,7 +15,28 @@ output:
     rows:
       fields:
       - name: loans
+        type: list
         meaning: "One row per loan: its identity, copy, reader, and due date."
+        of:
+          fields:
+          - name: loan
+            type: id
+            of: aggregate/lending.loan
+            required: true
+            meaning: The loan identity.
+          - name: copy
+            type: id
+            of: aggregate/lending.copy
+            required: true
+            meaning: The copy on loan.
+          - name: reader
+            type: text
+            required: true
+            meaning: The reader holding the copy.
+          - name: dueDate
+            type: date
+            required: true
+            meaning: The day the loan is due.
       classification: internal
       reads:
       - aggregate/lending.loan
@@ -27,9 +48,6 @@ paging:
   cursor: The due date and loan identity of the last row.
   defaultLimit: 25
   maxLimit: 100
-idempotency:
-  mode: none
-  reason: The query reads loans without changing them.
 records:
 - type: result
   id: result/list-loans.listed

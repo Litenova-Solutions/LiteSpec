@@ -32,15 +32,16 @@
 {#if ops.length}
   <PageSection blockKey="ops" heading="operations" count={ops.length}>
     <DataTable
-      head={["Operation", "Timeout", "On timeout"]}
+      head={["Operation", "Timeout", "On timeout", "On unknown"]}
       rows={ops.map((o) => [
         tdHtml(
           esc(formatLabel(o.name)) +
             `<div class="mt-1">${badgeHtml(o.direction === "in" ? "Inbound" : "Outbound")}</div>` +
-            (o.response ? `<div class="mt-1 text-[0.6875rem] whitespace-normal text-muted-foreground">${esc(String(o.response))}</div>` : ""),
+            (o.response ? `<div class="mt-1 text-xs whitespace-normal text-slate-600">${esc(String(o.response))}</div>` : ""),
         ),
         tdHtml(duration(stringField(o, "timeout") ?? "")),
         tdHtml(esc(stringField(o, "onTimeout") ?? "")),
+        tdHtml(esc(stringField(o, "onUnknown") ?? "")),
       ])}
     />
   </PageSection>

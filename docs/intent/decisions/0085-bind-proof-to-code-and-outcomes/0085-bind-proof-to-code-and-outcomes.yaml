@@ -1,0 +1,19 @@
+type: decision
+id: decision/0085-bind-proof-to-code-and-outcomes
+title: Bind Proof to Code and Outcomes
+options:
+  - name: "Runs record their commit; staleness watches code; goals separate delivery from outcome"
+    pros: "A passing test followed by a code change shows stale, fulfills reads as a claim until scenarios pass, a goal never shows reached from delivery alone, and money rules face held-back examples."
+    cons: "Every run records its commit, and held-back examples need a second author and a gated folder."
+  - name: "Keep proof by test run alone"
+    pros: "No commit tracking and no second author."
+    cons: "A green run stays green after the code it proved changes, and delivery alone marks goals reached."
+  - name: "Measure outcomes without observations"
+    pros: "Goals carry no new fields."
+    cons: "No date, value, or source backs the outcome, and delivery and outcome stay one number."
+choice: "Runs record their commit; staleness watches code; goals separate delivery from outcome"
+consequences: "A test run records its source commit; a scenario's proof is stale when the scenario, the test body, or any file carrying the mark of the behavior it proves changed after the run. `litespec/core/model#compute-proof-statuses-in-the-builder` computes the states. A `fulfills` link reads as a claim until its scenarios pass. A goal's completion shows delivery only; its outcome reads not measured until the goal records `observations` of `{date, value, source}`. `litespec/core/intent#record-goal-outcomes-as-observations` states the observations. Held-back examples are required for calculation and refusal rules carrying the `money` risk and advisory elsewhere: a different author than the implementing agent writes them under `proof/withheld/`, which the implementing agent's instructions exclude; expected values cite the scenario's rule; they run in CI."
+reopenedWhen: "Proof needs a signal the commit and marks cannot carry, or an outcome needs measuring no observation can state."
+basedOn:
+  - research/check-coverage-evidence
+  - research/agent-testing-evidence

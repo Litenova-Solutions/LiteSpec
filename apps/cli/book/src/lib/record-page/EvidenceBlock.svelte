@@ -36,7 +36,7 @@
       })}
     />
     {#if r.evidenceStrength}
-      <p class="mt-2.5 mb-0 text-sm text-subtle-foreground">Evidence strength: {capitalize(r.evidenceStrength)}</p>
+      <p class="mt-2 mb-0 text-sm text-slate-600">Evidence strength: {capitalize(r.evidenceStrength)}</p>
     {/if}
   </PageSection>
 {/if}

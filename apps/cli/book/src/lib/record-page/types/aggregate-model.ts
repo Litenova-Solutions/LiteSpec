@@ -23,20 +23,20 @@ export interface AggregateStateRow {
   unreached: boolean;
 }
 
-export interface AggregateFlowTarget {
+export interface AggregateTransitionTarget {
   to: string;
-  by: (string | null)[];
+  movedBy: (string | null)[];
 }
 
-export interface AggregateFlow {
+export interface AggregateTransition {
   from: string;
   created: boolean;
-  targets: AggregateFlowTarget[];
+  targets: AggregateTransitionTarget[];
 }
 
 export interface AggregateModel {
   states: AggregateStateRow[];
-  flows: AggregateFlow[];
+  transitions: AggregateTransition[];
   classRows: string[][];
   dataRows: string[][];
   ruleRows: string[][];
@@ -53,16 +53,16 @@ export function aggregateModel(book: Book, f: RecordFields, r: BookRecord, rules
     unreached: reach.length > 0 && !reach.includes(String(s.name)),
   }));
   const froms = dedupe(af.transitions.map((t) => String(t.from)));
-  const flows = froms.map((fr) => {
+  const transitions = froms.map((fr) => {
     const tos = dedupe(af.transitions.filter((t) => String(t.from) === fr).map((t) => String(t.to)));
     return {
       from: fr,
       created: fr === "-",
       targets: tos.map((to) => ({
         to,
-        by: af.transitions
+        movedBy: af.transitions
           .filter((t) => String(t.from) === fr && String(t.to) === to)
-          .map((t) => (t.by ? String(t.by) : null)),
+          .map((t) => (t.movedBy ? String(t.movedBy) : null)),
       })),
     };
   });
@@ -73,7 +73,7 @@ export function aggregateModel(book: Book, f: RecordFields, r: BookRecord, rules
     tdHtml(
       `<div class="text-xs"><b>${esc(capitalize(String(c.onErasure ?? "")))}</b>${periodSuffixHtml(c.period)}</div>` +
         (c.basis || c.reason
-          ? `<div class="mt-0.5 text-[0.6875rem] text-muted-foreground">${esc(String(c.basis ?? c.reason ?? ""))}</div>`
+          ? `<div class="mt-0.5 text-xs text-slate-600">${esc(String(c.basis ?? c.reason ?? ""))}</div>`
           : ""),
     ),
   ]);
@@ -83,15 +83,15 @@ export function aggregateModel(book: Book, f: RecordFields, r: BookRecord, rules
     tdHtml(clsBadgeHtml(d.classification)),
   ]);
   const ruleRows = rules.map((x) => [
-    tdHtml(inlineRefHtml(book, x.id) + `<div class="mt-0.5 text-[0.8125rem] text-muted-foreground">${esc(x.statement)}</div>`),
-    tdHtml(`<span class="font-medium text-foreground">${esc(capitalize(x.kind))}</span>`),
+    tdHtml(inlineRefHtml(book, x.id) + `<div class="mt-0.5 text-xs text-slate-600">${esc(x.statement)}</div>`),
+    tdHtml(`<span class="font-medium text-slate-900">${esc(capitalize(x.kind))}</span>`),
     tdHtml(
       x.refusalCode
         ? `<span class="${codeCls}">${esc(x.refusalCode)}</span>`
         : x.refusalId
           ? inlineRefHtml(book, x.refusalId)
-          : '<span class="font-mono text-[0.6875rem] text-muted-foreground">none</span>',
+          : '<span class="font-mono text-xs text-slate-600">none</span>',
     ),
   ]);
-  return { states, flows, classRows, dataRows, ruleRows };
+  return { states, transitions, classRows, dataRows, ruleRows };
 }

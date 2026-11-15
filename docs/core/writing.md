@@ -19,16 +19,22 @@ Every record title uses Title Case, carries no final period, and holds at most e
 | feature | A noun phrase naming the capability | Receipt Capture with Offline Upload |
 | goal | An outcome noun phrase; the number and date stay in fields | Reimbursement Within Five Working Days |
 | vision | A noun phrase naming where the product heads; no date or priority | Contractor Expenses |
-| journey | A verb plus its object: the actor's task | Submit an Expense Claim with Receipts |
+| flow | A verb phrase naming the actor's task | Submit an Expense Claim with Receipts |
 | actor | A role noun phrase | Approver |
 | requirement | A phrase naming the specific behavior or fact it requires, never a bare noun | Expense Above Threshold Carries Receipt |
 | constraint | A subject noun phrase; the authority stays in its field | Receipt Retention Period per Country |
 | decision | The chosen outcome as a noun phrase | One Approval Chain per Cost Center |
 | research | The question the record answers | How Long Employees Wait for Reimbursement |
-| use case, job, runbook | Verb first | Approve Expense Claim |
+| use case, job, runbook | A verb phrase naming the act | Approve Expense Claim |
 | rule | The assertion as a clause | A Claim Never Exceeds Its Policy Limit |
+| scenario | A phrase naming the case shown | Expense Above Threshold Without Receipt |
+| result | A phrase naming what is now true or what the caller is told | Expense Reimbursed |
+| domain event | A noun phrase naming what happened | Expense Submitted |
+| reaction | A verb phrase naming the act and its trigger | Send Receipt Reminder on Expense Submitted |
+| notification | A noun phrase naming the message | Receipt Reminder |
+| entry point | A noun naming the entry point | Webshop |
 | screen | The place name the user sees | Claim List |
-| view | A noun phrase for what it keeps one row per | Reimbursed Expense |
+| read-model | A noun phrase for what it keeps one row per | Reimbursed Expense |
 
 Eight words is the bound because a title stands alone in book lists, outlines, tabs and search results, where a longer title wraps and stops scanning as one line. The longest form, a problem clause naming the failure and its consequence, fits inside eight words; a title that needs more is stating its statement in the title. Identifiers, acronyms and words with inner capitals keep their written form, and each major part of a hyphenated word is capitalized.
 
@@ -49,22 +55,21 @@ An explanation file beside a record file opens with the record title as its one 
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
 | requirement | Example (optional); the explanation file itself is optional |
-| journey | Example, Branches (optional) |
+| flow | Example, Branches (optional) |
 | module | Responsibilities, Boundaries, Example (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |
 | rule-set | Rationale, Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |
 | job | Invocation, Failure Handling, Example (optional) |
-| view | Sources, Freshness, Example (optional) |
+| read-model | Sources, Freshness, Example (optional) |
 | notification | Content, Delivery, Example |
 | integration-event | Consumers, Compatibility, Example |
 | external-system | Use, Data Shared, Failure Handling |
 | entry-point | Audience, Authentication, Limits (optional) |
 | screen | Task, States, Example |
-| permission-list | Risk, Boundaries (optional) |
+| permission-set | Risk, Boundaries (optional) |
 | setting-set | Defaults, Changes (optional) |
-| retention-schedule | Basis, Conflicts, Deletion |
 | runbook | Prerequisites, Steps, Verification, Recovery |
 | departure | Provision, Reason, Risk, Expiry |
 
@@ -115,7 +120,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Rationale:** A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive and future forms hide the actor or promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states. A sentence that states a fact, a state or a calculation may take its object or its condition as its subject, as in "The statement closing date determines the comparison date." Passive voice that hides who acts stays a finding. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
-**Example:** Claimwick writes "Finance reimburses the due expense." The actor Finance opens the sentence, and the present tense states what holds.
+**Example:** Claimwick writes "The approver approves the expense within five business days." The actor opens the sentence, and the present tense states what holds.
 
 **Reviewed for:** Which sentences that describe an action open with a thing instead of an actor, use the passive voice to hide who acts, or promise in the future tense? Look at the statements and summaries the change adds.
 
@@ -161,7 +166,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every sentence in a record `statement` or `summary` SHOULD hold at most 25 words.
 
-**Deviation:** A longer sentence that keeps a condition the shorter form would drop, as `litespec/core/writing#keep-the-conditions-when-shortening` requires.
+**Departure:** A longer sentence that keeps a condition the shorter form would drop, as `litespec/core/writing#keep-the-conditions-when-shortening` requires.
 
 **Rationale:** A record sentence carries one fact a builder implements, and a sentence past 25 words often carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is a house limit chosen for scanning, not a measured limit of what readers parse, and the count is mechanical so every record is counted the same way. The glossary `meaning` bound is the same bound, checked by `litespec model check` as the advisory `term-meaning-invalid`. A longer explanation belongs in the explanation file, split into sentences that each carry one fact. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
@@ -209,9 +214,9 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Applies to:** artifact: any
 
-**Statement:** Every page MUST use American spelling, the serial comma, numerals for numbers of 10 and above and for every quantity with a unit, ISO dates in fields and long-form dates in prose, straight quotes, and ASCII characters only.
+**Statement:** Every page MUST use American spelling, the serial comma, numerals for numbers of 10 and above and for every quantity with a unit, ISO dates in fields and long-form dates in prose, straight quotes, and ASCII characters except in exact quotations and names, which keep their characters.
 
-**Rationale:** One mechanical form per fact keeps every search, diff and listing exact: `license` in one page and `licence` in another split every lookup, and a curly quote or a typographic dash renders differently in terminals, generated context and plain-text tools. Numerals for measured quantities keep a count scannable beside its unit, while small counts in prose stay words a reader absorbs without stopping. An ISO date in a field sorts and checks as data; the same date in prose reads "2 November 2026", in the order a person says it. Contractions belong on documentation pages, where the voice is a person explaining; records hold none, because a record states a fact in its shortest checkable form. ASCII prose follows `litespec/core/authoring#keep-authored-prose-ascii-safe`.
+**Rationale:** One mechanical form per fact keeps every search, diff and listing exact: `license` in one page and `licence` in another split every lookup, and a curly quote or a typographic dash renders differently in terminals, generated context and plain-text tools. Numerals for measured quantities keep a count scannable beside its unit, while small counts in prose stay words a reader absorbs without stopping. An ISO date in a field sorts and checks as data; the same date in prose reads "2 November 2026", in the order a person says it. Contractions belong on documentation pages, where the voice is a person explaining; records hold none, because a record states a fact in its shortest checkable form. ASCII is LiteSpec's preference for its own pages, as `litespec/core/authoring#keep-authored-prose-ascii-safe` states; exact quotations and names keep their characters.
 
 **Example:** Claimwick prose writes "The tenant keeps receipts for 7 years, files them by month, quarter, and year, and closes the period on 2 November 2026." The field beside it holds `2026-11-02`.
 
@@ -296,6 +301,22 @@ A code comment states why the code is as it is, or what the code cannot express 
 **Example:** The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin.
 
 **Checked by:** `litespec model check` reports `explanation-opening-missing` for an explanation file with no prose between its H1 and its first H2.
+
+### Interpret Fields in Explanations, Never Restate Them
+
+**ID:** `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every explanation file MUST interpret its record's fields in plain words without restating a field value.
+
+**Rationale:** An explanation that copies a field value becomes a second copy that drifts with the next edit to the record. Interpretation says what the record means, why it matters and how it reads beside its neighbors, with context and an example the fields cannot hold. Proposed by decision 0070.
+
+**Example:** A Claimwick feature explanation says the approval reminders end the wait that costs employees weeks, instead of copying the feature's `offering`.
+
+**Reviewed for:** Which explanation files restate a field value instead of interpreting it? Look at each explanation file beside its record's fields.
 
 ### Take Each Example Detail from the Cast or a Cited Record
 

@@ -1,11 +1,11 @@
 type: departure
 id: departure/reimbursed-list-unserved
 title: Reimbursed List Unserved
-summary: The list of reimbursed expenses serves no journey step, because no journey yet has a step where finance checks the payouts.
+summary: The list of reimbursed expenses serves no flow step, because no flow yet has a step where finance checks the payouts.
 covers:
-- use-case-journey-missing
+- use-case-flow-missing
 subject:
 - use-case/reporting.list-reimbursed-expenses
-reason: No journey yet has a step where finance checks the reimbursed expenses against their employees.
-exit: The gap closes when a finance journey gains a step that the list serves, and the list names that step in its serves field.
+reason: No flow yet has a step where finance checks the reimbursed expenses against their employees.
+exit: The gap closes when a finance flow gains a step that the list serves, and the list names that step in its serves field.
 expiresOn: 2027-06-01

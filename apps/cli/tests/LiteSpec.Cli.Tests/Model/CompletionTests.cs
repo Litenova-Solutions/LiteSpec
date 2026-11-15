@@ -6,7 +6,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model;
 
-/// <summary>Proves the builder computes the completion stage of every requirement, use case, journey, feature and goal.</summary>
+/// <summary>Proves the builder computes the completion stage of every requirement, use case, flow, feature and goal.</summary>
 /// <follows>litespec/core/model#compute-completion-in-the-builder</follows>
 public sealed class CompletionTests
 {
@@ -98,26 +98,26 @@ public sealed class CompletionTests
         Assert.Equal(1, completion.Counts["fulfillers verified"].Done);
     }
 
-    /// <summary>A journey is as far as its weakest step, and the unserved step holds it.</summary>
+    /// <summary>A flow is as far as its weakest step, and the unserved step holds it.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void JourneyIsAsFarAsItsWeakestStep()
+    public void FlowIsAsFarAsItsWeakestStep()
     {
         using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrowing-a-copy", Path.Combine(temp.Path, "journey.yaml"), """{"serves": ["goal/borrow"], "steps": [{"id": "s1"}, {"id": "s2"}]}"""),
-            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"serves": ["journey/borrowing-a-copy#s1"]}"""));
+            TestModel.Record("flow", "flow/borrowing-a-copy", Path.Combine(temp.Path, "flow.yaml"), """{"serves": ["goal/borrow"], "steps": [{"id": "s1"}, {"id": "s2"}]}"""),
+            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"serves": ["flow/borrowing-a-copy#s1"]}"""));
 
         model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));
         CompletionCalculator.Compute(model);
 
-        var completion = model.Completion["journey/borrowing-a-copy"];
+        var completion = model.Completion["flow/borrowing-a-copy"];
 
         Assert.Equal("unfulfilled", completion.Stage);
-        Assert.Equal(["journey/borrowing-a-copy#s2"], completion.HeldBy);
-        Assert.Equal(1, completion.Counts["journey steps served"].Done);
-        Assert.Equal(2, completion.Counts["journey steps served"].Of);
+        Assert.Equal(["flow/borrowing-a-copy#s2"], completion.HeldBy);
+        Assert.Equal(1, completion.Counts["flow steps served"].Done);
+        Assert.Equal(2, completion.Counts["flow steps served"].Of);
         Assert.Equal(1, completion.Counts["steps coded"].Done);
         Assert.Equal(0, completion.Counts["steps exercised"].Done);
     }

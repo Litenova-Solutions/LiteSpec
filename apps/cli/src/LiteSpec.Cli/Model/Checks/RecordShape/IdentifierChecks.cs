@@ -23,7 +23,7 @@ internal static class IdentifierChecks
         RecordTypes.Job,
         RecordTypes.Notification,
         RecordTypes.Setting,
-        RecordTypes.View,
+        RecordTypes.ReadModel,
     };
 
     /// <summary>Types whose name segment stays unique in the product.</summary>
@@ -37,7 +37,7 @@ internal static class IdentifierChecks
         RecordTypes.ExternalSystem,
         RecordTypes.Runbook,
         RecordTypes.Departure,
-        RecordTypes.View,
+        RecordTypes.ReadModel,
     };
 
     /// <summary>Record file names fixed by type: the file carries the type's name instead of the record's name.</summary>
@@ -89,7 +89,7 @@ internal static class IdentifierChecks
                 findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' names type {prefix} on a {record.Type} record.", record.File, record.Line, SubjectOf(record)));
             }
 
-            var wantsHome = RecordTypes.WithHome.Contains(record.Type);
+            var wantsHome = WantsHome(record);
 
             if (wantsHome && home is null)
             {
@@ -125,6 +125,23 @@ internal static class IdentifierChecks
         CheckNameDuplicate(model, findings);
         CheckDecisionNumbers(model, findings);
         CheckIdentifierTitle(model, findings);
+    }
+
+    /// <summary>
+    ///     Whether a record's identifier carries a home. A requirement at product level is named by its
+    ///     own name alone; a feature requirement names its feature as its home.
+    /// </summary>
+    /// <param name="record">The record whose identifier is judged.</param>
+    /// <returns>True when the identifier must name a home.</returns>
+    private static bool WantsHome(Record record)
+    {
+        if (record.Type == RecordTypes.Requirement
+            && record.File.Replace(Path.DirectorySeparatorChar, '/').Contains("/intent/requirements/", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return RecordTypes.WithHome.Contains(record.Type);
     }
 
     /// <summary>Reports a module-homed record whose identifier home disagrees with its folder module.</summary>
@@ -293,7 +310,7 @@ internal static class IdentifierChecks
                 continue;
             }
 
-            var wantsHome = RecordTypes.WithHome.Contains(record.Type);
+            var wantsHome = WantsHome(record);
 
             if ((wantsHome && home is null) || (!wantsHome && home is not null))
             {
@@ -456,7 +473,7 @@ internal static class IdentifierChecks
         RecordTypes.Job => "Job",
         RecordTypes.Notification => "Notification",
         RecordTypes.Setting => "Setting",
-        RecordTypes.View => "View",
+        RecordTypes.ReadModel => "Read model",
         _ => "Record",
     };
 }

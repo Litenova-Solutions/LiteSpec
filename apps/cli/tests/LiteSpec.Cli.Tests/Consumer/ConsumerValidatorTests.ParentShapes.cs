@@ -6,33 +6,33 @@ namespace LiteSpec.Cli.Tests.Consumer;
 /// <summary>Consumer validator cases for the allowed shapes of records on a parent page.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    /// <summary>Journey carrying its steps and goal serves.</summary>
-    /// <proves>litespec/core/intent#order-each-journey-toward-one-goal</proves>
-    [Fact(DisplayName = "journey carrying its steps and goal serves")]
-    public void JourneyCarryingItsStepsAndGoalServes()
+    /// <summary>Flow carrying its steps and goal serves.</summary>
+    /// <proves>litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for</proves>
+    [Fact(DisplayName = "flow carrying its steps and goal serves")]
+    public void FlowCarryingItsStepsAndGoalServes()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
+            ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml",
+            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer","cites":["requirement/pricing.flat-fee"]}]}""");
         TestRecords.Explain(
             folder.Path,
-            ".litespec/product/journeys/submit-and-reimburse.md",
+            ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.md",
             "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n");
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Journey carrying a field its type does not declare.</summary>
-    /// <proves>litespec/core/intent#order-each-journey-toward-one-goal</proves>
-    [Fact(DisplayName = "journey carrying a field its type does not declare")]
-    public void JourneyCarryingAnUndeclaredField()
+    /// <summary>Flow carrying a field its type does not declare.</summary>
+    /// <proves>litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for</proves>
+    [Fact(DisplayName = "flow carrying a field its type does not declare")]
+    public void FlowCarryingAnUndeclaredField()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
+            ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml",
+            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer","cites":["requirement/pricing.flat-fee"]}]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'destination'");
     }
 
@@ -44,8 +44,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","advances":["goal/faster-delivery"]}""");
+            ".litespec/intent/features/approval-reminders/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","summary":"Managers get a reminder for claims waiting past three days.","offering":"Managers get a reminder for claims waiting past three days.","solves":["problem/slow-delivery"],"advances":["goal/faster-delivery"]}""");
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -57,8 +57,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","state":"shipped","advances":["goal/faster-delivery"]}""");
+            ".litespec/intent/features/approval-reminders/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","summary":"Managers get a reminder for claims waiting past three days.","offering":"Managers get a reminder for claims waiting past three days.","solves":["problem/slow-delivery"],"state":"shipped","advances":["goal/faster-delivery"]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 
@@ -68,7 +68,7 @@ public sealed partial class ConsumerValidatorTests
     public void ScenarioEndingInADerivedGenericRefusal()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/behavior/modules/orders/cancel-order.yaml", meta => ScenarioResult(meta, "result/cancel-order.forbidden"));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml", meta => ScenarioResult(meta, "result/cancel-order.forbidden"));
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -78,7 +78,7 @@ public sealed partial class ConsumerValidatorTests
     public void ScenarioEndingInAModulePrefixedDerivedRefusal()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/behavior/modules/orders/cancel-order.yaml", meta => ScenarioResult(meta, "result/orders.cancel-order.forbidden"));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml", meta => ScenarioResult(meta, "result/orders.cancel-order.forbidden"));
         AssertProblem(RunConsumer(folder.Path), "matches none of the 2 allowed shapes");
     }
 

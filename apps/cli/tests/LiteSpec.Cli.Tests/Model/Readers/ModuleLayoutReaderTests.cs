@@ -97,9 +97,9 @@ public sealed class ModuleLayoutReaderTests
     }
 
     /// <summary>Unmarked Domain types group by their aggregate folder under the modules root, and shared kernel types under the kernel.</summary>
-    /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void ConstituentsGroupByAggregateFolderInModuleLayout()
+    public void PartsGroupByAggregateFolderInModuleLayout()
     {
         using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
@@ -114,11 +114,11 @@ public sealed class ModuleLayoutReaderTests
         model.Code.DomainTypes.Add(new DomainType("Money", "Library.Lending.Loans", held, 3, false));
         model.Code.DomainTypes.Add(new DomainType("Clock", "Library.Domain", kernel, 3, false));
 
-        Constituents.Compute(model);
+        Parts.Compute(model);
 
-        Assert.Equal("apps/api/src/Library.Modules/Lending/Loans/Domain/Money.cs:Money", Assert.Single(model.Constituents["aggregate/lending.loan"]));
-        Assert.Equal("apps/api/src/Library.SharedKernel/Domain/Clock.cs:Clock", Assert.Single(model.Constituents["kernel"]));
-        Assert.Empty(Constituents.Orphans(model));
+        Assert.Equal("apps/api/src/Library.Modules/Lending/Loans/Domain/Money.cs:Money", Assert.Single(model.Parts["aggregate/lending.loan"]));
+        Assert.Equal("apps/api/src/Library.SharedKernel/Domain/Clock.cs:Clock", Assert.Single(model.Parts["kernel"]));
+        Assert.Empty(Parts.Orphans(model));
     }
 
     /// <summary>The modules and shared kernel roots resolve without the layer-projects extension, leaving the layer roots empty.</summary>

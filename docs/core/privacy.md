@@ -5,22 +5,13 @@
 
 ## Intent
 
-Privacy and Retention states how the product handles personal data: the data classes with their erasure positions, the retention schedule, and the extended erasure needs of referenced rows, child rows, handed-over data, requested reach, export guards, conflicts, and restore sweeps. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Privacy and Retention states how the product handles personal data: the data classes with their erasure positions and retention, and the extended erasure needs of referenced rows, child rows, handed-over data, requested reach, export guards, conflicts, and restore sweeps. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
-### Retention Schedule
+### Retention on the Data Class
 
-The retention schedule is one page holding one row per data class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. It states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record. The project's counsel confirms the wording. Processors and conflicts sit on the row: where the data forwards, and which demand wins when keeping for audit and erasing for the subject collide, with who records the exception.
-
-| Field | Meaning |
-|:---|:---|
-| `dataClass`, `covers` | The class and the aggregates holding it. |
-| `purpose` | Why the data is kept. |
-| `basis`, `period`, `enforcedBy` | The statute, business, or engineering basis, the ISO 8601 duration period or `{ "mode": "none", "reason": "..." }`, and the enforcement. |
-| `cites` | The requirement behind personal or sensitive keeping. |
-| `processors` | `{ system, forwarding, basedOn }` entries. |
-| `conflicts` | Which demand wins on a keeping-versus-erasing collision and who records it. |
+Each aggregate data class declares how long its fields are kept: the `period` with the date it counts from in `periodStartsAt`, the `basis` behind the keeping, the `purpose`, the `enforcedBy` carrying out the erasure, and the `exceptions` beside it, as the [Domain Model page](domain-model.md) states. The book renders the retention schedule from the data classes: one row per class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. The schedule states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record. The project's counsel confirms the wording. An external system names the aggregates and data classes it processes in `processes`, as the [Edges and Screens page](edges.md) states.
 
 ### Extended Erasure Positions
 
@@ -38,9 +29,9 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Statement:** Each aggregate MUST list its data fields with their meaning, classification, and data class in `data`.
 
-**Rationale:** Data without a classification is handled by guess: personal facts sit beside public ones with nothing marking which is which. A meaning with a classification of public, internal, personal, or sensitive tells every later reader how each field is handled, and the data class ties the field to its erasure position and its retention row. The fields live in `data` on the aggregate record file.
+**Rationale:** Data without a classification is handled by guess: personal facts sit beside public ones with nothing marking which is which. A meaning with a classification of public, internal, personal, or sensitive tells every later reader how each field is handled, and the data class ties the field to its erasure position and its retention. The classification of a field matches its data class. The fields live in `data` on the aggregate record file.
 
-**Reviewed for:** Which aggregate data fields lack a meaning, a classification, or a data class? Look at `data` on each aggregate page.
+**Checked by:** `litespec model check` reports `classification-drift` for a field whose `classification` differs from its data class.
 
 ### Declare Every Data Class with Its Erasure Position
 
@@ -48,15 +39,15 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
-**Statement:** Each data class MUST declare its classification, its fields, its purpose, its erasure position, its basis, its retention period, and the enforcement that carries it out.
+**Statement:** Each data class MUST declare its classification, its fields, its purpose, its erasure position, its basis, its retention period with the date it counts from, and the enforcement that carries it out.
 
-**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `anonymize`, `retain`, `exempt`, `tombstone`, `discard`, `cascade-only`, or `transferred`; the basis is `statute`, `business`, or `engineering`; the period is an ISO 8601 duration or `{ "mode": "none", "reason": "..." }`; the enforcement is `reaction/...`, `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. A pseudonymized class stays personal with its basis, and an anonymized class can no longer identify anyone. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
+**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `anonymize`, `retain`, `exempt`, `tombstone`, `discard`, `cascade-only`, or `transferred`; the basis names the constraint, requirement, and decision identifiers behind the retention; the period is an ISO 8601 duration or `{ "mode": "none", "reason": "..." }` with its start in `periodStartsAt`; the enforcement names the `job/` or `use-case/` identifiers carrying out the erasure. A pseudonymized class stays personal with its basis, and an anonymized class can no longer identify anyone. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
 
-**Example:** The submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its accepting requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
+**Example:** The submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its accepting requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years from the financial year end, and the finance expiry job.
 
-**Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position and `retention-enforcement-missing` for a class nothing enforces.
+**Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position, `retention-enforcement-missing` for a class nothing enforces, and `data-class-fields-drift` for a data class `fields` list differing from the fields naming the class.
 
 ### Accept Every Retained Personal Data Class in Intent
 
@@ -64,7 +55,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Statement:** Each personal or sensitive data class kept with `pseudonymize`, `retain`, or `exempt` MUST name the Intent requirements or decisions accepting it in `basedOn`.
 
@@ -80,25 +71,11 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Applies to:** artifact: record:external-system
 
-**Statement:** Each external system MUST declare its erasure as `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with its acceptance.
+**Statement:** Each external system MUST declare its erasure as `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported", "reason": "..." }`, `{ "mode": "manual", "reason": "..." }`, or `{ "mode": "not-applicable", "reason": "..." }`, each with its acceptance.
 
-**Rationale:** Personal data forwarded to a processor without an erasure route stays there past erasure: the product forgets while the processor remembers. Declaring `{ "mode": "call", "operation": "external-system/<name>#<operation>" }` naming the operation, `{ "mode": "event", "event": "integration-event/<name>" }` naming the forwarding integration event, or `{ "mode": "impossible", "reason": "..." }` with its reason and its Intent acceptance states the route beside the system.
+**Rationale:** Personal data forwarded to a processor without an erasure route stays there past erasure: the product forgets while the processor remembers. Declaring `{ "mode": "call", "operation": "external-system/<name>#<operation>" }` naming the operation, `{ "mode": "event", "event": "integration-event/<name>" }` naming the forwarding integration event, or one of the three reason modes with its reason and its Intent acceptance states the route beside the system.
 
-**Reviewed for:** Which external systems declare no erasure call, forwarding event, or impossible reason with acceptance? Look at the external systems beside their erasure routes.
-
-### Schedule Every Data Class for Retention
-
-**ID:** `litespec/core/privacy#schedule-every-data-class-for-retention`
-
-**Strength:** required
-
-**Applies to:** artifact: record:retention-schedule
-
-**Statement:** Each data class MUST appear on the retention schedule with its purpose, basis, period, enforcement, and the requirement it cites where personal or sensitive.
-
-**Rationale:** Retention decided per aggregate scatters: one module erases in days what another keeps for years, and no page shows the whole. Listing every data class on one schedule with its purpose, basis, period, enforcement, processors with their forwarding and acceptance, and the conflict rule where keeping and erasing collide states the whole as rows a reviewer judges together. The schedule states the time limits of a record of processing. Personal or sensitive keeping cites its Intent requirement. The `retention-enforcement-missing` check reports a row nothing enforces.
-
-**Checked by:** `litespec model check` reports `retention-enforcement-missing` for a data class nothing enforces.
+**Reviewed for:** Which external systems declare no erasure call, forwarding event, or reason mode with acceptance? Look at the external systems beside their erasure routes.
 
 ### Keep a Tombstone Where Deletion Stays Visible
 
@@ -106,7 +83,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Statement:** A data class whose rows outlive erasure as references MUST use `onErasure: tombstone` with the fields its marker keeps.
 
@@ -122,7 +99,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Statement:** A data class with no duty to keep a marker MUST use `onErasure: discard`.
 
@@ -138,7 +115,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Statement:** A data class erased only as a cascade from a parent erasure MUST use `onErasure: cascade-only` with the parent it follows.
 
@@ -154,7 +131,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Statement:** A data class handed to another controller MUST use `onErasure: transferred` with the receiver and the handover record.
 
@@ -202,7 +179,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Statement:** A data class with `exportFirst` MUST complete the subject export before its erasure runs.
 
@@ -218,7 +195,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Statement:** Erasure under `unchangedSinceExport` MUST stop and ask for a fresh export when the data changed since the last export.
 
@@ -250,15 +227,15 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
-**Statement:** Each retention conflict MUST name the winning duty and its basis.
+**Statement:** Each retention conflict MUST name the winning duty and its basis in the data class `exceptions`.
 
-**Rationale:** Keeping for audit and erasing for the subject collide on the same row: the invoice the statute keeps sits beside the name the subject erases. Silence lets each implementer pick a winner. Naming the winning duty with its basis keeps one decision where every reader finds it.
+**Rationale:** Keeping for audit and erasing for the subject collide on the same row: the invoice the statute keeps sits beside the name the subject erases. Silence lets each implementer pick a winner. Naming the winning duty with its basis in the data class `exceptions` keeps one decision where every reader finds it.
 
 **Example:** Claimwick keeps the expense ledger for seven years under tax law while erasing the submitter contact. ZITADEL keeps its audit events while erasing the user they describe, under the same rule.
 
-**Reviewed for:** The retention schedule rows name the winning duty with its basis.
+**Reviewed for:** The data class `exceptions` name the winning duty with its basis.
 
 ## Conventions
 
@@ -268,7 +245,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** default
 
-**Applies to:** artifact: record:retention-schedule
+**Applies to:** artifact: aggregate
 
 **Default:** A tombstone keeps the row id and the erasure date, and no other field.
 

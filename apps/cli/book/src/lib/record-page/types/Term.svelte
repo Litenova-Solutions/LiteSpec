@@ -32,9 +32,6 @@
         ]),
       ]}
     />
-    <p class="mt-2 text-xs text-muted-foreground">
-      Adding a language changes no other record.
-    </p>
   </PageSection>
 {/if}
 {#if values.length}
@@ -47,11 +44,11 @@
 {/if}
 {#if rejected.length}
   <PageSection blockKey="rej" heading="rejected" count={rejected.length}>
-    <div class="border-t border-border">
+    <div class="border-t border-slate-200">
       {#each rejected as x, i (String(x.word ?? i))}
-        <div class="grid grid-cols-[minmax(0,1fr)] gap-x-3 gap-y-1 sm:grid-cols-[150px_minmax(0,1fr)] border-b border-border py-2.5 text-[0.84375rem]">
+        <div class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-3 gap-y-1 border-b border-slate-200 py-2.5 text-sm">
           <s class="font-medium text-warn-foreground [text-decoration-thickness:1.5px]">{String(x.word ?? "")}</s>
-          <div><p class="m-0 text-subtle-foreground">{String(x.reason ?? "")}</p></div>
+          <div><p class="m-0 text-slate-600">{String(x.reason ?? "")}</p></div>
         </div>
       {/each}
     </div>

@@ -54,17 +54,17 @@ A rule the team cannot meet yet gets a departure in `.litespec/governance/depart
 
 ### Check the Records
 
-Run the model check, then build the book:
+Run the model check, then serve the book:
 
 ```bash
 dotnet litespec model check
 dotnet litespec book
 ```
 
-The model check runs the check level G findings alone, so no finding names code layout, marks or proof. The book shows Intent, Behavior and governance, and it shows Implementation and Proof as not claimed.
+The model check runs the check level G findings alone, so no finding names code layout, marks or proof. The book serves Intent, Behavior and governance on localhost, and it shows Implementation and Proof as not claimed.
 
 ## Check
 
 - `dotnet litespec model check` reports no blocking finding from the consumer root.
-- The book shows the first slice of Intent and Behavior, and marks Implementation and Proof as not claimed.
+- The served book shows the first slice of Intent and Behavior, and marks Implementation and Proof as not claimed.
 - `dotnet litespec rules` on a record identifier returns the provisions about records, and on a code path returns no provision, since the claim covers no code.

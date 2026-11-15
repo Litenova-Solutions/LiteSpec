@@ -60,7 +60,7 @@ sealed partial class ProjectModel
     /// <summary>Gets or sets a value indicating whether whether the TypeScript reader's handshake matched, so it is qualified.</summary>
     public bool TypeScriptQualified { get; set; }
 
-    /// <summary>Gets the journey steps a passing test exercised, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
+    /// <summary>Gets the flow steps a passing test exercised, as <c>flow/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
     public SortedSet<string> ExercisedSteps { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets or sets the generated-client operations each steps method calls, keyed by class and method.</summary>
@@ -91,7 +91,7 @@ sealed partial class ProjectModel
     /// <summary>Gets refusal codes by the class whose literal carries them.</summary>
     public Dictionary<string, HashSet<string>> RefusalCodes { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Gets per requirement, use case, journey, feature and goal, by id: the computed completion stage, proof state, holding children and counts.</summary>
+    /// <summary>Gets per requirement, use case, flow, feature and goal, by id: the computed completion stage, proof state, holding children and counts.</summary>
     public Dictionary<string, Completion> Completion { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets per screen record, by id: the screenshot captures the gallery holds for its route.</summary>
@@ -107,7 +107,16 @@ sealed partial class ProjectModel
     public Dictionary<string, IReadOnlySet<string>> ReachableStates { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets per aggregate, by id, plus <c>kernel</c>: the unmarked Domain types its folder holds, as <c>path:name</c>.</summary>
-    public Dictionary<string, List<string>> Constituents { get; } = new(StringComparer.Ordinal);
+    public Dictionary<string, List<string>> Parts { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets the requirement identifiers each flow carries, computed as the union of its steps' citations, by flow id.</summary>
+    public Dictionary<string, List<string>> FlowCitations { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets the refusal codes every module declares in its refusals.yaml, in module order.</summary>
+    public List<LiteSpec.Cli.Model.Refusals.RefusalEntry> RefusalSets { get; } = [];
+
+    /// <summary>Gets the generic refusal codes derived for each use case, by use case id; never written in a file.</summary>
+    public Dictionary<string, IReadOnlyList<string>> DerivedRefusals { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets results of measured checks read from tool result files.</summary>
     public List<MeasureResult> Measures { get; } = [];

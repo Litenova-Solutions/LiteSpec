@@ -59,8 +59,8 @@ export function parseTrail(text: string): { trail: Trail; errors: string[] } {
 // Record types grouped by what they answer, which picks the chip color.
 const GROUPS: Record<string, string> = {
   product: "intent", goal: "intent", problem: "intent", feature: "intent", research: "intent",
-  decision: "intent", constraint: "intent", requirement: "intent", journey: "intent",
-  module: "behavior", aggregate: "behavior", rule: "behavior", event: "behavior", "use-case": "behavior",
+  decision: "intent", constraint: "intent", requirement: "intent", flow: "intent",
+  module: "behavior", aggregate: "behavior", rule: "behavior", "domain-event": "behavior", "use-case": "behavior",
   result: "outcome", scenario: "outcome",
 };
 

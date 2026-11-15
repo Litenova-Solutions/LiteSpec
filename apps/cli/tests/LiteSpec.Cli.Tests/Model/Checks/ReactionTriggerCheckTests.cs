@@ -26,7 +26,7 @@ public sealed class ReactionTriggerCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.no-such-event"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/loan.no-such-event"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
 
         Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
@@ -45,16 +45,16 @@ public sealed class ReactionTriggerCheckTests
         Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
-    /// <summary>Reaction With An Event Trigger Passes.</summary>
+    /// <summary>Reaction With A Domain Event Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void ReactionWithAnEventTriggerPasses()
+    public void ReactionWithADomainEventTriggerPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""));
 
         Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
@@ -73,17 +73,17 @@ public sealed class ReactionTriggerCheckTests
         Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
-    /// <summary>Reaction With Two Event Triggers Passes.</summary>
+    /// <summary>Reaction With Two Domain Event Triggers Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void ReactionWithTwoEventTriggersPasses()
+    public void ReactionWithTwoDomainEventTriggersPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.assign-seat-on-seat-sold", Path.Combine(temp.Path, "assign.yaml"), """{"status": "reviewed", "triggeredBy": ["event/ticket.seat-sold", "event/ticket.seat-released"], "effects": [{"runs": "use-case/lending.assign-seat", "timing": "async"}]}"""),
-            TestModel.Record("event", "event/ticket.seat-sold", Path.Combine(temp.Path, "sold.yaml"), """{"status": "reviewed", "meaning": "A seat was sold.", "carries": []}"""),
-            TestModel.Record("event", "event/ticket.seat-released", Path.Combine(temp.Path, "released.yaml"), """{"status": "reviewed", "meaning": "A sold seat was released.", "carries": []}"""));
+            TestModel.Record("reaction", "reaction/lending.assign-seat-on-seat-sold", Path.Combine(temp.Path, "assign.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/ticket.seat-sold", "domain-event/ticket.seat-released"], "effects": [{"runs": "use-case/lending.assign-seat", "timing": "async"}]}"""),
+            TestModel.Record("domain-event", "domain-event/ticket.seat-sold", Path.Combine(temp.Path, "sold.yaml"), """{"status": "reviewed", "meaning": "A seat was sold.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/ticket.seat-released", Path.Combine(temp.Path, "released.yaml"), """{"status": "reviewed", "meaning": "A sold seat was released.", "carries": []}"""));
 
         Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }

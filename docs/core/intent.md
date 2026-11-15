@@ -6,7 +6,7 @@
 
 ## Intent
 
-Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
+Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -15,13 +15,13 @@ Intent is why the product exists and what it promises: the product, actors, goal
 | Question | Record | Write It When | Skip It When | Familiar As |
 |:---|:---|:---|:---|:---|
 | What is the product and for whom? | product | Always, once | Never | Product brief |
-| Who touches the product? | actor | A person or organization appears in a problem, a journey or an access position | The "actor" is a role or a system; roles are Behavior and systems stand alone | Stakeholder |
+| Who touches the product? | actor | A person or organization appears in a problem, a flow or an access position | The "actor" is a role or a system; roles are Behavior and systems stand alone | Stakeholder |
 | What software outcome do we want? | goal | You can name what you count | The system controls it directly: that is a quality requirement | Product goal |
 | Where is the product heading beyond what it promises now? | vision | A choice made now keeps a later destination open | You can name the pain and the offer: write the problem and the feature | Product vision |
 | What pain do people outside the team have today? | problem | You can name who suffers, what it costs them and what they do instead, with evidence | Only one solution is imaginable: it is a feature | Pain point |
-| What do we offer against a problem? | feature | Scope needs tracking | The commitment is permanent and no offer carries it | Capability |
+| What do we offer against a problem? | feature | Scope needs tracking | The commitment is permanent and no offer carries it, so it is a product requirement | Capability |
 | What exactly must hold? | requirement | Always | Never | User story |
-| Can a person get from start to finish? | journey | A task crosses several actions | It is one action | User journey |
+| Can an actor get from start to finish? | flow | A task crosses several actions | It is one action | User flow |
 | Which outside rule binds us? | constraint | An outside party can hold us to it | It is our own choice: a decision | Mandated constraint |
 | Which outside fact did we rely on, and when was it true? | research | A choice rests on it and it could change | It binds us: a constraint | Spike |
 | Which option did we choose, and what reopens it? | decision | There were real options | There was nothing to choose | Decision record |
@@ -31,9 +31,9 @@ Intent is why the product exists and what it promises: the product, actors, goal
 
 Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) states the boundary, and [The Software Test](#the-software-test) names what belongs for each record type.
 
-Intent reads problem, then feature, then requirement. A problem names one outside pain with its evidence; each feature sits in the folder of the one problem it answers and carries the offer; each requirement sits in its own folder inside its feature's folder and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. Each requirement keeps one authoritative file, and the book brings a feature's requirements together on the feature's page with the decisions behind them.
+Intent reads problem, then feature, then requirement. A problem names one outside pain with its evidence; each feature stands in its own folder under `intent/features/` and names the problems it answers in `solves` and the goals it moves in `advances`; each requirement sits in its own folder inside its feature's folder, or at product level when no offer carries it, and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. Each requirement keeps one authoritative file, and the book brings a feature's requirements together on the feature's page with the decisions behind them, and groups each feature under every problem it solves. The product states what it leaves out in `excludes`; its summary is never read as an exclusion.
 
-Intent is not Behavior. A rule or use case states what the system does today and matches the code. A requirement states what the product decided and why, and it can describe a position the code does not carry yet. The two connect in one direction: Behavior records name the requirements they fulfill and the steps they serve, and an Intent record never describes Behavior, except a decision naming the records it settles in `decides` and an actor naming its roles in `holds`.
+Intent is not Behavior. A rule or use case states what the system does today and matches the code. A requirement states what the product decided and why, and it can describe a position the code does not carry yet. The two connect in one direction: Behavior records name the requirements they fulfill and the flow steps they serve, and an Intent record never describes Behavior, except a decision naming the records it settles in `decides` and an actor naming its roles in `holds`.
 
 ### The Software Test
 
@@ -58,55 +58,68 @@ Each record sits in the folder of its parent, and the folder names that parent:
 ```text
 .litespec/intent/
   product.yaml
-  goals/  visions/  constraints/  decisions/  research/  actors/  roles/  journeys/
+  goals/  visions/  constraints/  decisions/  research/  actors/  roles/  flows/  features/  requirements/
   problems/
     payouts-wait/
       payouts-wait.yaml
-      features/
-        payout/
-          payout.yaml          the feature
-          payout.md            its explanation, optional
-          requirements/
-            paid-once/         requirement
-              paid-once.yaml
-              paid-once.md     its explanation, optional
+      payouts-wait.md          its explanation
+  features/
+    payout/
+      payout.yaml              the feature
+      payout.md                its explanation, optional
+      requirements/
+        paid-once/             requirement
+          paid-once.yaml
+          paid-once.md         its explanation, optional
+  requirements/
+    tenant-isolation/
+      tenant-isolation.yaml    product requirement
+  flows/
+    pay-a-payout/
+      pay-a-payout.yaml
 ```
 
-Product level holds the product, visions, goals, constraints, decisions, research, actors, roles and journeys. Each problem's folder holds the problem and the features that answer it, and each feature's folder holds its requirements. Journeys cross modules through their steps. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
+Product level holds the product, visions, goals, constraints, decisions, research, actors, roles, flows, features and product requirements. Each problem's folder holds the problem. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
 
 Modules are not declared here. A module is a code boundary, so it is declared in Behavior, and [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Behavior and code.
 
 ### Identifiers and Placement
 
-The identifier stays as it is: `problem/organizers-wait-for-ticket-money`, unique in the product, and what every link and citation uses. Moving a feature to another problem moves its folder and changes no citation, because the identifier names no problem.
+The identifier stays as it is: `problem/organizers-wait-for-ticket-money`, unique in the product, and what every link and citation uses. Pointing a feature at another problem changes its `solves` and moves no folder, because the identifier names no problem.
 
 A record's placement shows as its folder path and its `module`. The book and the CLI show the identifier with that placement, so a reader can tell where the record sits without a second identifier.
 
 ### How Intent Reaches Behavior
 
-The [model page](model.md) states the authority order that settles conflicts between records. Goals, visions, problems, features, journeys, actors, research, and prose carry no authority, and decisions win between peers.
+The [model page](model.md) states the authority order that settles conflicts between records. Goals, visions, problems, features, flows, actors, research, and prose carry no authority, and decisions win between peers.
 
-A decision wins its choice, and a feature states it as requirements. Behavior records name the requirements they fulfill and the journey steps they serve, and the code carries what happens today. When Behavior contradicts a requirement, either the code carries a defect or the product changed. A changed product means a new decision before any page or code moves.
+A decision wins its choice, and a feature states it as requirements. Behavior records name the requirements they fulfill and the flow steps they serve, and the code carries what happens today. When Behavior contradicts a requirement, either the code carries a defect or the product changed. A changed product means a new decision before any page or code moves. A lower record never overrides a higher one; only an entry in the product `excludes` sets a requirement aside.
 
 A fact learned from the world enters Intent as research or a constraint, cited and dated. Where Intent is silent, working code is evidence for a missing record, not a defect to delete.
 
+### The Product Brand
+
+The product record carries the brand in `brand`: the `reader` the product addresses, the one thing the product is `accountableFor` on every screen, three single words the product `is` and three it `isNot`, and the rules every screen keeps in `do` and `doNot`. The reader and the accountability read as sentences. The two word lists hold exactly three single words each. The two rule lists hold plain sentences a reviewer checks on any screen. The brand is a product choice, so it sits on the product record where every screen inherits it, and the words a screen avoids come from the glossary: each term's aliases are the words not to use, and its labels give the word per language.
+
 ### Requirements with Except and Fallback
 
-A requirement carries `kind` (functional, quality, or policy), `statement`, `rationale`, and `measure` where its statement names a number. `setBy` names who sets its value: `product`, `operator`, or `tenant`.
+A requirement carries `kind` (functional, quality, or policy), `statement`, `rationale`, and `measure` on a quality requirement whose statement names a number. `setBy` names who sets its value: `product`, `operator`, or `tenant`.
 
 An `except` entry states in product words when the commitment does not hold, and `fallback` names the requirement that covers what happens then. The fallback carries no `except` of its own: exceptions stay one deep, so every exception ends in a promise.
 
-### Journeys as Product Sentences
+### Flows as Product Sentences
 
-A journey carries `actor`, `serves`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and `cites`. `serves` names the goal record. `summary` states in up to four sentences who takes the journey, what starts it, what good looks like, and the consequence at stake and for whom, and the book renders it first on the page. `startedWhen` states the observable state in which the journey starts in one sentence, as `finishedWhen` states the end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the actor taking the journey only at a handoff in `actor`, or names the system record performing it in `system` when no person acts, and carries its failure text in `failure` where the journey can fail. A step carries exactly one of `actor` and `system`, or neither when the actor taking the journey performs it. `branches` states each path that leaves the order of the steps: the step it leaves, its condition and the step it continues at, or `end`. A step id reads `journey/<name>#s1`.
+A flow is the software flow of one task: a trigger, ordered steps, alternative paths, step failures and an end state. The name is the standard user flow term. It fits any actor, and it matches the fields: `steps` are the main flow and `branches` are the alternative flows.
 
-Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `startedWhen`, the steps as sentences with `failure`, each branch as a sentence after the steps, `finishedWhen`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, and the Then clauses of their scenarios as context. Field names never render literally in journey detail.
+A flow carries `actor`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and exactly one of `serves` and `answers`. Each holds a list of exactly one identifier, the shape every link field has: `serves` names one goal, and `answers` names one problem or one constraint. `summary` states in up to four sentences who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom, and the book renders it first on the page. `startedWhen` states the observable state in which the flow starts in one sentence, as `finishedWhen` states the end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the actor taking the flow only at a handoff in `actor`, or names the external system performing it in `system` when no person acts, carries its failure text in `failure` where the flow can fail, and names the requirements it carries in `cites`. A step carries at most one of `actor` and `system`, or neither when the actor taking the flow performs it. `branches` states each path that leaves the order of the steps: the step it leaves, its condition and the step it continues at, or `end`. A step id reads `flow/<name>#s1`. The flow carries no `cites` of its own; the model reads the union of its steps.
 
-A journey leads one actor toward one goal. A step names another actor only at a handoff, and a journey with several goals splits into several journeys.
+Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. Jobs and reactions never stand in `system`; they serve the step from above like use cases. The book shows each flow as record detail: `startedWhen`, the steps as sentences with `failure`, each branch as a sentence after the steps, `finishedWhen`, each step with the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, and the Then clauses of their scenarios as context. Field names never render literally in flow detail.
 
-### Staff Journeys
+A flow leads one actor toward one goal, problem or constraint. A step names another actor only at a handoff, and a flow with several reasons splits into several flows.
 
-Journeys are not only employee journeys. A staff actor takes a staff journey, such as finance exporting the approved batch, through the same shape of serves, `startedWhen`, `finishedWhen`, steps, and `branches`. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too.
+### Staff Flows
+
+Flows are not only customer flows. A staff actor takes a staff flow, such as finance exporting the approved batch, through the same shape of `serves` or `answers`, `startedWhen`, `finishedWhen`, steps, and `branches`. A scheduled promise is a requirement that a job fulfills, not a flow. Staff steps read as product sentences too.
 
 ### Visions
 
@@ -127,11 +140,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
+**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:flow, record:feature, record:requirement
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder in its feature's `requirements/` folder.
+**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, goal, problem, constraint, decision, research record, actor and flow in its own folder under `.litespec/intent/`, each feature in `intent/features/<name>/`, each feature requirement in its own folder in its feature's `requirements/` folder, and each product requirement in `intent/requirements/<name>/`.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, a problem's folder holds the features that answer it, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers) and [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors, flows, features and product requirements at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
 **Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and any file under `intent/modules/`.
 
@@ -145,9 +158,25 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A consumer MUST state exactly one product record at `.litespec/intent/product.yaml`, with `boundary`, `addresses`, and `summary`.
 
-**Rationale:** One product record gives every reader one answer to what the product is and who it serves. The `boundary` and `addresses` focus every later choice. Two product statements let each plan cite the one it prefers. `summary` states what the product is in one place.
+**Rationale:** One product record gives every reader one answer to what the product is and who it serves. The `boundary` and `addresses` focus every later choice. Two product statements let each plan cite the one it prefers. `summary` states what the product is in one place. The product lists what it leaves out in `excludes`, in plain sentences; only an `excludes` entry sets a requirement aside, and the summary is never read as one.
 
 **Checked by:** `litespec model check` reports no `product-count-invalid` finding, and `litespec model check` reports `record-invalid` for product fields outside the record schema.
+
+### State the Brand on the Product
+
+**ID:** `litespec/core/intent#state-the-brand-on-the-product`
+
+**Strength:** required
+
+**Applies to:** artifact: record:product
+
+**Statement:** A consumer MUST state the product brand in `brand`, with its reader, what the product is accountable for on every screen, three words the product is, three words it is not, and the rules every screen keeps.
+
+**Rationale:** The brand is a product choice: who the product addresses, what it stands for, and what every screen keeps. A brand filed in the implementation design contract beside token values and component names stays outside what the records govern, and a project claiming only Intent and Behavior has nowhere to state it. Stated on the product record, it sits with the product every screen serves. The `reader` and `accountableFor` read as sentences; `is` and `isNot` hold exactly three single words each; `do` and `doNot` hold the rules every screen keeps. Proposed by [decision/0089-specify-the-ui-as-a-blueprint](decision/0089-specify-the-ui-as-a-blueprint).
+
+**Example:** The Claimwick product states its reader as an employee submitting expenses from a phone, its accountability as showing what each expense waits for, `is` as calm, plain and exact, `isNot` as playful, dense and showy, and one `do` rule that every screen shows each amount with its currency code.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a product `brand` outside the record schema.
 
 ### Keep Company Operation Out of Intent
 
@@ -175,7 +204,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each Intent record other than a vision MUST reach Behavior through its stated path.
 
-**Rationale:** The folder fixes where a record sits. Reachability fixes that it leads to software. A vision is the one exception, because it states where the product heads and promises nothing yet. A goal reaches a journey or a quality requirement. A problem reaches a feature or a requirement that addresses it. A feature or a requirement reaches a use case, a journey or a quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work for the backlog or not software.
+**Rationale:** The folder fixes where a record sits. Reachability fixes that it leads to software. A vision is the one exception, because it states where the product heads and promises nothing yet. A goal reaches a flow or a quality requirement. A problem reaches a feature that solves it, a requirement that cites it, or a flow that answers it. A feature or a requirement reaches a use case, a flow or a quality scenario in Behavior. A constraint is answered by a requirement or by a flow. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work for the backlog or not software.
 
 **Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior.
 
@@ -193,21 +222,37 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports `record-invalid` for a goal record file missing a required field.
 
-### Move Every Goal with a Journey or a Quality Requirement
+### Move Every Goal with a Flow or a Quality Requirement
 
-**ID:** `litespec/core/intent#move-every-goal-with-a-journey-or-a-quality-requirement`
+**ID:** `litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement`
 
 **Strength:** required
 
 **Applies to:** artifact: record:goal
 
-**Statement:** A goal MUST be moved by a journey serving it or by a quality requirement citing it.
+**Statement:** A goal MUST be moved by a flow serving it or by a quality requirement citing it.
 
-**Rationale:** A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the journey that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
+**Rationale:** A goal no flow serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A flow serving the goal shows the flow that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. Only a flow that names the goal in `serves` moves it; a flow that answers a problem or a constraint moves no goal measure. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
-**Example:** The library goal of faster pickup is moved by the borrow-and-return journey serving it; a goal of higher membership sales is moved by no journey and is no product goal.
+**Example:** The library goal of faster pickup is moved by the borrow-and-return flow serving it; a goal of higher membership sales is moved by no flow and is no product goal.
 
-**Checked by:** `litespec model check` reports `goal-mover-missing` for a goal moved by no journey and no quality requirement.
+**Checked by:** `litespec model check` reports `goal-mover-missing` for a goal moved by no flow and no quality requirement.
+
+### Record Goal Outcomes as Observations
+
+**ID:** `litespec/core/intent#record-goal-outcomes-as-observations`
+
+**Strength:** required
+
+**Applies to:** artifact: record:goal
+
+**Statement:** A goal MUST record each measured outcome in `observations` with its `date`, `value` and `source`.
+
+**Rationale:** A goal's completion shows delivery only: its features, flows and requirements. Delivery never shows the outcome was reached. The outcome reads "not measured" until the goal records observations. Each observation carries the date it was read, the measured value and the source, so a reader sees what moved and how anyone knows. Proposed by decision 0085.
+
+**Example:** The library goal of faster pickup records each month the share of holds ready within one day, with the report it was read from. Until the first observation, the book shows the outcome as not measured.
+
+**Reviewed for:** Which goals show an outcome with no observations, or carry observations without a date, a value or a source? Look at each goal record beside its completion.
 
 ### State Each Vision in Its Fields
 
@@ -400,21 +445,21 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Reviewed for:** Which problem statements name a product, a feature, or a solution? Look at the problem statements beside their sufferers.
 
-### Answer One Problem with Each Feature
+### Solve Problems with Standalone Features
 
-**ID:** `litespec/core/intent#answer-one-problem-with-each-feature`
+**ID:** `litespec/core/intent#solve-problems-with-standalone-features`
 
 **Strength:** required
 
 **Applies to:** artifact: record:feature
 
-**Statement:** A feature MUST sit in the features folder of the one problem it answers, `intent/problems/<problem>/features/`, and an offer that answers two pains is two features.
+**Statement:** A feature MUST stand in `intent/features/<name>/` and name in `solves` one or more problems it answers.
 
-**Rationale:** The folder names the problem, so a reader of a problem sees every answer to it beside the problem. A feature that answered two problems would be filed under two pains, and each pain would be written twice. Two pains that one offer answers are one problem. Proposed by [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers).
+**Rationale:** A feature whose content spans two problems sits in neither, as the placement provision requires. Standing alone with `solves` keeps each offer written once and lets the book group it under every problem it answers. One offer that answers two pains is one feature naming both problems. Proposed by decision 0080. Settled by [decision/0080-solve-problems-with-standalone-features](decision/0080-solve-problems-with-standalone-features).
 
-**Example:** The approval feature and the approval reminders feature both answer the expense wait problem, so both sit in `problems/expenses-wait-weeks/features/`.
+**Example:** The Claimwick approval reminders feature stands in `intent/features/approval-reminders/` and names `problem/expenses-wait-weeks` in `solves`.
 
-**Checked by:** `litespec model check` reports `record-placement-invalid` for a feature outside a problem's `features` folder, and `record-parent-missing` for a feature whose problem folder holds no problem record.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a feature outside `intent/features/`, and `record-invalid` for a feature with no `solves`.
 
 ### Explain Every Problem in Its Fixed Sections
 
@@ -442,7 +487,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A problem explanation file MUST state under Resolution Criteria, for each failure case, an observable outcome for the sufferer that shows the failure has ended, naming no feature or implementation.
 
-**Rationale:** Criteria that cover one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature that delivers the outcome sits in the folder of the problem it answers, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.
+**Rationale:** Criteria that cover one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature that delivers the outcome names the problem in `solves`, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.
 
 **Example:** The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks.
 
@@ -472,7 +517,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A feature MUST state its `offering` and name the goals it moves in `advances`.
 
-**Rationale:** A feature names the goals it moves in `advances`, so each offer traces to an outcome. The problem it answers is the folder it sits in, as [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers) states, so the offer traces to a pain without a second link. `offering` states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** A feature names the goals it moves in `advances`, so each offer traces to an outcome. The problems it answers are the `solves` list, so the offer traces to a pain beside the goals. `offering` states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
 **Reviewed for:** Which features miss their offering or their moved goals? Look at each feature record beside its goals.
 
@@ -514,7 +559,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:journey, record:actor, record:role
+**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role
 
 **Statement:** An explanation file of an Intent record MUST describe only behavior that the record's own fields and the records it cites state.
 
@@ -550,7 +595,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** An actor MUST carry a `kind` of person or organization and state in `belongsToTeam` whether it belongs to the team building and running the product.
 
-**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a journey. `belongsToTeam` reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
+**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a flow. `belongsToTeam` reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway is an external system and no actor.
 
@@ -572,21 +617,21 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Reviewed for:** Which actor explanations state a user's knowledge as a fact about every user, rather than as an assumption of the product? Look at the opening paragraph and the Knowledge section of each actor explanation.
 
-### Name Every Actor from a Journey, a Problem or an Access Position
+### Name Every Actor from a Flow, a Problem or an Access Position
 
-**ID:** `litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position`
+**ID:** `litespec/core/intent#name-every-actor-from-a-flow-a-problem-or-an-access-position`
 
 **Strength:** required
 
 **Applies to:** artifact: record:actor
 
-**Statement:** Every actor MUST be named by a journey, by a problem in `affects`, or by an access position in `holds`.
+**Statement:** Every actor MUST be named by a flow, by a problem in `affects`, or by an access position in `holds`.
 
-**Rationale:** An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the journey it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
+**Rationale:** An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the flow it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
-**Example:** The library reader is named by the borrow-and-return journey and by the due-date problem; the librarian is named by the holds of the librarian role.
+**Example:** The library reader is named by the borrow-and-return flow and by the due-date problem; the librarian is named by the holds of the librarian role.
 
-**Checked by:** `litespec model check` reports `actor-unused` for an actor named by no journey, problem or access position.
+**Checked by:** `litespec model check` reports `actor-unused` for an actor named by no flow, problem or access position.
 
 ### Define Each Recurring Capitalized Phrase
 
@@ -710,11 +755,27 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Each requirement MUST carry one identifier `requirement/<feature>.<name>` whose feature segment names the feature whose folder holds it and whose name segment names its own folder.
+**Statement:** Each requirement MUST carry one identifier that names its parent: `requirement/<feature>.<name>` for a feature requirement whose feature segment names the feature whose folder holds it, and `requirement/<name>` for a product requirement.
 
-**Rationale:** An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The requirement's folder sits inside its feature's folder, so the folder names the parent, and the feature segment names the same feature wherever the identifier is cited. Settled by [decision/0045-keep-each-requirement-in-its-own-folder](../intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder.md), which gives each requirement one authoritative file with room for an explanation. Proposed by [decision/0003-requirement-origin](decision/0003-requirement-origin) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. A feature requirement's folder sits inside its feature's folder, so the folder names the parent, and the feature segment names the same feature wherever the identifier is cited. A product requirement sits at product level and names only its own folder. Settled by [decision/0045-keep-each-requirement-in-its-own-folder](../intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder.md), which gives each requirement one authoritative file with room for an explanation. Proposed by [decision/0003-requirement-origin](decision/0003-requirement-origin) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a requirement without identifier; `litespec model check` reports `identifier-invalid` for a feature segment differing from the feature whose folder holds it.
+**Checked by:** `litespec model check` reports `record-invalid` for a requirement without identifier; `litespec model check` reports `identifier-invalid` for a feature segment differing from the feature whose folder holds it, or for a product requirement carrying a feature segment.
+
+### Place Product-Wide Commitments as Product Requirements
+
+**ID:** `litespec/core/intent#place-product-wide-commitments-as-product-requirements`
+
+**Strength:** required
+
+**Applies to:** artifact: record:requirement
+
+**Statement:** A requirement no offer carries MUST sit in `intent/requirements/<name>/` and cite in `cites` at least one constraint, goal or problem.
+
+**Rationale:** A permanent commitment with no offer, such as tenant isolation, audit integrity, accessibility or recovery, has no feature to hold it. Its `cites` is the list a feature requirement takes, so the research and decisions behind it stay citable beside the constraint, goal or problem that is required. Sitting at product level with its reason cited keeps it reachable without an invented feature. The cited constraint, goal or problem states why the commitment exists. Proposed by decision 0080. Settled by [decision/0080-solve-problems-with-standalone-features](decision/0080-solve-problems-with-standalone-features).
+
+**Example:** The library holds tenant isolation as `requirement/tenant-isolation` at product level, citing the constraint that binds it.
+
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a product requirement outside `intent/requirements/`, and `record-invalid` for a product requirement citing no constraint, goal or problem.
 
 ### State Requirement Kind and Statement
 
@@ -744,7 +805,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Example:** `requirement/approval.above-threshold-receipt` states that an expense above the receipt threshold carries a receipt, and `decision/0001-receipt-threshold` sets the threshold at 25 EUR, so a tester knows which expense passes.
 
-**Reviewed for:** Which requirement statements join two behaviors, or leave out a condition, a date or an amount a tester needs? Look at the statements of each feature's requirements.
+**Reviewed for:** Which requirement statements join two behaviors, or leave out a condition, a date or an amount a tester needs? Look at the statements of each requirement.
 
 ### Keep Each Rationale to Its Reason
 
@@ -772,7 +833,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each requirement MUST name its reasons in `cites`.
 
-**Rationale:** The `cites` list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The feature whose folder holds the requirement is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as `requirement-cites-missing`.
+**Rationale:** The `cites` list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as `requirement-cites-missing`.
 
 **Checked by:** `litespec model check` reports `requirement-cites-missing` for a requirement naming no reason in `cites`.
 
@@ -812,11 +873,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** A requirement whose statement names a number MUST carry `measure`.
+**Statement:** A quality requirement whose statement names a number MUST carry `measure`.
 
-**Rationale:** A number without its measure cannot be checked: the team cannot tell what is counted. The `measure` names what is counted. A requirement carrying `measure` needs a `check` and a passing run, and a statement naming a number with no `measure` reports at check level A.
+**Rationale:** A number without its measure cannot be checked: the team cannot tell what is counted. The `measure` names what is counted. A number in a functional or policy requirement asks for no `measure`. A requirement carrying `measure` needs a `check` and a passing run, and a quality statement naming a number with no `measure` reports at check level A.
 
-**Checked by:** `litespec model check` reports `requirement-measure-missing` for a requirement carrying `measure` without `check` or a passing run, and for a statement naming a number with no `measure`.
+**Checked by:** `litespec model check` reports `requirement-measure-missing` for a requirement carrying `measure` without `check` or a passing run, and for a quality statement naming a number with no `measure`.
 
 ### State Each Quality Requirement as a Scenario
 
@@ -844,57 +905,57 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A requirement MUST be fulfilled only from Behavior records.
 
-**Rationale:** The records that fulfill are rule, use case, reaction, job, notification, and setting. A journey names the requirements it shows in `cites`; it never fulfills, so a journey alone never clears an unfulfilled requirement. Behavior points up to the promises it keeps, and each promise traces down to the behavior that keeps it.
+**Rationale:** The records that fulfill are rule, use case, reaction, job, notification, and setting. A flow names the requirements it shows in its steps' `cites`; it never fulfills, so a flow alone never clears an unfulfilled requirement. Behavior points up to the promises it keeps, and each promise traces down to the behavior that keeps it.
 
 **Checked by:** `litespec model check` reports `requirement-fulfillment-missing` for a requirement no Behavior record fulfills.
 
-### Order Each Journey Toward One Goal
+### Lead Each Flow Toward the Record It Exists For
 
-**ID:** `litespec/core/intent#order-each-journey-toward-one-goal`
-
-**Strength:** required
-
-**Applies to:** artifact: record:journey
-
-**Statement:** A journey MUST lead one actor toward one goal through ordered steps, naming the goal record in `serves` and stating each path off that order in `branches`.
-
-**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a journey with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `branches` holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
-
-**Example:** The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night.
-
-**Checked by:** `litespec model check` reports `record-invalid` for a journey record file missing its `actor`, `serves`, `summary`, `startedWhen`, `finishedWhen`, or `steps`.
-
-### Describe Every Journey
-
-**ID:** `litespec/core/intent#describe-every-journey`
+**ID:** `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for`
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A journey MUST state in `summary`, in up to four sentences, who takes the journey, what starts it, what good looks like, and the consequence at stake and for whom.
+**Statement:** A flow MUST lead one actor toward the record it exists for through ordered steps, naming exactly one reason, one goal in `serves` or one problem or constraint in `answers`, and stating each path off that order in `branches`.
 
-**Rationale:** A journey page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the journey in the actor's terms first, and the book renders it first on the page. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
+**Rationale:** A flow names its `actor`, its reason in `serves` or `answers`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step that fits nowhere is visible. Each step names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `branches` holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences). Settled by decision 0066. Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).
 
-**Example:** The library journey to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return.
+**Example:** The largest consumer held a 21-step flow with five actors, from creating the organizer to closing the books. Split by reason, it is four flows: set up and sell an event; buy a ticket; admit the crowd; close the night.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a journey record file missing `summary`.
+**Checked by:** `litespec model check` reports `record-invalid` for a flow record file missing its `actor`, `summary`, `startedWhen`, `finishedWhen`, or `steps`, for a flow with neither `serves` nor `answers`, and for a flow with both.
 
-### Perform Each Journey Step with an Actor or a System
+### Describe Every Flow
 
-**ID:** `litespec/core/intent#perform-each-journey-step-with-an-actor-or-a-system`
+**ID:** `litespec/core/intent#describe-every-flow`
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A journey step MUST name at most one performer: another actor in `actor` at a handoff, or the external system, job or reaction in `system` when no person acts, and a step naming neither is performed by the actor taking the journey.
+**Statement:** A flow MUST state in `summary`, in up to four sentences, who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom.
 
-**Rationale:** A step performed by machinery forced a machine actor into Intent, where it sat beside real people and held no role. Naming the system record that performs the step keeps the actor list to people and organizations, and keeps the performing party one link away. A step naming both an actor and a system names two performers for one act.
+**Rationale:** A flow page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the flow in the actor's terms first, and the book renders it first on the page. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences). Settled by [decision/0068-call-ordered-steps-a-flow](decision/0068-call-ordered-steps-a-flow).
 
-**Example:** In the library journey, the step that sends the overdue notice names the text gateway in `system`; the steps the reader takes name no performer.
+**Example:** The library flow to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a journey step carrying both `actor` and `system`; `litespec model check` reports `field-invalid` for such a step or for a `system` naming no external system, job or reaction.
+**Checked by:** `litespec model check` reports `record-invalid` for a flow record file missing `summary`.
+
+### Perform Each Flow Step with an Actor or an External System
+
+**ID:** `litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system`
+
+**Strength:** required
+
+**Applies to:** artifact: record:flow
+
+**Statement:** A flow step MUST name at most one performer: another actor in `actor` at a handoff, or the external system in `system` when no person acts, and a step naming neither is performed by the actor taking the flow.
+
+**Rationale:** A step performed by machinery forced a machine actor into Intent, where it sat beside real people and held no role. Naming the external system that performs the step keeps the actor list to people and organizations, and states the reliance on that system as an intentional relationship. A step naming both an actor and a system names two performers for one act. Jobs and reactions never stand in `system`; they serve the step from above like use cases. Settled by [decision/0067-cite-requirements-on-each-flow-step](decision/0067-cite-requirements-on-each-flow-step).
+
+**Example:** In the library flow, the step that sends the overdue notice names the text gateway in `system`; the steps the reader takes name no performer.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a flow step carrying both `actor` and `system`; `litespec model check` reports `field-invalid` for such a step or for a `system` naming no external system.
 
 ### Keep Behavior Out of Intent
 
@@ -940,53 +1001,53 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports no `except-fallback-missing` finding.
 
-### Write Journey Steps as Sentences with Ids
+### Write Flow Steps as Sentences with Ids
 
-**ID:** `litespec/core/intent#write-journey-steps-as-sentences-with-ids`
-
-**Strength:** required
-
-**Applies to:** artifact: record:journey
-
-**Statement:** Each journey step MUST carry its `id` and its product sentence in `statement`, naming one act of its performer and no use case.
-
-**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product's observable response after the performer's act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account"; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the journey only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the journey can fail. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
-
-**Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `journey/submit-and-reimburse#s4` in `serves`.
-
-**Checked by:** `litespec model check` reports `record-invalid` for a journey step missing `id` or `statement`, or naming a use case.
-
-### State When Each Journey Starts
-
-**ID:** `litespec/core/intent#state-when-each-journey-starts`
+**ID:** `litespec/core/intent#write-flow-steps-as-sentences-with-ids`
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A journey MUST state the observable state in which it starts in `startedWhen`, in one sentence.
+**Statement:** Each flow step MUST carry its `id`, its product sentence in `statement` naming one act of its performer and no use case, and in `cites` each requirement the step carries.
 
-**Rationale:** A journey whose start sits in its summary, its Example and its first step has three starting points, and a reader cannot tell where the path begins. `startedWhen` gives the start one home beside `finishedWhen`, which states the end, and a check reads it. The detail of one occasion belongs in the Example, not in the field. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+**Rationale:** A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product's observable response after the performer's act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account"; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `flow/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the flow only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences). Settled by decision 0067.
+
+**Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `flow/submit-and-reimburse#s4` in `serves`.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a flow step missing `id` or `statement`, or naming a use case.
+
+### State When Each Flow Starts
+
+**ID:** `litespec/core/intent#state-when-each-flow-starts`
+
+**Strength:** required
+
+**Applies to:** artifact: record:flow
+
+**Statement:** A flow MUST state the observable state in which it starts in `startedWhen`, in one sentence.
+
+**Rationale:** A flow whose start sits in its summary, its Example and its first step has three starting points, and a reader cannot tell where the path begins. `startedWhen` gives the start one home beside `finishedWhen`, which states the end, and a check reads it. The detail of one occasion belongs in the Example, not in the field. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
 
 **Example:** `startedWhen`: the employee has paid a work cost and has not yet submitted it.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a journey record file missing `startedWhen`.
+**Checked by:** `litespec model check` reports `record-invalid` for a flow record file missing `startedWhen`.
 
-### Branch a Journey Only Between Its Steps
+### Branch a Flow Only Between Its Steps
 
-**ID:** `litespec/core/intent#branch-a-journey-only-between-its-steps`
+**ID:** `litespec/core/intent#branch-a-flow-only-between-its-steps`
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A journey MUST leave the order of its steps only through `branches`, each naming the `step` it leaves, its `condition`, and the `nextStep` it continues at or `end`.
+**Statement:** A flow MUST leave the order of its steps only through `branches`, each naming the `step` it leaves, its `condition`, and the `nextStep` it continues at or `end`.
 
-**Rationale:** A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch names both steps, so a check reads each path, and an action is always a step, never a branch. The `step` and `nextStep` name steps of the journey, so a branch that leaves a missing step is reported. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+**Rationale:** A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch names both steps, so a check reads each path, and an action is always a step, never a branch. The `step` and `nextStep` name steps of the flow, so a branch that leaves a missing step is reported. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
 
-**Example:** A branch with `step` s3, `condition` the manager rejects the expense, and `nextStep` end ends the journey at the rejection; the act of rejecting stays the step s3.
+**Example:** A branch with `step` s3, `condition` the manager rejects the expense, and `nextStep` end ends the flow at the rejection; the act of rejecting stays the step s3.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a branch missing `step`, `condition` or `nextStep` and for a journey still holding `betweenSteps`, and `field-invalid` for a branch whose `step` or `nextStep` names no step of the journey.
+**Checked by:** `litespec model check` reports `record-invalid` for a branch missing `step`, `condition` or `nextStep`, and `field-invalid` for a branch whose `step` or `nextStep` names no step of the flow.
 
 ### Reach Each Finish Condition Through a Step
 
@@ -994,47 +1055,47 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A journey MUST reach each clause of `finishedWhen` through a step, with each step performable once `startedWhen` and the steps before it hold, and its Example starting from `startedWhen` and performing the steps in order.
+**Statement:** A flow MUST reach each clause of `finishedWhen` through a step, with each step performable once `startedWhen` and the steps before it hold, and its Example starting from `startedWhen` and performing the steps in order.
 
-**Rationale:** A journey whose end no step reaches states a finish the path never gets to, and a step that needs a state no earlier step or start provides cannot be performed. An Example that skips a step, or that starts from a state other than `startedWhen`, teaches a path the journey does not hold. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+**Rationale:** A flow whose end no step reaches states a finish the path never gets to, and a step that needs a state no earlier step or start provides cannot be performed. An Example that skips a step, or that starts from a state other than `startedWhen`, teaches a path the flow does not hold. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
 
-**Example:** The journey to reimburse an expense ends in `finishedWhen` with the employee holding the money, which step 4 reaches; its Example starts at the paid cost and performs the submission, the approval and the payout in that order.
+**Example:** The flow to reimburse an expense ends in `finishedWhen` with the employee holding the money, which step 4 reaches; its Example starts at the paid cost and performs the submission, the approval and the payout in that order.
 
 **Reviewed for:** Which clause of `finishedWhen` no step reaches, which step needs a state that no start or earlier step gives, and which Example starts elsewhere or skips a step? Compare the Example with `startedWhen`, `finishedWhen` and the steps.
 
-### State Each Journey Blocker as a Step Failure
+### State Each Flow Blocker as a Step Failure
 
-**ID:** `litespec/core/intent#state-each-journey-blocker-as-a-step-failure`
-
-**Strength:** required
-
-**Applies to:** artifact: record:journey
-
-**Statement:** A condition that stops a journey MUST be the `failure` of the step it blocks, with the requirement that holds it cited in `cites`, and never stated only in a branch or in the explanation.
-
-**Rationale:** A blocker stated in a branch or in the Example reads as a path the journey takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and `cites` names the requirement that holds the rule, so the rule is not restated in the journey. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
-
-**Example:** The submission of an expense above the receipt threshold without a receipt is the `failure` of the step that submits it, and the requirement that holds the receipt rule is cited in `cites`.
-
-**Reviewed for:** Which condition that stops the journey sits in a branch or in the explanation rather than as a `failure`, and which cited requirement holds the rule? Read each branch and each Example sentence that names a refusal or a wait.
-
-### State When Each Journey Finishes
-
-**ID:** `litespec/core/intent#state-when-each-journey-finishes`
+**ID:** `litespec/core/intent#state-each-flow-blocker-as-a-step-failure`
 
 **Strength:** required
 
-**Applies to:** artifact: record:journey
+**Applies to:** artifact: record:flow
 
-**Statement:** A journey MUST state its observable end in `finishedWhen`.
+**Statement:** A condition that stops a flow MUST be the `failure` of the step it blocks, stating what the person sees and can do next with the requirement that holds the rule cited in the step's `cites`, and never stated only in a branch or in the explanation.
 
-**Rationale:** A journey without a stated end can stop anywhere: the reader cannot tell a finished journey from an abandoned one, and serving records cannot tell done from dropped. `finishedWhen` states the observable end in one sentence, in product words. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
+**Rationale:** A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and the step's `cites` names the requirement that holds the rule, so the rule is not restated in the flow. The `failure` states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Settled by decision 0067.
+
+**Example:** The step that submits an expense carries in `failure` that the expense cannot be submitted and the employee can attach the receipt and submit again, and cites in its `cites` the requirement that holds the receipt rule.
+
+**Reviewed for:** Which condition that stops the flow sits in a branch or in the explanation rather than as a `failure`, which `failure` states the rule instead of what the person sees and can do next, and which cited requirement holds the rule? Read each branch and each Example sentence that names a refusal or a wait.
+
+### State When Each Flow Finishes
+
+**ID:** `litespec/core/intent#state-when-each-flow-finishes`
+
+**Strength:** required
+
+**Applies to:** artifact: record:flow
+
+**Statement:** A flow MUST state its observable end in `finishedWhen`.
+
+**Rationale:** A flow without a stated end can stop anywhere: the reader cannot tell a finished flow from an abandoned one, and serving records cannot tell done from dropped. `finishedWhen` states the observable end in one sentence, in product words. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** `finishedWhen`: the employee holds the reimbursement.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a journey record file missing `finishedWhen`.
+**Checked by:** `litespec model check` reports `record-invalid` for a flow record file missing `finishedWhen`.
 
 ### Treat Tenant-Set Values as Data
 
@@ -1054,60 +1115,6 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 ## Conventions
 
-### Group Product Records by Problem
-
-**ID:** `litespec/core/intent#group-product-records-by-problem`
-
-**Strength:** default
-
-**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
-
-**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder in its feature's `requirements/` folder.
-
-**Replacement:** A project records its own product layout in its documentation index.
-
-**Rationale:** A problem folder keeps the features that answer it side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A feature names no module, because it answers a problem and Intent groups by reason. Proposed by [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers).
-
-**Example:**
-
-```text
-.litespec/intent/
-  product.yaml
-  goals/
-    <name>/
-      <name>.yaml
-      <name>.md
-  problems/
-    <name>/
-      <name>.yaml
-      <name>.md
-      features/
-        <name>/
-          <name>.yaml
-          requirements/
-            <requirement>/
-              <requirement>.yaml
-  constraints/
-    <name>/
-      <name>.yaml
-  decisions/
-    <number>-<name>/
-      <number>-<name>.yaml
-      <number>-<name>.md
-  research/
-    <name>/
-      <name>.yaml
-      <name>.md
-  actors/
-    <name>/
-      <name>.yaml
-  journeys/
-    <name>/
-      <name>.yaml
-```
-
-**Reviewed for:** The `.litespec/intent/` layout beside the project's recorded layout.
-
 ### Name Product Decisions in One Numbered Sequence
 
 **ID:** `litespec/core/intent#name-product-decisions-in-one-numbered-sequence`
@@ -1126,9 +1133,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-journey-starts`, `litespec/core/intent#state-when-each-journey-finishes`, `litespec/core/intent#branch-a-journey-only-between-its-steps`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
+This informative example demonstrates `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for`, `litespec/core/intent#write-flow-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-flow-starts`, `litespec/core/intent#state-when-each-flow-finishes`, `litespec/core/intent#branch-a-flow-only-between-its-steps`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
 
-The book shows journey `journey/submit-and-reimburse` as record detail. No field name, YAML, or Behavior page appears.
+The book shows flow `flow/submit-and-reimburse` as record detail. No field name, YAML, or Behavior page appears.
 
 ```text
 Submit and reimburse
@@ -1144,7 +1151,7 @@ Finished when: the employee holds the reimbursement.
 3. The manager approves or rejects the expense within five business days.
 4. Finance reimburses the approved expense.
 
-At step 3, when the manager rejects the expense, the journey ends.
+At step 3, when the manager rejects the expense, the flow ends.
 
 If it goes wrong: an expense that waits past three business days earns
 its approver a reminder; an expense above the threshold with no receipt

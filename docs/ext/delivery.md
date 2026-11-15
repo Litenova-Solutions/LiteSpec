@@ -89,9 +89,9 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Applies to:** artifact: any
 
-**Statement:** A release record MUST list build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results.
+**Statement:** A release record MUST list build, test, contract, security, flow, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results.
 
-**Rationale:** Build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results together show the artifact works and can be operated. A missing kind is evidence nobody produced.
+**Rationale:** Build, test, contract, security, flow, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results together show the artifact works and can be operated. A missing kind is evidence nobody produced.
 
 **Reviewed for:** Which records lack a result for a listed evidence kind? Look at the evidence list on each release record.
 

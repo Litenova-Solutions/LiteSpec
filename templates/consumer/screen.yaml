@@ -6,5 +6,10 @@ address: /expenses
 offers:
 - use-case/spending.list-expenses
 serves:
-- journey/submit-and-reimburse#s5
-floorplan: list-page
+- flow/submit-and-reimburse#s5
+pageFrame:
+  pattern: list-page
+  option: search-and-a-state-filter-only
+leadsTo:
+- screen/claimwick-app.expense-record
+- screen/claimwick-app.new-expense

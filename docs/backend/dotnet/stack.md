@@ -35,7 +35,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
-**Rationale:** Each level S check reads one of those shapes. The mark links a code element to its record, so a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `changes`: a repository serves the aggregate its implementing class names in an `implements` mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unreached` and `use-case-scenario-missing` from tests. The reader also reads the options classes that bind keyed settings, through each class's `SectionName` constant and properties, and the template store `stackConfig.dotnet.templateStore` names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as `{{PascalCaseName}}`. Level S checks block where this reader is qualified and report elsewhere.
+**Rationale:** Each level S check reads one of those shapes. The mark links a code element to its record, so a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `writes`: a repository serves the aggregate its implementing class names in an `implements` mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unreached` and `use-case-scenario-missing` from tests. The reader also reads the options classes that bind keyed settings, through each class's `SectionName` constant and properties, and the template store `stackConfig.dotnet.templateStore` names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as `{{PascalCaseName}}`. Level S checks block where this reader is qualified and report elsewhere.
 
 **Example:** The reimburse-expense handler carries `/// <implements>use-case/spending.reimburse-expense</implements>`, and the event handler class carries `/// <implements>reaction/spending.send-approver-reminder-on-expense-submitted</implements>`.
 
@@ -127,11 +127,11 @@ internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseR
 **Example:** The event carries its mark and the generator writes its classification:
 
 ```csharp
-/// <implements>event/expense.submitted</implements>
+/// <implements>domain-event/expense.submitted</implements>
 public sealed partial record ExpenseSubmittedEvent(ExpenseId ExpenseId, Money Amount) : IDomainEvent;
 ```
 
-The generated part holds `public const string Classification = "event/expense.submitted";`.
+The generated part holds `public const string Classification = "domain-event/expense.submitted";`.
 
 **Checked by:** `litespec model check` reports `runtime-value-drift` (level S) for a hand-written value that differs from its record, and `dotnet build` reports `LS5005` for the same value.
 

@@ -96,7 +96,7 @@ export function bodySectionsOf(r: BookRecord): BodySectionView[] {
     }));
 }
 
-/** The Why rows: the reason fields a record states. */
+/** The Why rows: the reason fields a record states, rendered by the CLI when it sends them. */
 export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
   const f: RecordFields = r.fields ?? {};
   const parts: WhyPart[] = [];
@@ -105,7 +105,11 @@ export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
     ["rationale", "Rationale"],
     ["appliesBecause", "Applies because"],
   ];
-  for (const [field, label] of rows) if (f[field]) parts.push({ label, html: inline(book, String(f[field]), r.src ?? null) });
+  for (const [field, label] of rows) {
+    const rendered = r.fieldsHtml?.[field];
+    if (rendered) parts.push({ label, html: rendered });
+    else if (f[field]) parts.push({ label, html: inline(book, String(f[field]), r.src ?? null) });
+  }
   return parts;
 }
 

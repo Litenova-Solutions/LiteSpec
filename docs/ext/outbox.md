@@ -14,7 +14,7 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`.
 
-A use case selects this extension when a committed change needs delivery that survives a process failure. That delivery can carry an integration event to another system, a command that advances a journey step, or a side effect on an outside provider. Selecting it also activates `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`: the project declares the execution host that runs the dispatcher.
+A use case selects this extension when a committed change needs delivery that survives a process failure. That delivery can carry an integration event to another system, a command that advances a flow step, or a side effect on an outside provider. Selecting it also activates `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`: the project declares the execution host that runs the dispatcher.
 
 ## Baseline Relationship
 
@@ -52,21 +52,21 @@ This extension switches on no optional record type: integration events, settings
 
 **Reviewed for:** Which delivered integration events have no record, or one without direction, payload, trust or `translates`? Look at each integration event type beside its record.
 
-### Keep Integration Events a View Rebuilds From
+### Keep Integration Events a Read Model Rebuilds From
 
-**ID:** `litespec/ext/outbox#keep-integration-events-a-view-rebuilds-from`
+**ID:** `litespec/ext/outbox#keep-integration-events-a-read-model-rebuilds-from`
 
 **Strength:** required
 
-**Applies to:** artifact: record:view, record:integration-event
+**Applies to:** artifact: record:read-model, record:integration-event
 
-**Statement:** A project MUST keep every integration event a view names in `from`, `erasedBy` or `removedBy` for as long as a view may need rebuilding from it, apart from the outbox's delivery records.
+**Statement:** A project MUST keep every integration event a read model names in `from`, `erasedBy` or `removedBy` apart from the outbox's delivery records for as long as a read model may need rebuilding from it, with erased personal fields removed or the event key shredded.
 
-**Rationale:** A new view, or a changed one, fills from the events the owner already published. An outbox that deletes delivered records after a few days leaves a new view nothing to replay, and every new view then needs a hand-written backfill from the owner's tables, which is the coupling the view exists to remove. Keeping the published events in a log apart from delivery lets a projection replay history. The log holds personal fields, so the erasing event a view names in `erasedBy` also erases the field in the log. Settled by [decision/0065-read-another-module-through-a-view](decision/0065-read-another-module-through-a-view).
+**Rationale:** A new read model, or a changed one, fills from the events the owner already published. An outbox that deletes delivered records after a few days leaves a new read model nothing to replay, and every new read model then needs a hand-written backfill from the owner's tables, which is the coupling the read model exists to remove. Keeping the published events in a log apart from delivery lets a projection replay history. The log holds personal fields, so the erasing event a read model names in `erasedBy` also erases the field in the log: a retained event keeps its shape with the erased personal fields removed, or with its key shredded, so no rebuild restores them. The read model keeps an erasure tombstone for the erased key and applies it on rebuild, under `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
-**Example:** The reporting module rebuilds its reimbursed-expense view by replaying the kept expense-reimbursed events, while the outbox deletes its delivery records after seven days.
+**Example:** The reporting module rebuilds its reimbursed-expense read model by replaying the kept expense-reimbursed events, while the outbox deletes its delivery records after seven days. A retained event for an erased expense replays without the erased personal fields.
 
-**Reviewed for:** Which integration events a view names are kept only as long as the outbox keeps its delivery records, and which kept logs hold personal fields their erasing event never clears? Look at the event log's retention beside the views that read it.
+**Reviewed for:** Which integration events a read model names are kept only as long as the outbox keeps its delivery records, and which kept logs hold erased personal fields or an unshredded key their erasing event never clears? Look at the event log's retention beside the read models that read it.
 
 ### Record Durable Delivery Behavior
 
@@ -174,9 +174,9 @@ This extension switches on no optional record type: integration events, settings
 
 **Applies to:** artifact: record:integration-event
 
-**Statement:** An outbox record MUST name its message kind as integration event, journey-step command, or provider side effect, with an integration event citing its integration-event record.
+**Statement:** An outbox record MUST name its message kind as integration event, flow-step command, or provider side effect, with an integration event citing its integration-event record.
 
-**Rationale:** An integration event, a journey-step command, and a provider side effect dispatch through different owners and transports, so the record names which one it holds. The integration event cites its integration-event record, so the staged message traces to the published fact it carries.
+**Rationale:** An integration event, a flow-step command, and a provider side effect dispatch through different owners and transports, so the record names which one it holds. The integration event cites its integration-event record, so the staged message traces to the published fact it carries.
 
 **Reviewed for:** Which outbox records name no message kind, or an integration event that does not cite its integration-event record? Look at the outbox record type and the messages staged.
 
@@ -614,21 +614,21 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Reviewed for:** Which provider mappings sit in the shared dispatch path with no documented choice? Look at the dispatch code and the integration projects.
 
-### Dispatch Journey-Step Commands in a New Scope
+### Dispatch Flow-Step Commands in a New Scope
 
-**ID:** `litespec/ext/outbox#dispatch-journey-step-commands-in-a-new-scope`
+**ID:** `litespec/ext/outbox#dispatch-flow-step-commands-in-a-new-scope`
 
 **Strength:** default
 
 **Applies to:** artifact: any
 
-**Default:** Dispatch a journey-step command through `ICommandMediator` in a fresh Worker scope.
+**Default:** Dispatch a flow-step command through `ICommandMediator` in a fresh Worker scope.
 
-**Replacement:** A project runs journey-step commands inline in the dispatcher scope.
+**Replacement:** A project runs flow-step commands inline in the dispatcher scope.
 
-**Rationale:** A journey-step command is a full command with validation, authorization, and its own transaction, not a subroutine of the dispatcher. Sending it through `ICommandMediator` in a fresh Worker scope runs the whole application pipeline for it.
+**Rationale:** A flow-step command is a full command with validation, authorization, and its own transaction, not a subroutine of the dispatcher. Sending it through `ICommandMediator` in a fresh Worker scope runs the whole application pipeline for it.
 
-**Reviewed for:** Which journey-step commands run inline in the dispatcher scope with no documented choice? Look at the dispatcher's journey-step code.
+**Reviewed for:** Which flow-step commands run inline in the dispatcher scope with no documented choice? Look at the dispatcher's flow-step code.
 
 ### Avoid Automatic Durable-Bus Adoption
 

@@ -18,7 +18,7 @@ LiteSpec names responsibilities instead of departments: product, domain, archite
 
 Agents perform a substantial part of the engineering work. An agent can inspect repositories, propose designs, edit authorized artifacts, run tools, and collect evidence. An agent never decides unresolved product policy, legal judgment, or financial decisions; those stay with accountable people.
 
-Because agents do so much execution, the system defines its technical concepts exactly. An agent tells a module from an aggregate, a journey from a reaction or job, and a record from a claim the implementation makes about itself.
+Because agents do so much execution, the system defines its technical concepts exactly. An agent tells a module from an aggregate, a flow from a reaction or job, and a record from a claim the implementation makes about itself.
 
 ### Why the System Exists
 
@@ -46,7 +46,7 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, journeys, modules, and roles. The [behavior page](behavior.md) states the bounded context, the glossary, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
+The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, flows, modules, and roles. The [behavior page](behavior.md) states the bounded context, the glossary, aggregates, rules, domain events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -136,7 +136,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** A use case MUST complete with behavior, persistence, entry points, evidence, and operating impact.
 
-**Rationale:** A use case is done only when a caller can run it and operations can support it: behavior, storage, entry points, automated evidence, and operating impact together. Accepting a thinner slice leaves the missing parts for later, and later rarely itemizes what shipped half-built. Placeholder work leaves the use case unimplemented. Multi-step product outcomes belong to a journey rather than stretching one use case across several goals.
+**Rationale:** A use case is done only when a caller can run it and operations can support it: behavior, storage, entry points, automated evidence, and operating impact together. Accepting a thinner slice leaves the missing parts for later, and later rarely itemizes what shipped half-built. Placeholder work leaves the use case unimplemented. Multi-step product outcomes belong to a flow rather than stretching one use case across several goals.
 
 **Example:** A use case without its tests and operating records is not complete.
 
@@ -150,11 +150,11 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Applies to:** artifact: any
 
-**Statement:** An observable behavior change MUST update its use case page, implementation, tests, product records, decision, journey, and operating records together.
+**Statement:** An observable behavior change MUST update its use case page, implementation, tests, product records, decision, flow, and operating records together.
 
-**Rationale:** Records map to current names and paths only when each behavior change carries them along. A change that moves code but leaves the use case page, the tests, or the journey behind splits the project into stated fiction and unstated fact. Updating the records in the same change keeps the change to behavior and the change to its description in one place.
+**Rationale:** Records map to current names and paths only when each behavior change carries them along. A change that moves code but leaves the use case page, the tests, or the flow behind splits the project into stated fiction and unstated fact. Updating the records in the same change keeps the change to behavior and the change to its description in one place.
 
-**Reviewed for:** The behavior change with its use case page, tests, product records, decision, journey, and operating records changed together.
+**Reviewed for:** The behavior change with its use case page, tests, product records, decision, flow, and operating records changed together.
 
 ## Conventions
 
@@ -230,16 +230,16 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Applies to:** artifact: any
 
-**Default:** Write module, aggregate, use case, journey, rule, event, and decision as ordinary nouns in prose.
+**Default:** Write module, aggregate, use case, flow, rule, domain event, and decision as ordinary nouns in prose.
 
 **Replacement:** A consumer names its own capitalization rule in its documentation.
 
-**Rationale:** Lowercase module, aggregate, use case, journey, rule, event, and decision read as ordinary nouns, while exact record types and code types keep their declared capitalization. The contrast tells a reader whether a word names the concept or the artifact. Capitalizing both blurs that distinction on every page.
+**Rationale:** Lowercase module, aggregate, use case, flow, rule, domain event, and decision read as ordinary nouns, while exact record types and code types keep their declared capitalization. The contrast tells a reader whether a word names the concept or the artifact. Capitalizing both blurs that distinction on every page.
 
-**Reviewed for:** Prose writing module, aggregate, use case, journey, rule, event, and decision in lowercase outside names and identifiers.
+**Reviewed for:** Prose writing module, aggregate, use case, flow, rule, domain event, and decision in lowercase outside names and identifiers.
 
 ## Reference Example
 
 This informative example demonstrates `litespec/core/system#deliver-one-complete-use-case`, `litespec/core/system#update-records-with-behavior`, `litespec/core/system#point-code-and-tests-up-to-records`, `litespec/core/system#declare-every-edge-between-records`, and `litespec/core/model#compute-proof-statuses-in-the-builder`.
 
-The `use-case/spending.submit-expense` use case is complete only with its behavior, persistence, entry points, tests, and operating records. A change to the receipt threshold updates the use case page, the tests, the requirement, the decision, the journey, and the operating records in the same change. The handler mark points up to the use case record, every edge the change adds is declared on its record, and the book marks the chapter verified only after the tests pass.
+The `use-case/spending.submit-expense` use case is complete only with its behavior, persistence, entry points, tests, and operating records. A change to the receipt threshold updates the use case page, the tests, the requirement, the decision, the flow, and the operating records in the same change. The handler mark points up to the use case record, every edge the change adds is declared on its record, and the book marks the chapter verified only after the tests pass.

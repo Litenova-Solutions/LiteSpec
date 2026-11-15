@@ -170,7 +170,7 @@ internal static class RepositoryUseChecks
 
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
         {
-            foreach (var aggregateId in useCase.Ids(RecordFields.Changes))
+            foreach (var aggregateId in useCase.Ids(RecordFields.Writes))
             {
                 if (!model.ById.TryGetValue(aggregateId, out var aggregate) || aggregate.Type != RecordTypes.Aggregate)
                 {

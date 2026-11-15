@@ -125,7 +125,7 @@
       "effectiveStatus": "draft",
       "decider": "Ada",
       "decideBy": "2026-11-15",
-      "file": ".litespec/intent/problems/slow-desk-queues/features/self-checkout/self-checkout.yaml",
+      "file": ".litespec/intent/features/self-checkout/self-checkout.yaml",
       "line": 3,
       "explanation": "# Self Checkout\n\n## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
       "fields": {
@@ -368,19 +368,19 @@
       }
     },
     {
-      "type": "journey",
-      "id": "journey/borrowing",
+      "type": "flow",
+      "id": "flow/borrowing",
       "title": "Borrowing",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/product/journeys/borrowing.yaml",
+      "file": ".litespec/product/flows/borrowing.yaml",
       "line": 3,
       "fields": {
-        "type": "journey",
-        "id": "journey/borrowing",
+        "type": "flow",
+        "id": "flow/borrowing",
         "title": "Borrowing",
         "owner": "lending-team",
         "status": "approved",
@@ -471,12 +471,12 @@
           {
             "from": "OnShelf",
             "to": "OnLoan",
-            "by": "use-case/lending.borrow-copy"
+            "movedBy": "use-case/lending.borrow-copy"
           },
           {
             "from": "OnLoan",
             "to": "OnShelf",
-            "by": "use-case/lending.return-copy"
+            "movedBy": "use-case/lending.return-copy"
           }
         ],
         "data": [
@@ -599,7 +599,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "fulfills": [
           "requirement/self-checkout.max-wait"
@@ -626,7 +626,7 @@
           "tenant": "own"
         },
         "serves": [
-          "journey/borrowing#s1"
+          "flow/borrowing#s1"
         ]
       },
       "links": {
@@ -634,13 +634,13 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "fulfills": [
           "requirement/self-checkout.max-wait"
         ],
         "serves": [
-          "journey/borrowing#s1"
+          "flow/borrowing#s1"
         ]
       }
     },
@@ -671,7 +671,7 @@
           "tenant": "own"
         },
         "reads": [
-          "view/reporting.loan-borrowing"
+          "read-model/reporting.loan-borrowing"
         ]
       },
       "links": {
@@ -679,7 +679,7 @@
           "requirement/self-checkout.copy-shelf-home"
         ],
         "reads": [
-          "view/reporting.loan-borrowing"
+          "read-model/reporting.loan-borrowing"
         ]
       }
     },
@@ -702,7 +702,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "triggeredBy": [
-          "event/loan.loan-due"
+          "domain-event/loan.loan-due"
         ],
         "effects": [
           {
@@ -715,7 +715,7 @@
       },
       "links": {
         "triggeredBy": [
-          "event/loan.loan-due"
+          "domain-event/loan.loan-due"
         ],
         "effects": [
           "notification/lending.due-reminder"
@@ -742,7 +742,7 @@
         "title": "Due Reminder",
         "owner": "lending-team",
         "status": "reviewed",
-        "addresses": [
+        "audience": [
           "actor/member"
         ],
         "channel": "email",
@@ -752,7 +752,7 @@
         ]
       },
       "links": {
-        "addresses": [
+        "audience": [
           "actor/member"
         ],
         "fulfills": [
@@ -872,19 +872,19 @@
       }
     },
     {
-      "type": "event",
-      "id": "event/loan.loan-borrowed",
+      "type": "domain-event",
+      "id": "domain-event/loan.loan-borrowed",
       "title": "Loan Borrowed",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 52,
       "fields": {
-        "type": "event",
-        "id": "event/loan.loan-borrowed",
+        "type": "domain-event",
+        "id": "domain-event/loan.loan-borrowed",
         "title": "Loan Borrowed",
         "owner": "lending-team",
         "status": "reviewed",
@@ -897,19 +897,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/loan.loan-due",
+      "type": "domain-event",
+      "id": "domain-event/loan.loan-due",
       "title": "Loan Due",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 60,
       "fields": {
-        "type": "event",
-        "id": "event/loan.loan-due",
+        "type": "domain-event",
+        "id": "domain-event/loan.loan-due",
         "title": "Loan Due",
         "owner": "lending-team",
         "status": "reviewed",
@@ -1297,12 +1297,12 @@
         "owner": "lending-team",
         "status": "reviewed",
         "translates": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ]
       },
       "links": {
         "translates": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ]
       }
     },
@@ -1329,19 +1329,19 @@
       "links": {}
     },
     {
-      "type": "view",
-      "id": "view/reporting.loan-borrowing",
+      "type": "read-model",
+      "id": "read-model/reporting.loan-borrowing",
       "title": "Loan Borrowing",
       "owner": "reporting-team",
       "status": "reviewed",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/reporting/views/loan-borrowing/loan-borrowing.yaml",
+      "file": ".litespec/behavior/modules/reporting/read-models/loan-borrowing/loan-borrowing.yaml",
       "line": 3,
       "fields": {
-        "type": "view",
-        "id": "view/reporting.loan-borrowing",
+        "type": "read-model",
+        "id": "read-model/reporting.loan-borrowing",
         "title": "Loan Borrowing",
         "owner": "reporting-team",
         "status": "reviewed",
@@ -1445,6 +1445,74 @@
     "aggregate/lending.loan": [
       "OnShelf",
       "OnLoan"
+    ]
+  },
+  "intentCoverage": {
+    "reached": 4,
+    "total": 7,
+    "share": 0.5714285714285714,
+    "requirements": {
+      "reached": 3,
+      "total": 3
+    },
+    "steps": {
+      "reached": 1,
+      "total": 2
+    },
+    "entries": [
+      {
+        "id": "requirement/self-checkout.copy-shelf-home",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "rule/loan.one-loan-per-copy",
+          "use-case/lending.return-copy"
+        ]
+      },
+      {
+        "id": "requirement/self-checkout.late-fee",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "rule/loan.late-fee"
+        ]
+      },
+      {
+        "id": "requirement/self-checkout.max-wait",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "notification/lending.due-reminder",
+          "reaction/lending.send-due-reminder-on-loan-due",
+          "use-case/lending.borrow-copy"
+        ]
+      },
+      {
+        "id": "problem/slow-desk-queues",
+        "kind": "problem",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "constraint/opening-hours",
+        "kind": "constraint",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "flow/borrowing#s1",
+        "kind": "step",
+        "reached": true,
+        "reachedBy": [
+          "use-case/lending.borrow-copy"
+        ]
+      },
+      {
+        "id": "flow/borrowing#s2",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      }
     ]
   }
 }

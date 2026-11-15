@@ -1,7 +1,7 @@
 // Record behavior values: the computed details the record page reads from
 // behavior records, as pure functions over values the components resolve.
 
-import { capitalize, duration, esc, formatLabel, pluralize, stripStep } from "$lib/frame";
+import { capitalize, duration, esc, formatLabel, pluralize, stripStep, type ReachClaim } from "$lib/frame";
 import type { Book, BookRecord, CheckLevel, ProofState, RecordFields } from "$lib/frame";
 import { badgeHtml, codeCls, inlineRefHtml, opRefHtml } from "./page-html";
 
@@ -41,7 +41,7 @@ export interface UseCaseFields {
   input: RecordFields[];
   output: unknown;
   effects: RecordFields[];
-  changes: string[];
+  writes: string[];
   reads: string[];
   access?: RecordFields;
   reachedThrough: string[];
@@ -56,7 +56,7 @@ export function useCaseFields(f: RecordFields): UseCaseFields {
     input: objectList(f, "input"),
     output: f.output,
     effects: objectList(f, "effects"),
-    changes: stringList(f, "changes"),
+    writes: stringList(f, "writes"),
     reads: stringList(f, "reads"),
     access: objectField(f, "access"),
     reachedThrough: stringList(f, "reachedThrough"),
@@ -111,16 +111,16 @@ export function requirementFields(f: RecordFields): RequirementFields {
   };
 }
 
-/** The fields the journey renderer reads. */
-export interface JourneyFields {
+/** The fields the flow renderer reads. */
+export interface FlowFields {
   startedWhen?: string;
   steps: RecordFields[];
   branches: RecordFields[];
   finishedWhen?: string;
 }
 
-/** The fields the journey renderer reads, through the typed readers. */
-export function journeyFields(f: RecordFields): JourneyFields {
+/** The fields the flow renderer reads, through the typed readers. */
+export function flowFields(f: RecordFields): FlowFields {
   return {
     startedWhen: stringField(f, "startedWhen"),
     steps: objectList(f, "steps"),
@@ -130,17 +130,17 @@ export function journeyFields(f: RecordFields): JourneyFields {
 }
 
 /**
- * One journey branch as the sentence the book shows after the steps. The step
+ * One flow branch as the sentence the book shows after the steps. The step
  * it leaves is named by its position, so a reader finds it in the list above.
  */
-export function journeyBranchSentence(steps: RecordFields[], branch: RecordFields): string {
+export function flowBranchSentence(steps: RecordFields[], branch: RecordFields): string {
   const position = (id: string) => {
     const at = steps.findIndex((step) => String(step.id ?? "") === id);
     return at < 0 ? "step " + id : "step " + (at + 1);
   };
   const from = position(String(branch.step ?? ""));
   const next = String(branch.nextStep ?? "");
-  const then = next === "end" ? "the journey ends" : "the journey continues at " + position(next);
+  const then = next === "end" ? "the flow ends" : "the flow continues at " + position(next);
   return "At " + from + ", when " + String(branch.condition ?? "") + ", " + then + ".";
 }
 
@@ -149,7 +149,6 @@ export interface ScreenFields {
   address?: string;
   host?: string;
   entryPoint?: string;
-  floorplan?: string;
   offers: string[];
 }
 
@@ -159,7 +158,6 @@ export function screenFields(f: RecordFields): ScreenFields {
     address: stringField(f, "address"),
     host: stringField(f, "host"),
     entryPoint: stringField(f, "entryPoint"),
-    floorplan: stringField(f, "floorplan"),
     offers: stringList(f, "offers"),
   };
 }
@@ -171,7 +169,7 @@ export interface JobFields {
   guard?: string;
   batchSize?: string;
   lease: unknown;
-  runsWhere?: string;
+  runsWhen?: string;
   cursor: unknown;
   selection?: string;
   serviceLevel?: string;
@@ -187,7 +185,7 @@ export function jobFields(f: RecordFields): JobFields {
     guard: stringField(f, "guard"),
     batchSize: stringField(f, "batchSize"),
     lease: f.lease,
-    runsWhere: stringField(f, "runsWhere"),
+    runsWhen: stringField(f, "runsWhen"),
     cursor: f.cursor,
     selection: stringField(f, "selection"),
     serviceLevel: stringField(f, "serviceLevel"),
@@ -297,13 +295,12 @@ export function modeWord(m: unknown) {
   return formatLabel(m);
 }
 
-export function freshnessNoteHtml(book: Book, g: RecordFields) {
+export function freshnessNoteHtml(g: RecordFields) {
   const f = objectField(g, "freshness");
   if (!f) return "";
   const mode = stringField(f, "mode");
-  if (mode === "bounded") return "fresh within " + duration(stringField(f, "within") ?? "");
-  if (mode === "advisory") return "advisory, authoritative value in " + inlineRefHtml(book, stringField(f, "authority") ?? "");
-  return esc(capitalize(modeWord(f.mode)));
+  const within = stringField(f, "within");
+  return esc(capitalize(modeWord(mode))) + (within ? ", within " + duration(within) : "");
 }
 
 export function pagingRows(f: RecordFields): { label: string; html: string }[] | null {
@@ -352,7 +349,7 @@ export function edgeFailureText(o: RecordFields | undefined) {
       (r.initialDelay ? ", from " + duration(String(r.initialDelay)) : "") +
       (r.maxDelay ? " up to " + duration(String(r.maxDelay)) : "") +
       (r.backoff ? ", " + esc(modeWord(r.backoff)) + " backoff" : "") +
-      (o.then ? ", then " + esc(modeWord(o.then)) : "")
+      (o.ifExhausted ? ", then " + esc(modeWord(o.ifExhausted)) : "")
     );
   }
   if (stringField(o, "mode") === "skip-and-log") return "On failure: skips and logs";
@@ -390,8 +387,8 @@ export function idemTileOf(f: RecordFields): { value: string; hint: string } | n
 export function triggeredByHtml(book: Book, t: unknown) {
   if (!t) return "";
   if (Array.isArray(t))
-    return t.length ? `<div class="flex flex-wrap items-center gap-1.5 text-sm">${t.map((x) => inlineRefHtml(book, String(x))).join(" ")}</div>` : "";
-  if (typeof t === "string") return `<div class="flex flex-wrap items-center gap-1.5 text-sm">${inlineRefHtml(book, t)}</div>`;
+    return t.length ? `<div class="flex flex-wrap items-center gap-2 text-sm">${t.map((x) => inlineRefHtml(book, String(x))).join(" ")}</div>` : "";
+  if (typeof t === "string") return `<div class="flex flex-wrap items-center gap-2 text-sm">${inlineRefHtml(book, t)}</div>`;
   return "";
 }
 
@@ -423,7 +420,7 @@ export function clsBadgeHtml(c: unknown) {
 export function bulletsHtml(list: unknown) {
   const items: unknown[] = typeof list === "string" ? (list ? [list] : []) : Array.isArray(list) ? list : [];
   if (items.length) return "<ul>" + items.map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul>";
-  return '<span class="font-mono text-[0.6875rem] text-muted-foreground">&ndash;</span>';
+  return '<span class="font-mono text-xs text-slate-600">&ndash;</span>';
 }
 
 export type EffectVerb = "runs" | "sends" | "calls";
@@ -452,7 +449,7 @@ export function browserReached(reachedThrough: string[], hasScreenBelow: (entryI
   return reachedThrough.some((x) => hasScreenBelow(stripStep(x)));
 }
 
-/** What one journey step's server line reads: whether it is coded, and how many of its scenarios pass. */
+/** What one flow step's server line reads: whether it is coded, and how many of its scenarios pass. */
 export function serverLineInfo(
   machine: BookRecord["machine"],
   scenarioStates: (ProofState | null | undefined)[],
@@ -511,16 +508,22 @@ export function checkLevelText(level: unknown): string {
 }
 
 /**
- * The source file a route object points at. The writer carried { file, route }
- * and now carries { path }; both read here until the old shape is gone.
+ * The source file a route object points at, as the writer carries it: its path.
  */
 export function routeFileOf(route: RecordFields | null | undefined): string | null {
   if (!route) return null;
-  return stringField(route, "file") ?? stringField(route, "path") ?? null;
+  return stringField(route, "path") ?? null;
 }
 
 /** The display text of a route object: the route, then the path. */
 export function routeTextOf(route: RecordFields | null | undefined): string | null {
   if (!route) return null;
   return stringField(route, "route") ?? stringField(route, "path") ?? null;
+}
+
+/** How a reaching record stands, as a word beside it: Verified or Claimed; empty when no claim names it. */
+export function reachStateWord(claims: ReachClaim[] | undefined, id: string): string {
+  const hit = (claims ?? []).find((claim) => claim.id === id);
+  if (!hit) return "";
+  return hit.state === "verified" ? "Verified" : "Claimed";
 }

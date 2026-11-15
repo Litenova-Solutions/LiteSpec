@@ -8,12 +8,12 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Intent;
 
-/// <summary>The Intent checks: a problem is an outside pain with evidence, an actor is a person or organization named from a journey, a problem or an access position, and a goal is moved by a journey or a quality requirement.</summary>
+/// <summary>The Intent checks: a problem is an outside pain with evidence, an actor is a person or organization named from a flow, a problem or an access position, and a goal is moved by a flow or a quality requirement.</summary>
 /// <follows>litespec/core/intent#admit-only-outside-pains-as-problems</follows>
 /// <follows>litespec/core/intent#grade-problem-evidence-by-kind</follows>
-/// <follows>litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position</follows>
-/// <follows>litespec/core/intent#move-every-goal-with-a-journey-or-a-quality-requirement</follows>
-/// <follows>litespec/core/intent#perform-each-journey-step-with-an-actor-or-a-system</follows>
+/// <follows>litespec/core/intent#name-every-actor-from-a-flow-a-problem-or-an-access-position</follows>
+/// <follows>litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement</follows>
+/// <follows>litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system</follows>
 /// <follows>litespec/core/intent#define-each-recurring-capitalized-phrase</follows>
 internal static class IntentChecks
 {
@@ -23,7 +23,7 @@ internal static class IntentChecks
     /// <summary>The field listing the evidence entries of a problem.</summary>
     private const string Evidence = "evidence";
 
-    /// <summary>The journey step field naming the system record performing the step when no person acts.</summary>
+    /// <summary>The flow step field naming the system record performing the step when no person acts.</summary>
     private const string System = "system";
 
     /// <summary>Runs every Intent check.</summary>
@@ -32,7 +32,7 @@ internal static class IntentChecks
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckProblems(model, findings);
-        CheckJourneySteps(model, findings);
+        CheckFlowSteps(model, findings);
         CheckActorsNamed(model, findings);
         CheckGoalsMoved(model, findings);
         CheckUndefinedPhrases(model, findings);
@@ -122,15 +122,15 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Reports each journey step naming both an actor and a system, or a system of the wrong type.</summary>
+    /// <summary>Reports each flow step naming both an actor and a system, or a system of the wrong type.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckJourneySteps(ProjectModel model, List<Finding> findings)
+    private static void CheckFlowSteps(ProjectModel model, List<Finding> findings)
     {
-        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey && !record.Derived))
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow && !record.Derived))
         {
-            if (journey.Raw.ValueKind != JsonValueKind.Object
-                || !journey.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            if (flow.Raw.ValueKind != JsonValueKind.Object
+                || !flow.Raw.TryGetProperty(RecordFields.Steps, out var steps)
                 || steps.ValueKind != JsonValueKind.Array)
             {
                 continue;
@@ -152,8 +152,8 @@ internal static class IntentChecks
                 {
                     findings.Add(new Finding(
                         "field-invalid",
-                        $"Journey '{journey.Id}' holds a step naming both an actor and a system.",
-                        journey.File, journey.Line, SubjectOf(journey)));
+                        $"Flow '{flow.Id}' holds a step naming both an actor and a system.",
+                        flow.File, flow.Line, SubjectOf(flow)));
                     continue;
                 }
 
@@ -164,29 +164,29 @@ internal static class IntentChecks
                 {
                     findings.Add(new Finding(
                         "field-invalid",
-                        $"Journey '{journey.Id}' names system '{systemId}', which is a {target.Type}.",
-                        journey.File, journey.Line, SubjectOf(journey)));
+                        $"Flow '{flow.Id}' names system '{systemId}', which is a {target.Type}.",
+                        flow.File, flow.Line, SubjectOf(flow)));
                 }
             }
         }
     }
 
-    /// <summary>Reports each actor named by no journey, problem or access position.</summary>
+    /// <summary>Reports each actor named by no flow, problem or access position.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckActorsNamed(ProjectModel model, List<Finding> findings)
     {
         var named = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey))
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow))
         {
-            foreach (var id in journey.Ids(RecordFields.Actor))
+            foreach (var id in flow.Ids(RecordFields.Actor))
             {
                 named.Add(id);
             }
 
-            if (journey.Raw.ValueKind == JsonValueKind.Object
-                && journey.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            if (flow.Raw.ValueKind == JsonValueKind.Object
+                && flow.Raw.TryGetProperty(RecordFields.Steps, out var steps)
                 && steps.ValueKind == JsonValueKind.Array)
             {
                 foreach (var step in steps.EnumerateArray())
@@ -228,7 +228,7 @@ internal static class IntentChecks
             {
                 findings.Add(new Finding(
                     "actor-unused",
-                    $"Actor '{actor.Id}' is named by no journey, problem or access position.",
+                    $"Actor '{actor.Id}' is named by no flow, problem or access position.",
                     actor.File, actor.Line, SubjectOf(actor))
                 {
                     TierOverride = "A",
@@ -237,16 +237,16 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Reports each goal moved by no journey and no quality requirement.</summary>
+    /// <summary>Reports each goal moved by no flow and no quality requirement.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckGoalsMoved(ProjectModel model, List<Finding> findings)
     {
         var moved = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey))
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow))
         {
-            foreach (var id in journey.Ids(RecordFields.Serves))
+            foreach (var id in flow.Ids(RecordFields.Serves))
             {
                 moved.Add(id);
             }
@@ -268,7 +268,7 @@ internal static class IntentChecks
             {
                 findings.Add(new Finding(
                     "goal-mover-missing",
-                    $"Goal '{goal.Id}' is moved by no journey and no quality requirement.",
+                    $"Goal '{goal.Id}' is moved by no flow and no quality requirement.",
                     goal.File, goal.Line, SubjectOf(goal))
                 {
                     TierOverride = "G",
@@ -304,6 +304,17 @@ internal static class IntentChecks
             foreach (var phrase in PhrasesOf(cast.Body))
             {
                 defined.Add(phrase);
+            }
+        }
+
+        foreach (var cast in model.Records.Where(record => record.Type == RecordTypes.ExampleCast))
+        {
+            foreach (var text in TextsOf(cast))
+            {
+                foreach (var phrase in PhrasesOf(text))
+                {
+                    defined.Add(phrase);
+                }
             }
         }
 

@@ -11,11 +11,11 @@
 </script>
 
 {#if parts.length}
-  <div class="mb-[26px] border-l-[3px] border-highlight pl-4">
+  <div class="mb-6 border-l-[3px] border-highlight py-1 pl-4">
     {#each parts as p, i (i)}
-      <div class={i > 0 ? "mt-2.5" : ""}>
-        <span class="mb-0.5 block text-xs font-semibold tracking-[0.05em] text-highlight-foreground uppercase">{p.label}</span>
-        <div class="text-[0.9375rem] text-foreground" use:glossaryLinks={p.html}>{@html p.html}</div>
+      <div class={i > 0 ? "mt-2" : ""}>
+        <span class="mb-1 block text-xs font-semibold tracking-[0.05em] text-highlight-foreground uppercase">{p.label}</span>
+        <div class="text-sm text-slate-900" use:glossaryLinks={p.html}>{@html p.html}</div>
       </div>
     {/each}
   </div>

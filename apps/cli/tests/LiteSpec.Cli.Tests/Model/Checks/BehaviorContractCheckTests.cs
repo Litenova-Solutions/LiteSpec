@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the contract checks: typed inputs and payloads, scenario exercises, and door auth.</summary>
+/// <summary>Proves the contract checks: typed inputs and payloads, scenario exercises, and entry point auth.</summary>
 public sealed class BehaviorContractCheckTests
 {
     /// <summary>Use Case Input Without A Type Reports.</summary>
@@ -68,7 +68,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "bed", "meaning": "The bed shape.", "type": "choice", "required": true}]}"""));
 
-        Assert.True(Reports(model, "field-invalid", "of type choice with no of choices"));
+        Assert.True(Reports(model, "field-invalid", "of type choice with no choices"));
     }
 
     /// <summary>Typed Inputs With Type Required And Of Pass.</summary>
@@ -80,7 +80,7 @@ public sealed class BehaviorContractCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/inventory.room", Path.Combine(temp.Path, "room.yaml"), """{"kind": "entity", "states": [{"name": "Free", "meaning": "The room is free."}]}"""),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.room", "required": true}, {"name": "nights", "meaning": "The nights to hold.", "type": "integer", "required": true}, {"name": "bed", "meaning": "The bed shape.", "type": "choice", "of": ["single", "double"], "required": false}]}"""));
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.room", "required": true}, {"name": "nights", "meaning": "The nights to hold.", "type": "integer", "required": true}, {"name": "bed", "meaning": "The bed shape.", "type": "choice", "choices": ["single", "double"], "required": false}]}"""));
 
         Assert.False(Reports(model, "field-invalid", "holds input field"));
     }
@@ -141,10 +141,10 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "field-invalid", "holds auth 'anonymous' outside"));
     }
 
-    /// <summary>Entry Point With Door Auth Passes.</summary>
+    /// <summary>Entry Point With Declared Auth Passes.</summary>
     /// <proves>litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind</proves>
     [Fact]
-    public void EntryPointWithDoorAuthPasses()
+    public void EntryPointWithDeclaredAuthPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(

@@ -65,15 +65,15 @@
 {/if}
 {#if opts.length}
   <PageSection blockKey="opts" heading="options" count={opts.length}>
-    <div class="border-t border-border">
+    <div class="border-t border-slate-200">
       {#each opts as o, i (o.name ?? i)}
         {@const chosen = !!choice && String(o.name) === choice}
-        <div class="border-b border-border py-2.5 {chosen ? 'font-medium' : ''}">
-          <h3 class="m-0 mb-1.5 text-[0.90625rem] leading-snug font-semibold">
+        <div class="border-b border-slate-200 py-2.5 {chosen ? 'font-medium' : ''}">
+          <h3 class="m-0 mb-1.5 text-sm leading-snug font-semibold">
             {String(o.name ?? "")}
             {#if chosen}{" "}<Fact text="Choice" />{/if}
           </h3>
-          <div class="grid max-w-[72ch] grid-cols-[18px_1fr] gap-x-1.5 gap-y-1 text-[0.84375rem] leading-snug text-subtle-foreground">
+          <div class="grid max-w-[72ch] grid-cols-[18px_1fr] gap-x-1.5 gap-y-1 text-sm leading-snug text-slate-600">
             <span class="text-convention-foreground"><RecordIcon name="plus" class="size-3.5" /></span>
             <span>{String(o.pros ?? "")}</span>
             <span class="text-warn-foreground"><RecordIcon name="minus" class="size-3.5" /></span>
@@ -86,10 +86,10 @@
 {/if}
 {#if followers.length}
   <PageSection blockKey="fol" heading="Followers" count={followers.length}>
-    <div class="border-t border-border">
+    <div class="border-t border-slate-200">
       {#each followerGroups as g (g.key || "none")}
-        <div class="border-b border-border py-2.5">
-          <h3 class="m-0 mb-1.5 text-[0.90625rem] leading-snug font-semibold">
+        <div class="border-b border-slate-200 py-2.5">
+          <h3 class="m-0 mb-1.5 text-sm leading-snug font-semibold">
             {g.label}
           </h3>
           <ul class="m-0 list-none p-0">

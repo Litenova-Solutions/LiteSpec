@@ -2,23 +2,40 @@ type: use-case
 id: use-case/spending.refuse-expense
 title: Refuse Expense
 summary: A manager turns down a submitted expense that falls outside the policy.
+exposure: A signed-in manager reaches this command through the expenses app under the approve-expense permission. A wrong refusal stalls a fair expense, but the employee sees the reason and the money never moves.
 kind: command
 access:
   grant: permission/approve-expense
   tenant: own
 serves:
-- journey/submit-and-reimburse#s3
+- flow/submit-and-reimburse#s3
 fulfills:
 - requirement/approval.decided-within-five-days
 reachedThrough:
 - entry-point/claimwick-app
 raises:
-- event/expense.refused
-changes:
+- domain-event/expense.refused
+input:
+- name: expense
+  meaning: The submitted expense to refuse.
+  type: id
+  of: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+- name: reason
+  meaning: Why the expense falls outside the policy, shown to the employee.
+  type: text
+  required: true
+  origin: caller
+  classification: internal
+writes:
 - aggregate/spending.expense
 idempotency:
-  mode: none
+  mode: state
   reason: the first refusal moves the expense out of the submitted state, so the aggregate refuses a second refusal
+  replay: refuses
+  recognizedBy: the aggregate state already holds the outcome this command sets
 audit:
   level: none
   target: no audit trail; the example stores no audit entry
@@ -34,6 +51,7 @@ records:
   outcome: refusal
   code: spending.not-submitted
   meaning: The expense is already decided.
+  sentence: This expense is already decided, so there is nothing to refuse.
 - type: scenario
   id: scenario/refuse-expense.rejecting-a-submitted-expense-succeeds
   title: Rejecting a Submitted Expense Succeeds
@@ -41,6 +59,8 @@ records:
   when: The manager rejects the expense with a reason.
   then: The expense is rejected.
   result: result/refuse-expense.rejected
+  exercises:
+  - rule/expense.decided-from-submitted
 - type: scenario
   id: scenario/refuse-expense.rejecting-a-decided-expense-is-refused
   title: Rejecting a Decided Expense Is Refused
@@ -48,3 +68,5 @@ records:
   when: The manager rejects the expense again.
   then: The rejection is refused because the expense is already decided.
   result: result/refuse-expense.not-submitted
+  exercises:
+  - rule/expense.decided-from-submitted

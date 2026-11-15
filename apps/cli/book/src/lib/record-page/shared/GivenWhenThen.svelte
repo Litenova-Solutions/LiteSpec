@@ -5,10 +5,10 @@
 </script>
 
 <dl class="grid grid-cols-[56px_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm">
-  <dt class="pt-0.5 font-mono text-[0.71875rem] font-medium tracking-[0.06em] text-muted-foreground uppercase">Given</dt>
+  <dt class="pt-0.5 font-mono text-xs font-medium tracking-[0.06em] text-slate-600 uppercase">Given</dt>
   <dd class="m-0">{given}</dd>
-  <dt class="pt-0.5 font-mono text-[0.71875rem] font-medium tracking-[0.06em] text-muted-foreground uppercase">When</dt>
+  <dt class="pt-0.5 font-mono text-xs font-medium tracking-[0.06em] text-slate-600 uppercase">When</dt>
   <dd class="m-0">{when}</dd>
-  <dt class="pt-0.5 font-mono text-[0.71875rem] font-medium tracking-[0.06em] text-muted-foreground uppercase">Then</dt>
+  <dt class="pt-0.5 font-mono text-xs font-medium tracking-[0.06em] text-slate-600 uppercase">Then</dt>
   <dd class="m-0">{then}</dd>
 </dl>

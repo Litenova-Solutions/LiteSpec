@@ -30,7 +30,7 @@ A project departure record sets a Standard aside only when it names the provisio
 
 An explicit project convention in `.litespec/governance/conventions/` can replace a baseline Convention when it cites the Convention's ID. (litespec/core/agent#apply-guidance-precedence)
 
-Read `.litespec/intent/product.yaml` and the affected module's feature files before changing behavior that touches money, payouts, or terms. (litespec/core/intent#keep-intent-in-its-homes)
+Read `.litespec/intent/product.yaml` and the affected feature files before changing behavior that touches money, payouts, or terms. (litespec/core/intent#keep-intent-in-its-homes)
 
 Record a product decision for any changed product choice. Research outside `.litespec/` is source material, never authority. (litespec/core/intent#treat-generated-research-as-source-material)
 <!-- /generated:agent-protocol -->
@@ -52,7 +52,7 @@ Report every skipped check with its reason, and name the provisions `rules` retu
 
 Compose each route from one floorplan in the frontend `DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
 
-Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/core/edges#show-every-refusal-a-screen-can-reach)
+Cite every path of every use case a route calls in a test title, or record an exclusion with its reach.
 
 Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
 

@@ -5,9 +5,11 @@ records:
 - type: rule
   id: rule/lending.copy-barcode-unique
   title: Copy barcode unique
-  kind: cross-aggregate
+  kind: invariant
   statement: A copy barcode names one copy across the library.
   governs:
+  - aggregate/lending.copy
+  binds:
   - aggregate/lending.copy
   basedOn: []
   fulfills:

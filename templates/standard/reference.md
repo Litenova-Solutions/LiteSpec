@@ -12,4 +12,4 @@ List each exact value with its meaning. Describe only: no procedure, no obligati
 
 ## Notes
 
-State the limits of these values. Write `None.` when no limit applies.
+State a limit of these values that the list cannot show. Omit this section when no limit applies.

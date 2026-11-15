@@ -114,7 +114,7 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
 
     /// <summary>
     ///     The event ids the method raises through the shared extraction, resolved
-    ///     through each event type's <c>event/</c> mark.
+    ///     through each event type's <c>domain-event/</c> mark.
     /// </summary>
     /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     /// <param name="method">The method under inspection.</param>

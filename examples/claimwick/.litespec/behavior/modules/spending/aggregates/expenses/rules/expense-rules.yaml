@@ -1,6 +1,6 @@
 type: rule-set
 title: Expense Rules
-summary: Each expense carries a receipt above the threshold, is decided once from Submitted by an approver who is not the submitter, is reimbursed once after approval, and only approved expenses export.
+summary: Each expense carries a receipt above the threshold, is decided once from Submitted by an approver who is not the submitter, is reimbursed once after approval, has its personal data erased only after its retention, and only approved expenses export.
 records:
 - type: rule
   id: rule/expense.receipt-required-above-threshold
@@ -9,7 +9,8 @@ records:
   statement: An expense above the policy threshold needs a receipt.
   governs:
   - use-case/spending.submit-expense
-  refusal: result/submit-expense.receipt-missing
+  - aggregate/spending.expense
+  refusal: spending.receipt-missing
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt
@@ -20,7 +21,8 @@ records:
   statement: An approver is not the submitter.
   governs:
   - use-case/spending.approve-expense
-  refusal: result/approve-expense.own-expense
+  - aggregate/spending.expense
+  refusal: spending.own-expense
   basedOn: []
   fulfills:
   - requirement/approval.nobody-approves-own-expense
@@ -31,7 +33,8 @@ records:
   statement: An expense is reimbursed at most once.
   governs:
   - use-case/spending.reimburse-expense
-  refusal: result/reimburse-expense.already-reimbursed
+  - aggregate/spending.expense
+  refusal: spending.already-reimbursed
   basedOn: []
   fulfills:
   - requirement/approval.expense-reimbursed-at-most-once
@@ -42,7 +45,8 @@ records:
   statement: An expense is reimbursed only after approval.
   governs:
   - use-case/spending.reimburse-expense
-  refusal: result/reimburse-expense.not-approved
+  - aggregate/spending.expense
+  refusal: spending.not-approved
   basedOn: []
   fulfills:
   - requirement/approval.expense-reimbursed-at-most-once
@@ -54,10 +58,23 @@ records:
   governs:
   - use-case/spending.approve-expense
   - use-case/spending.refuse-expense
-  refusal: result/approve-expense.not-submitted
+  - aggregate/spending.expense
+  refusal: spending.not-submitted
   basedOn: []
   fulfills:
   - requirement/approval.decided-within-five-days
+- type: rule
+  id: rule/expense.erased-after-retention
+  title: Erased After Retention
+  kind: precondition
+  statement: The personal data of an expense is erased only after its retention ends.
+  governs:
+  - use-case/spending.erase-personal-data
+  - aggregate/spending.expense
+  refusal: spending.retention-not-ended
+  basedOn: []
+  fulfills:
+  - requirement/approval.erased-after-retention
 - type: rule
   id: rule/expense.export-carries-approved
   title: Export Carries Approved
@@ -65,7 +82,7 @@ records:
   statement: An export carries an approved expense.
   governs:
   - use-case/spending.export-expenses
-  refusal: result/export-expenses.nothing-approved
+  refusal: spending.nothing-approved
   basedOn: []
   fulfills:
   - requirement/approval.decided-within-five-days

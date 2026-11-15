@@ -108,7 +108,7 @@
           "proves": [
             "scenario/list-expenses.listing-shows-own-expenses"
           ],
-          "journey": null,
+          "flow": null,
           "gotos": [
             "/expenses"
           ],
@@ -126,7 +126,7 @@
           "proves": [
             "scenario/get-expense.detail-shows-expense"
           ],
-          "journey": "journey/submit-and-reimburse",
+          "flow": "flow/submit-and-reimburse",
           "gotos": [
             "/expenses/[param]"
           ],

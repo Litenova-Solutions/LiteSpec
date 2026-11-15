@@ -14,7 +14,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 internal static class LocalityChecks
 {
     /// <summary>
-    ///     Runs link-locality-invalid, module-dependency-invalid and event-publisher-invalid.
+    ///     Runs link-locality-invalid, module-dependency-invalid, event-publisher-invalid and external-system-placement-wide.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -23,6 +23,51 @@ internal static class LocalityChecks
         CheckLinks(model, findings);
         CheckCycles(model, findings);
         CheckPublishers(model, findings);
+        CheckExternalSystemPlacement(model, findings);
+    }
+
+    /// <summary>
+    ///     Reports a product-level external system that one module alone calls through its effects. It sits at the lowest node
+    ///     holding every record that calls it, which is that module.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every external system and effect holder.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckExternalSystemPlacement(ProjectModel model, List<Finding> findings)
+    {
+        var callers = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        foreach (var holder in model.Records.Where(record =>
+            !record.Derived && record.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job))
+        {
+            foreach (var entry in RecordEntries.EffectEntries(holder))
+            {
+                foreach (var verb in new[] { RecordFields.Calls, RecordFields.Sends })
+                {
+                    if (RecordEntries.Str(entry, verb) is not { Length: > 0 } target
+                        || !model.ById.TryGetValue(Identifiers.BaseId(target), out var system)
+                        || system.Type != RecordTypes.ExternalSystem)
+                    {
+                        continue;
+                    }
+
+                    if (!callers.TryGetValue(system.Id, out var modules))
+                    {
+                        modules = new HashSet<string>(StringComparer.Ordinal);
+                        callers[system.Id] = modules;
+                    }
+
+                    modules.Add(holder.Module ?? "");
+                }
+            }
+        }
+
+        foreach (var system in model.Records.Where(record => record.Type == RecordTypes.ExternalSystem && record.Module is null).OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (callers.TryGetValue(system.Id, out var modules) && modules.Count == 1 && modules.Single() is { Length: > 0 } only)
+            {
+                findings.Add(new Finding("external-system-placement-wide", $"External system '{system.Id}' sits at product level, and module '{only}' alone calls it; place it in that module.", system.File, system.Line, SubjectOf(system)));
+            }
+        }
     }
 
     /// <summary>Reports a same-layer link across modules with no declared dependency and no integration event between them.</summary>
@@ -371,7 +416,7 @@ internal static class LocalityChecks
             return model.ById.ContainsKey($"module/{home}") ? home : null;
         }
 
-        if (record.Type is RecordTypes.Rule or RecordTypes.Event)
+        if (record.Type is RecordTypes.Rule or RecordTypes.DomainEvent)
         {
             if (record.Type == RecordTypes.Rule && model.ById.ContainsKey($"module/{home}"))
             {
@@ -426,7 +471,7 @@ internal static class LocalityChecks
         {
             RecordTypes.Product or RecordTypes.Goal or RecordTypes.Vision or RecordTypes.Problem or RecordTypes.Feature
                 or RecordTypes.Constraint or RecordTypes.Research or RecordTypes.Decision
-                or RecordTypes.Requirement or RecordTypes.Journey or RecordTypes.Actor
+                or RecordTypes.Requirement or RecordTypes.Flow or RecordTypes.Actor
                 or RecordTypes.Role => "intent",
             _ => "behavior",
         };

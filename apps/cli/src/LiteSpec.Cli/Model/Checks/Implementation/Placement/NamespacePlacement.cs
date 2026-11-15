@@ -14,7 +14,7 @@ internal static class NamespacePlacement
         "Domain", "Application", "Abstractions", "Infrastructure", "WebApi", "Worker",
         "Persistence", "Endpoints", "Contracts", "Events", "Exceptions",
         "Identifiers", "IntegrationEvents", "Ports",
-        "UseCases", "Notifications", "ExternalSystems", "Views", "Composition", "Tests", "Test", "Acceptance", "Integration", "Unit",
+        "UseCases", "Notifications", "ExternalSystems", "ReadModels", "Composition", "Tests", "Test", "Acceptance", "Integration", "Unit",
     };
 
     /// <summary>

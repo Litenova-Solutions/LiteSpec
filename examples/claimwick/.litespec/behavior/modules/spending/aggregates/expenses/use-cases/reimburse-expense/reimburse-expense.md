@@ -6,11 +6,11 @@ Reimburse Expense pays an approved expense back to the employee who submitted it
 
 Finance picks an approved expense. Spending refuses the payment with `spending.not-approved` when the expense is not approved. It refuses the payment with `spending.already-reimbursed` when the expense is already reimbursed.
 
-Otherwise the expense moves to Reimbursed, and `event/expense.reimbursed` is raised with the amount, the currency and the payment time. The payout batch then carries the expense to `external-system/payout-bank`. No audit entry is stored. The first payment moves the expense to Reimbursed, so a second payment finds it already paid and is refused.
+Otherwise the expense moves to Reimbursed, and `domain-event/expense.reimbursed` is raised with the amount, the currency and the payment time. The payout batch then carries the expense to `external-system/payout-bank`. No audit entry is stored. The first payment moves the expense to Reimbursed, so a second payment finds it already paid and is refused.
 
 ## Example
 
-Ben approved Ava's 48.90 EUR train fare earlier in the week. Cara pays it on Friday. The expense moves to Reimbursed, and `event/expense.reimbursed` is raised with the 48.90 EUR amount. The payout batch carries the payment to the payout bank.
+Ben approved Ava's 48.90 EUR train fare earlier in the week. Cara pays it on Friday. The expense moves to Reimbursed, and `domain-event/expense.reimbursed` is raised with the 48.90 EUR amount. The payout batch carries the payment to the payout bank.
 
 The next Friday, Cara tries to pay the same expense again. Spending refuses the payment with `spending.already-reimbursed`, so Ava receives the 48.90 EUR once.
 

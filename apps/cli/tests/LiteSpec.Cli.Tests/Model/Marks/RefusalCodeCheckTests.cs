@@ -33,10 +33,10 @@ public sealed class RefusalCodeCheckTests
         Assert.DoesNotContain(drifts, finding => finding.Message.Contains("EqualCodeException"));
     }
 
-    /// <summary>Refusal To A Success Result Reports No Drift.</summary>
+    /// <summary>A Rule Naming No Refusal Code Reports No Drift, Though A Success Result Sits Beside It.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
-    public void RefusalToASuccessResultReportsNoDrift()
+    public void RuleNamingNoRefusalCodeReportsNoDrift()
     {
         using var temp = WriteConsumer();
         var drifts = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "runtime-value-drift");
@@ -127,8 +127,7 @@ public sealed class RefusalCodeCheckTests
                       "owner": "lending-team",
                       "status": "reviewed",
                       "kind": "precondition",
-                      "statement": "A held copy may wait.",
-                      "refusal": "result/place-hold.hold-waiting"
+                      "statement": "A held copy may wait."
                     },
                     {
                       "type": "result",

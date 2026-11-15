@@ -12,7 +12,7 @@ onFailure:
   retry:
     maxAttempts: 10
     backoff: 5 seconds
-  then: dead-letter
+  ifExhausted: dead-letter
 runs:
   - use-case/lending.return-copy
 ---

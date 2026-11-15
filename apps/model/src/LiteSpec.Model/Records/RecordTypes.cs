@@ -29,17 +29,17 @@ public static class RecordTypes
     /// <summary>Gets the `entry-point` record type name.</summary>
     public const string EntryPoint = "entry-point";
 
-    /// <summary>Gets the `entry-point-list` record type name.</summary>
-    public const string EntryPointList = "entry-point-list";
+    /// <summary>Gets the `entry-point-set` page style name.</summary>
+    public const string EntryPointSet = "entry-point-set";
 
-    /// <summary>Gets the `event` record type name.</summary>
-    public const string Event = "event";
+    /// <summary>Gets the `domain-event` record type name.</summary>
+    public const string DomainEvent = "domain-event";
 
     /// <summary>Gets the `example-cast` record type name.</summary>
     public const string ExampleCast = "example-cast";
 
-    /// <summary>Gets the `view` record type name.</summary>
-    public const string View = "view";
+    /// <summary>Gets the `read-model` record type name.</summary>
+    public const string ReadModel = "read-model";
 
     /// <summary>Gets the `vision` record type name.</summary>
     public const string Vision = "vision";
@@ -52,6 +52,9 @@ public static class RecordTypes
 
     /// <summary>Gets the `feature` record type name.</summary>
     public const string Feature = "feature";
+
+    /// <summary>Gets the `flow` record type name.</summary>
+    public const string Flow = "flow";
 
     /// <summary>Gets the `glossary` record type name.</summary>
     public const string Glossary = "glossary";
@@ -71,9 +74,6 @@ public static class RecordTypes
     /// <summary>Gets the `job` record type name.</summary>
     public const string Job = "job";
 
-    /// <summary>Gets the `journey` record type name.</summary>
-    public const string Journey = "journey";
-
     /// <summary>Gets the `module` record type name.</summary>
     public const string Module = "module";
 
@@ -83,8 +83,8 @@ public static class RecordTypes
     /// <summary>Gets the `permission` record type name.</summary>
     public const string Permission = "permission";
 
-    /// <summary>Gets the `permission-list` record type name.</summary>
-    public const string PermissionList = "permission-list";
+    /// <summary>Gets the `permission-set` page style name.</summary>
+    public const string PermissionSet = "permission-set";
 
     /// <summary>Gets the `problem` record type name.</summary>
     public const string Problem = "problem";
@@ -98,6 +98,9 @@ public static class RecordTypes
     /// <summary>Gets the `reference` record type name.</summary>
     public const string Reference = "reference";
 
+    /// <summary>Gets the `refusal-set` page style name: one module's refusal codes.</summary>
+    public const string RefusalSet = "refusal-set";
+
     /// <summary>Gets the `requirement` record type name.</summary>
     public const string Requirement = "requirement";
 
@@ -106,9 +109,6 @@ public static class RecordTypes
 
     /// <summary>Gets the `result` record type name.</summary>
     public const string Result = "result";
-
-    /// <summary>Gets the `retention-schedule` record type name.</summary>
-    public const string RetentionSchedule = "retention-schedule";
 
     /// <summary>Gets the `role` record type name.</summary>
     public const string Role = "role";
@@ -147,9 +147,9 @@ public static class RecordTypes
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         "product", "goal", "vision", "constraint", "research", "decision", "requirement", "problem",
-        "feature", "actor", "role", "permission", "journey", "module",
-        "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
-        "reaction", "job", "notification", "setting", "view",
+        "feature", "actor", "role", "permission", "flow", "module",
+        "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "integration-event",
+        "reaction", "job", "notification", "setting", "read-model",
         "entry-point", "screen", "external-system", "runbook", "departure", "term",
     };
 
@@ -163,11 +163,11 @@ public static class RecordTypes
             ["product"] = "intent", ["goal"] = "intent", ["vision"] = "intent", ["constraint"] = "intent",
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
-            ["actor"] = "intent", ["journey"] = "intent", ["term"] = "intent",
+            ["actor"] = "intent", ["flow"] = "intent", ["term"] = "intent",
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
-            ["event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
-            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["view"] = "behavior",
+            ["domain-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
+            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
             ["departure"] = "governance",
@@ -176,7 +176,7 @@ public static class RecordTypes
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
     public static readonly HashSet<string> PageStyles = new HashSet<string>(StringComparer.Ordinal)
     {
-        "permission-list", "entry-point-list", "setting-set", "retention-schedule",
+        "permission-set", "entry-point-set", "setting-set", "refusal-set",
         "rule-set", "index", "tutorial", "how-to", "reference", "command",
         "configuration", "glossary", "example-cast",
     };
@@ -184,35 +184,36 @@ public static class RecordTypes
     /// <summary>Container page styles: record files that hold entries without a record of their own.</summary>
     public static readonly HashSet<string> ContainerStyles = new HashSet<string>(StringComparer.Ordinal)
     {
-        PermissionList, EntryPointList, SettingSet, RuleSet, RetentionSchedule,
+        PermissionSet, EntryPointSet, SettingSet, RuleSet, RefusalSet,
     };
 
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
         "requirement", "aggregate", "rule", "use-case", "result",
-        "scenario", "event", "reaction", "job", "notification", "setting", "screen", "view",
+        "scenario", "domain-event", "reaction", "job", "notification", "setting", "screen", "read-model",
     };
 
     /// <summary>Types the small size requires.</summary>
     public static readonly IReadOnlyList<string> SmallRequired =
     [
         "product", "decision", "requirement", "actor", "role", "permission",
-        "module", "aggregate", "rule", "use-case", "result", "event",
+        "module", "aggregate", "rule", "use-case", "result", "domain-event",
         "entry-point", "term",
     ];
 
     /// <summary>Types only the large size requires.</summary>
     public static readonly IReadOnlyList<string> LargeAdded =
     [
-        "goal", "problem", "feature", "journey", "scenario",
+        "goal", "problem", "feature", "flow", "scenario",
     ];
 
     /// <summary>
     ///     Whether the field names a link, and which record types it may point at.
-    ///     An empty set means any record type. A serves target of journey/&lt;name&gt;#&lt;step&gt;
-    ///     resolves through its journey, and a calls target of
+    ///     An empty set means any record type. A serves target of flow/&lt;name&gt;#&lt;step&gt;
+    ///     resolves through its flow, and a calls target of
     ///     external-system/&lt;name&gt;#&lt;operation&gt; through its system.
+    ///     A flow's serves names one goal and its answers one problem or constraint; only serves moves a goal.
     /// </summary>
     public static readonly Dictionary<string, HashSet<string>> LinkTargets =
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
@@ -221,31 +222,39 @@ public static class RecordTypes
             ["cites"] = new HashSet<string> { "goal", "vision", "problem", "feature", "constraint", "research", "decision", "requirement" },
             ["basedOn"] = new HashSet<string> { "constraint", "research", "vision", "decision", "requirement" },
             ["affects"] = new HashSet<string> { "actor" },
-            ["addresses"] = new HashSet<string> { "actor", "permission" },
+            ["audience"] = new HashSet<string> { "actor" },
+            ["requires"] = new HashSet<string> { "actor", "permission" },
             ["advances"] = new HashSet<string> { "goal" },
-            ["serves"] = new HashSet<string> { "goal", "journey" },
+            ["serves"] = new HashSet<string> { "goal", "flow" },
+            ["answers"] = new HashSet<string> { "problem", "constraint" },
+            ["solves"] = new HashSet<string> { "problem" },
             ["fulfills"] = new HashSet<string> { "requirement" },
             ["governs"] = new HashSet<string> { "aggregate", "use-case" },
-            ["raises"] = new HashSet<string> { "event" },
+            ["raises"] = new HashSet<string> { "domain-event" },
             ["runs"] = new HashSet<string> { "use-case" },
             ["sends"] = new HashSet<string> { "notification" },
             ["calls"] = new HashSet<string> { "external-system" },
-            ["triggeredBy"] = new HashSet<string> { "event", "integration-event" },
-            ["changes"] = new HashSet<string> { "aggregate" },
+            ["triggeredBy"] = new HashSet<string> { "domain-event", "integration-event" },
+            ["writes"] = new HashSet<string> { "aggregate" },
             ["keyedBy"] = new HashSet<string> { "aggregate" },
             ["from"] = new HashSet<string> { "integration-event" },
             ["erasedBy"] = new HashSet<string> { "integration-event" },
             ["removedBy"] = new HashSet<string> { "integration-event" },
-            ["reads"] = new HashSet<string> { "aggregate", "setting", "view" },
-            ["translates"] = new HashSet<string> { "event" },
+            ["reads"] = new HashSet<string> { "aggregate", "setting", "read-model" },
+            ["translates"] = new HashSet<string> { "domain-event" },
+            ["through"] = new HashSet<string> { "external-system" },
+            ["arrivesThrough"] = new HashSet<string> { "entry-point", "external-system" },
+            ["deliveredThrough"] = new HashSet<string> { "external-system" },
+            ["requiresConsent"] = new HashSet<string> { "rule" },
+            ["movedBy"] = new HashSet<string> { "job" },
             ["fallback"] = new HashSet<string> { "requirement" },
             ["releasedBy"] = new HashSet<string> { "use-case" },
             ["computedBy"] = new HashSet<string> { "rule" },
-            ["enforcedBy"] = new HashSet<string> { "reaction", "job" },
+            ["enforcedBy"] = new HashSet<string> { "job", "use-case" },
             ["effects"] = new HashSet<string> { "use-case", "notification", "external-system" },
             ["access"] = new HashSet<string> { "permission" },
             ["except"] = new HashSet<string> { "requirement" },
-            ["dataClasses"] = new HashSet<string> { "reaction", "job", "decision", "requirement" },
+            ["dataClasses"] = new HashSet<string> { "job", "use-case", "decision", "requirement" },
             ["freshness"] = new HashSet<string>(),
             ["erasure"] = new HashSet<string> { "external-system", "integration-event" },
             ["allows"] = new HashSet<string> { "permission" },
@@ -256,6 +265,7 @@ public static class RecordTypes
             ["actor"] = new HashSet<string> { "actor" },
             ["offers"] = new HashSet<string> { "use-case" },
             ["host"] = new HashSet<string> { "screen" },
+            ["leadsTo"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
             ["subject"] = new HashSet<string>(),
             ["values"] = new HashSet<string>(),
@@ -267,12 +277,12 @@ public static class RecordTypes
     /// </summary>
     public static readonly IReadOnlyList<string> FulfillingTypes =
     [
-        "rule", "use-case", "reaction", "job", "notification", "setting",
+        "rule", "use-case", "reaction", "job", "notification", "setting", "entry-point",
     ];
 
     /// <summary>
-    ///     The record types that serve a journey step, in message order: the Written on
-    ///     column of the serves row for journey steps. The step check reads this table.
+    ///     The record types that serve a flow step, in message order: the Written on
+    ///     column of the serves row for flow steps, except the screen. The step check reads this table.
     /// </summary>
     public static readonly IReadOnlyList<string> StepServingTypes =
     [
@@ -281,7 +291,7 @@ public static class RecordTypes
 
     /// <summary>
     ///     The record types that link up with serves or fulfills, in message order:
-    ///     every fulfilling type except a rule. The orphan check reads this table.
+    ///     every fulfilling type except a rule and an entry point. The orphan check reads this table.
     /// </summary>
     public static readonly IReadOnlyList<string> UpLinkedTypes =
     [

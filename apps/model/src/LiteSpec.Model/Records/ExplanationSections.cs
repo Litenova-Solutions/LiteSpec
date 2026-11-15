@@ -33,7 +33,7 @@ public static class ExplanationSections
             [RecordTypes.Decision] = Of(("Context", false), ("Options", false), ("Decision", false), ("Consequences", false), ("Evidence", true), ("Revisit Conditions", false)),
             [RecordTypes.Feature] = Of(("Capabilities", false), ("Success Criteria", false), ("Boundaries", false), ("Example", true)),
             [RecordTypes.Requirement] = Of(("Example", true)),
-            [RecordTypes.Journey] = Of(("Example", false), ("Branches", true)),
+            [RecordTypes.Flow] = Of(("Example", false), ("Branches", true)),
 
             // Behavior
             [RecordTypes.Module] = Of(("Responsibilities", false), ("Boundaries", false), ("Example", true)),
@@ -44,13 +44,12 @@ public static class ExplanationSections
             [RecordTypes.Job] = Of(("Invocation", false), ("Failure Handling", false), ("Example", true)),
             [RecordTypes.Notification] = Of(("Content", false), ("Delivery", false), ("Example", false)),
             [RecordTypes.IntegrationEvent] = Of(("Consumers", false), ("Compatibility", false), ("Example", false)),
-            [RecordTypes.View] = Of(("Sources", false), ("Freshness", false), ("Example", true)),
+            [RecordTypes.ReadModel] = Of(("Sources", false), ("Freshness", false), ("Example", true)),
             [RecordTypes.ExternalSystem] = Of(("Use", false), ("Data Shared", false), ("Failure Handling", false)),
             [RecordTypes.EntryPoint] = Of(("Audience", false), ("Authentication", false), ("Limits", true)),
             [RecordTypes.Screen] = Of(("Task", false), ("States", false), ("Example", false)),
-            [RecordTypes.PermissionList] = Of(("Risk", false), ("Boundaries", true)),
+            [RecordTypes.PermissionSet] = Of(("Risk", false), ("Boundaries", true)),
             [RecordTypes.SettingSet] = Of(("Defaults", false), ("Changes", true)),
-            [RecordTypes.RetentionSchedule] = Of(("Basis", false), ("Conflicts", false), ("Deletion", false)),
 
             // Implementation and Governance
             [RecordTypes.Runbook] = Of(("Prerequisites", false), ("Steps", false), ("Verification", false), ("Recovery", false)),

@@ -33,11 +33,13 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Applies to:** artifact: record:use-case; layer: behavior
 
-**Statement:** A conflicting-write use case MUST document conflicting operations, invalid combined result, expected winner behavior, and user-visible conflict response.
+**Statement:** A command that can conflict with another accepted write MUST state `conflicts` naming what conflicts in `on`, which write wins in `winner`, and the refusal code the loser gets in `refusal`.
 
-**Rationale:** Version coordination exists to protect one invariant. Naming the conflicting operations, the invalid combined result, the expected winner, and the caller-visible response states which invariant that is. An implementation without that document cannot tell a conflict it has to reject from contention it has to absorb.
+**Rationale:** Version coordination exists to protect one invariant. The `on` entry names the conflicting operations and the invalid combined result they would leave, so an implementation tells a conflict it rejects from contention it absorbs. The `winner` entry names which write wins: `first-write` keeps the accepted change and refuses the late write, `last-write` lets the late write replace the accepted change, and `merge` combines both writes. The `refusal` entry names the refusal code the loser gets from the module's refusal set, so the caller learns the loss as a declared refusal with its stable code.
 
-**Reviewed for:** Which conflicting-write use cases lack conflicts, invalid state, winner behavior, or caller response? Look at the use case pages.
+**Example:** The approve-expense command states `conflicts` with `on` naming a second approval of the same expense, `winner: first-write`, and `refusal` naming the approve conflict code the late approval gets.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a `conflicts` entry that names no `on`, no `winner`, or no `refusal`, or a `winner` outside `first-write`, `last-write`, and `merge`.
 
 ### Limit Version Checks
 
@@ -47,11 +49,11 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Applies to:** artifact: command-handler, endpoint
 
-**Statement:** An implementation MUST NOT require a caller-supplied version without a documented conflicting-write case.
+**Statement:** An implementation MUST NOT require a caller-supplied version without a `conflicts` entry on its command.
 
-**Rationale:** Every stored aggregate already carries a baseline version that the store compares at commit, so the version itself needs no document. Requiring the caller to supply a version adds a rejection path the caller has to handle: a missing or stale caller version refuses an otherwise valid write. The conflicting-write document stays the gate for that caller burden: no case, no caller-version requirement.
+**Rationale:** Every stored aggregate already carries a baseline version that the store compares at commit, so the version itself needs no record. Requiring the caller to supply a version adds a rejection path the caller has to handle: a missing or stale caller version refuses an otherwise valid write. The `conflicts` entry stays the gate for that caller burden: no entry, no caller-version requirement.
 
-**Reviewed for:** Which caller-version requirements lack a documented conflicting-write case? Look at the versioned operations beside the conflicting-write documents.
+**Reviewed for:** Which caller-version requirements lack a `conflicts` entry on their command? Look at the versioned operations beside the use case records.
 
 ### Compare Expected Aggregate Versions
 

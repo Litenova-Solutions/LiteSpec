@@ -2,7 +2,8 @@
 
 ## v7.0.0
 
-LiteSpec 7.0.0 makes each use case own its folder, its models and everything that starts it. A use-case folder holds `Application/` and `WebApi/` folders, and each reaction and job sits with the use case it runs. A handler sends no command, query or event, a reaction or job runs at most one use case, and the pipeline publishes each integration event from the domain event it translates. A module reads another module's state through a new `view` record built from published integration events, asks one current-value question through a decision port, or composes a screen from each owner's query. It is a major release: seven provision identifiers change to name the rules their headings state, as Part H lists. The record schema and the .NET folder layout change, so a consumer moves its code, edits its records and replaces each renamed citation as Part I states.
+LiteSpec 7.0.0 reshapes the record model around explicit records held by checks. Intent gains flows (the record that was the journey), which serve a goal or answer a problem or a constraint and cite requirements step by step, standalone features that name the problems they solve, and product-level requirements. Behavior gains read models, refusal sets, typed outputs and row inputs, file values, verified claims, replay rules, automation outcomes, timed transitions and settings that are read and dated, and every link has one meaning and reads from a Links table generated from the schema. Each use case owns its folder, its models and everything that starts it; a handler sends no command, query or event; and a module reads another module's state through a read model, a decision port or a composed screen. Findings block by the strength of the provision they report, proof is bound to the code it proves, and `litespec book` serves a live book by default and writes a book safe to host with `--out`. It is a major release: record types, fields, folders, finding codes and provision identifiers change, as the parts below state.
+
 
 ### Part A: Each Use Case Owns Its Folder
 
@@ -27,18 +28,18 @@ The new rules are `litespec/backend/architecture#give-each-use-case-its-own-mode
 
 The new rule is `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`. Decision 0064, Raise Facts and Send Nothing from Handlers, records why.
 
-### Part C: The View Record
+### Part C: The Read Model Record
 
-- A `view` is a Behavior record at `.litespec/behavior/modules/<module>/views/<name>/<name>.yaml` with the identifier `view/<module>.<name>`: one module's own copy of what it needs about another module's aggregate. It names that aggregate in `keyedBy`, each field's source as `integration-event/<name>#<field>` in `from`, an optional `accumulate` of `latest`, `sum` or `count`, the events that remove a row in `removedBy`, and how stale a reader may see a row in `freshness`. A `personal` or `sensitive` field names its erasing event in `erasedBy`.
-- A use case names a view in `reads`, and a query output group may read one. `litespec new view <module>.<name>` scaffolds a view from `templates/consumer/view.yaml`, and `litespec rename` moves one.
-- `model check` reports `view-source-unknown`, `view-erasure-missing`, `view-key-invalid` and `view-unused`. A view's explanation file carries Sources, Freshness and an optional Example.
-- In .NET a view lives in its module `Views/` folder, one plural folder per view, with the view document, one `{View}On{Fact}Projection` per source event, the reader `I{View}View` and its implementation, each carrying the view's mark. LS2007 does not hold a projection to the reaction naming rule.
-- A command whose decision needs another module's current value asks one question through a decision port with one read-only method. A screen that only shows another module's data calls each owner's own query, and a query handler reads only its own module's store and views. Repositories, outside-system ports and rule calculators stay ports.
-- With the outbox extension, each integration event a view names is kept for as long as a view may rebuild from it, apart from the delivery records.
-- The book lists views under their module, shows each field with the published field it copies and its erasing event, and lists on each integration event the use cases that publish it.
-- Claimwick gains the reporting module with `view/reporting.reimbursed-expense`, built from the new `integration-event/expense-reimbursed` and erased by `integration-event/expense-personal-data-erased`, and the `use-case/reporting.list-reimbursed-expenses` query that reads it.
+- A `read-model` is a Behavior record at `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml` with the identifier `read-model/<module>.<name>`: one module's own copy of what it needs about another module's aggregate. It names that aggregate in `keyedBy`, each field's source as `integration-event/<name>#<field>` in `from`, an optional `accumulate` of `latest`, `sum` or `count`, the events that remove a row in `removedBy`, and how stale a reader may see a row in `freshness`. A `personal` or `sensitive` field names its erasing event in `erasedBy`.
+- A use case names a read model in `reads`, and a query output group may read one. `litespec new read-model <module>.<name>` scaffolds one from `templates/consumer/read-model.yaml`, and `litespec rename` moves one.
+- `model check` reports `read-model-source-unknown`, `read-model-erasure-missing`, `read-model-key-invalid` and `read-model-unused`. A read model's explanation file carries Sources, Freshness and an optional Example.
+- In .NET a read model lives in its module `ReadModels/` folder, one plural folder per read model, with its document, one `{ReadModel}On{Fact}Projection` per source event, the reader `I{ReadModel}ReadModel` and its implementation, each carrying the read model's mark. LS2007 does not hold a projection to the reaction naming rule.
+- A command whose decision needs another module's current value asks one question through a decision port with one read-only method. A screen that only shows another module's data calls each owner's own query, and a query handler reads only its own module's store and read models. Repositories, outside-system ports and rule calculators stay ports.
+- With the outbox extension, each integration event a read model names is kept for as long as a read model may rebuild from it, apart from the delivery records, with erased personal fields removed.
+- The book lists read models under their module, shows each field with the published field it copies and its erasing event, and lists on each integration event the use cases that publish it.
+- Claimwick gains the reporting module with `read-model/reporting.reimbursed-expense`, built from the new `integration-event/expense-reimbursed` and erased by `integration-event/expense-personal-data-erased`, and the `use-case/reporting.list-reimbursed-expenses` query that reads it.
 
-The new rules are `litespec/core/automation#declare-each-view-field-from-a-published-field`, `litespec/core/automation#erase-a-viewed-personal-field-with-its-owner`, `litespec/backend/application#read-another-modules-state-through-a-view`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`, `litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder`, `litespec/ext/outbox#keep-integration-events-a-view-rebuilds-from` and `litespec/frontend/data#compose-a-screen-from-each-owners-query`. Decision 0065, Read Another Module Through a View, records why.
+The new rules are `litespec/core/automation#declare-each-read-model-field-from-a-published-field`, `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`, `litespec/backend/application#read-another-modules-state-through-a-read-model`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`, `litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder`, `litespec/ext/outbox#keep-integration-events-a-read-model-rebuilds-from` and `litespec/frontend/data#compose-a-screen-from-each-owners-query`. Decision 0065, Read Another Module Through a Read Model, records why.
 
 ### Part D: Domain Parts, Read Shapes and Module Edges
 
@@ -58,63 +59,214 @@ The new rules are `litespec/core/automation#declare-each-view-field-from-a-publi
 - LS2019 drops its exemption for types ending in `Command`, `Query`, `CommandResult` or `QueryResult`.
 - LS2021, Message Sent Outside an Entry Point, reports an `ICommandMediator`, `IQueryMediator` or `IEventMediator` held by a type in the modules project that is not an endpoint, an event handler or a job.
 - LS2022, Event Published by User Code, reports an `IEventMediator` or a type named `*EventPublisher` named anywhere in the modules project.
-- LS2007 ignores an event handler named `*Projection` or placed in a module `Views/` folder.
+- LS2007 ignores an event handler named `*Projection` or placed in a module `ReadModels/` folder.
 
 ### Part G: Records in the Book and the Command Line
 
-- The record schema, `litespec new`, `litespec rename`, the folder checks, the parent rules and the placement table carry the `view` type and its `views/` typed folder.
-- The book links `view/...` identifiers in prose, labels the view fields, and drops the `emits` edge label.
+- The record schema, `litespec new`, `litespec rename`, the folder checks, the parent rules and the placement table carry the `read-model` type and its `read-models/` typed folder.
+- The book links `read-model/...` identifiers in prose, labels the read-model fields, and drops the `emits` edge label.
 
-### Part H: Provision Changes Since v6.0.0
+### Part H: Flows
 
-Seven provisions take the identifier their heading derives, so each identifier names the rule it states:
+- The Intent record `journey` is now `flow`: identifiers `flow/<name>`, steps `flow/<name>#s1`, the folder `intent/flows/`, and the template `templates/consumer/flow.yaml`.
+- A flow carries exactly one reason: `serves` names one goal, or `answers` names one problem or constraint. Only `serves` moves a goal.
+- Each step names the requirements it carries in its own `cites`; the flow's citations are the union of its steps'. A step's text states what the person does and sees, and a failure states what the person sees and can do next.
+- A step names a person in `actor` or an external system in `system`; jobs and reactions serve a step upward and never appear in one.
+
+### Part I: Features, Product Requirements and Goal Outcomes
+
+- A feature stands alone at `intent/features/<name>/` and names the problems it answers in `solves`; its requirements sit under it.
+- A permanent commitment with no offer is a product-level requirement at `intent/requirements/<name>/`, identifier `requirement/<name>`, citing the constraint, goal or problem it comes from.
+- The product states its exclusions in `excludes`; only an exclusion overrides a requirement.
+- A goal records measured outcomes in `observations`; its completion shows delivery, and its outcome reads "not measured" until it has one.
+
+### Part J: Explicit Records and One Source per Fact
+
+- A record states every fact and link a reader needs to read it alone, and a check holds each copy that the model can also derive to its source. `governs`, `exposure`, field classification and data-class membership stay on the record under agreement checks.
+- Retention lives on the aggregate data class: `period`, `periodStartsAt`, `basis`, `purpose`, `enforcedBy` and `exceptions`. The retention schedule is rendered by the book, and an external system names the data it holds in `processes`.
+- `exposure` states who reaches a use case, through which entry points, under which permission, and what is at stake. `background` is the Given shared by every scenario of its use case.
+- Reactions and jobs require `onFailure`, `idempotency` and `outcomes`. Queries carry neither idempotency nor consistency, and `consistency` is required only on a command that writes several aggregates.
+
+### Part K: Fields and Checks for Stated Rules
+
+- A reaction triggers only on its own module's domain event or on an integration event.
+- Every link is a typed identifier that the link and locality checks read, including consistency bindings, output-group widening, input rules and failure targets.
+- A domain event's `carries` is typed, and an integration event publishes only fields its domain event carries.
+- New findings: `reaction-trigger-foreign`, `scenario-rule-unexercised`, `integration-event-field-uncarried`, `refusal-generic-written`, `refusal-code-unknown`, `statement-word-vague`, `example-keys-drift`, `external-system-placement-wide`, `rule-governs-drift`, `exposure-reference-drift`, `exposure-missing`, `classification-drift`, `data-class-fields-drift`, `setting-unused`, `background-scenarios-missing`, `input-claim-unverified` and `idempotency-replay-missing`.
+
+### Part L: One Links Table and One Meaning per Verb
+
+- Each link property in the record schema carries its reads-as phrases in `x-reads-as` and `x-read-back-as`; `litespec-maintain provisions` generates the Links table from them, and the book takes its connection labels from them.
+- Intent links point up a layer, effect and structure links follow the effect graph, and only `decides`, `allows` and `holds` point down.
+- Notification `audience`, integration-event `requires`, consistency `boundBy` and output-group `widenedBy` give each verb one meaning; `triggeredBy` reads "triggers".
+- Read models fulfill no requirement; the query that reads one does. A served-content entry point keeps `fulfills`.
+
+### Part M: New Behavior Concepts
+
+- Files: a `file` value type with `contentTypes` and `maxSize`. Every output field is typed, a list of rows takes `type: list` with an `of` shape, and choices take `choices`.
+- Refusal sets: each module declares its refusal codes once in `behavior/modules/<m>/refusals.yaml`, mapped to a problem type. `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated` and `sign-in-too-old` are derived, never written. A rule names its refusal code.
+- Access: `grant: signed-in`, `recentSignIn` naming the window setting, and the `device` entry-point authentication.
+- Inputs a provider verified carry `origin: verified-claim` with `verifiedBy`; a command's `idempotency` states what a replay does in `replay`.
+- Settings are read through `reads`, can be `dated`, and take typed defaults and `choices`. A transition may be moved by time with `after` and a job in `movedBy`.
+- An integration event names the external system it travels `through`, and an inbound one names how it arrives in `arrivesThrough`: a webhook entry point or a subscribed external system.
+- An outside call separates rejected, accepted and unknown outcomes, with `onUnknown` for the unknown case.
+- Notifications are messages to people, delivered `deliveredThrough` an external system; consent is recorded data a rule requires through `requiresConsent`. Under the concurrency extension a command states its `conflicts`.
+- Reaction and job scenarios end in a run use case's result or in one of the record's outcomes. A scenario belongs to the use case, reaction or job it exercises.
+
+### Part N: Removals and Names
+
+- Removed: the `compensated` consistency mode, the `manual` job kind, the `default` and `cross-aggregate` rule kinds, the `not-pending` idempotency mode, `builtAsynchronously`, the external-system prose fields `sends`, `receives` and `failure`, `writes` on reactions and jobs, the screen `floorplan` link (the design contract maps screens to floorplans), and the retention-schedule record type.
+- Renamed: `view` to `read-model`, `event` entries to `domain-event` (`domain-event/<aggregate>.<name>`, folder `domain-events/`), `changes` to `writes`, `transitions.by` to `movedBy`, `runsWhere` to `runsWhen`, `onFailure.then` to `ifExhausted`, audit `exempt` to `exemptBecause`, rule kind `commercial-data` to `frozen-value`, `permission-list` and `entry-point-list` to `permission-set` and `entry-point-set`, and the provision part `Deviation` to `Departure`.
+- Finding codes renamed: `atomic-group-*` to `atomicity-*`, `constituent-parent-missing` to `part-parent-missing`, `notification-sender-missing` to `notification-effect-missing`, `permission-orphaned` and `role-orphaned` to `permission-unused` and `role-unused`, `use-case-journey-missing` to `use-case-flow-missing`, and the `view-*` codes to `read-model-*`.
+
+### Part O: A Consistent Standard
+
+- A record's content is what it states and changes; its links are its reasons. External systems sit at the lowest node that holds their callers.
+- Strength, detection and blocking are separate: a finding blocks by the strength of the provision it reports, `SHOULD` is advisory and needs no departure, and prose and naming checks are advisory.
+- `select-task-context` is the one context rule; the intent layout is fixed; the model page owns the cross-module rule; scope, containment, storage and book grouping are four words.
+- Contradictions between records are reported and resolved by updating records; behavior with no record above it is recorded or reported, never removed.
+- Access is evaluated in one stated order, and a permission allows exactly the use cases that name it.
+- Each effect of a reaction or job runs on its own; a read model deduplicates by event identity, orders by source version and keeps erasure tombstones, and never guards a decision that needs current truth.
+- Proof is stale when the scenario, the test or any marked file changed after the run; the book says "claimed" for a link and "verified" for proof; a release never passes on a missing reader.
+- Names are unique per record type. Each glossary entry names its home page, and `docs/reference/concepts.md` lists every concept with the page that owns it.
+
+### Part P: The Live Book
+
+- `litespec book` serves the book from memory on localhost and rebuilds it when the records, code or test results change; `litespec book --out <folder>` writes a static book that opens from disk or any static host.
+- `--editor` is now `--links <template>`, with `{root}`, `{path}`, `{line}` and `{commit}`; a written book has no source links unless a template is given, carries no local paths, and records the release and the build time.
+
+### Part Q: Provision Changes Since v6.0.0
+
+Provisions whose rule changed take the identifier their heading derives:
 
 - `litespec/core/principles#state-transaction-sharing-on-every-inline-edge` is now `litespec/core/principles#share-no-transaction-across-an-edge`.
 - `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges` is now `litespec/core/principles#confine-atomic-consistency-to-one-use-case`.
 - `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call` is now `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs`.
 - `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle` is now `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 - `litespec/core/edges#publish-every-outbound-integration-event-from-effects` is now `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`.
-- `litespec/core/access#scope-every-role` is now `litespec/core/access#scope-every-role-to-its-one-reach`.
-- `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module` is now `litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module`.
-
-The new provision `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason` nests a record under another record only when its whole content lies within that record; a record whose content spans several records sits at the lowest node that holds all of it and names the record it exists for in a link field.
-
-Four finding codes are new: `view-source-unknown`, `view-erasure-missing`, `view-key-invalid` and `view-unused`.
+- `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder` is now `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`.
+- Every provision naming journeys now names flows, and every provision naming the view record now names read models, as the generated list below shows.
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (17):
+Added (69):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
-- `litespec/backend/application#read-another-modules-state-through-a-view`
+- `litespec/backend/application#read-another-modules-state-through-a-read-model`
 - `litespec/backend/architecture#give-each-use-case-its-own-models`
 - `litespec/backend/architecture#repeat-coordination-never-a-rule`
-- `litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder`
-- `litespec/core/automation#declare-each-view-field-from-a-published-field`
-- `litespec/core/automation#erase-a-viewed-personal-field-with-its-owner`
+- `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`
+- `litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder`
+- `litespec/core/access#evaluate-access-in-one-order`
+- `litespec/core/access#require-a-recent-sign-in-by-setting`
+- `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples`
+- `litespec/core/automation#decide-current-truth-in-the-owning-module`
+- `litespec/core/automation#declare-each-read-model-field-from-a-published-field`
+- `litespec/core/automation#declare-the-outcomes-of-each-reaction-and-job`
+- `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`
+- `litespec/core/automation#keep-validity-apart-from-storage`
+- `litespec/core/automation#move-a-state-by-time-with-a-timed-transition`
+- `litespec/core/automation#raise-completion-only-when-every-module-is-done`
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
+- `litespec/core/automation#run-each-effect-on-its-own`
+- `litespec/core/behavior#group-module-rules-by-theme`
+- `litespec/core/domain-model#freeze-every-frozen-value`
+- `litespec/core/domain-model#state-what-each-rule-governs`
+- `litespec/core/edges#name-how-every-inbound-integration-event-arrives`
 - `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`
+- `litespec/core/edges#state-the-density-and-voice-of-each-entry-point`
+- `litespec/core/edges#state-the-outcome-of-every-outside-call`
+- `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`
+- `litespec/core/intent#branch-a-flow-only-between-its-steps`
+- `litespec/core/intent#describe-every-flow`
+- `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for`
+- `litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement`
+- `litespec/core/intent#name-every-actor-from-a-flow-a-problem-or-an-access-position`
+- `litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system`
+- `litespec/core/intent#place-product-wide-commitments-as-product-requirements`
+- `litespec/core/intent#record-goal-outcomes-as-observations`
+- `litespec/core/intent#solve-problems-with-standalone-features`
+- `litespec/core/intent#state-each-flow-blocker-as-a-step-failure`
+- `litespec/core/intent#state-the-brand-on-the-product`
+- `litespec/core/intent#state-when-each-flow-finishes`
+- `litespec/core/intent#state-when-each-flow-starts`
+- `litespec/core/intent#write-flow-steps-as-sentences-with-ids`
 - `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
+- `litespec/core/model#serve-every-flow-step`
+- `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy`
 - `litespec/core/principles#confine-atomic-consistency-to-one-use-case`
 - `litespec/core/principles#share-no-transaction-across-an-edge`
+- `litespec/core/release#run-flow-checks`
+- `litespec/core/release#verify-connected-flows`
+- `litespec/core/use-cases#declare-each-modules-refusals-once`
+- `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
+- `litespec/core/use-cases#keep-each-scenario-inside-its-operation`
+- `litespec/core/use-cases#mark-inputs-a-provider-verified`
+- `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`
+- `litespec/core/use-cases#name-the-idempotency-of-every-command`
 - `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs`
-- `litespec/ext/outbox#keep-integration-events-a-view-rebuilds-from`
+- `litespec/core/use-cases#state-the-exposure-of-every-use-case`
+- `litespec/core/use-cases#state-what-a-replay-does`
+- `litespec/core/use-cases#type-every-output-field`
+- `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`
+- `litespec/ext/outbox#dispatch-flow-step-commands-in-a-new-scope`
+- `litespec/ext/outbox#keep-integration-events-a-read-model-rebuilds-from`
 - `litespec/frontend/data#brand-every-identifier-from-the-contract`
 - `litespec/frontend/data#compose-a-screen-from-each-owners-query`
+- `litespec/frontend/mobile/screens#route-app-links-to-flow-entry-screens`
+- `litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built`
+- `litespec/frontend/testing#name-the-flow-a-flow-test-covers`
+- `litespec/frontend/ui#keep-token-values-in-one-token-file`
+- `litespec/frontend/ui#lead-each-screen-to-the-screens-a-person-reaches-next`
+- `litespec/frontend/ui#meet-the-limits-of-every-token-role`
 - `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (5):
+Removed (38):
 
+- `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
+- `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
+- `litespec/core/automation#guard-every-manual-job`
+- `litespec/core/behavior#group-cross-aggregate-rules-by-theme`
+- `litespec/core/domain-model#freeze-every-commercial-data-value`
+- `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`
 - `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
+- `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook`
+- `litespec/core/edges#show-every-refusal-a-screen-can-reach`
+- `litespec/core/intent#answer-one-problem-with-each-feature`
+- `litespec/core/intent#branch-a-journey-only-between-its-steps`
+- `litespec/core/intent#describe-every-journey`
+- `litespec/core/intent#group-product-records-by-problem`
+- `litespec/core/intent#move-every-goal-with-a-journey-or-a-quality-requirement`
+- `litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position`
+- `litespec/core/intent#order-each-journey-toward-one-goal`
+- `litespec/core/intent#perform-each-journey-step-with-an-actor-or-a-system`
+- `litespec/core/intent#state-each-journey-blocker-as-a-step-failure`
+- `litespec/core/intent#state-when-each-journey-finishes`
+- `litespec/core/intent#state-when-each-journey-starts`
+- `litespec/core/intent#write-journey-steps-as-sentences-with-ids`
+- `litespec/core/model#serve-every-journey-step`
 - `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`
 - `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
+- `litespec/core/privacy#schedule-every-data-class-for-retention`
+- `litespec/core/release#run-journey-checks`
+- `litespec/core/release#verify-connected-journeys`
+- `litespec/core/use-cases#mark-every-lagging-query-as-built-asynchronously`
+- `litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads`
+- `litespec/core/use-cases#name-the-idempotency-of-every-use-case`
 - `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
+- `litespec/ext/jobs#run-manual-jobs-under-their-guard`
+- `litespec/ext/outbox#dispatch-journey-step-commands-in-a-new-scope`
+- `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`
+- `litespec/frontend/testing#name-the-journey-a-journey-test-covers`
+- `litespec/frontend/ui#hold-the-declared-base-color`
+- `litespec/frontend/ui#keep-separators-at-the-subtle-step`
 - `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
-Renamed (2):
+Renamed (3):
 
 - `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module` to `litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module`
+- `litespec/core/access#keep-permission-lists-to-entries` to `litespec/core/access#keep-permission-sets-to-entries`
 - `litespec/core/access#scope-every-role` to `litespec/core/access#scope-every-role-to-its-one-reach`
 
 Extensions added (0):
@@ -127,21 +279,6 @@ None.
 
 <!-- /generated:provision-diff -->
 
-### Part I: Upgrading a Consumer
-
-LiteSpec does no migration. Each step below is a manual edit, in the order given.
-
-1. Install `LiteSpec.Cli` 7.0.0 (`dotnet tool update LiteSpec.Cli --version 7.0.0`) or rerun the install script, set `reviewedLiteSpecVersion: 7.0.0` in `.litespec/project.yaml`, and move `LiteSpec.Analyzers` to 7.0.0.
-2. Replace each citation of an identifier Part H renames, in code marks, records, departures, conventions and `AGENTS.md`, with its new identifier.
-3. Remove `emits` from every effect entry and `sharesTransaction` from every inline edge. Give each outbound integration event a `translates` naming the domain event it carries, and make sure the use case raising it lists that event in `raises`.
-4. Rewrite each use-case `runs` effect as a reaction record: the reaction is triggered by the event the use case raises, or by the integration event translating it when the run use case sits in another module, and runs the use case. Where the old edge relied on one transaction, write the state guard on the later act and rewrite the rule it cited. Split a reaction or job that runs two use cases into two.
-5. Split each use-case folder into `Application/` and `WebApi/`, and fix the namespaces.
-6. Move each event handler out of its `On{Fact}/` folder, and each job out of the module `Jobs/` folder, into the `Application/` folder of the use case it runs, or into `Notifications/<Notification>/` or `ExternalSystems/<System>/` when it runs none.
-7. Move each message, result and transport model out of aggregate and module folders into the use case that owns it; where two use cases shared one, give each its own copy. Remove module and aggregate `WebApi/` folders.
-8. Remove `Contracts/Commands/` and `Contracts/Exceptions/`. Another module's use of a command becomes a fact that the owning module's reaction answers; another module's refusal becomes the reading module's own declared refusal.
-9. Remove every mediator from command handlers, query handlers, validators, steps and domain types, and every publisher call from module code. Build each integration event from its domain event alone in the shared kernel's staging step, and turn each batch command that loops and sends commands into a job that sends one command per item.
-10. For each cross-module reader, decide per caller: a view the reading module writes with `litespec new view`, a decision port with one method, or a screen that calls each owner's query.
-11. Run `dotnet build` and fix `LS2019`, `LS2021` and `LS2022`, then run `litespec model check` and fix `record-invalid`, `code-placement-drift`, `mark-folder-drift`, `effect-undeclared` and the `view-*` findings.
 
 ## v6.0.0
 

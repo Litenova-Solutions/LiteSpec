@@ -8,7 +8,7 @@
   // A module: how many records of each behavior kind it holds.
   type Props = { id: string; r: BookRecord };
   let { id }: Props = $props();
-  const KINDS = ["aggregate", "use-case", "rule", "event", "integration-event", "reaction", "job", "notification", "setting", "view"];
+  const KINDS = ["aggregate", "use-case", "rule", "domain-event", "integration-event", "reaction", "job", "notification", "setting", "read-model"];
   const all = $derived(KINDS.flatMap((t) => book.descByType(id, t, 6)));
 </script>
 

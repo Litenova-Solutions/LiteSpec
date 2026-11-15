@@ -32,7 +32,7 @@ internal static class DuplicateKeyChecks
                     CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Sources), RecordFields.Key, "source key", null, findings);
                     break;
 
-                case RecordTypes.Journey:
+                case RecordTypes.Flow:
                     CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Steps), RecordFields.Id, "step id", null, findings);
                     CheckBranchKeys(record, findings);
                     break;
@@ -95,11 +95,11 @@ internal static class DuplicateKeyChecks
             : null;
 
     /// <summary>
-    ///     Reports each path that two branches of one journey name twice. A branch is keyed by the
+    ///     Reports each path that two branches of one flow name twice. A branch is keyed by the
     ///     step it leaves and the step it continues at, so one step may hold several branches with
     ///     different targets, and two branches to the same target are one path named twice.
     /// </summary>
-    /// <param name="record">The journey record whose branches are read.</param>
+    /// <param name="record">The flow record whose branches are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckBranchKeys(Record record, List<Finding> findings)
     {

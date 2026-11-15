@@ -146,7 +146,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return new RecordModel(
             true,
             paths.Settings.Marks,
-            IdsOf(index, "event"),
+            IdsOf(index, "domain-event"),
             RuleCodesOf(index),
             PermissionsOf(index),
             RolesOf(index),
@@ -278,7 +278,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
                 continue;
             }
 
-            var code = RefusalCode.Of(record, index.ById);
+            var code = RefusalCode.Of(record);
 
             if (code is null)
             {

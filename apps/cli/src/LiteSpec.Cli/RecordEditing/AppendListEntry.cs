@@ -165,7 +165,7 @@ static class AppendListEntry
     static string? PageOf(string entryType) => entryType switch
     {
         "rule" => "rule-set",
-        "permission" => "permission-list",
+        "permission" => "permission-set",
         "setting" => "setting-set",
         _ => null,
     };

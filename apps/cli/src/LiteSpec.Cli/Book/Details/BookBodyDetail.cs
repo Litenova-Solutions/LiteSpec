@@ -10,11 +10,11 @@ namespace LiteSpec.Cli.Book.Details;
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookBodyDetail
 {
-    /// <summary>Renders one record explanation to HTML with hash record links, split by section.</summary>
+    /// <summary>Renders one record explanation to HTML with hash record links, split into intro and sections.</summary>
     /// <param name="index">The model index.</param>
     /// <param name="record">The record.</param>
-    /// <returns>The explanation HTML and its sections.</returns>
-    public static (string Html, JsonObject Sections) Render(BookIndex index, JsonObject record)
+    /// <returns>The intro and the sections. The whole page is never rendered: no view reads it.</returns>
+    public static JsonObject Render(BookIndex index, JsonObject record)
     {
         var explanation = WithoutTitle(BookRender.StrProp(record, "explanation") ?? "");
         (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
@@ -35,11 +35,11 @@ static class BookBodyDetail
             });
         }
 
-        return (HtmlOf(explanation), new JsonObject
+        return new JsonObject
         {
             ["intro"] = HtmlOf(split.Intro),
             ["list"] = items,
-        });
+        };
     }
 
     /// <summary>Drops the leading title line of one explanation file, leaving the sections.</summary>

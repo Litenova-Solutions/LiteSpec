@@ -18,6 +18,7 @@ public static class JsonSchema
         "$schema", "$id", "$defs", "$comment",
         "title", "description", "default", "examples", "deprecated", "readOnly", "writeOnly",
         "format", "contentMediaType", "contentEncoding",
+        "x-reads-as", "x-read-back-as",
     };
 
     /// <summary>

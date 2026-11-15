@@ -87,10 +87,10 @@ public sealed class ProvisionWhenTests
         Assert.Contains("- litespec/backend/persistence#assign-document-numbers-from-a-sequence:", result.Output);
     }
 
-    /// <summary>A query collapses more record provisions than a command, which leaves query-only out.</summary>
+    /// <summary>A query and a command collapse different record provisions, each leaving the other kind out.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
-    public void RulesQueryCollapsesMoreThanCommand()
+    public void RulesQueryAndCommandCollapseDifferentProvisions()
     {
         var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
         var query = TestCli.Run(
@@ -104,9 +104,12 @@ public sealed class ProvisionWhenTests
 
         Assert.Equal(0, query.Status);
         Assert.Equal(0, command.Status);
-        Assert.True(
-            CollapsedCount(query.Output, "use-case/spending.list-expenses") > CollapsedCount(command.Output, "use-case/spending.approve-expense"),
-            "The query handler collapses its query-only provisions while the command handler leaves them out.");
+
+        // 7.0.0 added command-only provisions (consistency, conflicts, replay), so the totals can match; the sets still differ.
+        Assert.Contains("- litespec/backend/persistence#query-through-the-read-session:", query.Output);
+        Assert.DoesNotContain("- litespec/backend/persistence#query-through-the-read-session:", command.Output);
+        Assert.Contains("- litespec/backend/application#implement-one-outcome-path-per-command:", command.Output);
+        Assert.DoesNotContain("- litespec/backend/application#implement-one-outcome-path-per-command:", query.Output);
     }
 
     /// <summary>An erasure use case collapses more than a command without erasure.</summary>

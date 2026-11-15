@@ -1,0 +1,14 @@
+type: requirement
+id: requirement/ui-chart-series
+title: UI Chart Series Separation
+kind: quality
+statement: Each chart color reaches 3:1 against its surface, and every pair of chart colors stays apart under protanopia and deuteranopia simulation.
+rationale: Reports inform decisions, so chart colors that merge under color blindness misstate the figures.
+stimulus: A reader opens any chart in any declared color scheme
+environment: Normal operation, judged with and without simulated protanopia and deuteranopia
+response: Every chart color meets its contrast limit and every pair stays apart after simulation
+measure: Lowest chart contrast ratio against its surface, and lowest pairwise separation after simulation, per declared scheme
+target: At least 3:1 against the surface and a CIE76 delta E of at least 10 after simulation
+check: token-limits
+cites:
+- "<constraint, goal or problem>"

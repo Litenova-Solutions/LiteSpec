@@ -10,7 +10,7 @@ options:
     cons: It falsifies constraint-born requirements, contradicts the field meaning the Links table states, and the evidence rejects a feature parent specifically.
   - name: Keep origin optional
     pros: No author writes anything new.
-    cons: Most requirements stay unanchored, both standards call that orphaned, and the chain from a goal to a test keeps breaking at the top.
+    cons: Most requirements stay unanchored, and the chain from a goal to a test keeps breaking at the top.
   - name: Group under the requirement page
     pros: Every requirement already sits on a page, so placement needs no new field.
     cons: A page style is not a record type, and file grouping hides the origin gap completely because every requirement looks parented.

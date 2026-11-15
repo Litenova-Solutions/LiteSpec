@@ -4,7 +4,8 @@
 
   // One page section: a heading from the field label, an optional count, and an
   // optional aside. Blocks that only list linked records stay off the page; the
-  // rail shows them. A zero count or empty HTML hides the block.
+  // rail shows them. A zero count or empty HTML hides the block. The heading
+  // takes focus so the "On this record" pills can land on it.
   type Props = {
     blockKey: string;
     heading: string;
@@ -17,7 +18,7 @@
 
   const LINKS_IN_RAIL = new Set([
     "based on", "depends on", "governs", "raised by", "fulfilled by", "governed by", "fulfills",
-    "fulfills and serves", "advances", "basedOn", "addresses", "actor", "dependsOn",
+    "fulfills and serves", "advances", "basedOn", "audience", "requires", "actor", "dependsOn",
     "decides", "raises", "subject", "affects", "replaces", "implements", "calls", "proves",
     "serves", "advances", "cites",
   ]);
@@ -36,11 +37,11 @@
 
 {#if !hidden}
   <section class="mb-8 scroll-mt-20" id={"b-" + blockKey}>
-    <h2 class="mb-3 flex items-center gap-2.5 text-base font-semibold tracking-tight">
+    <h2 tabindex="-1" class="mb-3 flex items-center gap-2 text-base font-semibold tracking-tight outline-none">
       {book.fieldLabel(heading)}
-      {#if count != null}<span class="font-mono text-xs font-normal text-muted-foreground">{count}</span>{/if}
-      <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
-      {#if aside}<span class="text-xs font-normal text-muted-foreground">{aside}</span>{/if}
+      {#if count != null}<span class="text-xs font-normal text-slate-600 tabular-nums">{count}</span>{/if}
+      <span class="h-px flex-1 bg-slate-200" aria-hidden="true"></span>
+      {#if aside}<span class="text-xs font-normal text-slate-600">{aside}</span>{/if}
     </h2>
     {#if html !== null}
       {@html html}

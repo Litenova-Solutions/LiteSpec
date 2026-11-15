@@ -568,7 +568,7 @@ sealed class ConsumerConfig
 
                 found.Add(new FrontendConfig(
                     named, Combine(root, located), platform,
-                    Optional("refusalDictionary"), Optional("routeSuite"), Optional("visualGoldens"),
+                    Optional("routeSuite"), Optional("visualGoldens"),
                     JsonValues.PropString(frontend, "entryPoint")));
             }
         }

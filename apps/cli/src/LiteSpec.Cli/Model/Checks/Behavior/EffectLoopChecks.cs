@@ -83,7 +83,7 @@ internal static class EffectLoopChecks
                     var baseId = Identifiers.BaseId(trigger);
 
                     if (model.ById.TryGetValue(baseId, out var resolved)
-                        && resolved.Type is RecordTypes.Event or RecordTypes.IntegrationEvent)
+                        && resolved.Type is RecordTypes.DomainEvent or RecordTypes.IntegrationEvent)
                     {
                         Edge(baseId, record.Id);
                     }
@@ -196,7 +196,7 @@ internal static class EffectLoopChecks
     /// <param name="rotated">The loop nodes in canonical order, starting at the smallest identifier.</param>
     /// <returns>True when the loop passes through a domain event and a reaction that states its skip condition; otherwise false.</returns>
     private static bool LoopExempt(ProjectModel model, IReadOnlyList<string> rotated) =>
-        rotated.Any(id => model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.Event)
+        rotated.Any(id => model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.DomainEvent)
         && rotated.Any(id => model.ById.TryGetValue(id, out var record)
             && record.Type == RecordTypes.Reaction
             && record.Field(RecordFields.SkippedWhen) is { Length: > 0 });

@@ -2,9 +2,11 @@
 // and navigation. Every word the book prints about a record or a link comes
 // from the lexicon shard or the record itself; nothing here invents one.
 //
-// Records and the outline are large, so they live in plain objects and `rev`
-// counts their changes: every accessor reads `rev`, so a component that calls one
-// re-renders when data arrives. Small UI state is ordinary $state.
+// Records and the outline are large, so they live in plain objects and one
+// revision counter per data domain counts their changes: every accessor reads
+// only the domains it needs, so a component that calls one re-renders only
+// when that domain's data arrives. `rev` stays as a coarse counter over all
+// domains for readers that span them. Small UI state is ordinary $state.
 
 import { createSearch, type BookSearch } from "./search";
 import type { ShardLoader } from "./shard-loader";
@@ -24,8 +26,9 @@ import type {
   SortKey,
   View,
 } from "./shard-types";
-import { isFlowType } from "./shard-types";
+import { isScenarioType } from "./shard-types";
 import {
+  parseIntentCoverageEntries,
   parseLexicon,
   parseManifest,
   parseOutlineNodes,
@@ -72,6 +75,7 @@ import {
   bestSearchHitFor,
   createFacets,
   createSorts,
+  firstMatchFor,
   hasAnyFilter,
   passesFiltersFor,
   visibleMapFor,
@@ -96,7 +100,16 @@ interface NodeInfo {
 
 export class Book {
   // ---------- data ----------
+  /** A coarse counter over every data domain, for readers that span them. */
   rev = $state(0);
+  /** The outline domain: layers, parents, children and the record order. */
+  outlineRev = $state(0);
+  /** The records domain: the record details of every loaded shard. */
+  recRev = $state(0);
+  /** The search domain: the full-text index once built. */
+  searchRev = $state(0);
+  /** The security domain: the security items once loaded. */
+  securityRev = $state(0);
   load = $state<LoadState>({ kind: "loading" });
   man: Manifest | null = null;
   lex: Lexicon = { types: {}, layers: {}, links: [], fields: {}, glossary: {}, sections: {}, findings: {} };
@@ -117,12 +130,26 @@ export class Book {
   private shardLoaded: Record<string, boolean> = {};
   private searchPromise: Promise<void> | null = null;
   private securityPromise: Promise<void> | null = null;
+  private coveragePromise: Promise<void> | null = null;
+  private selectSeq = 0;
+  private renderedNav: string[] | null = null;
+
+  // ---------- live rebuilds ----------
+  /** A rebuild is running: the top bar shows "Rebuilding". */
+  building = $state(false);
+  /** The last build's error, shown in a dismissible banner until the next build; null when the last build passed. */
+  buildError = $state<string | null>(null);
+  /** A line the book shows after a rebuild, such as a record that no longer exists; null when there is none. */
+  notice = $state<string | null>(null);
+  private rebuilding: Promise<void> = Promise.resolve();
 
   // ---------- state ----------
   view = $state<View>("outline");
   sortKey = $state<SortKey>("outline");
   query = $state("");
   selected = $state<string | null>(null);
+  /** Whether the record page moves focus to the title after the last selection; outline moves leave focus in the tree. */
+  focusTitle = $state(true);
   expanded = $state<Record<string, boolean>>({});
   closedGroups = $state<Record<string, boolean>>({});
   openLayers = $state<Record<string, boolean>>({ intent: true });
@@ -130,7 +157,7 @@ export class Book {
   recent = $state<string[]>([]);
 
   hits = $derived.by(() => {
-    this.rev;
+    this.searchRev;
     if (!this.query || !this.search) return null;
     return this.search.query(this.query);
   });
@@ -152,36 +179,40 @@ export class Book {
 
   constructor(private readonly shards: ShardLoader) {}
 
+  private touchOutline(): void {
+    this.outlineRev++;
+    this.rev++;
+  }
+
+  private touchRecords(): void {
+    this.recRev++;
+    this.rev++;
+  }
+
+  private touchSearch(): void {
+    this.searchRev++;
+    this.rev++;
+  }
+
+  private touchSecurity(): void {
+    this.securityRev++;
+    this.rev++;
+  }
+
   private touch(): void {
+    this.outlineRev++;
+    this.recRev++;
+    this.searchRev++;
+    this.securityRev++;
     this.rev++;
   }
 
   // ---------- loading ----------
   async boot(hash: string): Promise<void> {
     try {
-      this.man = parseManifest(await this.shards.load("manifest"));
-      const day = this.man.generatedOn.slice(0, 10) || new Date().toISOString().slice(0, 10);
-      const today = new Date(day + "T00:00:00Z");
-      this.today = isNaN(+today) ? new Date() : today;
-      this.lex = parseLexicon(await this.shards.load("lexicon"));
-      for (const layer of this.man.layers) {
-        const meta = this.lex.layers[layer.key] ?? { label: "", writes: "" };
-        this.layerByKey[layer.key] = {
-          key: layer.key,
-          label: layer.label || meta.label || layer.key,
-          outline: layer.outline,
-          writes: meta.writes,
-          question: meta.question ?? "",
-        };
-      }
-      const keys = ["intent"];
+      await this.readShell();
       const start = stripStep(hash);
-      const startLayer = this.layerFor(start);
-      if (startLayer && !keys.includes(startLayer) && this.layerByKey[startLayer]) keys.push(startLayer);
-      await this.loadLayers(keys);
-      if (this.man.unplaced.length) console.info("Unplaced records: " + this.man.unplaced.join(", "));
-      const total = Object.values(this.man.totals).reduce((a, b) => a + b, 0);
-      if (total && total <= 500) await this.preloadAll();
+      await this.readLayersFor(start);
       const first = this.node[start] || this.rec[start] ? start : (this.productId() ?? this.order[0]);
       this.load = { kind: "ready" };
       this.touch();
@@ -194,6 +225,102 @@ export class Book {
     } catch (err) {
       this.load = { kind: "failed", error: err instanceof Error ? err.message : "missing data" };
     }
+  }
+
+  /** Reads the manifest and the lexicon: what every page needs before any record. */
+  private async readShell(): Promise<void> {
+    const man = parseManifest(await this.shards.load("manifest"));
+    this.man = man;
+    const day = man.generatedOn.slice(0, 10) || new Date().toISOString().slice(0, 10);
+    const today = new Date(day + "T00:00:00Z");
+    this.today = isNaN(+today) ? new Date() : today;
+    this.lex = parseLexicon(await this.shards.load("lexicon"));
+    for (const layer of man.layers) {
+      const meta = this.lex.layers[layer.key] ?? { label: "", writes: "" };
+      this.layerByKey[layer.key] = {
+        key: layer.key,
+        label: layer.label || meta.label || layer.key,
+        outline: layer.outline,
+        writes: meta.writes,
+        question: meta.question ?? "",
+      };
+    }
+  }
+
+  /** Reads the intent layer, the layer of the start record, and every record when the project is small. */
+  private async readLayersFor(start: string): Promise<void> {
+    const man = this.man;
+    if (!man) return;
+    const keys = ["intent"];
+    const startLayer = this.layerFor(start);
+    if (startLayer && !keys.includes(startLayer) && this.layerByKey[startLayer]) keys.push(startLayer);
+    await this.loadLayers(keys);
+    if (man.unplaced.length) console.info("Unplaced records: " + man.unplaced.join(", "));
+    const total = Object.values(man.totals).reduce((a, b) => a + b, 0);
+    if (total && total <= 500) await this.preloadAll();
+  }
+
+  /** Empties the records, outline, search and security state in place, so every reader of it sees the rebuild. */
+  private clearModel(): void {
+    for (const table of [this.rec, this.node, this.layerOf, this.parentOf, this.depthOf, this.kidsOf, this.rootsOf, this.orderIdx, this.layerByKey, this.outlineLoaded, this.shardLoaded]) {
+      for (const key of Object.keys(table)) delete table[key];
+    }
+    this.order.length = 0;
+    this.search = null;
+    this.security = null;
+    this.searchPromise = null;
+    this.securityPromise = null;
+    this.coveragePromise = null;
+    this.renderedNav = null;
+    this.touch();
+  }
+
+  /** A rebuild began: the top bar says so until the build ends. */
+  markBuilding(): void {
+    this.building = true;
+  }
+
+  /** A build failed: the last good model stays on screen, and the banner names the error until the next build. */
+  markFailed(error: string): void {
+    this.building = false;
+    this.buildError = error;
+  }
+
+  /** A build finished: the model reloads at the new build time, one rebuild after another. */
+  markBuilt(generatedOn: string): void {
+    this.building = false;
+    this.buildError = null;
+    this.rebuilding = this.rebuilding.then(() => this.rebuild(generatedOn));
+  }
+
+  /** Reloads every shard at the new build version, then reopens the record that was open if it still exists. */
+  private async rebuild(version: string): Promise<void> {
+    if (this.load.kind !== "ready") return;
+    const previous = this.selected ? stripStep(this.selected) : null;
+    this.shards.reset(version);
+    this.clearModel();
+    try {
+      await this.readShell();
+      await this.readLayersFor(previous ?? "");
+      const kept = previous !== null && this.has(previous);
+      const target = kept ? previous : (this.productId() ?? this.order[0] ?? null);
+      this.touch();
+      if (target) {
+        history.replaceState({ id: target }, "", "#" + encodeURIComponent(target));
+        await this.select(target, { fromHistory: true });
+      }
+      this.notice = previous !== null && !kept ? "The open record is gone." : null;
+    } catch (err) {
+      this.load = { kind: "failed", error: err instanceof Error ? err.message : "missing data" };
+    }
+  }
+
+  /** The build time as the reader's clock shows it, for the top bar: "Built 14:02:33". */
+  builtLabel(): string {
+    this.outlineRev;
+    const built = new Date(this.man?.generatedOn ?? "");
+    if (isNaN(+built)) return "";
+    return "Built " + built.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   }
 
   private walkOutline(layer: string, n: OutlineNode, parent: string | null, depth: number): string[] {
@@ -222,7 +349,6 @@ export class Book {
       type: "layer",
       title: info?.label || meta.label || layer,
       fields: { question: meta.question ?? "", writes: meta.writes },
-      bodyHtml: "",
       sections: null,
       src: null,
     };
@@ -245,7 +371,7 @@ export class Book {
       this.addLayerOutline(key, values);
     } finally {
       this.outlineLoaded[key] = true;
-      this.touch();
+      this.touchOutline();
     }
   }
 
@@ -254,11 +380,12 @@ export class Book {
   }
 
   allOutlinesLoaded(): boolean {
+    this.outlineRev;
     return (this.man?.layers ?? []).every((layer) => this.outlineLoaded[layer.key]);
   }
 
   isLayerLoaded(key: string): boolean {
-    this.rev;
+    this.outlineRev;
     return !!this.outlineLoaded[key];
   }
 
@@ -282,7 +409,7 @@ export class Book {
       for (const pack of values) Object.assign(this.rec, pack);
     } finally {
       for (const key of list) this.shardLoaded[key] = true;
-      this.touch();
+      this.touchRecords();
     }
   }
 
@@ -293,7 +420,7 @@ export class Book {
         keys.map(async (shard) => parseSearchRows(await this.shards.load(shard))),
       ).catch((): SearchRow[][] => []);
       this.search = await createSearch(values.flat());
-      this.touch();
+      this.touchSearch();
     })();
     return this.searchPromise;
   }
@@ -305,9 +432,25 @@ export class Book {
       } catch {
         this.security = [];
       }
-      this.touch();
+      this.touchSecurity();
     })();
     return this.securityPromise;
+  }
+
+  /** Loads the Intent coverage entries when the manifest carries only counts; the Intent layer page reads them. */
+  ensureCoverage(): Promise<void> {
+    this.coveragePromise ??= (async () => {
+      try {
+        const entries = parseIntentCoverageEntries(await this.shards.load("coverage"));
+        if (this.man?.intentCoverage) {
+          this.man.intentCoverage.entries = entries;
+          this.touchOutline();
+        }
+      } catch {
+        // The writer still embeds the entries in the manifest, so there is nothing to load.
+      }
+    })();
+    return this.coveragePromise;
   }
 
   async preloadAll(): Promise<void> {
@@ -372,31 +515,36 @@ export class Book {
 
   // ---------- records ----------
   get(id: string | null | undefined): BookRecord | undefined {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
     return id ? this.rec[stripStep(id)] : undefined;
   }
 
   has(id: string): boolean {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
     const recordId = stripStep(id);
     return !!(this.rec[recordId] || this.node[recordId]);
   }
 
   title(id: string): string {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
     const recordId = stripStep(id);
     return this.rec[recordId]?.title ?? this.node[recordId]?.label ?? recordId;
   }
 
   typeOf(id: string): string {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
     const recordId = stripStep(id);
     return this.rec[recordId]?.type ?? this.node[recordId]?.type ?? recordId.split("/")[0] ?? recordId;
   }
 
   /** The folder and module a record file sits in, as the model computes them. */
   placement(id: string): { folder: string; module: string | null } {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
     const recordId = stripStep(id);
     return { folder: this.rec[recordId]?.folder ?? "", module: this.rec[recordId]?.module ?? null };
   }
@@ -406,12 +554,12 @@ export class Book {
   }
 
   kids(id: string): string[] {
-    this.rev;
+    this.outlineRev;
     return this.kidsOf[stripStep(id)] ?? [];
   }
 
   parent(id: string): string | null {
-    this.rev;
+    this.outlineRev;
     return this.parentOf[stripStep(id)] ?? null;
   }
 
@@ -423,7 +571,8 @@ export class Book {
   }
 
   productId(): string | null {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
     return this.man?.project.id || this.order.find((id) => this.typeOf(id) === "product") || null;
   }
 
@@ -448,6 +597,7 @@ export class Book {
   }
 
   layerFor(id: string): string | null {
+    this.outlineRev;
     if (!id) return null;
     const known = this.layerOf[id];
     if (known) return known;
@@ -504,7 +654,8 @@ export class Book {
 
   /** Records related to the selected one: its links and its trace, marked in the outline. */
   related = $derived.by(() => {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
     const selected = this.selected;
     const out = new Set<string>();
     if (!selected || !this.rec[stripStep(selected)]) return out;
@@ -555,7 +706,7 @@ export class Book {
   }
 
   eventsOf(id: string): string[] {
-    return this.listField(id, "events") ?? this.kidsByType(id, "event");
+    return this.listField(id, "events") ?? this.kidsByType(id, "domain-event");
   }
 
   screensOf(id: string): string[] {
@@ -569,6 +720,7 @@ export class Book {
   // ---------- layer claims and Intent coverage ----------
   /** The record layers the project claims, as the project file writes them. */
   claims(): LayerClaim[] {
+    this.outlineRev;
     return this.man?.claims ?? [];
   }
 
@@ -578,7 +730,12 @@ export class Book {
   }
 
   intentCoverage(): IntentCoverage | null {
-    return this.man?.intentCoverage ?? null;
+    this.outlineRev;
+    const coverage = this.man?.intentCoverage ?? null;
+    if (coverage && coverage.total > 0 && coverage.entries.length === 0) {
+      void this.ensureCoverage();
+    }
+    return coverage;
   }
 
   // ---------- completion and proof ----------
@@ -635,7 +792,7 @@ export class Book {
 
   // ---------- security ----------
   securityItems(): SecurityItem[] {
-    this.rev;
+    this.securityRev;
     return this.security ?? [];
   }
 
@@ -664,7 +821,9 @@ export class Book {
 
   /** 2 for a record that is a direct match, 1 for an ancestor kept to show where a match sits. */
   visible = $derived.by(() => {
-    this.rev;
+    this.outlineRev;
+    this.recRev;
+    this.searchRev;
     return visibleMapFor(this.order, this.parentOf, (id) => this.passesFilters(id), this.anyFilter());
   });
 
@@ -674,6 +833,11 @@ export class Book {
 
   isDirectMatch(id: string): boolean {
     return !this.anyFilter() || this.visible.get(id) === 2;
+  }
+
+  /** The first direct match in navigation order, for the search box ArrowDown; null when nothing matches. */
+  firstMatch(): string | null {
+    return firstMatchFor(this.navOrder(), this.visible);
   }
 
   /** The record Enter opens from the search box: the best title hit, else the best hit. */
@@ -688,7 +852,13 @@ export class Book {
 
   // ---------- navigation ----------
   expandTo(id: string): void {
-    const next: Record<string, boolean> = {};
+    const next: Record<string, boolean> = { ...this.expanded };
+    for (const key of Object.keys(next)) {
+      const clean = stripStep(key);
+      if (this.node[clean] || this.rec[clean]) continue;
+      const keyLayer = this.layerFor(clean);
+      if (keyLayer === null || this.outlineLoaded[keyLayer]) delete next[key];
+    }
     if (this.kids(id).length) next[id] = true;
     let parent = this.parentOf[id] ?? null;
     const layer = this.layerOf[id] ?? "";
@@ -715,14 +885,32 @@ export class Book {
   }
 
   private async preloadUpChain(id: string): Promise<void> {
-    let current = stripStep(id);
-    await this.ensureRecords([current]);
+    const start = stripStep(id);
+    const chain: string[] = [start];
+    const seen = new Set<string>(chain);
+    let current: string | null = start;
     for (let step = 0; step < 8; step++) {
-      const up = this.upOne(current);
-      if (!up || up === current) return;
-      current = stripStep(up);
-      await this.ensureRecords([current]);
+      const parent = current ? (this.parentOf[current] ?? null) : null;
+      if (!parent || seen.has(parent)) break;
+      seen.add(parent);
+      chain.push(stripStep(parent));
+      current = stripStep(parent);
     }
+    await this.ensureRecords(chain);
+    const extra: string[] = [];
+    let trace = start;
+    for (let step = 0; step < 8; step++) {
+      const up = this.upOne(trace);
+      if (!up) break;
+      const clean = stripStep(up);
+      if (clean !== trace && !seen.has(clean)) {
+        seen.add(clean);
+        extra.push(clean);
+      }
+      if (clean === trace) break;
+      trace = clean;
+    }
+    if (extra.length) await this.ensureRecords(extra);
   }
 
   /** Loads what a record's page reads: its layer, the chain above it, its children and its links. */
@@ -735,7 +923,7 @@ export class Book {
     if (!record) return;
     const type = record.type;
     const ids: string[] = [];
-    const depth = type === "use-case" ? 2 : isFlowType(type) || type === "aggregate" || type === "result" ? 1 : 0;
+    const depth = type === "use-case" ? 2 : isScenarioType(type) || type === "aggregate" || type === "result" ? 1 : 0;
     if (depth) {
       const seen = new Set<string>();
       const walk = (current: string, level: number): void => {
@@ -749,22 +937,32 @@ export class Book {
       };
       walk(id, 1);
     }
-    for (const edge of [...this.outEdges(id), ...this.inEdges(id)].slice(0, 200)) ids.push(edge.id);
+    for (const edge of [...this.outEdges(id), ...this.inEdges(id)].slice(0, 50)) ids.push(edge.id);
     for (const map of [record.stepServers, record.stepScreens]) {
       if (!map) continue;
       for (const list of Object.values(map)) ids.push(...list);
     }
-    await this.ensureRecords(ids.slice(0, 500));
+    await this.ensureRecords(ids.slice(0, 200));
   }
 
-  async select(raw: string, opts: { fromHistory?: boolean } = {}): Promise<void> {
+  async select(raw: string, opts: { fromHistory?: boolean; replace?: boolean; focusTitle?: boolean } = {}): Promise<void> {
     const id = stripStep(raw);
-    await this.preloadFor(id);
+    if (!id) return;
+    if (id === this.selected && this.get(id)) return;
+    const token = ++this.selectSeq;
+    this.notice = null;
+    this.focusTitle = opts.focusTitle ?? true;
     this.selected = id;
     this.expandTo(id);
     if (this.view !== "outline" && this.view !== "security") this.view = "outline";
     this.recent = [id, ...this.recent.filter((entry) => entry !== id)].slice(0, 12);
-    if (!opts.fromHistory) history.pushState({ id }, "", "#" + encodeURIComponent(id));
+    if (!opts.fromHistory) {
+      if (opts.replace) history.replaceState({ id }, "", "#" + encodeURIComponent(id));
+      else history.pushState({ id }, "", "#" + encodeURIComponent(id));
+    }
+    await this.preloadFor(id);
+    if (token !== this.selectSeq) return;
+    this.expandTo(id);
   }
 
   async setView(view: View): Promise<void> {
@@ -772,8 +970,16 @@ export class Book {
     if (view === "security") await this.ensureSecurity();
   }
 
+  /** The outline publishes its rendered record order so keyboard moves follow the displayed sort, grouping and filtering. */
+  setNavOrder(ids: string[]): void {
+    this.renderedNav = [...ids];
+  }
+
   /** The navigation's records in reading order, for j and k. */
   navOrder(): string[] {
+    if (this.renderedNav !== null) {
+      return this.renderedNav.filter((id) => !this.anyFilter() || this.passesFilters(id));
+    }
     return this.order.filter((id) => !this.anyFilter() || this.passesFilters(id));
   }
 }

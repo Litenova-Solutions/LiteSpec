@@ -13,7 +13,7 @@
 
 {#if lines.length}
   <PageSection blockKey="completion" heading="Completion">
-    <ul class="m-0 list-none p-0">
+    <ul class="m-0 list-none p-0 text-sm text-slate-900">
       {#each lines as line (line.label)}
         {@const present = line.mark === "present"}
         <li class="flex items-center gap-2">
