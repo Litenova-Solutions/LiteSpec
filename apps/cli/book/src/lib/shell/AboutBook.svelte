@@ -53,6 +53,12 @@
       .filter((row) => row.count > 0)
       .sort((a, b) => rank(a.layer) - rank(b.layer) || a.name.localeCompare(b.name));
   });
+  // The build moment in full, date and time, in the reader's locale.
+  const builtAt = $derived.by(() => {
+    void book.rev;
+    const at = new Date(book.man?.generatedOn ?? "");
+    return isNaN(+at) ? "" : at.toLocaleString([], { dateStyle: "long", timeStyle: "short" });
+  });
 </script>
 
 <div class="w-full max-w-[52rem] px-8 pt-6 pb-16">
@@ -74,7 +80,7 @@
         <dd class="border-b border-border-subtle py-3">{release}</dd>
       {/if}
       <dt class="border-b border-border-subtle py-3 pr-2 font-semibold">Built</dt>
-      <dd class="border-b border-border-subtle py-3">{book.builtLabel()}</dd>
+      <dd class="border-b border-border-subtle py-3">{builtAt}</dd>
     </dl>
   </section>
 
