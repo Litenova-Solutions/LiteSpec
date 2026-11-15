@@ -134,6 +134,22 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 
 **Reviewed for:** Which reactions escape one handler class with their record's mark, send more than one command, or sit outside the folder of what they run? Look at each event handler beside its reaction record.
 
+### Subscribe Each Reaction Handler to Its Declared Triggers
+
+**ID:** `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`
+
+**Strength:** required
+
+**Applies to:** artifact: reaction
+
+**Statement:** The event handlers marked with a reaction MUST together subscribe to exactly the events the reaction names in `triggeredBy`.
+
+**Rationale:** The reaction record states the facts its handlers answer, and each handler subscribes by implementing its event-handler interface for one event type. A handler subscribed to an event the record does not name answers a fact nobody reviewed, and a named trigger with no subscribed handler is a promise the code does not keep. The check resolves each subscribed type through the event's own mark, so the mark on the event class is the link the reader follows. This provision binds `litespec/backend/application#keep-reaction-implementations-explicit` for .NET, where the subscription is the event type of the handler's event-handler interface.
+
+**Example:** The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` names `domain-event/expense.submitted` in `triggeredBy`, and `SendApproverRemindersOnExpenseSubmittedHandler` implements `IEventHandler<ExpenseSubmittedEvent>` while `ExpenseSubmittedEvent` carries the mark `domain-event/expense.submitted`.
+
+**Checked by:** `litespec model check` reports `reaction-subscription-drift` (level S) for a marked handler subscribed to an event outside its reaction's `triggeredBy`, and `reaction-trigger-unhandled` (level S) for a declared trigger with no marked handler subscribed to it.
+
 ### Run Scheduled Jobs as Hosted Operations
 
 **ID:** `litespec/backend/dotnet/application#run-scheduled-jobs-as-hosted-operations`

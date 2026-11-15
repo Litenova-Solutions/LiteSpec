@@ -1,11 +1,13 @@
 <script lang="ts">
   import { book, cn, formatCount } from "$lib/frame";
+  import type { IntentGrouping } from "$lib/frame";
   import { RecordIcon } from "$lib/record";
   import RecordTreeRow from "./RecordTreeRow.svelte";
   import { indentClass, type OutlineRow } from "./outline-rows";
 
   // One virtual row in the outline: a layer header, a group header, a
-  // record or a note. The row carries its counts; this component renders them.
+  // record, a note or the Intent grouping switch. The row carries its counts;
+  // this component renders them.
   type Props = { row: OutlineRow; bestHit?: string | null };
   let { row, bestHit = null }: Props = $props();
 
@@ -13,6 +15,23 @@
     const opening = !book.openLayers[key];
     book.openLayers[key] = opening;
     if (opening && !book.isLayerLoaded(key)) void book.ensureLayer(key);
+  }
+
+  // The Intent grouping switch: the outline order or one group per product area.
+  const GROUP_OPTIONS = [
+    { key: "outline", label: "Outline" },
+    { key: "product-area", label: "Product area" },
+  ] as const;
+
+  // Arrow keys move between the two grouping buttons and select as they move.
+  function groupKey(e: KeyboardEvent): void {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const next: IntentGrouping = e.key === "ArrowRight" ? "product-area" : "outline";
+    book.setIntentGrouping(next);
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.closest("[data-intent-grouping]")?.querySelector<HTMLElement>(`[data-grouping="${next}"]`)?.focus();
+    }
   }
 </script>
 
@@ -51,4 +70,25 @@
   <RecordTreeRow id={row.id} depth={row.depth} level={row.level} kids={row.kids} open={row.open} dim={row.dim} best={bestHit !== null && row.id === bestHit} />
 {:else if row.kind === "note"}
   <p class="flex h-8 items-center px-4 text-xs text-text-helper">{row.text}</p>
+{:else if row.kind === "switch"}
+  {@const grouping = book.intentGrouping}
+  <div role="group" aria-label="Intent grouping" data-intent-grouping class="flex h-10 items-center px-4">
+    <div class="grid h-8 w-full grid-cols-2 divide-x divide-border-strong overflow-hidden rounded-[4px] border border-border-strong">
+      {#each GROUP_OPTIONS as opt (opt.key)}
+        <button
+          type="button"
+          data-grouping={opt.key}
+          aria-pressed={grouping === opt.key}
+          onclick={() => book.setIntentGrouping(opt.key)}
+          onkeydown={groupKey}
+          class={cn(
+            "inline-flex min-w-0 cursor-pointer items-center justify-center gap-2 px-2 text-sm",
+            grouping === opt.key ? "bg-foreground text-background" : "text-text-secondary hover:bg-layer-hover hover:text-foreground",
+          )}
+        >
+          {opt.label}
+        </button>
+      {/each}
+    </div>
+  </div>
 {/if}

@@ -16,13 +16,15 @@ The review behind this release read every value against live records. The `compe
 
 ## Decision
 
-Each shape above is removed. A manual run is a command with its guard. A default is a setting's default or an aggregate's initial state. A rule's scope comes from its home, with `binds` naming the aggregates of a module-level rule. The `floorplan` link lives in the frontend design contract where floorplans are defined.
+Each shape above is removed. A manual run is a command whose entry point and access name who starts it. A default is a setting's default or an aggregate's initial state. A rule's scope comes from its home, with `binds` naming the aggregates of a module-level rule. The `floorplan` link lives in the frontend design contract where floorplans are defined.
+
+The `compensated` mode stays removed: its undo had no field. The `compensates` link on the reaction is that field: a reaction that undoes a committed step of a multi-step process names the step's use case in `compensates`.
 
 Kept despite low use, because two products are thin evidence for a standard: the `reservation` and `frozen-value` rule kinds, the erasure positions, and the job scheduling fields. The `store` aggregate kind is finished rather than removed: it gains its `owner` field and a Claimwick instance holding the suppression list.
 
 ## Consequences
 
-Consistency keeps `atomic` and `per-record`. Idempotency keeps `key`, `state`, and `none`. The automation provision forbidding `writes` on reactions and jobs now states a shape the schema refuses. Templates drop the removed fields, so no new record starts from them.
+Consistency keeps `atomic` and `per-record`. Idempotency keeps `key`, `state`, and `none`. The automation provision forbidding `writes` on reactions and jobs now states a shape the schema refuses. A reaction that undoes a committed step names it in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states. Templates drop the removed fields, so no new record starts from them.
 
 ## Evidence
 

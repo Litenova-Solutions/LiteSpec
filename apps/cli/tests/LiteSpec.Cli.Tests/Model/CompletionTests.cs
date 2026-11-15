@@ -133,7 +133,7 @@ public sealed class CompletionTests
             Feature(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""),
             Requirement(temp.Path, "requirement/borrowing.no-card", """{"cites": ["feature/borrowing"]}"""),
-            TestModel.Record("waiver", "waiver/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "expiresOn": "2099-01-01"}"""),
+            TestModel.Record("waiver", "waiver/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"kind": "gap", "subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "reason": "The card check ships later.", "closedBy": ["requirement/borrowing.no-card"], "exit": "The card check ships.", "expiresOn": "2099-01-01"}"""),
             UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));

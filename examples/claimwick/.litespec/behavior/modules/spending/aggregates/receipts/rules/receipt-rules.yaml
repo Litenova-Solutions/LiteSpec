@@ -11,6 +11,9 @@ records:
   - use-case/spending.attach-receipt
   - aggregate/spending.expense
   - aggregate/spending.receipt
+  binds:
+  - aggregate/spending.expense
+  - aggregate/spending.receipt
   refusal: spending.expense-decided
   basedOn: []
   fulfills:

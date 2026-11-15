@@ -65,6 +65,7 @@ selectedExtensions:
 type: waiver
 id: waiver/compat-classification-until-promotion
 title: Compat Classification Until Promotion
+kind: gap
 covers:
   - litespec/ext/compat#classify-breaking-contract-changes
 paths:
@@ -72,6 +73,8 @@ paths:
 reason: No consumer reads the contract before the first deployment.
 exit: Promotion to production ends the deferral and the classification applies.
 expiresOn: 2026-12-01
+closedBy:
+  - decision/0001-promote-to-production
 ```
 
 **Checked by:** `litespec model check` refuses a deferral waiver naming an unknown provision, and any deferral in `production`; `litespec model check` reports `waiver-expired` for a waiver past its `expiresOn`.

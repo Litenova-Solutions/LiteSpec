@@ -253,6 +253,22 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Checked by:** `litespec model check` reports `atomicity-drift` (level G) for an atomic use case whose `writes` differs from its rule's `binds`, and `atomicity-invalid` (level A) for a group binding more than 4 aggregates.
 
+### Name Every Aggregate a Rule Spans in Binds
+
+**ID:** `litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds`
+
+**Strength:** required
+
+**Applies to:** artifact: record:rule
+
+**Statement:** Each rule whose `governs` names more than one aggregate MUST name every governed aggregate in `binds`.
+
+**Rationale:** A rule across aggregates is held by a state guard or an atomicity rule, never by one aggregate alone. Naming every reached aggregate in `binds` shows the rule's reach beside the rule, so a reader sees which aggregates change together.
+
+**Example:** The `rule/spending.receipt-filed-once` rule states that a receipt file supports one expense across spending, and names `aggregate/spending.expense` and `aggregate/spending.receipt` in `binds`.
+
+**Checked by:** `litespec model check` reports `rule-binds-missing` (level G) for a rule whose `governs` names more than one aggregate while `binds` names none or not all of them.
+
 ### Keep the Negation Word in the Rule Name
 
 **ID:** `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name`

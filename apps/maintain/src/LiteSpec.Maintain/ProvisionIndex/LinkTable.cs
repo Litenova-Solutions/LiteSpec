@@ -554,8 +554,8 @@ static partial class LinkTable
         schema is JsonObject node && node[key] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
 
     /// <summary>Writes an identifier definition name as the words of the record type it names.</summary>
-    /// <param name="definition">The definition name, such as <c>journeyStepId</c>.</param>
-    /// <returns>The lowercase words, such as <c>journey step</c>.</returns>
+    /// <param name="definition">The definition name, such as <c>flowStepId</c>.</param>
+    /// <returns>The lowercase words, such as <c>flow step</c>.</returns>
     static string Words(string definition)
     {
         var stem = definition.EndsWith("Ref", StringComparison.Ordinal)

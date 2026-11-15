@@ -235,15 +235,15 @@ static partial class GeneratedRegions
             decision.Id);
     }
 
-    /// <summary>Renders the waivers beside the page, grouped by gap or permanent and ordered by expiry.</summary>
+    /// <summary>Renders every waiver of the product, gaps by expiry with their closing records, then lasting waivers with their consequences.</summary>
     /// <param name="model">The built project model holding the records.</param>
     /// <param name="file">The page the tables sit on, for relative links.</param>
-    /// <returns>The waiver index tables as Markdown lines, or empty when the folder holds no waiver.</returns>
+    /// <returns>The waiver index tables as Markdown lines, or empty when the product holds no waiver.</returns>
     private static string WaiverIndex(ProjectModel model, string file)
     {
         var folder = Path.GetDirectoryName(file)!;
         var waivers = model.Records
-            .Where(record => record.Type == RecordTypes.Waiver && SameFolder(folder, record.File))
+            .Where(record => record.Type == RecordTypes.Waiver)
             .ToList();
 
         if (waivers.Count == 0)
@@ -252,12 +252,12 @@ static partial class GeneratedRegions
         }
 
         var gaps = waivers
-            .Where(waiver => waiver.Field(RecordFields.ExpiresOn) is { Length: > 0 })
-            .OrderBy(waiver => waiver.Field(RecordFields.ExpiresOn)!, StringComparer.Ordinal)
+            .Where(waiver => waiver.Field(RecordFields.Kind) == "gap")
+            .OrderBy(waiver => waiver.Field(RecordFields.ExpiresOn) ?? "", StringComparer.Ordinal)
             .ThenBy(waiver => waiver.Id, StringComparer.Ordinal)
             .ToList();
         var lasting = waivers
-            .Where(waiver => waiver.Field(RecordFields.ExpiresOn) is not { Length: > 0 })
+            .Where(waiver => waiver.Field(RecordFields.Kind) != "gap")
             .OrderBy(waiver => waiver.Id, StringComparer.Ordinal)
             .ToList();
 
@@ -267,12 +267,12 @@ static partial class GeneratedRegions
         {
             lines.Add("### Gaps");
             lines.Add("");
-            lines.Add("| Waiver | Expires On | Covers |");
-            lines.Add("|:---|:---|:---|");
+            lines.Add("| Waiver | Module | Expires On | Covers | Closed By |");
+            lines.Add("|:---|:---|:---|:---|:---|");
 
             foreach (var waiver in gaps)
             {
-                lines.Add($"| {WaiverCell(folder, waiver)} | {Cell(waiver.Field(RecordFields.ExpiresOn)!)} | {CoversCell(waiver)} |");
+                lines.Add($"| {WaiverCell(folder, waiver)} | {ModuleCell(model, waiver)} | {Cell(waiver.Field(RecordFields.ExpiresOn) ?? "")} | {CoversCell(waiver)} | {ClosedByCell(waiver)} |");
             }
         }
 
@@ -283,14 +283,14 @@ static partial class GeneratedRegions
                 lines.Add("");
             }
 
-            lines.Add("### Permanent");
+            lines.Add("### Lasting");
             lines.Add("");
-            lines.Add("| Waiver | Covers |");
-            lines.Add("|:---|:---|");
+            lines.Add("| Waiver | Module | Covers | Consequences |");
+            lines.Add("|:---|:---|:---|:---|");
 
             foreach (var waiver in lasting)
             {
-                lines.Add($"| {WaiverCell(folder, waiver)} | {CoversCell(waiver)} |");
+                lines.Add($"| {WaiverCell(folder, waiver)} | {ModuleCell(model, waiver)} | {CoversCell(waiver)} | {Cell(waiver.Field(RecordFields.Consequences) ?? "")} |");
             }
         }
 
@@ -304,11 +304,52 @@ static partial class GeneratedRegions
     private static string WaiverCell(string folder, Record waiver) =>
         $"[{Cell(waiver.Title)}]({PathText.Relative(folder, waiver.File)})";
 
+    /// <summary>One waiver module cell: its module, or a dash for a product-level waiver.</summary>
+    /// <param name="model">The built project model holding the project configuration.</param>
+    /// <param name="waiver">The waiver whose module is rendered.</param>
+    /// <returns>The module name, or a dash.</returns>
+    private static string ModuleCell(ProjectModel model, Record waiver) =>
+        Cell(WaiverModuleOf(model, waiver.File) ?? "-");
+
+    /// <summary>The module home of a waiver file, or null when the file sits at product level.</summary>
+    /// <param name="model">The loaded project model that holds the project configuration.</param>
+    /// <param name="file">The full path of the waiver file.</param>
+    /// <returns>The module folder under governance/modules, or null for a product-level waivers file.</returns>
+    private static string? WaiverModuleOf(ProjectModel model, string file)
+    {
+        var comparison = Path.DirectorySeparatorChar == '\\'
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        foreach (var root in model.Config.RecordRoots)
+        {
+            var modules = Path.Combine(root, "governance", "modules") + Path.DirectorySeparatorChar;
+
+            if (file.StartsWith(modules, comparison))
+            {
+                var rest = file[modules.Length..].Split(Path.DirectorySeparatorChar);
+
+                if (rest.Length >= 3 && string.Equals(rest[1], "waivers", comparison))
+                {
+                    return rest[0];
+                }
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>One waiver covers cell: every covered code, provision or page as a code span.</summary>
     /// <param name="waiver">The waiver whose covers are rendered.</param>
     /// <returns>The covers joined with commas, or empty when the waiver covers nothing.</returns>
     private static string CoversCell(Record waiver) =>
         string.Join(", ", waiver.Strings(RecordFields.Covers).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
+
+    /// <summary>One waiver closed-by cell: every closing record as a code span.</summary>
+    /// <param name="waiver">The waiver whose closing records are rendered.</param>
+    /// <returns>The closing records joined with commas, or empty when the waiver names none.</returns>
+    private static string ClosedByCell(Record waiver) =>
+        string.Join(", ", waiver.Ids("closedBy").Order(StringComparer.Ordinal).Select(id => $"`{Cell(id)}`"));
 
     /// <summary>Whether the named record sits in the folder: the folder holds the record's own folder.</summary>
     /// <param name="folder">The folder the page sits in.</param>

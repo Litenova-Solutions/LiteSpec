@@ -45,7 +45,7 @@ public sealed class RecordSchemaParityTests
         ["read-model"] = ("read-model/reporting.reimbursed-expense", """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "employeeId", "meaning": "The employee who was paid.", "type": "id", "of": "actor/employee", "from": "integration-event/expense-reimbursed#employeeId", "classification": "internal"}], "freshness": {"mode": "snapshot", "within": "PT5S"}}"""),
         ["external-system"] = ("external-system/payments", """{"summary": "The payment provider."}"""),
         ["runbook"] = ("runbook/restart-queue", """{"summary": "Restart the queue.", "trigger": "The queue stalls.", "impact": "Notices pause.", "prerequisites": "Access to the queue.", "procedure": "Restart the worker.", "verification": "Notices flow again.", "recovery": "Restart again.", "escalation": "Page the on-call."}"""),
-        ["waiver"] = ("waiver/legacy-export", """{"summary": "A legacy export.", "reason": "The export predates the schema.", "covers": ["litespec/core/model#keep-each-name-unique-in-the-product"], "subject": ["module/lending"]}"""),
+        ["waiver"] = ("waiver/legacy-export", """{"summary": "A legacy export.", "kind": "gap", "reason": "The export predates the schema.", "covers": ["litespec/core/model#keep-each-name-unique-in-the-product"], "subject": ["module/lending"], "exit": "The export moves into the new pipeline.", "expiresOn": "2027-06-01", "closedBy": ["module/lending"]}"""),
         ["screen"] = ("screen/lending.loan-list", """{"summary": "The loan list.", "address": "/loans"}"""),
         ["entry-point"] = ("entry-point/library-app", """{"summary": "The library app.", "kind": "browser", "auth": ["session"]}"""),
     };
@@ -107,7 +107,7 @@ public sealed class RecordSchemaParityTests
         ("job", "effects"), ("job", "outcomes"), ("job", "onFailure"), ("job", "idempotency"),
         ("read-model", "summary"), ("read-model", "keyedBy"), ("read-model", "fields"), ("read-model", "freshness"),
         ("runbook", "trigger"),
-        ("waiver", "reason"), ("waiver", "covers"),
+        ("waiver", "reason"), ("waiver", "covers"), ("waiver", "kind"), ("waiver", "expiresOn"), ("waiver", "exit"), ("waiver", "closedBy"),
         ("screen", "address"),
         ("entry-point", "kind"),
     ];
@@ -141,7 +141,8 @@ public sealed class RecordSchemaParityTests
         ("aggregate with no states", "aggregate", json => Replace(json, "states", "[]")),
         ("problem with no affects", "problem", json => Replace(json, "affects", "[]")),
         ("waiver with no covers", "waiver", json => Replace(json, "covers", "[]")),
-        ("waiver with an expiry and no exit", "waiver", json => Replace(json, "expiresOn", "\"2027-01-01\"")),
+        ("lasting waiver with an expiry", "waiver", json => Replace(json, "kind", "\"lasting\"")),
+        ("lasting waiver without consequences", "waiver", json => Without(Without(Without(Replace(json, "kind", "\"lasting\""), "expiresOn"), "exit"), "closedBy")),
         ("screen with an address and a host", "screen", json => Replace(json, "host", "\"library.example\"")),
         ("setting with an unknown setBy", "setting", json => Replace(json, "setBy", "\"robot\"")),
         ("use case with an unknown idempotency scope", "use-case", json => Replace(json, "idempotency", "{\"mode\": \"key\", \"key\": \"loan:{copyId}\", \"scope\": \"branch\"}")),

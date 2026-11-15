@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.cancel-hold
 title: Cancel hold
+exposure: A signed-in reader reaches this command through the library app under the place-hold permission. A wrong cancellation loses the reader's place in the hold queue.
 kind: command
 access:
   grant: permission/place-hold
@@ -38,3 +39,12 @@ records:
   when: The reader cancels the hold.
   then: The hold is canceled.
   result: result/cancel-hold.canceled
+- type: scenario
+  id: scenario/cancel-hold.canceling-an-ended-hold-is-refused
+  title: Canceling an ended hold is refused
+  given: A hold already left the queue.
+  when: The reader cancels the hold.
+  then: The cancellation is refused because the hold already left the queue.
+  result: result/cancel-hold.hold-ended
+  exercises:
+  - rule/hold.waiting-before-cancel

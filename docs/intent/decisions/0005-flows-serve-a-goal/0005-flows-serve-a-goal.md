@@ -1,6 +1,6 @@
 # Flows Serve a Goal
 
-A flow in LiteSpec describes a path that a person takes through the product, written as ordered steps. This decision sets how a flow links to the goal it serves. A flow serves one goal, and that goal is its parent. It matters because a reader who opens a flow can follow it up to its goal.
+A flow in LiteSpec describes a path that a person takes through the product, written as ordered steps. This decision sets how a flow names the record it exists for. A flow sits under the product and names one reason: it serves one goal, or it answers one problem or constraint. It matters because a reader who opens a flow can follow it to its reason.
 
 ## Context
 
@@ -21,7 +21,7 @@ The chosen option keeps the sentence that the founder accepts and adds one link 
 
 ## Decision
 
-The flow sentence field `goal` is renamed `aim`. Every flow names its goal record in one required link, `serves: goal/<name>`, and that link is its parent. The `finishedWhen` field and the steps stay unchanged.
+Every flow sits under the product and names its reason in one required link: `serves` names the goal the flow moves, or `answers` names the problem or constraint the flow answers, each a list of exactly one identifier. The flow states its sentences in `summary`, and the `finishedWhen` field and the steps stay unchanged.
 
 ## Consequences
 
@@ -33,4 +33,4 @@ The provision `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-f
 
 ## Revisit Conditions
 
-This decision reopens when a flow kind appears that walks toward no goal record.
+This decision reopens when a flow kind appears whose reason is neither a goal it moves nor a problem or constraint it answers.

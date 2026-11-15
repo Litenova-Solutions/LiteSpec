@@ -228,7 +228,7 @@ public sealed class HandlerShapeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("waiver", "waiver/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "closedBy": ["use-case/spending.reimburse-expense"], "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 

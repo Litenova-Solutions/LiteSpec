@@ -704,10 +704,14 @@ public sealed class OperationsCheckTests
           "type": "waiver",
           "id": "waiver/list-loans-latency-unwatched",
           "title": "List loans latency unwatched",
+          "kind": "gap",
           "covers": [
             "quality-alert-missing"
           ],
           "subject": [
+            "requirement/performance.list-loans-latency"
+          ],
+          "closedBy": [
             "requirement/performance.list-loans-latency"
           ],
           "expiresOn": "2027-06-01",

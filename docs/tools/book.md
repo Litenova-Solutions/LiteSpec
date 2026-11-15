@@ -21,6 +21,8 @@ Every record type has a short code, such as F for a feature and U for a use case
 
 The rail beside each record page holds the record's Trace, its Completion and its On this page list. Trace lists only the records in another record layer that the record serves, reaches or is proven by; a record in the same layer is one step away in the outline. Completion states whether the record has code, whether it has tests, and how many of its scenarios pass. Facts that are the same on every page, such as the build time, the test run and the record counts per type, sit on the About this book page.
 
+The Intent layer of the outline offers two groupings: the outline order, and one group per product area. A product area is a Behavior module: each group lists the features whose requirements the module's use cases, reactions, jobs or screens fulfill, and the flows whose steps they serve. A feature or flow several modules reach is listed under each; anything no module reaches is listed under Not yet fulfilled. A switch under the Intent layer header changes the grouping. The book computes the grouping from `fulfills`, `serves` and `offers`: a screen counts toward the modules of the use cases it offers, and no record field is added for the grouping.
+
 The book shows records, not teaching. Explanatory helper text that teaches LiteSpec leaves the pages; record content, labels, counts, and states stay. A term's or a state's definition is available on hover and focus, not printed beside every use.
 
 Three views draw the UI blueprint. The screen page draws the screen's wireframe from its explanation file. Each entry point page draws its navigation map from `leadsTo`: the entry point's screens as places and the connections between them. Each flow page draws its storyboard: the flow's steps' screens in step order. A flow's branches show inside its steps: each branch sits in the step it leaves from with its condition and the step it continues at, and that step names where else it is reached from.
@@ -95,7 +97,7 @@ litespec book --links "idea://open?file={root}/{path}&line={line}"
 
 ## Underneath
 
-The command builds the model in memory, computes the Intent coverage from the built model, then builds one index over the model, then the outline and one detail object per record for the claimed layers, then packs them into shards under `data/`. The shell is one `index.html` with one script and one stylesheet under `assets/`. Live and export share one data format with the same file names: the server holds the shards in memory and adds one change notification, and the export writes them to disk. Shards arrive on demand: the manifest and the lexicon first, then the outline and records of the layers the reader opens.
+The command builds the model in memory, computes the Intent coverage and the product-area grouping from the built model, then builds one index over the model, then the outline and one detail object per record for the claimed layers, then packs them into shards under `data/`. The shell is one `index.html` with one script and one stylesheet under `assets/`. Live and export share one data format with the same file names: the server holds the shards in memory and adds one change notification, and the export writes them to disk. Shards arrive on demand: the manifest and the lexicon first, then the outline and records of the layers the reader opens.
 
 The shards are:
 
@@ -103,6 +105,7 @@ The shards are:
 - `lexicon.js`: LiteSpec's own words: type labels, layer writers, link phrases, sections, glossary, field labels and finding meanings.
 - `outline-<layer>-<n>.js`: the outline nodes of one layer, split past the outline budget.
 - `coverage.js`: the Intent coverage entries, one per requirement and flow step, with its `id`, `kind`, `reached` flag and `reachedBy` records.
+- `product-areas.js`: the Intent product-area grouping: one entry per Behavior module with the features and flows its records reach, and the features and flows no module reaches.
 - `records-<n>.js`: the record details, packed to about 256 KB per shard and never past 512 KB. A detail carries its sections and its fields, and no whole-page HTML.
 - `search-<n>.js`: the search rows: id, title, type and excerpt each.
 - `security.js`: the security items: cross-tenant access, outside calls and personal or sensitive data.

@@ -48,7 +48,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Statement:** A cached query MUST state its accepted staleness as a `freshness` object with `mode` of `eventual` and its duration in `within`.
 
-**Rationale:** Accepted staleness is the contract each caller relies on: it states how stale a read may be before it counts as a defect. The served query states it as `{"mode": "bounded", "within": "PT5M"}` on its output, so the cache and the query share one bound that is reviewed with the use case.
+**Rationale:** Accepted staleness is the contract each caller relies on: it states how stale a read may be before it counts as a defect. The served query states it as `{"mode": "eventual", "within": "PT5M"}` on its output, so the cache and the query share one bound that is reviewed with the use case.
 
 **Reviewed for:** Which cached queries lack an eventual freshness object with its duration on their output? Look at the served query beside each cache.
 

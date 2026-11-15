@@ -13,12 +13,14 @@ import type { ShardLoader } from "./shard-loader";
 import type {
   BookRecord,
   IntentCoverage,
+  IntentGrouping,
   LayerClaim,
   Lexicon,
   LinkEdge,
   LoadState,
   Manifest,
   OutlineNode,
+  ProductAreas,
   ProofState,
   RecordFields,
   SearchRow,
@@ -27,11 +29,13 @@ import type {
   View,
 } from "./shard-types";
 import { isScenarioType } from "./shard-types";
+import { areaKeysOf } from "./product-areas";
 import {
   parseIntentCoverageEntries,
   parseLexicon,
   parseManifest,
   parseOutlineNodes,
+  parseProductAreas,
   parseRecordPack,
   parseSearchRows,
   parseSecurityItems,
@@ -110,10 +114,13 @@ export class Book {
   searchRev = $state(0);
   /** The security domain: the security items once loaded. */
   securityRev = $state(0);
+  /** The product-area domain: the Intent product-area grouping once loaded. */
+  areasRev = $state(0);
   load = $state<LoadState>({ kind: "loading" });
   man: Manifest | null = null;
   lex: Lexicon = { types: {}, layers: {}, links: [], fields: {}, glossary: {}, sections: {}, findings: {} };
   security: SecurityItem[] | null = null;
+  productAreas: ProductAreas | null = null;
   rec: Record<string, BookRecord> = {};
   node: Record<string, NodeInfo> = {};
   layerOf: Record<string, string> = {};
@@ -131,6 +138,7 @@ export class Book {
   private searchPromise: Promise<void> | null = null;
   private securityPromise: Promise<void> | null = null;
   private coveragePromise: Promise<void> | null = null;
+  private productAreasPromise: Promise<void> | null = null;
   private selectSeq = 0;
   private renderedNav: string[] | null = null;
 
@@ -146,6 +154,7 @@ export class Book {
   // ---------- state ----------
   view = $state<View>("outline");
   sortKey = $state<SortKey>("outline");
+  intentGrouping = $state<IntentGrouping>("outline");
   query = $state("");
   selected = $state<string | null>(null);
   /** Whether the record page moves focus to the title after the last selection; outline moves leave focus in the tree. */
@@ -281,9 +290,11 @@ export class Book {
     this.order.length = 0;
     this.search = null;
     this.security = null;
+    this.productAreas = null;
     this.searchPromise = null;
     this.securityPromise = null;
     this.coveragePromise = null;
+    this.productAreasPromise = null;
     this.renderedNav = null;
     this.touch();
   }
@@ -464,6 +475,26 @@ export class Book {
       }
     })();
     return this.coveragePromise;
+  }
+
+  /** Loads the Intent product-area grouping; the outline reads it when the reader groups Intent by product area. */
+  ensureProductAreas(): Promise<void> {
+    this.productAreasPromise ??= (async () => {
+      try {
+        this.productAreas = parseProductAreas(await this.shards.load("product-areas"));
+      } catch {
+        this.productAreas = { modules: [], unfulfilled: { features: [], flows: [] } };
+      }
+      this.areasRev++;
+      this.touchOutline();
+    })();
+    return this.productAreasPromise;
+  }
+
+  /** Groups the Intent layer of the outline by product area or back by the outline order. */
+  setIntentGrouping(value: IntentGrouping): void {
+    this.intentGrouping = value;
+    if (value === "product-area") void this.ensureProductAreas();
   }
 
   async preloadAll(): Promise<void> {
@@ -901,6 +932,15 @@ export class Book {
     }
     this.expanded = next;
     if (layer) this.openLayers[layer] = true;
+    if (this.intentGrouping === "product-area" && this.productAreas) {
+      const chain = [id];
+      let current = this.parentOf[id] ?? null;
+      while (current && !chain.includes(current)) {
+        chain.push(current);
+        current = this.parentOf[current] ?? null;
+      }
+      for (const key of areaKeysOf(this.productAreas, chain)) delete this.closedGroups[key];
+    }
   }
 
   expandAll(): void {

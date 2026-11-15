@@ -50,6 +50,7 @@ output:
       freshness:
         mode: snapshot
         within: PT5S
+        decidedBy: use-case/spending.reimburse-expense
 paging:
   mode: pages
   order: Reimbursement time, newest first.

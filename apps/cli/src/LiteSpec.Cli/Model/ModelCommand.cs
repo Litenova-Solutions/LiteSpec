@@ -11,7 +11,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model;
 
 /// <summary>
-///     The <c>litespec model</c> command: check, format, render and query a consumer's project model.
+///     The <c>litespec model</c> command: check, format, render, query and edges a consumer's project model.
 /// </summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class ModelCommand
@@ -19,16 +19,19 @@ static class ModelCommand
     /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all]
+          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all] [--module <module>]
           litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
+          litespec model query --root <consumer> --search <text>
+          litespec model query --root <consumer> --list <type> [--module <module>]
+          litespec model edges --root <consumer> [--module <module>]
           litespec model --help
 
         Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, or a file that would change with format --check, 2 usage error or a record file that does not parse.
         """;
 
-    /// <summary>Runs the model command: check, format, render or query.</summary>
+    /// <summary>Runs the model command: check, format, render, query or edges.</summary>
     /// <param name="args">The command arguments, the subcommand first.</param>
     /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error.</returns>
     public static int Run(string[] args)
@@ -50,7 +53,9 @@ static class ModelCommand
             },
             command switch
             {
-                "check" => ["--root", "--format", "--since"],
+                "check" => ["--root", "--format", "--since", "--module"],
+                "query" => ["--root", "--search", "--list", "--module"],
+                "edges" => ["--root", "--module"],
                 _ => ["--root"],
             },
             maxPositionals: command switch
@@ -154,6 +159,26 @@ static class ModelCommand
                 foreach (var drift in proofDrift.Where(finding => config.Layers.Covers(finding.Code, config.Extensions)))
                 {
                     shown.Add((drift, Decide(model, config, drift, release), false));
+                }
+
+                // A module check prints only the findings on that module's records and files,
+                // and the exit code below follows those findings alone.
+                if (parsed.Value("--module") is { } onlyModule)
+                {
+                    if (onlyModule.Length == 0)
+                    {
+                        return CommandFailure.UsageError("Option --module needs a value.", Usage, json);
+                    }
+
+                    var known = KnownModules(model);
+
+                    if (!known.Contains(onlyModule))
+                    {
+                        return CommandFailure.UsageError(UnknownModule(onlyModule, known), Usage, json);
+                    }
+
+                    shown = shown.Where(entry => InModule(model, config, entry.Finding, onlyModule)).ToList();
+                    covered = covered.Where(finding => InModule(model, config, finding, onlyModule)).ToList();
                 }
 
                 if (json)
@@ -287,12 +312,82 @@ static class ModelCommand
 
             case "query":
             {
-                if (parsed.Positionals is not [var id])
+                var search = parsed.Value("--search");
+                var list = parsed.Value("--list");
+                var queryModule = parsed.Value("--module");
+                var modes = parsed.Positionals.Count + (search is null ? 0 : 1) + (list is null ? 0 : 1);
+
+                if (modes == 0)
                 {
-                    return CommandFailure.UsageError("Query needs an id.", Usage, json);
+                    return CommandFailure.UsageError("Query needs an id, --search <text> or --list <type>.", Usage, json);
+                }
+
+                if (modes > 1)
+                {
+                    return CommandFailure.UsageError("Query takes one of <id>, --search <text> or --list <type>.", Usage, json);
+                }
+
+                if (search is not null && search.Length == 0)
+                {
+                    return CommandFailure.UsageError("Option --search needs a value.", Usage, json);
+                }
+
+                if (list is not null && list.Length == 0)
+                {
+                    return CommandFailure.UsageError("Option --list needs a value.", Usage, json);
+                }
+
+                if (queryModule is not null && list is null)
+                {
+                    return CommandFailure.UsageError("Option --module needs --list.", Usage, json);
+                }
+
+                if (queryModule is not null && queryModule.Length == 0)
+                {
+                    return CommandFailure.UsageError("Option --module needs a value.", Usage, json);
                 }
 
                 var model = ModelBuilder.Build(config);
+
+                if (search is not null)
+                {
+                    foreach (var record in RecordQuery.Search(model, search))
+                    {
+                        CliHost.Out.WriteLine(RecordQuery.Line(model, record));
+                    }
+
+                    return 0;
+                }
+
+                if (list is not null)
+                {
+                    if (!RecordTypes.All.Contains(list))
+                    {
+                        return CommandFailure.UsageError(
+                            $"Unknown record type '{list}'. Use one of: {string.Join(", ", RecordTypes.All.OrderBy(name => name, StringComparer.Ordinal))}.",
+                            Usage,
+                            json);
+                    }
+
+                    if (queryModule is not null)
+                    {
+                        var known = KnownModules(model);
+
+                        if (!known.Contains(queryModule))
+                        {
+                            return CommandFailure.UsageError(UnknownModule(queryModule, known), Usage, json);
+                        }
+                    }
+
+                    foreach (var record in RecordQuery.List(model, list, queryModule))
+                    {
+                        CliHost.Out.WriteLine(RecordQuery.Line(model, record));
+                    }
+
+                    return 0;
+                }
+
+                var id = parsed.Positionals[0];
                 var answer = RecordQuery.Query(model, id);
 
                 if (answer is null)
@@ -301,6 +396,35 @@ static class ModelCommand
                 }
 
                 CliHost.Out.WriteLine(answer);
+                return 0;
+            }
+
+            case "edges":
+            {
+                var edgeModule = parsed.Value("--module");
+
+                if (edgeModule is not null && edgeModule.Length == 0)
+                {
+                    return CommandFailure.UsageError("Option --module needs a value.", Usage, json);
+                }
+
+                var model = ModelBuilder.Build(config);
+
+                if (edgeModule is not null)
+                {
+                    var known = KnownModules(model);
+
+                    if (!known.Contains(edgeModule))
+                    {
+                        return CommandFailure.UsageError(UnknownModule(edgeModule, known), Usage, json);
+                    }
+                }
+
+                foreach (var line in ModelEdges.Lines(model, edgeModule))
+                {
+                    CliHost.Out.WriteLine(line);
+                }
+
                 return 0;
             }
 
@@ -338,6 +462,53 @@ static class ModelCommand
         return (findings, covered);
     }
 
+    /// <summary>The module names the module records declare.</summary>
+    /// <param name="model">The built project model holding the module records.</param>
+    /// <returns>The declared module names.</returns>
+    static HashSet<string> KnownModules(ProjectModel model)
+    {
+        var known = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records)
+        {
+            if (record is { Type: RecordTypes.Module, Derived: false }
+                && Identifiers.TrySplit(record.Id, out _, out _, out var name)
+                && name.Length > 0)
+            {
+                known.Add(name);
+            }
+        }
+
+        return known;
+    }
+
+    /// <summary>The usage error for a module name the project declares no module for.</summary>
+    /// <param name="module">The unknown module name.</param>
+    /// <param name="known">The declared module names.</param>
+    /// <returns>The usage error message.</returns>
+    static string UnknownModule(string module, HashSet<string> known) =>
+        known.Count == 0
+            ? $"Unknown module '{module}': this project declares no modules."
+            : $"Unknown module '{module}'. Use one of: {string.Join(", ", known.OrderBy(name => name, StringComparer.Ordinal))}.";
+
+    /// <summary>Whether the finding belongs to the module: its subject record's module, else its file's module folder.</summary>
+    /// <param name="model">The built project model resolving the finding subject.</param>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
+    /// <param name="finding">The finding to test.</param>
+    /// <param name="module">The module name to keep.</param>
+    /// <returns>True when the finding sits on the module's records or files.</returns>
+    static bool InModule(ProjectModel model, ConsumerConfig config, Finding finding, string module)
+    {
+        if (finding.Subject is not null
+            && model.ById.TryGetValue(Identifiers.BaseId(finding.Subject), out var record)
+            && record.Module is not null)
+        {
+            return module.Equals(record.Module, StringComparison.Ordinal);
+        }
+
+        return module.Equals(RecordPlacement.ModuleOf(finding.Path, config), StringComparison.Ordinal);
+    }
+
     /// <summary>
     ///     Decides one finding's severity from its tier and the qualification
     ///     of the reader that produced it: TypeScript findings take the
@@ -359,8 +530,7 @@ static class ModelCommand
                 Finding.TypeScriptReader => model.TypeScriptQualified,
                 Finding.RoslynReader => true,
                 _ => true,
-            },
-            config.IsContinuousIntegration);
+            });
 
         return release && severity.Outcome != Outcome.Covered && IsReleaseReadiness(finding)
             ? new Severity(Outcome.Blocking)

@@ -184,7 +184,7 @@ internal static class TraceabilityFixtures
             }
             """);
 
-    /// <summary>A waiver covering the codes on the subjects and paths until 2099, or for good when no expiry is given.</summary>
+    /// <summary>A gap waiver covering the codes on the subjects and paths until 2099, or a lasting waiver when no expiry is given.</summary>
     /// <param name="covers">The covers list: finding codes the waiver covers.</param>
     /// <param name="subjects">The subject identifiers the waiver covers, or null for none.</param>
     /// <param name="paths">The file paths the waiver covers, or null for none.</param>
@@ -198,9 +198,10 @@ internal static class TraceabilityFixtures
         string id = "waiver/marks-deferred",
         string? expiresOn = "2099-01-01")
     {
+        var closers = subjects is { Length: > 0 } ? subjects : [id];
         var tail = expiresOn is null
-            ? ""
-            : $",\n  \"expiresOn\": \"{expiresOn}\",\n  \"exit\": \"Marks are added.\"";
+            ? ",\n  \"kind\": \"lasting\",\n  \"consequences\": \"Marks stay deferred.\""
+            : $",\n  \"kind\": \"gap\",\n  \"closedBy\": [{string.Join(", ", closers.Select(Quote))}],\n  \"expiresOn\": \"{expiresOn}\",\n  \"exit\": \"Marks are added.\"";
 
         return Page(FileOf(id), $$"""
             {

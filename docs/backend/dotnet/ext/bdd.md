@@ -13,7 +13,7 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`, `flow`.
 
-The consumer enables `bdd` when a critical example needs both business-language review and execution through a public system boundary; routine unit behavior stays in narrower tests.
+The consumer enables `bdd` when a critical example needs both business-language review and execution through a public system boundary; routine unit behavior stays in narrower tests. A project that selects `bdd` in `selectedExtensions` applies the page's provisions to every use case the project proves through the BDD style.
 
 A BDD scenario is a C# method on a LightBDD feature class. Its steps are calls to step methods, and its business-readable text is the scenario method, the step method names, and the generated report.
 

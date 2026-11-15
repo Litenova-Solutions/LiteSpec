@@ -39,7 +39,7 @@ Each effect entry carries the one `onFailure` shape: `{ mode, retry, ifExhausted
 
 ### Queries
 
-A query reads without changing and declares what its readers receive. Its output groups fields into named `include` groups, each with its fields, classification, the aggregates it reads, and freshness. Freshness is `{ mode, within }`: `mode` is `immediate`, `snapshot`, or `eventual`, and `within` is the ISO 8601 duration a lagging read stays behind its source, present when the mode allows lag. A query whose aggregates lag reads from a read model: data shaped for the query, served without loading an aggregate. A command may declare its output as a list of `{ name, meaning, type }`.
+A query reads without changing and declares what its readers receive. Its output groups fields into named `include` groups, each with its fields, classification, the aggregates it reads, and freshness. Freshness is `{ mode, within, decidedBy }`: `mode` is `immediate`, `snapshot`, or `eventual`; `within` is the ISO 8601 duration a lagging read stays behind its source, present when the mode allows lag; and `decidedBy` names the command use case or aggregate that decides the figure at write time, present only with `snapshot` or `eventual` freshness when a command re-decides the figure. A query whose aggregates lag reads from a read model: data shaped for the query, served without loading an aggregate. A command may declare its output as a list of `{ name, meaning, type }`.
 
 | Field | Meaning |
 |:---|:---|
@@ -479,6 +479,22 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 **Example:** The list-expenses query declares open and decided groups with `{ "mode": "immediate" }` freshness.
 
 **Checked by:** `litespec model check` reports `query-output-missing` for a query with no declared output.
+
+### Name the Use Case That Decides a Stale Figure
+
+**ID:** `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case, record:read-model
+
+**Statement:** Each query output group and each read model whose figure a command re-decides at write time MUST name in `decidedBy` that command use case or its aggregate, in the module that owns the figure's source.
+
+**Rationale:** A stale figure without a named decider leaves the reader guessing who settles it: the page shows seat availability, and nothing says the hold command re-decides it at write time. Naming the deciding command use case, or its aggregate, states the link beside the figure, so the reader follows it to the current truth. The schema allows `decidedBy` only with `snapshot` or `eventual` freshness: an `immediate` figure is current, so it names no decider. A query decides nothing, so a `decidedBy` naming one is reported, and the decider sits in the module that owns the figure's source, as `litespec/core/automation#decide-current-truth-in-the-owning-module` states.
+
+**Example:** The reimbursed-expenses list carries `snapshot` freshness and names `use-case/spending.reimburse-expense` in `decidedBy`, so a reader seeing a stale row follows the link to the command that decides each reimbursement.
+
+**Checked by:** `litespec model check` reports `freshness-decider-invalid` (level G) for a `decidedBy` naming a query or a use case or aggregate outside the module that owns the figure's source, and `record-invalid` for a `decidedBy` with `immediate` freshness.
 
 ### Justify Every Wider Visibility
 

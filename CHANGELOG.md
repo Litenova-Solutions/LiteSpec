@@ -143,7 +143,35 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - The record page is centered between the outline on the left and the rail on the right edge, so a wide screen keeps it in the middle.
 - `litespec context` writes the project's records and explanation files as one compact text file for an AI chat, filtered by `--layers`, `--modules`, `--types` and `--include records|explanations|both`, compacted unless `--full` is given. It is read-only.
 
-### Part Q: Provision Changes Since v6.0.0
+### Part Q: Waivers
+
+- The record that sets a required provision, page or finding code aside is the waiver: `type: waiver`, identifiers `waiver/<name>`, the folders `.litespec/governance/waivers/` and `.litespec/governance/modules/<module>/waivers/`, the page `docs/core/waivers.md`, the template `templates/consumer/waiver.yaml`, and the codes `waiver-expired`, `waiver-invalid` and `waiver-duplicate`. Decision 0014, One Waiver Record, records why.
+- The advisory exit inside a provision is the `**Deviation:**` part again, so one word no longer names both the exit that needs no record and the record that sets a required rule aside. `litespec/core/waivers#deviate-from-advice-without-a-record` and `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver` state the two.
+- Every waiver states its kind: `gap` for work the team means to close, `lasting` for a choice the project keeps. A gap carries `expiresOn`, `exit` and `closedBy`, the records whose change closes the gap; a lasting waiver carries `consequences` and no end date.
+- `model check` reports `waiver-duplicate` when two live waivers cover the same finding code, provision or page on the same subject record or the same path, and `reference-unknown` for a `closedBy` entry that names no written record.
+- The `waiver-index` region lists every waiver of the product in the README of the product `governance/waivers/` folder, with a Module column; gaps by `expiresOn` with their `closedBy`, then lasting waivers with their consequences.
+- The book waiver page shows the kind, the closing records and the consequences, and Claimwick's waivers state their kinds and closing records.
+- The new rules are `litespec/core/waivers#state-the-kind-of-every-waiver`, `litespec/core/waivers#name-the-records-that-close-a-gap` and `litespec/core/waivers#cover-each-finding-with-one-waiver`.
+
+### Part R: Links That Hold
+
+- A reaction that undoes a committed step of a multi-step process names the step's use case in `compensates`, runs another use case, and answers the event that reports the later failure. `model check` reports `compensation-target-invalid` for a `compensates` naming a use case that is not a command or the same use case the reaction runs, and `compensation-trigger-invalid` for a compensating reaction answering an event the compensated use case raises. Decision 0015, Automations and Sagas, restates compensation in these terms, and decision 0076 keeps the `compensated` consistency mode removed with `compensates` as the field its undo lacked. The new rule is `litespec/core/automation#name-the-step-a-compensating-reaction-undoes`.
+- A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, or `model check` reports `rule-binds-missing`, under `litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds`.
+- A query output group and a read model whose figure a command re-decides name the deciding command use case or its aggregate in `freshness.decidedBy`, allowed only with `snapshot` or `eventual` freshness. `model check` reports `freshness-decider-invalid` for a `decidedBy` naming a query or a decider outside the module that owns the figure's source, under `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`.
+- The .NET reader records each event handler's subscribed event type. `model check` reports `reaction-subscription-drift` for a marked handler subscribed to an event outside its reaction's `triggeredBy`, and `reaction-trigger-unhandled` for a declared trigger no marked handler answers, under `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`.
+- A refusal code is carried only from its own module and by one exception type: `model check` reports `refusal-module-foreign` and `refusal-code-duplicate`, under `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`. Two rules a boundary maps to one response keep two codes.
+- `model check` reports `convention-unreached` for a project convention whose `Applies to` matches no file, folder or record, running the matcher `rules <path>` runs, under `litespec/core/agent#scope-every-convention-to-files-it-governs`.
+- Every finding about a missing, unknown or unused link between records, or between a record and code, blocks: `read-model-unused`, `actor-unused`, `runbook-unused`, `setting-unused`, `source-unused`, `source-key-unknown`, `wireframe-reference-unknown`, `screen-unreachable`, `screen-dead-end`, `requirement-cites-missing`, `decision-basis-missing`, `exposure-missing`, `scenario-rule-unexercised`, `explanation-orphaned`, `result-scenario-missing` and `example-keys-drift` move to level G, and `use-case-unreached`, `effect-unimplemented` and `part-parent-missing` to level S. The planned-Intent findings block in every run, not only in the pull-request check; a record that must stay unreached carries a gap waiver.
+
+### Part S: Tools, Analyzers and Text
+
+- `litespec model query --search <text>` lists the records whose identifier, title, summary or statement holds the text, an exact identifier first; `litespec model query --list <type> [--module <module>]` lists every record of a type; `litespec model check --module <module>` prints only that module's findings and exits on them alone; `litespec model edges [--module <module>]` prints each module's links to other modules, by link kind and by module, and every pair of modules linking each other both ways.
+- The book offers a product-area grouping of the Intent layer: one group per Behavior module, listing the features whose requirements its use cases, reactions, jobs or screens fulfill and the flows whose steps they serve, with a Not yet fulfilled group; the book writes it as `data/product-areas.js`. Decision 0051 names this as Intent's navigation by product area.
+- LS3002 reports a `CancellationToken` parameter that is not last, or second to last before a `params` array, or not named `cancellationToken`; LS3003 reports a C# file not named for its one primary type. The new rule is `litespec/backend/dotnet/naming#put-the-cancellation-token-last`, and Claimwick's state cases sit one per file.
+- `token-limit-failed` is `design-token-limit-failed`. Decisions 0005, 0014, 0048 and 0049 take the slugs `0005-flows-serve-a-goal`, `0014-one-waiver-record`, `0048-state-the-start-and-branches-of-each-flow` and `0049-literal-flow-words-concrete-consequences`, and decisions 0004, 0005 and 0051 state the 7.0.0 record model.
+- Text that still named removed shapes states the 7.0.0 ones: the read-model finding meanings, `record-parent-missing`, the Behavior overview and workspace tree, the cache and realtime freshness modes, the testing page's rule spanning aggregates, manual work as a command whose entry point and access name its starter, and the scope of a project-wide `bdd` selection.
+
+### Part T: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
 
@@ -154,20 +182,25 @@ Provisions whose rule changed take the identifier their heading derives:
 - `litespec/core/edges#publish-every-outbound-integration-event-from-effects` is now `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`.
 - `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder` is now `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`.
 - Every provision naming journeys now names flows, and every provision naming the view record now names read models, as the generated list below shows.
+- Every provision of `litespec/core/departures` moves to `litespec/core/waivers` with "departure" read as "waiver", `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure` is now `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`, and `litespec/core/departures#depart-from-advice-without-a-record` is now `litespec/core/waivers#deviate-from-advice-without-a-record`.
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (70):
+Added (86):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#read-another-modules-state-through-a-read-model`
 - `litespec/backend/architecture#give-each-use-case-its-own-models`
 - `litespec/backend/architecture#repeat-coordination-never-a-rule`
 - `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`
+- `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`
 - `litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder`
+- `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`
+- `litespec/backend/dotnet/naming#put-the-cancellation-token-last`
 - `litespec/core/access#evaluate-access-in-one-order`
 - `litespec/core/access#require-a-recent-sign-in-by-setting`
+- `litespec/core/agent#scope-every-convention-to-files-it-governs`
 - `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples`
 - `litespec/core/automation#decide-current-truth-in-the-owning-module`
 - `litespec/core/automation#declare-each-read-model-field-from-a-published-field`
@@ -175,11 +208,13 @@ Added (70):
 - `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`
 - `litespec/core/automation#keep-validity-apart-from-storage`
 - `litespec/core/automation#move-a-state-by-time-with-a-timed-transition`
+- `litespec/core/automation#name-the-step-a-compensating-reaction-undoes`
 - `litespec/core/automation#raise-completion-only-when-every-module-is-done`
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
 - `litespec/core/automation#run-each-effect-on-its-own`
 - `litespec/core/behavior#group-module-rules-by-theme`
 - `litespec/core/domain-model#freeze-every-frozen-value`
+- `litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds`
 - `litespec/core/domain-model#state-what-each-rule-governs`
 - `litespec/core/edges#name-how-every-inbound-integration-event-arrives`
 - `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`
@@ -205,19 +240,29 @@ Added (70):
 - `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy`
 - `litespec/core/principles#confine-atomic-consistency-to-one-use-case`
 - `litespec/core/principles#share-no-transaction-across-an-edge`
+- `litespec/core/release#record-accepted-debt-as-a-waiver`
 - `litespec/core/release#run-flow-checks`
 - `litespec/core/release#verify-connected-flows`
+- `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`
 - `litespec/core/use-cases#declare-each-modules-refusals-once`
 - `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
 - `litespec/core/use-cases#keep-each-scenario-inside-its-operation`
 - `litespec/core/use-cases#mark-inputs-a-provider-verified`
 - `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`
 - `litespec/core/use-cases#name-the-idempotency-of-every-command`
+- `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`
 - `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs`
 - `litespec/core/use-cases#state-the-exposure-of-every-use-case`
 - `litespec/core/use-cases#state-what-a-replay-does`
 - `litespec/core/use-cases#type-every-output-field`
+- `litespec/core/waivers#cover-each-finding-with-one-waiver`
+- `litespec/core/waivers#deviate-from-advice-without-a-record`
+- `litespec/core/waivers#name-the-records-that-close-a-gap`
+- `litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver`
+- `litespec/core/waivers#record-accepted-gaps-as-waivers`
+- `litespec/core/waivers#state-the-kind-of-every-waiver`
 - `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`
+- `litespec/ext/delivery#close-incident-waivers-within-seven-days`
 - `litespec/ext/outbox#dispatch-flow-step-commands-in-a-new-scope`
 - `litespec/ext/outbox#keep-integration-events-a-read-model-rebuilds-from`
 - `litespec/frontend/data#brand-every-identifier-from-the-contract`
@@ -231,12 +276,15 @@ Added (70):
 - `litespec/frontend/ui#meet-the-limits-of-every-token-role`
 - `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (38):
+Removed (44):
 
 - `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
 - `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
 - `litespec/core/automation#guard-every-manual-job`
 - `litespec/core/behavior#group-cross-aggregate-rules-by-theme`
+- `litespec/core/departures#depart-from-advice-without-a-record`
+- `litespec/core/departures#record-a-project-wide-lowering-as-a-departure`
+- `litespec/core/departures#record-accepted-gaps-as-departures`
 - `litespec/core/domain-model#freeze-every-commercial-data-value`
 - `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`
 - `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
@@ -258,12 +306,15 @@ Removed (38):
 - `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`
 - `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
 - `litespec/core/privacy#schedule-every-data-class-for-retention`
+- `litespec/core/release#record-accepted-debt-as-a-departure`
 - `litespec/core/release#run-journey-checks`
 - `litespec/core/release#verify-connected-journeys`
+- `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`
 - `litespec/core/use-cases#mark-every-lagging-query-as-built-asynchronously`
 - `litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads`
 - `litespec/core/use-cases#name-the-idempotency-of-every-use-case`
 - `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
+- `litespec/ext/delivery#close-incident-departures-within-seven-days`
 - `litespec/ext/jobs#run-manual-jobs-under-their-guard`
 - `litespec/ext/outbox#dispatch-journey-step-commands-in-a-new-scope`
 - `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`

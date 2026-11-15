@@ -373,7 +373,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Example:** Claimwick's `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Expenses/Domain/` and carry no mark; the builder lists them as parts of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
 
-**Checked by:** `litespec model check` reports `part-parent-missing` (level A) for an unmarked Domain type whose folder holds no aggregate root and is not the product `Domain/` folder, and the model output lists each part under its aggregate.
+**Checked by:** `litespec model check` reports `part-parent-missing` (level S) for an unmarked Domain type whose folder holds no aggregate root and is not the product `Domain/` folder, and the model output lists each part under its aggregate.
 
 ### Declare Cross-Record Keys on the Aggregate
 

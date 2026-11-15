@@ -35,7 +35,7 @@ internal static class PageText
         "Prove Provide Publish Purge Query Raise Reach Read Reconnect Record Recover Reference Reflect Refuse Regenerate " +
         "Register Reject Reload Release Remove Render Replay Replace Report Represent Require Renew Requeue Resolve " +
         "Restrict Retain Retire Retry Return Revalidate Review Rotate Route Run Scan Scope Select Separate Serialize Set Shape " +
-        "Show Signal Simulate Specify Split Stage Start State Stop Store Subscribe Supply Support Tabulate Tag Test Tolerate Trace " +
+        "Show Signal Simulate Specify Split Stage Start State Stop Store Subscribe Supply Support Tabulate Tag Test Throw Tolerate Trace " +
         "Track Translate Treat Trigger Update Use Validate Verify Version Wait Write " +
         "Admit Comment Grade Open Perform Put Advise Carry Close Confine Draw Enter File Flag Freeze Guard Honor Host Issue Justify Leave Pause Qualify Request Restore Resume Rewrite Sample Scaffold Schedule Search Send Serve Trust Repeat Erase Brand " +
         "Evaluate Decide Solve Lead Type Interpret").Split(' '),

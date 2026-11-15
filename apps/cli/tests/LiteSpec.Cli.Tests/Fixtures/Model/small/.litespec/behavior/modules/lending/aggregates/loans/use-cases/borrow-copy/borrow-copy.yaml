@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.borrow-copy
 title: Borrow copy
+exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong lending hands a copy to a reader already past the loan limit.
 kind: command
 access:
   grant: permission/borrow-copy

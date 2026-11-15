@@ -2,6 +2,7 @@ type: waiver
 id: waiver/export-expenses-unimplemented
 title: Export Expenses Unimplemented
 summary: Export waits for the finance file format.
+kind: gap
 covers:
 - use-case-unimplemented
 subject:
@@ -9,3 +10,5 @@ subject:
 reason: Export waits for the finance file format.
 exit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
 expiresOn: 2027-06-01
+closedBy:
+- use-case/spending.export-expenses

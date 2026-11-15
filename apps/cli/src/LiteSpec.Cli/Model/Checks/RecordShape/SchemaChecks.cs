@@ -14,6 +14,8 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/model#state-the-common-fields-on-every-record</follows>
 /// <follows>litespec/core/model#write-links-on-the-record-that-points</follows>
 /// <follows>litespec/core/waivers#record-accepted-gaps-as-waivers</follows>
+/// <follows>litespec/core/waivers#state-the-kind-of-every-waiver</follows>
+/// <follows>litespec/core/waivers#name-the-records-that-close-a-gap</follows>
 internal static class SchemaChecks
 {
     /// <summary>The flow field that a flow no longer carries; its paths are branches now.</summary>
@@ -30,6 +32,9 @@ internal static class SchemaChecks
 
     /// <summary>The unknown-outcome key of an operation.</summary>
     const string UnknownField = "unknown";
+
+    /// <summary>The waiver field naming the records whose change closes the gap.</summary>
+    const string WaiverClosedBy = "closedBy";
 
     /// <summary>Runs the schema checks on every record.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
@@ -437,13 +442,9 @@ internal static class SchemaChecks
             case RecordTypes.Waiver:
                 RequireString(record, RecordFields.Reason, findings);
                 RequireArray(record, RecordFields.Covers, 1, findings);
+                RequireEnum(record, RecordFields.Kind, ["gap", "lasting"], findings);
                 CheckWaiverScope(record, findings);
-
-                if (record.Has(RecordFields.ExpiresOn))
-                {
-                    RequireDate(record, RecordFields.ExpiresOn, findings);
-                    RequireString(record, RecordFields.Exit, findings);
-                }
+                CheckWaiverKind(record, findings);
 
                 break;
 
@@ -471,6 +472,31 @@ internal static class SchemaChecks
         if (record.Ids(RecordFields.Subject).Count == 0 && record.Ids(RecordFields.Paths).Count == 0)
         {
             findings.Add(new Finding("record-invalid", $"Waiver '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a gap waiver without its expiry date, exit or closing records, and a lasting waiver missing its consequences or holding a gap field.</summary>
+    /// <param name="record">The waiver record whose kind fields are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckWaiverKind(Record record, List<Finding> findings)
+    {
+        if (record.Field(RecordFields.Kind) == "gap")
+        {
+            RequireDate(record, RecordFields.ExpiresOn, findings);
+            RequireString(record, RecordFields.Exit, findings);
+            RequireIds(record, WaiverClosedBy, 1, findings);
+        }
+        else if (record.Field(RecordFields.Kind) == "lasting")
+        {
+            RequireString(record, RecordFields.Consequences, findings);
+
+            foreach (var field in new[] { RecordFields.ExpiresOn, RecordFields.Exit, WaiverClosedBy })
+            {
+                if (record.Has(field))
+                {
+                    findings.Add(new Finding("record-invalid", $"Waiver '{record.Id}' is lasting and holds {field}.", record.File, record.Line, SubjectOf(record)));
+                }
+            }
         }
     }
 

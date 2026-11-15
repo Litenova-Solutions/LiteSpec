@@ -287,10 +287,12 @@ sealed class UiFixture : IDisposable
         ["type"] = "waiver",
         ["id"] = id,
         ["title"] = title,
+        ["kind"] = "gap",
         ["covers"] = new JsonArray(provision),
         ["paths"] = new JsonArray("packages/ui/**"),
         ["reason"] = "The fixture needs this waiver.",
         ["consequences"] = "The fixture ships with this waiver until it expires.",
+        ["closedBy"] = new JsonArray(id),
         ["expiresOn"] = expiresOn,
         ["exit"] = "The fixture closes this gap when the waiver expires.",
     };

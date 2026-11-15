@@ -104,11 +104,11 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Applies to:** artifact: record:notification
 
-**Statement:** A query served over realtime MUST declare a `freshness` object with `mode` of `immediate` or `advisory` on its output.
+**Statement:** A query served over realtime MUST declare a `freshness` object with `mode` of `immediate` on its output.
 
-**Rationale:** A realtime channel delivers an update seconds after the change, so the served query promises `{"mode": "immediate"}`; where the pushed value still awaits a later decision, it promises `{"mode": "advisory", "authority": "<record id>"}` naming the record that holds the authoritative value. Without the declared freshness, a client cannot tell whether the live value is final or provisional.
+**Rationale:** A realtime channel delivers an update seconds after the change, so the served query promises `{"mode": "immediate"}`. Without the declared freshness, a client cannot tell how stale the live value may be.
 
-**Reviewed for:** Which realtime-served queries lack an immediate or advisory freshness object on their output? Look at the served query beside the realtime use case.
+**Reviewed for:** Which realtime-served queries lack an immediate freshness object on their output? Look at the served query beside the realtime use case.
 
 ### Authenticate and Authorize Subscriptions
 

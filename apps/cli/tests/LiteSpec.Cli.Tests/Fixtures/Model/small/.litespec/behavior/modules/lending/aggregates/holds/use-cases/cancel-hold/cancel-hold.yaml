@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.cancel-hold
 title: Cancel hold
+exposure: A signed-in reader reaches this command through the library app under the place-hold permission. A wrong cancellation loses the reader's place in the hold queue.
 kind: command
 access:
   grant: permission/place-hold

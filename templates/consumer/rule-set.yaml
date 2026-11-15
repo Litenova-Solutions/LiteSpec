@@ -8,6 +8,7 @@ records:
   kind: invariant
   statement: A receipt file supports one expense across spending.
   governs:
+  - aggregate/spending.expense
   - aggregate/spending.receipt
   binds:
   - aggregate/spending.expense

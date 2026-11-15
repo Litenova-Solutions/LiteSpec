@@ -40,15 +40,16 @@ The model builder writes generated working files under `.litespec/model/` while 
     glossary.yaml
     product.yaml
     intent/
-      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/
-      modules/
-        {module}/
-          module.yaml
-          goals/ problems/ constraints/ decisions/ research/
-          features/
-            {feature}/
-              {feature}.yaml
-              {requirement}/{requirement}.yaml    one requirement, in its own folder
+      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/
+      features/
+        {feature}/
+          {feature}.yaml
+          requirements/
+            {requirement}/
+              {requirement}.yaml    one requirement, in its own folder
+      requirements/                 product requirements
+        {requirement}/
+          {requirement}.yaml
     behavior/
       rules/                            cross-module invariants only
       external-systems/                 create with the first product-level external system
@@ -61,10 +62,13 @@ The model builder writes generated working files under `.litespec/model/` while 
         {module}/
           permissions.yaml
           use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/
-          {aggregate}/
-            aggregate.yaml
-            {use-case}/{use-case}.yaml  results and scenarios as entries
-            domain-events/ rules/
+          aggregates/
+            {aggregate}/
+              aggregate.yaml
+              use-cases/
+                {use-case}/
+                  {use-case}.yaml   results and scenarios as entries
+              domain-events/ rules/
     implementation/
       decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/
       operations/

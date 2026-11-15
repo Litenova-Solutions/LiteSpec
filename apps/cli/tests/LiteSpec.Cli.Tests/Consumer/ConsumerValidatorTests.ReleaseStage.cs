@@ -24,8 +24,9 @@ public sealed partial class ConsumerValidatorTests
     /// <param name="expiresOn">The date the deferral expires, in ISO form.</param>
     static void WriteDeferral(string root, string provision, string expiresOn = "2999-01-01") =>
         TestRecords.Write(root, ".litespec/governance/waivers/stage-deferral.yaml",
-            "{\"type\":\"waiver\",\"id\":\"waiver/stage-deferral\",\"title\":\"Stage Deferral\","
+            "{\"type\":\"waiver\",\"id\":\"waiver/stage-deferral\",\"title\":\"Stage Deferral\",\"kind\":\"gap\","
             + $"\"covers\":[\"{provision}\"],\"subject\":[\"use-case/orders.cancel-order\"],"
+            + "\"closedBy\":[\"use-case/orders.cancel-order\"],"
             + "\"consequences\":\"The shop defers the provision until promotion.\","
             + "\"exit\":\"The shop adopts the provision at promotion.\","
             + $"\"reason\":\"No deployment holds customer data yet.\",\"expiresOn\":\"{expiresOn}\"}}");

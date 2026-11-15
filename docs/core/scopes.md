@@ -65,7 +65,7 @@ Each provision carries six scope fields. The page declares the first two once: a
 | `repository` | One aggregate repository, its interface or its store implementation |
 | `endpoint` | One route operation and the class serving it |
 | `migration` | One storage schema change |
-| `job` | Scheduled or manual background work in code |
+| `job` | Scheduled or one-off background work in code |
 | `component` | One UI component |
 | `route` | One frontend address and its page file |
 | `form` | One data-entry form |

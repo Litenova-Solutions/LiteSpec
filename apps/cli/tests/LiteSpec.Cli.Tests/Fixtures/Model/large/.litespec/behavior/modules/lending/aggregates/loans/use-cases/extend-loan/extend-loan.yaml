@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.extend-loan
 title: Extend loan
+exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong extension keeps a copy past its due date.
 kind: command
 access:
   grant: permission/borrow-copy
@@ -38,3 +39,12 @@ records:
   when: The reader extends the loan.
   then: The loan is extended.
   result: result/extend-loan.extended
+- type: scenario
+  id: scenario/extend-loan.extending-loan-past-due-refused
+  title: Extending a loan past its due date is refused
+  given: A loan passed its due date.
+  when: The reader extends the loan.
+  then: The extension is refused.
+  result: result/extend-loan.extension-refused
+  exercises:
+  - rule/loan.extended-before-due

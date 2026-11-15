@@ -72,7 +72,7 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("requirement-cites-missing", "A")]
+    [InlineData("requirement-cites-missing", "G")]
     [InlineData("constraint-unreached", "G")]
     public void NewIntentCodesHaveTiers(string code, string tier)
     {
@@ -83,15 +83,24 @@ public sealed class FindingCodesTests
     /// <param name="code">The finding code under test.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("explanation-orphaned")]
     [InlineData("explanation-missing")]
     [InlineData("format-drift")]
     [InlineData("source-link-bare")]
-    [InlineData("source-key-unknown")]
-    [InlineData("source-unused")]
     public void NewYamlCodesAreAdvisory(string code)
     {
         Assert.Equal("A", FindingCodes.Of(code).Level);
+    }
+
+    /// <summary>Each YAML finding code about a link between files or records blocks at level G.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Theory]
+    [InlineData("explanation-orphaned")]
+    [InlineData("source-key-unknown")]
+    [InlineData("source-unused")]
+    public void YamlLinkCodesAreGeneral(string code)
+    {
+        Assert.Equal("G", FindingCodes.Of(code).Level);
     }
 
     /// <summary>Each new Behavior finding code carries its contracted tier.</summary>
@@ -215,7 +224,7 @@ public sealed class FindingCodesTests
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
         "drift", "invalid", "duplicate", "expired", "unverified", "break",
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
-        "foreign", "uncarried", "unexercised", "vague", "wide", "written",
+        "foreign", "uncarried", "unexercised", "unhandled", "vague", "wide", "written",
         "unreachable", "alias", "failed", "dead-end",
     };
 

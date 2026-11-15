@@ -53,7 +53,7 @@ static class BookLexiconFieldLabels
             ["releasedBy"] = "Released by", ["frozenWhen"] = "Frozen when", ["history"] = "History",
             ["value"] = "Value", ["trigger"] = "Trigger", ["severity"] = "Severity",
             ["reason"] = "Reason",
-            ["covers"] = "Covers", ["expiresOn"] = "Expires on", ["paths"] = "Paths",
+            ["covers"] = "Covers", ["expiresOn"] = "Expires on", ["paths"] = "Paths", ["closedBy"] = "Closed by",
             ["term"] = "Term", ["labels"] = "Labels", ["rejected"] = "Rejected", ["aliases"] = "Aliases", ["layer"] = "Layer",
             ["broader"] = "Broader", ["narrower"] = "Narrower", ["mannered"] = "Mannered",
             ["affects"] = "Affects", ["affectsSegment"] = "Affects segment", ["costToday"] = "Cost today", ["workaroundToday"] = "Workaround today",

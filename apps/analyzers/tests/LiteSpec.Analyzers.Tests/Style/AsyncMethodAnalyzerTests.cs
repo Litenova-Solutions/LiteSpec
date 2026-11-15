@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace LiteSpec.Analyzers.Tests.Style;
 
-/// <summary>Tests for LS3001, asynchronous method names.</summary>
+/// <summary>Tests for LS3001 and LS3002, asynchronous method names and the token last.</summary>
 public sealed class AsyncMethodAnalyzerTests
 {
     /// <summary>LS3001 reports Task and ValueTask methods without Async.</summary>
@@ -227,5 +227,246 @@ public sealed class AsyncMethodAnalyzerTests
                 public Task<string> {|LS3001:Refused|}(string reason) => Task.FromResult(reason);
             }
             """);
+
+    /// <summary>LS3002 reports a misnamed token and a token in the middle.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 reports a misnamed token and a token in the middle")]
+    public Task ReportsAMisnamedTokenAndATokenInTheMiddle() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task SaveAsync(CancellationToken {|LS3002:ct|}) => Task.CompletedTask;
+
+                public Task LoadAsync(CancellationToken {|LS3002:cancellationToken|}, string name) => Task.CompletedTask;
+            }
+            """);
+
+    /// <summary>LS3002 accepts the token last with a trailing params array.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 accepts the token last with a trailing params array")]
+    public Task AcceptsTheTokenLastWithATrailingParamsArray() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task SaveAsync(CancellationToken cancellationToken, params string[] names) => Task.CompletedTask;
+
+                public void Ping(CancellationToken cancellationToken) { }
+            }
+            """);
+
+    /// <summary>LS3002 ignores an override and reports its base.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 ignores an override and reports its base")]
+    public Task IgnoresATokenOverrideAndReportsItsBase() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+
+            namespace Shop.Orders;
+
+            public class Recorder
+            {
+                public virtual void Save(CancellationToken {|LS3002:cancellationToken|}, string name) { }
+            }
+
+            public sealed class OrderRecorder : Recorder
+            {
+                public override void Save(CancellationToken cancellationToken, string name) { }
+            }
+            """);
+
+    /// <summary>LS3002 ignores an explicit interface implementation and reports its contract.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 ignores an explicit interface implementation and reports its contract")]
+    public Task IgnoresAnExplicitInterfaceImplementation() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+
+            namespace Shop.Orders;
+
+            public interface ISaver
+            {
+                void Save(CancellationToken {|LS3002:cancellationToken|}, string name);
+            }
+
+            public sealed class Worker : ISaver
+            {
+                void ISaver.Save(CancellationToken cancellationToken, string name) { }
+            }
+            """);
+
+    /// <summary>LS3002 reports a misnamed token in a local function.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 reports a misnamed token in a local function")]
+    public Task ReportsAMisnamedTokenInALocalFunction() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public async Task RunAsync(CancellationToken cancellationToken)
+                {
+                    async Task PlaceAsync(CancellationToken {|LS3002:ct|})
+                    {
+                        await Task.Delay(1, ct);
+                    }
+
+                    await PlaceAsync(cancellationToken);
+                }
+            }
+            """);
+
+    /// <summary>LS3002 ignores token position in an endpoint handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 ignores token position in an endpoint handler")]
+    public Task IgnoresTokenPositionInAnEndpointHandler() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Api;
+
+            public interface IEndpoint { }
+
+            public sealed class ReadGuestListEndpoint : IEndpoint
+            {
+                private static Task HandleAsync(Guid listId, CancellationToken cancellationToken, string? state = null) =>
+                    Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.WebApi");
+
+    /// <summary>LS3002 reports the same position in an ordinary class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 reports the same position in an ordinary class")]
+    public Task ReportsTheSamePositionInAnOrdinaryClass() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task HandleAsync(Guid listId, CancellationToken {|LS3002:cancellationToken|}, string? state = null) =>
+                    Task.CompletedTask;
+            }
+            """);
+
+    /// <summary>LS3002 reports a misnamed token in an endpoint handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 reports a misnamed token in an endpoint handler")]
+    public Task ReportsAMisnamedTokenInAnEndpointHandler() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Api;
+
+            public interface IEndpoint { }
+
+            public sealed class ReadGuestListEndpoint : IEndpoint
+            {
+                private static Task HandleAsync(Guid listId, CancellationToken {|LS3002:ct|}, string? state = null) =>
+                    Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.WebApi");
+
+    /// <summary>LS3002 accepts stoppingToken in a hosted service.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 accepts stoppingToken in a hosted service")]
+    public Task AcceptsStoppingTokenInAHostedService() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public abstract class BackgroundService { }
+
+            public sealed class PlanPriceListWorker : BackgroundService
+            {
+                private Task WaitForDatabaseAsync(CancellationToken stoppingToken) => Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.Infrastructure");
+
+    /// <summary>LS3002 reports stoppingToken outside a hosted service.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 reports stoppingToken outside a hosted service")]
+    public Task ReportsStoppingTokenOutsideAHostedService() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task SaveAsync(CancellationToken {|LS3002:stoppingToken|}) => Task.CompletedTask;
+            }
+            """);
+
+    /// <summary>LS3002 ignores an ExecuteAsync override.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 ignores an ExecuteAsync override")]
+    public Task IgnoresAnExecuteAsyncOverride() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public abstract class BackgroundService
+            {
+                protected virtual Task ExecuteAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+
+            public sealed class PlanPriceListWorker : BackgroundService
+            {
+                protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.Infrastructure");
+
+    /// <summary>LS3002 ignores a token breach outside the five projects.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
+    [Fact(DisplayName = "LS3002 ignores a token breach outside the five projects")]
+    public Task IgnoresATokenBreachOutsideTheFiveProjects() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task SaveAsync(CancellationToken cancellationToken, string name) => Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.Unknown");
 
 }

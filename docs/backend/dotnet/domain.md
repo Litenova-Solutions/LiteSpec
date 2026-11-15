@@ -630,11 +630,35 @@ public sealed partial class RefundAllocationRequiredException()
 
 The generator writes `public override string Code => "refunds.allocation-required";` from the refusal result the rule names.
 
-Two rules that share a caller-visible refusal code because a boundary maps them to one response still get two exception types. The shared code lives in the two types, not in a string passed by the aggregate. Reuse a single exception type only when one rule can fail from more than one input and the differing values are carried as constructor parameters.
+Two rules that a boundary maps to one response still get two exception types, each carrying its own refusal code; the boundary maps both codes to the one response. The two codes live in the two types, not in strings passed by the aggregate. Reuse a single exception type only when one rule can fail from more than one input and the differing values are carried as constructor parameters.
 
 Application validators handle malformed caller input through validation errors. Aggregate and value-object exceptions remain the final check when direct Domain use violates a rule. Command handlers do not catch expected Domain exceptions. The host maps them through the documented error boundary.
 
 **Checked by:** `dotnet build` reports `LS1005` for a throw outside a `DomainException` subclass and `LS1006` for a domain exception that is misnamed or open.
+
+### Throw Only Refusal Codes the Module Owns
+
+**ID:** `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate, value-object
+
+**Statement:** Each refusal code a module declares MUST be carried by at most one exception type, in the module that declares it.
+
+**Rationale:** A refusal code tells the caller which module refused and why, so the code means nothing when it travels: an exception in one module that carries another module's code blames the wrong owner, and two exception types that carry one code leave the caller unable to tell which rule failed. Each module declares its codes once in its refusal set, under `litespec/core/use-cases#declare-each-modules-refusals-once`, and each exception type carries its rule's code from that set, under `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`. One carrying type per code in the declaring module keeps the blame and the rule behind each code fixed. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
+
+**Example:** The spending module declares `spending.receipt-missing`, and only `ExpenseReceiptMissingException` in the spending module carries it:
+
+```csharp
+/// <implements>rule/expense.receipt-required-above-threshold</implements>
+public sealed partial class ExpenseReceiptMissingException()
+    : DomainException("An expense above the receipt threshold carries no receipt.");
+```
+
+The generator writes `public override string Code => "spending.receipt-missing";` from the refusal result the rule names. A receipt exception in the reporting module that carried `spending.receipt-missing`, or a second spending exception carrying the same code, breaks this rule.
+
+**Checked by:** `litespec model check` reports `refusal-module-foreign` (level S) for a refusal code carried from another module's code, and `refusal-code-duplicate` (level S) for a refusal code two exception types carry.
 
 ### Document Every Public Domain Contract
 

@@ -5,7 +5,7 @@
 // grouping, sorting and counts; the last build is memoized per book while its
 // inputs are unchanged.
 
-import { MODULE_MEMBER_TYPES, capitalize, formatLabel, proofRank, stripStep } from "$lib/frame";
+import { MODULE_MEMBER_TYPES, UNFULFILLED_AREA, areaGroupKey, areaKeysOf, capitalize, formatLabel, proofRank, stripStep } from "$lib/frame";
 import type { Book, RecordFields, SecurityItem } from "$lib/frame";
 
 /** One virtual row in the outline. */
@@ -13,11 +13,12 @@ export type OutlineRow =
   | { kind: "layer"; key: string; layer: string; total: number; shown: number; done: number }
   | { kind: "group"; key: string; gk: string; label: string; count: number; completion: string; open: boolean; depth: number }
   | { kind: "record"; key: string; id: string; depth: number; level: number; kids: number; open: boolean; dim: boolean }
-  | { kind: "note"; key: string; text: string };
+  | { kind: "note"; key: string; text: string }
+  | { kind: "switch"; key: string };
 
-/** The pixel height per row kind for the virtualizer: headers 36, rows 32. */
+/** The pixel height per row kind for the virtualizer: headers 36, rows 32, the grouping switch 40. */
 export const ROW_HEIGHT: Record<OutlineRow["kind"], number> = {
-  layer: 36, note: 32, group: 32, record: 32,
+  layer: 36, note: 32, group: 32, record: 32, switch: 40,
 };
 
 const INDENTS = [
@@ -276,6 +277,35 @@ function walkGroups(book: Book, pre: RowPrecompute, kids: string[], parent: stri
   }
 }
 
+/** The Intent layer grouped by product area: one group per Behavior module with its features and flows, then the features and flows no module reaches. */
+function walkAreas(book: Book, pre: RowPrecompute, rows: OutlineRow[]): void {
+  const areas = book.productAreas;
+  if (!areas) {
+    rows.push({ kind: "note", key: "layer/intent/areas-loading", text: "Loading the product areas." });
+    return;
+  }
+  const filtering = book.anyFilter();
+  let gi = 0;
+  const walkArea = (id: string, label: string, list: string[]): void => {
+    const sorted = sortKids(book, pre, list);
+    const visible = sorted.filter((entry) => book.isVisible(entry));
+    if (filtering && !visible.length) return;
+    if (id === UNFULFILLED_AREA && !visible.length) return;
+    const gk = areaGroupKey(id);
+    const gpath = "layer/intent-area/g" + gi++;
+    const closed = !filtering && !!book.closedGroups[gk];
+    rows.push({
+      kind: "group", key: "group/" + gpath, gk, label,
+      count: visible.length, completion: completeCounts(pre, visible), open: !closed, depth: 1,
+    });
+    if (!closed) {
+      for (const [i, entry] of sorted.entries()) walkRecord(book, pre, entry, 1, rows, gpath + "/r" + i);
+    }
+  };
+  for (const mod of areas.modules) walkArea(mod.id, mod.title, [...mod.features, ...mod.flows]);
+  walkArea(UNFULFILLED_AREA, "Not yet fulfilled", [...areas.unfulfilled.features, ...areas.unfulfilled.flows]);
+}
+
 /** The outline rows: the product root, then layer headers with their counts, records and field groups. */
 function buildRows(book: Book): OutlineRow[] {
   const rows: OutlineRow[] = [];
@@ -301,6 +331,13 @@ function buildRows(book: Book): OutlineRow[] {
     if (filtering && !entry.shown) continue;
     rows.push({ kind: "layer", key: "layer/" + layer.key, layer: layer.key, total: entry.total, shown: entry.shown, done: entry.done });
     if (!(filtering || book.openLayers[layer.key])) continue;
+    if (layer.key === "intent") {
+      rows.push({ kind: "switch", key: "layer/intent/switch" });
+      if (book.intentGrouping === "product-area") {
+        walkAreas(book, pre, rows);
+        continue;
+      }
+    }
     const roots = book.rootsOf[layer.key] ?? [];
     const base = "layer/" + layer.key;
     if (roots.length > 1) walkGroups(book, pre, roots, layer.key, 1, rows, base);
@@ -312,13 +349,15 @@ function buildRows(book: Book): OutlineRow[] {
 /** The last row build per book, reused while its inputs are unchanged. */
 const rowCache = new WeakMap<Book, { sig: string; rows: OutlineRow[] }>();
 
-/** The inputs a row build reads, as one string: the outline, records and search revisions, the sort, the filters and the expansion. */
+/** The inputs a row build reads, as one string: the outline, records, search and product-area revisions, the sort, the Intent grouping, the filters and the expansion. */
 function rowSignature(book: Book): string {
   return JSON.stringify([
     book.outlineRev,
     book.recRev,
     book.searchRev,
+    book.areasRev,
     book.sortKey,
+    book.intentGrouping,
     book.query,
     book.active,
     book.expanded,
@@ -354,6 +393,9 @@ export function expandChain(book: Book, raw: string): void {
     if (book.kids(current).length) book.expanded[current] = true;
     const holder = book.parent(current) ?? book.layerOf[current] ?? "";
     if (holder) delete book.closedGroups[holder + "|" + groupOf(book, current).key];
+  }
+  if (book.intentGrouping === "product-area" && book.productAreas) {
+    for (const key of areaKeysOf(book.productAreas, chain)) delete book.closedGroups[key];
   }
   const layer = book.layerOf[id];
   if (layer) book.openLayers[layer] = true;

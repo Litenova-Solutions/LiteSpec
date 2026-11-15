@@ -62,6 +62,7 @@ type: waiver
 id: waiver/export-expenses-unimplemented
 title: Export Expenses Unimplemented
 summary: Export waits for the finance file format.
+kind: gap
 covers:
 - use-case-unimplemented
 subject:
@@ -69,9 +70,11 @@ subject:
 reason: Export waits for the finance file format.
 exit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
 expiresOn: 2027-06-01
+closedBy:
+- use-case/spending.export-expenses
 ```
 
-The `covers` list names the finding code, and the `subject` list names the record the finding is about. The finding is reported as covered, so the run passes. The `exit` field states how the gap closes, and `expiresOn` makes the gap expire: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
+The `covers` list names the finding code, and the `subject` list names the record the finding is about. The finding is reported as covered, so the run passes. The `kind` states the waiver is a gap, the `exit` field states how the gap closes, `closedBy` names the record whose change closes it, and `expiresOn` makes the gap expire: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
 
 The example holds seven waivers in `.litespec/governance/waivers/`. The `export-review-bypass` waiver covers a provision rather than a finding, and the other six cover the codes in the table above.
 

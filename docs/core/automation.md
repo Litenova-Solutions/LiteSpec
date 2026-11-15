@@ -17,6 +17,7 @@ A reaction is work that runs when a domain event or integration event arrives. I
 |:---|:---|
 | `triggeredBy` | The list of `domain-event/...` or `integration-event/...` ids the reaction answers, each a domain event of its own module or an integration event. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
+| `compensates` | The `use-case/...` id the reaction undoes, for a reaction answering a later step's failure, optional. |
 | `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, with at most one `runs` entry; a reaction may omit `timing`, which reads as `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
@@ -24,6 +25,8 @@ A reaction is work that runs when a domain event or integration event arrives. I
 | `idempotency` | The idempotency mode, required, usually `state`; a `key` templates `{field}` placeholders over the triggering event fields, which the record does not list. |
 
 A reaction holds scenario child records ending in a result of a use case its effects run or in one of its outcomes. An event handler carries `implements reaction/<module>.<name>`.
+
+When one event carries several outcomes, one reaction cannot serve them all: a reaction runs at most one use case, as [Run at Most One Use Case from a Reaction or Job](#run-at-most-one-use-case-from-a-reaction-or-job) states. Split the dispatching reaction into one reaction per outcome, each triggered by its own event. Claimwick example: the expense decision ends approved or refused, so `domain-event/expense.approved` triggers the reaction running `use-case/spending.reimburse-expense`, and `domain-event/expense.refused` triggers the reaction sending the refusal notice, instead of one reaction answering a shared decided event and choosing between the two.
 
 ### Jobs
 
@@ -40,7 +43,7 @@ A job is work that runs on a schedule or once. It carries the identifier `job/<m
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
 | `idempotency` | The idempotency mode, required, usually `state`; a `key` templates `{field}` placeholders over the run window fields, which the record does not list. |
 
-A job holds scenario child records ending in a result of a use case its effects run or in one of its outcomes. A job host carries `implements job/<module>.<name>`. Work a person starts by hand is a command with its guard, not a job.
+A job holds scenario child records ending in a result of a use case its effects run or in one of its outcomes. A job host carries `implements job/<module>.<name>`. Work a person starts by hand is a command whose entry point and access name who starts it, not a job.
 
 ### Read Models
 
@@ -52,7 +55,7 @@ A read model is one module's own copy of what it needs to know about another mod
 | `fields` | `{ name, meaning, type, of, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `of`, `many` and `classification` read as on use-case inputs. |
 | `erasedBy` | On a `personal` or `sensitive` field, the `integration-event/...` whose arrival erases the field, required. |
 | `removedBy` | The `integration-event/...` ids whose arrival removes the row, optional. |
-| `freshness` | How stale a reader may see a row: `{ mode, within }` with `mode` of `immediate`, `snapshot`, or `eventual`, and `within` an ISO 8601 duration, as on query output groups. |
+| `freshness` | How stale a reader may see a row: `{ mode, within, decidedBy }` with `mode` of `immediate`, `snapshot`, or `eventual`, `within` an ISO 8601 duration, and `decidedBy` naming the command use case or aggregate that decides the row at write time, as on query output groups. |
 | `terms` | The glossary terms used, optional. |
 
 A read model's code is a set of projections, one per source integration event, each writing only its read model, and the reader its module's use cases call. Each carries `implements read-model/<module>.<name>`. Every source event carries an identity, and a redelivery never counts twice. `latest` compares source versions, not arrival order. Corrections arrive as events. A rebuild replays retained events from the start. Staleness is measured from the source event's time. An erased key keeps a tombstone that a rebuild applies, so no rebuild restores erased personal data. A decision that cannot accept the read model's `freshness` is decided in the owning module instead, as [Decide Current Truth in the Owning Module](#decide-current-truth-in-the-owning-module) states. With the outbox extension, each integration event a read model names is kept for as long as a read model may rebuild from it.
@@ -62,6 +65,8 @@ A read model's code is a set of projections, one per source integration event, e
 A long-running process is states, reactions and timed transitions, not a record of its own. An aggregate holds the current state. A reaction answers each fact and runs the command moving to the next state. A transition that time moves carries `after` with the duration from entering its source state and names the moving job in `movedBy`, as [Move a State by Time with a Timed Transition](#move-a-state-by-time-with-a-timed-transition) states. Work spanning modules raises its completion fact only after every module reports done, as [Raise Completion Only When Every Module Is Done](#raise-completion-only-when-every-module-is-done) states.
 
 Library example: a hold moves Placed, Ready, Collected, Expired. Placing the hold starts the pickup window. A job named in `movedBy` with `after` of `P7D` moves an uncollected Ready hold to Expired. The expire-holds command runs once per hold, and the hold-placed and hold-expired domain events announce each move.
+
+Compensation undoes a committed step when a later step fails. Each step of a multi-step process commits before the next runs, so a failure cannot roll earlier steps back; the process answers the failure with a compensating reaction, a reaction that runs the undoing command and names the undone step's use case in `compensates`. This is the compensating transaction pattern. Library example: reserving a copy commits the reservation, and when the later charge fails, a reaction answers the charge failure, runs the release command, and names the reserve use case in `compensates`.
 
 ### Exports
 
@@ -225,7 +230,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Example:** `read-model/reporting.reimbursed-expense` is keyed by `aggregate/spending.expense`, and its `amount` field comes from `integration-event/expense-reimbursed#amount`.
 
-**Checked by:** `litespec model check` reports `read-model-source-unknown` (level G) for a `from`, `erasedBy` or `removedBy` naming no outbound integration event or a payload field the event does not carry, `read-model-key-invalid` (level G) for a `keyedBy` naming an aggregate of the read model's own module, and `read-model-unused` (level A) for a read model no use case reads.
+**Checked by:** `litespec model check` reports `read-model-source-unknown` (level G) for a `from`, `erasedBy` or `removedBy` naming no outbound integration event or a payload field the event does not carry, `read-model-key-invalid` (level G) for a `keyedBy` naming an aggregate of the read model's own module, and `read-model-unused` (level G) for a read model no use case reads.
 
 ### Erase a Read Model Personal Field with Its Owner
 
@@ -290,6 +295,22 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 **Example:** Erasing a departed employee's personal data enters Erasing, which blocks new writes. The spending reaction erases expenses and the access reaction erases sessions, each reporting done. The employee becomes Erased only when both report, and the erasure record keeps the fact and date outside the erased data.
 
 **Reviewed for:** Which spanning work raises completion before every module reports done, or keeps progress in data the work deletes? Look at the completion reactions beside the module reports.
+
+### Name the Step a Compensating Reaction Undoes
+
+**ID:** `litespec/core/automation#name-the-step-a-compensating-reaction-undoes`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reaction
+
+**Statement:** A reaction that undoes a committed step of a multi-step process MUST name the undone use case in `compensates`, run a use case other than the one it names, and answer an event the undone use case does not raise.
+
+**Rationale:** A multi-step process commits each step before the next runs, so a later failure cannot roll the earlier steps back: each committed step needs an undo that runs only when a later step fails. Without the link, a reader sees a reaction running an undoing command and cannot tell which committed step it reverses. Running the named use case again redoes the step instead of undoing it, and answering an event the undone step raises undoes every success. Naming the undone step in `compensates` states the undo beside the reaction, with its own trigger and failure handling.
+
+**Example:** The library reserves a copy with `use-case/lending.reserve-copy`, which commits the reservation. When the later charge fails, `use-case/lending.record-charge-failure` raises `domain-event/charge.charge-failed`. The reaction `reaction/lending.release-copy-on-charge-failed` answers that event, runs `use-case/lending.release-copy`, and carries `compensates: use-case/lending.reserve-copy`, so a reader sees which committed step the release undoes.
+
+**Checked by:** `litespec model check` reports `compensation-target-invalid` (level G) for a `compensates` naming a use case that is not a command or the same use case the reaction runs, `compensation-trigger-invalid` (level G) for a compensating reaction answering an event the compensated use case lists in `raises`, and `reference-unknown` (level G) for a `compensates` naming no written record. The trigger check is a minimum: a reviewer confirms the trigger reports a later step's failure.
 
 ### Keep Validity Apart from Storage
 

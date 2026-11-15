@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.list-loans
 title: List loans
+exposure: A signed-in reader reaches this query through the library app under the read-loans permission. The list shows only that reader's own loans, so a wrong filter would show another reader's loans.
 kind: query
 access:
   grant: permission/read-loans

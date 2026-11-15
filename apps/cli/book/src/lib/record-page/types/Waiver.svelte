@@ -1,19 +1,21 @@
 <script lang="ts">
   import type { BookRecord, RecordFields } from "$lib/frame";
-  import { esc } from "$lib/frame";
+  import { book, esc } from "$lib/frame";
   import { RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
-  import { codeCls, provisionHtml } from "../page-html";
+  import { codeCls, inlineRefHtml, provisionHtml } from "../page-html";
   import { proseOf } from "../page-prose";
   import { stringField, stringList } from "../page-values";
 
-  // A waiver: its exit and consequences, what it covers, and why it holds.
+  // A waiver: its kind, exit and consequences, what it covers, and why it holds.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
+  const kind = $derived(stringField(f, "kind"));
   const exit = $derived(proseOf(r, "exit"));
   const consequences = $derived(proseOf(r, "consequences"));
+  const closedBy = $derived(stringList(f, "closedBy"));
   const paths = $derived(stringList(f, "paths"));
   const reason = $derived(stringField(f, "reason"));
   const covers = $derived(
@@ -22,6 +24,9 @@
 </script>
 
 
+{#if kind}
+  <PageSection blockKey="kind" heading="kind">{kind}</PageSection>
+{/if}
 {#if exit}
   <PageSection blockKey="exit" heading="exit"><RenderedProse html={exit} /></PageSection>
 {/if}
@@ -29,6 +34,13 @@
   <PageSection blockKey="cons" heading="consequences"><RenderedProse html={consequences} /></PageSection>
 {/if}
 <PageSection blockKey="cov" heading="covers">{@html covers}</PageSection>
+{#if closedBy.length}
+  <PageSection blockKey="closed" heading="closedBy" count={closedBy.length}>
+    <div class="flex flex-wrap gap-1">
+      {#each closedBy as c (c)}{@html inlineRefHtml(book, c)}{/each}
+    </div>
+  </PageSection>
+{/if}
 {#if paths.length}
   <PageSection blockKey="paths" heading="paths" count={paths.length}>
     <div class="flex flex-wrap gap-1">

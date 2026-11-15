@@ -1,6 +1,6 @@
 # Automations and Sagas
 
-LiteSpec models automated work in two record types. A reaction runs when an event happens. A job runs on a schedule, once, or on demand. A saga is a flow that changes several aggregates in steps, and an aggregate is one entity or one store. This decision sets how the model names these records, and how a write across several aggregates is handled. It matters because one name for two kinds of work hides which kind a team is reading.
+LiteSpec models automated work in two record types. A reaction runs when an event happens. A job runs on a schedule or once. A saga is a flow that changes several aggregates in steps, and an aggregate is one entity or one store. This decision sets how the model names these records, and how a write across several aggregates is handled. It matters because one name for two kinds of work hides which kind a team is reading.
 
 ## Context
 
@@ -23,9 +23,9 @@ The chosen option keeps two record types and an atomic write rule. The other opt
 
 A reaction and a job are two record types. A reaction carries the identifier `reaction/<module>.<name>`. It names the events it answers in `triggeredBy`, and its skip condition in `skippedWhen`. Its name follows `<verb>-<what>-on-<fact>`.
 
-A job carries the identifier `job/<module>.<name>`. It names its `kind`, which is `scheduled`, `one-off` or `manual`, and its `schedule`, `selection`, `lease`, `cursor` and `guard`. Its name follows `<verb>-<what>`, using the verb of the use case that it runs.
+A job carries the identifier `job/<module>.<name>`. It names its `kind`, which is `scheduled` or `one-off`, and its `schedule`, `selection`, `lease` and `cursor`. Its name follows `<verb>-<what>`, using the verb of the use case that it runs. Work a person starts by hand is a command whose entry point and access name who starts it, not a job.
 
-An aggregate is an entity or a store. Coordination across aggregates is not a record kind. A use case states its consistency as `atomic`, `per-record` or `compensated`. An atomic write names its group in an `atomicity` rule.
+An aggregate is an entity or a store. Coordination across aggregates is not a record kind. A use case states its consistency as `atomic` or `per-record`. An atomic write names its group in an `atomicity` rule. Compensation is a reaction with `compensates`: a reaction that undoes a committed step of a multi-step process names the step's use case in `compensates`.
 
 No workflow-engine extension exists. `decision/0030-limit-the-jobs-extension` removes the workflow-engine subjects that the jobs extension held.
 
@@ -35,7 +35,7 @@ An entry point leads from outside only. The kinds are `browser`, `api`, `webhook
 
 The provision `litespec/core/domain-model#declare-the-kind-of-every-aggregate` carries the entity and store kinds, and no coordination kind exists. The provision `litespec/core/edges#give-each-entry-point-a-kind` carries the kinds only.
 
-The provision `litespec/core/use-cases#state-the-consistency-of-every-use-case` carries the 3 consistency modes. An atomic write across aggregates cites its bound rule. A compensated write names the undo of each of its writes.
+The provision `litespec/core/use-cases#state-the-consistency-of-every-use-case` carries the 2 consistency modes. An atomic write across aggregates cites its bound rule. A reaction that undoes a committed step names the step in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states.
 
 The provision `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the entry point. The provision `litespec/core/access#grant-every-use-case-through-a-declared-grant` keeps the grant on the use case. Four provisions in the automation page carry the reaction trigger, the job kind and the two name forms.
 
@@ -45,4 +45,4 @@ The provision `litespec/core/access#authenticate-every-caller-through-a-declared
 
 ## Revisit Conditions
 
-This decision reopens when work appears that neither a reaction answering events nor a scheduled or manual job can carry. It also reopens for a multi-aggregate flow that neither an atomic write nor a compensated use case can state.
+This decision reopens when work appears that neither a reaction answering events nor a scheduled job can carry. It also reopens for a multi-step process that states and reactions with `compensates` cannot express. That condition also covers the multi-step workflow case of `decision/0030-limit-the-jobs-extension`, which reopens this decision.

@@ -160,6 +160,7 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type, fie
 | `foreign` | a link reaches into another module where only its own module may be named | `reaction-trigger-foreign` |
 | `uncarried` | a published field is carried by no field of its source | `integration-event-field-uncarried` |
 | `unexercised` | a rule is shown by no scenario that should show it | `scenario-rule-unexercised` |
+| `unhandled` | a declared trigger is answered by no handler | `reaction-trigger-unhandled` |
 | `vague` | a statement uses a word that names no act | `statement-word-vague` |
 | `wide` | a record sits higher than every record that uses it | `external-system-placement-wide` |
 | `written` | a thing the model derives is written by hand | `refusal-generic-written` |

@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.place-hold
 title: Place hold
+exposure: A signed-in reader reaches this command through the library app under the place-hold permission. A wrong hold blocks the copy for other readers.
 kind: command
 access:
   grant: permission/place-hold

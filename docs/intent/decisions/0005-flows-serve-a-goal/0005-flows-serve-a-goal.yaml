@@ -15,8 +15,8 @@ options:
     pros: A walk can serve a staff outcome and a system promise at once.
     cons: Both spine methods say one spine, and the singular shape states the rule instead of hiding it in a one-element list.
 choice: A flow serves one goal record
-consequences: "`litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for` states the sentence beside the link. Use cases serve flow steps rather than goals."
-reopenedWhen: A flow kind appears that walks toward no goal record.
+consequences: "`litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for` states the sentence beside the link. Use cases serve flow steps rather than goals. A flow sits under the product and names exactly one reason: `serves` names one `goal/` identifier, or `answers` names one `problem/` or `constraint/` identifier, each a list of exactly one identifier, as `decision/0066-name-the-record-a-flow-exists-for` states."
+reopenedWhen: A flow kind appears whose reason is neither a goal it moves nor a problem or constraint it answers.
 basedOn:
   - research/intent-hierarchy-evidence
   - research/cross-layer-trace-evidence

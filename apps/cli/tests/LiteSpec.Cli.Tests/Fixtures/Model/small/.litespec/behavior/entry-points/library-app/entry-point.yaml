@@ -4,6 +4,6 @@ records:
 - type: entry-point
   id: entry-point/library-app
   title: Library app
-  kind: browser
+  kind: api
   auth:
   - session

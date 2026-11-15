@@ -111,11 +111,7 @@ public sealed class ModelCheckTests
     {
         using var fixture = ModelFixture.Prepare("large", code);
 
-        // Planned Intent blocks only in the pull-request check, so its cases run there.
-        var environment = Severity.PlannedIntent.Contains(code)
-            ? new Dictionary<string, string> { ["CI"] = "true" }
-            : null;
-        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"], environment: environment);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
         Assert.Equal(1, result.Status);
         Assert.Contains(code, result.Output);
     }
@@ -204,12 +200,16 @@ public sealed class ModelCheckTests
             + "  \"type\": \"waiver\",\n"
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
+            + "  \"kind\": \"gap\",\n"
             + "  \"covers\": [\n"
             + string.Join(",\n", covers.Select(code => $"    \"{code}\""))
             + "\n  ],\n"
             + "  \"subject\": [\n"
             + string.Join(",\n", subject.Select(entry => $"    \"{entry}\""))
             + "\n  ],\n"
+            + "  \"closedBy\": [\n"
+            + $"    \"{subject[0]}\"\n"
+            + "  ],\n"
             + $"  \"expiresOn\": \"{expiresOn}\",\n"
             + "  \"reason\": \"Listing waits for the search index.\",\n"
             + "  \"exit\": \"The search index ships and listing loans gains its handler.\"\n"

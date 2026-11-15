@@ -21,7 +21,7 @@ The chosen option gives each link its own verb. A feature advances goals and sol
 
 ## Decision
 
-A feature's link to a goal is renamed from `serves` to `advances`. A feature's link to a problem is `solves`. Every feature names at least one problem in `solves`, and the first problem listed there is the feature's parent. Every feature names at least one goal in `advances`.
+A feature's link to a goal is renamed from `serves` to `advances`. A feature's link to a problem is `solves`. Every feature stands in `intent/features/` under the product, names at least one problem in `solves`, and names at least one goal in `advances`.
 
 ## Consequences
 

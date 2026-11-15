@@ -2,27 +2,31 @@
 
 ## Name
 
-`litespec model` checks the project model, formats record files, renders generated outputs, and answers record queries.
+`litespec model` checks the project model, formats record files, renders generated outputs, answers record queries, and reports module edges.
 
 ## Synopsis
 
 ```bash
-litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--all]
+litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--all] [--module <module>]
 litespec model format [--root <consumer>] [--check]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
+litespec model query [--root <consumer>] --search <text>
+litespec model query [--root <consumer>] --list <type> [--module <module>]
+litespec model edges [--root <consumer>] [--module <module>]
 ```
 
 ## Description
 
 The model builder reads the written records, the code marks, the routes, the tests, and the latest test run into one model, and checks it. Every finding carries the code, level, outcome, message, path, line and subject described below. The [Underneath](#underneath) section states how the model is read and how each level, layer and trace is decided.
 
-The four subcommands:
+The five subcommands:
 
-- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It runs only the findings of the layers the project claims in `layers`, in both the model checks and the consumer pass, as the finding table below states per code. It runs the consumer pass over the project file, the record pages, the glossary, and the controlled UI, and reports those findings in the same shape, so one command and one CI step hold the whole consumer. In text it lists every open blocking finding in full, then one line per finding code with its level and count ordered by level (G, then S, then A) and then by count, such as `record-invalid G 3`, and the totals line. By default the level A findings are summarized in those counts and not listed one by one; `--all` lists them. With `--format json` it writes one JSON object: the `findings` array holds every finding the run shows, and the `covered` array holds every finding a live waiver covers. With `--release` the release-readiness findings block: `use-case-unverified`. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report; it also reports every client-breaking contract change since `<ref>`: a removed result, a removed refusal code, and a changed integration event: each as a `contract-break` finding of level S, which always blocks at the level that runs it. It also reports each scenario whose proving test method changed since `<ref>` while the scenario did not, as a `proof-hash-drift` finding of level A, which never blocks.
+- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It runs only the findings of the layers the project claims in `layers`, in both the model checks and the consumer pass, as the finding table below states per code. It runs the consumer pass over the project file, the record pages, the glossary, and the controlled UI, and reports those findings in the same shape, so one command and one CI step hold the whole consumer. In text it lists every open blocking finding in full, then one line per finding code with its level and count ordered by level (G, then S, then A) and then by count, such as `record-invalid G 3`, and the totals line. By default the level A findings are summarized in those counts and not listed one by one; `--all` lists them. With `--format json` it writes one JSON object: the `findings` array holds every finding the run shows, and the `covered` array holds every finding a live waiver covers. With `--release` the release-readiness findings block: `use-case-unverified`. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report; it also reports every client-breaking contract change since `<ref>`: a removed result, a removed refusal code, and a changed integration event: each as a `contract-break` finding of level S, which always blocks at the level that runs it. It also reports each scenario whose proving test method changed since `<ref>` while the scenario did not, as a `proof-hash-drift` finding of level A, which never blocks. With `--module <module>` it prints only the findings on the records and files of that module, and the exit code follows those findings alone.
 - `format` rewrites every record file under the record roots, and the glossary file, into canonical form. With `--check` it writes nothing and lists each file that would change.
 - `render` rewrites the fenced generated regions in explanation files and documents, touching no text outside the fences, writes the `source-links` region at the end of each research and constraint explanation that declares sources, inserts or rewrites the `agent-protocol` region in `AGENTS.md` from the carried release and the project file, rewrites each marked project-scope skill copy that differs from what the carried release generates, writes `litespec-records.ts` into each React and Svelte frontend frame, and writes the UI source lock beside the shared package.
-- `query` prints one record with its links in both directions, showing its identifier and its folder path. Agents use it to load a record's context.
+- `query` prints one record with its links in both directions, showing its identifier and its folder path. Agents use it to load a record's context. With `--search <text>` it lists the written records whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path: an exact identifier match first, then other identifier matches, then title, summary and statement matches, each group by identifier. With `--list <type>` it lists every written record of the type, such as `use-case`, one line each with identifier, title and path, by identifier, and with `--module <module>` only those of one module. With `--search` or `--list`, no match prints nothing and exits 0.
+- `edges` prints, per module, the written record links to other modules: the outgoing and incoming counts with counts per link kind and per other module, then every pair of modules that link each other both ways. With `--module <module>` it prints only that module with the mutual pairs it belongs to. It is read-only, from the built model.
 
 With `--format json`, `check` writes one JSON object, and each finding in it carries these fields. A continuous integration job uses `outcome` to decide what blocked the run, because the level alone does not decide it.
 
@@ -41,7 +45,7 @@ A finding that a live waiver covers is reported as covered and exits zero, as th
 
 The [finding codes](../reference/finding-codes.md) page holds the table of every code, with its check level, its record layer, its trace, the extension that adds it, its meaning and its fix. The page is generated from the code table the tool reads, so this page states no code.
 
-The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `alert-inventory`, `runbook-index`, and `operations-log` in explanation files and documents, `source-links` at the end of each research and constraint explanation that declares sources, one Markdown link definition for each source with its date, `decision-index` in the README of a decisions folder (the folder's decisions grouped by `kind`, then by the concern their followers compute), `waiver-index` in the README of a waivers folder (gaps by `expiresOn`, then permanent waivers, with the provisions each covers), and `agent-protocol` in `AGENTS.md` at the consumer root. The `agent-protocol` region carries the release, size, shape, stacks, layers, extensions, selection key, and command from the project file. When `AGENTS.md` holds no region, `render` inserts it after the first heading, or at the end, and when the file is missing, `render` writes it from the template. It rewrites each project-scope skill copy that carries the generated marker and differs from what the carried release generates, holding exactly the carried files; a copy without the marker is left alone, and a missing copy is never created. Global copies live outside the project and stay outside the render. It also writes `litespec-records.ts` into every React and Svelte frontend frame: the use-case and screen ids of that frontend's own entry points with the `proves` helper browser tests annotate with.
+The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `alert-inventory`, `runbook-index`, and `operations-log` in explanation files and documents, `source-links` at the end of each research and constraint explanation that declares sources, one Markdown link definition for each source with its date, `decision-index` in the README of a decisions folder (the folder's decisions grouped by `kind`, then by the concern their followers compute), `waiver-index` in the README of the product `governance/waivers/` folder (every waiver of the product including the module waivers, with a Module column; gaps by `expiresOn` with their `closedBy`, then lasting waivers with their consequences), and `agent-protocol` in `AGENTS.md` at the consumer root. The `agent-protocol` region carries the release, size, shape, stacks, layers, extensions, selection key, and command from the project file. When `AGENTS.md` holds no region, `render` inserts it after the first heading, or at the end, and when the file is missing, `render` writes it from the template. It rewrites each project-scope skill copy that carries the generated marker and differs from what the carried release generates, holding exactly the carried files; a copy without the marker is left alone, and a missing copy is never created. Global copies live outside the project and stay outside the render. It also writes `litespec-records.ts` into every React and Svelte frontend frame: the use-case and screen ids of that frontend's own entry points with the `proves` helper browser tests annotate with.
 
 It writes the UI source lock at `ui.package.sourceLock` when the project declares a shared package and the lock file exists. Each component's `digest` covers its paths: the digest of its one path, or the SHA-256 of its paths' digests joined by newlines in recorded order, the `preset` is copied from the manifest baseline for the package's platform, and `cli` is the manifest pin of that platform's CLI. The team's entries, the `registry`, the `formatter` and the `generator` stay as written. Render never creates the lock, and a lock whose text is already current is left byte for byte as it was.
 
@@ -49,7 +53,7 @@ It writes the UI source lock at `ui.package.sourceLock` when the project declare
 
 | Argument | Required | Effect |
 |:---|:---|:---|
-| `<id>` | for `query` | Prints the record with this identifier and its links both ways. |
+| `<id>` | for `query` without `--search` or `--list` | Prints the record with this identifier and its links both ways. |
 
 ## Options
 
@@ -61,6 +65,9 @@ It writes the UI source lock at `ui.package.sourceLock` when the project declare
 | `--since <ref>` | off | Only `check` reads it. Blocks only on findings about records and code changed since `<ref>`; older findings report. Also reports every removed result, removed refusal code and changed integration event since `<ref>` as a `contract-break` finding. Also reports each scenario whose proving test method changed since `<ref>` while the scenario did not, as an advisory `proof-hash-drift` finding. |
 | `--all` | off | Only `check` reads it. In text, lists every level A finding one by one. Without it, the level A findings are summarized by code in the counts. In JSON every finding is always listed. |
 | `--check` | off | Only `format` reads it. Writes nothing, lists each file that would change, and exits 1 when any would. |
+| `--search <text>` | off | Only `query` reads it. Lists the written records whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path. An exact identifier match prints first, then other identifier matches, title, summary and statement matches; each group orders by identifier. Prints nothing and exits 0 when nothing matches. |
+| `--list <type>` | off | Only `query` reads it. Lists every written record of the type, one line each with identifier, title and path, ordered by identifier. With `--module` it lists only the records of that module. An unknown type is a usage error. |
+| `--module <module>` | off | Only `check`, `query --list` and `edges` read it. `check` prints only the findings on the records and files of the module, and the exit code follows those findings alone. `edges` prints only that module with the mutual pairs it belongs to. An unknown module is a usage error. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes
@@ -68,8 +75,8 @@ It writes the UI source lock at `ui.package.sourceLock` when the project declare
 | Code | Meaning |
 |:---|:---|
 | `0` | The command finished with no open blocking finding. |
-| `1` | `check` found an open blocking finding or an expired waiver, `query` found no record with the `id`, `format --check` found a file it would change, or the run failed. |
-| `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, or `format` found a file that does not parse. |
+| `1` | `check` found an open blocking finding or an expired waiver, `query` found no record with the `id`, `format --check` found a file it would change, or the run failed. With `--search` or `--list`, no match prints nothing and exits 0. |
+| `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, the `--list` type or `--module` name is unknown, or `format` found a file that does not parse. |
 
 ## Examples
 
@@ -103,6 +110,30 @@ Print one record with its links:
 litespec model query --root ../consumer use-case/orders.cancel-order
 ```
 
+Find the records that mention a word:
+
+```bash
+litespec model query --root ../consumer --search "receipt threshold"
+```
+
+List every use case of one module:
+
+```bash
+litespec model query --root ../consumer --list use-case --module spending
+```
+
+Check only one module:
+
+```bash
+litespec model check --root ../consumer --module spending
+```
+
+Report the links between modules:
+
+```bash
+litespec model edges --root ../consumer
+```
+
 Check for release, with the release-readiness findings blocking:
 
 ```bash
@@ -132,3 +163,9 @@ Every finding code also states the record layer it governs, in the `layer` colum
 A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per command run that builds the model, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-missing` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `.litespec/project.yaml`. It reads shared provisions from the release the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`. A JUnit `testcase` proves a Behavior scenario directly by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value: `<properties><property name="litespec.proves" value="scenario/borrow-copy.borrowing-an-available-copy-succeeds" /></properties>`. The case proves each id it names with the same rules as a `proves` mark on a test method, so a runner whose steps carry no mark, or a stack with no code reader, still proves its scenarios. A check `--since` base is read through an archive into a temporary folder, which is removed after the check. Nothing beneath it is separately runnable.
+
+A search or list line holds the identifier, the title and the file path relative to the consumer root, as `<id> - <title> (<path>)`, written records only.
+
+A finding belongs to a module when its subject record sits under that module's folder, else when its file does. A finding on no record and no module file belongs to no module, so a module check omits it.
+
+Edges read the written record links the model resolves: a link from a record under one module folder to a record under another counts once under its field, and an effect entry counts under its verb. A link whose target names no record is skipped. Kind lines order by kind, module splits by module, modules by name, and mutual pairs by name.

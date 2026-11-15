@@ -24,6 +24,8 @@ import type {
   Manifest,
   OutlineKind,
   OutlineNode,
+  ProductArea,
+  ProductAreas,
   ProofState,
   SearchRow,
   SecurityItem,
@@ -731,6 +733,32 @@ function parseIntentCoverageEntry(raw: unknown): IntentCoverageEntry {
 export function parseIntentCoverageEntries(raw: unknown): IntentCoverageEntry[] {
   if (Array.isArray(raw) === false) fail("the Intent coverage entries need a list");
   return raw.map((item) => parseIntentCoverageEntry(item));
+}
+
+function parseProductArea(raw: unknown): ProductArea {
+  if (isRecord(raw) === false) fail("a product area needs an object");
+  return {
+    id: reqString(raw, "id", "a product area"),
+    title: reqString(raw, "title", "a product area"),
+    features: reqStringArray(raw["features"], "a product area"),
+    flows: reqStringArray(raw["flows"], "a product area"),
+  };
+}
+
+/** The product-areas shard: one entry per Behavior module, with the features and flows no module reaches. */
+export function parseProductAreas(raw: unknown): ProductAreas {
+  if (isRecord(raw) === false) fail("the product areas need an object");
+  const modulesValue = raw["modules"];
+  const unfulfilledValue = raw["unfulfilled"];
+  if (Array.isArray(modulesValue) === false) fail("the product areas need modules");
+  if (isRecord(unfulfilledValue) === false) fail("the product areas need unfulfilled features and flows");
+  return {
+    modules: modulesValue.map((item) => parseProductArea(item)),
+    unfulfilled: {
+      features: reqStringArray(unfulfilledValue["features"], "the unfulfilled product area"),
+      flows: reqStringArray(unfulfilledValue["flows"], "the unfulfilled product area"),
+    },
+  };
 }
 
 function parseCoverageCounts(value: unknown, what: string): { reached: number; total: number } | undefined {

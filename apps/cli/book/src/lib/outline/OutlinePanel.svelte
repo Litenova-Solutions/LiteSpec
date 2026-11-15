@@ -43,6 +43,17 @@
     }
   });
 
+  let loadingAreas = false;
+  $effect(() => {
+    // The product-area grouping loads its shard when the reader switches to
+    // it, and again after a rebuild forgets it.
+    void book.areasRev;
+    if (book.intentGrouping === "product-area" && !book.productAreas && !loadingAreas) {
+      loadingAreas = true;
+      void book.ensureProductAreas().finally(() => { loadingAreas = false; });
+    }
+  });
+
   let scrollEl = $state<HTMLDivElement | null>(null);
   const virtStore = createVirtualizer<HTMLDivElement, HTMLElement>({
     count: 0,

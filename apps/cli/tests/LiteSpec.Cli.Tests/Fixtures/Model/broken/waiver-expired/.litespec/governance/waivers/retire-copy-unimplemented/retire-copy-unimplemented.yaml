@@ -1,6 +1,7 @@
 type: waiver
 id: waiver/retire-copy-unimplemented
 title: Retire copy unimplemented
+kind: gap
 covers:
   - use-case-unimplemented
 subject:
@@ -8,3 +9,5 @@ subject:
 reason: Retirement waits for the weeding policy.
 exit: Retiring a copy has no handler yet. The gap closes when the weeding policy lands.
 expiresOn: 2020-01-01
+closedBy:
+- use-case/lending.retire-copy

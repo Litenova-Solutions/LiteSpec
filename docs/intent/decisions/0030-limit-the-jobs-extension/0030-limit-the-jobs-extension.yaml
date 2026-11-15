@@ -13,4 +13,4 @@ options:
     cons: "Teams that run scheduled work lose the lease, cursor and misfire rules they still need."
 choice: "Keep scheduled and manual jobs, occurrences, time rules, queues and reports"
 consequences: "The extension keeps 59 provisions, down from 73, for scheduled and manual jobs, occurrences, time rules, human-cleared queues and reports. The ingest pipeline and the workflow-engine subjects leave with their 14 provisions. The record schema has no saga kind, and no check reads engine steps. The removed IDs appear in the 5.0.0 provision diff."
-reopenedWhen: "A team must prove a multi-step workflow that no record can state, or an ingest pipeline that a product must prove."
+reopenedWhen: "An ingest pipeline that a product must prove reopens this decision. A multi-step workflow that no record can state reopens decision/0015-automations-and-sagas, whose revisit condition covers it."

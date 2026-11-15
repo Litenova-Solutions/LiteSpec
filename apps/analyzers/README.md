@@ -6,7 +6,7 @@ You maintain the Roslyn analyzers in `apps/analyzers/`. You add a rule, change w
 
 ## What It Is
 
-`LiteSpec.Analyzers` is a Roslyn analyzer package that checks a .NET application against the LiteSpec standard: layer boundaries, Domain modeling, naming, and traceability from code to records. It reports 47 diagnostics in five categories: `LiteSpec.Domain` (`LS1001` to `LS1013`, Domain only), `LiteSpec.Layers` (`LS2001` and `LS2003` to `LS2022`, Application, Infrastructure, WebApi, and Worker as stated per rule), `LiteSpec.Style` (`LS3001` and `LS3004`, production files), `LiteSpec.Tests` (`LS4001`, test files only), and `LiteSpec.Traceability` (`LS5001` to `LS5009`, `LS5011`, and `LS5012`, every layer as stated per rule). Every diagnostic is an error by default, names the provision it enforces, and links to that provision on `litespec.dev` through its help link. The package ships the analyzer assembly beside the assemblies it loads at analysis time: the project sets `DevelopmentDependency` to `true`, `IncludeBuildOutput` to `false`, and packs `LiteSpec.Analyzers.dll`, `LiteSpec.Model.dll`, `LiteSpec.Model.Roslyn.dll`, and `LiteSpec.Analyzers.CodeFixes.dll` under `analyzers/dotnet/cs`, with `build/LiteSpec.Analyzers.props` under `build`, so consumers reference it with `PrivateAssets="all"` and it never becomes a runtime dependency. The user-facing rule list lives in the package README at `apps/analyzers/src/LiteSpec.Analyzers/README.md`, and the full per-rule reference with breach and compliant examples lives in one reference page per rule under the [Analyzer rules overview](../../docs/analyzers/rules/README.md). Read both before you change what a rule reports.
+`LiteSpec.Analyzers` is a Roslyn analyzer package that checks a .NET application against the LiteSpec standard: layer boundaries, Domain modeling, naming, and traceability from code to records. It reports 49 diagnostics in five categories: `LiteSpec.Domain` (`LS1001` to `LS1013`, Domain only), `LiteSpec.Layers` (`LS2001` and `LS2003` to `LS2022`, Application, Infrastructure, WebApi, and Worker as stated per rule), `LiteSpec.Style` (`LS3001` to `LS3004`, production files), `LiteSpec.Tests` (`LS4001`, test files only), and `LiteSpec.Traceability` (`LS5001` to `LS5009`, `LS5011`, and `LS5012`, every layer as stated per rule). Every diagnostic is an error by default, names the provision it enforces, and links to that provision on `litespec.dev` through its help link. The package ships the analyzer assembly beside the assemblies it loads at analysis time: the project sets `DevelopmentDependency` to `true`, `IncludeBuildOutput` to `false`, and packs `LiteSpec.Analyzers.dll`, `LiteSpec.Model.dll`, `LiteSpec.Model.Roslyn.dll`, and `LiteSpec.Analyzers.CodeFixes.dll` under `analyzers/dotnet/cs`, with `build/LiteSpec.Analyzers.props` under `build`, so consumers reference it with `PrivateAssets="all"` and it never becomes a runtime dependency. The user-facing rule list lives in the package README at `apps/analyzers/src/LiteSpec.Analyzers/README.md`, and the full per-rule reference with breach and compliant examples lives in one reference page per rule under the [Analyzer rules overview](../../docs/analyzers/rules/README.md). Read both before you change what a rule reports.
 
 ## Quick Start
 
@@ -46,20 +46,20 @@ The package needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later. That floo
 |:---|:---|
 | `src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj` | Target framework, Roslyn version, analyzer packaging, release-tracking files, and warning suppressions. |
 | `src/LiteSpec.Analyzers/README.md` | Package README that ships on NuGet. Its Rules table is the user-facing rule list. |
-| `src/LiteSpec.Analyzers/AnalyzerReleases.Unshipped.md` | The rules the release being prepared adds: `LS2021` and `LS2022`. Every other rule the package reports ships in a release. |
-| `src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md` | Shipped rules: the 45 rules of Release 4.0.0. |
+| `src/LiteSpec.Analyzers/AnalyzerReleases.Unshipped.md` | The rules the release being prepared adds: none. Every rule the package reports ships in a release. |
+| `src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md` | Shipped rules: the 45 rules of Release 4.0.0 and the 4 rules of Release 7.0.0. |
 | `src/LiteSpec.Analyzers/build/LiteSpec.Analyzers.props` | Makes the `LiteSpecLayer` and `LiteSpecLayout` MSBuild properties visible to the analyzers through `CompilerVisibleProperty`, and sets the layout from the selected extensions. It passes the project file's `layers` as `LiteSpecImplementation` and `LiteSpecProof` (`litespec`, `own`, or empty when the layer is not claimed); a file with no `layers` reads as `litespec` for both. A project sets either property itself to override the file. |
 | `src/LiteSpec.Analyzers/LayerMap/FileScope.cs` | Decides whether a rule applies to one file, from the rule's layer predicate over the file's layer. |
 | `src/LiteSpec.Analyzers/LayerMap/CodeMap.cs` | Maps every source file of one compilation to its layer, module, and use case, reaction, or job folder. |
 | `src/LiteSpec.Analyzers/LayerMap/References.cs` | Resolves the type one written name refers to, skipping names an enclosing construct covers. |
 | `../model/src/LiteSpec.Model/Layers/` | The shared layer surface the analyzers, the CLI, and the checks read: the `ArchitectureLayer` and `BackendLayout` enums and `ArchitectureLayerResolver`, which reads a file's layer from `LiteSpecLayer`, the assembly name, the nearest layer folder, or the file's role suffix. |
 | `src/LiteSpec.Analyzers/Rules/LayerAnalyzer.cs` | Base class of the layer-gated rules: gates a declared or layer-projects compilation once, and registers the rule for per-file gating under the module layout. `LayerNameAnalyzer` (`LS2017`) inherits `DiagnosticAnalyzer` directly. |
-| `src/LiteSpec.Analyzers/Rules/Descriptors.cs` | All 45 analyzer descriptors with IDs, categories, messages, provisions, and help links. The other 2 of the 47 diagnostics, `LS5009` and `LS5012`, live in `Generation/GeneratorDiagnostics.cs`. |
+| `src/LiteSpec.Analyzers/Rules/Descriptors.cs` | All 47 analyzer descriptors with IDs, categories, messages, provisions, and help links. The other 2 of the 49 diagnostics, `LS5009` and `LS5012`, live in `Generation/GeneratorDiagnostics.cs`. |
 | `src/LiteSpec.Analyzers/Generation/GeneratorDiagnostics.cs` | The generator diagnostics for `LS5009` and `LS5012` (three descriptors: the permission and role forms of `LS5009`, and `LS5012`) with IDs, messages, provisions, and help links. |
 | `src/LiteSpec.Analyzers/Rules/Provision.cs` | Provision IDs and help links, pinned to release `7.0.0`. |
 | `src/LiteSpec.Analyzers/Rules/Domain/` | 11 analyzers for `LS1001` to `LS1013`. |
 | `src/LiteSpec.Analyzers/Rules/Layers/` | 20 analyzers for `LS2001` and `LS2003` to `LS2022`, by the page each cites: `Application/` (handlers, the command pipeline, repositories, the message and event mediators), `Architecture/` (layer direction, module and slice boundaries, controllers, visibility), and `Naming/` (the naming rules). |
-| `src/LiteSpec.Analyzers/Rules/Style/` | 2 analyzers for `LS3001` and `LS3004`. |
+| `src/LiteSpec.Analyzers/Rules/Style/` | 3 analyzers for `LS3001` to `LS3004`. |
 | `src/LiteSpec.Analyzers/Rules/Tests/` | 1 analyzer for `LS4001`. |
 | `src/LiteSpec.Analyzers/Rules/Traceability/` | 5 analyzers for `LS5001` to `LS5008`. |
 | `src/LiteSpec.Analyzers/Generation/` | The source generator, which emits `LS5009`, `LS5011`, and `LS5012` beside the code it writes. |
@@ -110,7 +110,8 @@ The layer-gated rules inherit `LayerAnalyzer` (the traceability rules through `T
 | `LS2020` | `ModuleBoundaryAnalyzer` | Every layer |
 | `LS2021` | `MessageSentOutsideEntryPointAnalyzer` | Domain, Application, Infrastructure |
 | `LS2022` | `EventPublishedByUserCodeAnalyzer` | Every layer |
-| `LS3001` | `AsyncMethodAnalyzer` | All production projects |
+| `LS3001`, `LS3002` | `AsyncMethodAnalyzer` | All production projects |
+| `LS3003` | `FileTypeNameAnalyzer` | All production projects |
 | `LS3004` | `SealedClassAnalyzer` | All production projects |
 | `LS4001` | `TestAssertionAnalyzer` | Test |
 | `LS5001` | `MarkPresenceAnalyzer` | Every layer |
@@ -126,7 +127,7 @@ Each analyzer registers the narrowest action its rule allows: a symbol action fo
 
 `Descriptors.Create` builds every descriptor the same way: severity `Error`, enabled by default, the provision ID in the description as `Provision: litespec/<page>#<slug>` and in the custom tags, and the help link as `https://litespec.dev/7.0.0/<page>/#<slug>` from `Provision.HelpLink`. To cite a rule you quote its descriptor line and its `Provision.Of` line, which together name the category, the message, and the provision.
 
-Release tracking follows the Roslyn convention. `AnalyzerReleases.Shipped.md` lists the 45 rules of Release 4.0.0, each with category `LiteSpec.Domain`, `LiteSpec.Layers`, `LiteSpec.Style`, `LiteSpec.Tests`, or `LiteSpec.Traceability` and severity `Error`. `AnalyzerReleases.Unshipped.md` holds the rules the release being prepared adds, `LS2021` and `LS2022`, until that release is tagged. When you ship a rule, you move its row from the unshipped file to the shipped file under a release heading, as the release-tracking help linked at the top of each file describes.
+Release tracking follows the Roslyn convention. `AnalyzerReleases.Shipped.md` lists the 45 rules of Release 4.0.0 and the 4 rules of Release 7.0.0, each with category `LiteSpec.Domain`, `LiteSpec.Layers`, `LiteSpec.Style`, `LiteSpec.Tests`, or `LiteSpec.Traceability` and severity `Error`. `AnalyzerReleases.Unshipped.md` holds the rules the release being prepared adds, until that release is tagged; it currently holds none. When you ship a rule, you move its row from the unshipped file to the shipped file under a release heading, as the release-tracking help linked at the top of each file describes.
 
 The project sets `EnforceExtendedAnalyzerRules` to `true`, so the Roslyn meta-analyzers check the rules themselves. It suppresses `RS1012` and `RS1013` in `NoWarn` because `LayerAnalyzer` registers each rule from its compilation-start action and hands that context to `Register`, which the meta-analyzer cannot see. It also suppresses `NU5128` because the package ships an analyzer with no `lib` folder. `TreatWarningsAsErrors` and `GenerateDocumentationFile` stay on, so analyzer code ships with XML documentation and a warning fails the build.
 

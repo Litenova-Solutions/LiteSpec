@@ -299,7 +299,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-review-bypass.yaml",
-            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"]}""");
+            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","kind":"lasting","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"],"consequences":"The export runs outside review."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'reason'");
     }
 
@@ -312,7 +312,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-unimplemented.yaml",
-            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01"}""");
+            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","closedBy":["use-case/orders.cancel-order"],"expiresOn":"2027-01-01"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'exit'");
     }
 
@@ -325,11 +325,11 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-review-bypass.yaml",
-            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","expiresOn":"2027-01-01","exit":"The export moves into review."}""");
+            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","kind":"gap","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","closedBy":["use-case/orders.cancel-order"],"expiresOn":"2027-01-01","exit":"The export moves into review."}""");
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-unimplemented.yaml",
-            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","exit":"The export ships before the date.","expiresOn":"2027-01-01"}""");
+            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","closedBy":["use-case/orders.cancel-order"],"exit":"The export ships before the date.","expiresOn":"2027-01-01"}""");
         AssertAbsent(RunConsumer(folder.Path), "requires an H2");
     }
 

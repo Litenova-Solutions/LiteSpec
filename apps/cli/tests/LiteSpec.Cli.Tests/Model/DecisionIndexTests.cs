@@ -97,10 +97,10 @@ public sealed class DecisionIndexTests
         Assert.DoesNotContain("decision-unimplemented", local);
     }
 
-    /// <summary>Waiver Index Groups Gaps Before Permanent Ordered By Expires.</summary>
+    /// <summary>Waiver Index Groups Gaps Before Lasting Ordered By Expires.</summary>
     /// <proves>litespec/core/model#render-generated-regions-from-the-model</proves>
     [Fact]
-    public void WaiverIndexGroupsGapsBeforePermanentOrderedByExpires()
+    public void WaiverIndexGroupsGapsBeforeLastingOrderedByExpires()
     {
         using var temp = TestCli.Temp("model");
         WriteProject(temp.Path);
@@ -110,18 +110,22 @@ public sealed class DecisionIndexTests
             config,
             TestModel.Record("waiver", "waiver/polish-unfinished", WaiverFile(config, "polish-unfinished"), WaiverJson("Polish Unfinished", ["use-case-unimplemented"], "2027-06-01")),
             TestModel.Record("waiver", "waiver/screens-unwatched", WaiverFile(config, "screens-unwatched"), WaiverJson("Screens Unwatched", ["quality-alert-missing"], "2026-01-01")),
+            TestModel.Record("waiver", "waiver/lending-hold-queue", ModuleWaiverFile(config, "lending", "lending-hold-queue"), WaiverJson("Lending Hold Queue", ["intent-unreached"], "2028-01-01")),
             TestModel.Record("waiver", "waiver/weekend-export", WaiverFile(config, "weekend-export"), WaiverJson("Weekend Export", ["litespec/quality/security#authorize-each-target-resource"], null)));
 
         GeneratedRegions.Render(model);
         var rendered = File.ReadAllText(readme);
 
         Assert.Contains("### Gaps", rendered);
-        Assert.Contains("### Permanent", rendered);
-        Assert.True(rendered.IndexOf("### Gaps", StringComparison.Ordinal) < rendered.IndexOf("### Permanent", StringComparison.Ordinal), rendered);
+        Assert.Contains("### Lasting", rendered);
+        Assert.True(rendered.IndexOf("### Gaps", StringComparison.Ordinal) < rendered.IndexOf("### Lasting", StringComparison.Ordinal), rendered);
         Assert.True(rendered.IndexOf("Screens Unwatched", StringComparison.Ordinal) < rendered.IndexOf("Polish Unfinished", StringComparison.Ordinal), rendered);
         Assert.Contains("[Screens Unwatched](screens-unwatched/screens-unwatched.yaml)", rendered);
-        Assert.Contains("| 2026-01-01 | `quality-alert-missing` |", rendered);
+        Assert.Contains("| - | 2026-01-01 | `quality-alert-missing` | `use-case/spending.export-expenses` |", rendered);
         Assert.Contains("`litespec/quality/security#authorize-each-target-resource`", rendered);
+        Assert.Contains("The weekend export runs outside review.", rendered);
+        Assert.Contains("[Lending Hold Queue](../modules/lending/waivers/lending-hold-queue/lending-hold-queue.yaml)", rendered);
+        Assert.Contains("| lending | 2028-01-01 | `intent-unreached` |", rendered);
     }
 
     /// <summary>Decision Index Lists Only Its Own Folder.</summary>
@@ -226,17 +230,19 @@ public sealed class DecisionIndexTests
         + (basedOn is null ? "" : ", \"basedOn\": [\"" + basedOn + "\"]")
         + "}";
 
-    /// <summary>A waiver naming its title, covers and expiry.</summary>
+    /// <summary>A waiver naming its title, covers and kind: a gap with its expiry and closing record, or a lasting waiver with its consequences.</summary>
     /// <param name="title">The waiver title.</param>
     /// <param name="covers">The codes, provisions or pages the waiver covers.</param>
-    /// <param name="expiresOn">The expiry date, or null for a lasting waiver.</param>
+    /// <param name="expiresOn">The expiry date of a gap, or null for a lasting waiver.</param>
     /// <returns>The waiver fields as JSON.</returns>
     static string WaiverJson(string title, string[] covers, string? expiresOn) =>
         "{\"title\": \"" + title + "\""
         + ", \"covers\": [" + string.Join(", ", covers.Select(cover => "\"" + cover + "\"")) + "]"
         + ", \"subject\": [\"use-case/spending.export-expenses\"]"
         + ", \"reason\": \"Export waits for the finance file format.\""
-        + (expiresOn is null ? "" : ", \"exit\": \"The gap closes when the format lands.\", \"expiresOn\": \"" + expiresOn + "\"")
+        + (expiresOn is null
+            ? ", \"kind\": \"lasting\", \"consequences\": \"The weekend export runs outside review.\""
+            : ", \"kind\": \"gap\", \"closedBy\": [\"use-case/spending.export-expenses\"], \"exit\": \"The gap closes when the format lands.\", \"expiresOn\": \"" + expiresOn + "\"")
         + "}";
 
     /// <summary>A decision file under the product implementation decisions folder.</summary>
@@ -252,4 +258,12 @@ public sealed class DecisionIndexTests
     /// <returns>The full path to the waiver file.</returns>
     static string WaiverFile(ConsumerConfig config, string name) =>
         Path.Combine(config.Root, ".litespec", "governance", "waivers", name, $"{name}.yaml");
+
+    /// <summary>A waiver file under a module waivers folder, in its own folder.</summary>
+    /// <param name="config">The consumer config carrying the root folder.</param>
+    /// <param name="module">The module folder name.</param>
+    /// <param name="name">The waiver name, which names its folder and file.</param>
+    /// <returns>The full path to the waiver file.</returns>
+    static string ModuleWaiverFile(ConsumerConfig config, string module, string name) =>
+        Path.Combine(config.Root, ".litespec", "governance", "modules", module, "waivers", name, $"{name}.yaml");
 }

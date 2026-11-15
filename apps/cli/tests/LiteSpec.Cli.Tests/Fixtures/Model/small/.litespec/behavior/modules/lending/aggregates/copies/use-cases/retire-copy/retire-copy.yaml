@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.retire-copy
 title: Retire copy
+exposure: A signed-in librarian reaches this command through the library app under the manage-copies permission. A wrong retirement removes a copy readers can still borrow.
 kind: command
 access:
   grant: permission/manage-copies

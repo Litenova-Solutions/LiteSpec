@@ -405,6 +405,12 @@ $defs:
         - eventual
       within:
         $ref: '#/$defs/isoDuration'
+      decidedBy:
+        anyOf:
+        - $ref: '#/$defs/useCaseId'
+        - $ref: '#/$defs/aggregateId'
+        x-reads-as: is decided by
+        x-read-back-as: decides
     allOf:
     - if:
         required:
@@ -415,6 +421,16 @@ $defs:
       then:
         required:
         - within
+    - if:
+        required:
+        - mode
+        properties:
+          mode:
+            const: immediate
+      then:
+        not:
+          required:
+          - decidedBy
   contractValueType:
     enum:
     - text
@@ -3053,6 +3069,10 @@ $defs:
         x-read-back-as: is triggered by
       skippedWhen:
         $ref: '#/$defs/nonEmptyString'
+      compensates:
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: compensates
+        x-read-back-as: is compensated by
       effects:
         type: array
         minItems: 1
@@ -3553,6 +3573,7 @@ $defs:
     - type
     - id
     - title
+    - kind
     - covers
     - reason
     properties:
@@ -3564,6 +3585,10 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       summary:
         $ref: '#/$defs/nonEmptyString'
+      kind:
+        enum:
+        - gap
+        - lasting
       terms:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
@@ -3599,6 +3624,10 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       expiresOn:
         $ref: '#/$defs/isoDate'
+      closedBy:
+        $ref: '#/$defs/waiverSubjectArray'
+        x-reads-as: is closed by
+        x-read-back-as: closes
     allOf:
     - anyOf:
       - required:
@@ -3607,10 +3636,34 @@ $defs:
         - paths
     - if:
         required:
-        - expiresOn
+        - kind
+        properties:
+          kind:
+            const: gap
       then:
         required:
+        - expiresOn
         - exit
+        - closedBy
+    - if:
+        required:
+        - kind
+        properties:
+          kind:
+            const: lasting
+      then:
+        allOf:
+        - required:
+          - consequences
+        - not:
+            required:
+            - expiresOn
+        - not:
+            required:
+            - exit
+        - not:
+            required:
+            - closedBy
   permissionSetPage:
     type: object
     additionalProperties: false

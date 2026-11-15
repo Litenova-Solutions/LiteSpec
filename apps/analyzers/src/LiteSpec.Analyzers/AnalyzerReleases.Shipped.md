@@ -61,3 +61,5 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 LS2021 | LiteSpec.Layers | Error | Descriptors
 LS2022 | LiteSpec.Layers | Error | Descriptors
+LS3002 | LiteSpec.Style | Error | Descriptors
+LS3003 | LiteSpec.Style | Error | Descriptors

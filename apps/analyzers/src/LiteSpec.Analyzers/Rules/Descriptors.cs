@@ -59,6 +59,10 @@ internal static class Descriptors
     private static readonly Provision AsyncNames = Provision.Of("workspace/naming", "name-asynchronous-operations-completely");
     /// <summary>The provision the related descriptors enforce: keep implementation style consistent (litespec/backend/dotnet/naming#keep-implementation-style-consistent).</summary>
     private static readonly Provision ImplementationStyle = Provision.Of("backend/dotnet/naming", "keep-implementation-style-consistent");
+    /// <summary>The provision the related descriptors enforce: put the cancellation token last (litespec/backend/dotnet/naming#put-the-cancellation-token-last).</summary>
+    private static readonly Provision CancellationTokenLast = Provision.Of("backend/dotnet/naming", "put-the-cancellation-token-last");
+    /// <summary>The provision the related descriptors enforce: match C# files and primary types (litespec/backend/dotnet/naming#match-c-files-and-primary-types).</summary>
+    private static readonly Provision FileTypeNames = Provision.Of("backend/dotnet/naming", "match-c-files-and-primary-types");
     /// <summary>The provision the related descriptors enforce: use architectural suffixes (litespec/workspace/naming#use-architectural-suffixes).</summary>
     private static readonly Provision RoleSuffixes = Provision.Of("workspace/naming", "use-architectural-suffixes");
     /// <summary>The provision the related descriptors enforce: name result parts after their result (litespec/workspace/naming#name-result-parts-after-their-result).</summary>
@@ -298,6 +302,18 @@ internal static class Descriptors
         "Asynchronous method name lacks Async",
         "Method '{0}' returns '{1}' and must end in 'Async'",
         "A method returning Task or ValueTask ends in Async.");
+
+    /// <summary>The LS3002 descriptor: CancellationToken is not the last parameter.</summary>
+    public static readonly DiagnosticDescriptor LS3002 = Create("LS3002", StyleCategory, CancellationTokenLast,
+        "CancellationToken is not the last parameter",
+        "Method '{0}' must take 'CancellationToken cancellationToken' as its last parameter",
+        "A CancellationToken parameter sits last, or second to last before a params array, named cancellationToken.");
+
+    /// <summary>The LS3003 descriptor: File does not match its primary type.</summary>
+    public static readonly DiagnosticDescriptor LS3003 = Create("LS3003", StyleCategory, FileTypeNames,
+        "File does not match its primary type",
+        "Type '{0}' is not the primary type of file '{1}'",
+        "A C# file contains one primary top-level type and takes that type's exact name.");
 
     /// <summary>The LS3004 descriptor: Concrete class is not sealed.</summary>
     public static readonly DiagnosticDescriptor LS3004 = Create("LS3004", StyleCategory, ImplementationStyle,

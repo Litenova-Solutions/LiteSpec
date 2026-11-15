@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Links;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -9,7 +10,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model;
 
 /// <summary>
-///     Prints one record with its links in both directions.
+///     Prints one record with its links in both directions, and lists records by text or by type.
 /// </summary>
 /// <follows>litespec/core/agent#select-task-context</follows>
 static class RecordQuery
@@ -98,6 +99,78 @@ static class RecordQuery
         };
 
         return CliJson.Serialize(query);
+    }
+
+    /// <summary>
+    ///     Finds the written records whose identifier, title, summary or statement holds the text,
+    ///     case-insensitive. An exact identifier match comes first, then other identifier matches,
+    ///     then title, summary and statement matches; each group orders by identifier.
+    /// </summary>
+    /// <param name="model">The built project model to search.</param>
+    /// <param name="text">The text to find in the records.</param>
+    /// <returns>The matching records in print order.</returns>
+    public static IReadOnlyList<Record> Search(ProjectModel model, string text) =>
+        model.Records
+            .Where(record => !record.Derived && record.Id.Length > 0 && Rank(record, text) >= 0)
+            .OrderBy(record => Rank(record, text))
+            .ThenBy(record => record.Id, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>Lists the written records of the type, optionally only those of one module, by identifier.</summary>
+    /// <param name="model">The built project model to list from.</param>
+    /// <param name="type">The record type to list, such as <c>use-case</c>.</param>
+    /// <param name="module">The module to keep, or null for every module.</param>
+    /// <returns>The records of the type in identifier order.</returns>
+    public static IReadOnlyList<Record> List(ProjectModel model, string type, string? module) =>
+        model.Records
+            .Where(record => !record.Derived
+                && record.Id.Length > 0
+                && record.Type.Equals(type, StringComparison.Ordinal)
+                && (module is null || module.Equals(record.Module, StringComparison.Ordinal)))
+            .OrderBy(record => record.Id, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>One record's line for search and list output: its identifier, title and file path.</summary>
+    /// <param name="model">The built project model holding the consumer root.</param>
+    /// <param name="record">The record to print.</param>
+    /// <returns>The printed line for the record.</returns>
+    public static string Line(ProjectModel model, Record record) =>
+        $"{record.Id} - {record.Title} ({PathText.Relative(model.Config.Root, record.File)})";
+
+    /// <summary>The search rank of a record: 0 for an exact identifier, 1 to 4 down the fields, -1 for no match.</summary>
+    /// <param name="record">The record to rank.</param>
+    /// <param name="text">The searched text.</param>
+    /// <returns>The rank, or -1 when no searched field holds the text.</returns>
+    static int Rank(Record record, string text)
+    {
+        if (record.Id.Equals(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 0;
+        }
+
+        if (record.Id.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 1;
+        }
+
+        if (record.Title.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 2;
+        }
+
+        if (record.Field(RecordFields.Summary) is { } summary
+            && summary.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 3;
+        }
+
+        if (record.Field(RecordFields.Statement) is { } statement
+            && statement.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 4;
+        }
+
+        return -1;
     }
 
     /// <summary>One record's computed completion as its JSON object.</summary>

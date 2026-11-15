@@ -54,7 +54,7 @@
       "style": "index",
       "area": "analyzers",
       "title": "Overview",
-      "intent": "This index lists the 47 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.",
+      "intent": "This index lists the 49 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.",
       "sections": [
         "Intent",
         "Domain Rules",
@@ -507,6 +507,32 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls3002.md",
+      "path": "analyzers/rules/ls3002",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS3002: CancellationToken Is Not the Last Parameter",
+      "intent": "LS3002 is a compiler check that reports a cancellation token parameter that is not the last parameter or is not named cancellationToken, which is easy to pass in the wrong position and hides what it is where the method is called. This page states what the rule reports, where the error sits, and how to place and name the token.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls3003.md",
+      "path": "analyzers/rules/ls3003",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS3003: File Does Not Match Its Primary Type",
+      "intent": "LS3003 is a compiler check that reports a C# file whose name does not match the type it holds, which sends every reader searching for code that lives somewhere unexpected. This page states what the rule reports, where the error sits, and how to align the file with its type.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/analyzers/rules/ls3004.md",
       "path": "analyzers/rules/ls3004",
       "style": "reference",
@@ -870,7 +896,7 @@
       "style": "standard",
       "area": "backend",
       "title": ".NET Naming and Code Style",
-      "intent": "C# code in a .NET backend names its files and implementation shapes one way across every project. This page states those .NET rules: one primary type per file, a shared implementation style, and names that state their reason. The shared naming rules live on [Naming and Code Style](../../workspace/naming.md); this page holds only their .NET form.",
+      "intent": "C# code in a .NET backend names its files and implementation shapes one way across every project, and places every cancellation token last. This page states those .NET rules: one primary type per file, a trailing cancellation token in every signature that takes one, a shared implementation style, and names that state their reason. The shared naming rules live on [Naming and Code Style](../../workspace/naming.md); this page holds only their .NET form.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1274,7 +1300,7 @@
       "style": "standard",
       "area": "core",
       "title": "Waivers",
-      "intent": "A waiver is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a waiver holds, when to record one, how it covers a finding, what no waiver covers, and when it expires. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.",
+      "intent": "A waiver is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a waiver holds, which kind it takes, when to record one, how it covers a finding, what no waiver covers, and when each kind ends. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.",
       "sections": [
         "Intent",
         "Concepts",
@@ -4529,7 +4555,7 @@
       "style": "command",
       "area": "tools",
       "title": "Model Builder",
-      "intent": "\u0060litespec model\u0060 checks the project model, formats record files, renders generated outputs, and answers record queries.",
+      "intent": "\u0060litespec model\u0060 checks the project model, formats record files, renders generated outputs, answers record queries, and reports module edges.",
       "sections": [
         "Name",
         "Synopsis",

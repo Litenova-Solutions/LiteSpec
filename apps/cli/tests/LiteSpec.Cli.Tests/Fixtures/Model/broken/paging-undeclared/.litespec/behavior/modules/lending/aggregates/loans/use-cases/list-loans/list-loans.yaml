@@ -6,33 +6,54 @@ access:
   grant: permission/read-loans
   tenant: own
 serves:
-  - flow/borrow-and-return#s4
+- flow/borrow-and-return#s4
 fulfills:
-  - requirement/borrowing.max-active-loans
+- requirement/borrowing.max-active-loans
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises: []
 output:
   include:
     rows:
       fields:
-        - name: loans
-          meaning: "One row per loan: its identity, copy, reader, and due date."
+      - name: loans
+        type: list
+        meaning: "One row per loan: its identity, copy, reader, and due date."
+        of:
+          fields:
+          - name: loan
+            type: id
+            of: aggregate/lending.loan
+            required: true
+            meaning: The loan identity.
+          - name: copy
+            type: id
+            of: aggregate/lending.copy
+            required: true
+            meaning: The copy on loan.
+          - name: reader
+            type: text
+            required: true
+            meaning: The reader holding the copy.
+          - name: dueDate
+            type: date
+            required: true
+            meaning: The day the loan is due.
       classification: internal
       reads:
-        - aggregate/lending.loan
+      - aggregate/lending.loan
       freshness:
         mode: immediate
 records:
-  - type: result
-    id: result/list-loans.listed
-    title: Listed
-    outcome: success
-    meaning: The loans are listed.
-  - type: scenario
-    id: scenario/list-loans.listing-own-loans-succeeds
-    title: Listing own loans succeeds
-    given: A reader holds two active loans.
-    when: The reader lists their loans.
-    then: Both loans are listed.
-    result: result/list-loans.listed
+- type: result
+  id: result/list-loans.listed
+  title: Listed
+  outcome: success
+  meaning: The loans are listed.
+- type: scenario
+  id: scenario/list-loans.listing-own-loans-succeeds
+  title: Listing own loans succeeds
+  given: A reader holds two active loans.
+  when: The reader lists their loans.
+  then: Both loans are listed.
+  result: result/list-loans.listed

@@ -54,6 +54,9 @@ export type SortKey = "outline" | "title" | "proof";
 /** A navigation view: the outline or the security list. */
 export type View = "outline" | "security";
 
+/** The Intent layer grouping in the outline: the outline order or one group per product area. */
+export type IntentGrouping = "outline" | "product-area";
+
 /** The book load state: loading, ready, or failed with the reason. */
 export type LoadState = { kind: "loading" } | { kind: "ready" } | { kind: "failed"; error: string };
 
@@ -260,6 +263,20 @@ export interface IntentCoverage {
   problems?: { reached: number; total: number };
   constraints?: { reached: number; total: number };
   entries: IntentCoverageEntry[];
+}
+
+/** One product area in the Intent product-area grouping: a Behavior module with the features and flows its records reach. */
+export interface ProductArea {
+  id: string;
+  title: string;
+  features: string[];
+  flows: string[];
+}
+
+/** The Intent product-area grouping: one entry per Behavior module, with the features and flows no module reaches. */
+export interface ProductAreas {
+  modules: ProductArea[];
+  unfulfilled: { features: string[]; flows: string[] };
 }
 
 /** One record layer the project claims, with the practice it follows: litespec or own. */

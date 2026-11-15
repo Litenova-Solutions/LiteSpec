@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -8,12 +9,14 @@ namespace LiteSpec.Cli.Model.Checks.Governance;
 /// <summary>
 ///     The waiver checks: every covers item names a finding code the tools emit, a shared
 ///     provision or a shared page, and never a code the model needs in order to load; a waiver
-///     with an expiry date stops holding once the date passes.
+///     with an expiry date stops holding once the date passes; two live waivers never cover
+///     the same finding on the same subject or path.
 /// </summary>
 /// <follows>litespec/core/waivers#record-accepted-gaps-as-waivers</follows>
+/// <follows>litespec/core/waivers#cover-each-finding-with-one-waiver</follows>
 internal static class WaiverChecks
 {
-    /// <summary>Reports waiver-invalid for each covers item that cannot hold findings, and waiver-expired for each waiver past its expiry date.</summary>
+    /// <summary>Reports waiver-invalid for each covers item that cannot hold findings, waiver-expired for each waiver past its expiry date, and waiver-duplicate for each live waiver sharing a cover and a scope with an earlier live waiver.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -45,6 +48,74 @@ internal static class WaiverChecks
                 findings.Add(new Finding("waiver-expired", $"Waiver '{waiver.Id}' stands past its expiresOn {expiresOn}.", waiver.File, waiver.Line, SubjectOf(waiver)));
             }
         }
+
+        CheckOverlap(waivers, today, findings);
+    }
+
+    /// <summary>Reports waiver-duplicate for each live waiver sharing a covers item and a subject record or path with an earlier live waiver.</summary>
+    /// <param name="waivers">Every waiver record.</param>
+    /// <param name="today">Today's date: a waiver past its expiry date no longer holds.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckOverlap(IReadOnlyList<Record> waivers, DateOnly today, List<Finding> findings)
+    {
+        var live = waivers
+            .Where(waiver => Live(waiver, today))
+            .OrderBy(waiver => waiver.Id, StringComparer.Ordinal)
+            .ToList();
+
+        for (var later = 1; later < live.Count; later++)
+        {
+            for (var earlier = 0; earlier < later; earlier++)
+            {
+                if (SharedCover(live[earlier], live[later]) is { } cover
+                    && SharedScope(live[earlier], live[later]) is { } scope)
+                {
+                    findings.Add(new Finding("waiver-duplicate", $"Waiver '{live[later].Id}' overlaps waiver '{live[earlier].Id}': both cover '{cover}' on {scope}.", live[later].File, live[later].Line, SubjectOf(live[later])));
+                }
+            }
+        }
+    }
+
+    /// <summary>Whether the waiver holds findings today: it has no expiry date, or its expiry date has not passed.</summary>
+    /// <param name="waiver">The waiver record.</param>
+    /// <param name="today">Today's date.</param>
+    /// <returns>True when the waiver is live today.</returns>
+    private static bool Live(Record waiver, DateOnly today) =>
+        waiver.Field(RecordFields.ExpiresOn) is not { } expiresOn
+        || (IsoDate(expiresOn, out var expires) && today <= expires);
+
+    /// <summary>The first covers item both waivers name, in ordinal order, or null when they share none.</summary>
+    /// <param name="first">The earlier live waiver.</param>
+    /// <param name="second">The later live waiver.</param>
+    /// <returns>The shared covers item, or null.</returns>
+    private static string? SharedCover(Record first, Record second) =>
+        first.Strings(RecordFields.Covers)
+            .Intersect(second.Strings(RecordFields.Covers), StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .FirstOrDefault();
+
+    /// <summary>The first scope both waivers share: a subject record, else a path glob, or null when they share neither.</summary>
+    /// <param name="first">The earlier live waiver.</param>
+    /// <param name="second">The later live waiver.</param>
+    /// <returns>The shared scope as finding text, or null.</returns>
+    private static string? SharedScope(Record first, Record second)
+    {
+        var subject = first.Ids(RecordFields.Subject)
+            .Intersect(second.Ids(RecordFields.Subject), StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        if (subject is not null)
+        {
+            return $"'{subject}'";
+        }
+
+        var path = first.Ids(RecordFields.Paths)
+            .Intersect(second.Ids(RecordFields.Paths), StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        return path is null ? null : $"path '{path}'";
     }
 
     /// <summary>Why a covers item cannot hold findings, or null when it can.</summary>

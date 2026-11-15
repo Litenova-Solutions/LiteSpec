@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.place-hold
 title: Place hold
+exposure: A signed-in reader reaches this command through the library app under the place-hold permission. A wrong hold blocks the copy for other readers.
 kind: command
 access:
   grant: permission/place-hold
@@ -38,3 +39,12 @@ records:
   when: The reader places a hold.
   then: The hold is placed.
   result: result/place-hold.placed
+- type: scenario
+  id: scenario/place-hold.placing-a-duplicate-hold-is-refused
+  title: Placing a duplicate hold is refused
+  given: A hold already waits for the reader's copy.
+  when: The reader places another hold.
+  then: The placement is refused because a hold is already waiting.
+  result: result/place-hold.hold-already-waiting
+  exercises:
+  - rule/hold.names-one-copy

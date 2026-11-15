@@ -16,7 +16,7 @@ options:
     cons: A goal states an outcome and a problem states a pain, so one list hides which the feature moves.
 choice: Advances for goals, solves for problems
 consequences: "`litespec/core/intent#state-each-feature-with-its-offering` states the renamed fields. Serves keeps one meaning per carrier: a use case, reaction, job, or screen serves flow steps, and a flow serves one goal."
-reopenedWhen: A feature kind appears that moves no goal and declines no problem.
+reopenedWhen: A feature kind appears that advances no goal and solves no problem.
 basedOn:
   - research/intent-hierarchy-evidence
   - research/cross-layer-trace-evidence

@@ -76,7 +76,7 @@ A command, check, generated file, or package exists because the owner approved i
 
 ### Work in Progress
 
-A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a waiver with `expiresOn`, which parks reachability for that record until it expires.
+Every link between records holds in every run. `litespec model check` blocks on reachability locally and in the pull-request check alike, so work in progress that leaves a record unreached carries a gap waiver with `expiresOn` and `closedBy`, which parks reachability for that record until it expires.
 
 ## Standards
 

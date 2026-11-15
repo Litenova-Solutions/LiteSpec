@@ -2,7 +2,7 @@
 
 ## Intent
 
-This index lists the 47 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
+This index lists the 49 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
 
 ## Domain Rules
 
@@ -49,9 +49,11 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2022` run across layers
 
 ## Naming and Style Rules
 
-Rules `LS3001` and `LS3004` run in every production layer.
+Rules `LS3001` to `LS3004` run in every production layer.
 
 - [LS3001: Asynchronous Method Name Lacks Async](ls3001.md): reports an async method name without `Async`.
+- [LS3002: CancellationToken Is Not the Last Parameter](ls3002.md): reports a `CancellationToken` parameter that is misplaced or misnamed.
+- [LS3003: File Does Not Match Its Primary Type](ls3003.md): reports a C# file whose name differs from its primary type.
 - [LS3004: Concrete Class Is Not Sealed](ls3004.md): reports a concrete leaf class that is not sealed.
 
 ## Test Rules

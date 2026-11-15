@@ -98,7 +98,31 @@ static class HandlerReader
             DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified),
             ClassDetailsReader.DependencyCountOf(declared),
             ClassActivityReader.CollaboratorsOf(declared, tree, file, holders),
-            ClassActivityReader.LoopReadsOf(declared, tree, file)));
+            ClassActivityReader.LoopReadsOf(declared, tree, file),
+            EventTypeOf(declared)));
+    }
+
+    /// <summary>The event a handler subscribes to: the first event-handler interface's type argument, or its Handle method's first parameter.</summary>
+    /// <param name="declared">The event handler declaration.</param>
+    /// <returns>The simple name of the subscribed event type, or empty when the handler names none.</returns>
+    private static string EventTypeOf(TypeDeclarationSyntax declared)
+    {
+        if (declared.BaseList is not null)
+        {
+            foreach (var baseType in declared.BaseList.Types)
+            {
+                var name = baseType.Type is QualifiedNameSyntax qualified ? qualified.Right : baseType.Type;
+
+                if (name is GenericNameSyntax generic
+                    && generic.Identifier.ValueText is "IEventHandler" or "IDomainEventReaction"
+                    && generic.TypeArgumentList.Arguments.FirstOrDefault() is { } argument)
+                {
+                    return DotnetNames.SimpleName(DotnetNames.SimpleTypeName(argument));
+                }
+            }
+        }
+
+        return DotnetNames.SimpleName(ClassDetailsReader.MessageTypeOf(declared));
     }
 
     /// <summary>Reads one job host: its job mark, and a use-case mark when one sits beside it.</summary>

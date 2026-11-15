@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.return-copy
 title: Return copy
+exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong return closes a loan that is still open.
 kind: command
 access:
   grant: permission/borrow-copy

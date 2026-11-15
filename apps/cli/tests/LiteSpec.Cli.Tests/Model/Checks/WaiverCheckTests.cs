@@ -5,7 +5,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the waiver checks against hand-built models: coverage by code, provision, page and path, the invalid covers items, and expiry.</summary>
+/// <summary>Proves the waiver checks against hand-built models: coverage by code, provision, page and path, the kind shapes, the overlap of two live waivers, the invalid covers items, and expiry.</summary>
 public sealed class WaiverCheckTests
 {
     /// <summary>The page whose Checked by line names mark-missing.</summary>
@@ -13,6 +13,12 @@ public sealed class WaiverCheckTests
 
     /// <summary>The provision on that page whose Checked by line names mark-missing.</summary>
     private const string MarkMissingProvision = "litespec/core/layers#write-each-layer-from-the-layer-above-it";
+
+    /// <summary>The gap shape every paths waiver in these tests carries: its kind, closing record, exit and expiry.</summary>
+    const string GapShape = ", \"kind\": \"gap\", \"closedBy\": [\"waiver/ghost-route\"], \"exit\": \"The route is marked.\", \"expiresOn\": \"2999-01-01\"";
+
+    /// <summary>The lasting shape: its kind and consequences, with no expiry, exit or closing records.</summary>
+    const string LastingShape = ", \"kind\": \"lasting\", \"consequences\": \"The route stays unmarked.\"";
 
     /// <summary>A model holding one marked code element with no mark, so mark-missing fires on its path, and one waiver naming the covers.</summary>
     /// <param name="temp">The temporary folder the model's files sit in.</param>
@@ -34,13 +40,26 @@ public sealed class WaiverCheckTests
         return (waiver, model);
     }
 
-    /// <summary>A lasting waiver with no expiry date holds the finding its path names, and reports no expiry.</summary>
+    /// <summary>One gap waiver with the covers and subject, closed by itself.</summary>
+    /// <param name="temp">The temporary folder the model's files sit in.</param>
+    /// <param name="id">The waiver record id.</param>
+    /// <param name="covers">The covers items as a JSON array.</param>
+    /// <param name="subject">The subject items as a JSON array.</param>
+    /// <returns>The waiver record.</returns>
+    private static LiteSpec.Cli.Model.Records.Record GapWaiver(string temp, string id, string covers, string subject) =>
+        TestModel.Record(
+            "waiver",
+            id,
+            Path.Combine(temp, id.Split('/')[1] + ".yaml"),
+            "{\"kind\": \"gap\", \"covers\": " + covers + ", \"subject\": " + subject + ", \"reason\": \"Infrastructure.\", \"closedBy\": [\"" + id + "\"], \"exit\": \"The gap closes.\", \"expiresOn\": \"2999-01-01\"}");
+
+    /// <summary>A gap waiver holds the finding its path names until its expiry date, and reports no expiry before it.</summary>
     /// <proves>litespec/core/waivers#record-accepted-gaps-as-waivers</proves>
     [Fact]
-    public void LastingWaiverWithoutExpiryHoldsItsPathFindings()
+    public void GapWaiverHoldsItsPathFindings()
     {
         using var temp = TestCli.Temp("checks");
-        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", "");
+        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", GapShape);
 
         var (findings, known) = Checker.Check(model);
 
@@ -55,7 +74,7 @@ public sealed class WaiverCheckTests
     public void PageCoverageHoldsTheCodesOfItsProvisions()
     {
         using var temp = TestCli.Temp("checks");
-        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"" + MarkMissingPage + "\"]", "");
+        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"" + MarkMissingPage + "\"]", GapShape);
 
         var (findings, known) = Checker.Check(model);
 
@@ -69,7 +88,7 @@ public sealed class WaiverCheckTests
     public void ProvisionCoverageHoldsTheCodesItsCheckedByLineNames()
     {
         using var temp = TestCli.Temp("checks");
-        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"" + MarkMissingProvision + "\"]", "");
+        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"" + MarkMissingProvision + "\"]", GapShape);
 
         var (findings, known) = Checker.Check(model);
 
@@ -87,7 +106,7 @@ public sealed class WaiverCheckTests
             "waiver",
             "waiver/other-route",
             Path.Combine(temp.Path, "other-route.yaml"),
-            "{\"covers\": [\"mark-missing\"], \"paths\": [\"src/OtherReaction.cs\"], \"reason\": \"Infrastructure.\"}");
+            "{\"kind\": \"gap\", \"covers\": [\"mark-missing\"], \"paths\": [\"src/OtherReaction.cs\"], \"reason\": \"Infrastructure.\", \"closedBy\": [\"waiver/other-route\"], \"exit\": \"The route is marked.\", \"expiresOn\": \"2999-01-01\"}");
         var model = TestModel.Model(TestModel.Config(temp.Path), waiver);
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
@@ -105,7 +124,7 @@ public sealed class WaiverCheckTests
     public void WaiverNamingAModelLoadCodeReportsInvalid()
     {
         using var temp = TestCli.Temp("checks");
-        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"record-invalid\"]", "");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"record-invalid\"]", GapShape);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "waiver-invalid");
 
@@ -119,7 +138,7 @@ public sealed class WaiverCheckTests
     public void WaiverNamingAnUnknownCodeReportsInvalid()
     {
         using var temp = TestCli.Temp("checks");
-        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"no-such-finding\"]", "");
+        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"no-such-finding\"]", GapShape);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "waiver-invalid");
 
@@ -132,7 +151,7 @@ public sealed class WaiverCheckTests
     public void WaiverNamingAnUnshippedProvisionReportsInvalid()
     {
         using var temp = TestCli.Temp("checks");
-        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"litespec/core/layers#no-such-provision\"]", "");
+        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"litespec/core/layers#no-such-provision\"]", GapShape);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "waiver-invalid");
 
@@ -145,7 +164,7 @@ public sealed class WaiverCheckTests
     public void WaiverPastItsExpiresOnReportsExpiredAndHoldsNothing()
     {
         using var temp = TestCli.Temp("checks");
-        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"expiresOn\": \"2000-01-01\", \"exit\": \"The route is marked.\"");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"kind\": \"gap\", \"closedBy\": [\"waiver/ghost-route\"], \"expiresOn\": \"2000-01-01\", \"exit\": \"The route is marked.\"");
 
         var expired = Assert.Single(Checker.Check(model).Findings, found => found.Code == "waiver-expired");
 
@@ -160,7 +179,7 @@ public sealed class WaiverCheckTests
     public void WaiverBeforeItsExpiresOnReportsNoExpiry()
     {
         using var temp = TestCli.Temp("checks");
-        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"expiresOn\": \"2999-01-01\", \"exit\": \"The route is marked.\"");
+        var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", GapShape);
 
         Assert.DoesNotContain("waiver-expired", TestModel.Codes(model));
     }
@@ -171,7 +190,7 @@ public sealed class WaiverCheckTests
     public void WaiverWithExpiryAndNoExitReportsRecordInvalid()
     {
         using var temp = TestCli.Temp("checks");
-        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"expiresOn\": \"2999-01-01\"");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"kind\": \"gap\", \"closedBy\": [\"waiver/ghost-route\"], \"expiresOn\": \"2999-01-01\"");
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Subject == waiver.Id);
 
@@ -186,10 +205,120 @@ public sealed class WaiverCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("waiver", "waiver/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), "{\"covers\": [\"use-case-unimplemented\"], \"reason\": \"Listing waits for the search index.\"}"));
+            TestModel.Record("waiver", "waiver/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), "{\"kind\": \"gap\", \"covers\": [\"use-case-unimplemented\"], \"reason\": \"Listing waits for the search index.\", \"closedBy\": [\"waiver/list-loans-unimplemented\"], \"exit\": \"The search index ships.\", \"expiresOn\": \"2999-01-01\"}"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("names neither subject nor paths", StringComparison.Ordinal));
         Assert.Equal("Waiver 'waiver/list-loans-unimplemented' names neither subject nor paths.", finding.Message);
         Assert.Equal("waiver/list-loans-unimplemented", finding.Subject);
+    }
+
+    /// <summary>A gap waiver naming no closing record reports record-invalid.</summary>
+    /// <proves>litespec/core/waivers#name-the-records-that-close-a-gap</proves>
+    [Fact]
+    public void GapWithoutClosedByReportsRecordInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"kind\": \"gap\", \"exit\": \"The route is marked.\", \"expiresOn\": \"2999-01-01\"");
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Subject == waiver.Id);
+
+        Assert.Equal("Record 'waiver/ghost-route' has no closedBy.", finding.Message);
+    }
+
+    /// <summary>A gap waiver naming its closing record, exit and expiry reports no shape finding.</summary>
+    /// <proves>litespec/core/waivers#name-the-records-that-close-a-gap</proves>
+    [Fact]
+    public void GapWithClosedByReportsNoShapeFinding()
+    {
+        using var temp = TestCli.Temp("checks");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", GapShape);
+
+        Assert.DoesNotContain(
+            Checker.Check(model).Findings,
+            found => found.Code is "record-invalid" or "field-invalid" && found.Subject == waiver.Id);
+    }
+
+    /// <summary>A lasting waiver carrying an expiry date reports record-invalid.</summary>
+    /// <proves>litespec/core/waivers#state-the-kind-of-every-waiver</proves>
+    [Fact]
+    public void LastingWithExpiresOnReportsRecordInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", LastingShape + ", \"expiresOn\": \"2999-01-01\"");
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Subject == waiver.Id);
+
+        Assert.Equal("Waiver 'waiver/ghost-route' is lasting and holds expiresOn.", finding.Message);
+    }
+
+    /// <summary>A lasting waiver naming no consequences reports record-invalid.</summary>
+    /// <proves>litespec/core/waivers#state-the-kind-of-every-waiver</proves>
+    [Fact]
+    public void LastingWithoutConsequencesReportsRecordInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"kind\": \"lasting\"");
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Subject == waiver.Id);
+
+        Assert.Equal("Record 'waiver/ghost-route' has no consequences.", finding.Message);
+    }
+
+    /// <summary>A lasting waiver naming its consequences and no gap field reports no shape finding.</summary>
+    /// <proves>litespec/core/waivers#state-the-kind-of-every-waiver</proves>
+    [Fact]
+    public void LastingWithConsequencesReportsNoShapeFinding()
+    {
+        using var temp = TestCli.Temp("checks");
+        var (waiver, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", LastingShape);
+
+        Assert.DoesNotContain(
+            Checker.Check(model).Findings,
+            found => found.Code is "record-invalid" or "field-invalid" && found.Subject == waiver.Id);
+    }
+
+    /// <summary>Two live waivers covering one finding on one subject report waiver-duplicate on the later waiver.</summary>
+    /// <proves>litespec/core/waivers#cover-each-finding-with-one-waiver</proves>
+    [Fact]
+    public void TwoWaiversCoveringOneFindingOnOneSubjectReportOverlap()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            GapWaiver(temp.Path, "waiver/early-route", "[\"mark-missing\"]", "[\"waiver/early-route\"]"),
+            GapWaiver(temp.Path, "waiver/late-route", "[\"mark-missing\"]", "[\"waiver/early-route\"]"));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "waiver-duplicate");
+
+        Assert.Equal("Waiver 'waiver/late-route' overlaps waiver 'waiver/early-route': both cover 'mark-missing' on 'waiver/early-route'.", finding.Message);
+        Assert.Equal("waiver/late-route", finding.Subject);
+    }
+
+    /// <summary>Two live waivers covering one finding on different subjects report no overlap.</summary>
+    /// <proves>litespec/core/waivers#cover-each-finding-with-one-waiver</proves>
+    [Fact]
+    public void TwoWaiversOnDifferentSubjectsReportNoOverlap()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            GapWaiver(temp.Path, "waiver/early-route", "[\"mark-missing\"]", "[\"waiver/early-route\"]"),
+            GapWaiver(temp.Path, "waiver/late-route", "[\"mark-missing\"]", "[\"waiver/late-route\"]"));
+
+        Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Code == "waiver-duplicate");
+    }
+
+    /// <summary>Two live waivers covering different findings on one subject report no overlap.</summary>
+    /// <proves>litespec/core/waivers#cover-each-finding-with-one-waiver</proves>
+    [Fact]
+    public void TwoWaiversCoveringDifferentFindingsReportNoOverlap()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            GapWaiver(temp.Path, "waiver/early-route", "[\"mark-missing\"]", "[\"waiver/early-route\"]"),
+            GapWaiver(temp.Path, "waiver/late-route", "[\"mark-unknown\"]", "[\"waiver/early-route\"]"));
+
+        Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Code == "waiver-duplicate");
     }
 }

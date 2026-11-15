@@ -56,6 +56,7 @@ public sealed class RulesDecidedTests
             type: waiver
             id: waiver/lasting-layout-choice
             title: Lasting Layout Choice
+            kind: lasting
             covers:
               - litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case
             subject:

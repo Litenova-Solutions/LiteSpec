@@ -22,7 +22,7 @@ LiteSpec compared 3 options for where a module is declared. The table sets each 
 
 ## Decision
 
-A module is declared only in Behavior, at `behavior/modules/<module>/module.yaml`, with its explanation beside it. Intent holds goals, problems, constraints, decisions and research at product level, and its features sit under problems.
+A module is declared only in Behavior, at `behavior/modules/<module>/module.yaml`, with its explanation beside it. Intent holds goals, problems, constraints, decisions and research at product level, and its features stand in `intent/features/`.
 
 The Behavior page holds the Modules as Product Areas concept, since a module is the place where one name runs through Behavior and code. The book groups Intent by problem and Behavior by module.
 
@@ -34,4 +34,4 @@ The change is a major-release change, since the module record moves and the modu
 
 ## Revisit Conditions
 
-This decision holds until consumers report that a product area spans several problems and cannot be found in Intent. It also holds until a module's product reasons are lost once the module moves to Behavior. Either report reopens the choice.
+This decision holds until the book stops grouping features under the Behavior modules whose use cases fulfill their requirements, so a product area spanning several problems cannot be found in Intent. It also holds until a module's product reasons are lost once the module moves to Behavior. Either report reopens the choice.

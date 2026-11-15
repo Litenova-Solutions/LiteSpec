@@ -23,12 +23,16 @@ export { layerStats } from "./relations";
 export { completionLines, coveragePercent } from "./completion";
 export { copyText } from "./clipboard";
 export { MODULE_MEMBER_TYPES, isScenarioType } from "./shard-types";
+export { UNFULFILLED_AREA, areaGroupKey, areaKeysOf } from "./product-areas";
 export type {
   BookRecord,
   BookTest,
   CheckLevel,
   ImplKind,
+  IntentGrouping,
   LayerKey,
+  ProductArea,
+  ProductAreas,
   ProofState,
   ReachClaim,
   RecordFields,

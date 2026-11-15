@@ -41,7 +41,7 @@ The [principles page](principles.md) states git as the decision record. An agent
 
 ### Work in Progress
 
-A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a waiver with `expiresOn`, which parks reachability for that record until it expires.
+Every link between records holds in every run. `litespec model check` blocks on reachability locally and in the pull-request check alike, so work in progress that leaves a record unreached carries a gap waiver with `expiresOn` and `closedBy`, which parks reachability for that record until it expires.
 
 ### New Intent in a Running Project
 
@@ -150,6 +150,22 @@ A running project takes new intent through this one sequence. Other pages link t
 **Rationale:** Conventions exist to be replaced, but only through a recorded decision. An undocumented local preference that silently replaces a baseline default looks identical to a mistake, so the next agent fixes it back. The recorded convention keeps the replacement visible and reviewable.
 
 **Reviewed for:** Each convention replacement resolves to a recorded local convention in the project documentation.
+
+### Scope Every Convention to Files It Governs
+
+**ID:** `litespec/core/agent#scope-every-convention-to-files-it-governs`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A project convention MUST state an Applies to that matches at least one file in the project tree or one record the project writes.
+
+**Rationale:** `rules` returns a convention only when its Applies to meets the queried path or record. A convention that meets nothing reaches no agent, so its rule stays unread while the project believes it is stated. One match keeps every stated convention live.
+
+**Example:** Claimwick records that every command handler logs its outcome, with `stack: dotnet; artifact: command-handler`; the convention meets each handler file, so `rules` returns it before an agent edits one.
+
+**Checked by:** `litespec model check` reports `convention-unreached` (level G) for a project convention whose Applies to matches no file in the project tree and no record.
 
 ### Stop on Unresolved Conflict
 

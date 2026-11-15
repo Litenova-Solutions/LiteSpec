@@ -98,7 +98,7 @@ Each page also states the scope its provisions apply to: the technology, the par
 
 The standard expects waivers and gives each one a home:
 
-- **A waiver record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date and an exit. An agent follows the waiver over the standard, and a covered finding reports as covered instead of blocking.
+- **A waiver record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date, an exit and the records in `closedBy` whose change closes it. An agent follows the waiver over the standard, and a covered finding reports as covered instead of blocking.
 - **A project convention** is a standing rule every change follows, stated in the provision shape under `.litespec/governance/conventions/`. A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it; a convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach. A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`, and `rules` reads only the conventions folder.
 - **An extension** can replace a baseline rule when you select it. The outbox extension, for example, replaces the baseline rule for collecting domain events with its own.
 
@@ -110,6 +110,7 @@ The Claimwick example carries six waivers under `.litespec/governance/waivers/`.
 type: waiver
 id: waiver/export-review-bypass
 title: Export Review Bypass
+kind: gap
 covers:
   - litespec/backend/application#enforce-target-authorization-in-the-pipeline
 subject:
@@ -118,9 +119,11 @@ reason: The weekend export runs with no reviewer on shift.
 consequences: Weekend exports run without a second pair of eyes until a reviewer returns.
 expiresOn: 2027-01-01
 exit: A reviewer approves weekend exports before they run.
+closedBy:
+  - use-case/spending.export-expenses
 ```
 
-Read it as one waiver: it names the provision it covers, the records it sets aside, the reason, the consequences, and the date and exit by which the gap closes. An agent follows the waiver over the standard until that date.
+Read it as one waiver: it names the provision it covers, the records it sets aside, the reason, the consequences, and the kind, date, exit and closing records by which the gap closes. An agent follows the waiver over the standard until that date.
 
 ## UI Patterns
 

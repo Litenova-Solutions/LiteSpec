@@ -1,6 +1,6 @@
 namespace LiteSpec.Cli.Model.Code;
 
-/// <summary>One event handler, linked to its reaction through its mark.</summary>
+/// <summary>One event handler, linked to its reaction through its mark, subscribed to its event type.</summary>
 sealed record CodeReaction(
     string Class,
     string File,
@@ -13,4 +13,5 @@ sealed record CodeReaction(
     IReadOnlyList<CodeDispatch>? Dispatches = null,
     int DependencyCount = 0,
     IReadOnlyList<CodeCollaborator>? Collaborators = null,
-    IReadOnlyList<CodeLoopRead>? LoopReads = null);
+    IReadOnlyList<CodeLoopRead>? LoopReads = null,
+    string EventType = "");

@@ -43,6 +43,7 @@ static class BookSiteBuilder
         var index = BookIndexBuilder.BuildIndex(store);
         var outline = BookOutline.Build(store, claims);
         var details = BookRecordDetails.Build(store, outline, claims);
+        var areas = BookProductAreas.Build(store);
         var files = new List<BookFile>();
 
         AddCaptures(files, root, details);
@@ -68,6 +69,7 @@ static class BookSiteBuilder
         BookShards.AddShard(files, "lexicon", lexicon.ToJson());
         BookShards.AddShard(files, "security", SecurityJson(details));
         BookShards.AddShard(files, "coverage", BookIntentCoverage.EntriesJson(coverage));
+        BookShards.AddShard(files, "product-areas", BookProductAreas.ToJson(areas));
         BookShards.AddShard(
             files,
             "manifest",

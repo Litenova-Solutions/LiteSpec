@@ -2,6 +2,7 @@ type: waiver
 id: waiver/ui-requirements-proved-outside-behavior
 title: UI Requirements Proved Outside Behavior
 summary: The six interface quality requirements are proved by the route suite and the token check, which the reachability check does not read.
+kind: gap
 covers:
 - intent-unreached
 subject:
@@ -14,3 +15,10 @@ subject:
 reason: Interface quality requirements are proved by the route suite and the token check rather than by a Behavior record, so no use case fulfills them and no flow step cites them.
 exit: The gap closes when the reachability check reads route-suite and token-check proof as reaching Behavior.
 expiresOn: 2027-06-01
+closedBy:
+- requirement/ui-chart-series
+- requirement/ui-control-boundary
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast

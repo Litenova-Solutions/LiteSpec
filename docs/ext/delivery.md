@@ -319,7 +319,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Example:** Claimwick's job `send-event-change-notices` names `runbook/clear-stuck-notices` in its `runbook` field, so the procedure is reachable from the work that needs it.
 
-**Checked by:** `litespec model check` reports `runbook-unused` (level A) for a runbook record that no alert label, job, reaction or failure policy names.
+**Checked by:** `litespec model check` reports `runbook-unused` (level G) for a runbook record that no alert label, job, reaction or failure policy names.
 
 ### Define Backup and Restore Behavior
 

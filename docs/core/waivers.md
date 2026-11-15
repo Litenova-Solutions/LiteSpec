@@ -5,7 +5,7 @@
 
 ## Intent
 
-A waiver is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a waiver holds, when to record one, how it covers a finding, what no waiver covers, and when it expires. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.
+A waiver is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a waiver holds, which kind it takes, when to record one, how it covers a finding, what no waiver covers, and when each kind ends. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.
 
 ## Concepts
 
@@ -18,16 +18,18 @@ A waiver is a record in `.litespec/governance/waivers/`, or in `.litespec/govern
 | `type` | yes | `waiver` |
 | `id` | yes | `waiver/<name>` |
 | `title` | yes | What is set aside, in one line. |
+| `kind` | yes | `gap` for work the team means to close, `lasting` for a choice the project keeps. |
 | `covers` | yes | A list. Each item is a provision ID (`litespec/<page>#<slug>`), a page (`litespec/<page>`) or a finding code. |
 | `reason` | yes | Why the project sets the rule aside. |
 | `subject` or `paths` | one of them | The records, or the file globs from the repository root, that the waiver covers. |
-| `expiresOn` | no | The date a gap closes. Absent for a lasting choice. |
-| `exit` | when `expiresOn` is set | How the gap closes. |
-| `consequences` | no | What the project accepts by setting the rule aside. |
+| `expiresOn` | on a gap | The date the gap closes. A lasting waiver carries no date. |
+| `exit` | on a gap | How the gap closes. A lasting waiver carries no exit. |
+| `closedBy` | on a gap | The records whose change closes the gap. A lasting waiver carries no closing records. |
+| `consequences` | on a lasting waiver | What the project accepts by setting the rule aside. |
 
 ### When to Record One
 
-A waiver takes one of two forms. A lasting choice has no `expiresOn`: the project keeps the waiver for as long as its reason holds. A gap has an `expiresOn` date and an `exit`: the team means to close the work, and the waiver holds until that date.
+A waiver states its kind on the record. A gap waiver carries `kind: gap` with an `expiresOn` date, an `exit` and `closedBy`: the team means to close the work, and the waiver holds until that date. A lasting waiver carries `kind: lasting` with `consequences` and no end: the project keeps the choice for as long as its reason holds.
 
 ### How a Waiver Covers a Finding
 
@@ -35,9 +37,13 @@ A waiver covers a finding when all three of these hold:
 
 - Its `covers` names the finding's code, or names a provision or a page that governs the code. A provision governs the codes its **Checked by** line names.
 - The finding is on one of its `subject` records, or in one of its `paths` files.
-- The waiver is live: it has no `expiresOn`, or its `expiresOn` date has not passed.
+- The waiver is live: a lasting waiver, or a gap waiver whose `expiresOn` date has not passed.
 
 A waiver that names a use case also covers the findings about the scenarios and results that use case holds. A covered finding has the outcome `covered`: it prints, and the run passes.
+
+### One Waiver per Finding
+
+Two live waivers covering the same finding code, provision or page on the same subject record or the same path report `waiver-duplicate`. The project keeps one waiver on the finding and removes the other, so each covered finding traces to exactly one waiver.
 
 ### What No Waiver Covers
 
@@ -45,7 +51,7 @@ Some findings stop the model from loading, and every other result depends on the
 
 ### When a Waiver Expires
 
-A waiver with an `expiresOn` date holds through that date. After it, the findings it covered report again, and `waiver-expired` reports the waiver, which blocks the run. The fix is to close the finding or to write a new `expiresOn` date in the record.
+A gap waiver holds through its `expiresOn` date. After it, the findings it covered report again, and `waiver-expired` reports the waiver, which blocks the run. The fix is to close the finding or to write a new `expiresOn` date in the record. A lasting waiver carries no `expiresOn` date and holds for as long as its reason holds.
 
 ### How the Analyzers Match a Waiver
 
@@ -65,9 +71,9 @@ A provision of Strength `default` is replaced by the project's own choice, recor
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** An accepted gap MUST live as a waiver with an `expiresOn` date and an `exit`.
+**Statement:** An accepted gap MUST live as a gap waiver with an `expiresOn` date, an `exit` and `closedBy`.
 
-**Rationale:** Missing work with no date is invisible: nothing reports it. A waiver with an `expiresOn` date turns the same missing work into a dated promise. Its `covers` findings are covered until the date, the `exit` says how the gap closes, and `waiver-expired` reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
+**Rationale:** Missing work with no date is invisible: nothing reports it. A waiver with an `expiresOn` date turns the same missing work into a dated promise. Its `covers` findings are covered until the date, the `exit` says how the gap closes, `closedBy` names the records whose change closes it, and `waiver-expired` reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in `.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
 
@@ -76,6 +82,7 @@ type: waiver
 id: waiver/export-expenses-unimplemented
 title: Export Expenses Unimplemented
 summary: Export waits for the finance file format.
+kind: gap
 covers:
   - use-case-unimplemented
 subject:
@@ -83,6 +90,8 @@ subject:
 reason: Export waits for the finance file format.
 exit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
 expiresOn: 2027-06-01
+closedBy:
+  - use-case/spending.export-expenses
 ```
 
 The `use-case-unimplemented` finding is covered, and the run passes, until 2027-06-01, which satisfies this provision.
@@ -104,6 +113,54 @@ The `use-case-unimplemented` finding is covered, and the run passes, until 2027-
 **Example:** A project that lowers LS5001 to a suggestion in its root `.editorconfig` records a waiver whose `covers` names `litespec/core/system#point-code-and-tests-up-to-records`, the provision the rule enforces.
 
 **Checked by:** `litespec model check` reports `analyzer-lowering-unrecorded` (level S) for a project-wide lowering in `.editorconfig`, `.globalconfig`, `<NoWarn>`, `#pragma warning disable` or `[SuppressMessage]` that no live waiver covers.
+
+### State the Kind of Every Waiver
+
+**ID:** `litespec/core/waivers#state-the-kind-of-every-waiver`
+
+**Strength:** required
+
+**Applies to:** artifact: record:waiver
+
+**Statement:** Every waiver MUST state its kind as `gap` or `lasting`.
+
+**Rationale:** Whether a waiver ends is a fact the reader needs on the record: a gap ends on its `expiresOn` date, and a lasting choice holds for as long as its reason holds. A kind read from the presence of `expiresOn` hides that fact in an absence, and a reader cannot tell a gap with no date yet from a choice that never ends. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).
+
+**Example:** The Claimwick waiver for the unimplemented export states `kind: gap` with its `expiresOn` date, so a reader sees the export gap ends on 2027-06-01.
+
+**Checked by:** `litespec model check` reports `record-invalid` (level G) for a waiver with no `kind` or a `kind` outside `gap` and `lasting`.
+
+### Name the Records That Close a Gap
+
+**ID:** `litespec/core/waivers#name-the-records-that-close-a-gap`
+
+**Strength:** required
+
+**Applies to:** artifact: record:waiver
+
+**Statement:** Every gap waiver MUST name the records whose change closes the gap in `closedBy`.
+
+**Rationale:** An `exit` says how a gap closes in prose, but prose names no record a check can hold. `closedBy` names the records whose change closes the gap, so a reader sees what to change and the check reports an entry that names no written record. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).
+
+**Example:** The Claimwick waiver for the unimplemented export names `use-case/spending.export-expenses` in `closedBy`, so the gap closes when the export use case gains its handler.
+
+**Checked by:** `litespec model check` reports `record-invalid` (level G) for a gap waiver with no `closedBy`, and `reference-unknown` (level G) for a `closedBy` entry that names no written record.
+
+### Cover Each Finding with One Waiver
+
+**ID:** `litespec/core/waivers#cover-each-finding-with-one-waiver`
+
+**Strength:** required
+
+**Applies to:** artifact: record:waiver
+
+**Statement:** Two live waivers MUST NOT cover the same code, provision or page on the same subject record or the same path.
+
+**Rationale:** Two waivers on one finding split the reason and the end date across two records: one expires while the other still holds, and a reader cannot tell which waiver to close. One waiver per finding keeps each covered finding traced to exactly one reason and one end.
+
+**Example:** Claimwick covers the unimplemented export with the one waiver `waiver/export-expenses-unimplemented`; a second waiver naming `use-case-unimplemented` on `use-case/spending.export-expenses` reports `waiver-duplicate`.
+
+**Checked by:** `litespec model check` reports `waiver-duplicate` (level G) for two live waivers covering the same finding on the same subject or path.
 
 ### Deviate from Advice Without a Record
 

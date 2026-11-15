@@ -29,5 +29,6 @@ fields:
 freshness:
   mode: snapshot
   within: PT5S
+  decidedBy: use-case/spending.reimburse-expense
 terms:
 - term/expense

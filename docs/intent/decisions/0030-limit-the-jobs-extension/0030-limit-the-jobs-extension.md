@@ -30,6 +30,6 @@ The record schema has no saga kind. A saga is a sequence of steps that spans sev
 
 ## Revisit Conditions
 
-This decision reopens when a team must prove a multi-step workflow that no record can state, or when a product must prove an ingest pipeline.
+This decision reopens when a product must prove an ingest pipeline. A multi-step workflow that no record can state reopens `decision/0015-automations-and-sagas` instead: the revisit condition of that decision covers it.
 
-Each of those cases needs a record kind or a subject that the extension no longer holds. Either one would bring back the subject it needs.
+The ingest pipeline case needs a subject that the extension no longer holds. It would bring back the subject it needs.

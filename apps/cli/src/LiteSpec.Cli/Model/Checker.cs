@@ -63,6 +63,7 @@ static class Checker
         ProofChecks.Run,
         ProofChecks.RunUnverified,
         ProofChecks.RunProofInvalid,
+        RefusalOwnershipChecks.Run,
         ResultScenarioChecks.Run,
         FulfilmentChecks.Run,
         FulfilmentChecks.RunRequirementCited,
@@ -90,6 +91,7 @@ static class Checker
         FrontendPlacementChecks.Run,
         ClosedFolderChecks.Run,
         MarkChecks.Run,
+        ReactionSubscriptionChecks.Run,
         ScreenChecks.Run,
         UiBlueprintChecks.Run,
         TokenLimitChecks.Run,
@@ -109,6 +111,7 @@ static class Checker
         PrivacyChecks.RunRetention,
         CalculationChecks.Run,
         AutomationChecks.RunReactionTrigger,
+        CompensationChecks.Run,
         MeasuredChecks.Run,
         GraphChecks.RunOrphaned,
         ParentChecks.Run,
@@ -120,6 +123,7 @@ static class Checker
         QueryChecks.RunQueryOutput,
         QueryChecks.RunPaging,
         QueryChecks.RunWidening,
+        FreshnessChecks.Run,
         GraphChecks.RunSettingDefault,
         ConsistencyChecks.RunReservation,
         GraphChecks.RunNotificationSender,
@@ -130,6 +134,7 @@ static class Checker
         ConsistencyChecks.RunManyAggregates,
         ConsistencyChecks.RunAtomicityDrift,
         ConsistencyChecks.RunAtomicityInvalid,
+        RuleBindsChecks.Run,
         ContractChecks.RunTypedInputs,
         GraphChecks.RunExercises,
         ContractChecks.RunDoors,
@@ -141,7 +146,8 @@ static class Checker
         DecisionChecks.RunScope,
         DecisionChecks.RunHome,
         ConventionChecks.RunFolder,
-        ConventionChecks.RunScope
+        ConventionChecks.RunScope,
+        ConventionChecks.RunUnreached
     ];
 
     /// <summary>Runs every check, partitioning findings from waivers.</summary>

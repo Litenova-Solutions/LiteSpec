@@ -837,7 +837,7 @@
       "strength": "required",
       "statement": "Each \u0060calls\u0060 effect MUST run in an event handler or job through the port operation its record names, after the commit of the command that raised its trigger.",
       "rationale": "A command handler changes only its aggregate under \u0060litespec/backend/application#dispatch-only-declared-effect-edges\u0060, so a provider call runs in an event handler or job after the commit. The \u0060calls\u0060 effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a \u0060calls\u0060 edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no \u0060calls\u0060 entry declares fails \u0060effect-undeclared\u0060. A provider call whose result the command needs before it can answer is a waiver: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records a waiver naming the compensation that undoes it.",
-      "example": "An event handler that calls an expense payout operation names it through the record\u0027s \u0060calls\u0060 entry and the port method; a direct provider call fails the check."
+      "example": "An event handler that calls an expense payout operation names it through the record\u0027s \u0060calls\u0060 entry and the port method; a direct provider call fails the check. The reimburse-expense command records a pending payment and answers at once, an event handler calls the payout provider after the commit, and the expense screen shows the pending state first and the later posted fact through the query."
     },
     {
       "id": "litespec/backend/application#declare-a-port-where-its-consumers-meet",
@@ -1504,7 +1504,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A query result type MUST carry the \u0060include\u0060 groups its record\u0027s \u0060output\u0060 declares, with their fields, freshness, and visibility.",
-      "rationale": "The record\u0027s \u0060output\u0060 names each group with its fields, their classification, the aggregates it reads, and the freshness the caller can rely on: \u0060immediate\u0060, \u0060snapshot\u0060, \u0060bounded\u0060, or \u0060advisory\u0060. The result type carries one member per group, so the caller reads what the record promises and nothing more. A group with \u0060visibleWhen\u0060 appears only when its condition holds, and a group wider than its \u0060reads\u0060 names the approved requirement widening it in \u0060widenedBy\u0060. A query whose \u0060timing\u0060 is asynchronous carries an \u0060eventual\u0060 freshness with its \u0060within\u0060 and a lag scenario.",
+      "rationale": "The record\u0027s \u0060output\u0060 names each group with its fields, their classification, the aggregates it reads, and the freshness the caller can rely on: \u0060immediate\u0060, \u0060snapshot\u0060, or \u0060eventual\u0060 with its \u0060within\u0060. The result type carries one member per group, so the caller reads what the record promises and nothing more. A group with \u0060visibleWhen\u0060 appears only when its condition holds, and a group wider than its \u0060reads\u0060 names the approved requirement widening it in \u0060widenedBy\u0060. A group showing a figure a command re-decides names the deciding command use case or its aggregate in \u0060decidedBy\u0060, as \u0060litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure\u0060 states. A query whose \u0060timing\u0060 is asynchronous carries an \u0060eventual\u0060 freshness with its \u0060within\u0060 and a lag scenario.",
       "example": "The expense-list result carries its \u0060rows\u0060 group with the declared fields, freshness, and visibility."
     },
     {
@@ -2217,7 +2217,7 @@
       "anchor": "place-every-part-type-in-its-aggregates-folder",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060part-parent-missing\u0060 (level A) for an unmarked Domain type whose folder holds no aggregate root and is not the product \u0060Domain/\u0060 folder, and the model output lists each part under its aggregate.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060part-parent-missing\u0060 (level S) for an unmarked Domain type whose folder holds no aggregate root and is not the product \u0060Domain/\u0060 folder, and the model output lists each part under its aggregate.",
       "stack": "any",
       "concern": "domain",
       "artifact": "any",
@@ -2695,6 +2695,24 @@
       "statement": "A scheduled or one-off job MUST run as one hosted operation carrying one mark naming its job record.",
       "rationale": "The hosted operation lives in the \u0060Application/\u0060 folder of the use case it runs, or in the module \u0060Notifications/\u0060 or \u0060ExternalSystems/\u0060 folder of what it only sends or calls, and registers on the declared execution host. It honors its record\u0027s selection, batch size, lease, and cursor, sends its one command once per selected item, and records its evidence where the record states. This provision binds \u0060litespec/backend/application#run-each-job-within-its-declared-selection\u0060 for .NET.",
       "example": "\u0060\u0060\u0060csharp\n/// \u003Cimplements\u003Ejob/spending.erase-expired-personal-data\u003C/implements\u003E\ninternal sealed class EraseExpiredPersonalDataHost(...)\n{\n    // Lives in Spending/Expenses/UseCases/ErasePersonalData/Application/.\n    // Selects the expired expenses and sends one erase command per expense, resuming from its cursor.\n}\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers",
+      "heading": "Subscribe Each Reaction Handler to Its Declared Triggers",
+      "page": "docs/backend/dotnet/application.md",
+      "anchor": "subscribe-each-reaction-handler-to-its-declared-triggers",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060reaction-subscription-drift\u0060 (level S) for a marked handler subscribed to an event outside its reaction\u0027s \u0060triggeredBy\u0060, and \u0060reaction-trigger-unhandled\u0060 (level S) for a declared trigger with no marked handler subscribed to it.",
+      "stack": "dotnet",
+      "concern": "application",
+      "artifact": "reaction",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "The event handlers marked with a reaction MUST together subscribe to exactly the events the reaction names in \u0060triggeredBy\u0060.",
+      "rationale": "The reaction record states the facts its handlers answer, and each handler subscribes by implementing its event-handler interface for one event type. A handler subscribed to an event the record does not name answers a fact nobody reviewed, and a named trigger with no subscribed handler is a promise the code does not keep. The check resolves each subscribed type through the event\u0027s own mark, so the mark on the event class is the link the reader follows. This provision binds \u0060litespec/backend/application#keep-reaction-implementations-explicit\u0060 for .NET, where the subscription is the event type of the handler\u0027s event-handler interface.",
+      "example": "The reaction \u0060reaction/spending.send-approver-reminders-on-expense-submitted\u0060 names \u0060domain-event/expense.submitted\u0060 in \u0060triggeredBy\u0060, and \u0060SendApproverRemindersOnExpenseSubmittedHandler\u0060 implements \u0060IEventHandler\u003CExpenseSubmittedEvent\u003E\u0060 while \u0060ExpenseSubmittedEvent\u0060 carries the mark \u0060domain-event/expense.submitted\u0060."
     },
     {
       "id": "litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points",
@@ -3324,7 +3342,25 @@
       "strength": "required",
       "statement": "A rejected business rule MUST throw a \u0060DomainException\u0060 subclass named \u0060{DomainType}{Reason}Exception\u0060, carrying the refusal \u0060code\u0060 and one mark naming its rule.",
       "rationale": "One exception type per rule puts the stable code and the message in the type, and its \u0060Code\u0060 comes from the refusal result its rule names, under \u0060litespec/backend/dotnet/stack#generate-runtime-values-from-the-records\u0060. The call site passes only domain values and two rules never share a type by accident. A shared rule exception with caller-supplied codes lets any caller invent a code and lets unrelated rules merge silently. An invariant rule is checked in the root\u0027s factory and methods, and a precondition rule is checked in the use-case validator or the root\u0027s method. Each exception\u0027s code equals the refusal \u0060code\u0060 on the result record it answers. Names lead with the aggregate root and follow \u0060litespec/workspace/naming#name-exceptions-by-failed-rule\u0060; this provision owns the one-type-per-rule shape and the code each type carries. Domain throws no \u0060InvalidOperationException\u0060, \u0060ArgumentException\u0060, validation, HTTP, or provider exception for a business rejection, and carries no transport status. This provision binds \u0060litespec/backend/domain#reject-business-violations-with-dedicated-refusals\u0060 for .NET.",
-      "example": "\u0060\u0060\u0060csharp\n// Prohibited: the aggregate carries the code and message, and one type covers unrelated rules.\nif (allocation.Count == 0)\n{\n    throw new RefundRuleException(\u0022refunds.allocation-invalid\u0022, \u0022A refund requires at least one allocation line.\u0022);\n}\n\nif (allocation.Any(line =\u003E line.Quantity \u003C= 0))\n{\n    throw new RefundRuleException(\u0022refunds.allocation-invalid\u0022, \u0022Each allocation quantity must be positive.\u0022);\n}\n\n// Required: one type per rule; the type owns the code and message; the call site passes only domain values.\nif (allocation.Count == 0)\n{\n    throw new RefundAllocationRequiredException();\n}\n\nif (allocation.Any(line =\u003E line.Quantity \u003C= 0))\n{\n    throw new RefundAllocationQuantityInvalidException();\n}\n\u0060\u0060\u0060\n\n\u0060\u0060\u0060csharp\n/// \u003Cimplements\u003Erule/refunds.allocation-required\u003C/implements\u003E\npublic sealed partial class RefundAllocationRequiredException()\n    : DomainException(\u0022A refund requires at least one allocation line.\u0022);\n\u0060\u0060\u0060\n\nThe generator writes \u0060public override string Code =\u003E \u0022refunds.allocation-required\u0022;\u0060 from the refusal result the rule names.\n\nTwo rules that share a caller-visible refusal code because a boundary maps them to one response still get two exception types. The shared code lives in the two types, not in a string passed by the aggregate. Reuse a single exception type only when one rule can fail from more than one input and the differing values are carried as constructor parameters.\n\nApplication validators handle malformed caller input through validation errors. Aggregate and value-object exceptions remain the final check when direct Domain use violates a rule. Command handlers do not catch expected Domain exceptions. The host maps them through the documented error boundary."
+      "example": "\u0060\u0060\u0060csharp\n// Prohibited: the aggregate carries the code and message, and one type covers unrelated rules.\nif (allocation.Count == 0)\n{\n    throw new RefundRuleException(\u0022refunds.allocation-invalid\u0022, \u0022A refund requires at least one allocation line.\u0022);\n}\n\nif (allocation.Any(line =\u003E line.Quantity \u003C= 0))\n{\n    throw new RefundRuleException(\u0022refunds.allocation-invalid\u0022, \u0022Each allocation quantity must be positive.\u0022);\n}\n\n// Required: one type per rule; the type owns the code and message; the call site passes only domain values.\nif (allocation.Count == 0)\n{\n    throw new RefundAllocationRequiredException();\n}\n\nif (allocation.Any(line =\u003E line.Quantity \u003C= 0))\n{\n    throw new RefundAllocationQuantityInvalidException();\n}\n\u0060\u0060\u0060\n\n\u0060\u0060\u0060csharp\n/// \u003Cimplements\u003Erule/refunds.allocation-required\u003C/implements\u003E\npublic sealed partial class RefundAllocationRequiredException()\n    : DomainException(\u0022A refund requires at least one allocation line.\u0022);\n\u0060\u0060\u0060\n\nThe generator writes \u0060public override string Code =\u003E \u0022refunds.allocation-required\u0022;\u0060 from the refusal result the rule names.\n\nTwo rules that a boundary maps to one response still get two exception types, each carrying its own refusal code; the boundary maps both codes to the one response. The two codes live in the two types, not in strings passed by the aggregate. Reuse a single exception type only when one rule can fail from more than one input and the differing values are carried as constructor parameters.\n\nApplication validators handle malformed caller input through validation errors. Aggregate and value-object exceptions remain the final check when direct Domain use violates a rule. Command handlers do not catch expected Domain exceptions. The host maps them through the documented error boundary."
+    },
+    {
+      "id": "litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns",
+      "heading": "Throw Only Refusal Codes the Module Owns",
+      "page": "docs/backend/dotnet/domain.md",
+      "anchor": "throw-only-refusal-codes-the-module-owns",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060refusal-module-foreign\u0060 (level S) for a refusal code carried from another module\u0027s code, and \u0060refusal-code-duplicate\u0060 (level S) for a refusal code two exception types carry.",
+      "stack": "dotnet",
+      "concern": "domain",
+      "artifact": "aggregate, value-object",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each refusal code a module declares MUST be carried by at most one exception type, in the module that declares it.",
+      "rationale": "A refusal code tells the caller which module refused and why, so the code means nothing when it travels: an exception in one module that carries another module\u0027s code blames the wrong owner, and two exception types that carry one code leave the caller unable to tell which rule failed. Each module declares its codes once in its refusal set, under \u0060litespec/core/use-cases#declare-each-modules-refusals-once\u0060, and each exception type carries its rule\u0027s code from that set, under \u0060litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions\u0060. One carrying type per code in the declaring module keeps the blame and the rule behind each code fixed. This provision binds \u0060litespec/backend/domain#reject-business-violations-with-dedicated-refusals\u0060 for .NET.",
+      "example": "The spending module declares \u0060spending.receipt-missing\u0060, and only \u0060ExpenseReceiptMissingException\u0060 in the spending module carries it:\n\n\u0060\u0060\u0060csharp\n/// \u003Cimplements\u003Erule/expense.receipt-required-above-threshold\u003C/implements\u003E\npublic sealed partial class ExpenseReceiptMissingException()\n    : DomainException(\u0022An expense above the receipt threshold carries no receipt.\u0022);\n\u0060\u0060\u0060\n\nThe generator writes \u0060public override string Code =\u003E \u0022spending.receipt-missing\u0022;\u0060 from the refusal result the rule names. A receipt exception in the reporting module that carried \u0060spending.receipt-missing\u0060, or a second spending exception carrying the same code, breaks this rule."
     },
     {
       "id": "litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers",
@@ -3981,7 +4017,7 @@
       "anchor": "match-c-files-and-primary-types",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060dotnet build\u0060 reports \u0060SA1649\u0060 for a C# file whose name differs from its primary type.",
+      "evidence": "\u0060dotnet build\u0060 reports \u0060LS3003\u0060 for a C# file whose name differs from its primary type.",
       "stack": "dotnet",
       "concern": "workspace",
       "artifact": "",
@@ -4009,6 +4045,24 @@
       "statement": "No folder is named \u0060Shared\u0060, \u0060Common\u0060, \u0060Util\u0060, \u0060Utils\u0060, \u0060Helpers\u0060, or \u0060Misc\u0060, and no type carries one of those names or ends in \u0060Helper\u0060, \u0060Manager\u0060, \u0060Util\u0060, or \u0060Utils\u0060, outside the declared shared kernel.",
       "rationale": "A folder named \u0060Shared\u0060 or a type ending in \u0060Manager\u0060 tells the reader the author found no reason to name; each such name becomes the drawer where unrelated code gathers. The shared kernel project is the one declared exception, named in one place, so the exception stays visible instead of spreading.",
       "example": "The declared shared kernel project passes; \u0060Billing/Helpers/\u0060 and \u0060OrderManager\u0060 outside it are reported."
+    },
+    {
+      "id": "litespec/backend/dotnet/naming#put-the-cancellation-token-last",
+      "heading": "Put the Cancellation Token Last",
+      "page": "docs/backend/dotnet/naming.md",
+      "anchor": "put-the-cancellation-token-last",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060dotnet build\u0060 reports \u0060LS3002\u0060 for a cancellation token that is misplaced or misnamed.",
+      "stack": "dotnet",
+      "concern": "workspace",
+      "artifact": "",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "In the dotnet stack, a method that takes a \u0060CancellationToken\u0060 MUST place it last, or second to last before a \u0060params\u0060 array, and name it \u0060cancellationToken\u0060.",
+      "rationale": "A token in a fixed trailing position lets every caller pass cancellation without reading the signature, and one name lets every reader tell the token from the data beside it. A token buried mid-signature is passed in the wrong position, and a renamed token hides what it is where the method is called.",
+      "example": "\u0060SubmitExpenseCommandHandler.HandleAsync\u0060 takes \u0060SubmitExpenseCommand command\u0060 and then \u0060CancellationToken cancellationToken\u0060, so a caller passes the data first and cancellation last."
     },
     {
       "id": "litespec/backend/dotnet/packages#raise-the-litebus-handler-analyzers-to-errors",
@@ -5956,6 +6010,24 @@
       "example": "A task that names the migration and its scope approves it; a task silent on releases leaves a release unmade."
     },
     {
+      "id": "litespec/core/agent#scope-every-convention-to-files-it-governs",
+      "heading": "Scope Every Convention to Files It Governs",
+      "page": "docs/core/agent.md",
+      "anchor": "scope-every-convention-to-files-it-governs",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060convention-unreached\u0060 (level G) for a project convention whose Applies to matches no file in the project tree and no record.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A project convention MUST state an Applies to that matches at least one file in the project tree or one record the project writes.",
+      "rationale": "\u0060rules\u0060 returns a convention only when its Applies to meets the queried path or record. A convention that meets nothing reaches no agent, so its rule stays unread while the project believes it is stated. One match keeps every stated convention live.",
+      "example": "Claimwick records that every command handler logs its outcome, with \u0060stack: dotnet; artifact: command-handler\u0060; the convention meets each handler file, so \u0060rules\u0060 returns it before an agent edits one."
+    },
+    {
       "id": "litespec/core/agent#search-the-provisions-before-recording-a-decision",
       "heading": "Search the Provisions Before Recording a Decision",
       "page": "docs/core/agent.md",
@@ -6898,7 +6970,7 @@
       "anchor": "declare-each-read-model-field-from-a-published-field",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060read-model-source-unknown\u0060 (level G) for a \u0060from\u0060, \u0060erasedBy\u0060 or \u0060removedBy\u0060 naming no outbound integration event or a payload field the event does not carry, \u0060read-model-key-invalid\u0060 (level G) for a \u0060keyedBy\u0060 naming an aggregate of the read model\u0027s own module, and \u0060read-model-unused\u0060 (level A) for a read model no use case reads.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060read-model-source-unknown\u0060 (level G) for a \u0060from\u0060, \u0060erasedBy\u0060 or \u0060removedBy\u0060 naming no outbound integration event or a payload field the event does not carry, \u0060read-model-key-invalid\u0060 (level G) for a \u0060keyedBy\u0060 naming an aggregate of the read model\u0027s own module, and \u0060read-model-unused\u0060 (level G) for a read model no use case reads.",
       "stack": "any",
       "concern": "application",
       "artifact": "record:read-model",
@@ -7070,6 +7142,24 @@
       "statement": "Each reaction MUST be named \u0060\u003Cverb\u003E-\u003Cwhat\u003E-on-\u003Cfact\u003E\u0060 with a declared verb.",
       "rationale": "A reaction runs because something happened, and a name without its trigger hides why it runs: \u0060send-due-notice\u0060 could fire on a borrow, a hold, or a reminder run. Naming the act and the fact lets a reader find every consequence of a fact by its name, as \u0060litespec/core/language#name-each-record-by-its-types-name-form\u0060 states.",
       "example": "\u0060reaction/lending.send-due-notice-on-loan-borrowed\u0060 answers \u0060domain-event/loan.loan-borrowed\u0060."
+    },
+    {
+      "id": "litespec/core/automation#name-the-step-a-compensating-reaction-undoes",
+      "heading": "Name the Step a Compensating Reaction Undoes",
+      "page": "docs/core/automation.md",
+      "anchor": "name-the-step-a-compensating-reaction-undoes",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060compensation-target-invalid\u0060 (level G) for a \u0060compensates\u0060 naming a use case that is not a command or the same use case the reaction runs, \u0060compensation-trigger-invalid\u0060 (level G) for a compensating reaction answering an event the compensated use case lists in \u0060raises\u0060, and \u0060reference-unknown\u0060 (level G) for a \u0060compensates\u0060 naming no written record. The trigger check is a minimum: a reviewer confirms the trigger reports a later step\u0027s failure.",
+      "stack": "any",
+      "concern": "application",
+      "artifact": "record:reaction",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A reaction that undoes a committed step of a multi-step process MUST name the undone use case in \u0060compensates\u0060, run a use case other than the one it names, and answer an event the undone use case does not raise.",
+      "rationale": "A multi-step process commits each step before the next runs, so a later failure cannot roll the earlier steps back: each committed step needs an undo that runs only when a later step fails. Without the link, a reader sees a reaction running an undoing command and cannot tell which committed step it reverses. Running the named use case again redoes the step instead of undoing it, and answering an event the undone step raises undoes every success. Naming the undone step in \u0060compensates\u0060 states the undo beside the reaction, with its own trigger and failure handling.",
+      "example": "The library reserves a copy with \u0060use-case/lending.reserve-copy\u0060, which commits the reservation. When the later charge fails, \u0060use-case/lending.record-charge-failure\u0060 raises \u0060domain-event/charge.charge-failed\u0060. The reaction \u0060reaction/lending.release-copy-on-charge-failed\u0060 answers that event, runs \u0060use-case/lending.release-copy\u0060, and carries \u0060compensates: use-case/lending.reserve-copy\u0060, so a reader sees which committed step the release undoes."
     },
     {
       "id": "litespec/core/automation#point-reaction-and-job-scenarios-at-the-run-result",
@@ -7520,6 +7610,24 @@
       "statement": "Name each module after one capability the software offers, not after a company function or a catch-all, and split a module whose aggregates serve more than one capability into sibling modules.",
       "rationale": "Modules mark the areas of the bounded context, where a monolith would later split and how a reader finds a use case by module, then aggregate, then use case. A capability name keeps one module cohesive; a company function or a catch-all such as \u0060platform\u0060, \u0060sales\u0060, \u0060operations\u0060, or \u0060misc\u0060 gathers unrelated aggregates that change for unrelated reasons. Splitting such a module into siblings keeps each module one capability with aggregates that serve it.",
       "example": "The finance module holds payout and ledger aggregates serving finance, while a misc module holding lending and catalog aggregates splits into lending and catalog siblings."
+    },
+    {
+      "id": "litespec/core/domain-model#name-every-aggregate-a-rule-spans-in-binds",
+      "heading": "Name Every Aggregate a Rule Spans in Binds",
+      "page": "docs/core/domain-model.md",
+      "anchor": "name-every-aggregate-a-rule-spans-in-binds",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060rule-binds-missing\u0060 (level G) for a rule whose \u0060governs\u0060 names more than one aggregate while \u0060binds\u0060 names none or not all of them.",
+      "stack": "any",
+      "concern": "domain",
+      "artifact": "record:rule",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each rule whose \u0060governs\u0060 names more than one aggregate MUST name every governed aggregate in \u0060binds\u0060.",
+      "rationale": "A rule across aggregates is held by a state guard or an atomicity rule, never by one aggregate alone. Naming every reached aggregate in \u0060binds\u0060 shows the rule\u0027s reach beside the rule, so a reader sees which aggregates change together.",
+      "example": "The \u0060rule/spending.receipt-filed-once\u0060 rule states that a receipt file supports one expense across spending, and names \u0060aggregate/spending.expense\u0060 and \u0060aggregate/spending.receipt\u0060 in \u0060binds\u0060."
     },
     {
       "id": "litespec/core/domain-model#name-every-event-in-the-past-tense",
@@ -10354,7 +10462,7 @@
       "anchor": "keep-rules-and-targets-out-of-technical-decisions",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060decision-basis-missing\u0060 (level A) for a technical decision whose \u0060basedOn\u0060 names nothing, and counts a quality requirement as fulfilled when a technical decision names it in \u0060basedOn\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060decision-basis-missing\u0060 (level G) for a technical decision whose \u0060basedOn\u0060 names nothing, and counts a quality requirement as fulfilled when a technical decision names it in \u0060basedOn\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:decision",
@@ -13307,6 +13415,24 @@
       "example": "The submit-expense use case names \u0060setting/spending.receipt-threshold\u0060 in \u0060reads\u0060, so a move of the threshold meets the submission story."
     },
     {
+      "id": "litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure",
+      "heading": "Name the Use Case That Decides a Stale Figure",
+      "page": "docs/core/use-cases.md",
+      "anchor": "name-the-use-case-that-decides-a-stale-figure",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060freshness-decider-invalid\u0060 (level G) for a \u0060decidedBy\u0060 naming a query or a use case or aggregate outside the module that owns the figure\u0027s source, and \u0060record-invalid\u0060 for a \u0060decidedBy\u0060 with \u0060immediate\u0060 freshness.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:use-case, record:read-model",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each query output group and each read model whose figure a command re-decides at write time MUST name in \u0060decidedBy\u0060 that command use case or its aggregate, in the module that owns the figure\u0027s source.",
+      "rationale": "A stale figure without a named decider leaves the reader guessing who settles it: the page shows seat availability, and nothing says the hold command re-decides it at write time. Naming the deciding command use case, or its aggregate, states the link beside the figure, so the reader follows it to the current truth. The schema allows \u0060decidedBy\u0060 only with \u0060snapshot\u0060 or \u0060eventual\u0060 freshness: an \u0060immediate\u0060 figure is current, so it names no decider. A query decides nothing, so a \u0060decidedBy\u0060 naming one is reported, and the decider sits in the module that owns the figure\u0027s source, as \u0060litespec/core/automation#decide-current-truth-in-the-owning-module\u0060 states.",
+      "example": "The reimbursed-expenses list carries \u0060snapshot\u0060 freshness and names \u0060use-case/spending.reimburse-expense\u0060 in \u0060decidedBy\u0060, so a reader seeing a stale row follows the link to the command that decides each reimbursement."
+    },
+    {
       "id": "litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model",
       "heading": "Name What a Use Case Acts on from the Model",
       "page": "docs/core/use-cases.md",
@@ -13597,6 +13723,24 @@
       "example": "The submit-expense summary states that an employee files a work expense for approval, and its Flow section lists validation, storage, and the approver notice in order."
     },
     {
+      "id": "litespec/core/waivers#cover-each-finding-with-one-waiver",
+      "heading": "Cover Each Finding with One Waiver",
+      "page": "docs/core/waivers.md",
+      "anchor": "cover-each-finding-with-one-waiver",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060waiver-duplicate\u0060 (level G) for two live waivers covering the same finding on the same subject or path.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:waiver",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Two live waivers MUST NOT cover the same code, provision or page on the same subject record or the same path.",
+      "rationale": "Two waivers on one finding split the reason and the end date across two records: one expires while the other still holds, and a reader cannot tell which waiver to close. One waiver per finding keeps each covered finding traced to exactly one reason and one end.",
+      "example": "Claimwick covers the unimplemented export with the one waiver \u0060waiver/export-expenses-unimplemented\u0060; a second waiver naming \u0060use-case-unimplemented\u0060 on \u0060use-case/spending.export-expenses\u0060 reports \u0060waiver-duplicate\u0060."
+    },
+    {
       "id": "litespec/core/waivers#deviate-from-advice-without-a-record",
       "heading": "Deviate from Advice Without a Record",
       "page": "docs/core/waivers.md",
@@ -13613,6 +13757,24 @@
       "statement": "A project MAY deviate from a provision of Strength advisory without recording a waiver, since an advisory provision binds no project.",
       "rationale": "A provision of Strength advisory is experience applied with judgement, and [Provision Scopes](scopes.md) says it records nothing. A waiver from it would name a rule the provision never made. A provision whose Statement says \u0060SHOULD\u0060 or \u0060SHOULD NOT\u0060 takes this strength for the same reason: the project sets the advice aside within the bounds its Deviation states and records nothing. Only a provision of Strength required is departed from through a waiver. Settled by [decision/0082-give-every-rule-one-home-and-one-strength](decision/0082-give-every-rule-one-home-and-one-strength).",
       "example": ""
+    },
+    {
+      "id": "litespec/core/waivers#name-the-records-that-close-a-gap",
+      "heading": "Name the Records That Close a Gap",
+      "page": "docs/core/waivers.md",
+      "anchor": "name-the-records-that-close-a-gap",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 (level G) for a gap waiver with no \u0060closedBy\u0060, and \u0060reference-unknown\u0060 (level G) for a \u0060closedBy\u0060 entry that names no written record.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:waiver",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every gap waiver MUST name the records whose change closes the gap in \u0060closedBy\u0060.",
+      "rationale": "An \u0060exit\u0060 says how a gap closes in prose, but prose names no record a check can hold. \u0060closedBy\u0060 names the records whose change closes the gap, so a reader sees what to change and the check reports an entry that names no written record. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).",
+      "example": "The Claimwick waiver for the unimplemented export names \u0060use-case/spending.export-expenses\u0060 in \u0060closedBy\u0060, so the gap closes when the export use case gains its handler."
     },
     {
       "id": "litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver",
@@ -13646,9 +13808,27 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "An accepted gap MUST live as a waiver with an \u0060expiresOn\u0060 date and an \u0060exit\u0060.",
-      "rationale": "Missing work with no date is invisible: nothing reports it. A waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise. Its \u0060covers\u0060 findings are covered until the date, the \u0060exit\u0060 says how the gap closes, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
-      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in \u0060.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\n\u0060\u0060\u0060\n\nThe \u0060use-case-unimplemented\u0060 finding is covered, and the run passes, until 2027-06-01, which satisfies this provision."
+      "statement": "An accepted gap MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060 and \u0060closedBy\u0060.",
+      "rationale": "Missing work with no date is invisible: nothing reports it. A waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise. Its \u0060covers\u0060 findings are covered until the date, the \u0060exit\u0060 says how the gap closes, \u0060closedBy\u0060 names the records whose change closes it, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in \u0060.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\nkind: gap\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\nclosedBy:\n  - use-case/spending.export-expenses\n\u0060\u0060\u0060\n\nThe \u0060use-case-unimplemented\u0060 finding is covered, and the run passes, until 2027-06-01, which satisfies this provision."
+    },
+    {
+      "id": "litespec/core/waivers#state-the-kind-of-every-waiver",
+      "heading": "State the Kind of Every Waiver",
+      "page": "docs/core/waivers.md",
+      "anchor": "state-the-kind-of-every-waiver",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 (level G) for a waiver with no \u0060kind\u0060 or a \u0060kind\u0060 outside \u0060gap\u0060 and \u0060lasting\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:waiver",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every waiver MUST state its kind as \u0060gap\u0060 or \u0060lasting\u0060.",
+      "rationale": "Whether a waiver ends is a fact the reader needs on the record: a gap ends on its \u0060expiresOn\u0060 date, and a lasting choice holds for as long as its reason holds. A kind read from the presence of \u0060expiresOn\u0060 hides that fact in an absence, and a reader cannot tell a gap with no date yet from a choice that never ends. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).",
+      "example": "The Claimwick waiver for the unimplemented export states \u0060kind: gap\u0060 with its \u0060expiresOn\u0060 date, so a reader sees the export gap ends on 2027-06-01."
     },
     {
       "id": "litespec/core/writing#apply-plain-mechanics",
@@ -15160,7 +15340,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A cached query MUST state its accepted staleness as a \u0060freshness\u0060 object with \u0060mode\u0060 of \u0060eventual\u0060 and its duration in \u0060within\u0060.",
-      "rationale": "Accepted staleness is the contract each caller relies on: it states how stale a read may be before it counts as a defect. The served query states it as \u0060{\u0022mode\u0022: \u0022bounded\u0022, \u0022within\u0022: \u0022PT5M\u0022}\u0060 on its output, so the cache and the query share one bound that is reviewed with the use case.",
+      "rationale": "Accepted staleness is the contract each caller relies on: it states how stale a read may be before it counts as a defect. The served query states it as \u0060{\u0022mode\u0022: \u0022eventual\u0022, \u0022within\u0022: \u0022PT5M\u0022}\u0060 on its output, so the cache and the query share one bound that is reviewed with the use case.",
       "example": ""
     },
     {
@@ -17024,7 +17204,7 @@
       "anchor": "name-every-runbook-from-an-alert-job-reaction-or-failure-policy",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060runbook-unused\u0060 (level A) for a runbook record that no alert label, job, reaction or failure policy names.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060runbook-unused\u0060 (level G) for a runbook record that no alert label, job, reaction or failure policy names.",
       "stack": "any",
       "concern": "operations",
       "artifact": "record:runbook",
@@ -21002,15 +21182,15 @@
       "anchor": "declare-realtime-freshness",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which realtime-served queries lack an immediate or advisory freshness object on their output? Look at the served query beside the realtime use case.",
+      "evidence": "Which realtime-served queries lack an immediate freshness object on their output? Look at the served query beside the realtime use case.",
       "stack": "any",
       "concern": "infrastructure",
       "artifact": "record:notification",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A query served over realtime MUST declare a \u0060freshness\u0060 object with \u0060mode\u0060 of \u0060immediate\u0060 or \u0060advisory\u0060 on its output.",
-      "rationale": "A realtime channel delivers an update seconds after the change, so the served query promises \u0060{\u0022mode\u0022: \u0022immediate\u0022}\u0060; where the pushed value still awaits a later decision, it promises \u0060{\u0022mode\u0022: \u0022advisory\u0022, \u0022authority\u0022: \u0022\u003Crecord id\u003E\u0022}\u0060 naming the record that holds the authoritative value. Without the declared freshness, a client cannot tell whether the live value is final or provisional.",
+      "statement": "A query served over realtime MUST declare a \u0060freshness\u0060 object with \u0060mode\u0060 of \u0060immediate\u0060 on its output.",
+      "rationale": "A realtime channel delivers an update seconds after the change, so the served query promises \u0060{\u0022mode\u0022: \u0022immediate\u0022}\u0060. Without the declared freshness, a client cannot tell how stale the live value may be.",
       "example": ""
     },
     {
@@ -21245,7 +21425,7 @@
       "strength": "required",
       "statement": "A \u0060pre-production\u0060 consumer MUST record each deferred provision as a waiver expiring at promotion, with a \u0060production\u0060 consumer carrying no deferred provision.",
       "rationale": "An early-stage deferral without a named end becomes permanent by neglect. Each waiver names the deferred provision in \u0060covers\u0060 with the date its deferral ends in \u0060expiresOn\u0060, and the promotion decision names the same provisions, so promotion closes every deferral at once.",
-      "example": "Each deferral is a waiver covering its provision until promotion.\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/compat-classification-until-promotion\ntitle: Compat Classification Until Promotion\ncovers:\n  - litespec/ext/compat#classify-breaking-contract-changes\npaths:\n  - apps/api/**\nreason: No consumer reads the contract before the first deployment.\nexit: Promotion to production ends the deferral and the classification applies.\nexpiresOn: 2026-12-01\n\u0060\u0060\u0060"
+      "example": "Each deferral is a waiver covering its provision until promotion.\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/compat-classification-until-promotion\ntitle: Compat Classification Until Promotion\nkind: gap\ncovers:\n  - litespec/ext/compat#classify-breaking-contract-changes\npaths:\n  - apps/api/**\nreason: No consumer reads the contract before the first deployment.\nexit: Promotion to production ends the deferral and the classification applies.\nexpiresOn: 2026-12-01\nclosedBy:\n  - decision/0001-promote-to-production\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/ext/stage#promote-through-a-recorded-decision",
@@ -30174,7 +30354,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A rule claim MUST confirm only through a scenario the same test proves.",
-      "rationale": "Each rule holds where its kind says: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, a cross-aggregate rule at the store or the reacting use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that \u0060litespec/core/domain-model#tabulate-every-calculation-with-examples\u0060 requires.",
+      "rationale": "Each rule holds where its kind says: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, a rule whose \u0060binds\u0060 names the aggregates it spans at the state guard or the atomic use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that \u0060litespec/core/domain-model#tabulate-every-calculation-with-examples\u0060 requires.",
       "example": "A test proving the scenario for an expense above the threshold with no receipt claims the receipt rule alongside the scenario. The scenario sends the command and asserts the \u0060spending.receipt-missing\u0060 refusal, and the rule claim confirms because the same test proves the scenario. No separate mark names the validator or the store."
     },
     {
@@ -31057,7 +31237,7 @@
       "strength": "required",
       "statement": "A consumer workspace MUST use the canonical root tree declared in this section.",
       "rationale": "",
-      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      modules/\n        {module}/\n          module.yaml\n          goals/ problems/ constraints/ decisions/ research/\n          features/\n            {feature}/\n              {feature}.yaml\n              {requirement}/{requirement}.yaml    one requirement, in its own folder\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/\n          {aggregate}/\n            aggregate.yaml\n            {use-case}/{use-case}.yaml  results and scenarios as entries\n            domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder, \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature\u0027s folder.\n\nAn entry lives in its home file: permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
+      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      features/\n        {feature}/\n          {feature}.yaml\n          requirements/\n            {requirement}/\n              {requirement}.yaml    one requirement, in its own folder\n      requirements/                 product requirements\n        {requirement}/\n          {requirement}.yaml\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/\n          aggregates/\n            {aggregate}/\n              aggregate.yaml\n              use-cases/\n                {use-case}/\n                  {use-case}.yaml   results and scenarios as entries\n              domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder, \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature\u0027s folder.\n\nAn entry lives in its home file: permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
     }
   ]
 }

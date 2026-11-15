@@ -336,6 +336,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
 | `requiresConsent` | use case, notification | rule | needs consent under | sets consent for |
 | `triggeredBy` | reaction | domain event, integration event | triggers | is triggered by |
+| `compensates` | reaction | use case | compensates | is compensated by |
 | `effects.runs` | reaction, job | use case | runs | is run by |
 | `onFailure.surfacesIn` | reaction, job | entry point | surfaces in | surfaces |
 | `onFailure.runbook` | reaction, job | runbook | is answered by | answers |
@@ -353,8 +354,10 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `translates` | integration event | domain event | translates | is translated by |
 | `keyedBy` | read model | aggregate | is keyed by | keys |
 | `removedBy` | read model | integration event | is removed by | removes rows of |
+| `freshness.decidedBy` | read model | use case, aggregate | is decided by | decides |
 | `covers` | waiver | standards provision, standards page | covers | is covered by |
 | `subject` | waiver | generic record, flow step | applies to | is applied to |
+| `closedBy` | waiver | generic record, flow step | is closed by | closes |
 | `host` | screen | screen | opens on | hosts |
 | `offers` | screen | use case | offers | is offered by |
 | `leadsTo` | screen | screen | leads to | is reached from |
@@ -464,7 +467,7 @@ A goal reaches a flow serving it or a quality requirement. A flow serves one goa
 
 A record that reaches no Behavior gets an `intent-unreached` finding: it is either unfinished work, which belongs on the backlog, or not software.
 
-Intent that is written but not yet served is planned, not blocked. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. Each one reports on a local run and blocks only in the pull-request check, the run whose environment marks it continuous integration. A waiver with `expiresOn` parks any of them for its subject or paths until it expires. The rule holds in every claim: a planned record is not a failure of the layers the project claims.
+Intent that is written but not yet served is planned, and planned Intent is a gap the project records. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. Each one blocks in every run, local or in the pull-request check, because a link from Intent to the Behavior that serves it is never advisory. A gap waiver with `expiresOn` and `closedBy` parks any of them for its subject or paths until it expires. The rule holds in every claim.
 
 Intent coverage states, for each Intent requirement and each flow step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction or job serves it. The builder computes the share from the records alone, so the book shows Intent coverage in every claim, first on the Intent part of the book.
 
@@ -522,7 +525,7 @@ Qualification is per reader, never global: a finding takes the qualification of 
 
 `litespec model check` runs only the findings of the layers the project claims in `layers`, as the [scope page](scope.md#layer-claims) states. With only `intent` and `behavior` claimed, no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. Claiming `implementation` or `proof` adds the stack readers and the mark and proof findings. Claiming `implementation: litespec` adds the layout group, `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout, with the stack and analyzer findings. The [model command page](../tools/model.md) lists every finding code with its level, its layer, its trace and its meaning.
 
-`litespec model check` reports the planned-Intent findings locally and blocks on them in the pull-request check. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached past a merge carries a waiver with `expiresOn`, which then parks the finding for that record until it expires. The rule holds in every claim.
+`litespec model check` blocks on the planned-Intent findings in every run. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached carries a gap waiver with `expiresOn`, which then parks the finding for that record until it expires. The rule holds in every claim.
 
 Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block, and `reader-missing` for a claimed layer blocks unless a waiver with an expiry parks it. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
@@ -970,7 +973,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/approval-reminders.month-end-submission` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
 
-**Checked by:** `litespec model check` reports `decision-basis-missing` (level A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
+**Checked by:** `litespec model check` reports `decision-basis-missing` (level G) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
 
 ### Resolve Every Page Link
 

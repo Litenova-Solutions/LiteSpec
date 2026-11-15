@@ -5,13 +5,13 @@
 
 ## Intent
 
-C# code in a .NET backend names its files and implementation shapes one way across every project. This page states those .NET rules: one primary type per file, a shared implementation style, and names that state their reason. The shared naming rules live on [Naming and Code Style](../../workspace/naming.md); this page holds only their .NET form.
+C# code in a .NET backend names its files and implementation shapes one way across every project, and places every cancellation token last. This page states those .NET rules: one primary type per file, a trailing cancellation token in every signature that takes one, a shared implementation style, and names that state their reason. The shared naming rules live on [Naming and Code Style](../../workspace/naming.md); this page holds only their .NET form.
 
 ## Concepts
 
 ### Files and Style
 
-A C# file takes its primary type's exact name, so a reader finds any type by its file. File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
+A C# file takes its primary type's exact name, so a reader finds any type by its file. A method that takes a cancellation token places it last, so callers pass cancellation without reading the signature. File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
 
 ### C# Role Suffixes
 
@@ -38,7 +38,21 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Rationale:** A file named for its type lets a reader and a tool find the type by the path. Two top-level types in one file break that lookup and merge their histories in review. Only a small private or file-scoped nested type stays with its owner.
 
-**Checked by:** `dotnet build` reports `SA1649` for a C# file whose name differs from its primary type.
+**Checked by:** `dotnet build` reports `LS3003` for a C# file whose name differs from its primary type.
+
+### Put the Cancellation Token Last
+
+**ID:** `litespec/backend/dotnet/naming#put-the-cancellation-token-last`
+
+**Strength:** required
+
+**Statement:** In the dotnet stack, a method that takes a `CancellationToken` MUST place it last, or second to last before a `params` array, and name it `cancellationToken`.
+
+**Rationale:** A token in a fixed trailing position lets every caller pass cancellation without reading the signature, and one name lets every reader tell the token from the data beside it. A token buried mid-signature is passed in the wrong position, and a renamed token hides what it is where the method is called.
+
+**Example:** `SubmitExpenseCommandHandler.HandleAsync` takes `SubmitExpenseCommand command` and then `CancellationToken cancellationToken`, so a caller passes the data first and cancellation last.
+
+**Checked by:** `dotnet build` reports `LS3002` for a cancellation token that is misplaced or misnamed.
 
 ### Keep Implementation Style Consistent
 
@@ -108,7 +122,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 ## Reference Example
 
-This informative example demonstrates `litespec/backend/dotnet/naming#match-c-files-and-primary-types`, `litespec/workspace/naming#use-architectural-suffixes`, and `litespec/workspace/naming#keep-namespaces-aligned-with-folders`.
+This informative example demonstrates `litespec/backend/dotnet/naming#match-c-files-and-primary-types`, `litespec/backend/dotnet/naming#put-the-cancellation-token-last`, `litespec/workspace/naming#use-architectural-suffixes`, and `litespec/workspace/naming#keep-namespaces-aligned-with-folders`.
 
 ```csharp
 namespace Example.Posts.UseCases.CreateDraft;

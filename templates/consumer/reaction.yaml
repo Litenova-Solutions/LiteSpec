@@ -5,6 +5,7 @@ summary: A submitted expense that waits past the reminder delay without a decisi
 triggeredBy:
 - domain-event/expense.submitted
 skippedWhen: The expense is already decided when the waiting time ends.
+# compensates: use-case/spending.approve-expense
 effects:
 - sends: notification/spending.approval-reminder
 serves:

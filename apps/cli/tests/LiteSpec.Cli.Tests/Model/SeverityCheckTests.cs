@@ -26,24 +26,10 @@ public sealed class SeverityCheckTests
         Assert.Null(reason);
     }
 
-    /// <summary>The planned-Intent set holds the five reachability codes, each applying under the intent-and-behavior claim.</summary>
+    /// <summary>A planned-Intent finding blocks in a local run under the intent-and-behavior claim, as in the pull-request check.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void PlannedIntentHoldsTheFiveReachabilityCodes()
-    {
-        Assert.Equal(
-            new[] { "constraint-unreached", "goal-mover-missing", "intent-unreached", "requirement-fulfillment-missing", "step-use-case-missing" },
-            Severity.PlannedIntent.OrderBy(code => code, StringComparer.Ordinal).ToArray());
-        var claim = new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: null);
-        Assert.All(
-            Severity.PlannedIntent,
-            code => Assert.True(claim.Covers(code, [])));
-    }
-
-    /// <summary>A planned-Intent finding reports locally and blocks in the pull-request check under the intent-and-behavior claim.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void PlannedIntentReportsLocallyAndBlocksInCIUnderIntentAndBehavior()
+    public void PlannedIntentBlocksInEveryRunUnderIntentAndBehavior()
     {
         using var fixture = ModelFixture.Prepare("large", "requirement-fulfillment-missing");
         SetClaim(fixture.Path, ConsumerFixture.Layers(null, null));
@@ -51,16 +37,8 @@ public sealed class SeverityCheckTests
         var local = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
         var (localOutcome, _) = OutcomeOf(local.Stdout, "requirement-fulfillment-missing");
 
-        Assert.Equal(0, local.Status);
-        Assert.Equal("reported", localOutcome);
-
-        var pullRequest = TestCli.Run(
-            ["model", "check", "--root", fixture.Path, "--format", "json"],
-            environment: new Dictionary<string, string> { ["CI"] = "true" });
-        var (pullOutcome, _) = OutcomeOf(pullRequest.Stdout, "requirement-fulfillment-missing");
-
-        Assert.Equal(1, pullRequest.Status);
-        Assert.Equal("blocking", pullOutcome);
+        Assert.Equal(1, local.Status);
+        Assert.Equal("blocking", localOutcome);
     }
 
     /// <summary>An unknown marks value fails the project schema and reports project-invalid.</summary>
