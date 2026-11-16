@@ -14,7 +14,7 @@ This page defines that record system for projects of every size, shape, and stac
 
 Each layer answers one question, each layer is written from the layer above it, and each record belongs to the layer that owns it.
 
-| Record layer | Question | Written by | Record types |
+| Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | people and agents | goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
 | Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
