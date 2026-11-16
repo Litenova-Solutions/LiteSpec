@@ -4,19 +4,21 @@
 
 **Concern:** workspace
 
-C# code in a .NET backend names its files, types, and variables one way across every project, and places every cancellation token last. This page defines the .NET form of the shared [Naming and Code Style](../../workspace/naming.md) rules: one primary type per file, a trailing cancellation token in every signature that takes one, a shared implementation style, and names that state their reason.
+This page defines how the shared [Naming and Code Style](../../workspace/naming.md) rules apply to C# in a .NET backend. It covers file names, cancellation tokens, implementation style, and architectural names.
 
 ## Concepts
 
 ### Files and Style
 
-A C# file takes its primary type's exact name, so a reader finds any type by its file. Only a small private or file-scoped nested type stays with its owner; anything bigger gets its own file under its own name.
+A C# file uses the exact name of its primary type, so a reader finds any type by its file. Only a small private or file-scoped nested type stays with its owner; anything bigger gets its own file under its own name.
 
-A method that takes a cancellation token places it last and names it `cancellationToken`, so callers pass cancellation without reading the signature. File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
+A method that takes a cancellation token places it last and names it `cancellationToken`. Callers then pass cancellation without reading the signature.
+
+File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
 
 ### C# Role Names
 
-The suffixes for handlers, endpoints, reactions, and jobs live in the Role Suffixes table on the shared [Naming and Code Style](../../workspace/naming.md) page. The table below adds the C#-specific names: the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and the modules project carries one assembly marker.
+The Role Suffixes table on the shared [Naming and Code Style](../../workspace/naming.md) page lists the suffixes for handlers, endpoints, reactions, and jobs. The table below adds the C#-specific names: the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and the modules project carries one assembly marker.
 
 | Role | Pattern | Example |
 |:---|:---|:---|
@@ -25,7 +27,7 @@ The suffixes for handlers, endpoints, reactions, and jobs live in the Role Suffi
 | Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
 | Assembly marker | `{Product}AssemblyMarker` | `ClaimwickAssemblyMarker` |
 
-Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
+Mapping classes use `ApiMappings` instead of `Mappings`.
 
 ## Standards
 
@@ -49,7 +51,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Statement:** In the dotnet stack, a method that takes a `CancellationToken` MUST place it last, or second to last before a `params` array, and name it `cancellationToken`.
 
-**Rationale:** A token in a fixed trailing position lets every caller pass cancellation without reading the signature, and one name lets every reader tell the token from the data beside it. A token buried mid-signature is passed in the wrong position, and a renamed token hides what it is where the method is called.
+**Rationale:** A token in a fixed trailing position lets every caller pass cancellation without reading the signature, and one name lets every reader tell the token from the data beside it. A token in the middle of a signature is passed in the wrong position, and a renamed token hides what it is at the call site.
 
 **Example:** `SubmitExpenseCommandHandler.HandleAsync` takes `SubmitExpenseCommand command` and then `CancellationToken cancellationToken`, so a caller passes the data first and cancellation last.
 
@@ -63,7 +65,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Statement:** Production C# MUST use file-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes.
 
-**Rationale:** File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes change diff readability rather than behavior. One shared setting removes the debate from every review and keeps generated and hand-written code alike.
+**Rationale:** File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes change diff readability rather than behavior. One shared setting removes the debate from every review and keeps generated and hand-written code consistent.
 
 **Checked by:** `dotnet build` reports `LS3004` for a concrete class with no derived type that is not sealed.
 
@@ -115,7 +117,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Replacement:** A project names its shared kernel project in `stackConfig.dotnet.sharedKernel` and keeps every other folder and type named for its reason.
 
-**Rationale:** A folder named `Shared` or a type ending in `Manager` tells the reader the author found no reason to name, and each such name becomes the drawer where unrelated code gathers. The shared kernel project is the one declared exception, named in one place, so the exception stays visible instead of spreading.
+**Rationale:** A folder named `Shared` or a type ending in `Manager` states no reason in its name, and each such name collects unrelated code. The shared kernel project is the one declared exception, named in one place, so the exception stays visible instead of spreading.
 
 **Example:** The declared shared kernel project passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 

@@ -4,11 +4,9 @@
 
 **Concern:** infrastructure
 
-Live updates reach open screens in seconds through a realtime transport the browser keeps open.
+Live updates reach open screens in seconds through a realtime transport the browser keeps open. One-way notifications travel over server-sent events, and interactive messaging uses SignalR; connections, subscriptions, and clients stay within their bounds under load and failure.
 
-This page states when the product replaces polling with realtime transport, which transport carries each kind of live update, and how connections, subscriptions, and clients stay safe under load and failure.
-
-A team selects it after it measures polling against an update target and accepts the cost of disconnects and missed messages.
+These rules apply after the team measures polling against an update target and accepts the cost of disconnects and missed messages.
 
 ## Activation
 
@@ -20,7 +18,7 @@ A use case or flow selects this extension for live updates after the team measur
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. It switches on no optional record type: each pushed update is a notification record, and each resource bound lives in a setting record.
+This extension replaces no baseline provision. It switches on no optional record type: each pushed update is a notification record, and each resource bound is a setting record.
 
 One-way notifications travel over server-sent events, which need no added package because the platform ships them.
 
@@ -36,7 +34,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A realtime use case MUST document polling behavior, measured cost, update latency, expected connections, and recovery behavior.
 
-**Rationale:** Open connections cost memory, CPU, and operating attention on every host, so the team writes down what polling costs, what the update target requires, how many connections to expect, and how recovery works before choosing transport. The use case page carries that record, so a later reviewer sees which measurements justified the choice.
+**Rationale:** Open connections cost memory, CPU, and operating attention on every host, so the team writes down what polling costs, what the update target requires, how many connections to expect, and how recovery works before choosing transport. The use case page holds that record, so a later reviewer sees which measurements justified the choice.
 
 **Reviewed for:** Does every realtime use case page record polling behavior, measured cost, update target, expected connections, and recovery behavior? Read each realtime use case page.
 
@@ -50,7 +48,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A product MUST NOT activate realtime only to make an interface feel immediate.
 
-**Rationale:** Realtime transport that serves only a feeling of immediacy spends connection capacity and operating attention without moving any target. The extension asks for a measured update requirement first, so polling stays where polling suffices.
+**Rationale:** Realtime transport that serves only a feeling of immediacy spends connection capacity and operating attention without meeting any update target. The extension asks for a measured update requirement first, so polling stays where polling suffices.
 
 **Reviewed for:** Does every realtime decision cite a measured update requirement? Read the use case page beside each realtime transport.
 
@@ -78,7 +76,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A use case requiring bidirectional messages, server groups, or transport fallback MUST use SignalR.
 
-**Rationale:** Two-way messages, server-managed groups, and transport fallback need a channel built for interaction, which one-way events cannot provide. SignalR supplies all three, so the use case that needs them takes SignalR instead of stretching events past their shape.
+**Rationale:** Two-way messages, server-managed groups, and transport fallback need a channel built for interaction, which one-way events cannot provide. SignalR supplies all three, so the use case that needs them takes SignalR instead of forcing one-way events to carry interaction.
 
 **Reviewed for:** Does every bidirectional use case run on SignalR? Read each use case's hub code.
 
@@ -92,7 +90,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A realtime use case MUST record its transport choice and expected hosted-platform support.
 
-**Rationale:** Hosted platforms cap connection duration, idle timeouts, and transport upgrades, and each host caps them differently. Recording the transport choice with its expected platform support surfaces the mismatch before deployment instead of during the first long-lived connection.
+**Rationale:** Hosted platforms cap connection duration, idle timeouts, and transport upgrades, and each host caps them differently. Recording the transport choice with its expected platform support reveals the mismatch before deployment instead of during the first long-lived connection.
 
 **Reviewed for:** Does every realtime use case page name its transport choice and expected hosted-platform support? Read each use case page.
 
@@ -106,7 +104,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A query served over realtime MUST declare a `freshness` object with `mode` of `immediate` on its output.
 
-**Rationale:** A realtime channel delivers an update seconds after the change, so the served query promises that speed on its output as `{"mode": "immediate"}`. Without that promise, a client reading the live value has no way to know how stale it may be.
+**Rationale:** A realtime channel delivers an update seconds after the change, so the served query declares that speed on its output as `{"mode": "immediate"}`. Without that declaration, a client reading the live value has no way to know how stale it may be.
 
 **Reviewed for:** Does every realtime-served query declare immediate freshness on its output? Read the served query beside the realtime use case.
 
@@ -120,7 +118,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A realtime server MUST authenticate each connection and authorize every user-, tenant-, or resource-scoped subscription.
 
-**Rationale:** A connection proves who the caller is; it says nothing about which user's, tenant's, or resource's updates the caller may hear. Each user-, tenant-, or resource-scoped subscription checks its own authorization, so one valid connection cannot listen in on another tenant's data.
+**Rationale:** A connection proves who the caller is; it says nothing about which user's, tenant's, or resource's updates the caller may hear. Each user-, tenant-, or resource-scoped subscription checks its own authorization, so one valid connection cannot receive another tenant's data.
 
 **Reviewed for:** Does any connection test accept an unauthenticated connection, or a scoped subscription without an authorization check? Read the connection and subscription tests.
 
@@ -134,7 +132,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A realtime server MUST revalidate long-lived access according to token and session lifetime.
 
-**Rationale:** A connection can outlive the grant that opened it: tokens expire, roles change, and sessions end. Revalidating access on token and session lifetime closes the connection whose grant died instead of streaming updates to a caller who no longer qualifies.
+**Rationale:** A connection can outlive the grant that opened it: tokens expire, roles change, and sessions end. Revalidating access on token and session lifetime closes the connection whose grant ended instead of streaming updates to a caller who no longer qualifies.
 
 **Reviewed for:** Does any connection keep streaming after its token or session expires? Read the revalidation tests.
 
@@ -148,7 +146,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A realtime client MUST reconnect with bounded backoff and refresh authoritative state after a connection gap.
 
-**Rationale:** Connections drop, and notifications sent during the gap are lost. Bounded backoff reconnects without hammering the server, and refreshing authoritative state after the gap replaces whatever the missed notifications would have changed.
+**Rationale:** Connections drop, and notifications sent during the gap are lost. Bounded backoff reconnects without overloading the server, and refreshing authoritative state after the gap replaces whatever the missed notifications would have changed.
 
 **Reviewed for:** Does every client reconnect with bounded backoff and refresh authoritative state after a gap? Read the recovery tests.
 
@@ -162,7 +160,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A realtime client MUST safely handle duplicate and out-of-order notifications.
 
-**Rationale:** The transport can deliver a notification twice or deliver two of them out of order. A client that applies each notification as an absolute update corrupts its state on the first duplicate. A client built for repeats and reordering converges on the truth either way.
+**Rationale:** The transport can deliver a notification twice or deliver two of them out of order. A client that applies each notification as an absolute update corrupts its state on the first duplicate. A client built for repeats and reordering reaches the correct state either way.
 
 **Reviewed for:** Does any duplicate or reordered notification leave client state wrong? Read the client state tests.
 
@@ -190,7 +188,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Statement:** A realtime server MUST NOT buffer an unbounded stream for a slow client.
 
-**Rationale:** A client that reads slower than the server writes grows its buffer without end, consuming host memory meant for every subscriber. Bounded buffering with backpressure disconnects or slows the laggard, so one slow reader does not starve the rest.
+**Rationale:** A client that reads slower than the server writes grows its buffer without end, consuming host memory meant for every subscriber. Bounded buffering with backpressure disconnects the slow client or slows delivery to it, so one slow reader does not starve the rest.
 
 **Reviewed for:** Does any server code path buffer a slow client's stream without a bound or backpressure? Read the connection and send code.
 
@@ -208,7 +206,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Replacement:** A consumer records a realtime-placement convention naming where its transport code lives.
 
-**Rationale:** Hubs, endpoints, publication adapters, and browser connections speak transport and provider detail, not business rules. Keeping them at the outer boundaries leaves each business feature owning only the narrow functions it calls.
+**Rationale:** Hubs, endpoints, publication adapters, and browser connections contain transport and provider detail, not business rules. Keeping them at the outer boundaries leaves each business feature owning only the narrow functions it calls.
 
 **Reviewed for:** Does any realtime transport code sit outside the documented boundaries without a realtime-placement convention? Check the WebApi, Infrastructure, and `lib/realtime/` folders.
 
@@ -224,7 +222,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Replacement:** A consumer records a realtime-subscription convention naming how its features subscribe.
 
-**Rationale:** A feature touching the raw connection spreads subscription strings and payload shapes through business code. Narrow use-case-specific functions show each subscription's inputs and effects beside the feature that owns them.
+**Rationale:** A feature using the raw connection directly spreads subscription strings and payload shapes through business code. Narrow use-case-specific functions show each subscription's inputs and effects beside the feature that owns them.
 
 **Reviewed for:** Does any feature subscribe to the raw connection instead of a use-case-specific function? Read each feature module's realtime calls.
 

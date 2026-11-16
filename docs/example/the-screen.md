@@ -1,10 +1,12 @@
 # The Claimwick Screen
 
-The expenses screen shows an employee their own expenses at the address `/expenses`. It is one of the three screens of Claimwick's web app, beside the expense record at `/expenses/{expenseId}` and the new-expense form at `/expenses/new`. What follows traces that screen from its route file, through the generated API client it reads, the shared UI package it composes, and the pattern catalog that records its interface choices, with the file of each step and the check the model runs over it.
+The expenses screen shows an employee their own expenses at the address `/expenses`. It is one of the three screens of Claimwick's web app, beside the expense record at `/expenses/{expenseId}` and the new-expense form at `/expenses/new`. This page traces that screen from its route file, through the generated API client it reads, the shared UI package it composes, and the pattern catalog that records its interface choices, with the file of each step and the check the model runs over it.
 
 ## The Route
 
-The screen lives at `apps/web/src/routes/expenses/+page.svelte`. Each route folder names an address rather than a use case, and two more folders sit beside it, `expenses/new/+page.svelte` and `expenses/[expenseId]/+page.svelte`, one per remaining screen. The module script carries the screen's mark, which names the record the route implements:
+The screen lives at `apps/web/src/routes/expenses/+page.svelte`. Each route folder names an address rather than a use case, and two more folders sit beside it, `expenses/new/+page.svelte` and `expenses/[expenseId]/+page.svelte`, one per remaining screen.
+
+The module script carries the screen's mark, which names the record the route implements:
 
 ```svelte
 <script module lang="ts">
@@ -14,7 +16,9 @@ The screen lives at `apps/web/src/routes/expenses/+page.svelte`. Each route fold
 </script>
 ```
 
-The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`, with the address `/expenses`. The record names its page frame, `list-page`, and the chosen option; the design contract maps the frame to the `ListPage` floorplan. The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
+The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`, with the address `/expenses`. The record names its page frame, `list-page`, and the chosen option; the design contract maps the frame to the `ListPage` floorplan.
+
+The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
 
 ## The Use Case Code
 
@@ -34,7 +38,9 @@ export const listExpenses = <ThrowOnError extends boolean = false>(options: Opti
 
 The response type `ListExpensesResponse` holds one array, `expenses`, of `ExpenseRow` values. Both types live in `packages/api/src/generated/types.gen.ts`, so a change to the contract regenerates them, and the screen does not copy the contract.
 
-The route calls `listExpenses` in its script and passes the result to the table through the `ListPage` floorplan. The example route has no separate load file, so it does not prefetch the list before rendering. Compare it with the frontend rendering rules and you see the gap: the rules ask for a load that the example does not yet write.
+The route calls `listExpenses` in its script and passes the result to the table through the `ListPage` floorplan. The example route has no separate load file, so it does not prefetch the list before rendering.
+
+Compare it with the frontend rendering rules and you see the gap: the rules ask for a load that the example does not yet write.
 
 ## The Shared UI Package
 

@@ -28,7 +28,9 @@ With no `--agent`, the command selects `agents` and `claude`, which together rea
 
 At project scope, the consumer is selected from `--root` with the usual walk-up, and the project file must exist; each copy is stamped with the carried release. At global scope, the copies go under the user's home, no project file is needed, and the copies name no release, so one global skill serves projects on different releases.
 
-`add` writes every selected copy, replacing a copy this tool wrote. A folder without the tool's marker is left alone and fails the run; the marker is `generated-by: litespec` in the `metadata` of the copy's frontmatter. `remove` deletes only a folder carrying the marker.
+`add` writes every selected copy, replacing a copy this tool wrote. A folder without the tool's marker is left alone and fails the run; the marker is `generated-by: litespec` in the `metadata` of the copy's frontmatter.
+
+`remove` deletes only a folder carrying the marker.
 
 ## Arguments
 
@@ -88,6 +90,8 @@ litespec skill remove
 
 ## Underneath
 
-Each copy comes from `templates/skill/litespec/` in the release the tool carries: `SKILL.md` with `references/commands.md` and `references/report.md`. The template carries the placeholder `__LITESPEC_RELEASE_METADATA__` on its own line inside `metadata`: replaced with the carried release at project scope, removed at global scope. Every copy carries `generated-by: litespec` in its frontmatter `metadata`, and the command reads that marker back to decide whether a folder is its own. `add` replaces a marked folder and refuses any other; `remove` deletes a marked folder and leaves any other alone.
+Each copy comes from `templates/skill/litespec/` in the release the tool carries: `SKILL.md` with `references/commands.md` and `references/report.md`. The template carries the placeholder `__LITESPEC_RELEASE_METADATA__` on its own line inside `metadata`: replaced with the carried release at project scope, removed at global scope.
+
+Every copy carries `generated-by: litespec` in its frontmatter `metadata`, and the command reads that marker back to decide whether a folder is its own. `add` replaces a marked folder and refuses any other; `remove` deletes a marked folder and leaves any other alone.
 
 `LITESPEC_SKILL_HOME` points the command at another home folder for the global scope. Only the skill command reads it. Nothing beneath this command is separately runnable.

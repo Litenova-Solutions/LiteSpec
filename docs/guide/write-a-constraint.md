@@ -1,6 +1,6 @@
 # Write a Constraint
 
-A constraint states one outside rule, by law or by contract, that the product must respect, and it says which product choices the rule takes away. This guide writes one constraint record, `<name>.yaml`, and its explanation file `<name>.md`, so a reader can check the rule against its source, see whom it binds, and find each requirement that holds its effect.
+Write one constraint record, `<name>.yaml`, and its explanation file `<name>.md`, so a reader can check the rule against its source, see whom it binds, and find each requirement that holds its effect. A constraint states one outside rule, by law or by contract, that the product must respect, and it says which product choices the rule takes away.
 
 Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 
@@ -22,9 +22,7 @@ Run `litespec new constraint <name>`, which writes `.litespec/intent/constraints
 
 ### Decide What One Constraint Holds
 
-Keep in one constraint the rules that share one source, one scope, and one rate of change. Split rules that are verified separately or change separately into separate constraints. A library privacy law, for example, sets a retention period and a breach-notice deadline in different articles, and the two change on different dates, so they are two constraints.
-
-Split the record when any of these differ between two rules: the source they come from, the subjects or periods they cover, or how often they change. Keep them together only when all three match. This satisfies `litespec/core/intent#split-records-whose-parts-change-separately`.
+Keep in one constraint the rules that share one source, one scope, and one rate of change. Split rules that are verified separately or change separately into separate constraints: split when the source, the subjects or periods covered, or the rate of change differs, and keep rules together only when all three match. A library privacy law, for example, sets a retention period and a breach-notice deadline in different articles, and the two change on different dates, so they are two constraints. This satisfies `litespec/core/intent#split-records-whose-parts-change-separately`.
 
 ### Title the Constraint by Its Rule
 

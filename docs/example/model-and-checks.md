@@ -1,10 +1,10 @@
 # The Model and Its Checks
 
-The project model joins the written records of a project to its code, screens, and tests, and its checks report every gap as a finding. What follows shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 18 findings, and the record and query commands an agent uses to load one record. Each command below was run against `examples/claimwick`, and the output is copied from that run.
+The project model joins a project's written records to its code, screens, and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 18 findings, and the record and query commands an agent uses to load one record. Each command below ran against `examples/claimwick`, and the output is copied from that run.
 
 ## The Full Check
 
-`litespec model check` builds the model in memory and reports each finding with its file, level, code, and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, all 19 lines copied from the run, is:
+`litespec model check` builds the model in memory and reports each finding with its file, level, code, and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, 18 findings plus the summary line, copied from the run, is:
 
 ```text
 .litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered G] [use-case-flow-missing] Use case 'use-case/reporting.list-reimbursed-expenses' sits in no flow.
@@ -39,11 +39,13 @@ The 18 covered findings fall into six codes:
 | `use-case-flow-missing` | 1 | `waiver/reimbursed-list-unserved` |
 | `use-case-endpoint-missing` | 1 | `waiver/export-expenses-unexposed` |
 
-Each code names one gap, and the screen gap and the proof gap are real: the web app holds three screens, and no run records a passing proof for a scenario. Every code in the table but `use-case-unverified` blocks when open. The link findings are level G on records and level S on code, while `use-case-unverified` blocks only with `--release`.
+Each code names one gap. The screen gap and the proof gap are real: the web app holds three screens, and no run records a passing proof for a scenario.
+
+Every code in the table but `use-case-unverified` blocks when open. The link findings are level G on records and level S on code, while `use-case-unverified` blocks only with `--release`.
 
 ## A Waiver That Covers a Finding
 
-The export use case has no handler yet, because the finance file format has not been decided. That gap is a waiver, a record that accepts the gap until a date. Its file is `.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
+The export use case has no handler yet, because the finance file format has not been decided. The project accepts that gap as a waiver, a record that covers it until a date. Its file is `.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
 
 ```yaml
 type: waiver
@@ -62,7 +64,9 @@ closedBy:
 - use-case/spending.export-expenses
 ```
 
-The `covers` list names the finding code, and the `subject` list names the record the finding is about, so the finding is reported as covered and the run passes. The `kind` states the waiver is a gap. The `exit` field states how the gap closes, `closedBy` names the record whose change closes it, and `expiresOn` sets the expiry: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
+The `covers` list names the finding code, and the `subject` list names the record the finding is about, so the finding is reported as covered and the run passes. The `kind` states the waiver is a gap.
+
+The `exit` field states how the gap closes, `closedBy` names the record whose change closes it, and `expiresOn` sets the expiry: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
 
 The example holds eight waivers in `.litespec/governance/waivers/`. Six of them cover the codes in the table above; the `ui-requirements-proved-outside-behavior` waiver covers `intent-unreached`, and the `export-review-bypass` waiver covers a provision rather than a finding.
 

@@ -1,6 +1,8 @@
 # Overview
 
-These pages show LiteSpec applied to one product, Claimwick, a small expense product where employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones, from its first records down to the checks that prove it. Its records live in `examples/claimwick/.litespec/`, and its code, screen, and tests sit beside them in the same repository. Every record ID, file path, count, and command output below is copied from that repository or from a real run of `litespec` against it, so you can open the same file and read the same text. The pages add no rules: each rule lives on the standards page the text cites.
+Claimwick is a small expense product: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. These pages follow Claimwick from its first records down to the checks that prove it.
+
+Its records live in `examples/claimwick/.litespec/`, with its code, screen, and tests beside them in the same repository. Every record ID, file path, count, and command output on these pages is copied from that repository or from a real run of `litespec` against it, so you can open the same file and read the same text. The pages add no rules: each rule lives on the standards page the text cites.
 
 ## How to Read the Example
 

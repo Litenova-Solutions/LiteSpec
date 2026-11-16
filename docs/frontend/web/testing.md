@@ -4,9 +4,9 @@
 
 **Concern:** tests
 
-Web frontends prove pure logic in Vitest beside the module it covers, and navigation and integration in Playwright against the running system.
+Web frontends test pure logic in Vitest beside the module under test, and navigation and integration in Playwright against the running system.
 
-The testing principles live in [Frontend Testing](../testing.md). This page names the runners, libraries, and commands one web frontend uses for them, and refuses a test with no assertion. A team that applies it while writing tests keeps fast tests fast and proves every address and every declared refusal, each named way a use case, one user task, says no, in a browser.
+[Frontend Testing](../testing.md) states what each test kind proves. This page states where each kind runs on the web stacks: the runners, the libraries, the commands, and the lint rule that rejects a test with no assertion.
 
 ## Concepts
 
@@ -31,7 +31,7 @@ Pure logic runs in Vitest beside its module. Navigation and integration run in P
 pnpm --filter @claimwick/web exec playwright test --project=routes --grep "expenses list keeps the route contract"
 ```
 
-Component and logic tests needing HTTP answer through `msw` handlers generated from the published OpenAPI document, running in the browser worker and the Node server alike, per `litespec/frontend/testing#use-network-mocks-for-component-tests`. The workspace keeps one mock-generation command that regenerates them. Each stack page names the libraries tests keep, per `litespec/quality/testing#use-one-mock-rule-for-every-stack`.
+Component and logic tests that need HTTP answer through `msw` handlers generated from the published OpenAPI document, running in the browser worker and the Node server alike, per `litespec/frontend/testing#use-network-mocks-for-component-tests`. The workspace keeps one mock-generation command that regenerates them, and each stack page names the libraries tests keep, per `litespec/quality/testing#use-one-mock-rule-for-every-stack`.
 
 The module mirror check runs as a Vitest structure test resolving each folder against the backend module tree, per `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`:
 
@@ -47,7 +47,9 @@ A declared refusal is reached and asserted by its result code through the refusa
 await expect(refusalFor(page, "expenses.not-found")).toBeVisible({ timeout: AFTER_ACTION });
 ```
 
-Changed TypeScript lines run under StrykerJS in incremental mode, per `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines`. Calculation properties run on fast-check inside Vitest with seed cases from the examples table, per `litespec/backend/testing#prove-every-calculation-with-property-tests`. Element queries follow the [Testing Library guiding principles](https://testing-library.com/docs/guiding-principles): role, label, name, or visible text first, scoped to one floorplan through its `data-floorplan` attribute.
+Changed TypeScript lines run under StrykerJS in incremental mode, per `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines`. Calculation properties run on fast-check inside Vitest with seed cases from the examples table, per `litespec/backend/testing#prove-every-calculation-with-property-tests`.
+
+Element queries follow the [Testing Library guiding principles](https://testing-library.com/docs/guiding-principles): role, label, name, or visible text first, scoped to one floorplan through its `data-floorplan` attribute.
 
 ## Standards
 

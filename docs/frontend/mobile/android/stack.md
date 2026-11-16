@@ -6,37 +6,47 @@
 
 The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, `client-only` or `server`, declared in [Supported Scope](../../../core/scope.md).
 
-The stack is one native Android application: a .NET for Android project holding the screens, the navigation controller, and the device code, built against plain Android views. It publishes an AAB through the .NET toolchain, which builds, tests, and publishes the whole mobile solution.
+The stack is one .NET for Android project holding the screens, the navigation controller, and the device code. It publishes an AAB through the .NET toolchain, which builds, tests, and publishes the whole mobile solution.
 
-The shared mobile pages in the [Mobile overview](../README.md) state the rules every mobile stack follows, and the [Technology Stacks](../../../core/stacks.md) page states the rules every stack shares. This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.
+The shared mobile pages in the [Mobile overview](../README.md) state the rules every mobile stack follows, and [Technology Stacks](../../../core/stacks.md) states the rules every stack shares. This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.
 
 ## Concepts
 
 ### How the Solution Is Organized
 
-The platform project is `{ProjectName}.Android`: it holds the host Activity, the navigation controller, the `Screens/` folder, the platform adapters, and the `Resources/` folder. The core projects hold the rest: Domain for rules and state, Application for handlers and interfaces, and Infrastructure for storage and platform-neutral adapters. On the `server` shape, the Client project joins them, holding the generated API client. The split keeps the core compiling for every platform unchanged.
+The platform project is `{ProjectName}.Android`: it holds the host Activity, the navigation controller, the `Screens/` folder, the platform adapters, and the `Resources/` folder.
+
+The core projects hold the rest: Domain for rules and state, Application for handlers and interfaces, and Infrastructure for storage and platform-neutral adapters. On the `server` shape, the Client project joins them, holding the generated API client. The split keeps the core compiling for every platform unchanged.
 
 ### How Screens Navigate
 
-Screens are plain Android views that the navigation controller shows, and the host Activity owns the controller: one controller holds the current screen, the open overlay, and the history. Back, insets, and saved state are platform APIs of the Activity and its window, not of a UI library.
+Screens are plain Android views that the navigation controller shows, and the host Activity owns the controller: one controller holds the current screen, the open overlay, and the history.
+
+Back, insets, and saved state are platform APIs of the Activity and its window, not of a UI library.
 
 A route entry is one screen class under `Screens/`, and it carries the `<implements>` mark of the screen it renders, in the form the .NET stack states. The host Activity and failure views are not route entries: they draw no screen of their own, so they carry no screen mark.
 
 ### Where Styles and Sentences Live
 
-Colors and text styles live in resources, and screen code draws with plain Android views: a screen takes its colors and text styles from `Resources/values/styles.xml` and sets no style value in code. Copy resolves through the generated `Resource` class, with its fallback in `Resources/values/strings.xml`: the generated class gives every copy key a typed name, and the default values folder gives every key a fallback when a language lacks it. The stack has no page-code lint, so the entry point record names the review that replaces it.
+Colors and text styles live in resources, and screen code draws with plain Android views: a screen takes its colors and text styles from `Resources/values/styles.xml` and sets no style value in code.
+
+Copy resolves through the generated `Resource` class, with its fallback in `Resources/values/strings.xml`: the generated class gives every copy key a typed name, and the default values folder gives every key a fallback when a language lacks it. The stack has no page-code lint, so the entry point record names the review that replaces it.
 
 ### Where Data Lives
 
-The app keeps its persisted state in app-private storage and reads it through the typed store. Persisted state and user media live under `Context.FilesDir`, written atomically, so a write stopped midway leaves the previous complete file. On the `server` shape, the `{ProjectName}.Client` project holds the generated API client, which owns the base address, the credentials, the headers, and the mapping from a failure to a result.
+The app keeps its persisted state in app-private storage and reads it through the typed store. Persisted state and user media live under `Context.FilesDir`, written atomically, so a write stopped midway leaves the previous complete file.
+
+On the `server` shape, the `{ProjectName}.Client` project holds the generated API client, which owns the base address, the credentials, the headers, and the mapping from a failure to a result.
 
 ### How Tests Run with and Without a Device
 
-Core tests run as plain .NET test projects with no emulator: the core holds no platform type, so its tests need no device. Device tests run on an emulator or a device, where screens meet the platform toolkit. The manifest pins no device-test library. For example, the Claimwick expense claim rule has its test in an xunit.v3 project beside the Domain project it proves.
+Core tests run as plain .NET test projects with no emulator: the core holds no platform type, so its tests need no device. For example, the Claimwick expense claim rule has its test in an xunit.v3 project beside the Domain project it proves.
+
+Device tests run on an emulator or a device, where screens meet the platform toolkit. The manifest pins no device-test library.
 
 ### What Replaces the Controlled UI Contract
 
-Screens draw with native Android views, and this frontend sits outside the controlled UI contract, so it has no registry build command. Its entry point record names Android and the checks that replace the contract, so the frontend reports with named replacements instead of nothing to check.
+Screens draw with native Android views, and this frontend sits outside the controlled UI contract, so it has no registry build command. Its entry point record names Android and the checks that replace the contract, so the frontend reports named replacements instead of nothing to check.
 
 ### Which Versions Are Pinned
 
@@ -52,7 +62,7 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version, the `s
 
 **Statement:** An Android frontend MUST hold its frame in the host code of the platform project, its routes as screen classes under `Screens/`, and its use-case code as Application handlers.
 
-**Rationale:** Three fixed homes let a reader and a tool find the frame, the screens, and the use-case code in the same place in every Android app.
+**Rationale:** Three fixed locations let a reader and a tool find the frame, the screens, and the use-case code in the same place in every Android app.
 
 **Example:** The Claimwick Android app keeps its navigation host in `Claimwick.Android`, its expense list screen in `Screens/Expenses/`, and its expense handlers in the Application project.
 
@@ -66,7 +76,7 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version, the `s
 
 **Statement:** A screen class under `Screens/` MUST carry the `<implements>` mark of the screen it renders, in the form the .NET stack states.
 
-**Rationale:** The mark links the screen to its record the way a .NET handler carries its use-case mark, so the builder and the check read one link.
+**Rationale:** The mark links the screen to its record the way a .NET handler carries its use-case mark, so the builder and the check read the same link shape.
 
 **Example:** The Claimwick `ExpenseListScreen` carries `/// <implements>screen/claimwick-app.expense-list</implements>`.
 

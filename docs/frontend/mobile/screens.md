@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A mobile app renders its screens with the platform's native views, holds navigation in one controller, and follows the platform's back, inset, and motion behavior. This page states those screen and navigation rules for every mobile stack. A team that applies it while adding screens keeps navigation in one place and every screen behaving the way the platform's users expect.
+A mobile app renders its screens with the platform's native views, holds navigation in one controller, and follows the platform's back, inset, and motion behavior. These rules apply to every mobile stack. A team that applies them while adding screens keeps navigation in one place and every screen behaving the way the platform's users expect.
 
 ## Concepts
 
@@ -63,7 +63,7 @@ The controller owns the navigation state: the current screen, the open overlay, 
 
 **Statement:** The system back gesture MUST close the open overlay first, then step back one screen, and leave the app only from the first screen.
 
-**Rationale:** Users learn one back behavior per platform: the gesture dismisses what is on top before it leaves where they are. An app that leaves from a deeper screen, or that traps the gesture on the first screen, breaks a habit the whole platform teaches. Overlay first, then one screen back, then out from the first screen matches that habit on every screen. Each stack page names how the platform's back signal reaches the controller.
+**Rationale:** Users learn one back behavior per platform: the gesture dismisses what is on top before it leaves where they are. An app that leaves from a deeper screen, or that traps the gesture on the first screen, breaks a habit the whole platform teaches. Closing the overlay first, then stepping back one screen, then leaving from the first screen matches that habit on every screen. Each stack page names how the platform's back signal reaches the controller.
 
 **Reviewed for:** Does the back gesture close the overlay first, step back one screen, and leave only from the first screen? Check the back handling.
 
@@ -111,7 +111,7 @@ The controller owns the navigation state: the current screen, the open overlay, 
 
 **Statement:** Every interactive view MUST carry a content description, meet a minimum touch target of 48 dp on Android or 44 pt on iOS, and scale its text with the system font scale.
 
-**Rationale:** A view without a content description is silent to a screen reader, and a target below the platform minimum is missed by the finger it was drawn for. Text fixed at one size ignores the user who enlarged the system font to read at all. Meeting the platform target size and scaling with its font scale keeps every screen usable with the platform's own accessibility settings. The device tests on the [Mobile Testing](testing.md) page prove each screen against this rule.
+**Rationale:** A view without a content description is silent to a screen reader, and a target below the platform minimum is too small to tap reliably. Text fixed at one size ignores the user who enlarged the system font to read. Meeting the platform target size and scaling with its font scale keeps every screen usable with the platform's own accessibility settings. The device tests on the [Mobile Testing](testing.md) page prove each screen against this rule.
 
 **Reviewed for:** Does every interactive view carry a content description and the platform-minimum touch target, with text scaling with the system font scale? Check the views, the text styles, and the accessibility device tests the Mobile Testing page names.
 

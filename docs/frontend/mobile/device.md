@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A mobile app borrows device capabilities: the camera roll, the microphone, the speaker, and the permissions guarding them. This page states how the app picks media, requests permissions, plays sound, and declares what it uses. A team that applies it while adding a device feature keeps the app asking for the least access and behaving while shared hardware is busy.
+A mobile app borrows device capabilities: the camera roll, the microphone, the speaker, and the permissions guarding them. These rules cover how the app picks media, requests permissions, plays sound, and declares what it uses. A team that applies them while adding a device feature keeps the app asking for the least access and behaving while shared hardware is busy.
 
 ## Concepts
 
@@ -11,7 +11,9 @@ A mobile app borrows device capabilities: the camera roll, the microphone, the s
 
 A picker lends one item without granting access to the library, while a permission grants ongoing access the user can revoke. The least-access rule follows: pick through a permissionless picker where the platform offers one, and request each permission when its action starts.
 
-Sound shares one speaker with every other app, so playback holds audio focus and yields it, pausing when focus is lost and when the app leaves the foreground. The platform pauses and reclaims background apps, so device work belongs in the foreground: no background service, scheduled job, or push handler runs without a project decision naming it.
+Sound shares one speaker with every other app, so playback holds audio focus and yields it, pausing when focus is lost and when the app leaves the foreground.
+
+The platform pauses and reclaims background apps, so device work belongs in the foreground: no background service, scheduled job, or push handler runs without a project decision naming it.
 
 ## Standards
 
@@ -71,7 +73,7 @@ Sound shares one speaker with every other app, so playback holds audio focus and
 
 **Statement:** The app manifest MUST declare only the permissions the app's current features use.
 
-**Rationale:** Each declared permission is a promise the app's features must keep: a declaration without a feature asks for the trust nothing uses. Stale declarations accumulate as features leave, and each one asks the user a question no feature needs. Declaring only what current features use keeps the manifest an honest list of the app's needs.
+**Rationale:** Each declared permission is a promise the app's features must keep: a declaration without a feature asks for trust no feature uses. Stale declarations accumulate as features leave, and each one asks the user a question no feature needs. Declaring only what current features use keeps the manifest an honest list of the app's needs.
 
 **Reviewed for:** Does every permission in the app manifest serve a current feature? Check the app manifest beside the features.
 

@@ -3,43 +3,51 @@
 **Stack:** any
 **Concern:** frontend-data
 
-A LiteSpec frontend owns no API contract: it calls the API through one generated client, reads answers through the client's cache, and sends each write as a command, one message that changes business state.
+A LiteSpec frontend calls the API through one generated client, reads answers through the client's cache, and sends each write as a command, one message that changes business state. It owns no API contract of its own.
 
-This page states how the client is built and configured, where each piece of state lives, and how every failure reaches the user as one problem, a project-owned failure shape carrying a stable code. Frontend developers and agents apply it for every read, write, and form, so a contract change breaks the build instead of the running page and every failure renders a sentence the team wrote for it.
+The client is generated from the published contract and configured once per application. Each piece of state lives with its narrowest owner, and every failure reaches the user as one problem, a project-owned failure shape carrying a stable code. These rules apply to every read, write, and form, so a contract change breaks the build instead of the running page and every failure renders a sentence the team wrote for it.
 
 ## Concepts
 
 ### The Generated Client
 
-The API publishes one OpenAPI document. Generation turns it into the client the frontend calls: typed operations, request and response types, validation schemas, and the operation options each read and write needs. Because the output is generated, a contract change becomes a compile error in every application at once instead of a wrong request at runtime. The workspace configures the client once per application, with its base address, credentials, headers, and failure mapping, and every read and write passes through it.
+The API publishes one OpenAPI document, and generation turns it into the client the frontend calls: typed operations, request and response types, validation schemas, and the operation options each read and write needs.
 
-The frame is the part of a frontend holding everything cross-cutting, such as the client configuration and shared helpers ([Frontend Structure](structure.md)).
+Because the output is generated, a contract change becomes a compile error in every application at once instead of a wrong request at runtime.
+
+The workspace configures the client once per application, with its base address, credentials, headers, and failure mapping. Every read and write passes through that configured client.
+
+The frame is the part of a frontend that holds everything cross-cutting, such as the client configuration and shared helpers ([Frontend Structure](structure.md)).
 
 ### Where State Lives
 
-Every value the frontend holds has one owner, from the widest to the narrowest. Server data lives in the query cache, the client's store of answers it already fetched. Shareable values, such as filters and paging, live in the address, so the page stays a link somebody can share. Input lives in form state, and anything narrower lives in the component's own state. A value kept above its narrowest owner forces unrelated components to re-render and hides where the value changes.
+Every value the frontend holds has one owner, from the widest to the narrowest. Server data lives in the query cache, the client's store of answers it already fetched. Shareable values, such as filters and paging, live in the address, so the page URL stays a link that shows the same view when shared. Input lives in form state, and anything narrower lives in the component's own state.
+
+A value kept above its narrowest owner forces unrelated components to re-render and hides where the value changes.
 
 ### The Three State Classifications
 
-State falls into three kinds by what the user made and what survives. Durable state is what the user made: persisted, versioned, and exported. The expense draft is durable state, because the user built it and it must survive a restart and an export. Device-local state is persisted but stays on the device, excluded from export, such as the device copy of a receipt photo. Derived state is computed from durable state and never persisted: an expense total is derived from the expense lines each time it is read.
+State falls into three kinds by what the user made and what survives. Durable state is what the user made: it is persisted, versioned, and exported. Device-local state is persisted but stays on the device, excluded from export. Derived state is computed from durable state and never persisted.
+
+The expense draft is durable state, because the user built it and it must survive a restart and an export. The device copy of a receipt photo is device-local state. An expense total is derived state, computed from the expense lines each time it is read.
 
 ### Outcomes of a Command
 
-Every command ends in one outcome, and the page handles each outcome as the table states.
+Every command ends in one outcome. The page handles each outcome as follows.
 
 | Outcome | What the page does |
 |:---|:---|
-| Success | Invalidates the queries the command changes, then says so where nothing else on screen shows it |
+| Success | Invalidates the queries the command changes, then shows a confirmation where no other change on screen shows it |
 | Refusal | Renders the refusal beside what was refused, in the sentence the application holds for that code |
 | Field refusal | Places each problem on the field it belongs to, leaving the form open |
 
-A success carries a visible answer wherever nothing else on screen shows it: a silent success tells the user nothing happened. Field problems belong on their fields; above a long form, a summary links to each field in error instead of replacing the messages on them.
+A success needs a visible answer where nothing else on screen shows it: a silent success tells the user nothing happened. Above a long form, a summary links to each field in error; the summary is a navigation aid and replaces none of the messages on the fields.
 
 ### The Problem Type
 
-Whatever produces a failure, a refused command, a failed read, or a network error, the frontend converts it into one project-owned problem carrying the same fields: a status, a code, a detail, an optional trace identifier, and field problems, each naming its field with its own code and message.
+Every failure, whether a refused command, a failed read, or a network error, becomes one project-owned problem carrying the same fields: a status, a code, a detail, an optional trace identifier, and field problems, each naming its field with its own code and message.
 
-The code is the stable identifier the page branches on, so a reworded message leaves the page's decision unchanged. A code this build does not recognize is still handled: the page renders the problem by the code's presence rather than by matching a list of known codes.
+The code is the stable identifier the page branches on, so a reworded message leaves the page's decision unchanged. A code this build does not recognize is still handled: the page renders the problem without needing the code in a known list.
 
 The problem carries the trace identifier the API returns for the request, so support can find the failed request. [Controlled UI Governance](ui.md) states how a visible error shows that identifier in copyable form.
 
@@ -83,7 +91,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Statement:** The API MUST hold the browser session in an HTTP-only cookie, with frontend code holding no token.
 
-**Rationale:** Anything a script can read, any script on the page can read, including one an attacker injected. Tokens kept in frontend code or browser storage are therefore readable by the same attack the session is meant to resist. The API runs the authorization code flow instead and keeps the tokens encrypted in an HTTP-only cookie the browser sends on its own, so frontend code holds no token. A refused sign-in lands on a signed-out page rather than on an error, because the user is not signed in.
+**Rationale:** Anything a script can read is readable by any script on the page, including one an attacker injected. Tokens kept in frontend code or browser storage are therefore readable by the same attack the session is meant to resist. The API runs the authorization code flow instead and keeps the tokens encrypted in an HTTP-only cookie the browser sends on its own, so frontend code holds no token. A refused sign-in lands on a signed-out page rather than on an error, because the user is not signed in.
 
 **Reviewed for:** Does any token sit in frontend sources instead of the API-owned HTTP-only cookie? Look in the API session handling and the frontend sources.
 
@@ -247,7 +255,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Statement:** A value naming a person MUST travel in a request header rather than the query string, with the contract declaring the header each operation reads.
 
-**Rationale:** A query string leaks three ways: proxies log it, the browser keeps it in history, and the next page the user opens receives it as the referrer. A value naming a person therefore travels in a request header the contract declares per operation, reaching the API without landing in any of those places. The address keeps its own copy for filters and paging, so a filtered list stays a link somebody can share.
+**Rationale:** A query string leaks three ways: proxies log it, the browser keeps it in history, and the next page the user opens receives it as the referrer. A value naming a person therefore travels in a request header the contract declares per operation, reaching the API without landing in any of those places. The address keeps its own copy for filters and paging, so a filtered list stays a link that shows the same view when shared.
 
 **Reviewed for:** Does every person-naming value travel in a contract-declared header instead of the query string? Look in the contract headers and the call sites.
 

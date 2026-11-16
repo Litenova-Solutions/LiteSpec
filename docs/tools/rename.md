@@ -12,13 +12,19 @@ litespec rename <old> <new> [--move] [--root <path>] [--help]
 
 ## Description
 
-Run it for every identifier rename, as `litespec/core/model#rewrite-every-link-on-a-rename` states. Never rename by moving the file by hand. Both arguments are full record identifiers, such as `use-case/lending.borrow-copy`. The command refuses a new identifier a record already carries, and an old identifier no record carries.
+Run it for every identifier rename, as `litespec/core/model#rewrite-every-link-on-a-rename` states. Never rename by moving the file by hand.
 
-Without `--move`, the record keeps its level and its owner's folder. A named record's own folder takes the new name, so the folder name always equals the record file stem, and the record file and its explanation file take that stem inside it. The folder moves whole, carrying every supporting file the record folder holds. Use cases under an aggregate stay in that aggregate's `use-cases/` folder, an aggregate stays in its module's `aggregates/` folder with its use cases, and a requirement stays in its feature's `requirements/` folder. A feature folder moves whole with its requirement folders, and every requirement identifier of the feature takes the new feature name.
+Both arguments are full record identifiers, such as `use-case/lending.borrow-copy`. The command refuses a new identifier a record already carries, and an old identifier no record carries.
+
+Without `--move`, the record keeps its level and its owner's folder. A named record's own folder takes the new name, so the folder name always equals the record file stem, and the record file and its explanation file take that stem inside it. The folder moves whole, carrying every supporting file the record folder holds.
+
+Use cases under an aggregate stay in that aggregate's `use-cases/` folder, an aggregate stays in its module's `aggregates/` folder with its use cases, and a requirement stays in its feature's `requirements/` folder. A feature folder moves whole with its requirement folders, and every requirement identifier of the feature takes the new feature name.
 
 A new identifier that names another owner, such as a use case under a different module or a requirement under a different feature, is refused without `--move`. With `--move`, the record moves to the folder that owner holds. An aggregate carries the use cases in its folder with it, while a use case moves alone into its new owner's `use-cases/` folder and leaves its old aggregate behind.
 
-Every destination is checked before anything moves, and the command refuses when a folder or file already exists. When a move fails part way, the error is reported and nothing is rolled back. The record fields are updated, and every citation of the old identifier is rewritten in record files, explanation files, documents, and the code marks that name it, so no link points at the old name afterwards. Record files are written back in canonical form, and when the rename completes, the repository stays resolvable at every commit.
+Every destination is checked before anything moves, and the command refuses when a folder or file already exists. When a move fails part way, the error is reported and nothing is rolled back.
+
+The record fields are updated, and every citation of the old identifier is rewritten in record files, explanation files, documents, and the code marks that name it, so no link points at the old name afterwards. Record files are written back in canonical form, and when the rename completes, the repository stays resolvable at every commit.
 
 ## Arguments
 

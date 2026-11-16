@@ -3,13 +3,15 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A mobile consumer holds its apps in one .NET solution whose core projects carry the domain model and whose platform projects carry the screens. This page states that solution tree, the projects each shape holds, and the screen folders, with the import direction between them following `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`. A team that applies it while adding apps and screens keeps every platform sharing one core and every layer building only on the layers inside it.
+A mobile consumer holds its apps in one .NET solution whose core projects carry the domain model and whose platform projects carry the screens. These rules cover that solution tree, the projects each shape holds, and the screen folders, with the import direction between them following `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`. A team that applies them while adding apps and screens keeps every platform sharing one core and every layer building only on the layers inside it.
 
 ## Concepts
 
 ### How the Solution Is Organized
 
-One solution holds every mobile app so every platform shares one core: a second platform reuses the domain model unchanged. Three core projects hold the shared code: Domain for rules and state, Application for handlers and interfaces, and Infrastructure for storage and platform-neutral adapters. A `server` consumer holds a Client project with the generated API client instead, reaching every rule through that client. One app project per platform holds that platform's screens and adapters, named `{ProjectName}.{Platform}`.
+One solution holds every mobile app so every platform shares one core: a second platform reuses the domain model unchanged. Three core projects hold the shared code: Domain for rules and state, Application for handlers and interfaces, and Infrastructure for storage and platform-neutral adapters.
+
+A `server` consumer holds a Client project with the generated API client instead, reaching every rule through that client. One app project per platform holds that platform's screens and adapters, named `{ProjectName}.{Platform}`.
 
 [Mobile Data and State](data.md) and [Mobile Testing](testing.md) state what each layer may do and how each is proved; what follows states where each file lives.
 

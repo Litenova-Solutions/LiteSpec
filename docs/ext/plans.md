@@ -4,11 +4,9 @@
 
 **Concern:** application
 
-A product that gates behavior and amounts by tier records each plan's entitlements in one place: the behavior the plan unlocks and the amounts it allows.
+A product that gates behavior and amounts by tier records each plan's entitlements in one place: the behavior the plan unlocks and the amounts it allows. Behavior resolves through permissions, amounts through settings, and a run past its plan ends in the refusal the use case names.
 
-This page states how the product records its plans, how behavior and amounts resolve to what the acting plan entitles, and how the product answers a run past its plan.
-
-A project selects it when tiers change what the software allows, so a plan change moves one record instead of scattered checks.
+These rules apply when tiers change what the software allows, so a plan change moves one record instead of scattered checks.
 
 ## Activation
 
@@ -16,13 +14,13 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-A project selects `plans` when tiers gate behavior or amounts in the software, within one offering or across several. An offering with no gated behavior or amount leaves it unselected: without gated tiers there is nothing to entitle.
+A project selects `plans` when tiers gate behavior or amounts in the software, within one offering or across several. Without gated behavior or amounts there is nothing to entitle, so the project leaves it unselected.
 
 ## Baseline Relationship
 
 This extension replaces no baseline provision. It sits beside the [multitenancy extension](tenancy.md): tenancy isolates each tenant's data, while plans state what each tenant's tier allows.
 
-It switches on no record type. Plans live as policy requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, as the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
+It switches on no record type. Plans are policy requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, as the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
 
 ## Standards
 
@@ -36,7 +34,7 @@ It switches on no record type. Plans live as policy requirements, gated behavior
 
 **Statement:** A consumer selecting `plans` MUST record each plan once with its name and entitlements.
 
-**Rationale:** A plan named in two places disagrees the day one updates without the other: one record promises what the gate refuses. One record per plan holds the name and the entitlements, so a plan change is one edit in one place.
+**Rationale:** A plan named in two places disagrees when one updates without the other: one record allows what the gate refuses. One record per plan holds the name and the entitlements, so a plan change is one edit in one place.
 
 **Example:** The team plan's record names the export use case it unlocks and the row cap it allows.
 
@@ -66,9 +64,9 @@ It switches on no record type. Plans live as policy requirements, gated behavior
 
 **Statement:** Each amount a plan allows MUST live as a setting the gated use case cites.
 
-**Rationale:** An allowance buried in code changes only with a release, with each plan's number hiding in a different branch. A setting states the range, the setter, and the bound behavior, and the gated use case cites it, so raising a tier edits the setting instead of the code. `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement` requires the citation, and `litespec/core/use-cases#tie-every-setting-default-to-a-requirement` holds a commercial default to its requirement.
+**Rationale:** An allowance written in code changes only with a release, with each plan's number in a different branch. A setting states the range, the setter, and the bound behavior, and the gated use case cites it, so raising a tier edits the setting instead of the code. `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement` requires the citation, and `litespec/core/use-cases#tie-every-setting-default-to-a-requirement` holds a commercial default to its requirement.
 
-**Example:** The export-row cap lives as `setting/spending.max-export-rows` with an operator-set value, and the export command cites it.
+**Example:** The export-row cap is `setting/spending.max-export-rows` with an operator-set value, and the export command cites it.
 
 **Reviewed for:** Does every plan allowance live in a setting the gated use case cites? Read the gated use cases beside their settings.
 
@@ -110,7 +108,7 @@ It switches on no record type. Plans live as policy requirements, gated behavior
 
 **Statement:** A screen MUST NOT offer an action the acting plan does not entitle.
 
-**Rationale:** The server refuses what the plan does not entitle, and the screen reflects that refusal before the call. A button for an unentitled action invites a failure the product already decided. Hiding or disabling the action shows each plan only what it may run.
+**Rationale:** The server refuses what the plan does not entitle, and the screen reflects that refusal before the call. A button for an unentitled action leads to a failure the product already decided. Hiding or disabling the action shows each plan only what it may run.
 
 **Reviewed for:** Does any screen offer an action the acting plan does not entitle? Read each screen's actions.
 
@@ -128,7 +126,7 @@ It switches on no record type. Plans live as policy requirements, gated behavior
 
 **Replacement:** A consumer records a plan-resolution convention naming where its use cases find the acting plan.
 
-**Rationale:** Authorization already runs in the pipeline with the actor and the target in hand. Resolving the plan there gives every use case the same answer from the same verified state, instead of each handler querying subscriptions its own way.
+**Rationale:** Authorization already runs in the pipeline with the actor and the target available. Resolving the plan there gives every use case the same answer from the same verified state, instead of each handler querying subscriptions its own way.
 
 **Reviewed for:** Does every use case find the acting plan in the authorization pipeline, or does a plan-resolution convention name where? Read the authorization pipeline and that convention.
 

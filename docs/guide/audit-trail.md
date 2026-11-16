@@ -1,6 +1,6 @@
 # Build an Audit Trail
 
-An audit trail proves who attempted what against which data and what each attempt produced, so a product can answer for every sensitive action. This guide builds that proof on the LiteBus pipeline that runs each state change in the .NET backend: the record shape, the pipeline handlers, the protected store, and the read path. Each step names the audit rule it satisfies, and the guide adds no rule of its own.
+Build an audit trail on the LiteBus pipeline that runs each state change in the .NET backend: the record shape, the pipeline handlers, the protected store, and the read path. The trail proves who attempted what against which data and what each attempt produced, so the product can answer for every sensitive action. Each step names the audit rule it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -48,13 +48,13 @@ Model the audit record once, using the fields the extension requires in `litespe
 | `previousHash` | Hash | The preceding record hash | `litespec/ext/audit#chain-records-to-expose-tampering` |
 | `entryHash` | Hash | Hash over this canonical record | `litespec/ext/audit#chain-records-to-expose-tampering` |
 
-The shape deliberately leaves things out: no person name, no address, no message body, and no state snapshot. Those omissions are what let the product meet `litespec/ext/audit#limit-personal-data-to-actor-and-target-identifiers` and `litespec/ext/audit#remove-the-identity-mapping-on-erasure`.
+The shape leaves out person names, addresses, message bodies, and state snapshots, which is what lets the product meet `litespec/ext/audit#limit-personal-data-to-actor-and-target-identifiers` and `litespec/ext/audit#remove-the-identity-mapping-on-erasure`.
 
 ### Declare Which Commands Are Audited
 
-Each command type says beside itself whether it is audited. Mark the values fixed per use case (the action identity, the target kind, and the category) with an attribute, as `litespec/ext/audit#declare-audit-details-on-the-command-type` requires. The attribute also names the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial.
+Each command type declares beside itself whether it is audited. Mark the values fixed per use case (the action identity, the target kind, and the category) with an attribute, as `litespec/ext/audit#declare-audit-details-on-the-command-type` requires. The attribute also names the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial.
 
-Which use cases are audited, and why, is selected on the command record's `audit` field. Work that runs asynchronously is audited at request time.
+Which use cases are audited, and why, is decided by the command record's `audit` field. Work that runs asynchronously is audited at request time.
 
 ```csharp
 [Audited("catalog.add-product", TargetKind = "product", Category = AuditCategory.Configuration, Target = nameof(AddProductCommand.ProductId), Reason = nameof(AddProductCommand.Reason))]

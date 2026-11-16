@@ -3,19 +3,19 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-This page holds the layout pattern for each kind of page: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, and error. A team building a new screen starts from these patterns: an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One layout per kind keeps every screen predictable, so a reader knows where the heading, actions, and content sit before reading.
+A page-frame pattern fixes the layout for one kind of page: which parts sit where, in what order, and which action is primary. This page defines the frame for each kind, from home and list pages to setup and error pages. Each pattern names the question it answers, the default option a project builds, and how that default behaves on a narrow screen, and shows every option as a wireframe. An owner picks an option from the wireframes, and the team records the choice in its pattern catalog. One frame per kind keeps every screen predictable: the reader knows where the heading, actions, and content sit before reading.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-A pattern is LiteSpec's answer to one interface question that keeps coming back, here a layout question such as how a list page arranges its search, filters, table, and paging. It exists so every screen of a kind shares one frame instead of each route inventing its own. Each pattern below names its question, the default option a project builds unless its catalog records another, how that default behaves on a narrow screen, and why the default won.
+A pattern answers one recurring interface question, here a layout question such as how a list page arranges its search, filters, table, and paging. One shared frame per kind means every screen of a kind arranges those parts the same way instead of each route defining its own. Each pattern below names its question, the default option a project builds unless its catalog records another, how that default behaves on a narrow screen, and why that option is the default.
 
-Each option then shows one wireframe drawing, a plain-text sketch of the parts and their order, with its own rationale, its cost, and sometimes the outside product it learns from. Your project records its choice in its pattern catalog and builds the chosen option with its own components and design system. The [catalog contract and wireframe language](../patterns.md) state what each catalog entry holds and how to read the drawings. The slug in each pattern ID, such as `record-page`, is the key a screen's `pageFrame` field and the design contract's Page Frames section cite.
+Each option shows one wireframe drawing, a plain-text sketch of the parts and their order, with its rationale, its cost, and, for some options, the outside product it learns from. Your project records its choice in its pattern catalog and builds the chosen option with its own components and design system. The [catalog contract and wireframe language](../patterns.md) state what each catalog entry holds and how to read the drawings. The slug in each pattern ID, such as `record-page`, is the key a screen's `pageFrame` field and the design contract's Page Frames section cite.
 
 ### The Running Example
 
-The drawings follow the Claimwick expense product for Harbor and Pine: expense EXP-1042 for Ava, the Rotterdam client visit, and the Amsterdam sales cost centre. Every kind of page repeats the same frame, so a reader meets one heading and at most one primary action on each screen. One rule holds across every option: each page shows one top-level heading, as the Standards section below states. The [primary-action rule](record-detail.md#show-one-primary-action-in-a-record-header) lives on the record detail page, and the frames follow it.
+The drawings follow the Claimwick expense product for Harbor and Pine: expense EXP-1042 for Ava, the Rotterdam client visit, and the Amsterdam sales cost centre. Each kind of page uses one frame, so each screen shows one heading and at most one primary action. One rule applies to every option: each page shows one top-level heading, as the Standards section below states. The [primary-action rule](record-detail.md#show-one-primary-action-in-a-record-header) is stated on the record detail page, and the frames follow it.
 
 ## Standards
 
@@ -27,7 +27,7 @@ The drawings follow the Claimwick expense product for Harbor and Pine: expense E
 
 **Statement:** Each page MUST show one top-level heading that names the record, list, or task it holds.
 
-**Rationale:** One heading names the open record, list, or task, so a reader who arrives from a link or a search knows where they landed. With two headings, both compete for that job: the reader guesses which line to trust, while assistive tech announces the wrong one.
+**Rationale:** One heading names the open record, list, or task, so a reader who arrives from a link or a search knows where they landed. With two headings, the reader guesses which line to trust, and assistive technology announces the wrong one.
 
 **Reviewed for:** Does every built screen carry exactly one top-level heading that names it? Open every built page and read its top-level heading.
 
@@ -45,7 +45,7 @@ The drawings follow the Claimwick expense product for Harbor and Pine: expense E
 
 **Compact:** On a narrow screen the needs-attention and coming-up lists stack in one column above the figures, which stack one per row.
 
-**Rationale:** The default builds work first, tiles second. The manager reads the queue and stops, and the figures wait below for the curious reader. The my-work split is the runner-up: choose it once assignment is a real command and two people share one queue. The tiles-first layout is the other runner-up, for a reader who opens the page to check a number. Never ship the tiles-first layout as the default: three stat tiles push the queue below the fold, and the page reads as a report instead of a task list.
+**Rationale:** The default shows the work first and the figures second: the manager reads the queue and stops, and a reader who wants the numbers scrolls for them. The my-work split is the runner-up: choose it once assignment is a real command and two people share one queue. The tiles-first layout is the other runner-up, for a reader who opens the page to check a number. Never ship the tiles-first layout as the default: three stat tiles push the queue below the fold, and the page reads as a report instead of a task list.
 
 **Reviewed for:** Does the built start screen match the wireframe its catalog entry chose? Open the built queues, tiles, and next actions beside the catalog entry recording the chosen option and its reason.
 
@@ -70,7 +70,7 @@ page
     figure "Active now" "2"
 ```
 
-**Rationale:** The page opens on what needs doing and shows the figures underneath. A returning manager reads the two-item queue and stops, and a curious one scrolls for the numbers: 9,412 filed this month, EUR 57,506 paid out, 2 active now.
+**Rationale:** The page shows what needs doing first and the figures underneath. A returning manager reads the two-item queue and stops, and a reader who wants the numbers scrolls for them: 9,412 filed this month, EUR 57,506 paid out, 2 active now.
 
 **Cost:** The tiles lose prominence, and a reader who came to check a number must scroll past the work first. The work-first order costs one screen of vertical space.
 
@@ -98,7 +98,7 @@ page
       item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open trip"
 ```
 
-**Rationale:** Figures give the reader a sense of scale in the first second: 9,412 filed, 2 coming up, none paying out now. The setup checklist and the queue below read as a drill-down from those numbers.
+**Rationale:** The figures give the reader a sense of scale at a glance: 9,412 filed, 2 coming up, none paying out now. The setup checklist and the queue below read as a drill-down from those numbers.
 
 **Cost:** Three large tiles push the needs-attention list below the fold, so the page reads as a report rather than a task list.
 
@@ -124,9 +124,9 @@ page
     figure "Active now" "2"
 ```
 
-**Rationale:** This is the triage shape. What is assigned to Alex sits above what belongs to Harbor and Pine as a whole, so two people never decide the reversal on EXP-1042 twice. The shared queue stays visible below, so one person's morning never hides the shared state.
+**Rationale:** This is the triage shape. What is assigned to Alex sits above what belongs to Harbor and Pine as a whole, so two people never decide the reversal on EXP-1042 twice. The shared queue stays visible below, so one person's queue never hides the shared state.
 
-**Cost:** Assignment must be a real command with a real owner, or every row reads Alex and the split is decoration. The split also costs the tiles their place on short screens.
+**Cost:** Assignment must be a real command with a real owner, or every row shows Alex and the split adds nothing. The split also costs the tiles their place on short screens.
 
 **Reference:** Linear
 
@@ -142,7 +142,7 @@ page
 
 **Compact:** On a narrow screen the search box and state filter stack above the table, and the table scrolls sideways inside its own region.
 
-**Rationale:** The default builds search plus one state filter. Two controls answer the two questions readers ask, who is this and what state is it in, and a bare list needs only the filter added. The row of views is the runner-up for the states a reader returns to. The dense filter bar is the other runner-up past a few hundred rows across many spenders, where the query is restated in words. A list page holds one table: a second table is a second route wearing a disguise. Views can replace the state filter, but they never replace the search box.
+**Rationale:** The default builds search plus one state filter: two controls answer the two questions readers ask, who is this and what state is it in, and a bare list needs only the filter added. The row of views is the runner-up for the states a reader returns to. The dense filter bar is the other runner-up past a few hundred rows across many spenders, where the query is restated in words. A list page holds one table: a second table belongs on a second route. Views can replace the state filter, but they never replace the search box.
 
 **Reviewed for:** Does the built collection screen match the wireframe its catalog entry chose? Open the built searches, views, and filter bars beside the catalog entry recording the chosen option and its reason.
 
@@ -164,7 +164,7 @@ page
     text muted "1 to 25 of 268"
 ```
 
-**Rationale:** Two controls answer the two questions people ask: who is this, and what state is it in. The search box takes an expense number, a name, or an email, the state filter takes the rest, and everything else is a view. This is the smallest honest addition to a bare list.
+**Rationale:** Two controls answer the two questions people ask: who is this, and what state is it in. The search box takes an expense number, a name, or an email, and the state filter narrows by state; everything else is a view. This is the smallest honest addition to a bare list.
 
 **Cost:** A reader with 268 expenses from 40 spenders still cannot narrow to one spender. That stays acceptable while the search box already searches the spender name, so typing Ava answers the same question.
 
@@ -226,7 +226,7 @@ page
 
 **Compact:** On a narrow screen the banner and the sticky footer keep their place, and the table scrolls sideways inside its own region.
 
-**Rationale:** The default builds select-all on the page, then the rest from a banner. It is the clearest answer to the select-all problem: the header checkbox selects the 25 rows on screen, and the banner offers all 31 as an explicit second act. Money deserves the second click. The play mode is the runner-up: choose it when each decision needs different information and batch work is rare. A checkbox on every row is the other runner-up for a queue whose bulk job is small and capped. Keep the search box and the filter in place while rows are selected: a bulk bar that replaces the toolbar makes the layout jump mid-decision and hides the controls the reader wants to refine it.
+**Rationale:** The default builds select-all on the page, then the rest from a banner. It is the clearest answer to the select-all problem: the header checkbox selects the 25 rows on screen, and the banner offers all 31 as an explicit second act. Acting on money is worth the second click. The play mode is the runner-up: choose it when each decision needs different information and batch work is rare. A checkbox on every row is the other runner-up for a queue whose bulk job is small and capped. Keep the search box and the filter in place while rows are selected: a bulk bar that replaces the toolbar shifts the layout mid-decision and hides the controls the reader uses to refine it.
 
 **Reviewed for:** Does the built batch-selection screen match the wireframe its catalog entry chose? Open the built select-all banners, play modes, and per-row checkboxes beside the catalog entry recording the chosen option and its reason.
 
@@ -255,7 +255,7 @@ page
     action primary "Reversal in full"
 ```
 
-**Rationale:** The header checkbox selects the 25 rows on screen. A banner then says all 25 on this page are selected, and offers all 31, while the sticky footer totals the batch at EUR 1,155.00. The larger set becomes an explicit second act rather than an invisible jump.
+**Rationale:** The header checkbox selects the 25 rows on screen. A banner then says all 25 on this page are selected, and offers all 31, while the sticky footer totals the batch at EUR 1,155.00. The larger set becomes an explicit second act rather than a silent expansion.
 
 **Cost:** Acting on everything takes two clicks, and the banner is one more thing on the page. It gives the clearest available answer to the select-all problem.
 
@@ -304,7 +304,7 @@ page
       item: text "EXP-1041" · text muted "Tom Becker, EUR 45.00"
 ```
 
-**Rationale:** The queue becomes one record at a time, with reversal, credit, and Skip beside it and the next expenses already named below. Each reversal gets full attention, and the reader cannot half-read a row.
+**Rationale:** The queue shows one record at a time, with reversal, credit, and Skip beside it and the next expenses already named below. Each reversal gets full attention: the reader sees the whole record before deciding.
 
 **Cost:** One at a time is slow for thirty identical reversals, and the batch these queues exist for disappears. This shape fits decisions that each need different information, never uniform work.
 
@@ -322,7 +322,7 @@ page
 
 **Compact:** On a narrow screen the sections stack in one column and the history aside follows them, with the header actions under the title.
 
-**Rationale:** The default builds the summary with sections and history in the aside. What defines the record runs down the main column, while history supports it from the side. The properties rail is the runner-up: choose it when the aside must carry editable values rather than history. The tabs layout is the other runner-up for a record with more facets than three sections allow. Never put the record's facts in the header: a dense header pushes every command below the fold on a phone and fights the breadcrumb trail for space.
+**Rationale:** The default builds the summary with sections and history in the aside. What defines the record runs down the main column, while history supports it from the side. The properties rail is the runner-up: choose it when the aside must carry editable values rather than history. The tabs layout is the other runner-up for a record with more facets than three sections allow. Never put the record's facts in the header: a dense header pushes every command below the fold on a phone and leaves no room for the breadcrumb trail.
 
 **Reviewed for:** Does the built single-record screen match the wireframe its catalog entry chose? Open the built summaries, tabs, and asides beside the catalog entry recording the chosen option and its reason.
 
@@ -350,7 +350,7 @@ page
           item: text "Paid" · text muted "8 Oct 2026, 09:34" · text muted "Card"
 ```
 
-**Rationale:** The main column carries what defines the record in at most three sections, and the narrower aside carries the history that supports but does not define it. EXP-1042 reads this way: the expense in the column, the payout trail in the aside. The shape is proven: a summary at the top, at most three sections, and history in the aside.
+**Rationale:** The main column carries what defines the record in at most three sections, and the narrower aside carries the history that supports but does not define it. EXP-1042 shows it: the expense in the column, the payout trail in the aside. The shape is proven: a summary at the top, at most three sections, and history in the aside.
 
 **Cost:** Below roughly 1000 pixels the aside stacks under the sections, so the history lands after the actions. The record still reads acceptably in either order.
 
@@ -380,7 +380,7 @@ page
 
 **Rationale:** When a record has more facets than three sections allow, tabs divide it. The Rotterdam trip splits into expenses, budget, reversals, and details, and the active tab sits in the URL, so a link carries the facet with it.
 
-**Cost:** The reader cannot see two facets at once, and the tab count grows with every new thing the back office adds. Guidance caps tabs at about six for this reason.
+**Cost:** The reader cannot see two facets at once, and the tab count grows with every new facet the back office adds. Guidance caps tabs at about six for this reason.
 
 **Reference:** GOV.UK, Carbon
 
@@ -408,7 +408,7 @@ page
         action primary "Save properties"
 ```
 
-**Rationale:** This is the issue shape. The record reads down the main column while every editable property sits in the right rail, changed where it is shown: owner, follow-up, and spender note save from the rail itself. There is no Edit mode and no second page for one value.
+**Rationale:** This is the issue shape. The record shows down the main column while every editable property sits in the right rail, changed where it is shown: owner, follow-up, and spender note save from the rail itself. There is no Edit mode and no second page for one value.
 
 **Cost:** Every property needs its own save and its own failure state, so five quick edits are five round trips. This shape fails where a change must be reviewed whole before anything is written.
 
@@ -426,7 +426,7 @@ page
 
 **Compact:** On a narrow screen the single column of fields keeps its order, and Cancel sits beside Create expense at the end.
 
-**Rationale:** The default builds one section, one column, Cancel beside the submit action. A single command reads as a list of questions with one place to submit and one place to leave. The stacked blocks are the runner-up when the form carries several labeled groups, such as the expense, the amounts, and the budget. The one-question-per-screen flow is the other runner-up when each answer changes the next question and nothing may be skipped. Three steps for work that fits one page is one step too many.
+**Rationale:** The default builds one section, one column, Cancel beside the submit action. A single command reads as a list of questions with one place to submit and one place to leave. The stacked blocks are the runner-up when the form carries several labeled groups, such as the expense, the amounts, and the budget. The one-question-per-screen flow is the other runner-up when each answer changes the next question and nothing may be skipped. A stepped flow for work that fits one page adds steps with no benefit.
 
 **Reviewed for:** Does the built input screen match the wireframe its catalog entry chose? Open the built sections, labeled blocks, and one-question flows beside the catalog entry recording the chosen option and its reason.
 
@@ -494,7 +494,7 @@ page
     action quiet "Back"
 ```
 
-**Rationale:** Each answer gets the whole screen in the one-thing-per-page shape. What is the expense called opens first with its own Continue and Back, the answer validates before the next opens, and Back returns to the question before it. Nothing half-filled is lost to a section the reader skipped.
+**Rationale:** Each answer gets the whole screen in the one-thing-per-page shape. The name question opens first with its own Continue and Back, each answer validates before the next opens, and Back returns to the question before it. Nothing half-filled is lost to a section the reader skipped.
 
 **Cost:** Five screens for a form that fits one page feels slow to a returning reader. The answers cannot be reviewed together until the final check, so reserve this shape for flows where each answer changes the next question.
 
@@ -588,7 +588,7 @@ page
     fact "Net for Harbor and Pine" "EUR 57,506.20"
 ```
 
-**Rationale:** Three cards with sparklines name the trend before the statement names the total: the analytics shape. Expenses paid rising 12 percent on August is noticed before it is explained, and the statement underneath keeps every euro accountable.
+**Rationale:** Three cards with sparklines name the trend before the statement names the total: the analytics shape. The reader notices Expenses paid rising 12 percent on August before reading why, and the statement underneath keeps every euro accountable.
 
 **Cost:** Sparklines invite trend questions the monthly statement cannot answer, and three cards push the accountable total down. This shape fits mid-month reading, and the plain statement fits settlement.
 
@@ -606,7 +606,7 @@ page
 
 **Compact:** On a narrow screen the grouped links stack in one column, each link keeping its line of explanation.
 
-**Rationale:** The default builds grouped links. Each area names what it holds, the page never grows a form, and thirty routes fit in a handful of sections. The left navigation is the runner-up: choose it once areas gain enough depth to deserve their own tree. The searchable list is the other runner-up for a reader who knows the name of the setting. Group by the thing, never by how often it changes: readers look for a thing, not for how often they change it.
+**Rationale:** The default builds grouped links. Each area names what it holds, the page never grows a form, and thirty routes fit in a handful of sections. The left navigation is the runner-up: choose it once areas gain enough depth to deserve their own tree. The searchable list is the other runner-up for a reader who knows the name of the setting. Group by the thing the setting controls, never by how often it changes: readers look for a thing, not a frequency.
 
 **Reviewed for:** Does the built setup index match the wireframe its catalog entry chose? Open the built grouped links, settings trees, and search indexes beside the catalog entry recording the chosen option and its reason.
 
@@ -654,7 +654,7 @@ page
       field "Time zone" select = "Europe/Amsterdam"
 ```
 
-**Rationale:** The areas live in a left navigation and the chosen area opens beside it: the settings-tree shape. Thirty routes become one tree the reader scans without leaving the page, General stays marked as current, and company name, contact email, and time zone edit in place.
+**Rationale:** The areas sit in a left navigation and the chosen area opens beside it: the settings-tree shape. Thirty routes become one tree the reader scans without leaving the page, General stays marked as current, and company name, contact email, and time zone edit in place.
 
 **Cost:** An area's incompleteness stays invisible until it is opened. A phone has no room for the tree, so the navigation must collapse into the grouped links of the default.
 
@@ -676,7 +676,7 @@ page
       item: text "Cost centres" · text muted "Settings, Cost centres, Budgets and spenders." · action "Open"
 ```
 
-**Rationale:** One flat list holds every setting with a search box over it. Thirty routes become one searchable index, and the reader types what they are looking for. Each row shows its trail, such as Settings, Cost centres, Budgets and spenders, so the hit still says where it lives.
+**Rationale:** One flat list holds every setting with a search box over it. Thirty routes become one searchable index, and the reader types what they are looking for. Each row shows its trail, such as Settings, Cost centres, Budgets and spenders, so the result still says where the setting sits.
 
 **Cost:** The grouping is lost, so a reader who knows the area must hunt through a flat list for it. The search must know every setting name a reader might type.
 
@@ -724,7 +724,7 @@ page
 
 **Rationale:** Every control writes straight into the preview, so the reader never saves to find out what a change looks like. The dropped logo, the typeface, and the accent color all show live beside the form.
 
-**Cost:** A form preview earns trust at phone width too, and this layout has no width toggle. Two thirds of a 1440 screen is also a lot of preview for four small fields.
+**Cost:** This layout has no width toggle, so the preview cannot be judged at phone width. Two thirds of a 1440 screen is also a lot of preview for four small fields.
 
 #### `preview-as-a-drawer-pulled-over-the-form`: Preview as a Drawer Pulled over the Form
 
@@ -752,7 +752,7 @@ page
 
 **Rationale:** The form takes the whole page, and the preview opens over it as a drawer on request. The reader checks the result as a spender sees it at either width, then closes the drawer without losing their place in the form.
 
-**Cost:** The preview stays out of sight by default. A drawer over a form is a layered context for something meant to reassure.
+**Cost:** The preview stays out of sight by default. A drawer adds a layer over the form for a preview whose purpose is reassurance.
 
 #### `floating-settings-panel-over-a-full-bleed-preview`: Floating Settings Panel over a Full-Bleed Preview
 
@@ -776,9 +776,9 @@ page
     text muted "Harbor and Pine, Amsterdam office, Amsterdam"
 ```
 
-**Rationale:** The preview takes the whole page and the settings float over it as a panel: the full-bleed shape. A cover image is judged at real size with the logo and Submit expense in place, and closing the panel is the same as stepping back from the work.
+**Rationale:** The preview takes the whole page and the settings float over it as a panel: the full-bleed shape. A cover image is judged at real size with the logo and Submit expense in place, and closing the panel shows the whole result.
 
-**Cost:** The panel covers the preview it edits, and dragging it aside is awkward on a laptop trackpad. This shape fits a visual judged whole, such as a cover, while detailed fields want side-by-side.
+**Cost:** The panel covers the preview it edits, and dragging it aside is awkward on a laptop trackpad. This shape fits a visual judged whole, such as a cover, while detailed fields need side-by-side.
 
 **Reference:** Webflow
 
@@ -794,7 +794,7 @@ page
 
 **Compact:** On a narrow screen the statement, the facts, and the next step stack in one column in the same order.
 
-**Rationale:** The default builds one statement with one next step. A reader who came to learn whether it worked leaves in one glance. The refusal outcome is the runner-up, for the same frame with the fix in the primary place. The confirmation band is the other runner-up when the flow leaves a reference the reader must keep. A moment is not a place: an outcome the reader may need to return to belongs on a page, not in a toast.
+**Rationale:** The default builds one statement with one next step. A reader who came to learn whether it worked leaves in one glance. The refusal outcome is the runner-up, for the same frame with the fix in the primary place. The confirmation band is the other runner-up when the flow leaves a reference the reader must keep. An outcome the reader may need to return to belongs on a page, not in a toast.
 
 **Reviewed for:** Does the built result screen match the wireframe its catalog entry chose? Open the built statements, references, and refusal outcomes beside the catalog entry recording the chosen option and its reason.
 
@@ -921,7 +921,7 @@ page
       item: text "Receipt scanner was offline" · text muted "10:10 to 10:40, 41 scans queued, all synced." · status "Resolved" positive
 ```
 
-**Rationale:** The page promises silence. The count sits in the header, and below it only what needs a person appears. A finance lead who trusts the scanners reads 554 paid out of 840 and puts the phone away, with the resolved scanner outage kept under Earlier today for the record.
+**Rationale:** The count sits in the header, and below it only what needs a person appears. A finance lead who trusts the scanners reads 554 paid out of 840 and puts the phone away, with the resolved scanner outage kept under Earlier today for the record.
 
 **Cost:** When nothing needs anybody the page is nearly empty, and an empty page on a wall display reads as broken. The count in the header is what proves it is alive.
 
@@ -938,7 +938,7 @@ page
     action primary "Open the exceptions"
 ```
 
-**Rationale:** A wall display carries one number with the exceptions count beside it: 554 paid, 1 needs a person. There is no navigation, and one action opens the exceptions if needed. Nothing else misreads from three meters away.
+**Rationale:** A wall display carries one number with the exceptions count beside it: 554 paid, 1 needs a person. There is no navigation, and one action opens the exceptions if needed. Nothing else on the screen can be misread from three meters away.
 
 **Cost:** A display is not a workplace for decisions. It answers how many, and most work needs a phone.
 
@@ -1000,7 +1000,7 @@ page
       item: text "Amsterdam client visit" · text muted "08:00 to 12:00 · Rotterdam sales" · status "Scheduled" info · action "Open"
 ```
 
-**Rationale:** Each day becomes a date chip with its trips beside it, soonest first. The reader scrolls time itself from the Rotterdam visit on the 14th through Utrecht and Amsterdam rather than paging through it, which suits a phone.
+**Rationale:** Each day becomes a date chip with its trips beside it, soonest first. The reader scrolls from the Rotterdam visit on the 14th through Utrecht and Amsterdam rather than paging through months, which suits a phone.
 
 **Cost:** Empty days still take a row or the rhythm breaks, so a quiet month is mostly scrolling past blank days. The grid shows the quiet month better at a glance.
 
@@ -1042,7 +1042,7 @@ page
 
 **Compact:** On a narrow screen the progress line and the steps stack in one column, each step keeping its status and action.
 
-**Rationale:** The default builds the checklist with a progress bar. It states the three steps, shows which is done, and waits without leading. The stepper wizard is the runner-up: choose it when a step cannot be skipped and the next depends on the last. Starting from a template is the other runner-up when the first trip is a known shape. Three saves for a first run are three chances to leave the company half set up.
+**Rationale:** The default builds the checklist with a progress bar. It states the three steps, shows which is done, and waits without leading. The stepper wizard is the runner-up: choose it when a step cannot be skipped and the next depends on the last. Starting from a template is the other runner-up when the first trip is a known shape. Three saves in a first run are three chances to leave the company half set up.
 
 **Reviewed for:** Does the built first-run guide match the wireframe its catalog entry chose? Open the built checklists, wizards, and templates beside the catalog entry recording the chosen option and its reason.
 
@@ -1069,7 +1069,7 @@ page
     action "Set up"
 ```
 
-**Rationale:** Three steps carry done, current, and open markers, with 1 of 3 steps done saying how far along the company is. The company step reads done, payments read current with their Connect action, and the expense form waits open. The page waits, and each step opens its own command.
+**Rationale:** Three steps carry done, current, and open markers, with 1 of 3 steps done saying how far along the company is. The company step shows done, payments show current with their Connect action, and the expense form waits open. The page waits, and each step opens its own command.
 
 **Cost:** A checklist can be ignored, and a reader who skips the payment step owns a back office that cannot take money. The home page's setup section must repeat the warning.
 
@@ -1094,7 +1094,7 @@ page
 
 **Rationale:** One step stays open at a time with a stepper above it. Step 2 of 3 asks for the business number and payout account with its own Back, each step validates before the next opens, and nothing half-filled is ever left behind.
 
-**Cost:** A wizard leads, which means it also blocks: the reader cannot add a trip until the wizard is done. When company, payments, and form stand alone, that block buys nothing.
+**Cost:** A wizard leads, which means it also blocks: the reader cannot add a trip until the wizard is done. When company, payments, and form stand alone, that block serves no purpose.
 
 **Reference:** Stripe
 
@@ -1130,7 +1130,7 @@ page
 
 **Compact:** On a narrow screen the statement and the links back stack centered in one column.
 
-**Rationale:** The default builds the centered not-found with links back. It says what happened, says where to go, and does both in one glance. The permission refusal is the runner-up: choose it whenever the page knows who can resolve it, because Back is not a fix. The full-page outage is the other runner-up when a provider failure blocks the page. A retry button on a page that will never exist is a promise that cannot be kept, so name the state and the next step instead.
+**Rationale:** The default builds the centered not-found with links back. It says what happened, says where to go, and does both in one glance. The permission refusal is the runner-up: choose it whenever the page knows who can resolve it, because Back is not a fix. The full-page outage is the other runner-up when a provider failure blocks the page. A retry button on a page that will never exist misleads the reader, so name the state and the next step instead.
 
 **Reviewed for:** Does the built dead end match the wireframe its catalog entry chose? Open the built not-found, outage, and refused views beside the catalog entry recording the chosen option and its reason.
 
@@ -1148,7 +1148,7 @@ page
     action "Open expenses"
 ```
 
-**Rationale:** What happened and where to go show in one glance: the 404 code, one line saying the address may be wrong, and the two places the reader most likely wanted. The trip and its expenses read as untouched. The 404 shape, minus the joke.
+**Rationale:** What happened and where to go show in one glance: the 404 code, one line saying the address may be wrong, and the two places the reader most likely wanted. The trip and its expenses show as untouched. A plain 404 shape, with no joke.
 
 **Cost:** A dead end still ends the reader's task: they lose whatever they were doing. It must at least keep the navigation, so Back to home stays one click away.
 
@@ -1189,7 +1189,7 @@ page
     action primary "Try again"
 ```
 
-**Rationale:** When a provider is down, the page says which one, what still works, and what does not. The payment provider reads as down since 11:04 with Try again beside it. The status-page shape: the failure is named, so the reader stops guessing.
+**Rationale:** When a provider is down, the page says which one, what still works, and what does not. The payment provider shows as down since 11:04 with Try again beside it. The status-page shape: the failure is named, so the reader stops guessing.
 
 **Cost:** A full page for a partial failure hides what still works. Only a failure that truly blocks the page earns the full-page shape.
 

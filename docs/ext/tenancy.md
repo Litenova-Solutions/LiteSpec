@@ -4,7 +4,9 @@
 
 **Concern:** application
 
-One deployment serves independent customer organizations, and each organization keeps its own data and policy isolated from the others. A tenant is a separate customer, not a separate login. This page states how the product resolves tenant identity from trusted context, isolates each tenant's data and policy across authorization, storage, caches, reactions, jobs, exports, diagnostics, and recovery, and records the operations that cross tenant lines. A project selects it when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer's data to another.
+One deployment serves independent customer organizations, and each organization keeps its own data and policy isolated from the others. A tenant is a separate customer, not a separate login.
+
+This page states how the product resolves tenant identity from trusted context, how it isolates each tenant's data and policy across every boundary a tenant touches, and how it records the operations that cross tenant lines. A project selects this extension when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer's data to another.
 
 ## Activation
 
@@ -46,7 +48,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A multi-tenant decision MUST define shared-table, schema, or database isolation and state its guarantee and operating trade-off.
 
-**Rationale:** Shared tables, separate schemas, and separate databases isolate differently and operate differently, and each choice moves work between queries, migrations, backups, and scaling. Naming the model with its guarantee and its operating trade-off tells every later choice which isolation it can rely on.
+**Rationale:** Shared tables, separate schemas, and separate databases isolate data differently, and each choice moves work between queries, migrations, backups, and scaling. Naming the model with its guarantee and its operating trade-off tells every later choice which isolation it can rely on.
 
 **Reviewed for:** Does the adoption decision name its isolation model with its guarantee and operating trade-off? Check the adoption decision.
 
@@ -60,7 +62,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A multi-tenant system MUST NOT mix isolation models without a decision and data evolution plan.
 
-**Rationale:** One part of the product on shared tables and another on separate databases answer which rows each tenant sees in two ways. Without a decision and a data evolution plan for the mix, backup, restore, and incident response each guess which guarantee covers which data.
+**Rationale:** One part of the product on shared tables and another on separate databases decide which rows each tenant sees in two different ways. Without a decision and a data evolution plan for the mix, backup, restore, and incident response each guess which guarantee covers which data.
 
 **Reviewed for:** Does every mixed isolation model trace to a decision with a data evolution plan? Check each mixed model beside its decision.
 
@@ -74,7 +76,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A trusted host boundary MUST resolve tenant identity from verified claims, host mapping, or another authenticated source.
 
-**Rationale:** The tenant decides which data the request may touch, so only a trusted host boundary resolves it: verified claims, host mapping, or another authenticated source. An identity the caller supplies itself is a choice, not a fact.
+**Rationale:** The tenant decides which data the request may touch, so only a trusted host boundary resolves it: verified claims, host mapping, or another authenticated source. A tenant identifier the caller supplies in request data is caller-chosen, not authenticated.
 
 **Reviewed for:** Does every trusted host boundary resolve the tenant from an authenticated source? Check each boundary's tenant resolution.
 
@@ -88,7 +90,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A tenant resolver MUST NOT accept an unrestricted tenant ID from request data.
 
-**Rationale:** Any caller can name any tenant when the tenant ID comes straight from request data. Rejecting unrestricted input keeps the request from choosing a data boundary outside its authenticated context.
+**Rationale:** Any caller can name any tenant when the tenant ID comes directly from request data. Rejecting unrestricted input keeps the request from choosing a data boundary outside its authenticated context.
 
 **Reviewed for:** Does any tenant resolver path accept a tenant identifier from request data? Check the tenant resolver code.
 
@@ -102,7 +104,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A protected multi-tenant operation MUST confirm actor and target tenancy, with the needed permission held at the resolved scope and the target belonging to it.
 
-**Rationale:** Checking the caller alone leaves the target unchecked: an authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role for the resolved tenant, the role allows the permission, the use case declares that permission in its grant, and the target belongs to the same scope.
+**Rationale:** Checking the caller alone leaves the target unchecked. An authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role for the resolved tenant, the role allows the permission, the use case declares that permission in its grant, and the target belongs to the same scope.
 
 **Reviewed for:** Does every protected operation refuse when the actor and target tenants mismatch? Check the authorization tests.
 
@@ -132,7 +134,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** An administrative cross-tenant operation MUST require a permission the actor holds through a role whose scope is platform, writing an audit record.
 
-**Rationale:** Support and operations sometimes reach across tenants, and that exceptional reach needs exceptional control: a permission held through a role whose scope is `platform`, with an audit record for every use. Without both, one support login becomes an unscoped key to every customer's data. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.
+**Rationale:** Support and operations sometimes reach across tenants, and that reach needs exceptional control: a permission held through a role whose scope is `platform`, with an audit record for every use. Without both, one support login gains unrestricted access to every customer's data, with no record of what it touched. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.
 
 **Reviewed for:** Does every administrative cross-tenant use case require a platform-scope permission, with an audit record for every run? Check the use case permissions beside the audit trail.
 
@@ -146,7 +148,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A multi-tenant persistence implementation MUST resolve its tenant at session creation through the selected provider's own tenancy support.
 
-**Rationale:** Session creation is the point that matters: a session opened without a tenant serves an unscoped next query. Resolving the tenant then, through the selected provider's own tenancy support, scopes every query the session runs, so no query carries the concern alone. Filtering per query instead leaves every new query one omission away from reading across tenants. The baseline provider resolves the tenant from the registered tenancy at session creation; an Entity Framework Core implementation resolves it when the context is created and applies it through a query filter convention.
+**Rationale:** A session opened without a tenant serves its next query without scope. Resolving the tenant at session creation, through the selected provider's own tenancy support, scopes every query the session runs, so no query needs its own check. Filtering per query instead means any query that omits the filter reads across tenants. The baseline provider resolves the tenant from the registered tenancy at session creation; an Entity Framework Core implementation resolves it when the context is created and applies it through a query filter convention.
 
 **Reviewed for:** Does every session-creation path resolve the tenant through its provider's own tenancy support? Check each provider's session creation.
 
@@ -160,7 +162,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** Every tenant-owned document, query, unique constraint, cache key, outbox record, reaction, job, export, and object-storage path MUST include tenant scope.
 
-**Rationale:** Tenants meet at documents, queries, unique constraints, cache keys, outbox records, reactions, jobs, exports, and object-storage paths. Leaving tenant scope out of any one of them discloses or mixes customer data through exactly that gap.
+**Rationale:** Documents, queries, unique constraints, cache keys, outbox records, reactions, jobs, exports, and object-storage paths can each carry one tenant's data into another tenant's reach. Leaving tenant scope out of any one of them discloses or mixes customer data through exactly that gap.
 
 **Reviewed for:** Does every tenant-owned document, query, constraint, cache key, outbox record, reaction, job, export, and storage path in code carry tenant scope? Check the code for each kind.
 
@@ -174,7 +176,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A cross-tenant resource response MUST use the documented not-found or forbidden policy.
 
-**Rationale:** A caller that names another tenant's resource forces an answer: pretend it does not exist, or admit it exists and refuse. The product documents one policy and applies it to every cross-tenant response, so callers cannot probe for resources through inconsistent answers.
+**Rationale:** A caller that names another tenant's resource forces an answer. The product either pretends the resource does not exist or admits it exists and refuses. It documents one policy and applies it to every cross-tenant response, so callers cannot probe for resources through inconsistent answers.
 
 **Reviewed for:** Does every cross-tenant response follow the documented not-found or forbidden policy? Check the API tests.
 
@@ -216,7 +218,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** An all-tenant operation MUST record actor, operation, reason, tenant count, and reached tenant identifiers up to the adoption decision bound.
 
-**Rationale:** A documented scope states what an operation may touch, not what one run touched, and the run is what a tenant asks about after an incident. An all-tenant run is also the one case where no single tenant's audit trail holds the whole event. [The OWASP logging guidance](https://owasp.org/www-project-cheat-sheets/cheatsheets/Logging_Cheat_Sheet) treats an administrative action over many subjects as one event to record: actor, operation, reason, tenant count, and reached tenant identifiers up to the adoption decision bound. When the `audit` extension is selected, the record is an audit record; otherwise it stays a standalone record.
+**Rationale:** A documented scope states what an operation may touch. It does not state what one run touched, and the run is what a tenant asks about after an incident. An all-tenant run is also the one case where no single tenant's audit trail holds the whole event. [The OWASP logging guidance](https://owasp.org/www-project-cheat-sheets/cheatsheets/Logging_Cheat_Sheet) treats an administrative action over many subjects as one event to record: actor, operation, reason, tenant count, and reached tenant identifiers up to the adoption decision bound. When the `audit` extension is selected, the record is an audit record; otherwise it stays a standalone record.
 
 **Example:** A support export covering every tenant records the operator, the export, the tenant count, and the incident it was run for.
 
@@ -248,7 +250,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A delegation MUST name the permissions it delegates, never all permissions.
 
-**Rationale:** A delegation open to every permission hands the whole tenant to the acting party: one pairing meant for reading reports also moves money. Naming each delegated permission bounds the pairing to what the delegator intended. Each new permission then needs its own review in the pull request before the acting party holds it.
+**Rationale:** A delegation open to every permission hands the whole tenant to the acting party. One pairing meant for reading reports also moves money. Naming each delegated permission bounds the pairing to what the delegator intended. Each new permission then needs its own review in the pull request before the acting party holds it.
 
 **Reviewed for:** Does every delegation name its delegated permissions, with none opened to all permissions? Check each delegation's permission list.
 
@@ -262,7 +264,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A delegation MUST carry an expiry or a revocation path.
 
-**Rationale:** Without an end, a grant outlives its reason: the assistant keeps acting after the engagement ends, and nobody reopens the pairing because no date asks for it. An expiry ends the pairing on its date, and a revocation path ends it on demand. Either way, the end is stated beside the grant instead of left for an incident to discover.
+**Rationale:** Without an end, a grant outlives its reason: the assistant keeps acting after the engagement ends, and no date prompts anyone to reopen the pairing. An expiry ends the pairing on its date, and a revocation path ends it on demand. Either way, the grant states its own end, so the pairing ends on its terms instead of running until an incident exposes it.
 
 **Reviewed for:** Does every delegation carry an expiry or a revocation path? Check each delegation record.
 
@@ -290,7 +292,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A delegation MUST prove an allowed call and a refused call with scenarios.
 
-**Rationale:** A pairing described only in prose hides where its grant stops: the allowed assistant and the uninvited one read alike. One scenario walks an allowed call, and another ends a call without delegation in the derived forbidden result, pinning the boundary as checked facts. `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios` requires both scenarios.
+**Rationale:** A pairing described only in prose hides where its grant stops. Nothing distinguishes the allowed call from the call without delegation. One scenario walks an allowed call, and another ends a call without delegation in the derived forbidden result, so the boundary stands as checked fact instead of prose. `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios` requires both scenarios.
 
 **Reviewed for:** Does every delegation prove an allowed call and a refused call with scenarios? Check the delegation scenarios.
 
@@ -308,7 +310,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Replacement:** A consumer records a tenant-identity convention naming the type its tenant references carry.
 
-**Rationale:** A bare string tenant ID passes anywhere a string passes: into an actor field, an aggregate key, or a log line. A strongly typed `TenantId` turns each of those mistakes into a compilation failure instead of a production failure.
+**Rationale:** A bare string tenant ID passes anywhere a string passes. It can land in an actor field, an aggregate key, or a log line. A strongly typed `TenantId` turns each of those mistakes into a compilation failure instead of a production failure.
 
 **Reviewed for:** Does every tenant reference carry the `TenantId` type, or another type the tenant-identity convention names? Check the tenant references in code.
 

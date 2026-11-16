@@ -3,13 +3,13 @@
 **Stack:** dotnet
 **Concern:** records
 
-A backend built on .NET declares the `dotnet` stack in `.litespec/project.yaml`. That declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, the result formats the builder reads, and the test projects, packages, and runners.
+This page defines the `dotnet` backend stack for a project whose backend runs on .NET. Declaring the stack in `.litespec/project.yaml` applies every page in this folder and selects the readers that connect C# code and test results to the records.
 
 ## Concepts
 
 ### Marks and Their Lookup
 
-A mark is the link between a code element and the record it implements, proves, or follows. The [marks table](../../core/model.md#marks) owns which mark each code element carries, and the stack reader follows those marks to connect code with records. [Write Code for a Use Case](../../guide/write-code-for-a-use-case.md) maps each backend element to its folder, its mark, and its check.
+A mark is the link between a code element and the record it implements, proves, or follows. The [marks table](../../core/model.md#marks) states which mark each code element carries, and the stack reader follows those marks to connect code with records. [Write Code for a Use Case](../../guide/write-code-for-a-use-case.md) maps each backend element to its folder, its mark, and its check.
 
 ## Standards
 
@@ -33,7 +33,7 @@ A mark is the link between a code element and the record it implements, proves, 
 
 **Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
-**Rationale:** Each level S check reads one of those shapes. The mark links a code element to its record: a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `writes`: a repository serves the aggregate its implementing class names in an `implements` mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unreached` and `use-case-scenario-missing` from tests. The reader also reads the options classes that bind keyed settings, through each class's `SectionName` constant and properties, and the template store `stackConfig.dotnet.templateStore` names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as `{{PascalCaseName}}`. Level S checks block where this reader is qualified and report elsewhere.
+**Rationale:** Each level S check reads one of those shapes. The mark links a code element to its record: a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `writes`: a repository serves the aggregate its implementing class names in an `implements` mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects. The reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` from code. Test marks with the latest test run prove each scenario. The reader reports `proves-unreached` and `use-case-scenario-missing` from tests. The reader also reads the options classes that bind keyed settings, through each class's `SectionName` constant and properties. It also reads the template store `stackConfig.dotnet.templateStore` names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as `{{PascalCaseName}}`. Level S checks block where this reader is qualified and report elsewhere.
 
 **Example:** Claimwick's reimburse-expense handler carries `/// <implements>use-case/spending.reimburse-expense</implements>`, and its approver-reminder event handler carries `/// <implements>reaction/spending.send-approver-reminder-on-expense-submitted</implements>`.
 
@@ -47,7 +47,7 @@ A mark is the link between a code element and the record it implements, proves, 
 
 **Statement:** The .NET stack reader MUST read every project that `stackConfig.dotnet.webapi` and `stackConfig.dotnet.worker` name, whether each field holds one glob string or a list of glob strings.
 
-**Rationale:** A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the others do not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented. Each named host is therefore a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root.
+**Rationale:** A backend can serve its use cases from more than one web host and run more than one worker host. Each host holds endpoints or jobs the others do not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented. Each named host is therefore a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root.
 
 **Example:** Claimwick serves member requests from one web host and partner requests from a second, so `webapi` lists both host projects and the reader reads the endpoints of each.
 
@@ -61,7 +61,7 @@ A mark is the link between a code element and the record it implements, proves, 
 
 **Statement:** The model builder MUST report `reader-missing` for a configured .NET stack root that matches no folder, and for the default modules root, and the default Domain and Infrastructure roots under the layer-projects layout, when that default matches no folder in a project that selects the .NET reader.
 
-**Rationale:** A root that matches no folder reads no source, so the records that source would implement are not gaps in the product: the tool read nothing where it expected code. Reporting the missing root beside the unimplemented findings lets a reader tell a reader gap from a product gap. The WebApi, worker, and shared kernel defaults name hosts and a kernel that a valid project may omit, so a missing default for those roots stays silent, and only a configured host or kernel path reports.
+**Rationale:** A root that matches no folder reads no source, so the records that source would implement are not gaps in the product. The tool read nothing where it expected code. Reporting the missing root beside the unimplemented findings lets a reader tell a reader gap from a product gap. The WebApi, worker, and shared kernel defaults name hosts and a kernel that a valid project may omit, so a missing default for those roots stays silent. Only a configured host or kernel path reports.
 
 **Example:** A library project that keeps its code under a product folder and names no stack root reports `reader-missing` for the default modules root instead of reporting every aggregate and use case as unimplemented.
 
@@ -77,7 +77,7 @@ A mark is the link between a code element and the record it implements, proves, 
 
 **Statement:** The .NET stack reader MUST recognize a type that carries an `aggregate` mark and a `State` property backed by an abstract state record as an aggregate root.
 
-**Rationale:** A project that claims Implementation with `own` keeps its own code layout and its own aggregate base, so a root that follows the LiteSpec base type is not the only root the code holds. The aggregate mark names the record the type implements, and the state record states its lifecycle; together they identify the root without the base type. A type with only the mark, or only the state record, does not state both facts, so it stays unrecognized. This provision states the `trace: yes` reading of the aggregate root beside `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`, which governs the full contract.
+**Rationale:** A project that claims Implementation with `own` keeps its own code layout and its own aggregate base, so a root that follows the LiteSpec base type is not the only root the code holds. The aggregate mark names the record the type implements, and the state record states its lifecycle. Together they identify the root without the base type. A type with only the mark, or only the state record, does not state both facts, so it stays unrecognized. This provision states the `trace: yes` reading of the aggregate root beside `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`, which governs the full contract.
 
 **Example:** The library loan type carries `/// <implements>aggregate/lending.loan</implements>` with a `LoanState State` property backed by the abstract `LoanState` record, so the reader treats it as the loan aggregate root and reads its public methods as aggregate methods.
 
@@ -91,7 +91,7 @@ A mark is the link between a code element and the record it implements, proves, 
 
 **Statement:** A .NET mark MUST be an `implements`, `proves`, or `follows` documentation tag when `marks` is `xml`, and an `Implements`, `Proves`, or `Follows` attribute when `marks` is `attribute`.
 
-**Rationale:** The `xml` style keeps business code free of attributes that are not of the business, with the mark as a documentation tag read by the stack reader and the analyzers, which need the documentation file every LiteSpec project already generates. The `attribute` style carries the mark into metadata, so it survives compilation and reflection can read it. Its attribute types are generated into each project as internal types by the analyzer package, so no runtime package is referenced, and Domain stays free of outer-layer dependencies. A code element takes one mark per record, and a code fix converts a mark between the styles. This provision states the .NET form of `litespec/core/model#declare-one-mark-style`.
+**Rationale:** The `xml` style keeps business code free of attributes that are not of the business. The mark is a documentation tag read by the stack reader and the analyzers, which need the documentation file every LiteSpec project already generates. The `attribute` style carries the mark into metadata, so it survives compilation and reflection can read it. Its attribute types are generated into each project as internal types by the analyzer package, so no runtime package is referenced. Domain stays free of outer-layer dependencies. A code element takes one mark per record, and a code fix converts a mark between the styles. This provision states the .NET form of `litespec/core/model#declare-one-mark-style`.
 
 **Example:** In the `xml` style, Claimwick's reimbursement handler carries its marks as documentation tags:
 
@@ -120,7 +120,7 @@ internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseR
 
 **Statement:** A domain event `Classification` and a domain exception `Code` MUST equal the values their records state.
 
-**Rationale:** The record states each identifier and refusal code once. A second hand-written copy in code is a second source that drifts. With the analyzer package installed, its source generator writes the value into the `partial` type from the mark and the record: the event `Classification` is the event identifier, and the exception `Code` is the `code` of the refusal result its rule names. Without the analyzer package, the value stays hand-written, and the check compares it with the record.
+**Rationale:** The record states each identifier and refusal code once. A second hand-written copy in code is a second source that drifts. With the analyzer package installed, its source generator writes the value into the `partial` type from the mark and the record. The event `Classification` is the event identifier, and the exception `Code` is the `code` of the refusal result its rule names. Without the analyzer package, the value stays hand-written, and the check compares it with the record.
 
 **Example:** Claimwick's submitted-expense event carries its mark, and the generator writes its classification:
 
@@ -141,7 +141,7 @@ The generated part holds `public const string Classification = "domain-event/exp
 
 **Statement:** Code MUST read a use case's identity, its grant, a permission's facts, and a role's permission set from the classes the analyzer package generates from the marks and the records, never from a hand-written copy.
 
-**Rationale:** Each of these facts is written once, on a record or in a mark. A hand-written table of them is a second source that drifts the first time a record changes. The generator writes them per project: `LiteSpecRegistry` answers a message type's use case (`UseCaseOf`), a marked type's use case (`UseCaseOfType`), a message type's grant (`GrantOf`), and in an API project an operation name's use case (`UseCaseOfOperation`); `LiteSpecPermissions` holds one constant and one entry per `permission/` record; and `LiteSpecRoles` holds each role's scope and the permissions its record allows. In the module layout the modules project generates all three, and the host beside it reads them from there; the shared kernel project generates none, and the host generates only `LiteSpecHostOperations`, which answers `UseCaseOfOperation` for the endpoints the host itself holds. A role that names a permission no record declares, and two records that generate one name, stop at build time.
+**Rationale:** Each of these facts is written once, on a record or in a mark. A hand-written table of them is a second source that drifts the first time a record changes. The generator writes them per project. `LiteSpecRegistry` answers a message type's use case (`UseCaseOf`), a marked type's use case (`UseCaseOfType`), a message type's grant (`GrantOf`), and in an API project an operation name's use case (`UseCaseOfOperation`). `LiteSpecPermissions` holds one constant and one entry per `permission/` record, and `LiteSpecRoles` holds each role's scope and the permissions its record allows. In the module layout the modules project generates all three, and the host beside it reads them from there. The shared kernel project generates none, and the host generates only `LiteSpecHostOperations`, which answers `UseCaseOfOperation` for the endpoints the host itself holds. A role that names a permission no record declares, and two records that generate one name, stop at build time.
 
 **Example:** When Claimwick's `role/finance` record gains a permission, `LiteSpecRoles.Of("role/finance").Allows` carries it at the next build with no hand-written table to update, and `LiteSpecRegistry.GrantOf(typeof(ReimburseExpenseCommand))` answers the reimbursement grant.
 
@@ -155,7 +155,7 @@ The generated part holds `public const string Classification = "domain-event/exp
 
 **Statement:** A project that references the analyzer package MUST declare every marked domain event and rule exception as a `partial` type.
 
-**Rationale:** The source generator adds the runtime value as a second part of the type, and a type that is not `partial` cannot take one. The generator writes a value only where no member of that name is declared in source, so a hand-written value is compared with the record rather than duplicated. A code fix adds `partial` and deletes a hand-written value that equals the record.
+**Rationale:** The source generator adds the runtime value as a second part of the type. A type that is not `partial` cannot take one. The generator writes a value only where no member of that name is declared in source, so a hand-written value is compared with the record rather than duplicated. A code fix adds `partial` and deletes a hand-written value that equals the record.
 
 **Example:** The declaration `public sealed partial record ExpenseSubmittedEvent(...)` takes its generated `Classification`, while the same record without `partial` is reported.
 
@@ -169,7 +169,7 @@ The generated part holds `public const string Classification = "domain-event/exp
 
 **Statement:** A .NET test run MUST write its results as TRX or JUnit XML under `paths.testResults`.
 
-**Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes, so green tests would show as unproven. A JUnit `testcase` proves a Behavior scenario without a `proves` mark by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value; the case proves each id it names with the same rules as a `proves` mark on a test method.
+**Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes, so passing tests would show as unproven. A JUnit `testcase` proves a Behavior scenario without a `proves` mark by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value. The case proves each id it names with the same rules as a `proves` mark on a test method.
 
 **Reviewed for:** Does every test run write TRX or JUnit XML under `paths.testResults`? Check the test run output beside `paths.testResults` in `.litespec/project.yaml`.
 
@@ -183,7 +183,7 @@ The generated part holds `public const string Classification = "domain-event/exp
 
 **Statement:** A .NET test project MUST reference xUnit v3 and run on Microsoft.Testing.Platform, with `global.json` naming that runner.
 
-**Rationale:** The .NET 10 `dotnet test` command refuses the VSTest mode for xUnit v3 projects. Each test project therefore runs on the platform runner, and the root `global.json` states that choice once for every project beneath it. A project that runs on another runner reports its results in a shape the model builder does not read, so its passing tests prove nothing.
+**Rationale:** The .NET 10 `dotnet test` command refuses the VSTest mode for xUnit v3 projects. Each test project therefore runs on the platform runner. The root `global.json` states that choice once for every project beneath it. A project that runs on another runner reports its results in a shape the model builder does not read, so its passing tests prove nothing.
 
 **Reviewed for:** Does every test project reference xUnit v3 and run on Microsoft.Testing.Platform, with `global.json` naming that runner? Check each test project file and `global.json`.
 

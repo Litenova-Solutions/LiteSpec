@@ -5,19 +5,21 @@
 
 In a mobile app, every use case runs through an Application handler, the one place where that use case is defined. Every piece of state carries a declared classification that decides whether it persists, stays on the device, or recomputes.
 
-This page states the mobile store, storage, and client those rules land in, following [Frontend Data and State](../data.md) (`litespec/frontend/data#route-use-cases-through-application`, `litespec/frontend/data#classify-state`, `litespec/frontend/data#update-the-cache-a-command-changed`). A team that applies it while writing handlers and screens keeps one definition of each use case and one source of each value.
+These rules cover the mobile store, storage, and client, following [Frontend Data and State](../data.md) (`litespec/frontend/data#route-use-cases-through-application`, `litespec/frontend/data#classify-state`, `litespec/frontend/data#update-the-cache-a-command-changed`). A team that applies them while writing handlers and screens keeps one definition of each use case and one source of each value.
 
 ## Concepts
 
 ### How State Is Classified
 
-A classification decides what happens to each piece of state: whether it persists, stays on the device, or recomputes. Durable state is what the user made: it persists, carries a version, and exports. Device-local state persists but stays on the device, excluded from export. Derived state computes from durable state and persists nowhere.
+A classification decides what happens to each piece of state: whether it persists, stays on the device, or recomputes. Durable state is what the user made: it persists, carries a version, and exports. Device-local state persists but stays on the device, excluded from export. Derived state is computed from durable state and persists nowhere.
 
 For example, the expense report the user files is durable state: the user built it, and it must survive a restart and an export. An expense total is derived state: it is derived from the report lines each time it is read.
 
 ### How Screens Reach Data
 
-Screens call Application handlers and read the typed store: the store loads once at startup, and screens show a loading state until it is ready. A handler returns a typed result naming success and each refusal, so the screen maps every refusal to its message.
+Screens call Application handlers and read the typed store. The store loads once at startup, and screens show a loading state until it is ready.
+
+A handler returns a typed result naming success and each refusal, so the screen maps every refusal to its message.
 
 On the `server` shape, the handler reaches the backend through the generated client in `{ProjectName}.Client`, which owns the base address, the credentials, the headers, and the mapping from a failure to a result.
 
@@ -31,7 +33,7 @@ On the `server` shape, the handler reaches the backend through the generated cli
 
 **Statement:** Persisted state MUST load once at startup into a typed store that screens read from, with screens showing a loading state until it is ready.
 
-**Rationale:** Storage reads are slow and can fail, so the product reads once at startup into a typed store that screens read from. A screen that reads storage on render pays an input-output call per frame and can render half-loaded state. A screen renders its loading state until the store finishes loading, so it never shows an unloaded store as ready.
+**Rationale:** Storage reads are slow and can fail, so the app reads once at startup into a typed store that screens read from. A screen that reads storage on render pays an input-output call per frame and can render half-loaded state. A screen renders its loading state until the store finishes loading, so it never shows an unloaded store as ready.
 
 **Reviewed for:** Does all persisted state load once at startup into the typed store, with screens showing a loading state until it is ready? Check the startup sequence and the screen loading states.
 

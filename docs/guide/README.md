@@ -1,6 +1,6 @@
 # Overview
 
-The Guides section teaches by doing: tutorials take a reader to a first working result one step at a time, and how-to guides solve one stated problem in a project that already runs.
+The guides teach by doing. Tutorials take a reader to a first working result one step at a time, and how-to guides solve one stated problem in a project that already runs.
 
 Every guide cites the standard it applies and adds no rule of its own, so a reader learns the standard by following along.
 
@@ -12,7 +12,7 @@ A team that wants records, the book, and the checks before changing any code fol
 
 When the product ships another frontend, follow the guide that names it: [Add a Svelte Frontend](add-a-svelte-frontend.md), [Add a Blazor Frontend](add-a-blazor-frontend.md), or [Add an Android Frontend](add-an-android-frontend.md).
 
-When the project runs and one goal needs solving, open the how-to that names it. [Write Code for a Use Case](write-code-for-a-use-case.md) places each code element of a use case with its mark and its check. [Write a Problem](write-a-problem.md) writes one problem with its failure cases, evidence, and resolution criteria. [Write a Feature](write-a-feature.md) writes one feature with its requirements and the problems it solves. [Build an Audit Trail](audit-trail.md) implements the audit extension on the .NET LiteBus pipeline. [Check .NET Code with the Analyzers](../analyzers/check-dotnet-code-with-the-analyzers.md) runs the Roslyn analyzers over a .NET backend. [Run Rules After Every Edit](run-rules-after-every-edit.md) shows the governing provisions after each edit and checks the change set before the agent stops.
+When the project runs and one goal needs solving, open the how-to that names it in How-To Guides below: writing code, problems, features, constraints, flows, and research records, the audit trail, and the per-edit rules check. [Check .NET Code with the Analyzers](../analyzers/check-dotnet-code-with-the-analyzers.md) runs the Roslyn analyzers over a .NET backend.
 
 To find where a record file lives, look it up in [Record Folders](../reference/folders.md), which the release generates from the same source the checks read.
 

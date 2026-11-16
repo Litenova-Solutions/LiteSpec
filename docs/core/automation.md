@@ -3,26 +3,26 @@
 **Stack:** any
 **Concern:** application
 
-Automation states the work that runs without a request.
+Automation is the work that runs without a request: reactions answering events, jobs running on schedule or once, and read models a module keeps current from another module's published events.
 
-The work is reactions answering events, jobs running on schedule or once, and read models a module keeps current from another module's published events. Agents write these records from Intent, and code carries them.
-
-The [Behavior overview](behavior.md) places automation among the five Behavior pages, and the [record language](language.md) defines how each field, value, and record name is written.
+Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) places automation among the five Behavior pages, and the [record language](language.md) defines how each field, value, and record name is written.
 
 ## Concepts
 
 ### Reactions
 
-A reaction answers an event. When a domain event or an integration event arrives, the reaction runs. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`, filed with the module whose records the reaction changes, or with the module that owns the notification when the reaction only sends one.
+A reaction answers an event. When a domain event or an integration event arrives, the reaction runs. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`. It is filed with the module whose records the reaction changes, or with the module that owns the notification when the reaction only sends one.
 
-A reaction changes nothing directly. When a change is needed, the reaction runs a small command that makes it. The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes the trigger and effect under Trigger and Effect, and the failure handling under Failure Handling, with an optional Example.
+A reaction changes nothing directly. When a change is needed, the reaction runs a small command that makes it.
+
+The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes the trigger and effect under Trigger and Effect, and the failure handling under Failure Handling, with an optional Example.
 
 | Field | Meaning |
 |:---|:---|
-| `triggeredBy` | The list of `domain-event/...` or `integration-event/...` ids the reaction answers, each a domain event of its own module or an integration event. |
+| `triggeredBy` | The `domain-event/...` or `integration-event/...` ids the reaction answers, as one id or a list, each a domain event of its own module or an integration event. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
 | `compensates` | The `use-case/...` id the reaction undoes, for a reaction answering a later step's failure, optional. |
-| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, with at most one `runs` entry; a reaction may omit `timing`, which reads as `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
+| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A reaction may omit `timing`, which means `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
@@ -30,20 +30,24 @@ A reaction changes nothing directly. When a change is needed, the reaction runs 
 
 Scenarios sit under the reaction as child records, and each one ends in a result of a use case the reaction runs or in one of the reaction's own outcomes. The event handler that carries it out marks itself with `implements reaction/<module>.<name>`.
 
-When one event carries several outcomes, one reaction cannot serve them all: it runs at most one use case, as [Run at Most One Use Case from a Reaction or Job](#run-at-most-one-use-case-from-a-reaction-or-job) states. An event with several outcomes needs one reaction per outcome, each answering its own event. In Claimwick, the expense decision ends approved or refused. The `domain-event/expense.approved` event triggers the reaction that runs `use-case/spending.reimburse-expense`, while `domain-event/expense.refused` triggers the reaction that sends the refusal notice. There is no shared decided event with one reaction choosing between the two.
+An event with several outcomes needs one reaction per outcome, because a reaction runs at most one use case, as [Run at Most One Use Case from a Reaction or Job](#run-at-most-one-use-case-from-a-reaction-or-job) states. In Claimwick, the expense decision ends approved or refused: `domain-event/expense.approved` triggers the reaction that runs `use-case/spending.reimburse-expense`, while `domain-event/expense.refused` triggers the reaction that sends the refusal notice. There is no shared decided event with one reaction choosing between the two.
 
 ### Jobs
 
-A job runs on a schedule or once, with no event to answer. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml`, filed with the module whose records it changes, or with the module that owns the notification when it only sends one. Work that a person starts by hand is not a job: it is a command, and its entry point and access state who starts it.
+A job runs on a schedule or once, with no event to answer. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml`. It is filed with the module whose records it changes, or with the module that owns the notification when it only sends one.
 
-A job changes nothing directly. When a change is needed, the job runs a small command that makes it. The name follows `<verb>-<what>`, using the verb of the use case it runs, or its own verb when it runs no use case, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes how each run starts and what it covers under Invocation, and the failure handling under Failure Handling, with an optional Example.
+Work that a person starts by hand is not a job: it is a command, and its entry point and access state who starts it.
+
+A job changes nothing directly. When a change is needed, the job runs a small command that makes it.
+
+The name follows `<verb>-<what>`, using the verb of the use case it runs, or its own verb when it runs no use case, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes how each run starts and what it covers under Invocation, and the failure handling under Failure Handling, with an optional Example.
 
 | Field | Meaning |
 |:---|:---|
 | `kind` | `scheduled` or `one-off`. |
 | `schedule` | The schedule, required with `scheduled`: `{ "every": "PT1M" }`, `{ "cron": "0 3 * * *", "timezone": "..." }`, or `{ "at": "startup" }` for a run once at deployment start. |
 | `selection`, `batchSize`, `lease`, `cursor`, `runbook`, `runsWhen`, `serviceLevel`, `evidence` | What each run selects, how many items per batch, the lock with its duration, where resume state lives, the runbook answering the run, the condition it runs under, the promised service level, and the evidence the run leaves. |
-| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, with at most one `runs` entry; a job states `timing` on each entry. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
+| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A job states `timing` on each entry. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
@@ -53,20 +57,20 @@ Scenarios sit under the job as child records, and each one ends in a result of a
 
 ### Read Models
 
-A read model is a module's own copy of facts it needs from another module's aggregate. The owning module publishes integration events, and the reading module keeps its copy current from them instead of calling the owning module. The record carries the identifier `read-model/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml`, filed with the module that reads it.
+A read model is a module's own copy of facts it needs from another module's aggregate. The owning module publishes integration events, and the reading module keeps its copy current from them instead of calling the owning module. The record carries the identifier `read-model/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml`. It is filed with the module that reads it.
 
-The name describes the thing the model keeps one row per, as a singular noun phrase such as `reimbursed-expense`. A use case lists the read model in `reads`, the same way it lists an aggregate, and reads its own copy. The record carries `summary`, and the explanation file beside it describes the sources under Sources and the staleness under Freshness, with an optional Example.
+The name is a singular noun phrase for the thing the model keeps one row per, such as `reimbursed-expense`. A use case lists the read model in `reads`, the same way it lists an aggregate, and reads its own copy. The record carries `summary`, and the explanation file beside it describes the sources under Sources and the staleness under Freshness, with an optional Example.
 
 | Field | Meaning |
 |:---|:---|
 | `keyedBy` | The `aggregate/...` of another module the read model keeps one row per. |
-| `fields` | `{ name, meaning, type, of, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `of`, `many` and `classification` read as on use-case inputs. |
+| `fields` | `{ name, meaning, type, of, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `of`, `many` and `classification` have the same meaning as on use-case inputs. |
 | `erasedBy` | On a `personal` or `sensitive` field, the `integration-event/...` whose arrival erases the field, required. |
 | `removedBy` | The `integration-event/...` ids whose arrival removes the row, optional. |
-| `freshness` | How stale a reader may see a row: `{ mode, within, decidedBy }` with `mode` of `immediate`, `snapshot`, or `eventual`, `within` an ISO 8601 duration, and `decidedBy` naming the command use case or aggregate that decides the row at write time, as on query output groups. |
+| `freshness` | How stale a row may be when a reader sees it: `{ mode, within, decidedBy }` with `mode` of `immediate`, `snapshot`, or `eventual`, `within` an ISO 8601 duration, and `decidedBy` naming the command use case or aggregate that decides the row at write time, as on query output groups. |
 | `terms` | The glossary terms used, optional. |
 
-In code, a read model is a set of projections with one reader. There is one projection per source integration event, and each projection writes only its own read model. The module's use cases read through the reader. Each projection and the reader mark themselves with `implements read-model/<module>.<name>`.
+In code, a read model is a set of projections with one reader: one projection per source integration event, each writing only its own read model. The module's use cases read through the reader. Each projection and the reader mark themselves with `implements read-model/<module>.<name>`.
 
 The copy stays sound under retry and rebuild. Every source event carries an identity, so a redelivery never counts twice. The `latest` accumulation compares source versions, not arrival order, and corrections arrive as events. A rebuild replays retained events from the start, and staleness is measured from the source event's time.
 
@@ -74,19 +78,19 @@ An erased key keeps a tombstone that a rebuild applies, so no rebuild restores e
 
 ### Ways to Read Another Module
 
-A use case that needs state from another module has three options, and the table shows which one fits each need.
+A use case that needs state from another module has three options:
 
-| Need | Way |
+| Need | Use |
 |:---|:---|
 | The reading module accepts a lag up to a stated freshness | A read model its own module keeps, named in `reads` |
 | The decision needs the owner's current value | A decision port the command calls, with the use case stating why the lag is not enough |
 | A person sees figures from several owners on one page | A screen composing each owner's query, with no module reading another |
 
-The read model is the normal choice: it fits every read that accepts the stated lag. A decision port fits the case where the decision needs the owner's current value, and it answers one question with that value and nothing else. A composed screen fits the case where a person sees figures from several owners on one page, joining each owner's query at display time with no module reading another.
+The read model is the normal choice. A decision port answers one question with the owner's current value and nothing else. A composed screen joins each owner's query at display time.
 
 ### Long-Running Processes
 
-A long-running process has no record of its own. It is states, reactions, and timed transitions working together: the aggregate holds the current state, and a reaction answers each fact by running the command that moves to the next state.
+A long-running process has no record of its own. It is built from states, reactions, and timed transitions working together: the aggregate holds the current state, and a reaction answers each fact by running the command that moves to the next state.
 
 A transition that time moves carries `after` with the duration measured from entering its source state, and names the moving job in `movedBy`, as [Move a State by Time with a Timed Transition](#move-a-state-by-time-with-a-timed-transition) states. Work that spans modules raises its completion fact only after every module reports its part done, as [Raise Completion Only When Every Module Is Done](#raise-completion-only-when-every-module-is-done) states.
 
@@ -98,15 +102,17 @@ In the library product, reserving a copy commits the reservation. When the later
 
 ### File Exports
 
-A file export is a query that produces a file of many rows. It cites the row and size settings that bound it, and it keeps its resume mark as aggregate state, so an interrupted export resumes instead of restarting. The export query declares its output as a file with its content type and size limit. Each run writes the last exported key to the aggregate before returning the file.
+A file export is a query that produces a file of many rows. The export query declares its output as a file with its content type and size limit, and cites the row and size settings that bound it. Each run writes its resume mark, the last exported key, to the aggregate before returning the file, so an interrupted export resumes instead of restarting.
 
 ### Expiry Checks and Cleanup Jobs
 
-Validity and storage are two separate facts. A credential or session becomes invalid at its expiry, and the check at use time refuses it from then on. A cleanup job removes expired records within a stated interval. The expiry refuses the use, and the job reclaims the rows. Neither replaces the other, as [Keep Validity Apart from Storage](#keep-validity-apart-from-storage) states.
+Validity and storage are two separate facts. A credential or session becomes invalid at its expiry, and the check at use time refuses it from then on. A cleanup job removes expired records within a stated interval, reclaiming the rows. Neither replaces the other, as [Keep Validity Apart from Storage](#keep-validity-apart-from-storage) states.
 
 ### Runbooks
 
-A runbook lists the steps that run or recover the product: what breaks, what to hold, each step, how to confirm, how to undo, and who to call. It carries the identifier `runbook/<name>` and lives in Implementation, at product or module level. The name starts with a verb for what the reader does, as the [record language](language.md) defines. The `trigger` field names when to open it.
+A runbook lists the steps that run or recover the product: what breaks, what to hold, each step, how to confirm, how to undo, and who to call. It carries the identifier `runbook/<name>` and lives in Implementation, at product or module level.
+
+The name starts with a verb for what the reader does, as the [record language](language.md) defines. The `trigger` field names when to open it.
 
 A job names its runbook in `runbook`, and any record or effect names its recovery in `onFailure.runbook`. The runbook keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
@@ -122,7 +128,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction MUST declare in `triggeredBy` the domain events of its own module or the integration events it answers.
 
-**Rationale:** A reaction without a trigger has no moment attached: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module or integration events, never another module's domain event, since that couples it to state its module does not own; the owning module publishes an integration event instead. A `skippedWhen` clause states when the reaction skips.
+**Rationale:** A reaction without a trigger has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module or integration events, never another module's domain event. Answering another module's domain event would couple it to state its module does not own; the owning module publishes an integration event instead. A `skippedWhen` clause states when the reaction skips.
 
 **Example:** In the library product, `reaction/lending.send-due-notice-on-loan-borrowed` answers `domain-event/loan.loan-borrowed` and runs the send-due-notice command.
 
@@ -138,7 +144,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each job MUST declare its `kind` of `scheduled` or `one-off` with its `schedule` where scheduled.
 
-**Rationale:** A job without a kind has no moment attached: it never runs, or it runs whenever its author remembered. Naming the kind states when it runs. A scheduled job carries its `schedule`, with an `every` duration, a `cron` expression and timezone, or `at: startup` for a run once at deployment start. A `one-off` job runs once.
+**Rationale:** A job without a kind has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the kind states when it runs. A scheduled job carries its `schedule`, with an `every` duration, a `cron` expression and timezone, or `at: startup` for a run once at deployment start. A `one-off` job runs once.
 
 **Example:** `job/lending.expire-lapsed-holds` runs every six hours over open holds past their window.
 
@@ -154,7 +160,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction and each job MUST declare its edges in `effects`, with exactly one verb per entry.
 
-**Rationale:** A reaction or job with no declared edge observes and never acts, and an edge written outside `effects` hides behavior the checks never see. Declaring each edge in `effects`, with exactly one verb of `runs`, `sends`, or `calls`, keeps every consequence beside the trigger, in the one grammar every record with edges shares, as the [use cases](use-cases.md) page defines.
+**Rationale:** A reaction or job with no declared edge observes and never acts, and an edge written outside `effects` hides behavior the checks never see. Declaring each edge in `effects`, with exactly one verb of `runs`, `sends`, or `calls`, keeps every consequence beside the trigger or schedule, in the one grammar every record with edges shares, as the [use cases](use-cases.md) page defines.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a reaction or job with no `effects` or with a top-level effect verb.
 
@@ -168,7 +174,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction and each job MUST declare its run endings in `outcomes` from the closed set.
 
-**Rationale:** A run without declared endings leaves each reader guessing: a skipped item reads as a failure, and a suppressed send reads as a bug. Declaring each ending with its meaning states what a run produces: `completed` for work done, `skipped` for work set aside by its skip condition, `suppressed` for a send held by suppression, `failed` for work ending in refusal or error, `retry-scheduled` for work waiting on another attempt, and `nothing-selected` for a run finding no item. Scenarios end in one of these endings or in a run use case result, so every run has a proof. Settled by [decision/0081-own-scenarios-and-declare-outcomes](decision/0081-own-scenarios-and-declare-outcomes).
+**Rationale:** A run without declared endings leaves each reader guessing: a skipped item looks like a failure, and a suppressed send looks like a bug. Declaring each ending with its meaning states what a run produces: `completed` for work done, `skipped` for work set aside by its skip condition, `suppressed` for a send held by suppression, `failed` for work ending in refusal or error, `retry-scheduled` for work waiting on another attempt, and `nothing-selected` for a run finding no item. Scenarios end in one of these endings or in a run use case result, so every run has a proof. Settled by [decision/0081-own-scenarios-and-declare-outcomes](decision/0081-own-scenarios-and-declare-outcomes).
 
 **Example:** The send-due-notice reaction declares `completed` for a sent notice and `suppressed` for a notice held because the reader opted out.
 
@@ -198,7 +204,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction and each job MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.
 
-**Rationale:** Filing by trigger scatters behavior: one module's work hides across a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module's behavior in one place. Its event handler or job class lives in that module's code with what it runs: in the folder of the use case it runs, or with the notification it sends or the system it calls (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The trigger page lists the reactions answering its event, derived from records.
+**Rationale:** Filing by trigger spreads one module's work across many trigger pages, so no page shows the module whole. Filing each reaction and job with the module it changes keeps each module's behavior in one place. Its event handler or job class lives in that module's code with what it runs: in the folder of the use case it runs, or with the notification it sends or the system it calls (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The trigger page lists the reactions answering its event, derived from records.
 
 **Reviewed for:** Does every reaction and job sit with the module it changes? Check the reactions and jobs beside the modules whose records they change.
 
@@ -276,7 +282,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** A decision that needs current truth MUST be decided in the owning module, never from a read model.
 
-**Rationale:** A read model lags by its freshness. Revoked permissions, available funds, reservations, and period locks move after the copy was taken, so guarding such a decision from a copy accepts a stale answer where the business needs the current one. The owning module decides instead, through a decision port the command calls and revalidates within its own commit, or by its own invariant. A read model serves reads that accept the lag.
+**Rationale:** A read model lags by its freshness. Revoked permissions, available funds, reservations, and period locks move after the copy was taken, so deciding from a copy accepts a stale answer where the business needs the current one. The owning module decides instead, through a decision port the command calls and revalidates within its own commit, or by its own invariant. A read model serves reads that accept the lag.
 
 **Example:** The library refuses a hold on a lent copy by asking the lending module for current availability instead of reading a reporting copy.
 
@@ -292,7 +298,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each transition that time moves MUST name its duration from entering its source state in `after` and the moving job in `movedBy`.
 
-**Rationale:** A deadline with no stated duration and no moving job expires whenever its author remembered: holds linger, and reservations never release. Naming the duration and the job states the timed move beside the lifecycle. The job selects instances past their window and runs the moving command once per instance. States, reactions, and timed transitions cover long-running work with no process record.
+**Rationale:** A deadline with no stated duration and no moving job has no defined moment to expire: holds linger, and reservations never release. Naming the duration and the job states the timed move beside the lifecycle. The job selects instances past their window and runs the moving command once per instance. States, reactions, and timed transitions cover long-running work with no process record.
 
 **Example:** The hold transition from Ready to Expired carries `after: P7D` and `movedBy: job/lending.expire-lapsed-holds`, and the job runs the expire-holds command once per lapsed hold.
 
@@ -388,7 +394,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction and each job MUST declare its `onFailure` in the one failure shape and its idempotency.
 
-**Rationale:** A failed reaction or job without handling retries forever or drops silently: notices double-send, and holds never clear. Declaring `onFailure` states the failure shape beside the trigger: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `ifExhausted` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure, and `runbook` the recovery procedure. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves every record and every effect entry. The idempotency mode, usually `state`, states how repeats collapse.
+**Rationale:** A failed reaction or job without handling retries forever or drops silently: notices double-send, and holds never clear. Declaring `onFailure` states the failure shape beside the trigger or schedule: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `ifExhausted` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure, and `runbook` the recovery procedure. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves every record and every effect entry. The idempotency mode, usually `state`, states how repeated runs collapse.
 
 **Checked by:** `litespec model check` fails a reaction or job with `onFailure` outside the one failure shape, and reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration.
 
@@ -402,7 +408,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each scenario on a reaction or job MUST end in a result of a use case its effects run or in one of its outcomes.
 
-**Rationale:** A reaction or job scenario ending anywhere else proves another behavior story: it walks the trigger and asserts an ending no run use case declares and no outcome names. Ending in a run use case result or in a declared outcome keeps the scenario a proof of the reaction or job consequence. A send-only reaction or job ends its scenarios in outcomes, with no invented command.
+**Rationale:** A reaction or job scenario ending anywhere else proves another behavior story: it covers the trigger or schedule and asserts an ending no run use case declares and no outcome names. Ending in a run use case result or in a declared outcome keeps the scenario a proof of the reaction or job consequence. A send-only reaction or job ends its scenarios in outcomes, with no invented command.
 
 **Checked by:** `litespec model check` reports `scenario-result-unknown` for a reaction or job scenario ending outside the run use case results and the declared outcomes.
 

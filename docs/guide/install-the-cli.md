@@ -1,8 +1,8 @@
 # Install the CLI
 
-Each LiteSpec release ships the `litespec` command line in two forms: the `LiteSpec.Cli` .NET tool on nuget.org, and one standalone archive per platform on the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases). Both hold the same native executable, compiled ahead of time for the platform, and both carry the LiteSpec release beside it, so the executable needs no .NET runtime and no network.
+Install the `litespec` command line for a consumer repository or a machine: pick the method that fits, check the download, and run it in continuous integration.
 
-This guide installs the command line for a consumer repository or a machine, checks the download, and runs it in continuous integration. It adds no rule of its own.
+Each LiteSpec release ships the command line in two forms: the `LiteSpec.Cli` .NET tool on nuget.org, and one standalone archive per platform on the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases). Both hold the same native executable, compiled ahead of time for the platform, and both carry the LiteSpec release beside it, so the executable needs no .NET runtime and no network. This guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -21,6 +21,8 @@ The `init` command writes the project for the method you chose: `litespec init -
 Two more tools apply to some projects. A project with a React or Svelte frontend needs Node at the version the manifest pins (`stack.node`), because the CLI reads those frontends through a bundled Node reader. Running `model check --since` needs `git`, because the command reads the change set from git history.
 
 ## Procedure
+
+Sections 1 to 5 are alternative install methods: follow exactly one. The last three sections cover continuous integration, the shipped platforms, and release candidates.
 
 ### 1. Install the Local .NET Tool
 

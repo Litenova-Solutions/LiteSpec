@@ -1,6 +1,6 @@
 # Add a Svelte Frontend
 
-A product whose web interface runs on Svelte keeps the same shape as the React frontend in the tutorial: one web application tree, with routes that mirror the backend use case paths they serve. The backend use cases stay the same; only the frontend stack changes. This guide covers the stack entry, the application tree with its mirrored paths, the floorplan-composed routes, and the pinned baseline. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Add a Svelte frontend to a consumer whose backend use cases already run: the stack entry, the application tree with its mirrored paths, the floorplan-composed routes, and the pinned baseline. The frontend keeps the same shape as the React frontend in the tutorial: one web application tree, with routes that mirror the backend use case paths they serve. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 

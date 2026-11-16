@@ -4,7 +4,7 @@
 
 **Concern:** records
 
-LiteSpec separates what a project promises from how the system keeps those promises, how code builds them, and how the evidence shows they hold. Those four groups are the record layers: Intent, Behavior, Implementation, and Proof. This page states the translation rules between the record layers: Specify, Implement, and Verify. Agents apply it at every record-layer boundary, and readers use it to judge whether each record layer says only what belongs to it.
+A project promises outcomes in Intent, keeps them with system behavior in Behavior, builds that behavior in code in Implementation, and shows evidence in Proof. Specify turns an Intent promise into Behavior, Implement turns Behavior into code, and Verify turns code into proof. Agents apply these rules at every record-layer boundary, and readers use them to judge whether each record layer says only what belongs to it.
 
 ## Concepts
 
@@ -14,16 +14,16 @@ A record layer is one group of records that answers one question about the produ
 
 Each layer has its own writers and judges:
 
-| Record layer | Question | Writes | Judged by |
+| Record layer | Question | Written by | Judged by |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | Agents draft | The owner, in the pull request |
 | Behavior | How does the system behave to keep the promises? | Agents | The pull request, with G checks |
 | Implementation | How is it built? | Agents | S checks, where the reader is qualified |
 | Proof | How do we know it holds? | The builder | G and S checks |
 
-The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code and technical decisions, while Proof holds tests, check results, computed completion, and the rendered book.
+The [Intent page](intent.md) states the Intent records, and the [Behavior page](behavior.md) states the Behavior records.
 
-Governance is a group of records beside the four layers, not a fifth one: the waiver record covers any layer.
+Governance sits beside the four layers; it is not a fifth layer: the waiver record covers any layer.
 
 For example, Claimwick promises that an expense without a receipt is refused above EUR 25. That promise lives in Intent. Behavior adds the refusal, the states, and the access scope. Implementation builds the handler, and Proof shows the scenario passing.
 
@@ -31,13 +31,13 @@ For example, Claimwick promises that an expense without a receipt is refused abo
 
 Three rules join the layers, one per boundary. Specify turns an Intent promise into Behavior by adding the behavior detail the promise leaves unstated. Implement turns Behavior into Implementation using the code shapes the stack pages fix. Verify turns Implementation into Proof: one test proves each scenario through the public boundary.
 
-Each rule adds only what its layer owns: Specify adds no new promise, and Implement adds no new behavior. When a lower layer needs something the upper layer left out, that need goes up as a question or a backlog item instead of slipping into the lower layer as a guess.
+Each rule adds only what its layer owns: Specify adds no new promise, and Implement adds no new behavior. When a lower layer needs something the upper layer left out, that need goes up as a question or a backlog item instead of entering the lower layer as a guess.
 
-For example, specifying Claimwick's receipt promise adds the Approved and Reimbursed states with a refusal for a missing receipt. Implementing it writes the handler in the stack's shape. Verifying it runs a test that submits an expense without a receipt through the endpoint and sees the refusal.
+For example, specifying Claimwick's receipt promise adds the Approved and Reimbursed states with a refusal for a missing receipt. Implementing it writes the handler in the stack's shape. Verifying it runs a test that submits an expense without a receipt through the endpoint and checks for the refusal.
 
 ### The Specification Is Closed
 
-A closed specification means agents build only what the records state, nothing more. When code needs something the records leave out, that need is not a license to invent. It becomes a question to the owner, who decides product choices, or an item on the backlog board outside the repository, where it stays visible until it is specified, never code.
+A closed specification means agents build only what the records state, nothing more. When code needs something the records leave out, agents do not invent it. It becomes a question to the owner, who decides product choices, or an item on the backlog board outside the repository, where it stays visible until it is specified; it never becomes code first.
 
 For example, Claimwick code that needs a receipt threshold it cannot find does not pick EUR 25. It raises an owner question asking for the figure, and waits.
 
@@ -61,11 +61,11 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Statement:** Each record below Intent MUST be written from a record in the record layer above it.
 
-**Rationale:** Without a parent above it, a lower record could be a carried promise or an invented one, and reviewers cannot tell which. Implementers then build from guesses, and two guesses about the same gap diverge. Writing each record from the layer above keeps one chain from promise to proof, so a gap shows as a missing parent instead of silent invention. Derivation between records follows the same direction: generic refusals derive from `access` and `input` without new records.
+**Rationale:** Without a parent above it, a lower record could carry a promise from above or invent a new one, and reviewers cannot tell which. Implementers then build from guesses, and two guesses about the same gap diverge. Writing each record from the layer above keeps one chain from promise to proof, so a gap shows as a missing parent instead of silent invention. Derivation between records follows the same direction: generic refusals derive from `access` and `input` without new records.
 
-**Example:** Claimwick's submit-expense handler holds a positivity guard with no rule above it. The agent writes the missing rule or reports the gap, and the guard stays until the record lands. Behavior with no parent is recorded or reported, never deleted for lacking one.
+**Example:** Claimwick's submit-expense handler holds a positivity guard with no rule above it. The agent writes the missing rule or reports the gap, and the guard stays until the record is written. Behavior with no parent is recorded or reported, never deleted for lacking one.
 
-**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal or a screen call to no endpoint, and reports `mark-missing` for a code element that carries no mark.
+**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal or a screen that calls no endpoint, and reports `mark-missing` for a code element that carries no mark.
 
 ### Add Behavior Detail When Specifying Intent
 
@@ -93,7 +93,7 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Statement:** Behavior that meets a figure the owner sets MUST send it to the owner instead of fixing it.
 
-**Rationale:** The [model page](model.md) holds the one list of figures the owner sets: prices, fees, rates, terms, markets, payers, retention periods, freshness, and figures that differ by tenant, market, or date. Each figure is a business choice, and only an accountable person makes it. An agent that fixed one would bury a commitment in a Behavior record nobody chose. The figure becomes a question to the owner or a backlog item, never a silent default.
+**Rationale:** The [Project Model](model.md) holds the one list of figures the owner sets: prices, fees, rates, terms, markets, payers, retention periods, freshness, and figures that differ by tenant, market, or date. Each figure is a business choice, and only an accountable person makes it. An agent that fixed one would hide a commitment in a Behavior record nobody chose. The figure becomes a question to the owner or a backlog item, never a silent default.
 
 **Example:** Claimwick's receipt threshold of EUR 25 waits for the owner instead of entering the setting silently.
 
@@ -125,7 +125,7 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Statement:** At large size or with the `bdd` extension, each scenario MUST be proved by one test through the public boundary.
 
-**Rationale:** Small projects carry no scenarios unless the `bdd` extension switches them on, so the rule binds large projects and small projects with the extension. A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior.
+**Rationale:** Small projects carry no scenarios unless the `bdd` extension enables them, so the rule binds large projects and small projects with the extension. A scenario is the leaf of the record tree, so one test through the public boundary connects each leaf to running behavior.
 
 **Example:** Claimwick, a large project, carries a scenario for its missing-receipt refusal, and one test proves it by submitting an expense without a receipt through the endpoint.
 
@@ -203,6 +203,6 @@ None.
 
 This informative example demonstrates `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items`, `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`, and `litespec/core/layers#record-changed-provider-behavior-as-observed-research`.
 
-Top-down: the owner sets EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, and in the same change an agent updates the policy setting default and the scenario where an expense without a receipt is refused. The test changes, Proof goes green, and the book chapter shows the new promise.
+Top-down: the owner sets EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, and in the same change an agent updates the policy setting default and the scenario where an expense without a receipt is refused. The test changes, Proof shows passing, and the book chapter shows the new promise.
 
-Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then changes the settlement-window constraint to cite it. In the same change, the per-batch deadline rule and its scenarios follow. The test changes, Proof goes green, and the book chapter shows the cited source and date.
+Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then changes the settlement-window constraint to cite it. In the same change, the per-batch deadline rule and its scenarios change to match. The test changes, Proof shows passing, and the book chapter shows the cited source and date.

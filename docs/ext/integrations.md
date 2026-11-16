@@ -4,7 +4,9 @@
 
 **Concern:** infrastructure
 
-External integrations connect the product to providers it does not control, which can fail, change their responses, or deliver one message twice. This page states how a use case (one command or query the product offers) names the outside behavior it needs, where provider details live, how failures map to project-owned results with stable refusal codes, and how tests simulate the network boundary. A team applies these rules to each use case that calls a provider, receives a webhook, or imports provider-shaped data, so a provider change touches one folder instead of the whole codebase.
+External integrations call providers the product does not control. A provider can fail, change its responses, or deliver one message twice.
+
+This extension covers each use case that depends on a provider. A use case is one command or query the product offers. It states the business action the use case needs, where provider details live, how failures map to project-owned results with stable refusal codes, and how tests simulate the network boundary, so a provider change touches one folder instead of the whole codebase.
 
 ## Activation
 
@@ -18,7 +20,7 @@ Enable `integrations` on each use case that calls an external system, receives a
 
 No baseline provision changes under this extension.
 
-This extension switches on no optional record type. Each provider is recorded as an external system, which is the core record naming its actor, operations, and erasure.
+This extension switches on no optional record type. Each provider is recorded as an external system. That core record names the provider's actor, operations, and erasure.
 
 ## Standards
 
@@ -46,7 +48,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A `calls` effect MUST name an operation the cited external system declares.
 
-**Rationale:** The effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache, so each outside call reads as a declared edge. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** The effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache, so each call to the outside is a declared edge. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The Claimwick payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
@@ -80,7 +82,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** Application MUST own a public external-service interface named for its business action.
 
-**Rationale:** What the use case needs is a behavior, such as sending a payout, not a provider. Naming a public interface for that business action states the need with no provider in sight, so Application depends on the behavior while providers come and go behind it.
+**Rationale:** What the use case needs is a behavior, such as sending a payout, not a provider. Naming a public interface for that business action states the need without naming a provider, so Application depends on the behavior while providers change behind it.
 
 **Example:** `IPayoutSender` describes the business action without exposing a payout-bank client.
 
@@ -126,7 +128,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An HTTP integration MUST use `HttpClientFactory` and applicable service discovery.
 
-**Rationale:** `HttpClientFactory` centralizes handler lifetime in one place, and service discovery resolves provider addresses in one place. Together they keep HTTP construction out of the use case, where a hand-built client in each call site would scatter both concerns.
+**Rationale:** `HttpClientFactory` centralizes handler lifetime in one place, and service discovery resolves provider addresses in one place. Together they keep HTTP construction out of the use case, where hand-built clients would repeat both at every call site.
 
 **Reviewed for:** Does every HTTP integration use `HttpClientFactory` and applicable service discovery? Check the HTTP registrations.
 
@@ -154,7 +156,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An external client MUST retry transient failures with bounded attempts and jitter.
 
-**Rationale:** A provider outage tempts every caller to retry at once, and the synchronized wave hits the provider the moment it recovers. Bounded attempts cap that load, and jitter spreads it over time. An unbounded retry turns each caller into a second outage.
+**Rationale:** When a provider fails, every caller retries at once, and the synchronized retries hit the provider the moment it recovers. Bounded attempts cap that load, and jitter spreads it over time. Without a bound, the retries become a second outage.
 
 **Reviewed for:** Which external clients retry without a cap on attempts or without jitter? Check each client's retry policy.
 
@@ -168,7 +170,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An external client MUST NOT retry a non-idempotent provider call without provider idempotency and documented replay behavior.
 
-**Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
+**Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, one failed call becomes two completed effects.
 
 **Reviewed for:** Does every retried non-idempotent provider call rest on provider idempotency and documented replay behavior? Check the retry paths.
 
@@ -200,7 +202,7 @@ The stable codes live in the project error catalog, and `litespec/backend/api#re
 
 **Statement:** An API MUST NOT expose provider bodies, credentials, headers, exception types, or internal account identifiers.
 
-**Rationale:** Secrets, implementation details, and sometimes another account's data travel in provider bodies, headers, exception types, and account identifiers. An API that returns them leaks all three to its callers. The mapped project-owned outcome carries the meaning without the internals.
+**Rationale:** Secrets, implementation details, and sometimes another account's data arrive in provider bodies, headers, exception types, and account identifiers. An API that returns them exposes all three to its callers. The mapped project-owned outcome carries the meaning without the internals.
 
 **Reviewed for:** Does any API response expose provider bodies, credentials, headers, exception types, or internal account identifiers? Check the API responses.
 
@@ -214,7 +216,7 @@ The stable codes live in the project error catalog, and `litespec/backend/api#re
 
 **Statement:** An inbound integration event MUST declare `trust` as trigger-only or payload with its correlation.
 
-**Rationale:** An inbound fact carries one of two trusts: trigger-only wakes a read of the source, while payload is fit to act on. The `trust` declaration states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states how each inbound fact arrives: the record names in `arrivesThrough` the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in `through` the external system it travels through.
+**Rationale:** An inbound fact carries one of two trusts: trigger-only wakes a read of the source, while payload is fit to act on. The `trust` declaration states which one, and the correlation states how the event matches, so no handler guesses how far to trust the event's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states how each inbound fact arrives. The record names in `arrivesThrough` the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in `through` the external system it travels through.
 
 **Reviewed for:** Does every inbound integration event declare trigger-only or payload trust with its correlation? Check each inbound integration event record.
 
@@ -310,7 +312,7 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Replacement:** A project names another root for provider code in its documentation.
 
-**Rationale:** One folder per provider keeps provider code inside one Infrastructure boundary under `Infrastructure/Integrations/{Provider}/`. A reader finds everything about a provider in one place.
+**Rationale:** A reader finds everything about a provider in one place: its code sits inside one Infrastructure boundary under `Infrastructure/Integrations/{Provider}/`.
 
 **Reviewed for:** Does every provider's code sit under `Infrastructure/Integrations/{Provider}/`, or under another root the project documentation names? Check the Infrastructure tree.
 
@@ -326,7 +328,7 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Replacement:** A project names another grouping for provider components in its documentation.
 
-**Rationale:** When the provider changes, its options, client, transport models, mappings, and registration module change together. Keeping them in the provider folder keeps each change in one place, while a registration module stored elsewhere is the file every provider change forgets.
+**Rationale:** When the provider changes, its options, client, transport models, mappings, and registration module change together. Keeping them in the provider folder keeps each change in one place, while a registration module stored elsewhere is easy to miss when the provider changes.
 
 **Reviewed for:** Does every provider folder hold its options, client, models, mappings, and registration, or follow another grouping the project documentation names? Check each provider folder.
 
@@ -342,7 +344,7 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Replacement:** A project keeps business-action ports in one shared ports folder.
 
-**Rationale:** A business-action port exists because its use case needs that behavior. Keeping the port with its Application use cases states the need next to the needer, while a ports folder far from the use cases hides which behavior each port serves.
+**Rationale:** A business-action port exists because its use case needs that behavior. Keeping the port with its Application use cases states the need beside the use case that needs it, while a ports folder far from the use cases hides which behavior each port serves.
 
 **Reviewed for:** Does every business-action port sit with its Application use cases, or in the shared port folder the project keeps? Check the Application folders.
 

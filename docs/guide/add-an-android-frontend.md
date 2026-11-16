@@ -1,6 +1,6 @@
 # Add an Android Frontend
 
-A product whose interface runs on Android keeps its screens in a mobile solution: screens organized by module, all hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide covers the stack, the mobile solution tree, and the screen layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Add an Android frontend to a consumer: the stack entry, the mobile solution tree, and the screen layout. Screens live in a mobile solution organized by module, all hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 

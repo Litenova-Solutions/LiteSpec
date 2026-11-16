@@ -1,6 +1,6 @@
 # A Use Case in Code
 
-What follows traces one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it, so you can see each link in the chain in one sitting. The record is `examples/claimwick/.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml`, and the code and tests are in `examples/claimwick/apps/api/`. Every file path and line of code below is copied from that folder.
+Submit expense is the Claimwick use case that files a work expense so it can be decided and reimbursed. This page traces it from its record into the .NET code and the acceptance tests that prove it, so you can see each link in the chain in one sitting. The record is `examples/claimwick/.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml`, and the code and tests are in `examples/claimwick/apps/api/`. Every file path and line of code below is copied from that folder.
 
 ## The Record
 
@@ -31,11 +31,13 @@ reads:
 - setting/spending.receipt-threshold
 ```
 
-The file also declares the input, the idempotency, and the results. The input carries a `requestId` the app mints for each submission attempt, the amount, the currency, and an optional receipt. Idempotency is `key` on `{requestId}`, scoped to the account, with `returns-first-result` replay: a retried request returns the first result instead of minting a second expense. The two results are `result/submit-expense.submitted`, a success, and `result/submit-expense.receipt-missing`, a refusal with the code `spending.receipt-missing` from the spending refusal set. The file has two scenarios, and the tests below prove them.
+The file also declares the input, the idempotency, and the results. The input carries a `requestId` the app mints for each submission attempt, the amount, the currency, and an optional receipt. Idempotency is `key` on `{requestId}`, scoped to the account, with `returns-first-result` replay: a retried request returns the first result instead of minting a second expense.
+
+The two results are `result/submit-expense.submitted`, a success, and `result/submit-expense.receipt-missing`, a refusal with the code `spending.receipt-missing` from the spending refusal set. The file has two scenarios, and the tests below prove them.
 
 ## The Rule Behind the Refusal
 
-The refusal answers one rule: `rule/expense.receipt-required-above-threshold` states that an expense above the policy threshold needs a receipt, and it names the refusal code `spending.receipt-missing`. In code, the rule appears twice, as the exception that carries its stable code and as the check in the aggregate that raises it.
+One rule stands behind the refusal: `rule/expense.receipt-required-above-threshold` states that an expense above the policy threshold needs a receipt, and it names the refusal code `spending.receipt-missing`. In code, the rule appears twice, as the exception that carries its stable code and as the check in the aggregate that raises it.
 
 The exception is `apps/api/src/Claimwick.Modules/Spending/Expenses/Domain/Exceptions/ExpenseReceiptMissingException.cs`, marked with `<implements>rule/expense.receipt-required-above-threshold</implements>`. It returns the code `spending.receipt-missing`.
 
@@ -59,7 +61,9 @@ The aggregate refuses the expense before it exists, and raises `ExpenseSubmitted
 
 ## The Endpoint
 
-The HTTP endpoint is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs`. It maps `POST /api/expenses`, returns 201 Created on success, and returns a problem result with status 422 on a refusal. The submitter is not read from the body: the endpoint reads the employee from the verified claims of the signed-in user, which applies `litespec/backend/application#enforce-target-authorization-in-the-pipeline`:
+The HTTP endpoint is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs`. It maps `POST /api/expenses`, returns 201 Created on success, and returns a problem result with status 422 on a refusal.
+
+The submitter is not read from the body: the endpoint reads the employee from the verified claims of the signed-in user, which applies `litespec/backend/application#enforce-target-authorization-in-the-pipeline`:
 
 ```csharp
 // The submitter is the signed-in employee, read from verified claims, never from the request body.

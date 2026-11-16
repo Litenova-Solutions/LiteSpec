@@ -3,31 +3,29 @@
 **Stack:** dotnet
 **Concern:** domain
 
-Domain folders contain the business model of a .NET backend. The model is written in C# types that depend on nothing but themselves, which keeps outer-layer concerns out of business rules.
+Domain folders contain the business model of a .NET backend in C# types that reference only the .NET base class library and product-owned Domain types.
 
-An aggregate is a unit of business state that stays consistent and changes in one step. This page defines the C# forms for aggregates, their lifecycles and identities, child entities, value objects, closed sets, money, repositories, events, and the exceptions that reject broken rules.
-
-Each provision below cites the shared rule it implements from [Domain Layer](../domain.md).
+This page defines the C# forms for those types: aggregates, lifecycles, identities, child entities, value objects, closed sets, money, repositories, events, and the exceptions that reject broken rules. Each provision cites the shared rule it implements from [Domain Layer](../domain.md).
 
 ## Concepts
 
 ### Aggregates and State Records
 
-An aggregate is one unit of business state that stays consistent and changes in one step. Its root is the single type through which outside code changes it, and every aggregate exposes its lifecycle through one `State` property.
+An aggregate is one unit of business state that stays consistent and changes in one step. Its root is the single type through which outside code changes it. Every aggregate exposes its lifecycle through one `State` property.
 
-The `State` property is backed by an abstract state record with one sealed record per state, and each state record carries that state's own data, such as the publication time of a published post. The aggregate's methods own the transitions between states.
+The `State` property is backed by an abstract state record with one sealed record per state. Each state record carries that state's own data, such as the publication time of a published post. The aggregate's methods own the transitions between states.
 
-In Claimwick, an expense moves from submitted to approved when `Approve` runs: the method accepts only a submitted expense, stores an approved state carrying the approver and the decided time, and raises the approval event.
+In Claimwick, an expense moves from submitted to approved when `Approve` runs. The method accepts only a submitted expense, stores an approved state carrying the approver and the decided time, and raises the approval event.
 
-Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` aggregate is the exception: it has no root, state record, or repository in Domain, and reaches code through a port.
+Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` aggregate is the exception. It has no root, state record, or repository in Domain, and is reached through a port.
 
 ### Closed Sets Without Enums
 
-A closed set is a fixed group of values, such as refund outcomes or merchant roles. Domain models each one as an abstract record with one sealed case record per value, and each case exposes a stable string `Code`.
+A closed set is a fixed group of values, such as refund outcomes or merchant roles. Domain models each one as an abstract record with one sealed case record per value. Each case exposes a stable string `Code`.
 
 An enum cannot carry case data and admits undefined values through a cast, so no enum appears in Domain. A record hierarchy carries each case's data in its own sealed record instead.
 
-Sets whose cases carry no data convert labels back through `FromCode`: the merchant roles map `owner` and `warehouse-staff` to their cases and reject anything else as unsupported.
+Sets whose cases carry no data convert labels back through `FromCode`. The merchant roles map `owner` and `warehouse-staff` to their cases and reject anything else as unsupported.
 
 The record hierarchy is the Domain form. The same set appears mirrored in Application results, as a polymorphic transport model or a label-only string enum, and as one string discriminator per case in persistence.
 
@@ -37,7 +35,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 Money is one shared value object with a decimal amount and an ISO 4217 currency code.
 
-Each aggregate root gets one repository interface that loads and stages that aggregate only. The interface stages the aggregate; the command pipeline owns the commit.
+Each aggregate root gets one repository interface that loads and stages that aggregate only. The interface stages the aggregate. The command pipeline owns the commit.
 
 ## Standards
 
@@ -51,7 +49,7 @@ Each aggregate root gets one repository interface that loads and stages that agg
 
 **Statement:** Domain code MUST reference only the .NET base class library and product-owned Domain types.
 
-**Rationale:** A package reference points one way, and once Domain names a persistence or web type, business rules depend on the framework instead of the framework depending on them. Keeping Domain to the base class library and product-owned types means a provider change cannot reach business behavior. Infrastructure registers persisted discriminators and mappings, so Domain carries no serialization attribute. This provision binds `litespec/backend/domain#keep-domain-independent-of-outer-layers` for .NET.
+**Rationale:** Once Domain names a persistence or web type, business rules depend on the framework instead of the framework depending on them. Keeping Domain to the base class library and product-owned types means a provider change cannot reach business behavior. Infrastructure registers persisted discriminators and mappings, so Domain carries no serialization attribute. This provision binds `litespec/backend/domain#keep-domain-independent-of-outer-layers` for .NET.
 
 **Checked by:** `dotnet build` reports `LS1001` for Domain code naming an outer-layer type.
 
@@ -65,7 +63,7 @@ Each aggregate root gets one repository interface that loads and stages that agg
 
 **Statement:** An aggregate root MUST be a sealed class deriving from the project-owned `AggregateRoot<TId>`, taking identity and event mechanics from that base.
 
-**Rationale:** One project-owned base gives every aggregate the same mechanics: typed identity, a pending event collection with protected recording, and clearing. The shared base supplies exactly those mechanics and nothing else: no timestamps, audit, tenancy, lifecycle, or persistence that would force every aggregate to carry behavior most never need. It carries the aggregate version only as persistence metadata, which Domain never reads or sets. The root stays a sealed class, so no behavior extends an aggregate by inheritance, and it carries a mark naming its aggregate record for the builder to link. This provision binds `litespec/backend/domain#take-identity-and-events-from-the-shared-root-contract` for .NET.
+**Rationale:** One project-owned base gives every aggregate the same mechanics: typed identity, a pending event collection with protected recording, and clearing. The shared base supplies exactly those mechanics and nothing else: no timestamps, audit, tenancy, lifecycle, or persistence that would force every aggregate to carry behavior most never need. It carries the aggregate version only as persistence metadata, which Domain never reads or sets. The root stays a sealed class, so no behavior extends an aggregate by inheritance. It carries a mark naming its aggregate record for the builder to link. This provision binds `litespec/backend/domain#take-identity-and-events-from-the-shared-root-contract` for .NET.
 
 **Reviewed for:** Does every aggregate root stay a sealed class derived from the project-owned `AggregateRoot<TId>`? Check each root declaration.
 
@@ -79,7 +77,7 @@ Each aggregate root gets one repository interface that loads and stages that agg
 
 **Statement:** A root method that changes state MUST carry exactly one `<implements>` mark naming its use case.
 
-**Rationale:** The `<implements>` mark is the XML documentation tag that ties a method to the use case whose act it performs, and the builder and the analyzer read the same link from it. A reading or private method performs no act and carries no use-case mark, and `LS5002` reports one that does. This provision binds `litespec/backend/domain#give-each-use-case-its-own-act` for .NET, and the model check for the same rule stays on that generic provision.
+**Rationale:** The `<implements>` mark is the XML documentation tag that ties a method to the use case whose act it performs. The builder and the analyzer read the same link from it. A reading or private method performs no act and carries no use-case mark. `LS5002` reports one that does. This provision binds `litespec/backend/domain#give-each-use-case-its-own-act` for .NET. The model check for the same rule stays on that generic provision.
 
 **Example:**
 
@@ -109,7 +107,7 @@ public void Approve(ApproverId approverId, DateTimeOffset decidedAt)
 
 **Statement:** A child entity MUST be a sealed class deriving from the project-owned `Entity<TId>`.
 
-**Rationale:** Deriving from the project-owned `Entity<TId>` gives the child typed identity and identity equality, so it declares only its own data and behavior. The root creates, finds, and changes its children through business methods, and a child exposes no mutable state outside the root. A child is a design choice inside its aggregate: it appears in code and the glossary, never as a record. This provision binds `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary` for .NET.
+**Rationale:** Deriving from the project-owned `Entity<TId>` gives the child typed identity and identity equality, so it declares only its own data and behavior. The root creates, finds, and changes its children through business methods. A child exposes no mutable state outside the root. A child is a design choice inside its aggregate: it appears in code and the glossary, never as a record. This provision binds `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary` for .NET.
 
 **Example:**
 
@@ -151,7 +149,7 @@ public sealed class OrderLine : Entity<OrderLineId>
 
 **Statement:** A value object MUST be an immutable C# record with no base type.
 
-**Rationale:** Comparison by complete value lets two instances with the same data stand in for each other. The type exposes no setter and no implicit conversion, and creation through a named static method keeps every construction path under the validation the type declares. A value object that holds a collection implements content equality and a matching hash for its declared ordering rule, copying incoming collections and returning read-only views. This provision binds `litespec/backend/domain#use-immutable-value-objects-for-domain-concepts` and `litespec/backend/domain#compare-collection-values-by-their-content` for .NET.
+**Rationale:** Comparison by complete value lets two instances with the same data stand in for each other. The type exposes no setter and no implicit conversion. Creation through a named static method keeps every construction path under the validation the type declares. A value object that holds a collection implements content equality and a matching hash for its declared ordering rule. It copies incoming collections and returns read-only views. This provision binds `litespec/backend/domain#use-immutable-value-objects-for-domain-concepts` and `litespec/backend/domain#compare-collection-values-by-their-content` for .NET.
 
 **Example:** A post title validates at creation:
 
@@ -231,7 +229,7 @@ When order is not part of the value, creation normalizes the values to the docum
 
 **Statement:** A domain service MUST be a stateless sealed class accepting and returning Domain values.
 
-**Rationale:** Some calculations span concepts with no natural aggregate owner, such as pricing an order from its lines. A stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior. The service carries a mark naming its rule, and the builder links it to the rule it computes. This provision binds `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` for .NET.
+**Rationale:** Some calculations span concepts with no natural aggregate owner, such as pricing an order from its lines. A stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior. The service carries a mark naming its rule. The builder links it to the rule it computes. This provision binds `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` for .NET.
 
 **Example:** An order pricing service takes the lines and returns the total:
 
@@ -263,7 +261,7 @@ Application supplies the lines and passes the returned `Money` to `Order.Confirm
 
 **Statement:** An aggregate MUST expose its lifecycle only through one `State` property backed by an abstract `{Aggregate}State` record with sealed per-state records.
 
-**Rationale:** An enum, a status string, a boolean flag, a parallel nullable field, or a computed state cannot carry state-specific data such as a publication time. State records hold each state's data where it belongs, and aggregate methods own the transitions between them. Even a one-state aggregate defines its hierarchy, so later states have a home. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm, and tests cover the discard path for a case added later. The sealed set matches the aggregate's declared `states`, which is the link the builder follows. This provision binds `litespec/backend/domain#model-every-aggregate-lifecycle-with-state-types` for .NET.
+**Rationale:** An enum, a status string, a boolean flag, a parallel nullable field, or a computed state cannot carry state-specific data such as a publication time. State records hold each state's data where it belongs. Aggregate methods own the transitions between them. Even a one-state aggregate defines its hierarchy, so later states have a home. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm. Tests cover the discard path for a case added later. The sealed set matches the aggregate's declared `states`, which is the link the builder follows. This provision binds `litespec/backend/domain#model-every-aggregate-lifecycle-with-state-types` for .NET.
 
 **Example:**
 
@@ -296,7 +294,7 @@ public sealed record ProfileActiveState : ProfileState;
 
 **Statement:** Domain code MUST model every closed set as an abstract record base with sealed cases exposing one stable `Code`, converting labels through `FromCode`.
 
-**Rationale:** An enum is a named integer, so it carries no case data and admits undefined values through a cast. When a case later gains data, the enum grows parallel fields. A record hierarchy carries each case's data in its own sealed record. A boundary converts a label through `FromCode` instead of `ToString`, which turns an unrecognized label into a validation failure rather than a silent default. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm, and tests cover the discard path for a case added later. A static class of string constants, such as a set of reason codes, is the same closed set without its cases: the compiler cannot tell a valid code from a typo, so it becomes a record hierarchy too. This provision binds `litespec/backend/domain#model-every-closed-set-as-a-type-hierarchy` for .NET.
+**Rationale:** An enum is a named integer, so it carries no case data and admits undefined values through a cast. When a case later gains data, the enum grows parallel fields. A record hierarchy carries each case's data in its own sealed record. A boundary converts a label through `FromCode` instead of `ToString`, which turns an unrecognized label into a validation failure rather than a silent default. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm. Tests cover the discard path for a case added later. A static class of string constants, such as a set of reason codes, is the same closed set without its cases. The compiler cannot tell a valid code from a typo, so it becomes a record hierarchy too. This provision binds `litespec/backend/domain#model-every-closed-set-as-a-type-hierarchy` for .NET.
 
 **Example:**
 
@@ -353,7 +351,7 @@ public sealed record MerchantWarehouseStaffRole : MerchantRole
 }
 ```
 
-Callers branch on the case type with a `switch` expression, and a case that carries data exposes it directly instead of through a separate nullable field. The discard arm stays after every sealed case has its own arm: it handles a value outside the sealed set, and `LS1013` reports any sealed case left to it:
+Callers branch on the case type with a `switch` expression. A case that carries data exposes it directly instead of through a separate nullable field. The discard arm stays after every sealed case has its own arm. It handles a value outside the sealed set. `LS1013` reports any sealed case left to it:
 
 ```csharp
 var next = outcome switch
@@ -381,7 +379,7 @@ A transport `enum` fits one situation only: every case carries no data, and the 
 
 A transport `enum` never re-enters Domain: the Application layer converts the label to its record case before calling a Domain method.
 
-Round-trip tests cover every data-less case, catching a renamed code or a missing label:
+Round-trip tests cover every case without data and catch a renamed code or a missing label:
 
 ```csharp
 [Theory]
@@ -408,9 +406,9 @@ The diagram below draws the `MerchantRole` hierarchy with its cases, `Code`, and
 
 **Statement:** An aggregate identity MUST be a `readonly record struct` wrapping one version 7 `Guid`, declaring no implicit conversion, primitive alias, or public parameterless creation path.
 
-**Rationale:** A bare `Guid` parameter accepts any identifier, including an empty one and one meant for another aggregate. The typed struct rejects `Guid.Empty` and the struct default in every factory, implements `IStronglyTypedId` and `IParsable<TId>`, and declares no implicit conversion or parameterless creation, so a wrong identifier fails at the boundary. New values arrive from the caller: a factory takes its identifier as an argument, and a method that needs several takes a generator. Domain reads no clock and calls no static source of time or randomness, which keeps business behavior deterministic and testable. This provision binds `litespec/backend/domain#identify-each-aggregate-with-a-typed-version-7-identifier` for .NET.
+**Rationale:** A bare `Guid` parameter accepts any identifier, including an empty one and one meant for another aggregate. The typed struct rejects `Guid.Empty` and the struct default in every factory, implements `IStronglyTypedId` and `IParsable<TId>`, and declares no implicit conversion or parameterless creation. A wrong identifier therefore fails at the boundary. New values arrive from the caller. A factory takes its identifier as an argument. A method that needs several takes a generator. Domain reads no clock and calls no static source of time or randomness, which keeps business behavior deterministic and testable. This provision binds `litespec/backend/domain#identify-each-aggregate-with-a-typed-version-7-identifier` for .NET.
 
-When two callers generate the same value, persistence rejects the duplicate key, and the operation fails on the same path as any other write conflict, with the violation mapped to the use case conflict refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
+When two callers generate the same value, persistence rejects the duplicate key. The operation fails on the same path as any other write conflict, with the violation mapped to the use case conflict refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
 
 **Example:**
 
@@ -470,7 +468,7 @@ The `IParsable<TId>` implementation supports Minimal API route and query binding
 
 **Statement:** Domain code MUST NOT read a clock, a random source, or a new `Guid`, so every such value arrives as an argument.
 
-**Rationale:** Each of `DateTime`, `DateTimeOffset`, `TimeProvider`, `Random`, `RandomNumberGenerator`, `Guid.NewGuid`, and `Guid.CreateVersion7` returns a different value on every call, so a Domain method that reads one cannot run twice with the same result and cannot be tested with a fixed value. Receiving each value as an argument keeps every Domain call a pure function of its inputs. The Application layer obtains each value through the port it owns and passes it in. This provision binds `litespec/backend/domain#pass-nondeterministic-values-into-domain` for .NET.
+**Rationale:** Each of `DateTime`, `DateTimeOffset`, `TimeProvider`, `Random`, `RandomNumberGenerator`, `Guid.NewGuid`, and `Guid.CreateVersion7` returns a different value on every call. A Domain method that reads one cannot run twice with the same result and cannot be tested with a fixed value. Receiving each value as an argument keeps every Domain call a pure function of its inputs. The Application layer obtains each value through the port it owns and passes it in. This provision binds `litespec/backend/domain#pass-nondeterministic-values-into-domain` for .NET.
 
 **Example:**
 
@@ -494,7 +492,7 @@ public void Publish(DateTimeOffset publishedAt) => PublishedAt = publishedAt;
 
 **Statement:** A monetary amount MUST use `decimal` inside one shared `Money` value object carrying an ISO 4217 currency code and serializing as `{ "amount": "12.50", "currency": "EUR" }`.
 
-**Rationale:** Binary floating point cannot represent most decimal amounts exactly, so money computed in `double` drifts by cents. The shared `Money` object keeps a `decimal` amount with an ISO 4217 currency code. The owning module record defines supported currencies, scale, rounding, sign rules, and cross-currency arithmetic, and Infrastructure maps that precision explicitly. A use case fixed to one currency accepts an amount alone while stating that currency in its record. This provision binds `litespec/backend/domain#model-money-with-exact-decimal-values` for .NET.
+**Rationale:** Binary floating point cannot represent most decimal amounts exactly, so money computed in `double` drifts by cents. The shared `Money` object keeps a `decimal` amount with an ISO 4217 currency code. The owning module record defines supported currencies, scale, rounding, sign rules, and cross-currency arithmetic. Infrastructure maps that precision explicitly. A use case fixed to one currency accepts an amount alone while stating that currency in its record. This provision binds `litespec/backend/domain#model-money-with-exact-decimal-values` for .NET.
 
 **Example:**
 
@@ -535,7 +533,7 @@ Serializing the amount as a string keeps every reader from parsing it as binary 
 
 **Statement:** Domain code MUST NOT declare a `double` or `float` for a monetary amount, a rate applied to one, or a quantity compared for exact equality.
 
-**Rationale:** `double` and `float` represent most decimal fractions only approximately, so two amounts that read as equal compare as different. The shared `Money` object holds a `decimal`, and a rate applied to a `Money` amount is a `decimal` too. The analyzer reports the Domain declaration that breaks this form. This provision binds `litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities` for .NET.
+**Rationale:** `double` and `float` represent most decimal fractions only approximately, so two amounts that read as equal compare as different. The shared `Money` object holds a `decimal`. A rate applied to a `Money` amount is a `decimal` too. The analyzer reports the Domain declaration that breaks this form. This provision binds `litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities` for .NET.
 
 **Example:**
 
@@ -556,9 +554,9 @@ public Money ApplyRate(decimal rate) => Create(Amount * rate, Currency);
 
 **Statement:** A repository interface MUST expose only aggregate and Domain types for exactly one aggregate root, without `IQueryable`, a session, or a generic CRUD surface.
 
-**Rationale:** One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. `GetByIdAsync` throws `{Aggregate}NotFoundException` for a required load, which frees handlers from repeating null checks, while a nullable `FindBy...Async` stays reserved for lookups where absence is normal. A flow that finds a record or creates it is two use cases, and the boundary owning the flow chooses between them, following `litespec/backend/application#implement-one-outcome-path-per-command`. `IQueryable`, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision binds `litespec/backend/domain#limit-each-repository-to-one-aggregate` for .NET.
+**Rationale:** One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. `GetByIdAsync` throws `{Aggregate}NotFoundException` for a required load, which frees handlers from repeating null checks. A nullable `FindBy...Async` stays reserved for lookups where absence is normal. A flow that finds a record or creates it is two use cases, and the boundary owning the flow chooses between them, following `litespec/backend/application#implement-one-outcome-path-per-command`. `IQueryable`, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision binds `litespec/backend/domain#limit-each-repository-to-one-aggregate` for .NET.
 
-The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure, and that path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A `store` aggregate owns no repository interface; its port carries the state its owner holds.
+The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure. That path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A `store` aggregate owns no repository interface. Its port carries the state its owner holds.
 
 **Example:**
 
@@ -573,7 +571,7 @@ public interface IPostRepository
 }
 ```
 
-In the example, `GetByIdAsync` returns the loaded `Post` and throws `PostNotFoundException` when the identity has no aggregate, with the Infrastructure implementation throwing that exception. The command pipeline owns the commit, and `Store` stages the aggregate through the selected provider implementation.
+In the example, `GetByIdAsync` returns the loaded `Post` and throws `PostNotFoundException` when the identity has no aggregate. The Infrastructure implementation throws that exception. The command pipeline owns the commit. `Store` stages the aggregate through the selected provider implementation.
 
 ```csharp
 // Infrastructure implementation throws the aggregate's own not-found exception.
@@ -610,7 +608,7 @@ public async Task<Post> GetByIdAsync(PostId id, CancellationToken cancellationTo
 
 **Statement:** A rejected business rule MUST throw a `DomainException` subclass named `{DomainType}{Reason}Exception`, carrying the refusal `code` and one mark naming its rule.
 
-**Rationale:** One exception type per rule puts the stable code and the message in the type, so the call site passes only domain values and two rules never share a type by accident. A shared rule exception with caller-supplied codes lets any caller invent a code and lets unrelated rules merge silently. Its `Code` comes from the refusal result its rule names, under `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`, and each exception's code equals the refusal `code` on the result record it answers. The root's factory and methods check an invariant rule, and the use-case validator or the root's method checks a precondition rule. Names lead with the aggregate root and follow `litespec/workspace/naming#name-exceptions-by-failed-rule`; this provision owns the one-type-per-rule shape and the code each type carries. Domain throws no `InvalidOperationException`, `ArgumentException`, validation, HTTP, or provider exception for a business rejection, and carries no transport status. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
+**Rationale:** One exception type per rule puts the stable code and the message in the type. The call site passes only domain values. Two rules never share a type by accident. A shared rule exception with caller-supplied codes lets any caller invent a code and lets unrelated rules merge silently. Its `Code` comes from the refusal result its rule names, under `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`. Each exception's code equals the refusal `code` on the result record it answers. The root's factory and methods check an invariant rule. The use-case validator or the root's method checks a precondition rule. Names lead with the aggregate root and follow `litespec/workspace/naming#name-exceptions-by-failed-rule`. This provision owns the one-type-per-rule shape and the code each type carries. Domain throws no `InvalidOperationException`, `ArgumentException`, validation, HTTP, or provider exception for a business rejection. It carries no transport status. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
 
 **Example:**
 
@@ -646,9 +644,9 @@ public sealed partial class RefundAllocationRequiredException()
 
 From the refusal result the rule names, the generator writes `public override string Code => "refunds.allocation-required";`.
 
-Two rules that a boundary maps to one response still get two exception types, each carrying its own refusal code, and the boundary maps both codes to the one response. The two codes live in the two types, not in strings the aggregate passes. Reuse a single exception type only when one rule can fail from more than one input, with the differing values carried as constructor parameters.
+Two rules that a boundary maps to one response still get two exception types, each carrying its own refusal code. The boundary maps both codes to the one response. The two codes live in the two types, not in strings the aggregate passes. Reuse a single exception type only when one rule can fail from more than one input, with the differing values carried as constructor parameters.
 
-Malformed caller input stays with Application validators, which report it as validation errors, while aggregate and value-object exceptions remain the final check when direct Domain use violates a rule. Command handlers do not catch expected Domain exceptions; the host maps them through the documented error boundary.
+Malformed caller input stays with Application validators, which report it as validation errors. Aggregate and value-object exceptions remain the final check when direct Domain use violates a rule. Command handlers do not catch expected Domain exceptions. The host maps them through the documented error boundary.
 
 **Checked by:** `dotnet build` reports `LS1005` for a throw outside a `DomainException` subclass and `LS1006` for a domain exception that is misnamed or open.
 
@@ -662,7 +660,7 @@ Malformed caller input stays with Application validators, which report it as val
 
 **Statement:** Each refusal code a module declares MUST be carried by at most one exception type, in the module that declares it.
 
-**Rationale:** A refusal code tells the caller which module refused and why. An exception in one module that carries another module's code blames the wrong owner, and two exception types carrying one code leave the caller unable to tell which rule failed, so the code stops meaning anything once it travels. Each module declares its codes once in its refusal set, under `litespec/core/use-cases#declare-each-modules-refusals-once`, and each exception type carries its rule's code from that set, under `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`. One carrying type per code in the declaring module keeps the blame and the rule behind each code fixed. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
+**Rationale:** A refusal code tells the caller which module refused and why. An exception in one module that carries another module's code blames the wrong owner. Two exception types carrying one code leave the caller unable to tell which rule failed, so the code stops meaning anything once it travels. Each module declares its codes once in its refusal set, under `litespec/core/use-cases#declare-each-modules-refusals-once`. Each exception type carries its rule's code from that set, under `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`. One carrying type per code in the declaring module keeps the blame and the rule behind each code fixed. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
 
 **Example:** The spending module declares `spending.receipt-missing`, and only its `ExpenseReceiptMissingException` carries that code:
 
@@ -686,7 +684,7 @@ From the refusal result the rule names, the generator writes `public override st
 
 **Statement:** Every public Domain type and member MUST carry XML documentation stating the business constraint, result, or failure it represents.
 
-**Rationale:** A public Domain member is a business promise, and without documentation stating the constraint, result, or failure it represents, callers infer the contract from the implementation and miss the rule. A summary that restates the member name adds nothing; a mutation method names its source states, resulting state, protected invariant, and recorded event. This provision binds `litespec/backend/domain#document-every-public-domain-contract` for .NET.
+**Rationale:** A public Domain member is a business promise. Without documentation stating the constraint, result, or failure it represents, callers infer the contract from the implementation and miss the rule. A summary that restates the member name adds nothing. A mutation method names its source states, resulting state, protected invariant, and recorded event. This provision binds `litespec/backend/domain#document-every-public-domain-contract` for .NET.
 
 **Checked by:** `dotnet build` reports `LS1011` for a public Domain type or member without XML documentation.
 
@@ -774,7 +772,7 @@ public abstract class AggregateRoot<TId> : Entity<TId>, IAggregateRoot
 }
 ```
 
-In the example, `ClearDomainEvents` is event-delivery mechanics, not a business mutation entry point: Infrastructure calls it only after the selected delivery path has accepted the pending events.
+In the example, `ClearDomainEvents` is event-delivery mechanics, not a business mutation entry point. Infrastructure calls it only after the selected delivery path has accepted the pending events.
 
 Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while calling the base constructor, so the base stays free of aggregate-specific exceptions.
 
@@ -792,7 +790,7 @@ Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while
 
 **Replacement:** A project names its identifier representations in its Domain documentation.
 
-**Rationale:** An identifier crosses every boundary in the table below, and each boundary that invents its own text form forces converters at both ends. One UUID text form everywhere means a value copied from a log, a route, or a JSON payload parses at the next boundary without translation. This provision binds `litespec/backend/domain#align-id-representations-at-every-boundary` for .NET.
+**Rationale:** An identifier crosses every boundary in the table below. Each boundary that invents its own text form forces converters at both ends. One UUID text form everywhere means a value copied from a log, a route, or a JSON payload parses at the next boundary without translation. This provision binds `litespec/backend/domain#align-id-representations-at-every-boundary` for .NET.
 
 **Example:**
 
@@ -806,7 +804,7 @@ Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while
 | Marten | Native UUID identity plus explicit typed-ID mapping | Infrastructure |
 | Generated TypeScript | `string` from OpenAPI | Generated client |
 
-For multiple IDs, WebApi uses one converter factory restricted to `IStronglyTypedId` implementations, and the OpenAPI transformer applies the same restriction. The factory does not convert every `IParsable<T>` type into a UUID schema.
+For multiple IDs, WebApi uses one converter factory restricted to `IStronglyTypedId` implementations. The OpenAPI transformer applies the same restriction. The factory does not convert every `IParsable<T>` type into a UUID schema.
 
 ```csharp
 if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
@@ -831,7 +829,7 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 
 **Replacement:** A project names its Domain folder layout in its Domain documentation.
 
-**Rationale:** Each aggregate Domain folder holds everything one aggregate owns in the files the layout names, so a reader finds the full aggregate in one place. Namespaces follow the folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, and each file sits at the lowest folder holding its consumers under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. A typed identifier that another module names lives in its owner's `Contracts/Identifiers/` folder. Shared values live in the shared kernel `Domain/` folder with the exceptions of the rules they enforce, which take the product as their home, such as `rule/claimwick.amount-is-never-negative`. This provision binds `litespec/backend/domain#organize-a-module-by-aggregate-and-concept` for .NET.
+**Rationale:** Each aggregate Domain folder holds everything one aggregate owns in the files the layout names, so a reader finds the full aggregate in one place. Namespaces follow the folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`. Each file sits at the lowest folder holding its consumers under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. A typed identifier that another module names lives in its owner's `Contracts/Identifiers/` folder. Shared values live in the shared kernel `Domain/` folder with the exceptions of the rules they enforce. Those exceptions take the product as their home, such as `rule/claimwick.amount-is-never-negative`. This provision binds `litespec/backend/domain#organize-a-module-by-aggregate-and-concept` for .NET.
 
 **Example:** The layout below shows the Domain folders for a flat module, a module with a concept folder, and a module with two aggregates:
 
@@ -902,7 +900,7 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
           ConsentGrantedEvent.cs
 ```
 
-Each aggregate repository interface stays with the aggregate it loads, and module and aggregate folders keep the same names at every layer, per `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
+Each aggregate repository interface stays with the aggregate it loads. Module and aggregate folders keep the same names at every layer, per `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
 **Reviewed for:** Does every aggregate Domain folder follow the states, events, exceptions, and concepts layout, with no named-by-another-module identifier inside? Check each Domain folder beside its Contracts folder.
 
@@ -1009,4 +1007,4 @@ public sealed record PostPublishedEvent(
     DateTimeOffset PublishedAt) : IDomainEvent;
 ```
 
-The event payload captures the publication fact without carrying the mutable `Post`: a reaction uses the values from the transition, or loads a current read model when it needs current data.
+The event payload captures the publication fact without carrying the mutable `Post`. A reaction uses the values from the transition, or loads a current read model when it needs current data.

@@ -3,19 +3,19 @@
 **Stack:** react, svelte
 **Concern:** frontend-ui
 
-One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once.
+One shared UI package carries what every route on a web frontend composes: the registry of page references, the token stylesheet, and the baseline source it installs once.
 
-This page states the registry build, the suite marks, the CSS decisions, the browser support target, the color schemes, motion, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every route readable in every scheme and browser it targets, and every primitive traceable to its source.
+[Controlled UI Governance](../ui.md) states the UI rules shared by every stack. This page states how the React and Svelte web stacks apply them: what the shared package publishes, what the route suite and visual goldens carry, which CSS and platform features routes may use, and how each primitive traces to its pinned source.
 
 ## Concepts
 
 ### The Web Baseline
 
-The baseline is the pinned UI source the shared package installs once. The manifest names it in the `uiBaseline` entry on React and the `uiBaselineSvelte` entry on Svelte. The registry build runs the command its stack page names.
+The baseline is the pinned UI source the shared package installs once. The manifest names it in the `uiBaseline` entry on React and the `uiBaselineSvelte` entry on Svelte. Each stack page names the command that builds the registry.
 
 ### The Browser Route Suite
 
-The browser suite discovers its routes from the generated route tree rather than from a handwritten list, so a new route is checked without anyone writing a specification for it. A dynamic segment resolves to a record the deployment holds, falling back to an absent record when it holds none.
+The browser suite discovers its routes from the generated route tree rather than from a handwritten list, so a new route is checked without anyone writing a specification for it. A dynamic segment resolves to a record the deployment holds, or to an absent record when it holds none.
 
 | Check | The route passes when |
 |:---|:---|
@@ -54,11 +54,13 @@ Tailwind CSS v4 itself needs a recent browser, so a project that targets older b
 
 ### Pattern Implementation
 
-A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The catalog names the source path for each platform, for example `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every route composes that implementation, per `litespec/frontend/patterns#implement-a-chosen-pattern-once`. LiteSpec options are reviewed on the pattern's page on the LiteSpec site at the catalog breakpoints. Product-added options are drawn in a product registry at the catalog breakpoints, per `litespec/frontend/patterns#keep-a-visual-registry`.
+A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The catalog names the source path for each platform, for example `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every route composes that implementation, per `litespec/frontend/patterns#implement-a-chosen-pattern-once`.
+
+LiteSpec options are reviewed on the pattern's page on the LiteSpec site at the catalog breakpoints. Product-added options are drawn in a product registry at the same breakpoints, per `litespec/frontend/patterns#keep-a-visual-registry`.
 
 ### Rules Kept on the Base Page
 
-The UI rules for the baseline, floorplans, layout, page references, tones, tokens, token limits, screen navigation, styling, route checks, result proof, and change evidence live on [Controlled UI Governance](../ui.md). The web stacks add the registry, suite marks, CSS decisions, and source rules this page states.
+The shared UI rules live on [Controlled UI Governance](../ui.md): the baseline, floorplans, layout, page references, tones, tokens, token limits, screen navigation, styling, route checks, result proof, and change evidence. The web stacks add the registry, the suite marks, the CSS rules, and the source rules this page states.
 
 - Baseline pin: `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`
 - Floorplan composition: `litespec/frontend/ui#compose-each-route-from-one-floorplan`
@@ -100,7 +102,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Statement:** The route suite and every visual golden MUST carry a `proves` annotation for each UI provision, pattern provision, or quality requirement they enforce.
 
-**Rationale:** The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern's look is held. Yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `frontends[]` entry, so the check has a named subject instead of a convention.
+**Rationale:** The route suite is where accessibility is enforced for every page, and a visual golden is where a pattern's look is held. Until each names what it enforces, no tool can read that evidence from it. The marks turn the suite into the evidence for the UI provisions it checks and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `frontends[]` entry, so the check reads a named subject instead of a convention.
 
 **Example:** Claimwick's route suite, named in its web frontend's `routeSuite`, carries `proves("litespec/frontend/ui#pass-every-route-suite-check")`.
 
@@ -116,7 +118,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Statement:** A Tailwind class MUST use a semantic token rather than an arbitrary value, a raw palette value, or an important modifier.
 
-**Rationale:** Semantic tokens keep every class inside the governed palette, spacing, and type scales. An arbitrary value, a raw palette value, or an important modifier steps outside them: the value answers to no token and survives every restyle. The approved CSS surface is the shared package's stylesheet, holding the Tailwind import, the tokens, the fonts, and the documented resets. The source scan skips build output and reports authored feature CSS. This realizes litespec/frontend/ui#restrict-styling-to-semantic-tokens.
+**Rationale:** Semantic tokens keep every class inside the governed palette, spacing, and type scales. An arbitrary value, a raw palette value, or an important modifier steps outside them: the value belongs to no token and survives every restyle. The approved CSS surface is the shared package's stylesheet, holding the Tailwind import, the tokens, the fonts, and the documented resets. The source scan skips build output and reports authored feature CSS. This realizes litespec/frontend/ui#restrict-styling-to-semantic-tokens.
 
 **Checked by:** `litespec model check` reports `ui-class-invalid` for each arbitrary value, raw palette value, and important modifier, and `ui-stylesheet-invalid` for each inline style, with its file.
 

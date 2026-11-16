@@ -1,6 +1,8 @@
 # The Claimwick Product
 
-Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. Claimwick keeps its promises as Intent records: a product brief, a goal, a problem, two features with their requirements, one piece of research, one decision, one constraint, and three flows. This page shows them as written in `examples/claimwick/.litespec/`, from the product brief down to the flow that ties them together, so you can see what each record type holds and how the records point at each other. Every record, field, ID, and count below is copied from that folder, so you can open the same file and see the same text.
+Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. Claimwick keeps its promises as Intent records: a product brief, a goal, a problem, two features with their requirements, one piece of research, one decision, one constraint, and three flows.
+
+This page shows them as written in `examples/claimwick/.litespec/`, from the product brief down to the flow that ties them together, so you can see what each record type holds and how the records point at each other. Every record, field, ID, and count below is copied from that folder, so you can open the same file and see the same text.
 
 ## The Product Brief
 
@@ -35,7 +37,9 @@ summary: Spending submits, decides, reimburses and exports work expenses.
 dependsOn: []
 ```
 
-The empty `dependsOn` says Spending stands alone; Reporting names Spending there, as [Modules and Records](modules-and-records.md) shows. The one problem, `problem/expenses-wait-weeks`, sits at product level, and the two features stand alone in `.litespec/intent/features/`, each naming the problem in `solves`. Each requirement sits in its own folder inside its feature's `requirements/` folder. The goal, research, decision, and constraint records sit at product level under `.litespec/intent/`, where the folder rules allow them. The module's Behavior records sit under `.litespec/behavior/modules/spending/`.
+The empty `dependsOn` says Spending stands alone; Reporting names Spending there, as [Modules and Records](modules-and-records.md) shows.
+
+The one problem, `problem/expenses-wait-weeks`, sits at product level, and the two features stand alone in `.litespec/intent/features/`, each naming the problem in `solves`. Each requirement sits in its own folder inside its feature's `requirements/` folder. The goal, research, decision, and constraint records sit at product level under `.litespec/intent/`, where the folder rules allow them. The module's Behavior records sit under `.litespec/behavior/modules/spending/`.
 
 ## The Goal
 
@@ -72,7 +76,9 @@ The Approval feature, in `.litespec/intent/features/approval/approval.yaml`, sol
 | `requirement/approval.erased-after-retention` | The personal data of a decided expense is erased after its retention. |
 | `requirement/approval.reimbursed-expenses-listed` | Finance lists each reimbursed expense with the employee it was paid to. |
 
-The Approval Reminders feature, in `.litespec/intent/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and solves the same problem. Its offering is the reminder itself: a manager gets a reminder for each expense that waits past three business days without a decision. It holds two requirements: the functional requirement `requirement/approval-reminders.remind-approver-after-three-days`, which states that the product sends one reminder for each expense that waits past three business days without a decision, and the quality requirement `requirement/approval-reminders.month-end-submission`, in `.litespec/intent/features/approval-reminders/requirements/month-end-submission/`, which states that each month-end submission is acknowledged within two seconds. The quality requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
+The Approval Reminders feature, in `.litespec/intent/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and solves the same problem. Its offering is the reminder itself: a manager gets a reminder for each expense that waits past three business days without a decision.
+
+It holds two requirements: the functional requirement `requirement/approval-reminders.remind-approver-after-three-days`, which states that the product sends one reminder for each expense that waits past three business days without a decision, and the quality requirement `requirement/approval-reminders.month-end-submission`, in `.litespec/intent/features/approval-reminders/requirements/month-end-submission/`, which states that each month-end submission is acknowledged within two seconds. The quality requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
 
 A functional requirement carries its identifier, title, kind, statement, rationale, and the records it cites in `cites`. A quality requirement carries stimulus, environment, response, and measure beside its rationale. The `cites` list is how the tax file traces back to the constraint below.
 
@@ -128,11 +134,15 @@ The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-re
 
 A constraint states one outside rule, the source it rests on, and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`: the law keeps business receipts for seven years. The record's `sources` list names the law with its key, its URL, and the day it was read, and the rule applies because the product stores receipts for reimbursed expenses.
 
-The explanation file holds Scope, Rules, and Effect on the Product. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file. Its Effect on the Product names the two requirements that carry the rule's effect, `requirement/approval.above-threshold-receipt` and `requirement/approval.erased-after-retention`. Each of them cites this constraint back, so the retention rule traces to the outside law that demands it.
+The explanation file holds Scope, Rules, and Effect on the Product. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file.
+
+Its Effect on the Product names the two requirements that carry the rule's effect, `requirement/approval.above-threshold-receipt` and `requirement/approval.erased-after-retention`. Each of them cites this constraint back, so the retention rule traces to the outside law that demands it.
 
 ## The Flow
 
-A flow record holds the steps one actor takes toward one goal or against one problem. Claimwick keeps three flows, one per path. This one, in `.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml`, is the employee's path; the two staff flows, `flow/export-approved-expenses` and `flow/set-receipt-threshold`, sit beside it. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The flow starts when the employee has paid a work cost and ends when the employee holds the reimbursement. Its steps carry IDs `s1` to `s5`, each names the actor who takes it, and a branch ends the flow when the manager rejects the expense:
+A flow record holds the steps one actor takes toward one goal or against one problem. Claimwick keeps three flows, one per path.
+
+This one, in `.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml`, is the employee's path; the two staff flows, `flow/export-approved-expenses` and `flow/set-receipt-threshold`, sit beside it. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The flow starts when the employee has paid a work cost and ends when the employee holds the reimbursement. Its steps carry IDs `s1` to `s5`, each names the actor who takes it, and a branch ends the flow when the manager rejects the expense:
 
 ```yaml
 type: flow
@@ -171,7 +181,9 @@ branches:
   nextStep: end
 ```
 
-The flow names its one reason in `serves`, the goal it moves. A flow that resolves a pain names its problem or constraint in `answers` instead. Each step cites the requirements it depends on, while the flow itself carries no `cites`. Use cases point at these steps: the submit use case serves `flow/submit-and-reimburse#s1`, and the approve use case serves `#s3`. A branch names the step where the path differs and the step it continues at, so the order of steps changes only through `branches`. Steps name no use case themselves, so a step can change its handler without the flow changing.
+The flow names its one reason in `serves`, the goal it moves. A flow that resolves a pain names its problem or constraint in `answers` instead. Each step cites the requirements it depends on, while the flow itself carries no `cites`.
+
+Use cases point at these steps: the submit use case serves `flow/submit-and-reimburse#s1`, and the approve use case serves `#s3`. A branch names the step where the path differs and the step it continues at, so the order of steps changes only through `branches`. Steps name no use case themselves, so a step can change its handler without the flow changing.
 
 The explanation file, `.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.md`, holds the Example and Branches sections, with one worked week of a train fare. The Example begins from the `startedWhen` state instead of repeating it as a precondition.
 

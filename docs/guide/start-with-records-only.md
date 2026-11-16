@@ -1,6 +1,6 @@
 # Start with Records Only
 
-A team that wants LiteSpec's records, book, and checks before it changes any code follows this guide. It claims `intent` and `behavior` in the project file, writes the first Intent and Behavior records, and runs the model check and the book, while its code and tests keep their own layout and practice.
+Start with records alone: claim `intent` and `behavior` in the project file, write the first Intent and Behavior records, and run the model check and the book, while the code and tests keep their own layout and practice.
 
 The [adoption page](../learn/adopting-litespec.md) states the claims that come next, `implementation` and `proof`.
 

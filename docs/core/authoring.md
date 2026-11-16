@@ -3,9 +3,9 @@
 **Stack:** any
 **Concern:** workspace
 
-LiteSpec is read one page at a time. A reader lands on a single page from a search result or a link, with nothing read before it, and needs to know what the page obliges, what it only explains, and where to look next.
+This standard defines the shared shape of every LiteSpec page: the page styles, the provision contract, the identifier grammar, the prose rules the repository validator enforces, and how each release carries the complete contract.
 
-Every page answers those questions the same way. It uses one fixed style for its kind, it states each testable rule as a provision with a stable identifier, and it names the evidence each rule needs. This standard defines that shared shape: the page styles, the provision contract, the identifier grammar, the prose rules the repository validator enforces, and how each release carries the complete contract. The rules for the records a project writes live on the [Project Model](model.md) and [Record Language](language.md) pages.
+A reader lands on a single page from a search result or a link, with nothing read before it. Every page answers the same questions the same way: what it obliges, what it only explains, and where to look next. It uses one fixed style for its kind, states each testable rule as a provision with a stable identifier, and names the evidence each rule needs. The rules for the records a project writes live on the [Project Model](model.md) and [Record Language](language.md) pages.
 
 ## Concepts
 
@@ -13,7 +13,9 @@ Every page answers those questions the same way. It uses one fixed style for its
 
 Standards state required boundaries, and Conventions state replaceable defaults. Everything else on the page is informative: the lead, Concepts, Rationale, Examples, guides, tutorials, and indexes explain without obliging.
 
-`AGENTS.md` and a consumer's project agents file project the provisions an agent needs for that workspace: each projection cites the provision it projects and adds no obligation of its own, and when a projection and its provision disagree, the provision wins. `CONTRIBUTING.md` owns the contribution workflow, and `CHANGELOG.md` describes the current release.
+`AGENTS.md` and a consumer's project agents file project the provisions an agent needs for that workspace. Each projection cites the provision it projects and adds no obligation of its own, and when a projection and its provision disagree, the provision wins.
+
+`CONTRIBUTING.md` owns the contribution workflow, and `CHANGELOG.md` describes the current release.
 
 The [Record Language](language.md) page owns the grammar for everything a project writes: field names, values, record names, finding codes, and tool names.
 
@@ -31,7 +33,7 @@ A reader arrives with one question, and each page answers the question of its do
 
 An explanation page builds understanding: what LiteSpec is, why it works the way it does, and how its parts fit. It sits beside the tiers because a reader takes it before or between tasks, not during one. An index routes readers to pages, and the glossary resolves one term each, so neither sits in a tier either.
 
-A page links down a tier. Any page may link to the glossary. An explanation page is not the explanation file beside a consumer record; that file explains one record, as the [writing standard](writing.md) states.
+A page links to pages in lower tiers. Any page may link to the glossary. An explanation page is not the explanation file beside a consumer record; that file explains one record, as the [writing standard](writing.md) states.
 
 ### Page Styles
 
@@ -93,7 +95,7 @@ A Standard states one testable obligation:
 - The Statement is one sentence with exactly one capitalized modal, as [RFC 2119](https://www.rfc-editor.org/info/rfc2119/) and [RFC 8174](https://www.rfc-editor.org/info/rfc8174/) define them.
 - A different obligation, prohibition, or permission is a separate provision.
 - Conditions and scope belong in the Statement sentence.
-- Every other paragraph of the provision sits under a Rationale or an Example label and adds no obligation.
+- Every paragraph outside the Statement sits under a Rationale or an Example label and adds no obligation.
 - A Deviation appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
 - `SHOULD` states advice a project applies with judgment and records nothing for; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a waiver.
 
@@ -109,7 +111,9 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-When a project sets a Standard aside, it records a waiver whose `covers` names the provision, in `.litespec/governance/waivers/`, and `rules <path>` shows the waiver in place of the provision. When a project replaces a Convention, it names its own convention in its documentation. A Replacement names the local convention or its recording place, not a waiver. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [waivers page](waivers.md) states the waiver record.
+When a project sets a Standard aside, it records a waiver whose `covers` names the provision, in `.litespec/governance/waivers/`, and `rules <path>` shows the waiver in place of the provision. When a project replaces a Convention, it names its own convention in its documentation.
+
+A Replacement names the local convention or its recording place, not a waiver. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [waivers page](waivers.md) states the waiver record.
 
 A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
@@ -125,7 +129,7 @@ Every provision carries an identifier a reader cites by hand and a tool resolves
 
 The `**ID:**` line under each provision heading is the provision's identity. A heading may change without changing the ID, so fixing a heading's wording breaks no citation. Headings keep a stable verb-noun head so readers find the provision, not to protect the ID.
 
-The heading carries no identifier text. No two provisions share an ID. Consumer record identifiers follow [Identifier Forms](language.md#identifier-forms).
+The heading carries no identifier text, and no two provisions share an ID. Consumer record identifiers follow [Identifier Forms](language.md#identifier-forms).
 
 ### Provision Layout
 
@@ -161,19 +165,21 @@ A provision adds `**Applies to:**` only when it is narrower than its page, when 
 
 A provision that holds only in some situations states its condition as a `when` key on its `**Applies to:**` line, beside the other scope keys, for example `artifact: use-case; when: query`. The condition names the marked record the provision needs:
 
-| Value | The provision applies when the record the target marks |
+| Value | Marked record |
 |:---|:---|
-| `query` | is a use case with `kind: query` |
-| `command` | is a use case with `kind: command` |
-| `upload` | is a use case that takes a file from the caller |
-| `document-number` | is a use case that issues a legal document number |
-| `erasure` | is a use case or job that erases, pseudonymizes or anonymizes personal data |
-| `project` | is never a single record: the provision applies to the project once, so a code path never returns it |
-| `audit-adoption` | is the decision the `audit` selection names in its `decision` field in `.litespec/project.yaml` |
+| `query` | A use case with `kind: query` |
+| `command` | A use case with `kind: command` |
+| `upload` | A use case that takes a file from the caller |
+| `document-number` | A use case that issues a legal document number |
+| `erasure` | A use case or job that erases, pseudonymizes or anonymizes personal data |
+| `project` | Never a single record: the provision applies to the project once, so a code path never returns it |
+| `audit-adoption` | The decision the `audit` selection names in its `decision` field in `.litespec/project.yaml` |
 
-`rules` reads the condition from the provision index and returns the provision for a code path only when the condition holds for the record the file marks. A record path or record ID prints the provision with its condition shown, and a path that marks no record leaves it out.
+`rules` reads the condition from the provision index. For a code path, it returns the provision only when the condition holds for the record the file marks. For a record path or record ID, it prints the provision with its condition shown. For a path that marks no record, it leaves the provision out.
 
-A Standard carries Strength `required` or `advisory`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope, condition, and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
+A Standard carries Strength `required` or `advisory`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line.
+
+`litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope, condition, and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
 
 ### Validator Diagnostics
 
@@ -189,13 +195,13 @@ Some page defects belong to no single provision: a broken link, a missing title,
 
 ### Generated Regions
 
-A generated region is a section a tool writes, between `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`, in an explanation file or a document. Only the owning tool writes inside it, and an edit there is lost at the next generation. Authoring checks skip generated regions. A region that renders facts about its record finds the record through the shared file name.
+A generated region is a section a tool writes, between `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`, in an explanation file or a document. Only the owning tool writes inside it, and an edit there is lost at the next generation. Authoring checks skip generated regions. When a region renders facts about its record, it finds the record by the shared file name.
 
 ### Release Model
 
 Each LiteSpec release is a complete contract: it states every active provision, and a consumer pins one release, keeps it for as long as it chooses, and adopts a later release by accepting that release's whole contract. LiteSpec publishes no compatibility guarantee, migration path, deprecation period, or identifier alias between its own releases.
 
-Version numbers name complete pinned contracts. A patch release corrects a narrow area, a minor release makes one coherent change, and a major release replaces scope, method, or a stack. Within a major version, provision identifiers stay stable: a minor release adds provisions and changes wording, and removes or renames no identifier. A major release may remove or rename identifiers, and its changelog carries the generated list of every added, removed and renamed identifier as the one piece of history material the release keeps.
+Each version number names one complete pinned contract. A patch release corrects a narrow area, a minor release makes one coherent change, and a major release replaces scope, method, or a stack. Within a major version, provision identifiers stay stable: a minor release adds provisions and changes wording, and removes or renames no identifier. A major release may remove or rename identifiers, and its changelog carries the generated list of every added, removed and renamed identifier as the one piece of history material the release keeps.
 
 This model governs LiteSpec itself. A consumer product has its own users, so its API compatibility, migration, deprecation and rollback provisions still apply.
 
@@ -223,7 +229,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A Standards provision MUST use exactly one listed capitalized modal and no other capitalized normative term.
 
-**Rationale:** A reader decides from one word whether a provision obliges or suggests. That works only when each strength word means exactly one thing, as the listed modals do under their RFC meaning. A second capitalized term would smuggle in a different shade of obligation that no contract defines.
+**Rationale:** A reader decides from one word whether a provision obliges or suggests. That works only when each strength word means exactly one thing, as the listed modals do under their RFC meaning. A second capitalized term would add a shade of obligation that no contract defines.
 
 **Checked by:** `litespec-maintain validate` emits no `STANDARD_MODAL_COUNT` or `STANDARD_MODAL_VOCABULARY` diagnostic.
 
@@ -235,7 +241,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A capitalized modal MUST appear only in a Statement, a Default, or a Replacement.
 
-**Rationale:** When an obligation sits in Concepts, a Rationale, or an example, a project replaces a default it never saw in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
+**Rationale:** When an obligation sits in Concepts, a Rationale, or an example, a project can miss it because the labeled assertions never state it. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 
 **Checked by:** `litespec-maintain validate` emits no `PROSE_NORMATIVE_LOCATION` or `STANDARD_INFORMATIVE_NORMATIVE` diagnostic.
 
@@ -247,7 +253,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A Standards provision MUST use the modal word its Strength line grades.
 
-**Rationale:** The Strength line grades how binding a provision is, and the modal in its Statement says the same thing in words: a required provision obliges with must or must not, while an advisory one advises with should, should not, or may. When the two disagree, each reader picks the reading that suits the change, and the grade means nothing. A lone permission reads as optional advice under a required label, so a permission either joins the provision it relaxes or becomes an obligation of its own. Settled by [decision/0082-give-every-rule-one-home-and-one-strength](decision/0082-give-every-rule-one-home-and-one-strength).
+**Rationale:** The Strength line grades how binding a provision is. The modal in its Statement says the same thing in words: a required provision obliges with must or must not, while an advisory one advises with should, should not, or may. When the two disagree, each reader picks the reading that suits the change, and the grade means nothing. A lone permission looks like optional advice under a required label, so a permission either joins the provision it relaxes or becomes an obligation of its own. Settled by [decision/0082-give-every-rule-one-home-and-one-strength](decision/0082-give-every-rule-one-home-and-one-strength).
 
 **Example:** A required provision states with must that a use case declares its kind, while an advisory provision suggests a naming shape with should.
 
@@ -261,7 +267,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** Authored prose MUST name each concept with its one glossary term.
 
-**Rationale:** When one concept carries two names, each reader hunts for a distinction the writer never meant. One term per concept means each term is defined once and checked once. Settled by [decision/0018-one-record-language](decision/0018-one-record-language) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
+**Rationale:** When one concept carries two names, each reader looks for a distinction the writer never meant. One term per concept means each term is defined once and checked once. Settled by [decision/0018-one-record-language](decision/0018-one-record-language) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
 
 **Reviewed for:** Does every concept in the change go by one name? Check the terms the change adds against the glossary.
 
@@ -297,7 +303,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** An authored page MUST use the sections, in order, of its page style.
 
-**Rationale:** Readers learn the page shape once and tools find each section without guessing, because the authority, the context, the defaults, and the evidence sit in the same place on every page. A page that invents its own order sends both searching. A record file carries its type's fields in canonical key order instead of sections.
+**Rationale:** Readers learn the page shape once and tools find each section without guessing, because the authority, the context, the defaults, and the evidence sit in the same place on every page. A page that invents its own order forces readers and tools to search. A record file carries its type's fields in canonical key order instead of sections.
 
 **Checked by:** `litespec-maintain validate` emits no `PAGE_MISSING_SECTION`, `PAGE_SECTION_ORDER` or `PAGE_UNKNOWN_SECTION` diagnostic.
 
@@ -335,7 +341,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A documentation root index MUST state which page style answers which reader question before its first navigation group.
 
-**Rationale:** A reader without a map from question to page opens pages at random and trusts none of them. Naming each style in the reader's terms before the first navigation group sends each question to the page that answers it.
+**Rationale:** Without a mapping from question to page, a reader cannot tell which page answers the question. Naming each style in the reader's terms before the first navigation group sends each question to the page that answers it.
 
 **Example:** A `Which Page Do You Want` section names each style in the reader's terms, one sentence each.
 
@@ -375,7 +381,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A command page MUST state under `Underneath` what the command runs or the sentence `Nothing beneath this command is separately runnable.`.
 
-**Rationale:** When a command fails, the reader needs a command to run by hand and a tier to inspect. A wrapper nobody can see through leaves them with neither. Stating what the command runs, or that nothing beneath it is separately runnable, gives every failure a next step.
+**Rationale:** When a command fails, the reader needs a command to run by hand and a tier to inspect. A command that states nothing beneath it leaves them with neither. Stating what the command runs, or that nothing beneath it is separately runnable, gives every failure a next step.
 
 **Example:** A command with nothing separately runnable writes `Nothing beneath this command is separately runnable.` under `Underneath`.
 
@@ -413,7 +419,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A principle page MUST NOT name a framework, a package, or a language-specific construct.
 
-**Rationale:** A principle holds for every stack only while it names none of them. Technology lives on stack pages; a framework name in a principle binds every stack to one choice.
+**Rationale:** A principle holds for every stack only while it names none of them. Stack-specific technology belongs on stack pages; a framework name in a principle binds every stack to one choice.
 
 **Reviewed for:** Does any principle page name a framework, package, or language construct? Check the principle pages the change touches.
 
@@ -461,7 +467,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** Glossary groups MUST stand in alphabetical order, each opening with one intro sentence.
 
-**Rationale:** A reader guesses where a term lives before reading any term. Alphabetical groups make that guess land, and the opening sentence gives each group its shared context. An unordered group hides its terms from a reader who guesses the wrong place, and a group without its sentence opens on terms with nothing in common yet.
+**Rationale:** A reader guesses where a term lives before reading any term. Alphabetical groups put each term where that guess expects it, and the opening sentence gives each group its shared context. An unordered group hides its terms from a reader who looks in the wrong place, and a group without its sentence opens with terms that share no stated context.
 
 **Example:** The code, product, and standard term groups open the glossary in that order, each with one sentence saying what its terms name.
 
@@ -501,7 +507,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** An informative example MUST belong to its provision or to a Reference Example that names every provision it demonstrates.
 
-**Rationale:** An example floating free of its provision reads as a second rule, and readers obey the illustration instead of the obligation. Sitting inside its provision, or inside a Reference Example that names every provision it demonstrates, marks it as illustration.
+**Rationale:** An example outside its provision looks like a second rule, and readers follow the illustration instead of the obligation. Sitting inside its provision, or inside a Reference Example that names every provision it demonstrates, marks it as illustration.
 
 **Checked by:** `litespec-maintain validate` emits no `STANDARD_EXAMPLE_LABEL`, `PAGE_UNKNOWN_SECTION`, or `REFERENCE_EXAMPLE_DECLARATION` diagnostic.
 
@@ -513,7 +519,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A provision ID MUST be `litespec/<page>#<slug>` as its ID line states it.
 
-**Rationale:** The page segment names the file and the ID line states the slug, so a citation resolves with no lookup table. One grammar keeps every identifier writable by hand and checkable by tool. The ID line is the identity: a heading reword leaves it unchanged, and no two provisions share one.
+**Rationale:** The page segment names the file and the ID line states the slug, so a citation resolves with no lookup table. One grammar keeps every identifier writable by hand and checkable by tool. The ID line is the identity: a reworded heading leaves it unchanged, and no two provisions share one.
 
 **Example:** `litespec/frontend/components#compose-composites-in-page-code` is the ID line under its heading on the frontend components page.
 
@@ -553,7 +559,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A provision ID MUST NOT contain a sequence number.
 
-**Rationale:** A counter says where a provision sits among its siblings and nothing about what it requires. Words name the obligation. Numbers would renumber every sibling on each insertion and break citations for no gain.
+**Rationale:** A counter says where a provision sits among its siblings and nothing about what it requires; words name the obligation. Numbers would renumber every sibling on each insertion and break citations for no gain.
 
 **Reviewed for:** Does any new identifier carry a sequence number? Check the provision IDs the change adds.
 
@@ -579,7 +585,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** Every provision MUST end its fields with exactly one verification line.
 
-**Rationale:** A provision with no verification line is a rule nobody checks. Each team assumes a tool covers it while no tool was told. One line per provision, beside the rule it checks, makes each rule reviewable by a person or a tool.
+**Rationale:** A provision with no verification line is a rule nobody checks. Each team assumes a tool covers it, while no tool does. One line per provision, beside the rule it checks, makes each rule reviewable by a person or a tool.
 
 **Checked by:** `litespec-maintain validate` emits no `VERIFY_MISSING_ID`, `VERIFY_DUPLICATE_ID`, `VERIFY_ORDER`, or `VERIFY_HEADER` diagnostic.
 
@@ -603,7 +609,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A verification line MUST name the observable evidence and where the reviewer looks.
 
-**Rationale:** A line that restates its Statement sends the reviewer in a circle, confirming that the rule says what it says. Naming the artifact and its location turns the line into an instruction the reviewer follows.
+**Rationale:** A line that restates its Statement gives the reviewer nothing to check beyond the rule's own words. Naming the artifact and its location turns the line into an instruction the reviewer follows.
 
 **Checked by:** `litespec-maintain validate` emits no `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, `VERIFY_DUPLICATE_EVIDENCE`, `VERIFY_COMMAND`, or `CHECKED_BY_UNKNOWN` diagnostic.
 
@@ -627,7 +633,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A standards change MUST leave `docs/reference/provisions.md` equal to the output of `litespec-maintain provisions`.
 
-**Rationale:** One generated page resolves every identifier to its heading and page, so a reader follows a citation in one step, and it carries each provision's scope and strength, so the CLI reads one file instead of parsing every page. Regenerating it with `litespec-maintain provisions` on every standards change keeps the index and the pages from disagreeing.
+**Rationale:** One generated page resolves every identifier to its heading and page, so a reader follows a citation in one step. It also carries each provision's scope and strength, so the CLI reads one file instead of parsing every page. Regenerating it with `litespec-maintain provisions` on every standards change keeps the index and the pages from disagreeing.
 
 **Checked by:** `litespec-maintain provisions --check` exits zero.
 
@@ -639,7 +645,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** Each record template in `templates/consumer/` MUST equal the Claimwick example record its identifier names, and a scaffold that `litespec new` writes keeps no copied text or number.
 
-**Rationale:** A template doubles as a worked example, so it stays coherent only as one record of the reference product. `litespec-maintain validate` reports a template that differs from its example record, and `litespec model check` reports `template-value-unchanged` on a scaffold that keeps a copied value, so a copied period or a copied statement cannot pass as a decision. Proposed by [decision/0056-copy-each-template-from-claimwick](decision/0056-copy-each-template-from-claimwick).
+**Rationale:** A template serves as a worked example, so it stays coherent only as one record of the reference product. `litespec-maintain validate` reports a template that differs from its example record, and `litespec model check` reports `template-value-unchanged` on a scaffold that keeps a copied value, so a copied period or a copied statement cannot pass as a decision. Proposed by [decision/0056-copy-each-template-from-claimwick](decision/0056-copy-each-template-from-claimwick).
 
 **Checked by:** `litespec-maintain validate` (`TEMPLATE_SOURCE_DIFFERS`, `TEMPLATE_SOURCE_MISSING`) and `litespec model check` (`template-value-unchanged`).
 

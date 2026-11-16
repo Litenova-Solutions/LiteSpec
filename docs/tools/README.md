@@ -1,6 +1,6 @@
 # Overview
 
-The Tools section documents the `litespec` command line: one command for each consumer check, generator, and lookup, from project validation to generated files. A developer or coding assistant opens this index to find the command that produces the check or file the task needs.
+The `litespec` command line checks a consumer project, generates its files, and answers lookups about its records. Each command below does one of those jobs: find the one that produces the check or file the task needs.
 
 On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail. The commands that maintain the standard itself live in the [Maintain overview](../maintain/README.md).
 
@@ -14,7 +14,7 @@ Run every command from the consumer root, the folder that holds `.litespec/proje
 
 A command that reads or changes a consumer starts at `--root`, or at the working directory when `--root` is absent, and uses the first folder at or above it that holds `.litespec/project.yaml`. `litespec init` is the exception: it writes into the `--root` folder as given, with no walk-up. A command exits with code 2 when the root or the project file is missing or invalid, and with code 1 when the records cannot be read.
 
-The release a CLI carries sits beside its own executable; set `LITESPEC_HOME` to point it at another copy.
+Each CLI runs the LiteSpec release installed beside its executable. Set `LITESPEC_HOME` to make it use a copy installed elsewhere.
 
 Every command accepts `--help`. `model check` also accepts `--format json`, which writes one JSON object for callers that read the result instead of the text.
 

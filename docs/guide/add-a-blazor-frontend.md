@@ -1,6 +1,6 @@
 # Add a Blazor Frontend
 
-A product whose interface runs on Blazor is a client with no server of its own: the domain model, the handlers, and the pages live in one Blazor WebAssembly application. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend for a `client-only` project: the stack, the project shape, and the feature layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Declare a Blazor frontend for a `client-only` project: the stack, the project shape, and the feature layout. A Blazor product is a client with no server of its own: the domain model, the handlers, and the pages live in one Blazor WebAssembly application. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 

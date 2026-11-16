@@ -4,15 +4,15 @@
 
 **Concern:** tests
 
-Backend tests prove each boundary on its own: Domain logic runs with no dependencies, use-case coordination runs through the project's own handlers, real persistence and HTTP behavior run through the production host, and structural rules run as checks over the compiled code. Each boundary gets its own suite, so fast tests stay fast and each failure points at the layer that broke.
+Backend tests prove each boundary in its own suite: Domain logic with no dependencies, use-case coordination through the project's own handlers, persistence and HTTP behavior through the production host, and structural rules as checks over compiled code. A failure then points at the layer that broke, and fast suites stay fast because they run no heavier harness than their boundary needs.
 
-The rules below state which suites each project size keeps and what each suite runs with, while the [Testing](../quality/testing.md) quality page states the cross-stack proof rules.
+This page states which suites each project size keeps and what each suite runs with. The [cross-stack proof rules](../quality/testing.md) state how tests prove scenarios.
 
 ## Concepts
 
 ### Test Boundaries
 
-Each suite proves one boundary and runs with one set of tools, so a test belongs to the suite whose boundary it proves. The table names each suite, the boundary it proves, and what it runs with.
+A test belongs to the suite whose boundary it proves. Each suite pairs that boundary with one harness:
 
 | Suite | Proves | Runs With |
 |:---|:---|:---|
@@ -21,8 +21,6 @@ Each suite proves one boundary and runs with one set of tools, so a test belongs
 | Integration | Real persistence and HTTP behavior through the production host | The pinned PostgreSQL and the real application host |
 | Architecture | Structural boundaries that no analyzer or `model check` finding covers | Static checks over the compiled code |
 | Acceptance | End-to-end behavior for large projects | The executable BDD extension and its host |
-
-Each suite pairs one boundary with one harness, so a new test has one home.
 
 ## Standards
 
@@ -34,7 +32,9 @@ Each suite pairs one boundary with one harness, so a new test has one home.
 
 **Statement:** A backend codebase MUST hold exactly the test suites its size requires: architecture and integration for small, adding acceptance for large.
 
-**Rationale:** Each suite owns one boundary and one harness, so a project that keeps exactly its suites knows where each new test belongs. A missing suite pushes its tests into another suite's harness, where they run with the wrong fixtures: an integration test in a unit harness gets no database. An extra suite with no stated boundary collects the tests nobody placed, and nobody knows what those tests prove. Unit suites stay optional at both sizes, and acceptance stays optional at size small. An acceptance suite without the executable BDD extension is an unnamed baseline suite: the project either selects the extension or names the suite for what it actually is.
+**Rationale:** Each suite owns one boundary and one harness, so a project that keeps exactly its suites knows where each new test belongs. A missing suite pushes its tests into another suite with the wrong fixtures: an integration test in a unit harness gets no database. An extra suite with no stated boundary collects the tests nobody placed, and nobody knows what those tests prove.
+
+Unit suites stay optional at both sizes, and acceptance stays optional at size small. An acceptance suite without the executable BDD extension is an unnamed baseline suite: the project either selects the extension or names the suite for what it actually is.
 
 **Example:** These are the suite folders:
 
@@ -56,7 +56,9 @@ A small codebase holds the first two. The acceptance folder appears when the exe
 
 **Statement:** A Domain test MUST use explicit inputs with no database, HTTP host, container, clock, or mock.
 
-**Rationale:** Domain behavior is deterministic: the same explicit inputs produce the same new state or the same refusal. A database, host, container, clock, or mock in a Domain test hides nondeterminism behind the call, so the same test passes and fails without a code change. The suite covers factories, every lifecycle state, allowed and rejected transitions, invariants, value equality, collections, money rules, exceptions, and raised events.
+**Rationale:** Domain behavior is deterministic: the same explicit inputs produce the same new state or the same refusal. A database, host, container, clock, or mock in a Domain test hides nondeterminism behind the call, so the same test passes and fails without a code change.
+
+The suite covers factories, every lifecycle state, allowed and rejected transitions, invariants, value equality, collections, money rules, exceptions, and raised events.
 
 **Reviewed for:** Is any Domain test using a database, HTTP host, container, clock, or mock instead of explicit inputs alone? Look at the Domain test files.
 
@@ -68,7 +70,9 @@ A small codebase holds the first two. The acceptance folder appears when the exe
 
 **Statement:** An HTTP integration test MUST run through the real application host with the real configuration, covering Problem Details, authentication, and resource authorization.
 
-**Rationale:** The real host is the only place where routing, serialization, authentication, and authorization are wired together. A test that bypasses the host proves the handler a second time and misses the boundary where status codes, Problem Details shapes, and policy denials actually come from. Persistence behavior runs against PostgreSQL under `litespec/backend/persistence#test-persistence-against-the-pinned-database`, and both run on the harness that `litespec/backend/testing#share-one-production-faithful-integration-harness` owns.
+**Rationale:** The real host is the only place where routing, serialization, authentication, and authorization are wired together. A test that bypasses the host proves the handler a second time and misses the boundary where status codes, Problem Details shapes, and policy denials actually come from.
+
+Persistence behavior runs against PostgreSQL under `litespec/backend/persistence#test-persistence-against-the-pinned-database`, and both run on the harness that `litespec/backend/testing#share-one-production-faithful-integration-harness` owns.
 
 **Reviewed for:** Is any HTTP integration test bypassing the real host factory or production configuration, or skipping Problem Details, authentication, or resource authorization? Look at the HTTP integration tests.
 
@@ -94,7 +98,9 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Statement:** A test run MUST match results to tests by fully qualified name.
 
-**Rationale:** Result files name each test in full: its namespace, its containing types joined with dots, and its method, without data-row arguments. A renamed test then matches nothing instead of matching another test's same-named method, so the rename fails loudly instead of lingering as an awaited run. Matching by short name hides the rename behind a passing name the test no longer owns.
+**Rationale:** Result files name each test in full: its namespace, its containing types joined with dots, and its method, without data-row arguments.
+
+A renamed test then matches nothing instead of matching another test's same-named method, so the rename fails loudly instead of lingering as an awaited run. Matching by short name hides the rename behind a passing name the test no longer owns.
 
 **Example:** A renamed submit-expense test leaves its old qualified name with no matching result, so the use case stays coded until the new name runs and passes.
 
@@ -110,7 +116,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Rationale:** One fixture, one host factory, and one reset helper give every integration test the same database and configuration. A container per test group multiplies run time by the group count and buys no isolation that a cloned database lacks. The fixture starts the pinned PostgreSQL once per test run and supplies each test group its connection string before the host builds.
 
-The integration suite still owns one harness. An activated BDD extension brings its own host for the acceptance suite, because the two suites run different lifetimes, and that host reuses this fixture's container and reset helper instead of starting another database.
+An activated BDD extension brings its own host for the acceptance suite, because the two suites run different lifetimes. That host reuses this fixture's container and reset helper instead of starting another database.
 
 **Reviewed for:** Is any integration suite missing its container fixture, host factory, or isolation helper, or holding a second of one? Look at the integration suite.
 
@@ -126,7 +132,9 @@ The integration suite still owns one harness. An activated BDD extension brings 
 
 **Replacement:** A project records its own calculation-proof technique in its testing documentation.
 
-**Rationale:** An examples table holds the debated rows, and property tests range beyond them: each generated input checks the same stated property the rows illustrate. Seeding from the table ties the properties to reviewed values instead of invented ones. The table itself lives on a scenario proving the rule, as `litespec/core/domain-model#tabulate-every-calculation-with-examples` requires.
+**Rationale:** An examples table holds the debated rows, and property tests range beyond them: each generated input checks the same stated property the rows illustrate. Seeding from the table ties the properties to reviewed values instead of invented ones.
+
+The table itself lives on a scenario proving the rule, as `litespec/core/domain-model#tabulate-every-calculation-with-examples` requires.
 
 **Example:** A rounding rule with three reviewed rows seeds a property test that asserts the rounded total against the stated bound for every generated input.
 
@@ -142,7 +150,9 @@ The integration suite still owns one harness. An activated BDD extension brings 
 
 **Replacement:** A project records its own lifecycle-proof technique in its testing documentation.
 
-**Rationale:** The transitions table declares every allowed move between states. A model-based test walks generated sequences through that model, checking that allowed moves succeed and rejected moves refuse. Generating from the declared table keeps the model and the test in agreement by construction. The table lives on the aggregate page, as `litespec/core/domain-model#connect-every-state-through-transitions` requires.
+**Rationale:** The transitions table declares every allowed move between states. A model-based test walks generated sequences through that model, checking that allowed moves succeed and rejected moves refuse. Generating from the declared table keeps the model and the test in agreement by construction.
+
+The table lives on the aggregate page, as `litespec/core/domain-model#connect-every-state-through-transitions` requires.
 
 **Example:** An expense test generates walks across submitted, approved, refused, and reimbursed, checking each move against the declared transitions. A walk attempting reimbursement from submitted ends in the refusal the transitions table allows.
 
@@ -158,7 +168,9 @@ The integration suite still owns one harness. An activated BDD extension brings 
 
 **Replacement:** A project names its test tree shape in its testing documentation.
 
-**Rationale:** When test folders mirror production folders, a reader finds the tests for a module without searching. Harness and flat files stay exempt: a `Support` folder and flat Architecture test files need no production counterpart. Adapter tests sit under the adapter's `Infrastructure/` path and are exempt by kind, because they prove a scenario through an adapter that owns no use case folder.
+**Rationale:** When test folders mirror production folders, a reader finds the tests for a module without searching.
+
+Harness and flat files stay exempt: a `Support` folder and flat Architecture test files need no production counterpart. Adapter tests sit under the adapter's `Infrastructure/` path and are exempt by kind, because they prove a scenario through an adapter that owns no use case folder.
 
 **Example:** Each test tree mirrors the production module folders, including the `UseCases/` level:
 

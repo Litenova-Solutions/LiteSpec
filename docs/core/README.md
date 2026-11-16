@@ -1,6 +1,6 @@
 # Overview
 
-The Core pages state what every LiteSpec project shares: the principles, the record layers, the records that hold intent and behavior, and the rules for agents, writing, and releases. Read them in the order below when starting a project, then load only the pages each task touches.
+The Core pages state what every LiteSpec project shares: the principles, the record layers, the records that hold Intent and Behavior, and the rules for agents, writing, and releases. Read them in the order below when starting a project, then load only the pages each task touches.
 
 ## Reading Order
 
@@ -12,14 +12,14 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Model](model.md): the record types, their links, and what the builder computes.
 - [Waivers](waivers.md): the one record that sets a provision, a page, or a finding code aside, with its kind, its reason and, for a gap, its expiry and closing records.
 - [Layers](layers.md): the four record layers and the translation rules between them.
-- [Intent](intent.md): where a project states its business intent and in what form.
+- [Intent](intent.md): where and in what form a project states its business intent.
 - [Behavior](behavior.md): the overview of the five Behavior pages and the mapping from records to design.
 - [Domain Model](domain-model.md): the modules, glossary, aggregates, rules, and domain events inside the bounded context.
 - [Use Cases](use-cases.md): the commands, queries, results, scenarios, and settings.
 - [Automation](automation.md): the reactions and jobs that run without a request.
 - [Edges and Screens](edges.md): the integration events, notifications, entry points, screens, and external systems.
 - [Privacy and Retention](privacy.md): the data classes with their erasure positions and retention.
-- [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how it is reached.
+- [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how callers reach the product.
 - [Agent](agent.md): how agents select context, resolve standards, and report completion.
 - [Authoring](authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
 - [Record Language](language.md): the grammar for every field name, value, record name, finding code, and tool name a project writes or reads.

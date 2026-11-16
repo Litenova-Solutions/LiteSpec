@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** workspace
 
-Most readers land on one record or page with nothing read before it. This standard states how every project writes its records, explanation files, and documentation pages so that reader still learns who acts, what is at stake, and what holds. Authors and agents apply it to every record value, explanation file, document, code comment, changelog, and decision record. The [Record Language](language.md) page states the names, values, and codes of project records; this standard states the prose.
+This standard states how every project writes its records, explanation files, and documentation pages, so a reader who lands on one record or page with nothing read before it still learns who acts, what is at stake, and what holds. Authors and agents apply it to every record value, explanation file, document, code comment, changelog, and decision record. The [Record Language](language.md) page states the names, values, and codes of project records; this standard states the prose.
 
 ## Concepts
 
@@ -34,11 +34,15 @@ A title is the record's name wherever records are listed: book lists, outlines, 
 | screen | The place name the user sees | Claim List |
 | read-model | A noun phrase for what it keeps one row per | Reimbursed Expense |
 
-Eight words is the bound because a title stands alone where it is listed: a longer title wraps and stops scanning as one line. The longest form, a problem clause naming the failure and its consequence, fits inside eight words; a title that needs more is stating its statement in the title. Identifiers, acronyms, and words with inner capitals keep their written form, and each major part of a hyphenated word is capitalized.
+Eight words is the bound because a title stands alone where it is listed: a longer title wraps and stops scanning as one line. The longest form, a problem clause naming the failure and its consequence, fits inside eight words; a title that needs more is putting its statement in the title.
+
+Identifiers, acronyms, and words with inner capitals keep their written form, and each major part of a hyphenated word is capitalized.
 
 ### Explanation Sections
 
-An explanation file holds the prose beside a record file: it says what the record means, why it matters, and how it reads beside its neighbors. It opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order. A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. An Example section holds at most 120 words.
+An explanation file holds the prose beside a record file: it says what the record means, why it matters, and how it reads beside its neighbors. It opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order.
+
+A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. An Example section holds at most 120 words.
 
 | Record type | Sections, in order |
 |:---|:---|
@@ -82,11 +86,15 @@ A documentation page does one of four jobs. A page that tries two serves neither
 | Reference | Look up one exact fact | The values the page publishes and who looks them up |
 | Explanation | Understand why a thing is built this way | What the subject does, then why it matters |
 
-A README is the first screen of its folder: it states what the folder holds, who reads it, and where each kind of reader goes next, before it lists any file. Every documentation page states its reader and its purpose in its first lines, so a reader who lands from a search result or a link knows within two sentences whether the page answers their question.
+A README is the first screen of its folder: it states what the folder holds, who reads it, and where each kind of reader goes next, before it lists any file.
+
+Every documentation page states its reader and its purpose in its first lines, so a reader who lands from a search result or a link knows within two sentences whether the page answers their question.
 
 ### Code Documentation
 
-A code comment states why the code is as it is, or what the code cannot express on its own. API documentation states the contract a caller relies on: what a member does, what it needs, what it returns, and which failures are part of that contract. For example, a Claimwick handler comment states why the approval check runs before the payout call, naming no step the code below it already shows. The form that contract takes in one stack lives on that stack's pages: the .NET stack states its XML documentation form on its own pages, and this standard adds no second form beside it.
+A code comment states why the code is as it is, or what the code cannot express on its own. API documentation states the contract a caller relies on: what a member does, what it needs, what it returns, and which failures are part of that contract. For example, a Claimwick handler comment states why the approval check runs before the payout call, naming no step the code below it already shows.
+
+The form that contract takes in one stack lives on that stack's pages: the .NET stack states its XML documentation form on its own pages, and this standard adds no second form beside it.
 
 ## Standards
 
@@ -116,7 +124,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every sentence in a record that describes an action MUST name its actor as its subject, in the active voice and the present tense.
 
-**Rationale:** A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive forms hide the actor, and future forms promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states. A sentence that states a fact, a state, or a calculation may take its object or its condition as its subject, as in "The statement closing date determines the comparison date." Passive voice that hides who acts stays a finding. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
+**Rationale:** A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive forms hide the actor, and future forms promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states. A sentence that states a fact, a state, or a calculation may take its object or its condition as its subject, as in "The statement closing date determines the comparison date." Passive voice that hides who acts is still a finding. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
 **Example:** Claimwick writes "The approver approves the expense within five business days." The actor opens the sentence, and the present tense states what holds.
 
@@ -132,7 +140,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every title and sentence MUST use the literal word for what it names, with each term defined on first use or linked to the glossary.
 
-**Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches, or lands hides the act the same way: "one transfer entry touches both accounts" leaves open what happens to each balance, while "one transfer entry reduces the sending account's balance and increases the receiving account's balance" states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. A word is loose when it leaves the act unclear in its sentence; a field or domain term used in its defined sense, such as an actor that holds a role, is not loose. A stock phrase is the same loose form: "It matters because the figures must be correct" names no consequence, while "A wrong box amount means a correction return, and a late return means a fine" names the consequence and who bears it. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this provision adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry. Proposed by [decision/0049-literal-flow-words-concrete-consequences](../intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md) and [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
+**Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same phrase, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches, or lands hides the act the same way: "one transfer entry touches both accounts" leaves open what happens to each balance, while "one transfer entry reduces the sending account's balance and increases the receiving account's balance" states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. A word is loose when it leaves the act unclear in its sentence; a field or domain term used in its defined sense, such as an actor that holds a role, is not loose. A stock phrase is the same loose form: "It matters because the figures must be correct" names no consequence, while "A wrong box amount means a correction return, and a late return means a fine" names the consequence and who bears it. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this provision adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry. Proposed by [decision/0049-literal-flow-words-concrete-consequences](../intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md) and [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
 **Example:** A Claimwick problem is titled "Expenses Wait Weeks for Reimbursement". The title names the wait and the delay literally, with no figure of speech to decode.
 
@@ -166,7 +174,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Deviation:** A longer sentence that keeps a condition the shorter form would drop, as `litespec/core/writing#keep-the-conditions-when-shortening` requires.
 
-**Rationale:** A record sentence carries one fact a builder implements. A sentence past 25 words often carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is a house limit chosen for scanning, not a measured limit of what readers parse, and the count is mechanical so every record is counted the same way. The glossary `meaning` bound is the same bound, checked by `litespec model check` as the advisory `term-meaning-invalid`. A longer explanation belongs in the explanation file, split into sentences that each carry one fact. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
+**Rationale:** A record sentence carries one fact a builder implements. A sentence past 25 words often carries two facts joined by a comma, so the reader must hold both at once or misses the second. Twenty-five words is a house limit chosen for scanning, not a measured limit of what readers parse, and the count is mechanical so every record is counted the same way. The glossary `meaning` bound is the same bound, checked by `litespec model check` as the advisory `term-meaning-invalid`. A longer explanation belongs in the explanation file, split into sentences that each carry one fact. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
 **Example:** "Employees wait three weeks for reimbursement while approvers batch decisions monthly." The sentence holds 11 words and one fact.
 
@@ -214,7 +222,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every page MUST use American spelling, the serial comma, numerals for numbers of 10 and above and for every quantity with a unit, ISO dates in fields and long-form dates in prose, straight quotes, and ASCII characters except in exact quotations and names, which keep their characters.
 
-**Rationale:** One mechanical form per fact keeps every search, diff, and listing exact: `license` on one page and `licence` on another splits every lookup, and a curly quote or a typographic dash renders differently in terminals, generated context, and plain-text tools. Numerals for measured quantities keep a count scannable beside its unit, while small counts in prose stay words a reader absorbs without stopping. An ISO date in a field sorts and checks as data; the same date in prose reads "2 November 2026", in the order a person says it. Contractions belong on documentation pages, where the voice is a person explaining; records hold none, because a record states a fact in its shortest checkable form. ASCII is LiteSpec's preference for its own pages, as `litespec/core/authoring#keep-authored-prose-ascii-safe` states; exact quotations and names keep their characters.
+**Rationale:** One mechanical form per fact keeps every search, diff, and listing exact: `license` on one page and `licence` on another splits every lookup, and a curly quote or a typographic dash renders differently in terminals, generated context, and plain-text tools. Numerals for measured quantities keep a count scannable beside its unit, while small counts in prose stay words that read without stopping. An ISO date in a field sorts and checks as data; the same date in prose reads "2 November 2026", in the order a person says it. Contractions belong on documentation pages, where the voice is a person explaining; records hold none, because a record states a fact in its shortest checkable form. ASCII is LiteSpec's preference for its own pages, as `litespec/core/authoring#keep-authored-prose-ascii-safe` states; exact quotations and names keep their characters.
 
 **Example:** Claimwick prose writes "The tenant keeps receipts for 7 years, files them by month, quarter, and year, and closes the period on 2 November 2026." The field beside it holds `2026-11-02`.
 
@@ -230,7 +238,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every record title MUST use Title Case, carry no final period, and hold at most eight words.
 
-**Rationale:** A title is the record's name in book lists, outlines, tabs, and search results, so it reads as a name, never as a sentence. Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming the failure and its consequence. LiteSpec headings follow the same casing under `litespec/core/authoring#use-controlled-capitalization`.
+**Rationale:** A title is the record's name in book lists, outlines, tabs, and search results, so it reads as a name, never as a sentence. Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule lets a check enforce every title the same way; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming the failure and its consequence. LiteSpec headings follow the same casing under `litespec/core/authoring#use-controlled-capitalization`.
 
 **Example:** The Claimwick requirement title reads "Expense Above Threshold Carries Receipt", five words in Title Case with no final period, naming the fact the requirement holds rather than a bare noun such as "Receipts".
 
@@ -278,9 +286,9 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.
 
-**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem earns its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
+**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem holds its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
 
-**Example:** The Claimwick problem explanation for waiting expenses runs Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page.
+**Example:** The Claimwick problem explanation for waiting expenses holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page.
 
 **Reviewed for:** Does every explanation file use its record type's fixed sections in order, under its H1 title? Check the explanation files beside the records the change adds against the explanation-section table.
 
@@ -326,7 +334,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every name, date and number in an `Example` section MUST come from the example cast or from a record the explained record cites, each appears only where it shows something about that record, and the `Example` states no rule of its own.
 
-**Rationale:** An Example that brings in a figure no record holds shows the reader a number that rests on a rule nobody states, and the reader takes the number for the rule. A fixed cast keeps every Example cumulative, so one name means one person across the documentation. An Example that states a rule would be a second copy of a record's statement, which drifts. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
+**Rationale:** An Example that brings in a figure no record holds shows the reader a number that rests on a rule nobody states, and the reader takes the number for the rule. A fixed cast is shared across every Example, so one name means one person across the documentation. An Example that states a rule would be a second copy of a record's statement, which drifts. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
 
 **Example:** A Claimwick module example uses the 48.90 EUR fare and the 25 EUR receipt threshold, both as the example cast and the policy record state them, and adds no third amount.
 
@@ -420,4 +428,6 @@ None.
 
 This informative example demonstrates `litespec/core/writing#write-for-the-reader-who-arrives-cold`, `litespec/core/writing#use-literal-words`, `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
 
-A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file runs Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The record needs no other page open beside it: the sufferer, each failure, the workaround in use today, the evidence, and the outcome that ends each failure stand in their fixed places.
+A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria.
+
+The record needs no other page open beside it: the sufferer, each failure, the workaround in use today, the evidence, and the outcome that ends each failure stand in their fixed places.

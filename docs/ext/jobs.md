@@ -3,7 +3,9 @@
 **Stack:** any
 **Concern:** application
 
-Work that outlives a request runs in a Worker: scheduled jobs from a timetable and reports too heavy for a request, while people clear queued items through claimed listings. This page states how each kind records its work, runs it once, and recovers. A project selects it for recurring, delayed, heavy, or human-cleared work.
+Scheduled jobs, heavy reports, and human-cleared queues all outlive a request, so they run outside request handling. Scheduled jobs run in a Worker from a timetable, reports too heavy for a request run in a Worker, and people clear queued items through claimed listings.
+
+This extension states how each kind records its work, runs it once, and recovers. A project selects it for recurring, delayed, heavy, or human-cleared work.
 
 ## Activation
 
@@ -11,7 +13,7 @@ Activation scope: `local`.
 
 Applicable specification kinds: `job`, `use-case`, `flow`.
 
-Enable `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on a job record with its `kind`, `schedule`, and run fields, as the [automation page](../core/automation.md) states. Selecting the extension replaces `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request` for scheduled work: a Worker runs the scheduler.
+Enable `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on a job record with its `kind`, `schedule`, and run fields, as the [automation page](../core/automation.md) states. For scheduled work, selecting the extension replaces `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request`: a Worker runs the scheduler.
 
 For human queues, select `jobs` for a use case when the use case lists work items people claim, or clears items in bulk. Ordinary reads and single-item commands don't select it.
 
@@ -27,11 +29,11 @@ The use case page carries the measurements that prove the normal path falls shor
 
 ## Baseline Relationship
 
-The baseline lets a project declare either the WebApi process or a Worker project as the execution host for work that outlives a request. This extension replaces that choice for scheduled work with one rule: a project selecting `jobs` runs its scheduled work in a Worker outside WebApi request handling, under `litespec/ext/jobs#run-scheduled-jobs-in-worker`. It replaces one baseline provision, `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request`.
+The baseline lets a project declare either the WebApi process or a Worker project as the execution host for work that outlives a request. For scheduled work, this extension replaces that choice with one rule: a project selecting `jobs` runs its scheduled work in a Worker outside WebApi request handling, under `litespec/ext/jobs#run-scheduled-jobs-in-worker`. It replaces one baseline provision, `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request`.
 
-The job, setting, and runbook records belong to the core, not to this extension. Schedules bound their retention with setting records, operators recover through runbook records, and the request budget and each report bound live in setting records.
+The job, setting, and runbook records belong to the core, not to this extension. Setting records hold schedule retention bounds, the request budget, and each report bound. Operators recover through runbook records.
 
-A listing query states its `claim` mode and its `score`, while a bulk money command states its `preview` and its `confirmBy` code. Ordinary queries stay under `litespec/backend/persistence#query-through-the-read-session`; the report provisions govern only the reads whose cost or duration exceeds that path.
+A listing query states its `claim` mode and its `score`, while a bulk money command states its `preview` and its `confirmBy` code. Ordinary queries stay under `litespec/backend/persistence#query-through-the-read-session`. The report provisions govern only the reads whose cost or duration exceeds that path.
 
 ## Standards
 
@@ -45,7 +47,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled job MUST record its schedule in structured form with its timezone on its job record.
 
-**Rationale:** Tools can't parse prose for a schedule. The job record states when the work runs as `every` or `cron` with its timezone, which tools read directly. A schedule kept outside the record runs with no recorded moment attached, so misfire behavior has no stated time to measure against. The [automation page](../core/automation.md) states the record fields, and the `schedule-invalid` check reports a schedule no tool can read.
+**Rationale:** Tools can't parse prose for a schedule. The job record states when the work runs as `every` or `cron` with its timezone, which tools read directly. A schedule kept outside the record has no recorded moment attached, so misfire behavior has no stated time to measure against. The [automation page](../core/automation.md) states the record fields, and the `schedule-invalid` check reports a schedule no tool can read.
 
 **Checked by:** `litespec model check` reports `schedule-invalid` (level G) for a job schedule that is neither an `every` duration nor a `cron` expression; each scheduled job record states its timezone.
 
@@ -115,7 +117,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled job MUST complete within a bounded duration.
 
-**Rationale:** Each job bounds its duration, so a Worker stops without stranding work it can no longer watch.
+**Rationale:** Each job bounds its duration, so a Worker can stop without leaving running work it can no longer monitor.
 
 **Reviewed for:** Does every job declare a duration bound, with completions recorded inside it? Check the handler code and the occurrence store.
 
@@ -129,7 +131,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled job MUST stop accepting new work during graceful shutdown.
 
-**Rationale:** A job that keeps accepting work during shutdown turns every deploy into a wait for work that never ends. Stopping intake lets the running occurrences drain, and the Worker stop.
+**Rationale:** A job that keeps accepting work during shutdown delays every deploy until that work ends. Stopping intake lets the running occurrences drain, and the Worker stop.
 
 **Reviewed for:** Does every Worker shutdown path drain running occurrences before stopping schedule polling? Check the shutdown code in the Worker.
 
@@ -157,7 +159,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A Worker replica MUST renew only its active lease and stop when renewal fails.
 
-**Rationale:** A failed renewal means another replica owns the occurrence now. A replica that kept going would complete work it no longer owns. The loser stops instead, so each replica renews only the lease it holds, and only while it stays active.
+**Rationale:** A failed renewal means another replica owns the occurrence now. A replica that kept going would complete work it no longer owns. The replica that lost the lease stops instead, so each replica renews only the lease it holds, and only while it stays active.
 
 **Reviewed for:** Does any replica renew a lease after a failed renewal, or keep running an occurrence it lost? Check the replica logs and the renewal tests.
 
@@ -213,7 +215,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled job MUST dispatch an Application Command or a declared Application port.
 
-**Rationale:** The job record names the use case it runs, and the use case boundary lives in Application. Each job therefore dispatches an Application Command or a declared Application port. The schedule stays a trigger while the behavior stays owned.
+**Rationale:** The job record names the use case it runs, and the use case boundary lives in Application. Each job therefore dispatches an Application Command or a declared Application port. The schedule triggers the work while Application owns the behavior.
 
 **Reviewed for:** Does every job handler call only an Application Command or a declared Application port? Check the handler calls.
 
@@ -241,7 +243,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled job MUST use bounded attempts, cancellation-aware backoff, and a poison state for permanent failure.
 
-**Rationale:** Without the bound, one poison occurrence eats the Worker's whole capacity. Bounded attempts with cancellation-aware backoff cap what one failed occurrence consumes, and a poison state parks the permanently failing occurrence instead of retrying it forever.
+**Rationale:** Without the bound, one poison occurrence consumes the Worker's whole capacity. Bounded attempts with cancellation-aware backoff cap what one failed occurrence consumes, and a poison state parks the permanently failing occurrence instead of retrying it forever.
 
 **Reviewed for:** Does every schedule declare bounded attempts, cancellation-aware backoff, and a poison state? Check the schedule records and the retry code.
 
@@ -269,7 +271,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A Worker MUST treat an unavailable scheduler store as the store outage `litespec/ext/outbox#report-store-outages-separately-from-delivery-failures` defines, with backed-off, rate-limited logging.
 
-**Rationale:** An unavailable scheduler store is an outage of the dependency, not a failed occurrence. The Worker treats it as the store outage `litespec/ext/outbox#report-store-outages-separately-from-delivery-failures` defines, with backed-off, rate-limited logging. Retry and poison outcomes belong to claimed occurrences, not to a store nobody can reach.
+**Rationale:** An unavailable scheduler store is an outage of the dependency, not a failed occurrence. The Worker treats it as the store outage `litespec/ext/outbox#report-store-outages-separately-from-delivery-failures` defines, with backed-off, rate-limited logging. Retry and poison outcomes belong to claimed occurrences, not to a store the Worker cannot reach.
 
 **Reviewed for:** During a store outage, is every Worker log entry backed off and rate-limited, with no occurrence poisoned? Check the Worker logs and the outage tests.
 
@@ -283,7 +285,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled-job store MUST persist each occurrence's last scheduled, started, and completed time.
 
-**Rationale:** After a restart, the Worker must tell missed work from completed work. Last scheduled, started, and completed times persist per occurrence to draw that line. Memory alone can't hold it, because the restart wipes it.
+**Rationale:** After a restart, the Worker must tell missed work from completed work. Last scheduled, started, and completed times persist per occurrence to mark that boundary. Memory alone can't hold it, because the restart wipes it.
 
 **Reviewed for:** Does every occurrence row carry a last scheduled, started, and completed time? Check the occurrence table schema.
 
@@ -311,7 +313,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** Each schedule MUST have Runbook records for inspection, manual replay, and disable.
 
-**Rationale:** Stalled, failed, or unsafe schedules need controlled operator actions: inspection, manual replay, and disable. Runbook records carry those procedures, because an operator without them improvises against the store during the incident.
+**Rationale:** Stalled, failed, or unsafe schedules need controlled operator actions: inspection, manual replay, and disable. Runbook records carry those procedures, because an operator without them works directly against the store during the incident.
 
 Each procedure names the interface that performs it: a command, an endpoint, or a configuration value. A procedure that says "disable the schedule" without naming the switch stays undiscovered until the incident it was written for. Writing straight to the schedule store instead would bypass the occurrence identity `litespec/ext/jobs#derive-stable-occurrence-identity` depends on.
 
@@ -473,7 +475,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** A work queue MUST state its claim mode as disabled, optional, or required.
 
-**Rationale:** Two people clearing the same item double-pay, double-approve, or double-refuse. The claim mode keeps two hands off one item: items need no claim, accept an optional hold, or require one before action.
+**Rationale:** Two people clearing the same item double-pay, double-approve, or double-refuse. The claim mode prevents two people from acting on the same item: items need no claim, accept an optional hold, or require one before action.
 
 **Example:** Claimwick's payout queue requires a claim before release, while its review queue leaves claiming optional.
 
@@ -489,7 +491,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** A work queue MUST order its items by a score that cites a calculation rule.
 
-**Rationale:** A queue without an order gets cleared by habit: newest first, loudest first, easiest first. A score citing a calculation rule pins the order to declared inputs, so the riskiest or most valuable item surfaces first by rule instead of by accident.
+**Rationale:** A queue without an order gets cleared by habit: newest first, easiest first, or whatever draws attention first. A score citing a calculation rule ties the order to declared inputs, so the riskiest or most valuable item comes first by rule instead of by accident.
 
 **Example:** Claimwick's dispute queue orders by `rule/dispute.urgency-score`, which weighs amount, age, and evidence gaps.
 
@@ -505,7 +507,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** A queue listing MUST show each item score with the inputs that set it.
 
-**Rationale:** A hidden score is an oracle: people work around an order they can't see or trust. Showing the score with its inputs lets each person check the order and challenge the inputs instead of the queue.
+**Rationale:** People work around an order they can't see or trust. Showing the score with its inputs lets each person check the order and question the inputs rather than distrusting the queue.
 
 **Example:** Each Claimwick dispute row shows `urgency 82: EUR 1,900, 6 days old, evidence missing`.
 
@@ -521,7 +523,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** A claimed item MUST return to the queue when its claim lease expires.
 
-**Rationale:** Claims are held by people who go home. A claim with no expiry parks the item forever. The lease returns stale claims to the queue, so an abandoned item waits for the next person instead of for nobody.
+**Rationale:** People hold claims and then leave them unattended. A claim with no expiry keeps the item out of the queue forever. The lease returns stale claims to the queue, so an abandoned item becomes available to the next person.
 
 **Example:** A Claimwick payout claimed Friday and untouched returns to the queue when its one-hour lease expires.
 
@@ -537,7 +539,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** A bulk money command MUST render a preview of every affected item before acting.
 
-**Rationale:** One wrong filter multiplies one mistake into hundreds when money moves on many items at once. The preview lists every affected item with its amount, so the person confirms the set they meant instead of the set they typed.
+**Rationale:** One wrong filter turns one mistake into hundreds when money moves on many items at once. The preview lists every affected item with its amount, so the person confirms the items they meant instead of trusting the filter text.
 
 **Example:** Claimwick's bulk release previews forty-two payouts totaling EUR 18,400 before asking for confirmation.
 
@@ -569,7 +571,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** A reporting proposal MUST record the report, representative data volume, plan or limitation, latency target, maximum result, and operator.
 
-**Rationale:** Reporting infrastructure costs a Worker, storage, and operating attention. Before building any of it, the team writes down the report, a representative data volume, the plan or limitation, the latency target, the maximum result, and the operator. The use case page carries that record, with why a normal request projection falls short of the boundary.
+**Rationale:** Reporting infrastructure costs a Worker, storage, and operating attention. Before building any of it, the team writes down the report, a representative data volume, the plan or limitation, the latency target, the maximum result, and the operator. The use case page carries that record, with why a normal request projection cannot serve it.
 
 **Reviewed for:** Does every report use case page record the report, volume, plan, target, maximum, and operator? Check each use case page.
 
@@ -583,7 +585,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** A project MUST NOT create reporting infrastructure for possible future analytics.
 
-**Rationale:** A reporting system built for analytics the product might never need charges its full operating cost from day one while serving no accepted query. Each report or export earns its infrastructure with a current cost boundary, not a guess about future analysis.
+**Rationale:** A reporting system built for analytics the product might never need charges its full operating cost from the start while serving no accepted query. Each report or export justifies its infrastructure with a current cost boundary, not a guess about future analysis.
 
 **Reviewed for:** Does every reporting system trace to an accepted current query or export? Check the reporting code and the use case pages.
 
@@ -627,7 +629,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Deviation:** A report over a small fixed data set justifies skipping the review.
 
-**Rationale:** A query that flies over a hundred local rows can scan millions in production. Reviewing query plans and indexes against representative data shows the true cost before the report ships, rather than after it slows the database.
+**Rationale:** A query that runs quickly over a hundred local rows can scan millions in production. Reviewing query plans and indexes against representative data shows the true cost before the report ships, rather than after it slows the database.
 
 **Reviewed for:** Does every report have a review record showing query plans and indexes checked against representative data? Check the review records.
 
@@ -655,7 +657,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Statement:** An export exceeding its request budget MUST run through Worker, with the budget a setting record the export's use case names.
 
-**Rationale:** An export that outlasts its request budget holds an HTTP connection open: the user waits while the server counts threads. Running it in a Worker returns the request immediately. The budget in its setting record tells the team exactly when an export outgrows the request path.
+**Rationale:** An export that outlasts its request budget holds an HTTP connection open while the user waits. Running it in a Worker returns the request immediately. The budget in its setting record tells the team exactly when an export outgrows the request path.
 
 **Reviewed for:** Does every export past its request budget run in a Worker, with the budget in a setting record? Check the export use cases and their setting records.
 
@@ -817,7 +819,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Replacement:** A project keeps schedule definitions beside their Command behavior.
 
-**Rationale:** Timing policy changes when operations needs a new rhythm; Command behavior changes when the business needs a new outcome. Keeping schedule definitions separate from Command behavior lets each change alone. A schedule buried in the handler makes every timing change a code change.
+**Rationale:** Timing policy changes when operations needs a new schedule; Command behavior changes when the business needs a new outcome. Keeping schedule definitions separate from Command behavior lets each change alone. A schedule inside the handler makes every timing change a code change.
 
 **Reviewed for:** Does any schedule definition sit inside Command behavior, when the project keeps them apart from it? Check the handler code and the schedule records.
 
@@ -833,7 +835,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Replacement:** A project names its fallback queue order in its queue documentation.
 
-**Rationale:** Age is the honest fallback: the item waiting longest goes first. Any other fallback works, when the queue states it.
+**Rationale:** Age is the simplest fallback: the item waiting longest goes first. Any other fallback works, when the queue states it.
 
 **Reviewed for:** Does every queue without a score list oldest first, or name a fallback order in the queue documentation? Check the queue listings and the queue documentation.
 
@@ -881,7 +883,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Replacement:** A consumer records a report-orchestration convention naming where its scheduling and progress tracking live.
 
-**Rationale:** Scheduling, chunking, and progress tracking run the report; they don't define it. Keeping Worker orchestration apart from the report's rules lets either change without dragging the other along.
+**Rationale:** Scheduling, chunking, and progress tracking run the report; they don't define it. Keeping Worker orchestration apart from the report's rules lets either change without changing the other.
 
 **Reviewed for:** Does any Worker orchestration code sit inside report rules, when the report-orchestration convention names no other place? Check the report rule sources.
 

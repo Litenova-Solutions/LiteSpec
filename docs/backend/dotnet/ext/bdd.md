@@ -4,7 +4,7 @@
 
 **Concern:** tests
 
-This extension adds executable BDD scenarios for cross-layer examples that need review in business language and execution through a public boundary such as the HTTP API. Test authors write them as LightBDD feature classes and use them for the critical examples its rules select, so product, domain, engineering, and testing discussions share one executable example. LightBDD binds steps at compile time, so a step that no longer exists, or whose parameters changed, fails the build rather than the run. Each BDD scenario proves one scenario record from the written specification, which stays the behavior source.
+This extension adds executable BDD scenarios for cross-layer examples that need review in business language and execution through a public boundary such as the HTTP API. Test authors write them as LightBDD feature classes for the critical examples this extension's rules select. Product, domain, engineering, and testing discussions then share one executable example. LightBDD binds steps at compile time, so a step that no longer exists, or whose parameters changed, fails the build rather than the run. Each BDD scenario proves one scenario record from the written specification, which stays the behavior source.
 
 ## Activation
 
@@ -12,13 +12,13 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`, `flow`.
 
-The consumer enables `bdd` when a critical example needs both business-language review and execution through a public system boundary; routine unit behavior stays in narrower tests. A project that selects `bdd` in `selectedExtensions` applies the page's provisions to every use case the project proves through the BDD style.
+The consumer enables `bdd` when a critical example needs both business-language review and execution through a public system boundary. Routine unit behavior stays in narrower tests. A project that selects `bdd` in `selectedExtensions` applies the page's provisions to every use case the project proves through the BDD style.
 
-A BDD scenario is a C# method on a LightBDD feature class. Its steps are calls to step methods, and its business-readable text is the scenario method, the step method names, and the generated report.
+A BDD scenario is a C# method on a LightBDD feature class. Its steps are calls to step methods. Its business-readable text is the scenario method, the step method names, and the generated report.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision: it adds an acceptance test project and the manifest-pinned packages of the LightBDD runner.
+This extension replaces no baseline provision. It adds an acceptance test project and the manifest-pinned packages of the LightBDD runner.
 
 It switches on `scenario`, so its BDD scenarios prove scenario records.
 
@@ -44,7 +44,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Statement:** A test author MUST NOT duplicate every unit or validation test as a BDD scenario.
 
-**Rationale:** A unit test fails at the exact rule and runs in milliseconds; the same test duplicated as a BDD scenario fails at a public boundary after a full setup. Duplication slows the suite and moves the failure away from its cause, so routine behavior stays in its narrower tests.
+**Rationale:** A unit test fails at the exact rule and runs in milliseconds. The same test duplicated as a BDD scenario fails at a public boundary after a full setup. Duplication slows the suite and moves the failure away from its cause, so routine behavior stays in its narrower tests.
 
 **Reviewed for:** Does any unit or validation test repeat as a duplicate BDD scenario? Look at the narrower suites beside the acceptance suite.
 
@@ -56,7 +56,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Statement:** Every BDD scenario MUST carry one `proves` claim naming the scenario it proves.
 
-**Rationale:** A scenario pairs one `given` situation and `when` action with the `then` result they lead to, and the proves claim is what ties the BDD scenario to that record. The claim names it, the steps call the proved use case, and the assertion checks its result; without the claim, the model builder cannot tell which scenario the BDD scenario proves. A LightBDD scenario carries the claim as a proves mark on the scenario method, in the style the project declares. The model builder reads proves marks on C# methods, so a Gherkin feature file would not count as proof and would state each scenario twice beside its scenario record.
+**Rationale:** A scenario pairs one `given` situation and `when` action with the `then` result they lead to. The proves claim ties the BDD scenario to that record. The claim names it, the steps call the proved use case, and the assertion checks its result. Without the claim, the model builder cannot tell which scenario the BDD scenario proves. A LightBDD scenario carries the claim as a proves mark on the scenario method, in the style the project declares. The model builder reads proves marks on C# methods, so a Gherkin feature file would not count as proof and would state each scenario twice beside its scenario record.
 
 **Example:** `/// <proves>scenario/cancel-order.canceling-twice-is-refused</proves>` traces a cancellation BDD scenario to its scenario record.
 
@@ -118,7 +118,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Statement:** The acceptance suite MUST reset database state between scenarios and avoid scenario-order dependencies.
 
-**Rationale:** State left by one scenario becomes a hidden precondition of the next, and the suite passes only in one order. Resetting database state between scenarios removes that coupling, so any scenario runs alone or in any order.
+**Rationale:** State left by one scenario becomes a hidden precondition of the next. The suite then passes only in one order. Resetting database state between scenarios removes that coupling, so any scenario runs alone or in any order.
 
 **Reviewed for:** Does every scenario pass alone and in any order, with state reset between runs? Look at the acceptance suite runs.
 
@@ -154,7 +154,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Statement:** A BDD hook MUST await asynchronous setup and cleanup without replacing the original scenario failure.
 
-**Rationale:** Setup and cleanup are asynchronous, and an unawaited hook leaves the next scenario running against a half-reset database. A hook that throws during cleanup can also replace the scenario's own failure, hiding the real cause. Awaiting both without replacing the original failure keeps the evidence trustworthy.
+**Rationale:** Setup and cleanup are asynchronous. An unawaited hook leaves the next scenario running against a half-reset database. A hook that throws during cleanup can also replace the scenario's own failure, hiding the real cause. Awaiting both without replacing the original failure keeps the evidence trustworthy.
 
 **Reviewed for:** Does every hook await setup and cleanup without replacing the original scenario failure? Look at each hook in the acceptance suite.
 
@@ -170,7 +170,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Replacement:** A project names its own feature grouping in its documentation.
 
-**Rationale:** A scenario filed by business module sits beside the vocabulary it exercises, so a reader finds every example of one module in one folder. A flat or technically grouped suite scatters them.
+**Rationale:** A scenario filed by business module sits beside the vocabulary it exercises, so a reader finds every example of one module in one folder. A flat or technically grouped suite scatters those examples.
 
 **Reviewed for:** Does every feature class sit under its module folder, or under a documented grouping? Look at `Acceptance.Tests` beside the project documentation.
 
@@ -184,7 +184,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Replacement:** A project names its own step-sharing scope in its documentation.
 
-**Rationale:** A step reused across vocabularies, such as a generic success step, means something subtly different in each place and couples unrelated modules to one definition. Steps narrow to one business vocabulary keep their meaning exact.
+**Rationale:** A step reused across vocabularies, such as a generic success step, means something subtly different in each place. It also couples unrelated modules to one definition. Steps narrow to one business vocabulary keep their meaning exact.
 
 **Reviewed for:** Does every reusable step set serve one business vocabulary, or a documented scope? Look at each reusable step set beside the project documentation.
 
@@ -212,13 +212,13 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Replacement:** A project names its own release-gating mark in its documentation.
 
-**Rationale:** The critical trait selects the small subset whose failure stops a release, for fast pull-request feedback. The marking stays separate from the proves claim, which records scenario proof rather than release gating. A marking that every scenario carries selects nothing, so the subset keeps a stated size bound and an owner who keeps it there.
+**Rationale:** The critical trait selects the small subset whose failure stops a release, for fast pull-request feedback. The marking stays separate from the proves claim, which records scenario proof rather than release gating. A marking that every scenario carries selects nothing, so the subset keeps a stated size bound and an owner who keeps it within that bound.
 
 **Reviewed for:** Does the marked pull-request subset stay within its stated bound with its owner named? Look at the marked subset beside the proves claims.
 
 ## Dependencies
 
-Packages: `LightBDD.XUnit3` with `xunit.v3.mtp-v2` for C# feature classes, each pinned in the manifest. LightBDD 3.12 builds against xUnit v3 3.2. Its test project therefore runs the 3.2 line, and other test projects run the current one.
+Packages: `LightBDD.XUnit3` with `xunit.v3.mtp-v2` for C# feature classes, each pinned in the manifest. LightBDD 3.12 builds against xUnit v3 3.2. The acceptance test project therefore runs the 3.2 line. Other test projects run the current one.
 
 Related extensions: None.
 

@@ -12,7 +12,7 @@ litespec context [--root <folder>] [--out <file-or-folder>] [--layers <list>] [-
 
 ## Description
 
-An author pastes the specification into an AI chat to discuss it. The command reads every record file under the consumer's record roots, each with the explanation file beside it, and writes them as one UTF-8 text file with LF line endings. The command never edits, moves, or deletes a LiteSpec file.
+The command reads every record file under the consumer's record roots, each with the explanation file beside it, and writes them as one UTF-8 text file with LF line endings, so an author can paste the specification into an AI chat to discuss it. It never edits, moves, or deletes a LiteSpec file.
 
 The output opens with a short header, then holds one block per file, each starting with `== <relative path>`. Each explanation follows its record file. The product record comes first and is always included, and the rest follow the book's outline order: by record layer first, then by path.
 

@@ -4,11 +4,9 @@
 
 **Concern:** frontend-ui
 
-Devices hold state, apply rules, and sync while offline, so the product owes them a protocol: messages, versions, client rules, and the shape of offline uploads.
+Entry points that serve connected devices carry a `protocol` block. It describes the messages the two sides exchange, the versions they speak, the rules devices apply on their own, and how offline uploads work.
 
-This page states the `protocol` block an entry point carries when devices reach it.
-
-A project selects it for each entry point that serves scanners, kiosks, or offline-capable clients.
+This extension applies to entry points that serve scanners, kiosks, or other offline-capable clients with stored state, local rules, or offline sync.
 
 ## Activation
 
@@ -16,11 +14,11 @@ Activation scope: `local`.
 
 Applicable specification kinds: `entry-point`.
 
-Select `devices` for an entry point when devices reach it with stored state, local rules, or offline sync. A browser or API entry point with no device client leaves it unselected.
+Select `devices` for an entry point when devices reach it with stored state, local rules, or offline sync. Leave it unselected on a browser or API entry point with no device client.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision and switches on no record type. It adds the `protocol` block to entry-point records: the messages exchanged, the version rule devices follow, the client rules devices apply with their scenarios, the nonce that makes retries idempotent, and the `force` and `simulate` flags on offline uploads.
+This extension replaces no baseline provision and switches on no record type. It adds the `protocol` block to entry-point records. The block holds the messages exchanged, the version rule devices follow, the client rules with their scenarios, the nonce that makes retries idempotent, and the `force` and `simulate` flags on offline uploads.
 
 ## Standards
 
@@ -34,7 +32,7 @@ This extension replaces no baseline provision and switches on no record type. It
 
 **Statement:** A device protocol MUST describe its messages as an AsyncAPI channel fragment with named operations and payloads.
 
-**Rationale:** Devices and servers evolve apart: a scanner runs last year's firmware against this week's server. A channel fragment names each direction, each message, and each payload in one shape both sides read. A mismatch then shows in the record before it shows on the loading dock.
+**Rationale:** Devices and servers change on different schedules: a scanner can run last year's firmware against this week's server. A channel fragment names each direction, each message, and each payload in one shape both sides read. A mismatch then shows in the record before it affects deployed devices.
 
 **Example:**
 
@@ -61,7 +59,7 @@ protocol:
 
 **Statement:** A device protocol MUST state its version rule with numbering, overlap, and the upgrade path.
 
-**Rationale:** Old firmware cannot be recalled from the field, so several protocol versions stay live at once. Numbering tells a device which version it speaks, overlap tells the server how long to answer old versions, and the upgrade path tells the device how to move forward. Without the three, a server upgrade bricks every device still speaking an old version.
+**Rationale:** Old firmware cannot be recalled from the field, so several protocol versions stay live at once. Numbering tells a device which version it speaks, overlap tells the server how long to answer old versions, and the upgrade path tells the device how to move forward. Without the three, a server upgrade leaves every device on an old version unable to communicate.
 
 **Reviewed for:** Does every protocol block state numbering, overlap, and the upgrade path? Read each protocol block.
 
@@ -75,7 +73,7 @@ protocol:
 
 **Statement:** Each client rule in a device protocol MUST carry the scenarios that prove it.
 
-**Rationale:** Client rules run where the server cannot see them: validation a scanner applies offline, storage limits a kiosk enforces, queueing a phone does in a tunnel. A rule without scenarios leaves that behavior unproven. Scenarios pin each rule to observable device behavior the product tests against.
+**Rationale:** Client rules run where the server cannot see them: validation a scanner applies offline, storage limits a kiosk enforces, and queueing a phone does without a signal. A rule without scenarios leaves that behavior unproven. Scenarios tie each rule to observable device behavior the product tests against.
 
 **Example:** The rule `a scanner queues scans while offline` carries the scenario `a scan queued offline uploads on reconnect`.
 
@@ -107,9 +105,9 @@ protocol:
 
 **Statement:** An offline upload with `simulate` MUST return its outcome without writing.
 
-**Rationale:** A device back online after a week holds uploads the world outgrew: prices changed, holds lapsed, windows closed. Simulating the queue shows what would happen before anything is written, so the operator reconciles first and applies second.
+**Rationale:** A device back online after a week holds uploads that refer to state that changed while it was offline: prices changed, holds lapsed, windows closed. Simulating the queue shows what would happen before anything is written, so the operator reconciles first and applies second.
 
-**Example:** A scanner uploads three hundred queued scans with `simulate`, reviews the two the server would refuse, and then uploads for real.
+**Example:** A scanner uploads three hundred queued scans with `simulate`, reviews the two the server would refuse, and then uploads the queue to apply it.
 
 **Reviewed for:** Does any simulated upload in the device tests write behind the outcome it returns? Read the device tests for simulated uploads.
 
@@ -123,7 +121,7 @@ protocol:
 
 **Statement:** An offline upload with `force` MUST apply over newer server state and record the overwrite.
 
-**Rationale:** Sometimes the device is right and the server is stale: a supervisor corrected the count on the floor while the server held the old one. Force lets the operator say so explicitly, and the recorded overwrite keeps the decision visible instead of hiding it in a silent overwrite.
+**Rationale:** Sometimes the device holds the correct value and the server holds a stale one: a supervisor corrected the count on the floor while the server held the old one. Force lets the operator say so explicitly, and the recorded overwrite keeps the decision visible instead of hiding it in a silent overwrite.
 
 **Example:** A corrected count uploads with `force`, overwrites the server value, and leaves an overwrite record naming the operator.
 
@@ -159,7 +157,7 @@ protocol:
 
 **Replacement:** A project names the order its server applies offline queues.
 
-**Rationale:** Queue order matches what the operator saw on the device: first scanned, first applied. Another order replays the day out of sequence and surprises everyone reading the log.
+**Rationale:** Queue order matches what the operator saw on the device: first scanned, first applied. Another order applies uploads in a different order than the operator saw, which makes the log hard to follow.
 
 **Reviewed for:** Does every upload test apply offline queues in device order, or has the project named another order? Read the upload tests beside the project's documented order.
 

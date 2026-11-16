@@ -4,15 +4,15 @@
 
 **Concern:** workspace
 
-A .NET backend references only the LiteBus modules its code dispatches, and reports .NET breaches in the editor and the build. This page defines the .NET form of the shared [Dependencies](../../workspace/dependencies.md) rules: the module scope and the analyzer setup that reports each breach at the line that breaks it.
+This page defines how the shared [Dependencies](../../workspace/dependencies.md) rules apply to .NET. It covers which LiteBus modules each layer references and how the analyzers report breaches at the line that breaks them.
 
 ## Concepts
 
 ### LiteBus Modules and the Analyzers
 
-LiteBus ships as modules for commands, queries, and events rather than one bus package. A layer references only the module its code dispatches, so each dispatch surface stays exact: a layer that never publishes events carries no event contracts.
+LiteBus ships as modules for commands, queries, and events rather than one bus package. A layer references only the module its code dispatches, so each dispatch surface stays exact. A layer that never publishes events carries no event contracts.
 
-The LiteSpec analyzers report a breach of a .NET provision where it happens, with a link to the provision. Without them, a breach surfaces only in review, if at all. The package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time.
+The LiteSpec analyzers report a breach of a .NET provision where it happens, with a link to the provision. Without them, a breach surfaces only in review, if at all. The analyzer package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time.
 
 ## Standards
 
@@ -44,7 +44,7 @@ None.
 
 **Replacement:** A project names the projects its analyzer run covers in its project documentation.
 
-**Rationale:** The analyzers report a breach of a .NET provision in the editor and the build, at the line that breaks it, with a link to the provision. Without them, a breach surfaces only in review, if at all. The package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time. `LS2016` reports a pipeline-owned collaborator in a handler constructor; its default list covers the LiteBus unit of work, idempotency store, and outbox, and a project adds its uniqueness claim service. [Check .NET code with the analyzers](../../analyzers/check-dotnet-code-with-the-analyzers.md) sets it up, and [Analyzer rules](../../analyzers/README.md) lists what each rule reports.
+**Rationale:** The analyzers report a breach of a .NET provision in the editor and the build, at the line that breaks it, with a link to the provision. Without them, a breach surfaces only in review, if at all. The analyzer package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time. `LS2016` reports a pipeline-owned collaborator in a handler constructor. Its default list covers the LiteBus unit of work, idempotency store, and outbox, and a project adds its uniqueness claim service. [Check .NET code with the analyzers](../../analyzers/check-dotnet-code-with-the-analyzers.md) sets it up, and [Analyzer rules](../../analyzers/README.md) lists what each rule reports.
 
 **Example:**
 
@@ -66,7 +66,7 @@ None.
 
 **Replacement:** A project whose command handlers run on another mediator names the analyzers that report nested mediation and outside-world clients in its handlers.
 
-**Rationale:** Both LiteBus rules are off by default, so a command handler can quietly send a second message or call an outside system with no report. `LB1023` reports nested mediation in a command handler and `LB1024` reports an outside-world client in a command handler, so consequences leave through event handlers after the commit under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project pipeline-owned collaborators under the key the [Configuration section of the LS2016 rule page](../../analyzers/rules/ls2016.md#configuration) names, such as its uniqueness claim service.
+**Rationale:** Both LiteBus rules are off by default, so a command handler can send a second message or call an outside system with no report. `LB1023` reports nested mediation in a command handler, and `LB1024` reports an outside-world client in a command handler. Consequences then leave through event handlers after the commit, under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project pipeline-owned collaborators under the key the [Configuration section of the LS2016 rule page](../../analyzers/rules/ls2016.md#configuration) names, such as its uniqueness claim service.
 
 **Example:**
 

@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** workspace
 
-An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need an explicit task instruction before the agent acts. This protocol keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check. It applies to every agent run in a LiteSpec project, and to every review of an agent's change.
+This page states the operating rules for an agent working in a LiteSpec project: which records of decided Intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need an explicit task instruction before the agent acts. An agent is software that reads task context, edits files, and runs checks. The protocol keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check. It applies to every agent run in a LiteSpec project, and to every review of an agent's change.
 
 ## Concepts
 
@@ -13,7 +13,9 @@ A consumer project describes itself with records of fixed types in four record l
 
 An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios. The query output is the task context: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve.
 
-Reading the query output before editing starts the run from decided Intent instead of repository guesswork. Every task follows one order: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code.
+Reading the query output before editing starts the run from decided Intent instead of repository guesswork.
+
+Every task follows one order: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code.
 
 ### Extensions and Their Boundaries
 
@@ -29,7 +31,9 @@ A deeper page is one that sits further down the documentation tree, such as a st
 
 ### Agents Write Below Decided Intent
 
-The [layers page](layers.md) states the closed specification: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests. The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
+The [layers page](layers.md) states the closed specification: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests.
+
+The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
 
 ### Side Effects That Need an Explicit Task Instruction
 
@@ -39,7 +43,9 @@ A project may grant wider authority in its `AGENTS.md`. The side-effect provisio
 
 ### Ask the Tool Which Provisions Apply
 
-`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and waivers merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
+`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and waivers merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
+
+An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
 
 A convention states a judgment rule; a list of words belongs in the glossary, where the checks read it.
 
@@ -55,17 +61,17 @@ Work in progress that leaves a record unreached carries a gap waiver with `expir
 
 ### New Intent in a Running Project
 
-A running project takes new intent through this one sequence. Other pages link to this sequence instead of stating their own order.
+A running project takes new Intent through this one sequence. Other pages link to this sequence instead of stating their own order.
 
-1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add or confirm the problem and the feature, then the requirement and the flow step, and raise every undecided figure, such as a price, a term, a retention period, or a date-dependent default, to the owner with a recommendation or place it on the backlog board.
-2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`, naming the rules, access, aggregates, consistency, and effects the use case carries.
-3. Validate the records. Run `dotnet litespec model check` and fix every finding before code moves.
-4. Load provisions and choose patterns. Run `dotnet litespec rules <path>` for each path the change touches before editing it. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
-5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that default layer order, with `dotnet build` for the backend code. Approval gate: an explicit task instruction naming the action and its bounds approves before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
-6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations that carry the money risk also run against example rows held back from the agent that wrote the code, written by a different author and run in CI; other refusals and calculations verify against held-back rows as advisory practice, and the suites in the next step run the proofs.
+1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`. Add or confirm the problem and the feature, then the requirement and the flow step. Raise every undecided figure, such as a price, a term, a retention period, or a date-dependent default, to the owner with a recommendation, or place it on the backlog board.
+2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`. Name the rules, access, aggregates, consistency, and effects the use case carries.
+3. Validate the records. Run `dotnet litespec model check`. Fix every finding before code moves.
+4. Load provisions and choose patterns. Run `dotnet litespec rules <path>` for each path the change touches before editing it. Build the pattern Default and record it with `source: recommended`. Wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
+5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that default layer order. Use `dotnet build` for the backend code. Approval gate: an explicit task instruction naming the action and its bounds approves before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
+6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations that carry the money risk also run against example rows held back from the agent that wrote the code, written by a different author and run in CI. Other refusals and calculations verify against held-back rows as advisory practice. The suites in the next step run the proofs.
 7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model check`, then `dotnet litespec model render`.
-8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names; the run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete: the check blocks on unreached records in every run, and a record that must stay unreached past a merge carries a gap waiver with `expiresOn` and `closedBy`.
-9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green checks, every scenario proven by a passing test, and a gap waiver with `expiresOn` and `closedBy` for each check held red.
+8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review. In a consumer, `<base>` is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. The run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete. The check blocks on unreached records in every run, and a record that must stay unreached past a merge carries a gap waiver with `expiresOn` and `closedBy`.
+9. Write the release record. Create the release record for the immutable artifact. Pass the release gate: green checks, every scenario proven by a passing test, and a gap waiver with `expiresOn` and `closedBy` for each check held red.
 
 ## Standards
 
@@ -79,7 +85,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST query the project model for the records that cover the request, and read the query output, before changing behavior, access, a contract, or a trace link; a prose-only correction of an existing record needs only the record and its explanation file.
 
-**Rationale:** Without the query, an agent reads either too little and invents the missing rules, or half the repository and buries the task in unrelated guidance. The query returns the smallest record set that covers the request, with the links the builder joined between records, so the agent starts from decided Intent. A change that touches behavior, access, a contract, or a trace link always needs that set. A prose-only correction of an existing record needs no joined links: the record and its explanation file show the decided shape, and a query would slow ordinary work without adding information.
+**Rationale:** Without the query, an agent reads either too little and invents the missing rules, or half the repository and buries the task in unrelated guidance. The query returns the smallest record set that covers the request, with the links the builder joined between records, so the agent starts from decided Intent.
+
+A change that touches behavior, access, a contract, or a trace link always needs that set. A prose-only correction of an existing record needs no joined links: the record and its explanation file show the decided shape, and a query would slow ordinary work without adding information.
 
 **Example:** `litespec model query use-case/spending.submit-expense` returns the use case with its rules, results, and scenarios. A spelling fix in a setting record reads the record and its explanation file, then edits without querying the model.
 
@@ -127,7 +135,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** A project MUST keep its agent protocol region and its project-scope skill copies equal to what its LiteSpec release generates.
 
-**Rationale:** The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The project-scope skill copies carry the same procedure to tools that load skills on demand, and a stale copy points at the same old release. The release template plus the project file regenerate the region and the project-scope skill copies in one command, so drift is always fixable. Global copies live outside the project and stay outside the check. Settled by [decision/0037-generate-the-agent-protocol](decision/0037-generate-the-agent-protocol) and [decision/0039-ship-a-litespec-skill](decision/0039-ship-a-litespec-skill).
+**Rationale:** The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The project-scope skill copies carry the same procedure to tools that load skills on demand, and a stale copy points at the same old release.
+
+The release template plus the project file regenerate the region and the project-scope skill copies in one command, so drift is always fixable. Global copies live outside the project and stay outside the check. Settled by [decision/0037-generate-the-agent-protocol](decision/0037-generate-the-agent-protocol) and [decision/0039-ship-a-litespec-skill](decision/0039-ship-a-litespec-skill).
 
 **Example:** Claimwick upgrades its LiteSpec release and runs `litespec model render`; the region in its `AGENTS.md` and its project-scope skill copies match what the new release generates.
 
@@ -215,7 +225,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST stay inside its authorized task and take no consequential action beyond it without an explicit task instruction that names the action and its bounds.
 
-**Rationale:** Inside the task, the agent applies an approved standard or decision, drafts records and proposed decisions, implements the change, and reports findings, including a failed check or a conflict between provisions. It approves no product-policy proposal of its own, widens no scope, invents no business value, and takes no consequential outside action beyond the task. Packages, migrations, authentication, a public API, production data, releases, spending, and outside calls that change state each need an explicit task instruction that names the action and its bounds, because none of them can be judged from the task text alone. A project may grant wider authority in its `AGENTS.md`. Settled by [decision/0086-set-one-agent-authority-boundary](decision/0086-set-one-agent-authority-boundary).
+**Rationale:** Inside the task, the agent applies an approved standard or decision, drafts records and proposed decisions, implements the change, and reports findings, including a failed check or a conflict between provisions. It approves no product-policy proposal of its own, widens no scope, invents no business value, and takes no consequential outside action beyond the task.
+
+Packages, migrations, authentication, a public API, production data, releases, spending, and outside calls that change state each need an explicit task instruction that names the action and its bounds, because none of them can be judged from the task text alone. A project may grant wider authority in its `AGENTS.md`. Settled by [decision/0086-set-one-agent-authority-boundary](decision/0086-set-one-agent-authority-boundary).
 
 **Example:** A task that names the migration and its scope approves it; a task silent on releases leaves a release unmade.
 
@@ -245,7 +257,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST take a test's expected values only from the scenario's Then, never from running the code.
 
-**Rationale:** Expected values read from a passing run restate what the code already does, so the test stays green while behavior drifts. The scenario's Then states the decided intent, which makes the test check the behavior rather than copy it.
+**Rationale:** Expected values read from a passing run restate what the code already does, so the test stays green while behavior drifts. The scenario's Then states the decided Intent, which makes the test check the behavior rather than copy it.
 
 **Example:** A scenario whose Then names a total of `42.50` keeps `42.50` as the asserted value even when the code returns `42.51`: the mismatch fails the test instead of updating the expectation.
 
@@ -263,7 +275,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Deviation:** A rule whose scenarios already pin every boundary in their expected values.
 
-**Rationale:** An agent that sees the examples while implementing fits the code to the rows instead of the rule. Held-back rows turn the examples into an independent check: the implementing agent works from the rule and the scenario, and a later check runs the withheld rows against the result. For a calculation or refusal rule that carries the money risk, held-back verification is required, as [Verify Money Calculations and Refusals Against Held-Back Examples](#verify-money-calculations-and-refusals-against-held-back-examples) states. Settled by [decision/0085-bind-proof-to-code-and-outcomes](decision/0085-bind-proof-to-code-and-outcomes).
+**Rationale:** An agent that sees the examples while implementing fits the code to the rows instead of the rule. Held-back rows turn the examples into an independent check: the implementing agent works from the rule and the scenario, and a later check runs the withheld rows against the result.
+
+For a calculation or refusal rule that carries the money risk, held-back verification is required, as [Verify Money Calculations and Refusals Against Held-Back Examples](#verify-money-calculations-and-refusals-against-held-back-examples) states. Settled by [decision/0085-bind-proof-to-code-and-outcomes](decision/0085-bind-proof-to-code-and-outcomes).
 
 **Example:** The implementing agent writes a discount calculation from its rule and scenario; a later check runs the withheld example rows against the result.
 
@@ -279,7 +293,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST verify a refusal or calculation implementation that carries the money risk against example rows held back from the agent that wrote it.
 
-**Rationale:** Money rules decide amounts a customer pays or receives, so fitting the code to the examples instead of the rule moves money. A different author than the implementing agent writes the held-back rows. They sit under `proof/withheld/`, which the implementing agent's instructions exclude. Their expected values cite the scenario's rule, and they run in CI. The money risk is the risk on the permission guarding the use case. Settled by [decision/0085-bind-proof-to-code-and-outcomes](decision/0085-bind-proof-to-code-and-outcomes).
+**Rationale:** Money rules decide amounts a customer pays or receives, so fitting the code to the examples instead of the rule moves money. A different author than the implementing agent writes the held-back rows. They sit under `proof/withheld/`, which the implementing agent's instructions exclude. Their expected values cite the scenario's rule, and they run in CI.
+
+The money risk is the risk on the permission guarding the use case. Settled by [decision/0085-bind-proof-to-code-and-outcomes](decision/0085-bind-proof-to-code-and-outcomes).
 
 **Example:** The implementing agent writes a discount calculation from its rule and scenario; a CI check runs the withheld rows from `proof/withheld/` against the result.
 
@@ -295,7 +311,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST NOT delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; it reports a test it believes is wrong instead of editing it.
 
-**Rationale:** A proof that changes with the implementation stops proving the decided behavior and starts restating the code. The proof ledger records each scenario's hash and the hash of each test that proves it, so `model check --since` can report, as an advisory finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change. Settled by [decision/0033-agents-never-weaken-proving-tests](decision/0033-agents-never-weaken-proving-tests).
+**Rationale:** A proof that changes with the implementation stops proving the decided behavior and starts restating the code.
+
+The proof ledger records each scenario's hash and the hash of each test that proves it, so `model check --since` can report, as an advisory finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change. Settled by [decision/0033-agents-never-weaken-proving-tests](decision/0033-agents-never-weaken-proving-tests).
 
 **Example:** A handler change makes a proving test fail; the agent reports the failing test and the mismatch instead of changing the expected value to fit the new result.
 

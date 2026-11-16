@@ -5,23 +5,25 @@
 
 Every screen in a LiteSpec frontend draws with components from one shared UI package: small primitives such as inputs and badges, and larger composites such as sections and tables built from them.
 
-This page states what that package holds, how page code, the components under each route or module folder, composes its parts, and where a drawing that no composite makes belongs. Frontend developers and coding agents apply it whenever they build or change a screen, so the product keeps one visual language and a restyle stays a change in one place.
+This page states what that package holds, how page code composes its parts, and where a drawing that no composite makes belongs. Page code means the components under each route or module folder. Frontend developers and coding agents apply it whenever they build or change a screen, so the product keeps one visual language and a restyle stays a change in one place.
 
 ## Concepts
 
 ### Primitives, Composites, and Page Code
 
-A primitive is a small generic control from the pinned baseline, such as an input, a badge, or a card. A composite is a shared component fixing the layout, behavior, and accessibility for one job, such as a status badge or a data table, built from primitives. Page code is any component under a route or module folder: it composes composites inside one floorplan and declares no layout or styling of its own. Page code lives under the route and module folders [Frontend Structure](structure.md) defines, and the floorplan is the page component fixing the page layout ([Controlled UI Governance](ui.md)).
+A primitive is a small generic control from the pinned baseline, such as an input, a badge, or a card. A composite is a shared component fixing the layout, behavior, and accessibility for one job, such as a status badge or a data table, built from primitives. Page code is any component under a route or module folder. It composes composites inside one floorplan and declares no layout or styling of its own. The floorplan is the page component fixing the page layout ([Controlled UI Governance](ui.md)), and page code lives under the route and module folders [Frontend Structure](structure.md) defines.
 
 The `Badge` primitive, for example, draws a label in any color, while the `StatusBadge` composite maps a business state to its tone and draws that. An expense page imports `StatusBadge`, so every color it draws is one the product agreed to.
 
 ### The Shared UI Package
 
-The shared UI package holds every primitive and every composite in one place, behind documented entry points that applications import. The boundary is enforced rather than described: a page reaching past the entry points, declaring its own styling, or drawing with raw elements fails lint, and each refusal names the composite to use instead. The author gets the replacement in the same message as the refusal, with no search through the package.
+The shared UI package holds every primitive and every composite in one place, behind documented entry points that applications import.
+
+The boundary is enforced rather than described. A page reaching past the entry points, declaring its own styling, or drawing with raw elements fails lint, and each refusal names the composite to use instead, so the author gets the replacement in the same message as the refusal.
 
 ### Drawings with No Composite
 
-Some drawings have no composite: a budget treemap, a receipt-scan preview, or a public marketing frame. They live in exception files whose names declare the exception, and they draw with semantic theme tokens, the named values the shared token definition holds. The file name keeps the exception visible, and the tokens keep it inside the product palette.
+Some drawings have no composite, such as a budget treemap, a receipt-scan preview, or a public marketing frame. They live in exception files whose names declare the exception, and they draw with semantic theme tokens, the named values the shared token definition holds. The file name keeps the exception visible, and the tokens keep it inside the product palette.
 
 ## Standards
 
@@ -35,7 +37,7 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 
 **Statement:** A workspace MUST hold its shared primitives and its composites in one shared UI package, with no copy in an application.
 
-**Rationale:** Two applications holding one primitive each drift at the first upstream update: one copy changes, the other still compiles, and nothing reports the split. The two applications grow into two visual languages. One package gives every application the same component, so one update reaches every screen.
+**Rationale:** Two applications holding one primitive each drift at the first upstream update. One copy changes, the other still compiles, and nothing reports the split. The two applications grow into two visual languages. One package gives every application the same component, so one update reaches every screen.
 
 **Example:** The shared UI package holds the primitives in one folder beside the composites, and the composites import them.
 
@@ -91,7 +93,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **Statement:** A component under a route or module folder MUST NOT declare a layout or interactive element.
 
-**Rationale:** A raw element is only markup: no focus handling, no state behavior, and no accessibility wiring. Each page declaring one rebuilds behavior the composite already carries, usually worse. The lint refusal names the composite to use instead, so the author gets the replacement in the same message as the refusal, with no search through the shared package.
+**Rationale:** A raw element is only markup, with no focus handling, no state behavior, and no accessibility wiring. Each page declaring one rebuilds behavior the composite already carries, usually worse. The lint refusal names the composite to use instead, so the author gets the replacement in the same message as the refusal, with no search through the shared package.
 
 **Reviewed for:** Does any layout or interactive element appear in route and module sources? Look in route and module sources; each stack page names the refused elements and the composite each refusal names.
 
@@ -105,7 +107,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **Statement:** Page code MUST import a composite wherever the shared package provides one.
 
-**Rationale:** The composite holds the product's decision for one job: its layout, its behavior, and its tone. The bare primitive holds none of those, so a page importing it makes each decision again for itself, and two pages answer the same question two ways. Refusing the replaced primitive in page code sends every page to the decision already made.
+**Rationale:** The composite holds the product's decision for one job: its layout, behavior, and tone. The bare primitive holds none of those, so a page importing it makes each decision again for itself, and two pages answer the same question two ways. Refusing the replaced primitive in page code sends every page to the decision already made.
 
 **Example:** Where the package provides a composite, page code uses it: `Card` becomes `Section`, `Table` becomes `DataTable`, `Badge` becomes `StatusBadge`, and `Input` and `Field` become the form fields.
 
@@ -121,7 +123,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **Statement:** An exception file MUST declare custom styling only with semantic theme tokens.
 
-**Rationale:** Some drawings have no composite: a budget treemap, a receipt-scan preview, or a public marketing frame. Refusing them entirely would push the drawing into arbitrary values no token governs, which is harder to find and restyle than a declared exception. The exception file keeps the drawing visible: its name says the page draws outside the composites, and semantic tokens keep it inside the product palette. Each stack page names the file pattern marking an exception for its stack.
+**Rationale:** Some drawings have no composite, such as a budget treemap, a receipt-scan preview, or a public marketing frame. Refusing them entirely would push the drawing into arbitrary values no token governs, which is harder to find and restyle than a declared exception. The exception file keeps the drawing visible. Its name says the page draws outside the composites, and semantic tokens keep it inside the product palette. Each stack page names the file pattern marking an exception for its stack.
 
 **Reviewed for:** Does all custom styling sit in the files whose names mark drawings outside the composites, using only semantic theme tokens? Look in the exception files each stack page names.
 
@@ -149,7 +151,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **Statement:** Interactive UI MUST support keyboard operation, visible focus, semantic elements, programmatic labels, and asynchronous status announcements.
 
-**Rationale:** Keyboard operation, visible focus, semantic elements, programmatic labels, and status announcements come free with platform controls, and all five break at once in a custom control. A mouse-only control locks out keyboard users, a missing label leaves screen-reader users guessing, and a silent update leaves anyone missing the screen change unaware of it. Starting from a platform control keeps all five properties, and the composite keeps them for every page using it.
+**Rationale:** Keyboard operation, visible focus, semantic elements, programmatic labels, and status announcements come with platform controls, and all five break at once in a custom control. A mouse-only control locks out keyboard users, a missing label leaves screen-reader users guessing, and a silent update leaves anyone missing the screen change unaware of it. Starting from a platform control keeps all five properties, and the composite keeps them for every page using it.
 
 The five properties above are the ones a component can satisfy on its own. [WCAG 2.2](https://www.w3.org/TR/WCAG22/) adds criteria that only a flow or a page can satisfy, so each route answers them where the criterion applies:
 
@@ -185,7 +187,7 @@ The level column marks which target each criterion belongs to: AA for every proj
 
 **Statement:** A control MUST show, on keyboard focus, an indicator that reaches 3:1 contrast against the colors next to it, drawn in place of any platform indicator it removes.
 
-**Rationale:** WCAG 2.4.7 Focus Visible and 1.4.11 Non-text Contrast: a keyboard user finds their place on the page by the indicator alone, and a faint ring on a gray row is no place at all. The indicator shows on keyboard focus rather than on every click, so pointer users see no ring they did not ask for, and keyboard users always see one. The Approve button on an expense row, for example, shows a ring staying visible on the selected row's tinted background.
+**Rationale:** WCAG 2.4.7 Focus Visible and 1.4.11 Non-text Contrast require a visible indicator. A keyboard user finds their place on the page by the indicator alone, so a faint ring on a gray row hides it. The indicator shows on keyboard focus rather than on every click, so pointer users see no ring they did not ask for, and keyboard users always see one. The Approve button on an expense row, for example, shows a ring staying visible on the selected row's tinted background.
 
 **Reviewed for:** Does every control show a focus indicator at 3:1 against its surroundings on keyboard focus? Look in the route suite output and the shared package's focus styles.
 
@@ -199,7 +201,7 @@ The level column marks which target each criterion belongs to: AA for every proj
 
 **Statement:** A data component MUST render loading, empty, error, forbidden, and ready.
 
-**Rationale:** A component rendering only its ready state leaves the user with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test visiting it. Naming every arrival state up front gives each one a designed drawing.
+**Rationale:** A component rendering only its ready state leaves the user with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test covering it. Naming every state up front gives each one a designed drawing.
 
 A route adds `not-found` under `litespec/frontend/rendering#define-every-route-state`, because a missing target resolves at the route rather than inside a component. Each state name is a term in the project glossary.
 
@@ -215,7 +217,7 @@ A route adds `not-found` under `litespec/frontend/rendering#define-every-route-s
 
 **Statement:** A control MUST render disabled and pending so that a second submission stays impossible while one is in flight and recovery stays usable.
 
-**Rationale:** A control with no disabled state invites a second submission while the first is still in flight, and a control with no pending state shows no sign anything is happening. Blocking the duplicate submission and keeping recovery usable gives the user one safe path: wait, or recover. State names are glossary terms, as under `litespec/frontend/components#render-data-states`.
+**Rationale:** A control with no disabled state invites a second submission while the first is still in flight, and a control with no pending state shows no sign anything is happening. Blocking the duplicate submission and keeping recovery usable gives the user one safe path: wait for the result, or recover. State names are glossary terms, as under `litespec/frontend/components#render-data-states`.
 
 **Reviewed for:** Does every control render disabled and pending, blocking a second submission while one is in flight and keeping recovery usable? Look in the shared package components.
 
@@ -257,7 +259,7 @@ A route adds `not-found` under `litespec/frontend/rendering#define-every-route-s
 
 **Statement:** A component MUST NOT render untrusted rich content without its recorded sanitization decision.
 
-**Rationale:** Rich content written by one user renders in another user's browser, so unsanitized markup is a script injection path: whoever writes the content runs code as every user. The recorded decision names the sanitizer, the allowed elements and attributes, the link policy, and the test cases, so the boundary stays explicit and reviewable instead of a different ad-hoc escape on every page.
+**Rationale:** Rich content written by one user renders in another user's browser, so unsanitized markup is a script injection path. Whoever writes the content runs code as every user. The recorded decision names the sanitizer, the allowed elements and attributes, the link policy, and the test cases, so the boundary stays explicit and reviewable instead of a different ad-hoc escape on every page.
 
 **Reviewed for:** Does every untrusted rich content render carry a recorded decision naming the sanitizer, the allowed elements and attributes, the link policy, and the test cases? Look in the decision records and the rendering components.
 
@@ -271,7 +273,7 @@ A route adds `not-found` under `litespec/frontend/rendering#define-every-route-s
 
 **Statement:** An informative or decorative image MUST render through the shared image component, which owns its shape, its sizing, and its fallback.
 
-**Rationale:** An informative image needs meaningful alternative text, and a decorative image needs empty alternative text so assistive tools skip it. A source and label written directly in a page bypass both rules: the author tracks which kind each image is and writes the matching text, on every page. The shared image component owns the shape, the sizing, the fallback, and the text policy, so each image gets the handling its kind needs. The raw-element rule refuses unwrapped images in page code under `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`.
+**Rationale:** An informative image needs meaningful alternative text, and a decorative image needs empty alternative text so assistive tools skip it. A source and label written directly in a page bypass both rules. The author then tracks which kind each image is and writes the matching text, on every page. The shared image component owns the shape, the sizing, the fallback, and the text policy, so each image gets the handling its kind needs. The raw-element rule refuses unwrapped images in page code under `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`.
 
 **Reviewed for:** Does every content image render through the shared image component with the text policy for its kind? Look in page sources for unwrapped images.
 
@@ -305,7 +307,7 @@ A route adds `not-found` under `litespec/frontend/rendering#define-every-route-s
 
 **Replacement:** A consumer can replace this default by recording, in its design contract, the target size its touch layouts use.
 
-**Rationale:** The 24 pixel minimum of WCAG 2.5.8 stops a mouse user from missing a control, but a finger covers more than that: a staff member approving expenses on a phone taps Reject when they meant Approve. A larger target on coarse pointers keeps dense desktop tables while giving touch layouts room. The mobile stacks already size targets for a finger.
+**Rationale:** The 24 pixel minimum of WCAG 2.5.8 stops a mouse user from missing a control, but a finger covers more than that. A staff member approving expenses on a phone taps Reject when they meant Approve. A larger target on coarse pointers keeps dense desktop tables while giving touch layouts room. The mobile stacks already size targets for a finger.
 
 **Reviewed for:** Does every pointer target on a touch layout measure at least 44 by 44 pixels? Look in the route suite output at the phone breakpoint.
 

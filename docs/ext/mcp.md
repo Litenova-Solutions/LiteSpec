@@ -4,11 +4,9 @@
 
 **Concern:** web-api
 
-A Model Context Protocol (MCP) server lets a large language model (LLM) client on the user's own machine call the product's public API.
+A Model Context Protocol (MCP) server lets a large language model (LLM) client on the user's own machine call the product's public API. These rules cover how the server presents itself, describes its tools, and words its refusals; the API pages own the behavior the server calls.
 
-This page states how that server presents itself, describes its tools, and words its refusals; the API pages own the behavior the server calls.
-
-A project selects it when it ships such a server, so the model plans from accurate tool descriptions and every write waits for the person's confirmation.
+They apply when the project ships such a server, so the model plans from accurate tool descriptions and every write waits for the person's confirmation.
 
 ## Activation
 
@@ -16,7 +14,9 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-A project selects `mcp` when it ships a Model Context Protocol server: a local process that an LLM client starts on the user's own machine so the model can call the product's public API. An integration the product hosts itself does not select it. The server calls the API as one authenticated user or API key and holds no permission of its own, so authentication and authorization stay with the baseline API and security pages. A team that adds an MCP SDK records a Decision for it.
+A project selects `mcp` when it ships a Model Context Protocol server: a local process that an LLM client starts on the user's own machine so the model can call the product's public API. An integration the product hosts itself does not select it.
+
+The server calls the API as one authenticated user or API key and holds no permission of its own, so authentication and authorization stay with the baseline API and security pages. A team that adds an MCP SDK records a Decision for it.
 
 ## Baseline Relationship
 
@@ -34,7 +34,7 @@ This extension replaces no baseline provision. It switches on no record type: au
 
 **Statement:** A project shipping an MCP server MUST record it as an entry point of kind `mcp` whose title names the MCP server.
 
-**Rationale:** Entry point records name how callers arrive, and `litespec/core/edges#give-each-entry-point-a-kind` keeps one closed set of kinds. An MCP server is a channel a local model client calls, so it takes the kind `mcp` with its title naming the protocol it speaks. Without that record, the server's reach stays invisible to anyone reviewing the access records.
+**Rationale:** Entry point records name how callers arrive, and `litespec/core/edges#give-each-entry-point-a-kind` keeps one closed set of kinds. An MCP server is a channel a local model client calls, so it takes the kind `mcp` with its title naming the protocol it uses. Without that record, what the server reaches stays invisible to anyone reviewing the access records.
 
 **Reviewed for:** Does every shipped MCP server have an `mcp` entry point titled for it? Read the entry point list.
 
@@ -64,7 +64,7 @@ This extension replaces no baseline provision. It switches on no record type: au
 
 **Statement:** An MCP tool MUST title its action imperatively, describe its behavior declaratively, use positive parameter polarity, and state its side effects.
 
-**Rationale:** The model plans its calls from the title and description the [MCP specification](https://modelcontextprotocol.io/specification/2025-06-18) carries to it. An imperative title names the action, while a declarative description states what happens instead of commanding the caller, so the server's guidance and the model's own plan do not compete. A positive boolean such as `paused` avoids the inverse polarity a model answers wrongly, and a stated side effect answers the reviewer who asks what the call changed.
+**Rationale:** The model plans its calls from the title and description it receives under the [MCP specification](https://modelcontextprotocol.io/specification/2025-06-18). An imperative title names the action, while a declarative description states what happens instead of commanding the caller, so the server's guidance and the model's own plan do not compete. A positive boolean such as `paused` avoids the inverse polarity a model gets wrong, and a stated side effect tells the reviewer what the call changed.
 
 **Example:**
 
@@ -93,7 +93,7 @@ This extension replaces no baseline provision. It switches on no record type: au
 
 **Statement:** Each tool MUST name the use cases and permissions it reaches.
 
-**Rationale:** Each tool opens product behavior to a model acting for the user. Naming exactly which use cases and permissions each tool reaches lets a reviewer tell whether a tool reads one account or writes across many. Without the named scope, a broad tool ships without the scrutiny its reach needs.
+**Rationale:** Each tool opens product behavior to a model acting for the user. Naming exactly which use cases and permissions each tool reaches lets a reviewer tell whether a tool reads one account or writes across many. Without the named scope, a broad tool ships without scrutiny matching what it reaches.
 
 **Reviewed for:** Does every tool description name the use cases and permissions it reaches? Read each tool description beside its use case grant.
 
@@ -107,7 +107,7 @@ This extension replaces no baseline provision. It switches on no record type: au
 
 **Statement:** Every tool that writes MUST refuse until the person confirms the write.
 
-**Rationale:** A model misreads intent the way any agent does: it can pause the wrong subscription or delete the record the user asked about. Refusing each write until the person confirms keeps the person behind every change while leaving reads fast. Without confirmation, one misunderstood sentence becomes a changed record nobody confirmed.
+**Rationale:** A model misreads intent the way any agent does: it can pause the wrong subscription or delete the record the user asked about. Refusing each write until the person confirms means every change carries the person's confirmation while reads stay fast. Without confirmation, one misunderstood sentence becomes a changed record nobody confirmed.
 
 **Reviewed for:** Does every writing tool refuse until the person confirms? Read each writing tool's handler and its tests.
 
@@ -121,7 +121,7 @@ This extension replaces no baseline provision. It switches on no record type: au
 
 **Statement:** Tool descriptions and logs MUST carry no secret, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and no personal data in any field.
 
-**Rationale:** Tool descriptions travel to the model on every call, and logs persist for operators long after the call ends. A secret copied into either grants access to whoever reads it next, and personal data in either spreads beyond the consent that collected it. Descriptions and logs name the fields without carrying the values.
+**Rationale:** Tool descriptions travel to the model on every call, and logs persist for operators long after the call ends. A secret copied into either grants access to whoever reads it next, and personal data in either spreads beyond what the consent allowed. Descriptions and logs name the fields without including the values.
 
 **Reviewed for:** Do any tool descriptions or log lines carry a secret or personal value? Read the tool descriptions and the server's log calls.
 
@@ -135,7 +135,7 @@ This extension replaces no baseline provision. It switches on no record type: au
 
 **Statement:** The server documentation MUST state how a user installs and updates the server.
 
-**Rationale:** The server runs on the user's machine, not on the product's servers, so no deployment pipeline updates it. Without documented install and update steps, users run stale servers with stale tool descriptions, and a security fix waits on users who never learn it exists.
+**Rationale:** The server runs on the user's machine, not on the product's servers, so no deployment pipeline updates it. Without documented install and update steps, users run stale servers with stale tool descriptions, and a security fix waits for users who never learn it exists.
 
 **Reviewed for:** Does the server documentation state how to install and update the server? Read the server's documentation.
 
@@ -153,7 +153,7 @@ This extension replaces no baseline provision. It switches on no record type: au
 
 **Replacement:** A project names another refusal vocabulary for its tools in its documentation.
 
-**Rationale:** A refusal without a source sends the model guessing: it rephrases input the server rejected on policy, or it waits for a person when its own input was malformed. The prefix names the failing side. The model repairs its own input after `Needs:`, asks the person after `Needs confirmation:`, and reports the server after `Refused:`, instead of retrying a refusal no retry satisfies.
+**Rationale:** A refusal without a source leaves the model to guess: it rephrases input the server rejected on policy, or it waits for a person when its own input was malformed. The prefix names the failing side. The model repairs its own input after `Needs:`, asks the person after `Needs confirmation:`, and reports the server-side refusal after `Refused:`, instead of retrying a refusal no retry satisfies.
 
 **Reviewed for:** Does every refusal carry a `Needs:`, `Needs confirmation:`, or `Refused:` prefix, or does the documentation name another vocabulary? Read the tools' refusal messages.
 

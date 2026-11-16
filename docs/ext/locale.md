@@ -4,7 +4,7 @@
 
 **Concern:** frontend-ui
 
-When your product ships in more than one language, every screen, message, route, and formatted value appears in the user's language. The team settles the contract up front: the supported locales, the default locale, the fallback chain, and the route shape. The code then carries the behavior: catalogs hold the copy, formatters follow the active locale, and business data stays locale-neutral. Select these rules when the product ships in more than one locale, so each language reads as a complete product instead of a partial translation.
+Localization serves the product in more than one locale: every screen, message, route, and formatted value appears in the active locale. A Decision records the locale contract before the team builds catalogs and routes. Catalogs hold the copy, formatters follow the active locale, and business data stays locale-neutral. These rules apply when the shipped product serves more than one locale.
 
 ## Activation
 
@@ -12,13 +12,13 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-Select `locale` when the product ships in more than one locale. A translation the team only plans does not count; the shipped product decides. Before catalogs and routes appear, the product brief or a Decision records the supported locales, the default locale, the fallback behavior, and the URL strategy.
+Select `locale` when the product ships in more than one locale. A planned translation does not select it; only the shipped product counts. Before the team builds catalogs and routes, the product brief or a Decision records the supported locales, the default locale, the fallback behavior, and the URL strategy.
 
 ## Baseline Relationship
 
-No baseline provision changes under this extension.
+This extension replaces no baseline provision.
 
-The extension adds no record type: the Decision that records the locale contract is a core record every project writes. Each notification names where its language comes from in `locale`.
+The extension adds no record type: the Decision that records the locale contract is a core record every project writes. Each notification records its language source in `locale`.
 
 ## Standards
 
@@ -32,7 +32,7 @@ The extension adds no record type: the Decision that records the locale contract
 
 **Statement:** A localization decision MUST list supported locales, default locale, fallback chain, user selection, and browser detection.
 
-**Rationale:** Catalogs, routes, and formatters all read the same five choices, and the choices interact. Writing them once in the decision, before building any of the three, gives every part one contract to follow. Without it, each part guesses its own fallback, and the product answers each missing translation differently.
+**Rationale:** Catalogs, routes, and formatters read the same five choices, and the choices interact. Writing them once in the decision, before building any of the three, gives all three one contract to follow. Without it, each part guesses its own fallback, and the product handles each missing translation differently.
 
 **Reviewed for:** Does the locale decision list the supported locales, the default locale, the fallback chain, user selection, and browser detection? Check the locale decision record.
 
@@ -46,7 +46,7 @@ The extension adds no record type: the Decision that records the locale contract
 
 **Statement:** A product MUST NOT infer supported locales from catalog files alone.
 
-**Rationale:** A catalog file proves only that someone wrote translations. It says nothing about routes, fallback, selection, or detection, so a product that counts locales by counting files announces a language its routes cannot serve and its fallback never reaches.
+**Rationale:** A catalog file shows only that someone wrote translations. It says nothing about routes, fallback, selection, or detection, so a product that counts locales by counting files claims a locale its routes cannot serve and its fallback never reaches.
 
 **Reviewed for:** Does every shipped locale come from the locale decision rather than from catalog files alone? Check the shipped locales beside the locale decision.
 
@@ -60,9 +60,9 @@ The extension adds no record type: the Decision that records the locale contract
 
 **Statement:** A localized application MUST define one documented locale route shape.
 
-**Rationale:** Users, links, crawlers, and caches all address a localized page, so one route shape gives each language one predictable address. A path segment is the default shape: it gives every localized page a distinct address that links, crawlers, and cache entries can each name. A cookie or header shape serves every locale from one address instead, so a shared cache and a search index each see only one of them. A product with no public pages, whose locale belongs to the signed-in account, documents one of those shapes instead of inventing a fourth.
+**Rationale:** Users, links, crawlers, and caches address a localized page, so one route shape gives each locale one predictable address. A path segment is the default shape: every localized page gets a distinct address that links, crawlers, and cache entries can each name. A cookie or header shape serves every locale from one address instead, so a shared cache and a search index each see only one locale. A product with no public pages, whose locale belongs to the signed-in account, documents one of those shapes instead of inventing a fourth.
 
-**Example:** `/nl/orders/42` places the locale in the documented path segment, so a crawler and a shared cache each address one language.
+**Example:** `/nl/orders/42` places the locale in the documented path segment, so a crawler and a shared cache each address one locale.
 
 **Reviewed for:** Does every locale reach the application through the documented route shape? Check the route definitions.
 
@@ -76,7 +76,7 @@ The extension adds no record type: the Decision that records the locale contract
 
 **Statement:** A localized application MUST redirect unsupported or missing locale segments according to product policy.
 
-**Rationale:** Readers mistype addresses and follow stale links, so a locale segment can name a language the product never shipped, or go missing entirely. Without a documented policy, each route answers differently: one shows the default language, another shows an error, and a crawler indexes both as content.
+**Rationale:** Readers mistype addresses and follow stale links, so a locale segment can name a locale the product never shipped, or go missing entirely. Without a documented policy, each route responds differently: one shows the default locale, another shows an error, and a crawler indexes both as content.
 
 **Reviewed for:** Does every unsupported or missing locale segment redirect under the documented product policy? Check the redirect tests.
 
@@ -90,7 +90,7 @@ The extension adds no record type: the Decision that records the locale contract
 
 **Statement:** A localized application MUST NOT publish multiple indexable URLs for the same localized content.
 
-**Rationale:** When two addresses serve the same language, search engines split the page's rank between them, and canonical links point two ways. One indexable address per language keeps search, sharing, and caching pointed at the same page.
+**Rationale:** When two addresses serve the same locale, search engines split the page's rank between them, and canonical links point in two directions. One indexable address per locale keeps search, sharing, and caching on the same page.
 
 **Reviewed for:** Does every localized content item serve from exactly one indexable URL? Check the served URLs of each content item.
 
@@ -118,7 +118,7 @@ The extension adds no record type: the Decision that records the locale contract
 
 **Statement:** A locale catalog MUST use semantic keys that cite glossary terms rather than source-language sentences.
 
-**Rationale:** A key that copies the English sentence breaks its meaning the day English rewords it: every other language still points at the old sentence. A semantic key names the intent instead, citing the glossary term that holds the word's labels per language, so wording changes in any language without disturbing the key.
+**Rationale:** A key that copies the English sentence loses its meaning when English is reworded: every other language still refers to the old sentence. A semantic key names the intent instead, citing the glossary term that holds the word's labels per language, so wording changes in any language without disturbing the key.
 
 **Example:** `orders.cancel.confirmation` identifies intent without copying the English sentence.
 
@@ -134,11 +134,11 @@ The extension adds no record type: the Decision that records the locale contract
 
 **Statement:** Each supported locale MUST contain required keys or use its declared fallback.
 
-**Rationale:** A missing translation with no declared fallback becomes a runtime surprise: the interface shows a key, an empty string, or the wrong language, and nobody chose which. The declaration states the fallback locale and what a missing key does at build time.
+**Rationale:** A missing translation with no declared fallback reaches the interface with no chosen outcome: the interface shows a key, an empty string, or the wrong language. The declaration states the fallback locale and what a missing key does at build time.
 
 A key missing from the default locale fails the build. No fallback exists for it, and the interface renders its identifier. A key missing from a non-default locale reports a warning and falls back. Shipping one untranslated string costs less than blocking a release on it.
 
-**Example:** A catalog check runs in the frontend lint gate, so both outcomes are visible before review, not in a browser.
+**Example:** A catalog check runs in the frontend lint gate, so a missing key fails or warns before review, not in a browser.
 
 **Reviewed for:** Does every supported locale contain its required keys or resolve them through its declared fallback? Check each locale catalog beside the fallback chain.
 
@@ -152,9 +152,9 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Statement:** A validation catalog MUST state the field label, what is wrong, and what is accepted, without technical wording.
 
-**Rationale:** A validation message that names the field, the fault, and the accepted input tells the user how to fix the entry in any language, while a message with only one of the three leaves the user guessing. The three-part shape holds across languages; each language's sentence pattern lives in the labels of the field's glossary term and the language's writing page.
+**Rationale:** A validation message that names the field, the fault, and the accepted input tells the user how to fix the entry in any language, while a message with only one of the three does not. The three-part shape holds across languages; each language's sentence pattern is recorded in the labels of the field's glossary term and the language's writing page.
 
-**Example:** The glossary term for a Claimwick expense field carries the sentence pattern for each supported language.
+**Example:** The glossary term for a Claimwick expense field records the sentence pattern for each supported language.
 
 **Reviewed for:** Does every validation message state the field label, the fault, and the accepted input without technical wording? Check the validation messages in each locale.
 
@@ -186,7 +186,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Rationale:** Dates, times, numbers, currency, plurals, lists, and relative time each follow the user's conventions, and a date the user misreads becomes a missed appointment or a wrong payment. The platform supplies all of them.
 
-[The `Intl` namespace](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) has `DateTimeFormat`, `NumberFormat`, `PluralRules`, `ListFormat`, and `RelativeTimeFormat`. Each one carries the locale data the browser already ships. A project-written formatter for any of these is a second locale database that no one updates. Its plural rules are wrong for the first language with more than two forms.
+[The `Intl` namespace](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) has `DateTimeFormat`, `NumberFormat`, `PluralRules`, `ListFormat`, and `RelativeTimeFormat`. Each one uses the locale data the browser already ships. A project-written formatter for any of these is a second locale database that no one updates. Its plural rules are wrong for the first language with more than two forms.
 
 **Example:** Create one formatter instance per locale and reuse it. Construction is the expensive part.
 
@@ -202,7 +202,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Statement:** Domain values and API contracts MUST remain locale-neutral unless a use case explicitly exchanges localized content.
 
-**Rationale:** An expense state or a price stored in Dutch breaks the moment an English speaker opens it, and an API contract that shifts per language forces every consumer to negotiate wording before reading data. Business values and wire contracts stay in one neutral form, and only the interface translates them for display. A use case that genuinely exchanges localized content, such as a product description the merchant writes per language, names that exchange explicitly.
+**Rationale:** An expense state or a price stored in Dutch breaks when an English speaker opens it, and an API contract that shifts per language forces every consumer to handle wording before reading data. Business values and wire contracts stay in one neutral form, and only the interface translates them for display. A use case that genuinely exchanges localized content, such as a product description the merchant writes per language, names that exchange explicitly.
 
 **Reviewed for:** Is every domain value and API contract locale-neutral outside an explicitly localized exchange? Check the domain values and contracts.
 
@@ -216,7 +216,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Statement:** Public metadata, form labels, validation messages, and user-safe errors MUST follow the active locale.
 
-**Rationale:** A Dutch page with an English title, English form labels, or an English error tells the user the translation stopped halfway and tells a search engine the page serves two languages. Metadata, labels, validation messages, and user-safe errors follow the active locale with the page around them.
+**Rationale:** A Dutch page with an English title, English form labels, or an English error tells the user the translation stopped halfway and tells a search engine the page serves two languages. Metadata, labels, validation messages, and user-safe errors follow the active locale together with the surrounding page.
 
 **Reviewed for:** Do public metadata, form labels, validation messages, and user-safe errors all follow the active locale? Check each rendered page.
 
@@ -248,7 +248,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Replacement:** A project names another root for locale catalogs in its documentation.
 
-**Rationale:** One application-owned root tells every developer and tool where catalogs live, so a new locale lands beside the old ones instead of in a folder nobody checks. Scattered catalogs split the set, and one of them misses the fallback check.
+**Rationale:** One application-owned root tells every developer and tool where catalogs live, so a new locale sits beside the old ones instead of in a folder nobody checks. Scattered catalogs split the set, and one of them misses the fallback check.
 
 **Reviewed for:** Does every catalog sit under the application-owned root, or under another root the documentation names? Check the catalog folders.
 
@@ -280,7 +280,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Replacement:** A project names another identifier form for locales in its documentation.
 
-**Rationale:** BCP 47 is the identifier form routes, catalogs, browsers, and libraries recognize: one tag such as `nl` travels unchanged from the address bar to the catalog lookup. A home-grown form needs translation at every boundary and puzzles every new developer.
+**Rationale:** BCP 47 is the identifier form routes, catalogs, browsers, and libraries recognize: one tag such as `nl` passes unchanged from the address bar to the catalog lookup. A home-grown form needs conversion at every boundary and confuses every new developer.
 
 **Reviewed for:** Does every locale identifier use BCP 47, or another identifier form the documentation names? Check the locale identifiers in the catalogs and routes.
 
@@ -296,7 +296,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Replacement:** A project keeps the active locale in ambient request state.
 
-**Rationale:** A locale stored in the URL or a documented session preference travels with the request, so any developer can see which language a page serves and link to it. An implicit global locale hides in process state, where one request can read another's language and no link reproduces the page.
+**Rationale:** A locale stored in the URL or a documented session preference travels with the request, so any developer can see which locale a page serves and link to it. An implicit global locale hides in process state, where one request can read another's locale and no link reproduces the page.
 
 **Reviewed for:** Does every request carry the locale in the URL or a documented session preference instead of ambient request state? Check the request handling for the locale.
 

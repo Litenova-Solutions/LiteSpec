@@ -4,7 +4,7 @@
 
 **Concern:** infrastructure
 
-Committed changes reach the outside world through durable delivery that survives crashes. This page states how the product stages after-commit effects in the outbox for a Worker to deliver. A team selects it for delivery that survives process failure.
+Durable delivery carries committed changes to the outside world through the outbox: the product stages each after-commit effect in the same transaction as its changes, and a Worker delivers it later. These rules apply to delivery that must survive a process failure.
 
 ## Activation
 
@@ -32,7 +32,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** A use case MUST stage each domain event its act raises, and each integration event translating one of them, in the outbox in the same transaction as its changes.
 
-**Rationale:** A raised fact promises that what follows it will run: staged in the same transaction, the change and its message share one fate. One global pipeline step stages each raised domain event for the reactions of its module and each integration event whose record translates it, built from the domain event alone, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. No user code stages or publishes, so this step is the one stager. A message sent from memory instead would vanish on a crash between the commit and the send, and every follow-on act runs from a reaction to a staged fact.
+**Rationale:** A raised fact means what follows it runs: staged in the same transaction, the change and its message commit or roll back together. One global pipeline step stages each raised domain event for the reactions of its module and each integration event whose record translates it, built from the domain event alone, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. No user code stages or publishes, so this step is the only code that stages. A message sent from memory instead would be lost on a crash between the commit and the send, and every follow-on act runs from a reaction to a staged fact.
 
 **Reviewed for:** Does every raised domain event and translated integration event stage in the transaction of its aggregate changes, through the one global step? Check the pipeline's staging step and the outbox writes beside it.
 
@@ -46,7 +46,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** Each integration event the outbox delivers MUST have an integration-event record carrying direction, payload, trust and, for an outbound event, the domain event it translates.
 
-**Rationale:** A published fact without a record is a promise nobody versioned: readers depend on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. The [edges page](../core/edges.md) states the declaration and the record.
+**Rationale:** A published fact without a record leaves readers depending on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. The [edges page](../core/edges.md) states the declaration and the record.
 
 **Reviewed for:** Does every delivered integration event have a record carrying direction, payload, trust, and, for an outbound event, `translates`? Check each event type beside its record.
 
@@ -60,7 +60,9 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** A project MUST keep every integration event a read model names in `from`, `erasedBy` or `removedBy` apart from the outbox's delivery records for as long as a read model may need rebuilding from it, with erased personal fields removed or the event key shredded.
 
-**Rationale:** A new read model, or a changed one, fills from the events the owner already published. An outbox that deletes delivered records after a few days leaves a new read model nothing to replay, and every new read model then needs a hand-written backfill from the owner's tables, which is the coupling the read model exists to remove. Keeping the published events in a log apart from delivery lets a projection replay history. The log holds personal fields, so the erasing event a read model names in `erasedBy` also erases the field in the log: a retained event keeps its shape with the erased personal fields removed, or with its key shredded, so no rebuild restores them. The read model keeps an erasure tombstone for the erased key and applies it on rebuild, under `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
+**Rationale:** A new read model, or a changed one, fills from the events the owner already published. An outbox that deletes delivered records after a few days leaves a new read model nothing to replay, and every new read model then needs a hand-written backfill from the owner's tables, which is the coupling the read model exists to remove. Keeping the published events in a log apart from delivery lets a projection replay history.
+
+The log holds personal fields, so the erasing event a read model names in `erasedBy` also erases the field in the log. A retained event keeps its shape with the erased personal fields removed, or with its key shredded, so no rebuild restores them. The read model keeps an erasure tombstone for the erased key and applies it on rebuild, under `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
 **Example:** In Claimwick, the reporting module rebuilds its reimbursed-expense read model by replaying the kept expense-reimbursed events, while the outbox deletes its delivery records after seven days. A retained event for an erased expense replays without the erased personal fields.
 
@@ -76,7 +78,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** A durable-delivery specification MUST document delivery guarantee, downstream boundary, duplicate behavior, retry horizon, and recovery runbook.
 
-**Rationale:** Delivery crosses a system boundary, so the team agrees up front on the guarantee, the boundary, the duplicate behavior, the retry horizon, and the runbook that recovers when delivery fails. Without that agreement, the writer assumes once-only delivery while the target assumes retries, and both discover the mismatch in production. The agreement lands before the first message does.
+**Rationale:** Delivery crosses a system boundary, so the team agrees before sending on the guarantee, the boundary, the duplicate behavior, the retry horizon, and the runbook that recovers when delivery fails. Without that agreement, the writer assumes once-only delivery while the target assumes retries, and both discover the mismatch in production. The agreement comes before the first message.
 
 **Reviewed for:** Does every durable-delivery specification document its guarantee, downstream boundary, duplicate behavior, retry horizon, and recovery runbook? Check each specification.
 
@@ -118,7 +120,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** A command post-handler MUST stage pending durable messages in the same scoped business session as its aggregate changes.
 
-**Rationale:** The business change and its message share one fate: both persist or neither does. Staging the message in the same scoped business session as the aggregate changes puts both under one commit, so a crash can never leave an accepted change without its message or a message without its change.
+**Rationale:** The business change and its message commit together: both persist or neither does. Staging the message in the same scoped business session as the aggregate changes puts both under one commit, so a crash can never leave an accepted change without its message or a message without its change.
 
 **Reviewed for:** Does every pending durable message stage inside the scoped session of its aggregate changes? Check each command post-handler and its session.
 
@@ -132,7 +134,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** An outbox writer MUST serialize each pending durable message into an outbox record.
 
-**Rationale:** The command scope ends when the request ends. Dispatch happens later, in a Worker that never saw the request. Serializing the message into an outbox record gives that Worker everything it needs once the scope is gone.
+**Rationale:** The command scope ends when the request ends. Dispatch happens later, in a Worker that runs after the request ends. Serializing the message into an outbox record gives that Worker everything it needs once the scope is gone.
 
 **Reviewed for:** Does every pending durable message reach a serialized outbox record? Check the outbox writer and its record type.
 
@@ -216,7 +218,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** WebApi MUST NOT dispatch a durable message inside the request transaction.
 
-**Rationale:** A network call inside the request transaction holds database locks while the outside world answers, and a slow target slows every request behind it. The request commits only to make the message eligible. The Worker performs the delivery later.
+**Rationale:** A network call inside the request transaction holds database locks while it waits for the target, and a slow target slows every request behind it. The request commits only to make the message eligible. The Worker performs the delivery later.
 
 **Reviewed for:** Does any request path dispatch a durable message inside the request transaction? Check the endpoint and command handler paths.
 
@@ -286,7 +288,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** An event handler that receives an outbox delivery MUST handle the same message more than once.
 
-**Rationale:** The target can accept a message while the Worker crashes before recording completion, and the requeued claim then dispatches it again. Delivery promises at-least-once, so every event handler handles the same message more than once without corrupting its state.
+**Rationale:** The target can accept a message while the Worker crashes before recording completion, and the requeued claim then dispatches it again. Delivery is at-least-once, so every event handler handles the same message more than once without corrupting its state.
 
 **Reviewed for:** Does every event handler keep correct state when the same message arrives twice? Check the handler tests that deliver a message twice.
 
@@ -344,7 +346,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** An outbox dispatcher MUST use bounded exponential backoff with jitter.
 
-**Rationale:** A failing target with ten thousand pending messages meets a retry storm when every message retries at once on a fixed interval. Bounded exponential backoff with jitter spreads those retries over time and caps the total, so the target recovers instead of drowning.
+**Rationale:** A failing target with ten thousand pending messages meets a retry storm when every message retries at once on a fixed interval. Bounded exponential backoff with jitter spreads those retries over time and caps the total, so the target recovers instead of failing under the load.
 
 **Reviewed for:** Does every retry schedule use a bound, backoff, and jitter? Check the dispatcher's retry code.
 
@@ -358,7 +360,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** An outbox dispatcher MUST classify permanent failures, stop automatic retry at its retry bound, and retain safe investigation and replay data.
 
-**Rationale:** Some failures never clear on retry: a deleted destination, a rejected payload, or a revoked credential. Retrying those forever burns resources and buries the real backlog. The dispatcher classifies them, stops at its retry bound, and keeps the evidence an operator needs to investigate and replay safely.
+**Rationale:** Some failures never clear on retry: a deleted destination, a rejected payload, or a revoked credential. Retrying those forever wastes resources and hides the real backlog. The dispatcher classifies them, stops at its retry bound, and keeps the evidence an operator needs to investigate and replay safely.
 
 **Reviewed for:** Does every permanent failure stop at its retry bound with its investigation and replay data kept? Check the dispatcher's failure classification and its tests.
 
@@ -372,7 +374,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** A dispatcher MUST distinguish an unavailable outbox store from a failed claimed message.
 
-**Rationale:** A dead outbox store and a failed delivery ask for different recoveries: the first needs a database restored, the second needs one destination investigated. Each carries its own signal. The store's availability is a gauge the readiness endpoint reads, while a claimed message's outcome is a counter carrying the result, following [the OpenTelemetry metrics specification](https://opentelemetry.io/docs/specs/otel/metrics/). A single error counter cannot tell an operator whether to restore a database or investigate one destination.
+**Rationale:** A dead outbox store and a failed delivery need different recoveries: the first needs a database restored, the second needs one destination investigated. Each carries its own signal. The store's availability is a gauge the readiness endpoint reads, while a claimed message's outcome is a counter carrying the result, following [the OpenTelemetry metrics specification](https://opentelemetry.io/docs/specs/otel/metrics/). A single error counter cannot tell an operator whether to restore a database or investigate one destination.
 
 **Reviewed for:** Does every outbox metric use the right instrument type for store availability and claimed-message outcomes? Check the metrics the outbox publishes.
 
@@ -414,7 +416,7 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Statement:** A Worker host exposing readiness MUST gate dispatch and stop polling stores that cannot serve requests.
 
-**Rationale:** A host that reports unready still serves traffic it cannot finish when its Workers keep polling dead stores. Gating dispatch on readiness stops that polling, so the host fails fast and recovers instead of churning against storage that cannot answer.
+**Rationale:** A host that reports unready still serves traffic it cannot finish when its Workers keep polling dead stores. Gating dispatch on readiness stops that polling, so the host fails fast and recovers instead of polling storage that cannot serve requests.
 
 **Reviewed for:** Does every unready host stop dispatching and polling stores that cannot serve requests? Check the readiness check and the Worker's dispatch loop.
 
@@ -516,7 +518,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Statement:** An outbox replay MUST record actor, reason, time, and failure without editing the payload: an audit record when audit is selected, a standalone record otherwise.
 
-**Rationale:** A replay dispatches a message the system already handled or dead-lettered. The team records who replayed it, why, when, and which failure it answers. Without that record, a duplicate delivery looks like a dispatcher bug rather than an operator's decision, and no one can reconstruct the choice.
+**Rationale:** A replay dispatches a message the system already handled or dead-lettered. The team records who replayed it, why, when, and which failure it addresses. Without that record, a duplicate delivery looks like a dispatcher bug rather than an operator's decision, and no one can reconstruct the choice.
 
 **Reviewed for:** Does every replay record its actor, reason, time, and failure without editing the payload? Check the replay code and its audit records.
 
@@ -530,7 +532,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Statement:** New WebApi code MUST emit a message only after every active Worker can read its type and schema version.
 
-**Rationale:** WebApi writers and Worker dispatchers deploy independently, so a writer can run ahead of the oldest active Worker. When the writer emits a shape that Worker cannot read, those messages dead-letter on arrival through no fault of their own.
+**Rationale:** WebApi writers and Worker dispatchers deploy independently, so a writer can run ahead of the oldest active Worker. When the writer emits a shape that Worker cannot read, those messages dead-letter on arrival even though their shape is valid.
 
 **Reviewed for:** Can every active Worker read the type and schema version of each new message the WebApi emits? Check the Worker's readers against those messages.
 
@@ -544,7 +546,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Statement:** A release MUST deploy compatible readers before writers for additive event versions.
 
-**Rationale:** In a mixed-version rollout, old and new records sit in one store. Deploying compatible readers before the writers that emit new shapes keeps every record dispatchable at each step. The reverse order strands new records until the readers catch up.
+**Rationale:** In a mixed-version rollout, old and new records sit in one store. Deploying compatible readers before the writers that emit new shapes keeps every record dispatchable at each step. The reverse order leaves new records without a reader until the readers catch up.
 
 **Reviewed for:** Does every release plan deploy compatible readers before its additive writers? Check the deployment order in the release runbook.
 
@@ -576,7 +578,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Replacement:** A project names another home for outbox infrastructure in its documentation.
 
-**Rationale:** The outbox record, storage, claim, and dispatch code form one mechanism with one owner. Keeping it under `Infrastructure/Messaging/Outbox/` puts every persistent dispatch question in one folder instead of scattered across the project.
+**Rationale:** The outbox record, storage, claim, and dispatch code form one mechanism with one owner. Keeping it under `Infrastructure/Messaging/Outbox/` keeps every persistent dispatch file in one folder instead of scattered across the project.
 
 **Reviewed for:** Does every outbox infrastructure file sit under `Infrastructure/Messaging/Outbox/` or another home named in the documentation? Check the outbox code folders and the project's documentation.
 
@@ -608,7 +610,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Replacement:** A project keeps provider mapping in the shared dispatch path.
 
-**Rationale:** Each provider speaks its own transport with its own mapping, retries, and quirks. The integration that owns the side effect owns that mapping, so a provider change touches one integration instead of the shared dispatch path.
+**Rationale:** Each provider uses its own transport with its own mapping, retries, and quirks. The integration that owns the side effect owns that mapping, so a provider change touches one integration instead of the shared dispatch path.
 
 **Reviewed for:** Does every provider mapping live in the integration that owns its side effect, or is shared-path hosting a documented choice? Check the dispatch code and the integration projects.
 
@@ -640,7 +642,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Replacement:** A project names a durable bus package as its dispatch transport in its documentation.
 
-**Rationale:** A durable bus package earns its place only when an integration test proves it commits the message in the same transaction as the business work. Until that evidence exists, project-owned Marten records with Worker dispatch carry delivery without depending on behavior no one verified.
+**Rationale:** A durable bus package is adopted only when an integration test proves it commits the message in the same transaction as the business work. Until that evidence exists, project-owned Marten records with Worker dispatch handle delivery without depending on behavior no one verified.
 
 **Reviewed for:** Does every dispatcher run on project-owned records, or on a durable bus with a pinned manifest entry and a documented choice? Check the manifest and the dispatch transport.
 

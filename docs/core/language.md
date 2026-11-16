@@ -4,13 +4,15 @@
 
 **Concern:** records
 
-A project names fields, records, identifiers, finding codes, and tool names. One grammar for all of them means a reader who learned `serves` on a flow reads `serves` on a requirement without a second look. Record Language states that grammar and tone: the word classes for field names, the form for each kind of text, the forms for values and record names, the identifier grammar, and the codes tools report. Authors and agents apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files, and documents; Record Language states the names, values, identifiers, and codes.
+A project names fields, records, identifiers, finding codes, and tool names. This page states the grammar for those names: the form each field name, text kind, value, record name, identifier, and finding code takes.
+
+Authors and agents apply these forms to every record field, value, identifier, finding code, and tool name. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files, and documents.
 
 ## Concepts
 
 ### The Eight Word Classes
 
-Every field name belongs to one of eight word classes. The class decides the name's form, and the reading test tells whether a name sits in its class. With one grammar and no exceptions list, each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons.
+Every field name belongs to one of eight word classes. The class decides the name's form, and the reading test tells whether a name belongs to its class. One grammar covers every field with no list of exceptions, and each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons.
 
 | Class | Form | Reading test | Examples |
 |:---|:---|:---|:---|
@@ -23,11 +25,11 @@ Every field name belongs to one of eight word classes. The class decides the nam
 | 7. Condition | `<verb, participle or adjective>When` for a named condition; `condition` inside an entry | "it is frozenWhen ..." | `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen`, `runsWhen` |
 | 8. Reason | `<participle>Because`, or `reason` alone | "it appliesBecause ..." | `appliesBecause`, `exemptBecause`, `reason` |
 
-Dates and booleans follow the classes. A recorded date ends in `On` (`readOn`, `expiresOn`); a validity start is `effectiveFrom`. A boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix. For example, the Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
+Dates and booleans follow the classes. A recorded date ends in `On` (`readOn`, `expiresOn`), and a date that opens a validity span is named `effectiveFrom`. A boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix. For example, the Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
 ### Kinds of Text
 
-Every piece of text a project writes falls into one of these kinds. The kind decides its form; the layer does not. The tense and voice tell the reader what the text does before a word is weighed: a requirement promises, a domain event reports, and a runbook step instructs.
+Every piece of text a project writes falls into one of these kinds. The kind decides the form, not the record layer. The tense and voice show what the text does from its form alone: a requirement promises, a domain event reports, and a runbook step instructs.
 
 | Kind of text | Form | Example |
 |:---|:---|:---|
@@ -41,15 +43,17 @@ Every piece of text a project writes falls into one of these kinds. The kind dec
 | A title | The record's name in Title Case, no period | `use-case/orders.place-order` is titled "Place Order" |
 | A finding message | One present-tense sentence of fact | "Requirement 'booking.service-fee' is fulfilled by no Behavior record." |
 
-Gherkin fields keep Gherkin practice: `given` is the starting state (present tense, or past tense for an earlier act), `when` is one act by a named actor (present tense), `then` is the observable outcome (present tense, without "should"). A result's `meaning` says what is now true (success) or what the caller is told (refusal).
+Gherkin fields follow the forms Gherkin sets: `given` is the starting state (present tense, or past tense for an earlier act), `when` is one act by a named actor (present tense), and `then` is the observable outcome (present tense, without "should").
 
-Person: record values are third person. Intent chapter prose (The Situation, What We Do) may say "we" for the business. Nothing says "you". Capitalized modal words belong only to LiteSpec's own provisions; a project's record states a fact or a commitment as a fact. Voice, tense and person beyond this table follow the [Writing Standard](writing.md).
+A result's `meaning` says what is now true (success) or what the caller is told (refusal).
 
-Quantities: dates are ISO 8601 dates, durations ISO 8601 durations (`P7Y`, `PT10M`), money is `{ amount, currency }` with an ISO 4217 code. How prose writes a number with its unit follows the [Writing Standard](writing.md).
+Record values use the third person. Intent chapter prose (The Situation, What We Do) may say "we" for the business, and nothing says "you". Capitalized modal words belong only to LiteSpec's own provisions; a project record states a fact or a commitment as a fact. Voice, tense and person beyond this table follow the [Writing Standard](writing.md).
+
+Quantities use standard units: dates are ISO 8601 dates, durations are ISO 8601 durations (`P7Y`, `PT10M`), and money is `{ amount, currency }` with an ISO 4217 code. How prose writes a number with its unit follows the [Writing Standard](writing.md).
 
 ### Value Style
 
-Values are read far more than they are written, in records, in the book, and in tool output. Each value below takes the written form its row gives, so a period or a capital letter is never a styling choice but part of the value. The last column names the mechanical test the value meets.
+Values are read far more than they are written, in records, in the book, and in tool output. Each value below takes the form its row states, so a period or a capital letter is never a styling choice but part of the value. The last column names the mechanical test the value meets.
 
 | Field | Write it as | Test |
 |:---|:---|:---|
@@ -66,7 +70,7 @@ Values are read far more than they are written, in records, in the book, and in 
 
 ### Names for Records
 
-Each record type takes the name form its row gives, in the word class of what the record is. A verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event, so the name tells a reader the type before the identifier is opened.
+Each record type takes the name form its row states, in the word class that fits what the record is. A verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event, so the name shows the type without opening the record.
 
 | Type | Name form | Example |
 |:---|:---|:---|
@@ -99,17 +103,23 @@ Each record type takes the name form its row gives, in the word class of what th
 | waiver | noun phrase of what it sets aside | `retry-limit-for-payments` |
 | term | the singular word itself | `booking` |
 
-A record name is not its title. Every record title takes the title form of its type on the [Writing Standard](writing.md) page.
+A record name is not its title. Each title uses the form the [Writing Standard](writing.md) gives its type.
 
 ### Spelling and Fixed Names
 
-American spelling is the project spelling for field names and enum values: `license` rather than `licence`, and `pseudonymize` rather than `pseudonymise`. Each British form reads as a rejected word beside its American spelling. Prose spelling follows the [Writing Standard](writing.md).
+American spelling is the project spelling for field names and enum values: `license` rather than `licence`, and `pseudonymize` rather than `pseudonymise`. Each British form is a rejected word beside its American spelling. Prose spelling follows the [Writing Standard](writing.md).
 
 Names an outside standard fixes stay exactly as that standard spells them. Gherkin fixes `given`, `when`, and `then`, and CloudEvents fixes its attribute names; these are the only names outside the word classes.
 
 ### Identifier Forms
 
-An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row. A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and a domain-event home is an aggregate name. A use-case name is unique among use cases, so a result cites only that name; an aggregate name is unique among aggregates, so a rule cites only that name. Names are unique per record type, not across the product, so `actor/owner` and `role/owner` coexist. A reaction, job, read-model, notification and setting home is the module that owns it. An integration event has no module home. A rule name keeps the negation its statement makes. A flow step identifier is `flow/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`; scenarios may point at derived results, which are never written as records.
+An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row.
+
+A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and a domain-event home is an aggregate name. A reaction, job, read-model, notification, or setting takes the module that owns it as its home. An integration event has no module home.
+
+A use-case name is unique among use cases, so a result cites only that name; an aggregate name is unique among aggregates, so a rule cites only that name. Names are unique per record type, not across the product, so `actor/owner` and `role/owner` coexist.
+
+A rule name keeps the negation its statement makes. A flow step identifier is `flow/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios may point at derived results, which are never written as records.
 
 ### Name Rules
 
@@ -124,15 +134,15 @@ Names stay unique per record type, not across the product.
 
 ### Wire Codes
 
-A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape, and they stay unchanged once clients read them. A renamed code breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
+A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape, and they stay unchanged once clients read them. A renamed code breaks every deployed reader that compares the old value, and no record tells the reader the new value.
 
 ### Resolution
 
-Resolution means every identifier citation names a record that exists. The model check fails an unresolved citation, so a citation points only at a record someone wrote. Shared provisions keep their published `litespec/<page>#<slug>` form.
+Resolution means every identifier citation names a record that exists. The model check fails a citation that names no written record, so a citation points only at a record someone wrote. Shared provisions keep their published `litespec/<page>#<slug>` form.
 
 ### Finding Codes and Tool Names
 
-A finding code reads as `<subject>-<problem>`: the subject is a record type, field or part as the glossary spells it, using `read-model`, `flow`, `part` and `atomicity`, and the problem is one of the words in the problem-word table below, each with one meaning. The form tells a reader what the finding is about and what is wrong with it before the message is opened.
+A finding code has the form `<subject>-<problem>`: the subject is a record type, field or part as the glossary spells it, using `read-model`, `flow`, `part` and `atomicity`, and the problem is one of the words in the problem-word table below, each with one meaning. The form tells a reader what the finding is about and what is wrong with it without opening the message.
 
 | Problem | Meaning | Example |
 |:---|:---|:---|
@@ -166,9 +176,11 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type, fie
 | `failed` | a limit the subject did not meet | `design-token-limit-failed` |
 | `dead-end` | a screen that leads nowhere and offers no use case | `screen-dead-end` |
 
-A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
+A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do appears in the finding table on the [model command page](../tools/model.md), in its own column. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
-Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-case: a mode flag names its mode (`--release`, `--staged`, `--dry-run`), and a value flag names its value (`--since <ref>`). Exit codes stay 0 for clean, 1 for blocking, and 2 for bad arguments. Book labels come from the Links table's reads-as phrases and the glossary only.
+Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-case: a mode flag names its mode (`--release`, `--staged`, `--dry-run`), and a value flag names its value (`--since <ref>`). Exit codes are 0 for clean, 1 for blocking, and 2 for bad arguments.
+
+Book labels come from the Links table's reads-as phrases and the glossary only.
 
 ## Standards
 
@@ -180,7 +192,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
-**Rationale:** One grammar with no exceptions list means a reader who learned `cites` on a flow reads `cites` on a requirement without a second look. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
+**Rationale:** One grammar with no list of exceptions means a reader who learned `cites` on a flow understands `cites` on a requirement the same way. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
 
 **Example:** The Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
@@ -194,7 +206,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every boolean field MUST read as a present-tense predicate that is true about the record when the value is true.
 
-**Rationale:** A boolean without a prefix reads as a fact about the record: `applies` says the constraint applies, and `recorded` says the entry is recorded. An `is` or `has` prefix adds a word that says nothing the value does not already say. The predicate form keeps every boolean readable in a sentence about its record.
+**Rationale:** A boolean without a prefix is a fact about the record: `applies` says the constraint applies, and `recorded` says the entry is recorded. An `is` or `has` prefix adds a word that repeats what the value already says. The predicate form keeps every boolean readable in a sentence about its record.
 
 **Example:** Claimwick marks an applying constraint with `applies: true` instead of `isApplicable: true`.
 
@@ -208,7 +220,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every date field MUST end in `On` for a recorded date or carry a name that states what the date does.
 
-**Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when a waiver ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
+**Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when a waiver ends. `effectiveFrom` opens a validity span. The shape shows which dates record the world and which open a span.
 
 **Example:** A Claimwick constraint carries `readOn` on each source with the date the source was read, and a waiver carries `expiresOn` with the date it ends.
 
@@ -222,7 +234,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every project text MUST use the form the text-kind table gives its kind.
 
-**Rationale:** Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice tell the reader what the text does before a word is weighed. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
+**Rationale:** Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice show what the text does from its form alone. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
 
 **Example:** A Claimwick requirement states "An expense above the threshold waits for its approver."
 
@@ -250,7 +262,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every quantity in a record MUST use an ISO 8601 date, an ISO 8601 duration, an amount with an ISO 4217 currency, or a number with its unit.
 
-**Rationale:** Free-text quantities hide behind local habits: one record writes `7 years`, another writes `seven years`, and a check matches neither. ISO dates, ISO durations, and ISO currency codes give every quantity one written form across records and tools. Prose keeps numbers readable by writing each with its unit.
+**Rationale:** Free-text quantities vary with local habits: one record writes `7 years`, another writes `seven years`, and a check matches neither. ISO dates, ISO durations, and ISO currency codes give every quantity one written form across records and tools. Prose keeps numbers readable by writing each with its unit.
 
 **Example:** Claimwick holds a room for `PT10M` and writes "95 percent of checkouts complete" in prose.
 
@@ -264,7 +276,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every record name MUST use the name form the record-name table gives its type.
 
-**Rationale:** A name in the word class of what the record is tells a reader the type before the identifier is opened: a verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event. One name form per type keeps listings scannable and citations writable by hand. The record-name table holds the Intent forms beside the Behavior and governance forms. Settled by [decision/0077-use-the-standard-term-for-each-concept](decision/0077-use-the-standard-term-for-each-concept).
+**Rationale:** A name in the word class of what the record is shows the type without opening the record: a verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event. One name form per type keeps listings scannable and citations writable by hand. The record-name table lists the Intent, Behavior, and governance forms together. Settled by [decision/0077-use-the-standard-term-for-each-concept](decision/0077-use-the-standard-term-for-each-concept).
 
 **Example:** Claimwick names the flow `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`.
 
@@ -278,7 +290,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every field name and enum value MUST use American spelling.
 
-**Rationale:** One spelling per word keeps each term defined once and checked once: `license` in one record and `licence` in another split every search and every listing. American spelling is the project spelling for field names and enum values; prose spelling follows the [Writing Standard](writing.md). Each British form reads as a rejected word beside its American spelling.
+**Rationale:** One spelling per word keeps each term defined once and checked once: `license` in one record and `licence` in another split every search and every listing. American spelling is the project spelling for field names and enum values; prose spelling follows the [Writing Standard](writing.md). Each British form is a rejected word beside its American spelling.
 
 **Example:** Claimwick writes `license` and `pseudonymize` in field names, values, and prose.
 
@@ -292,7 +304,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every name an outside standard fixes MUST stay exactly as that standard spells it.
 
-**Rationale:** A name an outside standard fixes belongs to that standard: renaming `given` to fit the word classes breaks every Gherkin reader. The grammar stays complete by exempting exactly these names instead of growing an exceptions list. Gherkin and CloudEvents names are the only exemptions.
+**Rationale:** A name an outside standard fixes belongs to that standard: renaming `given` to fit the word classes breaks every Gherkin reader. The grammar stays complete by exempting exactly these names instead of adding a list of exceptions. Gherkin and CloudEvents names are the only exemptions.
 
 **Example:** A Claimwick scenario keeps `given`, `when`, and `then`, which the word-class table gives no class.
 
@@ -306,7 +318,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the problem-word table.
 
-**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. A closed set of problem words, each with one meaning, keeps codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
+**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it without opening the message. A closed set of problem words, each with one meaning, keeps codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table lists each word with its meaning and an example.
 
 **Example:** A use case with no scenario takes the code `use-case-scenario-missing`.
 
@@ -320,7 +332,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every finding message MUST state one present-tense fact that opens with the subject title and its quoted identifier.
 
-**Rationale:** A message that states a fact survives every reader: the terminal and the book both show what is true. Advice belongs in the finding table on the [model page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
+**Rationale:** A message that states a fact reads the same in the terminal and the book: both show what is true. Advice belongs in the finding table on the [model command page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
 **Example:** A flow step with no serving use case reports `Flow step 'book-a-room#s3' is served by no use case.`
 
@@ -334,7 +346,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every subcommand MUST read as a verb and every flag as the mode or value it sets.
 
-**Rationale:** A verb names what the command does, so `check` reads as an action before its arguments are weighed. A flag that names its mode or value reads the same way at every call site, and kebab-case keeps multiword flags writable without quotes. Stable exit codes let scripts tell a clean run from a blocking finding from bad arguments.
+**Rationale:** A verb names what the command does, so `check` names an action without reading its arguments. A flag that names its mode or value reads the same way at every call site, and kebab-case keeps multiword flags writable without quotes. Stable exit codes let scripts distinguish a clean run, a blocking finding, and bad arguments.
 
 **Example:** The release check runs as `litespec model check --release` and exits 1 on a blocking finding.
 
@@ -348,7 +360,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** A record identifier MUST follow the form the model states for its record type.
 
-**Rationale:** A reader who meets `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.
+**Rationale:** A reader who sees `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.
 
 **Example:** `domain-event/expense.submitted` names a domain event of the expense aggregate.
 
@@ -362,7 +374,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** A name MUST carry one to six lowercase hyphenated words.
 
-**Rationale:** A short hyphenated name reads aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts drift into competing names for one record.
+**Rationale:** A short hyphenated name is easy to read aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts become competing names for one record.
 
 **Example:** `decision/0001-receipt-threshold` counts its number as one word.
 
@@ -376,7 +388,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** A record identifier MUST name exactly one record.
 
-**Rationale:** An identifier used twice names two records at once, so every citation of it points both ways. One use per identifier keeps each citation single-valued.
+**Rationale:** An identifier used twice names two records at once, so every citation of it points to both records. One use per identifier keeps each citation single-valued.
 
 **Example:** Two records named `use-case/spending.submit-expense` leave the model check reporting the duplicate on the second record.
 
@@ -438,7 +450,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying `schemas/glossary.schema.yaml`.
 
-**Rationale:** A glossary column headed "Avoid" speaks to a reader and to nothing else: no tool can check it. A rule held as data reaches the reader and the validator alike, so the same rejection appears in prose guidance and in diagnostics.
+**Rationale:** A glossary column headed "Avoid" helps a reader but gives a tool nothing to check. A rule held as data reaches the reader and the validator alike, so the same rejection appears in prose guidance and in diagnostics.
 
 **Example:** A rejection carries the scope that binds it, because a word that is right in one module is wrong in another.
 
@@ -458,7 +470,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Authored prose MUST NOT use a synonym that the project glossary rejects for the scope the page sits in.
 
-**Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
+**Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly uses two words for one concept. A synonym that is a defined term elsewhere costs the most, because one word then names two things and every reader guesses which one.
 
 **Reviewed for:** Does any word on the page use a synonym the glossary rejects for this scope? Check the page against the project glossary.
 
@@ -470,7 +482,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Authored prose MUST NOT use a mannered term the project glossary lists.
 
-**Rationale:** A metaphor or stock phrase reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish. The glossary lists each mannered term with the literal phrase that carries its meaning, so the check points at the flourish and names the plain words to reach for.
+**Rationale:** A metaphor or stock phrase hides what the project means: each reader understands a different act behind the same phrase. The glossary lists each mannered term with the literal phrase that carries its meaning, so the check names the mannered term and the plain words to use instead.
 
 **Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
 
@@ -531,4 +543,4 @@ None.
 
 This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, `litespec/core/language#write-each-finding-message-as-a-fact` and `litespec/core/language#follow-the-identifier-form-of-each-record-type`.
 
-Claimwick holds booked rooms with the use case `use-case/booking.hold-room`, which reads the setting `setting/booking.checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When the hold lapses with no use case behind the step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."
+Claimwick holds booked rooms with the use case `use-case/booking.hold-room`, which reads the setting `setting/booking.checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When no use case serves the hold step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."

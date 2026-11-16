@@ -4,7 +4,9 @@
 
 **Concern:** application
 
-Data lifecycle rules decide how long each piece of stored data lives: how long it stays, when it is deleted, and when it can return. Each lifetime needs its terms written down, and the code needs to own the behavior: hard delete wherever nothing needs the data later, explicit archive and restore states where a use case needs them (a use case is one command or query the product offers), and authorized, audited operations throughout. Select these rules for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers past its retention and no deletion breaks a legal or business duty.
+Stored data lives for a defined time: how long it stays, when it is deleted, and when it can return. This extension states where those terms live and how code carries them out: hard delete where nothing needs the data later, explicit archive and restore states where a use case needs them, and authorized, audited operations throughout. A use case is one command or query the product offers.
+
+Select these rules for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers past its retention and no deletion breaks a legal or business duty.
 
 ## Activation
 
@@ -20,7 +22,7 @@ No baseline provision changes under this extension.
 
 Selecting it switches on the setting record type, which holds the retention bounds the lifecycle rules name.
 
-A record retires, and a retirement that removes declared behavior is a breaking change under the `compat` extension.
+A lifecycle record retires, and a retirement that removes declared behavior is a breaking change under the `compat` extension.
 
 ## Standards
 
@@ -64,7 +66,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A soft-deleted or archived record MUST have a business reason and explicit state transition.
 
-**Rationale:** A record that stays after deletion or moves to an archive still affects the product: it appears in some reads, skips others, and can return. A named state with a named transition shows that behavior in the aggregate itself, so a reader sees which transitions exist and which checks each one runs. Without the transition, the retained data is a row the code treats specially in scattered places.
+**Rationale:** A record that stays after deletion or moves to an archive still affects the product: it appears in some reads, skips others, and can return. A named state with a named transition shows that behavior in the aggregate itself, so a reader sees which transitions exist and which checks each one runs. Without the transition, the retained data is a row that code handles with special cases in scattered places.
 
 **Example:** `Archive` changes aggregate state after the authorization and audit checks succeed.
 
@@ -80,7 +82,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle implementation MUST NOT use a hidden boolean as its sole lifecycle behavior.
 
-**Rationale:** A boolean column that only the storage layer reads can flip without running the business checks: no authorization, no audit entry, and no named transition a reviewer can find. The record then looks deleted in one query and active in another, depending on which filter the query remembered. An explicit lifecycle operation keeps the flag, where one exists, as an effect of the transition rather than the transition itself.
+**Rationale:** A boolean column that only the storage layer reads can flip without running the business checks: no authorization, no audit entry, and no named transition a reviewer can find. The record then looks deleted in one query and active in another, depending on which filter each query applies. An explicit lifecycle operation keeps the flag, where one exists, as an effect of the transition rather than the transition itself.
 
 **Reviewed for:** Does every lifecycle transition run through explicit behavior instead of a storage-only flag? Check the transition code.
 
@@ -178,7 +180,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle specification MUST define post-deletion behavior for cross-aggregate references, exports, and unique constraints.
 
-**Rationale:** Other records can point at the deleted one, exports can carry its values, and a unique value such as an expense reference number can become available again. When the specification stays silent, each developer guesses: one nulls the reference, another keeps it, and a duplicate value slips through or a report breaks. Writing the behavior down gives every reference, export, and constraint one answer.
+**Rationale:** Other records can point at the deleted one, exports can carry its values, and a unique value such as an expense reference number can become available again. When the specification does not define the behavior, each developer guesses: one nulls the reference, another keeps it, and a duplicate value slips through or a report breaks. Writing the behavior down gives every reference, export, and constraint one answer.
 
 **Reviewed for:** Does every specification define post-deletion behavior for references, exports, and unique constraints? Check each specification's deletion section.
 
@@ -310,7 +312,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Replacement:** A project names another column for the soft-delete timestamp in its documentation.
 
-**Rationale:** One name for the deletion timestamp lets every reader and query recognize it on sight. The event and the unit remove the two guesses a reviewer otherwise makes.
+**Rationale:** One name for the deletion timestamp lets every reader and query recognize it on sight. The name states the event and the unit, removing two guesses a reviewer otherwise makes.
 
 **Reviewed for:** Does every soft-delete timestamp use `deleted_at_utc`, or another column the documentation names? Check the schema columns.
 
@@ -326,7 +328,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Replacement:** A project keeps archive records in one shared archive area.
 
-**Rationale:** Meaning and archive meaning belong together: the module that defines what the record means also defines what its archive means and who may read it. An archive kept elsewhere sits under two modules, and its access checks drift from its home module.
+**Rationale:** The module that defines what a record means also defines what its archive means and who may read it. An archive kept elsewhere sits under two modules, and its access checks drift from its home module.
 
 **Reviewed for:** Does every archive record sit under its owning module, or in the shared archive area the project keeps? Check the module folders.
 
@@ -342,7 +344,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Replacement:** A project keeps query-shaped history on the aggregate.
 
-**Rationale:** History kept for display, such as a list of past expenses, constrains nothing the aggregate protects. It lives cheaper as a read model beside the record. Folding it into the record widens the transaction boundary for data no invariant needs.
+**Rationale:** History kept for display, such as a list of past expenses, constrains nothing the aggregate protects. It costs less as a read model beside the record. Folding it into the record widens the transaction boundary for data no invariant needs.
 
 **Reviewed for:** Does every query-shaped history live in a read model instead of on its aggregate, unless the project keeps it on the aggregate? Check the aggregate code beside the read models.
 
