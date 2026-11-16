@@ -140,7 +140,7 @@ A flow leads one actor toward one goal, problem, or constraint. It carries `acto
 
 `summary` states the flow's purpose in up to four sentences: who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom. The book renders it first on the page, so a cold reader learns the purpose before the mechanics. `startedWhen` states the observable state in which the flow starts, in one sentence; `finishedWhen` states the end, in one sentence.
 
-Each step carries its `id` (`s1`, `s2`, and so on) and one product sentence in `statement`, naming one act of its performer. A step names the actor taking the flow only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `cites`. A step id reads `flow/<name>#s1`. The flow carries no `cites` of its own; the model reads the union of its steps.
+Each step carries its `id` (`s1`, `s2`, and so on) and one product sentence in `statement`, naming one act of its performer. A step names another actor only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `cites`. A step id reads `flow/<name>#s1`. The flow carries no `cites` of its own; the model reads the union of its steps.
 
 `branches` states each path that leaves the order of the steps: the step it leaves, its condition, and the step it continues at, or `end`.
 
@@ -902,7 +902,7 @@ The `reopenedWhen` condition names what would reopen the choice, so the decision
 
 **Statement:** Each requirement MUST name its reasons in `cites`.
 
-**Rationale:** A requirement with no stated reason cannot be rejudged when the world moves. The `cites` list holds the reasons: any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are the connections explaining why the commitment exists. A requirement citing nothing reports as `requirement-cites-missing`.
+**Rationale:** A requirement with no stated reason cannot be rejudged when the world moves. The `cites` list holds the reasons: any of goal, vision, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are the connections explaining why the commitment exists. A requirement citing nothing reports as `requirement-cites-missing`.
 
 **Checked by:** `litespec model check` reports `requirement-cites-missing` for a requirement naming no reason in `cites`.
 
@@ -1088,7 +1088,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `flow/<name>#s1`. A step naming its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames.
 
-The performer and the failure text are optional: a step names the actor taking the flow only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067.
+The performer and the failure text are optional: a step names another actor only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067.
 
 **Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `flow/submit-and-reimburse#s4` in `serves`.
 

@@ -19,7 +19,7 @@ The host also keeps the endpoints that have no use case folder to sit in: protoc
 
 ### The Module Tree and Its Layers
 
-Every node of the tree may hold the same layer folders, and each level allows a closed set of folder names, so any other folder is refused. Inside one of those layer folders, subfolders stay free: the folder already states the layer, and the lowest-folder rule already placed the type.
+Every node of the tree may hold the same layer folders, and each level allows a closed set of folder names, so any other folder is refused. Inside one of those layer folders, subfolders stay free except where the closed set table states Files only: the folder already states the layer, and the lowest-folder rule already placed the type.
 
 An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder. Each use case folder holds an `Application/` folder and, when it has an endpoint, a `WebApi/` folder.
 

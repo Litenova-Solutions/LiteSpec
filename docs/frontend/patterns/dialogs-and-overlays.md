@@ -752,7 +752,7 @@ page
 
 **Rationale:** The row menu holds commands and a popover holds context, side by side. A reviewer can see the two floating layers next to each other.
 
-**Cost:** A page with both holds three floating layers counting the dialog, and a reader has to learn which is which. That is why a page should show one overlay at a time.
+**Cost:** A page with both holds two floating layers, and a reader has to learn which is which. That is why a page should show one overlay at a time.
 
 ### Bar That Stays While the Reader Works
 

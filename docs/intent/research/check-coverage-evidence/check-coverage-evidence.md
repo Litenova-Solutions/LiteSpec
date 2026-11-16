@@ -14,7 +14,7 @@ Containment checks cover success results, scenario results, calculation tables, 
 
 The code, screen, store, and operations traces also run many checks. They cover marks and their resolution, followed decisions (8 open and unfollowed, 15 advisory without a basis), and unimplemented aggregates (21 open). They cover reactions, jobs, and external systems, unexposed use cases (60 open), and unimplemented use cases (8 open). They also cover declared effects that no dispatch takes (412 advisory), uncalled aggregate methods (165 open), and unreached use cases (182 advisory). The checker reports advisory findings without blocking. The record gives no confidence for this claim.
 
-The same traces cover unshown refusals (911 advisory), unconfirmed and duplicated proofs (90, with 50 known and 237 advisory), unthrown refusals, and contract mismatches. They also cover alerts, settings, templates, and dependencies. The record gives no confidence for this claim.
+The same traces cover unshown refusals (911 advisory), unconfirmed proofs (90 open, with 50 known), duplicated proofs (237 advisory), unthrown refusals, and contract mismatches. They also cover alerts, settings, templates, and dependencies. The record gives no confidence for this claim.
 
 A clean result can have 4 causes, and only the first means the rule holds. Satisfied checks have complete data. No in-scope record lacks both parents, no step is unserved, and every reaction trigger resolves. The sender, fallback, reservation, and serve checks agree with independent counts. The record gives no confidence for this claim.
 

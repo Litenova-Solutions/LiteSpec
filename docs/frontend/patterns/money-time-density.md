@@ -272,7 +272,7 @@ page
 
 **Rationale:** Keep one form per table and state the zone once in the header, so a column reads as a column. The entry point names the option its screens render in `formats.moment`.
 
-The runner-up puts absolute over relative, which fits dispute and payout surfaces where recency leads. Never ship relative-only dates on a reconciled page: a relative date gives the reader nothing exact to cite.
+The runner-up groups by day, which fits dispute and payout surfaces where recency leads. Never ship relative-only dates on a reconciled page: a relative date gives the reader nothing exact to cite.
 
 **Reviewed for:** Does the built date text match the wireframe its catalog entry chose? Open the built absolute, relative, and weekday forms beside the catalog entry recording the chosen option and its reason.
 
@@ -440,7 +440,7 @@ page
 
 **Rationale:** Keep the table at desktop width with two-line cells and no truncation, and switch to the record list under 640 pixels. That pair fits both widths.
 
-The runner-up wraps rather than truncates, which fits where one column holds names of any length. Never ship shortened figures near a statement: a rounded money figure is not a money figure.
+The runner-up keeps a two-column table with no truncation, which fits where the reader arrives with an expense number. Never ship shortened figures near a statement: a rounded money figure is not a money figure.
 
 **Reviewed for:** Does the built dense table match the wireframe its catalog entry chose? Open the built 390-pixel lists and two-column tables beside the catalog entry recording the chosen option and its reason.
 
@@ -474,7 +474,7 @@ page
 
 **Rationale:** At 1440 pixels every column has room: the trip is the second line of the expense cell, so nothing needs an ellipsis.
 
-**Cost:** Five columns reach the ceiling at this width: a seventh column forces a truncation, and the second line is where it goes.
+**Cost:** Five columns reach the ceiling at this width: a sixth column forces a truncation, and the second line is where it goes.
 
 #### `at-390-pixels-a-record-list-rather-than-a-table`: At 390 Pixels, a Record List Rather Than a Table
 
@@ -839,7 +839,7 @@ page
 
 **Rationale:** Shopify inventory by location is a table because four figures per row need columns rather than bars. Every row adds up across and every column adds down, so finance can check the arithmetic both ways.
 
-**Cost:** A table of four money-less counts reads as a ledger, which is what it is: it answers the audit and bores the glance, so the bar belongs above it on the page that holds both.
+**Cost:** A table of four money figures reads as a ledger, which is what it is: it answers the audit and bores the glance, so the bar belongs above it on the page that holds both.
 
 **Reference:** Shopify
 

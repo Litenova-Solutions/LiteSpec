@@ -27,7 +27,7 @@ A use case folder holds an `Application/` folder, and a `WebApi/` folder when th
 | Aggregate root | The aggregate `Domain/` folder | `implements` naming `aggregate/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Root method that changes state | On the aggregate root | `implements` naming `use-case/<module>.<name>`, exactly one | See the [finding table](../tools/model.md) |
 | Domain event | The `Events/` folder of its aggregate `Domain/` folder | `implements` naming `domain-event/<aggregate>.<fact>` | See the [finding table](../tools/model.md) |
-| Refusal type | The `Refusals/` folder of its aggregate `Domain/` folder | `implements` naming `rule/<home>.<name>` | See the [finding table](../tools/model.md) |
+| Refusal type | The `Exceptions/` folder of its aggregate `Domain/` folder | `implements` naming `rule/<home>.<name>` | See the [finding table](../tools/model.md) |
 | Repository interface | The aggregate `Domain/` folder | None; the aggregate folder places it | See the [finding table](../tools/model.md) |
 | Repository implementation | The aggregate `Infrastructure/` folder | `implements` naming `aggregate/<module>.<name>`, or derived from the interface | See the [finding table](../tools/model.md) |
 | Endpoint | The use case `WebApi/` folder, or the host for a host-only endpoint | `implements` naming `use-case/<module>.<name>` | See the [finding table](../tools/model.md) |

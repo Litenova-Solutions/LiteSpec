@@ -555,7 +555,7 @@ Application obtains each value through an owned port and passes it in. A method 
 
 **Rationale:** Each aggregate `Domain/` folder holds everything one aggregate owns: its states, events, refusals, and concepts. A reader finds the full aggregate in one place instead of hunting shared folders. A single aggregate stays flat only when its plural root name equals the module name; separate aggregates keep separate lifecycle, event, and refusal folders.
 
-A part is a data group the aggregate record declares with dotted field names, such as `parcel.*`. The part's child entity and the values only that child holds sit in a folder named for the part, such as `Parcels/`, while the part's events and refusals stay in the aggregate's `Events/` and `Refusals/` folders. A type that belongs to no part stays at the root.
+A part is a data group the aggregate record declares with dotted field names, such as `parcel.*`. The part's child entity and the values only that child holds sit in a folder named for the part, such as `Parcels/`, while the part's events and refusals stay in the aggregate's `Events/` and `Exceptions/` folders. A type that belongs to no part stays at the root.
 
 **Example:**
 
@@ -576,7 +576,7 @@ A part is a data group the aggregate record declares with dotted field names, su
       Events/
         PostCreatedEvent
         PostPublishedEvent
-      Refusals/
+      Exceptions/
         PostIdentityRequired
         PostAlreadyPublished
   Shipping/                       one aggregate whose name differs from the module, with a domain union in a concept folder

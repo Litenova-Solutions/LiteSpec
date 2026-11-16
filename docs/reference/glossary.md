@@ -908,7 +908,7 @@ Source: BABOK and IREB.
 
 ### Query
 
-One use case kind. A query reads a read model without changing business state.
+One use case kind. A query reads without changing business state.
 
 Layer: Behavior.
 
@@ -978,7 +978,7 @@ Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows, or one guarantee it keeps. An `except` entry names its fallback requirement, and a tenant-set value is no exception to the requirement. Its `cites` names the goals, problems, features, constraints, research, and decisions behind it.
+One behavior the product shows, or one guarantee it keeps. An `except` entry names its fallback requirement, and a tenant-set value is no exception to the requirement. Its `cites` names the goals, visions, problems, features, constraints, research, and decisions behind it.
 
 Layer: Intent.
 

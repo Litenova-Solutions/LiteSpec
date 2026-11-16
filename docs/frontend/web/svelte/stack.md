@@ -6,7 +6,7 @@
 
 A Svelte frontend takes one of three rendering modes, depending on who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client.
 
-A team opening a Svelte frontend chooses its mode on [Web Rendering and Routes](../rendering.md) before writing routes. This page gives the names, files, and libraries the shared web pages leave to this stack, and the shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
+A team opening a Svelte frontend chooses its mode before writing routes. This page gives the names, files, and libraries the shared web pages leave to this stack, and the shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
 
 ## Concepts
 
@@ -44,7 +44,7 @@ When a route fails, the failure renders in the route error page, which draws the
 
 Route data lives in the query cache, filled by loads and read back by pages. A component's own state is a rune. Generated reads take their cache keys from the client generator's `@tanstack/svelte-query` plugin, so entries from every route share one shape.
 
-Forms build on the form creator of the shared package: one entry point gives every form the same field setup and the same display for a refusal on its field. Sentences live in locale dictionaries, one dictionary per language, under the contract stated in [Web Data and State](../data.md): the same fill, plural, and fallback behavior in every language the product ships.
+Forms build on the form creator of the shared package: one entry point gives every form the same field setup and the same display for a refusal on its field. Sentences live in locale dictionaries, one dictionary per language, under the contract stated in [Frontend Data and State](../../data.md): the same fill, plural, and fallback behavior in every language the product ships.
 
 ### What Tests Leave in Place
 
@@ -383,7 +383,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Applies to:** artifact: any
 
-**Statement:** The dictionary library MUST be `svelte-i18n` or machinery that meets the locale-dictionary contract that the web data page states.
+**Statement:** The dictionary library MUST be `svelte-i18n` or machinery that meets the locale-dictionary contract that the frontend data page states.
 
 **Rationale:** One contract keeps every sentence in one dictionary per language, with the same fill, plural, and fallback behavior.
 

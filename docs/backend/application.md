@@ -60,7 +60,7 @@ Every edge between use cases, reactions, jobs, notifications, integration events
 
 An edge the records do not declare is behavior the specification hides. The effect checks report it as `effect-undeclared`.
 
-Each entry carries its timing. `inline` runs inside a query's call, `after-commit` runs after the commit succeeds, and `async` runs outside the caller's transaction. An integration event is not an effect: it names the domain event it translates, and the use cases raising that event publish it.
+Each entry carries its timing. `inline` runs inside a query's call, `after-commit` runs after the commit succeeds, and `async` runs outside the caller's transaction. An integration event is not an effect: it names the domain event it translates, and the pipeline stages it from that event.
 
 In Claimwick, the submit-expense command declares a `sends` edge to the approver notice with `after-commit` timing. The notice leaves after the submit commits, and a send the record does not declare fails the check.
 

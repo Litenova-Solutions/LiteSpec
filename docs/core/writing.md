@@ -13,7 +13,7 @@ A title is the record's name wherever records are listed: book lists, outlines, 
 
 | Record type | Title form | Example |
 |:---|:---|:---|
-| problem | A clause naming the failure or its consequence, never a theme or a feature | Expenses Wait Weeks for Reimbursement |
+| problem | A clause naming the failure or its consequence, never a theme or a feature | Expenses Wait Weeks |
 | feature | A noun phrase naming the capability | Receipt Capture with Offline Upload |
 | goal | An outcome noun phrase; the number and date stay in fields | Reimbursement Within Five Working Days |
 | vision | A noun phrase naming where the product heads; no date or priority | Contractor Expenses |
@@ -142,7 +142,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same phrase, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches, or lands hides the act the same way: "one transfer entry touches both accounts" leaves open what happens to each balance, while "one transfer entry reduces the sending account's balance and increases the receiving account's balance" states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. A word is loose when it leaves the act unclear in its sentence; a field or domain term used in its defined sense, such as an actor that holds a role, is not loose. A stock phrase is the same loose form: "It matters because the figures must be correct" names no consequence, while "A wrong box amount means a correction return, and a late return means a fine" names the consequence and who bears it. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this provision adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry. Proposed by [decision/0049-literal-flow-words-concrete-consequences](../intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md) and [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
-**Example:** A Claimwick problem is titled "Expenses Wait Weeks for Reimbursement". The title names the wait and the delay literally, with no figure of speech to decode.
+**Example:** A Claimwick problem is titled "Expenses Wait Weeks". The title names the wait and the delay literally, with no figure of speech to decode.
 
 **Reviewed for:** Does every title and sentence use the literal word, with each term defined or linked? Check the titles, verbs, and first uses the change adds against the glossary.
 
@@ -428,6 +428,6 @@ None.
 
 This informative example demonstrates `litespec/core/writing#write-for-the-reader-who-arrives-cold`, `litespec/core/writing#use-literal-words`, `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
 
-A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria.
+A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Expenses Wait Weeks", its `summary` opens with who waits and what the wait costs, and its explanation file holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria.
 
 The record needs no other page open beside it: the sufferer, each failure, the workaround in use today, the evidence, and the outcome that ends each failure stand in their fixed places.

@@ -16,7 +16,7 @@ The shared mobile pages in the [Mobile overview](../README.md) state the rules e
 
 The platform project is `{ProjectName}.Android`: it holds the host Activity, the navigation controller, the `Screens/` folder, the platform adapters, and the `Resources/` folder.
 
-The core projects hold the rest: Domain for rules and state, Application for handlers and interfaces, and Infrastructure for storage and platform-neutral adapters. On the `server` shape, the Client project joins them, holding the generated API client. The split keeps the core compiling for every platform unchanged.
+In the `client-only` shape, the core projects hold the rest: Domain for rules and state, Application for handlers and interfaces, and Infrastructure for storage and platform-neutral adapters. In the `server` shape, one Client project holding the generated API client replaces them. The split keeps the core compiling for every platform unchanged.
 
 ### How Screens Navigate
 

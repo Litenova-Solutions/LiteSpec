@@ -15,7 +15,7 @@ Each option shows one wireframe drawing, a plain-text sketch of the parts and th
 
 ### The Running Example
 
-The drawings follow the Claimwick expense product for Harbor and Pine: expense EXP-1042 for Ava, the Rotterdam client visit, and the Amsterdam sales cost centre. Each kind of page uses one frame, so each screen shows one heading and at most one primary action. One rule applies to every option: each page shows one top-level heading, as the Standards section below states. The [primary-action rule](record-detail.md#show-one-primary-action-in-a-record-header) is stated on the record detail page, and the frames follow it.
+The drawings follow the Claimwick expense product for Harbor and Pine: expense EXP-1042 for Ava, the Rotterdam client visit, and the Amsterdam sales cost centre. Each kind of page uses one frame, so each screen shows one heading. One rule applies to every option: each page shows one top-level heading, as the Standards section below states. The [primary-action rule](record-detail.md#show-one-primary-action-in-a-record-header) is stated on the record detail page, and each header on these frames follows it.
 
 ## Standards
 

@@ -15,7 +15,7 @@ Each option shows one wireframe drawing, a plain-text sketch of the parts and th
 
 ### The Running Example
 
-The drawings on this page use one Claimwick expense, EXP-1042 for Ava: paid, totaling EUR 125.00, part of the Rotterdam client visit. In the example the header names the expense and its state, the sections give the spender, the lines, and the money, and the aside gives the history. The Standards section states the two rules every option keeps: a record header shows at most one primary action, and a destructive command never takes the primary place or style.
+Most drawings on this page use one Claimwick expense, EXP-1042 for Ava: paid, totaling EUR 125.00, part of the Rotterdam client visit. The Record Tabs patterns and the editable children table use the Travel spending policy. The file list and the grouped evidence use dispute D-0182 on expense EXP-1019. The decision aside uses expense EXP-1027. The trip summary, the four tiles, and the thumbnail files use the Rotterdam client visit trip. The parent preview uses receipt RC-0C893968A2 on EXP-1042. In the expense example the header names the expense and its state, the sections give the spender, the lines, and the money, and the aside gives the history. The Standards section states the two rules every option keeps: a record header shows at most one primary action, and a destructive command never takes the primary place or style.
 
 ## Standards
 

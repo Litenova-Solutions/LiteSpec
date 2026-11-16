@@ -25,7 +25,7 @@ One `waiver` record replaces the deviation, the known gap, `deferredProvisions`,
 
 A waiver names what it covers in `covers`, which is a list of provision IDs, page IDs, or finding codes. It also names its `subject` or `paths`, and its `reason`. A gap also names `expiresOn`, `exit`, and `closedBy`, the records whose change closes the gap. A lasting waiver names `consequences` and carries no end date.
 
-A waiver without `expiresOn` is a lasting choice, and it never expires. The record lives in `.litespec/governance/waivers/`. A replaced default is not a waiver, because the default's `Replacement` names it.
+A lasting waiver never expires. The record lives in `.litespec/governance/waivers/`. A replaced default is not a waiver, because the default's `Replacement` names it.
 
 A waiver covers only what it names. It reports `waiver-expired` after its date. It covers a finding in three cases: it names the finding's code, it names the provision whose Checked by line names that code, or it names that provision's page. In each case, the finding sits on the waiver's `subject` or `paths`.
 

@@ -318,7 +318,7 @@ page
 
 **Strength:** default
 
-**Question:** What does the bar carry? The page title, a sidebar toggle, a help control, and the theme: not the company name, not who is acting, and nothing about location beyond the page title.
+**Question:** Which facts does the top bar carry, and when does the trail move into it? The candidates are the page title, the company name, who is acting, a sidebar toggle, a help control, and the theme.
 
 **Default:** `the-bar-with-the-company-name`
 

@@ -45,7 +45,7 @@ The design contract's Browser Support section names one Baseline tier, the set o
 The default is Baseline widely available. A team decides each newer feature in this order, and the first rule that matches wins:
 
 1. The feature belongs to the declared tier: use it with no fallback.
-2. The tier is Baseline newly available and the feature belongs to it: detect the feature and let an unsupported browser show its default behavior.
+2. The feature belongs to Baseline newly available but not to the declared tier: detect the feature and let an unsupported browser show its default behavior.
 3. A fallback fits in the same file, behind `@supports` in CSS or a feature check in script: write it there.
 4. The fallback needs a package: record the decision that admits the package, as `litespec/frontend/ui#keep-each-behavior-package-justified-and-on-baseline` states.
 5. No fallback fits: change the design so it needs no such feature.

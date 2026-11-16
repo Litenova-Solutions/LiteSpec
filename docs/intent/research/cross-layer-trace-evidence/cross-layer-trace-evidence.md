@@ -10,7 +10,7 @@ On 30 October 2026, 12 of 40 features name a goal in `serves`. Features serve al
 
 All 40 features name `solves`. That is the one strong Intent link, and the checker requires and checks it. Of 40 features, some requirement names 23. Of 928 requirements, 872 name no feature, which the record treats as intended. The record gives no confidence for this claim.
 
-The checker counts 763 of 925 live requirements as fulfilled. The record also counts 53 as exempt because they are undelivered, and 10 quality requirements as served by a technical decision. It counts 105 as unfulfilled. A waiver covers all 105, so a reader of the open findings alone sees no break. The record gives no confidence for this claim.
+The checker counts 763 of 925 live requirements as fulfilled. The record also counts 53 as exempt because they are undelivered, and 10 quality requirements as served by a technical decision. It counts 105 as unfulfilled. Waivers cover all 105, so a reader of the open findings alone sees no break. The record gives no confidence for this claim.
 
 All 112 flows carry `fulfills` links, which together reach 571 distinct requirements. The links are complete, but no check reads them. The record gives no confidence for this claim.
 

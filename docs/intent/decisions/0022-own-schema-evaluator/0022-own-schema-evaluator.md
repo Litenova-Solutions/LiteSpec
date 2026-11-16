@@ -45,4 +45,4 @@ Against the JSON Schema Test Suite, the evaluator agreed with the expected resul
 
 This decision reopens when a schema needs a keyword the evaluator leaves out, or when a maintained free evaluator fits Native AOT with no extra dependencies.
 
-The evaluator leaves out dynamic references, anchors, and the unevaluated keywords. A schema that needs one of them is the case that would change the choice.
+The evaluator leaves out dynamic references, anchors, the unevaluated keywords, and `contentSchema`. A schema that needs one of them is the case that would change the choice.

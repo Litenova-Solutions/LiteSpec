@@ -251,7 +251,7 @@ page
   region "Which budget pays"
     field "Cost centre" search = "amster"
     list 3
-      item: text "Amsterdam sales" · text muted "EUR 10,000"
+      item: text "Amsterdam sales"
     text muted "A cost centre carries its budget and its spend."
     field "Name" text
 ```

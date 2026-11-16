@@ -32,7 +32,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Applies to:** artifact: record:notification
 
-**Statement:** A realtime use case MUST document polling behavior, measured cost, update latency, expected connections, and recovery behavior.
+**Statement:** A realtime use case MUST document polling behavior, measured cost, update target, expected connections, and recovery behavior.
 
 **Rationale:** Open connections cost memory, CPU, and operating attention on every host, so the team writes down what polling costs, what the update target requires, how many connections to expect, and how recovery works before choosing transport. The use case page holds that record, so a later reviewer sees which measurements justified the choice.
 

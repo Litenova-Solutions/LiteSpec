@@ -4,7 +4,7 @@ LiteSpec sorts its records into 4 layers: Intent, Behavior, Implementation, and 
 
 ## Findings
 
-A project can leave out Implementation or Proof on its own, because neither depends on the other. Behavior needs Intent, and each of Implementation and Proof needs Behavior. So a project keeps Intent and Behavior, and it may add either or both of the other 2 layers.
+A project can leave out Implementation or Proof on its own, because neither depends on the other. Behavior needs Intent, and each of Implementation and Proof needs Behavior. So a project keeps Intent, and it may add Behavior, then either or both of the other 2 layers.
 
 A use case counts as verified from its scenarios' passing proofs alone. `UseCaseVerified` checks the proof links and the stale set, and it never reads code marks. The record cites lines 437 to 452 of the completion calculator. The record gives no confidence for this claim.
 

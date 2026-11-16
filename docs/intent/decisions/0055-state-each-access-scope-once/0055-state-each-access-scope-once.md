@@ -34,4 +34,4 @@ Each scope level a role names has a glossary term that states what the level cov
 
 ## Revisit Conditions
 
-This decision holds until one actor must hold one role at different levels. It also holds until the analyzers can generate permission code from role scopes without loss. Either report reopens the choice.
+This decision holds until one actor must hold one role at different levels. It also holds until the analyzers cannot generate permission code from role scopes without loss. Either report reopens the choice.

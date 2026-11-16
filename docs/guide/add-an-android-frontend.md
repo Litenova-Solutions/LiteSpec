@@ -6,7 +6,7 @@ Add an Android frontend to a consumer: the stack entry, the mobile solution tree
 
 Start with:
 
-- A consumer project that declares the `android` stack. A product with a server adds `android` beside its backend stack, and a product with no server starts from the `android-client` preset on the [initialize command](../tools/init.md) page.
+- A consumer project. A product with a server adds `android` beside its backend stack, and a product with no server starts from the `android-client` preset on the [initialize command](../tools/init.md) page.
 - The .NET SDK and Android API level pinned in `litespec.manifest.yaml` under `stack.dotnet` and `stack.android`, with the Android workload installed through `dotnet workload install android`.
 
 Read the [mobile structure](../frontend/mobile/structure.md), the [mobile screens and navigation](../frontend/mobile/screens.md), and the [Android stack](../frontend/mobile/android/stack.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
