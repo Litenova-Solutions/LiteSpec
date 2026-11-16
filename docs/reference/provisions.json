@@ -27203,7 +27203,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A server-rendered frontend MUST construct its data cache inside each request.",
-      "rationale": "A server renders for many users at once. A data cache shared across requests serves the next user the previous user\u0027s answer, leaking one actor\u0027s data to another with no error to report it. Constructing the cache inside each request gives every user a fresh cache that dies with the response.",
+      "rationale": "A server renders for many users at once. A data cache shared across requests serves the next user the previous user\u0027s answer, leaking one actor\u0027s data to another with no error to report it. Constructing the cache inside each request gives every user a fresh cache that is discarded with the response.",
       "example": ""
     },
     {
@@ -27221,7 +27221,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A data-driven route MUST define its loading, empty, error, forbidden, not-found, and ready behavior.",
-      "rationale": "A blank region while a request is pending or failed gives the user no signal: the page reads no different when loading than when broken. Defining each state up front gives it a designed drawing, and the root not-found handling draws the shared outcome page for an absent address. These six are the states a route has. A control adds \u0060disabled\u0060 and \u0060pending\u0060 under \u0060litespec/frontend/components#render-control-states\u0060, because both describe a control rather than a route. A route adds \u0060not-found\u0060, which a control does not, because a missing target resolves at the route.",
+      "rationale": "A blank region while a request is pending or failed gives the user no signal: a reader cannot tell a loading page from a broken one. Defining each state in advance gives each state a designed drawing, and the root not-found handling draws the shared outcome page for an absent address. A route has these six states and no others. A control adds \u0060disabled\u0060 and \u0060pending\u0060 under \u0060litespec/frontend/components#render-control-states\u0060, because both describe a control rather than a route. A route adds \u0060not-found\u0060, which a control does not have, because a missing target resolves at the route.",
       "example": ""
     },
     {
@@ -27239,7 +27239,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Actor-specific data MUST declare its cache key, partition, invalidation owner, and security review before caching, beside the read definition setting the key.",
-      "rationale": "A cache entry that ignores whose data it holds serves one actor\u0027s answer to another user: the classic leak behind a shared cache. Declaring the cache key, the partition, the invalidation owner, and the security review beside the read definition forces each cached actor-specific read to name its boundary before it caches. An uncached read is the safe default, and a cache partitioned per request is the safe server shape.",
+      "rationale": "A cache entry that ignores whose data it holds serves one actor\u0027s answer to another user. Declaring the cache key, the partition, the invalidation owner, and the security review beside the read definition forces each cached actor-specific read to name its boundary before it caches. An uncached read is the safe default, and a cache partitioned per request is the safe server shape.",
       "example": ""
     },
     {
@@ -27257,7 +27257,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Keep a layout to the frame and the providers every child route needs.",
-      "rationale": "A layout wraps every route beneath it. A feature-specific provider placed in a shared layout forces unrelated routes to carry its download, its state, and its failure modes. Keeping each route\u0027s cost to what it uses means the layout holds only what every child needs.",
+      "rationale": "A layout wraps every route beneath it. A feature-specific provider placed in a shared layout forces unrelated routes to carry its download, its state, and its failure modes. The layout therefore holds only what every child needs, so each route carries only the cost of what it uses.",
       "example": ""
     },
     {
@@ -27275,7 +27275,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A development or edge proxy rule MUST route only, and never decide who the actor is or what the actor may read.",
-      "rationale": "A development or edge proxy runs before the request reaches the API, with no view of the record or the permissions an authorization decision depends on. A proxy rule that decided who the actor is or what the actor may read would enforce a different boundary than the API, and the two would disagree on the first edge case. Leaving identity and authorization to the API keeps one boundary instead of two.",
+      "rationale": "A development or edge proxy runs before the request reaches the API, without access to the record or the permissions an authorization decision depends on. A proxy rule that decided who the actor is or what the actor may read would enforce a different boundary than the API, and the two would disagree. Leaving identity and authorization to the API keeps one boundary instead of two.",
       "example": "A development proxy forwards \u0060/api\u0060 and \u0060/auth\u0060 to the API and changes nothing else: no header decides the actor, and no rule filters what the actor may read."
     },
     {
@@ -27293,7 +27293,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Keep a module reading a request header, a cookie, or a server secret in a file whose name and place show the server ownership.",
-      "rationale": "A module that reads a request header, a cookie, or a server secret breaks when it runs in the browser, and worse, it can drag the secret into the client download. A file whose name and place show server ownership turns an accidental browser import into a build error, and carries the same fact to a reader browsing the tree.",
+      "rationale": "A module that reads a request header, a cookie, or a server secret breaks when it runs in the browser, and it can include the secret in the client download. A file whose name and place show server ownership turns an accidental browser import into a build error, and shows the same fact to a reader browsing the tree.",
       "example": ""
     },
     {
@@ -27311,7 +27311,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A frontend MUST load each route and each language as its own download, with no icon set or language loaded whole.",
-      "rationale": "A user opens one address and reads one language, so downloading every route and every language up front wastes time on code and copy outside that path. Each route and each language ships as its own download: a user in Dutch who stays on the dashboard downloads neither English nor the routes outside that path. No icon set or language loads whole for the same reason.",
+      "rationale": "A user opens one address and reads one language, so downloading every route and every language at first load wastes time on code and copy outside that path. Each route and each language ships as its own download: a user in Dutch who stays on the dashboard downloads neither English nor the routes outside that path. For the same reason, no icon set or language loads whole.",
       "example": "A dictionary loader returns one language, not the whole dictionary. Each route file or folder ships as its own download."
     },
     {
@@ -27347,7 +27347,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A route change inside the application MUST move keyboard focus to the new route\u0027s top-level heading.",
-      "rationale": "A full page load starts focus and the screen reader at the top of the new page. A client-side navigation instead replaces the content under a focus that stays on the link just used, or falls back to the page body. A keyboard user then tabs through the old position, and a screen-reader user hears nothing change. Moving focus to the heading reads the new page\u0027s title and starts the next Tab from there, as WCAG 2.4.3 Focus Order expects.",
+      "rationale": "A full page load starts focus and the screen reader at the top of the new page. A client-side navigation instead replaces the content while focus stays on the link just used, or falls back to the page body. A keyboard user then tabs through the old position, and a screen-reader user hears nothing change. Moving focus to the heading reads the new page\u0027s title and starts the next Tab from there, as WCAG 2.4.3 Focus Order expects.",
       "example": "Opening EXP-1042 from the expense list lands focus on the heading \u0022EXP-1042, Ava, EUR 125.00\u0022."
     },
     {
@@ -27365,7 +27365,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A frontend MUST prefetch the route the user signals intent toward, without treating that prefetch as a cache beyond the shared cache.",
-      "rationale": "When the user signals intent toward a route, by hovering a link or focusing a menu item, prefetching loads that route\u0027s data into the shared cache before the navigation starts, so most navigations render from data already in place. The prefetch fills the shared cache only, because a router keeping its own second cache would serve a stale answer beside the fresh one.",
+      "rationale": "When the user hovers a link or focuses a menu item, prefetching loads that route\u0027s data into the shared cache before the navigation starts, so most navigations render from data already in place. The prefetch fills the shared cache only, because a router keeping its own second cache would serve a stale answer beside the fresh one.",
       "example": ""
     },
     {
@@ -27401,7 +27401,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Split client work that runs longer than 50 milliseconds, such as an import preview or a report total, into chunks that give the browser a turn between them.",
-      "rationale": "While script runs, the page answers no click and no key. A staff member previewing 1,204 imported payouts sees a frozen screen and clicks again. Giving the browser a turn between chunks keeps every input answered within one frame, and the total blocking time the measured checks record stays low.",
+      "rationale": "While script runs, the page answers no click or key press. A staff member previewing 1,204 imported payouts sees a frozen screen and clicks again. Giving the browser a turn between chunks keeps every input answered within one frame, and keeps the measured total blocking time low.",
       "example": ""
     },
     {
@@ -27419,7 +27419,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Give a shell a layout holding the frame every child route shares.",
-      "rationale": "A shell is the frame every child route shares: navigation, header, and providers. A shared layout holds it without adding an address segment, so the shell stays out of links and every child route renders inside the same frame.",
+      "rationale": "A shell is the frame every child route shares: navigation, header, and providers. A shared layout holds it without adding an address segment, so the shell adds nothing to links and every child route renders inside the same frame.",
       "example": ""
     },
     {
@@ -27473,7 +27473,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A folder named for one use case MUST hold files and no subfolder.",
-      "rationale": "A subfolder inside a use case folder names a grouping the backend does not have, so the one-to-one mirror between the two trees stops at that point. Past the subfolder, the reader can no longer translate names by rule, and nothing reports where the translation broke. Files directly in the use case folder keep the mirror checkable to the bottom.",
+      "rationale": "A subfolder inside a use case folder names a grouping the backend does not have, so the one-to-one mirror between the two trees stops at that point. Past the subfolder, the reader can no longer translate names by rule, and nothing reports where the translation broke. Files directly in the use case folder keep the whole mirror checkable.",
       "example": ""
     },
     {
@@ -27491,7 +27491,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A frontend MUST NOT import source from another frontend.",
-      "rationale": "An import from another application\u0027s source ties the two together: a change to one breaks or redeploys the other. Each application owns its routes, its environment, its session handling, its words, its tests, and its deployment, so it can change, test, and ship on its own. Code two applications genuinely share moves down into a shared package, which names neither application.",
+      "rationale": "An import from another application\u0027s source ties the two together: a change to one breaks or redeploys the other. Each application owns its routes, its environment, its session handling, its words, its tests, and its deployment, so it can change, test, and ship on its own. Code two applications genuinely share moves into a shared package, which names neither application.",
       "example": ""
     },
     {
@@ -27527,7 +27527,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A route entry MUST carry one mark naming the screen it renders, in the form its stack page states.",
-      "rationale": "The route is where a screen record becomes code, and its folder or file name only resembles the screen. One mark makes the link written and checkable. A web route exports the same typed \u0060litespec\u0060 constant a use-case module exports, so a wrong identifier fails the consumer\u0027s type check against the generated union, and \u0060litespec model check\u0060 reports it as \u0060mark-unknown\u0060 where no type check ran. A Blazor component or an Android destination carries the .NET mark the .NET reader already reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.",
+      "rationale": "The route is where a screen record is implemented in code, and its folder or file name only resembles the screen. One mark writes that link down so tools can check it. A web route exports the same typed \u0060litespec\u0060 constant a use-case module exports, so a wrong identifier fails the consumer\u0027s type check against the generated union, and \u0060litespec model check\u0060 reports it as \u0060mark-unknown\u0060 where no type check ran. A Blazor component or an Android destination carries the .NET mark the .NET reader reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.",
       "example": "The \u0060\u003Cscript module\u003E\u0060 of the Claimwick expense list page exports \u0060export const litespec = { implements: \u0022screen/claimwick-app.expense-list\u0022 } as const satisfies LiteSpecMark;\u0060, naming the screen it renders."
     },
     {
@@ -27545,8 +27545,8 @@
       "trace": false,
       "strength": "required",
       "statement": "A use-case folder MUST sit under the modules root at \u0060{module}/{aggregate}/{use-case}/\u0060 in kebab case, or at \u0060{module}/use-cases/{use-case}/\u0060 for a query describing no one aggregate, resolving to the one backend use case folder of the same names inside its \u0060UseCases/\u0060 folder.",
-      "rationale": "A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one folder per use case, so the mirror names one folder. The frontend structure test holds the mirror on every build, under \u0060litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test\u0060.",
-      "example": "One backend folder and its frontend counterpart are the same path in two spellings:\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Orders/Orders/UseCases/SearchMerchantOrders/\n\u003Cfrontend\u003E/modules/orders/orders/search-merchant-orders/\n\u0060\u0060\u0060\n\nIn Claimwick, \u0060use-case/spending.list-expenses\u0060 lists expenses. The backend implements it under \u0060Spending/Expenses/UseCases/ListExpenses\u0060, and the web frontend serves it from the same path in kebab case, \u0060lib/modules/spending/expenses/list-expenses\u0060, beside the screen record \u0060screen/claimwick-app.expense-list\u0060.\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Spending/Expenses/UseCases/ListExpenses/\n\u003Cfrontend\u003E/modules/spending/expenses/list-expenses/\n\u0060\u0060\u0060\n\nThe three backend names become three lowercase folder names, while the \u0060UseCases/\u0060 segment carries no frontend spelling.\n\nA query that describes no one aggregate keeps its record home under \u0060use-cases/\u0060 beside its module, so its folder mirrors that home with two names instead of three. A query named \u0060use-case/spending.read-spending-summary\u0060 would live at \u0060\u003Cfrontend\u003E/modules/spending/use-cases/read-spending-summary/\u0060 and \u0060\u003Cbackend\u003E/Spending/UseCases/ReadSpendingSummary/\u0060. The running Claimwick example holds no such module-level query.\n\nThe diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.\n\n![The backend folder Spending, Expenses, ListExpenses beside the frontend folders spending, expenses, list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)"
+      "rationale": "A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one folder per use case, so the mirror names one folder. The frontend structure test checks the mirror on every build, under \u0060litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test\u0060.",
+      "example": "One backend folder and its frontend counterpart are the same path in two spellings:\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Orders/Orders/UseCases/SearchMerchantOrders/\n\u003Cfrontend\u003E/modules/orders/orders/search-merchant-orders/\n\u0060\u0060\u0060\n\nIn Claimwick, \u0060use-case/spending.list-expenses\u0060 lists expenses. The backend implements it under \u0060Spending/Expenses/UseCases/ListExpenses\u0060, and the web frontend serves it from the same path in kebab case, \u0060lib/modules/spending/expenses/list-expenses\u0060, beside the screen record \u0060screen/claimwick-app.expense-list\u0060.\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Spending/Expenses/UseCases/ListExpenses/\n\u003Cfrontend\u003E/modules/spending/expenses/list-expenses/\n\u0060\u0060\u0060\n\nThe three backend names become three lowercase folder names, while the \u0060UseCases/\u0060 segment has no counterpart in the frontend path.\n\nA query that describes no one aggregate keeps its record location under \u0060use-cases/\u0060 beside its module, so its folder mirrors that location with two names instead of three. A query named \u0060use-case/spending.read-spending-summary\u0060 would live at \u0060\u003Cfrontend\u003E/modules/spending/use-cases/read-spending-summary/\u0060 and \u0060\u003Cbackend\u003E/Spending/UseCases/ReadSpendingSummary/\u0060. The running Claimwick example holds no such module-level query.\n\nThe diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.\n\n![The backend folder Spending, Expenses, ListExpenses beside the frontend folders spending, expenses, list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)"
     },
     {
       "id": "litespec/frontend/structure#order-imports-from-routes-to-shared-packages",
@@ -27564,7 +27564,7 @@
       "strength": "required",
       "statement": "An import MUST point from a route to a module to the frame to a shared package, and never in the reverse direction.",
       "rationale": "A module importing a route ties use-case code to one address, and a shared package importing an application ties every application to one application\u0027s choices. Each reverse import collapses two layers into one. One direction, from routes to modules to the frame to shared packages, keeps addresses, use-case code, cross-route values, and shared code in separate layers, with each layer usable without the layers above it.",
-      "example": "The allowed dependency path runs one way:\n\n\u0060\u0060\u0060text\nRoutes -\u003E modules -\u003E frame -\u003E shared packages\n\u0060\u0060\u0060\n\nThat direction refuses three imports: a module reaching a route, a shared package reaching an application, and a frame module reaching into one module\u0027s use-case folder for a second module\u0027s data."
+      "example": "The allowed dependency path runs one way:\n\n\u0060\u0060\u0060text\nRoutes -\u003E modules -\u003E frame -\u003E shared packages\n\u0060\u0060\u0060\n\nThat direction rules out three imports: a module reaching a route, a shared package reaching an application, and a frame module reaching into one module\u0027s use-case folder for a second module\u0027s data."
     },
     {
       "id": "litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules",
@@ -27581,7 +27581,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A frontend MUST organize its code into a frame, routes, and use-case modules.",
-      "rationale": "Every new file raises one question: is it cross-cutting, is it an address, or does it serve one use case. Without the split, shared values hide inside routes, use-case code hides inside shared folders, and no author can tell where a new file belongs. The three parts answer the question, so each file has one home.",
+      "rationale": "Every new file raises one question: is it cross-cutting, is it an address, or does it serve one use case. Without the split, shared values hide inside routes, use-case code hides inside shared folders, and no author can tell where a new file belongs. The three parts answer the question, so each file belongs in one place.",
       "example": "Each stack page maps the same three parts onto its own toolchain:\n\n\u0060\u0060\u0060text\n{frontend}/\n  frame/     client configuration, session, language, permissions, formatting, shell data\n  routes/    one entry per address\n  modules/   one folder per backend module, aggregate, and use case\n\u0060\u0060\u0060"
     },
     {
@@ -27609,7 +27609,7 @@
       "anchor": "place-cross-route-values-in-the-frame",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which cross-route values or browser uses sit outside the frame? Check the frame.",
+      "evidence": "Which cross-route values or browser API uses sit outside the frame? Check the frame.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "any",
@@ -27617,7 +27617,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A frontend MUST place cross-route values in its frame: client configuration, session read, language choice, permissions, formatting, and shell data.",
-      "rationale": "A route holding a cross-route value keeps a copy beside every other route\u0027s copy, with nothing keeping the copies equal. Client configuration, session read, language choice, permissions, formatting, and shell data cross every route, so the frame holds each once, where every route reaches it. A browser API a use-case module needs belongs in the frame for the same reason: a module renders and reads data rather than touching the device.",
+      "rationale": "A route holding a cross-route value keeps a copy beside every other route\u0027s copy, with nothing keeping the copies equal. Client configuration, session read, language choice, permissions, formatting, and shell data cross every route, so the frame holds each once, where every route can use it. A browser API a use-case module needs belongs in the frame for the same reason: a module renders and reads data rather than calling the browser directly.",
       "example": ""
     },
     {
@@ -27635,7 +27635,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Place a logic test beside its module, and keep browser suites under one tests root per frontend.",
-      "rationale": "Scattering browser suites beside modules would split the fixtures and the runs, because browser suites share one fixture set and one deployment per frontend. One tests root per frontend keeps them together. A logic test instead sits beside its module, where it is found from the code it covers and runs with it.",
+      "rationale": "Scattering browser suites beside modules would split the fixtures and the runs, because browser suites share one fixture set and one deployment per frontend. One tests root per frontend keeps them together. A logic test instead sits beside its module, so it is found with the code it covers and runs with it.",
       "example": ""
     },
     {
@@ -27653,7 +27653,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A folder under an application\u0027s \u0060src\u0060 MUST NOT be named \u0060shared\u0060, \u0060common\u0060, \u0060utils\u0060, \u0060util\u0060, \u0060helpers\u0060, \u0060misc\u0060, \u0060components\u0060, \u0060hooks\u0060, \u0060types\u0060, or \u0060services\u0060.",
-      "rationale": "A folder named \u0060shared\u0060, \u0060utils\u0060, or \u0060components\u0060 refuses nothing. Every author with a file of unclear ownership drops it there, so the folder collects unrelated code that escapes review against the use cases it serves. Finding a file then means searching a pile instead of translating a use case path. Refusing these names forces each file into the folder that owns it. The rule covers an application\u0027s \u0060src\u0060, not a shared package\u0027s internals, which the package owns.",
+      "rationale": "A folder named \u0060shared\u0060, \u0060utils\u0060, or \u0060components\u0060 accepts anything. Every author with a file of unclear ownership puts it there, so the folder collects unrelated code that escapes review against the use cases it serves. Finding a file then means searching mixed code instead of translating a use case path. Refusing these names forces each file into the folder that owns it. The rule covers an application\u0027s \u0060src\u0060, not a shared package\u0027s internals, which the package owns.",
       "example": "A shared query three use cases read sits flat in the aggregate folder, not in a \u0060shared/\u0060 folder beside them."
     },
     {
@@ -27707,7 +27707,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser test that proves a scenario MUST assert the result the scenario ends in by its refusal code or by the success result\u0027s declared text or code.",
-      "rationale": "Reaching the screen shows only that the page opened; the assertion shows the ending the result promises. Holding the refusal code or the success text in the same test ties the proof to the named result. A money-moving use case that a test only reads leaves completion unshown, so the test submits it.",
+      "rationale": "Reaching the screen shows only that the page opened; the assertion shows the ending the result promises. Holding the refusal code or the success text in the same test ties the proof to the named result. A test that only reads a money-moving use case does not show its completion, so the test submits it.",
       "example": "The browser specification for \u0060scenario/list-expenses.listing-own-expenses-succeeds\u0060 opens the expense list on \u0060screen/claimwick-app.expense-list\u0060 and asserts the expenses table: the listed ending the success result \u0060result/list-expenses.listed\u0060 promises."
     },
     {
@@ -27725,7 +27725,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser test MUST create or identify its own data, its own authentication context, and its own expected state.",
-      "rationale": "A test that depends on execution order or on leftover data fails for reasons unrelated to the change under review, and passes only when the suite runs in one order. Creating its own data, its own authentication context, and its own expected state makes each test runnable alone and in any order. A test spends no seeded record; it creates the record it needs.",
+      "rationale": "A test that depends on execution order or on leftover data fails for reasons unrelated to the change under review, and passes only when the suite runs in one order. Creating its own data, its own authentication context, and its own expected state makes each test runnable alone and in any order. A test uses no seeded record; it creates the record it needs.",
       "example": ""
     },
     {
@@ -27743,7 +27743,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Limit test support to render helpers for required providers, to one API helper that every specification shares, and to the locator helpers.",
-      "rationale": "Test support grows easily into render frameworks, data builders, and custom runners: a second application with its own untested surface. Limiting it to render helpers for required providers, one shared API helper, and locator helpers keeps it small. A change to the actor header or the idempotency key then reaches the fixtures rather than every specification.",
+      "rationale": "Test support grows easily into render frameworks, data builders, and custom runners: a second application with its own untested surface. Limiting it to render helpers for required providers, one shared API helper, and locator helpers keeps it small. A change to the actor header or the idempotency key is then made in the fixtures rather than in every specification.",
       "example": ""
     },
     {
@@ -27761,7 +27761,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser test that proves a scenario MUST carry a \u0060proves\u0060 annotation naming that scenario.",
-      "rationale": "A title tag claims proof without anything reading it, so the builder cannot count it. The written annotation is the link the builder counts: it names the lowest record the test verifies, exactly as a backend test mark does, and it is built by the \u0060proves\u0060 helper the generated records file exports. A wrong identifier fails the consumer\u0027s type check against the generated union, and \u0060litespec model check\u0060 reports it as \u0060mark-unknown\u0060 where no type check ran.",
+      "rationale": "A title tag claims proof without anything reading it, so the builder cannot count it. The written annotation is the link the builder counts: it names the lowest record the test verifies, exactly as a backend test mark does. The annotation is built by the \u0060proves\u0060 helper the generated records file exports. A wrong identifier fails the consumer\u0027s type check against the generated union, and \u0060litespec model check\u0060 reports it as \u0060mark-unknown\u0060 where no type check ran.",
       "example": "The browser specification at \u0060apps/web/tests/expenses/list-expenses.spec.ts\u0060 in the Claimwick example carries \u0060proves(\u0022scenario/list-expenses.listing-own-expenses-succeeds\u0022)\u0060. That mark makes the specification the evidence for the listing scenario."
     },
     {
@@ -27797,7 +27797,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser test that drives several screens MUST carry a \u0060flow\u0060 annotation naming the flow and a \u0060proves\u0060 mark for each scenario it drives and asserts.",
-      "rationale": "A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The \u0060flow\u0060 annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
+      "rationale": "A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The \u0060flow\u0060 annotation tells a reader which flow the test covers without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "The submit-and-reimburse flow test carries \u0060flow: flow/submit-and-reimburse\u0060 and a \u0060proves\u0060 mark for each scenario it drives and asserts on each screen it reaches."
     },
     {
@@ -27815,7 +27815,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A scenario MUST carry one \u0060proves\u0060 mark, on the test at the cheapest boundary that represents its risk.",
-      "rationale": "Marking both boundaries on one scenario makes the slower test a second witness nobody needs, and doubles the work when the scenario changes. An API test proves a business outcome faster and more steadily than a browser test, and a browser test is the only proof that a page offers the use case and renders its result. A scenario whose risk is the outcome is proved at the API, and a scenario whose risk is what a person sees is proved in the browser.",
+      "rationale": "Marking both boundaries on one scenario makes the slower test an unneeded duplicate, and doubles the work when the scenario changes. An API test proves a business outcome faster and more reliably than a browser test, and a browser test is the only proof that a page offers the use case and renders its result. A scenario whose risk is the outcome is proved at the API, and a scenario whose risk is what a person sees is proved in the browser.",
       "example": "\u0060scenario/list-expenses.listing-own-expenses-succeeds\u0060 is proved by the browser specification at \u0060apps/web/tests/expenses/list-expenses.spec.ts\u0060, the cheapest boundary that shows what a person sees on the expense list. A scenario whose risk is a business outcome alone is proved at the API boundary instead."
     },
     {
@@ -27833,7 +27833,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A frontend calling the API MUST hold a test asserting that its module tree resolves to the backend use-case folders and names no refused folder.",
-      "rationale": "Without a check, the backend adds or renames a use case and the frontend tree silently stops matching, so the translation lands nowhere. The module mirror is the claim that makes a specification findable from a folder path: translate three names, land on the code. A test asserting the mirror on every build, and naming no refused folder, keeps the translation true. The same test can also assert no import between use case folders or between modules, which no lint rule checks.",
+      "rationale": "Without a check, the backend adds or renames a use case and the frontend tree silently stops matching, so the translation finds nothing. The module mirror is the claim that makes a specification findable from a folder path: translating three names finds the code. A test that asserts the mirror on every build, and names no refused folder, keeps the translation true. The same test can also assert no import between use case folders or between modules, which no lint rule checks.",
       "example": "The structure check resolves each folder name against the backend\u0027s module tree, as the Vitest structure test on [Web Testing](web/testing.md) shows."
     },
     {
@@ -27851,7 +27851,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser test that proves a scenario MUST reach a screen that offers the scenario\u0027s use case by a \u0060page.goto\u0060 literal or template matching that screen\u0027s \u0060address\u0060.",
-      "rationale": "A test that only clicks through navigation names no screen it proved on, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the \u0060page.goto\u0060 target against the screen \u0060address\u0060 templates gives the deterministic reach the reader computes.",
+      "rationale": "A test that only clicks through navigation names no screen where it proved the scenario, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the \u0060page.goto\u0060 target against the screen \u0060address\u0060 templates produces the deterministic reach the reader computes.",
       "example": "The evidence specification opens \u0060/expenses\u0060, the address of \u0060screen/claimwick-app.expense-list\u0060, which offers \u0060use-case/spending.list-expenses\u0060. That navigation is the reach the check reads."
     },
     {
@@ -27869,7 +27869,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Read a record identifier a browser test needs from the running deployment, and fall back to an absent identifier when the deployment holds none.",
-      "rationale": "A hard-coded record identifier passes against the deployment it was copied from and fails against the next deployment, where that record does not exist. Reading the identifier from the running deployment keeps the test true wherever it runs. Falling back to an absent identifier still visits the route as a not-found page, which is a state a reader can reach anyway.",
+      "rationale": "A hard-coded record identifier passes against the deployment it was copied from and fails against the next deployment, where that record does not exist. Reading the identifier from the running deployment keeps the test valid wherever it runs. Falling back to an absent identifier still visits the route as a not-found page, which is a state a reader can reach.",
       "example": ""
     },
     {
@@ -27887,7 +27887,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser suite MUST run through the command line, addressable per route and per file.",
-      "rationale": "A check that runs only inside an editor plugin or a proxy runner leaves the next investigator with no way to repeat it. The command line is the interface every runner shares: the developer, the drill, and the integration job all invoke the same command. Addressable per route and per file, the suite also runs just the check under review instead of the whole suite.",
+      "rationale": "A check that runs only inside an editor plugin or a proxy runner leaves the next investigator with no way to repeat it. The command line is the interface every runner shares: the developer, the drill, and the integration job all invoke the same command. Because the suite is addressable per route and per file, it also runs just the check under review instead of the whole suite.",
       "example": ""
     },
     {
@@ -27905,7 +27905,7 @@
       "trace": false,
       "strength": "advisory",
       "statement": "A frontend test SHOULD assert observable behavior in each state applicable to what the test covers: loading, empty, error, forbidden, not-found, pending, validation, and success.",
-      "rationale": "An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test\u0027s situation reaches ties the test to the reader\u0027s view instead. The scenario states which states its situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success. The project records each state as a term with labels per language.",
+      "rationale": "An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test\u0027s situation reaches ties the test to what the reader sees instead. The scenario states which states its situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success. The project records each state as a term with labels per language.",
       "example": ""
     },
     {
@@ -27923,7 +27923,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A component or logic test that needs HTTP MUST serve its answers through network mocks generated from the published contract.",
-      "rationale": "A mocked client replaces the generated code with a guess of what it returns, so the test proves the mock rather than the component. A network mock generated from the published contract answers the same HTTP request the browser would send instead. The generated client stays in the path it takes in production, and the component is tested through the client the page actually uses.",
+      "rationale": "A mocked client replaces the generated code with a guess at what it returns, so the test proves the mock rather than the component. A network mock generated from the published contract answers the same HTTP request the browser would send instead. The generated client stays in the path it takes in production, and the component is tested through the client the page actually uses.",
       "example": "The workspace keeps one mock-generation command that regenerates them from the published OpenAPI document."
     },
     {
@@ -27959,7 +27959,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A frontend outside the controlled platforms MUST declare an entry point record naming that platform and the boundaries replacing this contract.",
-      "rationale": "A device client with no shared component and no router sits outside the floorplan set and the component rules: the contract\u0027s checks do not apply to it. Declaring an entry point record that names its platform and the boundaries replacing this contract keeps the decision visible, instead of letting the frontend report as one with nothing to check.",
+      "rationale": "A device client with no shared component and no router sits outside the floorplan set and the component rules: the contract\u0027s checks do not apply to it. Declaring an entry point record that names its platform and the boundaries replacing this contract keeps the decision visible, instead of letting the frontend appear as one with nothing to check.",
       "example": ""
     },
     {
@@ -28013,7 +28013,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Leave a command blocked only by the current state or role visible and disabled, with the reason beside it.",
-      "rationale": "A user looking for an action needs to learn it exists and why it is unavailable, such as a missing permission or an unmet precondition. A control that vanishes instead reads as a product that does not offer the action at all. Staying visible and disabled with the reason beside it teaches both the existence and the block.",
+      "rationale": "A user looking for an action needs to learn it exists and why it is unavailable, such as a missing permission or an unmet precondition. A control that vanishes instead looks like a product that does not offer the action at all. Staying visible and disabled with the reason beside it shows both the existence and the block.",
       "example": ""
     },
     {
@@ -28049,7 +28049,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Route code MUST NOT declare layout outside its floorplan and display composites.",
-      "rationale": "A layout declaration in a route file is a second layout beside the floorplan: the route draws its own spacing while claiming the floorplan\u0027s shape. The next route copies the declaration because it looks like the local way to draw, and the floorplan stops describing what routes render. Floorplan and display composites own layout, so one change there reaches every route composing them.",
+      "rationale": "A layout declaration in a route file is a second layout beside the floorplan: the route draws its own spacing while claiming the floorplan\u0027s shape. The next route copies the declaration because it looks like the accepted local practice, and the floorplan stops describing what routes render. Floorplan and display composites own layout, so one change there updates every route composing them.",
       "example": ""
     },
     {
@@ -28067,7 +28067,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A project MUST keep every token value in the one token file the design contract\u0027s Tokens section names, written in the W3C Design Tokens format, version 2025.10.",
-      "rationale": "When values scatter across stylesheets, each limit depends on a hand-run script that runs once and is forgotten. Design tools and token converters have no file they read, and the check has no file to judge. One token file gives every value a home that tools read: components read the stylesheet generated from it, and the check reads it to judge every limit. Proposed by decision 0089.",
+      "rationale": "When values scatter across stylesheets, each limit depends on a hand-run script that runs once and is forgotten. Design tools and token converters have no file they read, and the check has no file to judge. One token file holds every value where tools read it: components read the stylesheet generated from it, and the check reads it to judge every limit. Proposed by decision 0089.",
       "example": "Claimwick keeps every value in \u0060tokens/claimwick.tokens.json\u0060 and builds its component stylesheet from that file:\n\n\u0060\u0060\u0060json\n{\n  \u0022card\u0022: {\n    \u0022$value\u0022: \u0022#ffffff\u0022,\n    \u0022$type\u0022: \u0022color\u0022\n  }\n}\n\u0060\u0060\u0060"
     },
     {
@@ -28085,7 +28085,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An application MUST use the shared token definition and declare no value, with no literal color in any shipped definition.",
-      "rationale": "One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first has no opinion about. A definition the shared package ships declares no literal color, so every value traces to the one token file the design contract names.",
+      "rationale": "One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first does not define. A definition the shared package ships declares no literal color, so every value traces to the one token file the design contract names.",
       "example": ""
     },
     {
@@ -28103,7 +28103,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each screen MUST name every screen a person reaches from it in one step in \u0060leadsTo\u0060.",
-      "rationale": "The screens and their links are the navigation, and they exist in records before any route is built. The book draws each entry point as a map of places and connections, and each flow as a strip of its step screens. A screen that no other screen leads to strands its readers unless it starts its entry point. A screen that leads nowhere and offers no use case ends their task with nothing done. Proposed by decision 0089.",
+      "rationale": "The screens and their links are the navigation, and they exist in records before any route is built. The book draws each entry point as a map of places and connections, and each flow as a strip of its step screens. A screen that no other screen leads to leaves its readers with no way in unless it starts its entry point. A screen that leads nowhere and offers no use case ends their task with nothing done. Proposed by decision 0089.",
       "example": "The Claimwick expense list names the expense record and the new expense form in \u0060leadsTo\u0060. A reader on the list reaches the record to act on one expense, or the form to start a new one, each in one step."
     },
     {
@@ -28121,7 +28121,7 @@
       "trace": false,
       "strength": "required",
       "statement": "The \u0060Page Frames\u0060 section of the design contract MUST map each page-frame pattern the product uses to the floorplan component that implements it, each with a when-to-use rule.",
-      "rationale": "Without a when-to-use rule, authors choose floorplans by resemblance. Two authors pick different floorplans for one kind of page, and users meet the same kind in two layouts. A map from each page-frame pattern to its component, with the rule that selects it, makes the choice mechanical. A floorplan outside the map is a decision for the shared package, not a choice a route makes on its own. Proposed by decision 0089.",
+      "rationale": "Without a when-to-use rule, authors choose floorplans by resemblance. Two authors pick different floorplans for one kind of page, and users meet the same kind in two layouts. A map from each page-frame pattern to its component, with the rule that selects it, lets authors choose by rule. A floorplan outside the map is a decision for the shared package, not a choice a route makes on its own. Proposed by decision 0089.",
       "example": "Claimwick\u0027s Page Frames section states each page frame, its component, and the question that selects it:\n\n\u0060\u0060\u0060markdown\n## Page Frames\n\n| Page frame | Component | Use it when the user |\n|:---|:---|:---|\n| \u0060list-page\u0060 | \u0060ListPage\u0060 | Finds one record among many. The page shows the result count. |\n| \u0060record-page\u0060 | \u0060EntityPage\u0060 | Acts on one record: its facts, its state, and the actions that state permits. |\n| \u0060form-page\u0060 | \u0060FormPage\u0060 | Supplies the input of one command, with one primary action. |\n\u0060\u0060\u0060"
     },
     {
@@ -28139,7 +28139,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every token value in each declared color scheme MUST meet the limit the Concepts table states for its role.",
-      "rationale": "Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while waving through a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089.",
+      "rationale": "Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while accepting a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089.",
       "example": "Claimwick\u0027s card edge differs from the page by 1.2:1 in both schemes, so cards read as separate surfaces while separators stay quieter."
     },
     {
@@ -28193,7 +28193,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every route MUST name its page type\u0027s reference, with a freestyle route naming its decision record instead.",
-      "rationale": "An author with no named reference invents a page from primitives, and the next author invents another page for the same type. Naming the page type\u0027s reference keeps every page of one type on the one drawing it derives from, so the type stays one design. A freestyle route names its decision record instead, since it derives from no reference.",
+      "rationale": "An author with no named reference builds a page from primitives, and the next author builds another page for the same type. Naming the page type\u0027s reference keeps every page of one type following the one drawing it derives from, so the type stays one design. A freestyle route names its decision record instead, since it derives from no reference.",
       "example": ""
     },
     {
@@ -28247,7 +28247,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Baseline, Tokens, Page Frames, Vocabulary, Motion, Browser Support.",
-      "rationale": "An author that has read no contract picks their own tokens, motion, browser features, and components for each page. The picks differ on the next page, and the user sees the difference as clutter: same product, different looks. One design contract published with the shared UI package keeps every answer in one file. Baseline names the pinned design baseline and its version, Tokens names the path of the token values file, Page Frames maps each page-frame pattern the product uses to the component that implements it, Vocabulary names the composites a page reaches for, Motion states the durations and what each becomes under the reduced-motion setting, and Browser Support states the target every platform feature is judged against. The contract names no screen: each screen names its own page frame on its record. Proposed by decision 0089.",
+      "rationale": "An author that has read no contract picks their own tokens, motion, browser features, and components for each page. The picks differ on the next page, and the user sees the difference as clutter. One design contract published with the shared UI package keeps every answer in one file. Baseline names the pinned design baseline and its version, Tokens names the path of the token values file, Page Frames maps each page-frame pattern the product uses to the component that implements it, Vocabulary names the composites a page reaches for, Motion states the durations and what each becomes under the reduced-motion setting, and Browser Support states the target every platform feature is judged against. The contract names no screen: each screen names its own page frame on its record. Proposed by decision 0089.",
       "example": "Claimwick publishes its contract with \u0060@claimwick/ui\u0060. The metadata block names the package, the token file, and the component behind each page frame it draws:\n\n\u0060\u0060\u0060yaml\nschemaVersion: 2\npackage: \u0022@claimwick/ui\u0022\nprofile: application-balanced\ntokens: tokens/claimwick.tokens.json\npageFrames:\n  list-page: ListPage\n  record-page: EntityPage\n  form-page: FormPage\n\u0060\u0060\u0060"
     },
     {
@@ -28283,7 +28283,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A style MUST use a semantic token rather than a raw value.",
-      "rationale": "A raw value in a style answers to no token. The theme leaves it unchanged through every restyle, and the next author copies the value instead of the token. The shared package definition is the authoritative style surface, holding the tokens, the fonts, and the documented resets. A style built from semantic tokens stays inside the product\u0027s visual language by construction.",
+      "rationale": "A raw value in a style traces to no token. The theme leaves it unchanged through every restyle, and the next author copies the value instead of the token. The shared package definition is the authoritative style surface, holding the tokens, the fonts, and the documented resets. A style built from semantic tokens stays inside the product\u0027s visual language by construction.",
       "example": ""
     },
     {
@@ -28301,7 +28301,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A command MUST use the surface the Concepts table assigns to its input.",
-      "rationale": "The surface fits the input: a button for a reversible action, a confirmation dialog for an irreversible one, a form dialog for one to four inputs, and a form page beyond that. A form dialog with more inputs than the table allows scrolls, loses its title, and hides the refusal beside the field that caused it. An oversized surface for a small command costs the user attention the command has no use for.",
+      "rationale": "The surface fits the input: a button for a reversible action, a confirmation dialog for an irreversible one, a form dialog for one to four inputs, and a form page beyond that. A form dialog with more inputs than the table allows scrolls, loses its title, and hides the refusal beside the field that caused it. An oversized surface for a small command wastes the user\u0027s attention.",
       "example": ""
     },
     {
