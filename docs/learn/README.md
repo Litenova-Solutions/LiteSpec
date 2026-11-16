@@ -14,7 +14,7 @@ Read these five pages in order. Each one ends with a link to the next.
 - [How LiteSpec Works](how-litespec-works.md): the parts, the layers, where records live, and how to read a specification.
 - [Read the Standard](reading-the-standard.md): project selections, the page arrangement, and provision IDs; how to find the rules that apply to a project.
 - [Work with Agents](working-with-agents.md): how an agent finds the rules, what it decides alone, and what it brings back.
-- [Adopt LiteSpec in Steps](adopting-litespec.md): taking up LiteSpec one record layer at a time: checked records first, then code traced to records, then passing tests that prove scenarios.
+- [Adopt LiteSpec in Steps](adopting-litespec.md): taking up LiteSpec one record layer at a time: checked records first, then code traced to records and passing tests that prove scenarios, in either order.
 
 ## Evaluate
 

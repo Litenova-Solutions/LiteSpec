@@ -227,7 +227,7 @@ Readers who are new to LiteSpec start with the [Learn overview](learn/README.md)
 - [How LiteSpec Compares](learn/how-litespec-compares.md): LiteSpec beside fourteen other approaches to spec-driven development, and when each fits.
 - [Lineage](learn/lineage.md): the practices LiteSpec borrows from, the words it takes from each, and what it does differently.
 - [Work with Agents](learn/working-with-agents.md): how an agent finds the rules, what it decides alone, and what it brings back.
-- [Adopt LiteSpec in Steps](learn/adopting-litespec.md): what changes for a team, in the order teams usually do it.
+- [Adopt LiteSpec in Steps](learn/adopting-litespec.md): which record layers a team claims first and how it adds the rest.
 
 ### Example
 

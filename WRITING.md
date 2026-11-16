@@ -64,9 +64,21 @@ Start with the answer, problem, or action, not a description of the page.
 
 > LiteSpec connects product requirements to the code and tests that implement them.
 
-A brief scope statement is useful when it helps readers decide whether they are in the right place. A contents summary is not a substitute for an opening explanation.
+Every page opens with a lead under its title and no heading of its own, as `litespec/core/authoring#open-each-page-with-a-lead` requires. What the lead says first depends on the page type:
 
-Do not automatically add an "Intent" section to every page. A page opens with a lead paragraph under its title, and that lead focuses on purpose rather than listing the page's headings.
+- A **guide** starts with the task or the first action.
+- A **reference or standards page** starts with its subject and scope.
+- An **overview or explanation page** starts with the product, the problem, or the approach.
+
+A brief scope statement is useful when it helps readers decide whether they are in the right place. A lead does not preview the page's headings, and it does not argue for the approach before saying what the approach is.
+
+**Avoid:**
+
+> A team rarely adopts a whole standard on day one, and a big-bang switch stalls real work. LiteSpec lets a team adopt one part at a time.
+
+**Prefer:**
+
+> Start with Intent and Behavior. Add Implementation and Proof when your team is ready, in either order.
 
 ## 5. Use Concrete Subjects and Verbs
 
@@ -216,8 +228,8 @@ Explain:
 
 - What the reader will accomplish.
 - What they need before starting.
-- What to do, in order.
-- What they should see.
+- What to do.
+- How they know they are done.
 - How to address likely failures.
 
 ### Concept Pages
@@ -253,6 +265,23 @@ State:
 
 Avoid blame, jokes, and vague messages such as "Something went wrong."
 
+### Sequence, Choices, and Completion
+
+These apply to any page that tells the reader what to do, not only to guides.
+
+Let the structure state the real dependencies. Number steps, in a list or in headings, only when each step needs the one before it. Present independent actions as separate sections without numbers, optional actions as optional, and alternatives as a choice. Do not imply an order with numbered headings and then correct it in prose.
+
+Explain a choice before asking the reader to make it: what each option adds and what it requires. Then say what the reader configures.
+
+Keep four kinds of statement apart, because readers act on them differently:
+
+- **Prerequisites:** what must be true before the reader starts.
+- **Reasons:** why the reader would take the step.
+- **Instructions:** what the reader writes, runs, or sets.
+- **Completion criteria:** what the reader checks to know the step is done, preferably a command result or an observable state.
+
+Split a paragraph that mixes configuration, a choice between options, and the conditions each option brings with it into one part per task. Keep every condition when you split it.
+
 ## 11. Use Formatting to Clarify Structure
 
 ### Headings
@@ -276,7 +305,7 @@ Follow the site's heading capitalization convention consistently: Title Case on 
 
 ### Lists
 
-Use bullets for related items. Use numbered lists when order matters.
+Use bullets for related items. Use numbered lists only when order matters.
 
 Keep items parallel: all actions, all questions, all components, or all outcomes.
 
@@ -291,6 +320,8 @@ Avoid tables when:
 - Most cells contain paragraphs.
 - A simple list would be easier to scan.
 - The columns don't add a useful distinction.
+
+Each column heading names what every cell under it holds. A heading such as "Ready when" promises readiness criteria; cells that describe what the team wants do not match it.
 
 ### Emphasis
 
@@ -391,15 +422,19 @@ A rewrite should make the existing meaning easier to understand. It should not i
 
 Treat the source as material to clarify: not as a sentence structure to preserve and not as permission to invent missing explanations.
 
+Separate the source's meaning from its presentation. Preserve the meaning: technical facts, conditions, and the structure a page contract requires. The presentation is yours to change: the source's introduction, paragraph order, section grouping, numbering, and repetition. A rewrite that keeps the source's paragraphs and polishes each sentence has usually kept presentation it should have changed.
+
 ### Set the Scope of the Edit
 
 Distinguish between three kinds of work:
 
 - **Copyedit:** Improve grammar, punctuation, word choice, and sentence flow. Preserve the organization.
 - **Rewrite:** Reorganize sentences, paragraphs, and sections to improve understanding. Preserve technical meaning and required document structure.
-- **Technical revision:** Change requirements, architecture, capabilities, examples, or definitions. Do this only when explicitly requested or supported by an authoritative source.
+- **Technical revision:** Change requirements, architecture, capabilities, examples, or definitions. Do this only when the task asks for it.
 
 When asked to make a page clearer or more readable, treat the task as a **rewrite**, not a technical revision.
+
+An authoritative source, such as the standards page that defines a term, tells you whether a technical change would be correct. It does not by itself make that change part of an editorial task. When an editorial task turns up a statement that disagrees with its authoritative source, flag the discrepancy instead of fixing it, unless the task permits technical revision.
 
 ### Identify What Must Not Change
 
@@ -540,11 +575,9 @@ Keep required:
 - Statements, rationales, examples, and check descriptions.
 - Links and anchors.
 
-Do not remove an `Intent` section because overview pages usually work better without one. A required documentation structure takes precedence over general style preferences.
+A required structure takes precedence over general style preferences; improve the content within it. The [authoring standard](docs/core/authoring.md) states each page style's sections. A page opens with a lead under its title, never an `Intent` heading. When a source still has an `Intent` section, move its useful content into the lead or the section it belongs to, and remove the heading.
 
-Within that structure, improve the content. An `Intent` section should state purpose and scope clearly, not provide a long preview of every heading.
-
-LiteSpec's own page contract no longer requires an `Intent` section: a page opens with a lead paragraph under its title, as `litespec/core/authoring#open-each-page-with-a-lead` states. The lead follows the same rule: purpose and scope, not a preview of every heading.
+Other pages may link to a heading's anchor. Before renaming or removing a heading, search for links to its anchor and update them in the same change.
 
 ### Check for Contradictions
 
@@ -569,7 +602,7 @@ may conflict with a table stating:
 
 Do not silently choose an interpretation or invent an exception.
 
-Resolve the conflict from an authoritative source when available. Otherwise, identify it in a separate editorial note. Do not present the page as technically resolved.
+Use an authoritative source to find out which statement is right. Change the page to match it only when the task permits technical revision, as Set the Scope of the Edit states; otherwise identify the conflict in a separate editorial note. Do not present the page as technically resolved.
 
 ### Preserve Meaning When Cutting
 
@@ -626,24 +659,13 @@ Use this sequence:
 1. **Identify the page type and reader's task.**
 2. **Identify required structure and technical details that must remain unchanged.**
 3. **Check for ambiguity and contradictions.**
-4. **Reorganize the explanation around distinct ideas.**
+4. **Reorganize the explanation around the reader's task and distinct ideas, not the source's order.**
 5. **Rewrite awkward or abstract language.**
 6. **Remove filler, repetition, and unnecessary framing.**
 7. **Compare the rewrite with the source for semantic changes.**
 8. **Check examples, commands, identifiers, and links.**
 9. **Read for natural flow without making the prose chatty or choppy.**
 10. **Return the draft and list unresolved issues separately.**
-
-### Output Requirements
-
-Unless asked otherwise:
-
-- Return publication-ready Markdown.
-- Keep editorial notes outside the page content.
-- Briefly identify unresolved technical questions.
-- Do not silently repair technical inconsistencies.
-- Do not claim validation that was not performed.
-- Do not add an editing commentary when the user only requested the rewritten page.
 
 **Success criterion:** The reader should understand the same technical content with less effort, without receiving new assumptions disguised as clarification.
 
@@ -653,26 +675,28 @@ Unless the task asks for something else:
 
 - Return the complete, publication-ready Markdown.
 - Preserve working links and valid code examples.
-- Do not add a long explanation of your editing choices.
-- Put unresolved factual questions in a short note after the draft.
-- Clearly separate editorial notes from content intended for publication.
+- Keep editorial notes out of the page content, and do not add a long explanation of your editing choices.
+- Put unresolved technical questions, including any inconsistency you did not repair, in a short note after the draft.
 - Do not claim to have validated behavior, commands, or links unless you actually did.
 
 ## 18. Final Review Checklist
 
-Before returning the page, check:
+Before returning the page, check what a reader would notice:
 
-- Does the opening give the reader useful information immediately?
+- Does the opening give the answer or the starting action?
 - Is the structure appropriate for this kind of page?
-- Are unfamiliar LiteSpec terms introduced when needed?
-- Are technical terms used consistently?
+- Does numbering, in lists and in headings, reflect a real dependency?
+- Is each choice explained before the reader is asked to make it?
+- Can the reader tell instructions apart from completion criteria?
+- Does each table heading match the cells under it?
+- Does each section have a purpose no other section shares?
+- Is any necessary detail buried in a paragraph about an unrelated decision?
+- Are unfamiliar LiteSpec terms introduced when needed, and used consistently?
 - Does each paragraph have a clear main point?
 - Are requirements distinct from recommendations and aspirations?
 - Are automated checks described within their actual limits?
 - Are commands, paths, IDs, examples, and links preserved accurately?
 - Have important conditions and exceptions survived the edit?
-- Are examples concrete and relevant?
-- Are lists and tables genuinely useful?
 - Have promotional language, filler, and repetitive summaries been removed?
 - Does the page sound natural without becoming chatty or choppy?
 - Can the reader understand or act without guessing?
