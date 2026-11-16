@@ -1,10 +1,12 @@
 # Formats
 
-Every file a LiteSpec tool reads or writes has one format, and every format a person writes has one schema (a contract stating its exact shape) that the checking command and the editor both validate. What follows lists each format: the file, who writes it, its envelope, the command that reads or checks it, and its schema with a real example. An author in a consumer project reads it to wire editor validation and to look up a field; a tool author reads it to find which command owns which file.
+Every file a LiteSpec tool reads or writes has one format. Every format a person writes has one schema, a contract stating its exact shape, that the checking command and the editor both validate. The format list names each file, who writes it, its envelope, the command that reads or checks it, and its schema with a real example. A consumer author uses it to wire editor validation and to look up a field; a tool author uses it to find which command owns which file.
 
 ## Reference
 
-People write YAML, and programs exchange JSON. A file a person edits is YAML: it states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, as `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml` requires. A file one program writes for another stays JSON. Every schema lives in `schemas/` at the repository root, written as YAML in JSON Schema draft 2020-12, and carries an `$id` equal to its published URL, so the copy at `https://litespec.dev/<version>/schemas/<file>` and the file in `schemas/` state the same contract. The [validate](../maintain/validate.md) and [model](../tools/model.md) pages state the commands that check each file.
+People write YAML, and programs exchange JSON. A file a person edits is YAML: it states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, as `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml` requires. A file one program writes for another stays JSON.
+
+Every schema lives in `schemas/` at the repository root, written as YAML in JSON Schema draft 2020-12, and carries an `$id` equal to its published URL, so the copy at `https://litespec.dev/<version>/schemas/<file>` and the file in `schemas/` state the same contract. The [validate](../maintain/validate.md) and [model](../tools/model.md) pages state the commands that check each file.
 
 ### Format List
 

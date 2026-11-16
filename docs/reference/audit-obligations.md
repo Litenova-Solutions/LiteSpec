@@ -1,16 +1,16 @@
 # Audit Obligations
 
-The audit extension is the LiteSpec bundle a project selects to record who attempted what against which target, and what each attempt produced. It satisfies obligations from 4 guidance bodies (NIST, ISO, PCI DSS, and OWASP) and from the General Data Protection Regulation (GDPR). This page states those obligations in one place: the frameworks, the GDPR articles, and the map from each obligation to the provision (one identified rule) that satisfies it. A team writing its audit adoption decision reads this page to state that reasoning without surveying the frameworks from scratch. The [Audit Trail](../ext/audit.md) owns every provision; this page explains those provisions and states no rules of its own.
+The audit extension is the LiteSpec bundle a project selects to record who attempted what against which target, and what each attempt produced. It satisfies obligations from 4 guidance bodies (NIST, ISO, PCI DSS, and OWASP) and from the General Data Protection Regulation (GDPR). This page states those obligations in one place: the frameworks, the GDPR articles, and the map from each obligation to the provision that satisfies it. A team writing its audit adoption decision uses this page to state that reasoning without surveying the frameworks from scratch. The [Audit Trail](../ext/audit.md) owns every provision; this page states no rules of its own.
 
 ## Reference
 
 ### Audit Frameworks
 
-Four guidance bodies cover auditing for a business application that holds personal data or touches payments. They agree on far more than they differ on, so one trail built to cover all four satisfies each of them, with no separate program per framework.
+Four guidance bodies cover auditing for a business application that holds personal data or touches payments. Their requirements overlap, so one trail built to cover all four satisfies each of them, with no separate program per framework.
 
 #### NIST SP 800-53, AU Family
 
-The AU family splits auditing into six questions, and together they form the most complete public statement of the problem.
+The AU family splits auditing into six questions.
 
 | Control | Obligation |
 |:---|:---|

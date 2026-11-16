@@ -4035,7 +4035,7 @@
       "style": "command",
       "area": "maintain",
       "title": "Generate Provisions",
-      "intent": "\u0060litespec-maintain provisions\u0060 writes the provision index and its data file, resolving every identifier to its page, record layer, trace, and checked share, and writes the finding code table, the record folder table, and the manifest pin table.",
+      "intent": "\u0060litespec-maintain provisions\u0060 rebuilds the provision index and its data file from the active standards, resolving every identifier to its page, record layer, trace, and checked share. The same run writes the finding code table, the record folder table, and the manifest pin table.",
       "sections": [
         "Name",
         "Synopsis",

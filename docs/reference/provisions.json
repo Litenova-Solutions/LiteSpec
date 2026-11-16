@@ -27023,7 +27023,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060history-as-a-tab-on-the-record\u0060",
-      "rationale": "The default keeps the history tab on the record. It keeps one route, and the tab state stays in the URL. A reader checking a claim opens History without losing the expense. The per-field history is the runner-up, and fits disputes about one value such as the email that carried the receipt. Prefer the full-page log only for long-lived records whose trail outgrows a tab. Never ship the money-only trail as the audit: the edits that explain the money are missing there.",
+      "rationale": "The default keeps the history tab on the record. It keeps one route, and the tab state stays in the URL. A reader checking a claim opens History without leaving the expense. The per-field history is the runner-up, and it fits disputes about one value such as the email that carried the receipt. Prefer the full-page log only for long-lived records whose trail outgrows a tab. Never ship the money-only trail as the audit: it leaves out the edits that explain the money.",
       "example": ""
     },
     {

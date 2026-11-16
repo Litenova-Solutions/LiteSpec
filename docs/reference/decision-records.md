@@ -1,6 +1,6 @@
 # Decision Records
 
-Some choices are expensive to reverse. A decision record pins one such choice down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of arguing it again. A technical decision pins a choice of one of six kinds: provider, package, format, boundary, topology, or replacement. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.
+A decision record pins one expensive-to-reverse choice down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of arguing it again. A technical decision pins a choice of one of six kinds: provider, package, format, boundary, topology, or replacement. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.
 
 ## Reference
 
@@ -10,20 +10,20 @@ The [Intent layer](../core/intent.md) defines what a decision record means. The 
 
 Each decision is one record file in its own folder in the consumer repository, with its explanation file beside it in the same folder. You create both with `litespec new decision <name>`, which scaffolds the files in that folder and reserves the identifier. The command takes a kebab-case name without a number, and allocates the next free number from the one decision sequence shared across every home.
 
-When a provision already makes the choice, follow that provision instead of recording a decision. Before writing the files, the command prints the provisions whose statements match the name's words. Before recording a decision, query `rules` for the subject; where a provision settles the choice, the code follows that provision instead, as `litespec/core/agent#search-the-provisions-before-recording-a-decision` states.
+Before recording a decision, query `rules` for the subject: where a provision settles the choice, the code follows that provision instead of recording a decision, as `litespec/core/agent#search-the-provisions-before-recording-a-decision` states. Before writing the files, the command prints the provisions whose statements match the name's words.
 
 A technical decision takes its home under `.litespec/implementation/decisions/` or `.litespec/implementation/modules/<m>/decisions/` instead, as the [model page](../core/model.md) states.
 
 | Item | Value |
 |:---|:---|
-| Path | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.yaml` with `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` beside it in the consumer repository |
+| Path | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.yaml` with `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` beside it |
 | Record template | `templates/consumer/decision.yaml` |
 | Explanation template | `templates/consumer/decision.md` |
 | Record type | `decision` |
 
 ### Identifier Form
 
-The identifier reads `decision/<number>-<name>`, such as `decision/0001-receipt-threshold`. The name states the choice in words, in at most six words, and the number counts as one of them. `litespec new decision` allocates the next free number from the one sequence shared across every home. The number keeps proposal order only: it records when each record was proposed, and carries no other meaning.
+The identifier reads `decision/<number>-<name>`, such as `decision/0001-receipt-threshold`. The name states the choice in at most six words, and the number counts as one of them. `litespec new decision` allocates the next free number from the one sequence shared across every home. The number keeps proposal order only: it records when each record was proposed, and carries no other meaning.
 
 ### What a Record Contains
 
@@ -67,7 +67,9 @@ Nobody writes a concern on a technical decision, so the value cannot drift: it i
 
 ### Decisions and Conventions
 
-A decision settles options at one moment, and its `reopenedWhen` names what would reopen it. A convention is a standing rule every change follows, and its `Reviewed for` question tells a reviewer how to find a breach. A convention states a judgment rule, never a word list: product language lives in the glossary, where the checks read it. A convention lives under `.litespec/governance/conventions/`, where `rules` reads it, and code cites it in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`.
+A decision settles options at one moment, and its `reopenedWhen` names what would reopen it. A convention is a standing rule every change follows, and its `Reviewed for` question tells a reviewer how to find a breach. A convention states a judgment rule, never a word list: product language lives in the glossary, where the checks read it.
+
+A convention lives under `.litespec/governance/conventions/`, where `rules` reads it, and code cites it in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`.
 
 ### Changed in Place
 
