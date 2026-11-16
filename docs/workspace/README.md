@@ -11,4 +11,4 @@ The Workspace pages define the shape every LiteSpec repository shares: one monor
 - [Workspace Structure](structure.md): the canonical monorepo tree for applications, packages, documentation, tests, and records.
 - [Naming and Code Style](naming.md): the names, suffixes, and file conventions that state intent and role.
 - [Dependencies](dependencies.md): which layer takes which package, who owns each package, and what a new package needs before it is added.
-- [Configuration](config.md): where each value lives, who owns it, and when a bad value fails.
+- [Configuration](config.md): where each value lives, who owns it, and how a wrong value fails.

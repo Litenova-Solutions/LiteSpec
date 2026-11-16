@@ -57,7 +57,7 @@ Each record maps to one design pattern, and the stack pages state the code form 
 | rule, invariant | an invariant checked on every change |
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
-| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate |
+| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `boundBy`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
 | rule, atomicity | one atomic write group across the aggregates it binds |
 | rule, reservation | a held claim with its release |
 | rule, frozen-value | a frozen commercial value with its history |
@@ -73,8 +73,6 @@ Each record maps to one design pattern, and the stack pages state the code form 
 | setting | one tunable value with its range and setter |
 | result | one ending per result, each refusal with its code |
 | scenario | an executable example proving the scenario |
-
-A precondition that spans aggregates reads the guarding aggregate synchronously: the use case names it in `reads`, with `consistency: atomic` and the guarding rule in `boundBy`. Use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable.
 
 ### Quotas and Rate Limits
 
@@ -94,7 +92,7 @@ A technical rate limit protects the platform, not the plan, so it is declared in
 
 **Statement:** A module MUST state its `summary` and its `dependsOn` in fields.
 
-**Rationale:** The module names one product area of the bounded context, so Intent, Behavior, and code share one name for one area. `summary` states what the area covers, and `dependsOn` names the modules it builds on, so a reader learns where each area sits and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+**Rationale:** The module names one product area of the bounded context, so Intent, Behavior, and code share one name for one area. `summary` states what the area covers in one place, and `dependsOn` names the modules it builds on, so a reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
 **Example:** The spending module covers expenses, receipts, and the policy, with an empty `dependsOn` where it stands alone.
 
@@ -110,7 +108,7 @@ A technical rate limit protects the platform, not the plan, so it is declared in
 
 **Statement:** Child entities and value objects MUST appear only in code and the glossary, never as records.
 
-**Rationale:** The design inside an aggregate changes without changing its business meaning, so a record for every child entity and value object would add pages without adding decisions a reviewer judges. Keeping those choices in code and the glossary puts them where builders and readers meet them, and leaves records for what carries business meaning.
+**Rationale:** The design inside an aggregate changes without changing its business meaning, so a record for every child entity and value object would triple the tree in size without adding one decision a reviewer judges. Keeping those choices in code and the glossary puts them where builders and readers meet them, and leaves records for what carries business meaning.
 
 **Example:** Order lines live as a child of the order aggregate, and money as a value with its glossary entry; neither is a record.
 
@@ -130,7 +128,7 @@ A technical rate limit protects the platform, not the plan, so it is declared in
 
 **Replacement:** A project names the records that carry an Example section in its documentation.
 
-**Rationale:** Fields state rules, states, and mappings, but none says when the behavior happens or who is affected while it runs. An occasion drawn from the one shared cast lets a reviewer judge the behavior against the world it serves, and lets readers carry the same people and figures from page to page.
+**Rationale:** Fields state rules, states, and mappings, but none says when the behavior happens or who is under pressure while it runs. An occasion drawn from the one shared cast lets a reviewer judge the behavior against the world it serves, and lets readers carry the same people and figures from page to page.
 
 **Reviewed for:** Does every module, aggregate, and use-case explanation file carry an Example section from the cast where a case would add to the records? Check the Example sections against the record files, or against the recorded project convention.
 

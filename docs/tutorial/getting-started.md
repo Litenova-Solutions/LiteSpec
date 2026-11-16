@@ -8,7 +8,7 @@ A use case is what the product does for one actor, a person or system using it. 
 
 - Install the .NET SDK and Node.js releases the adopted release pins under `stack` in its `litespec.manifest.yaml`.
 - Read nothing in advance. Each step links the standard it satisfies, so open each linked page when you reach its step.
-- This tutorial uses the `dotnet` backend with a React frontend, the pair from the `dotnet-react` preset. When the product needs another frontend, finish this tutorial first, then declare that frontend with its own how-to, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) or [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md).
+- This tutorial uses the `dotnet` backend with a React frontend, the pair from the `dotnet-react` preset. When the product ships another frontend, finish this tutorial first, then declare that frontend with its own how-to, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) or [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md).
 - When the project starts with records only and no stack, follow [Start with Records Only](../guide/start-with-records-only.md) instead of this tutorial.
 
 ## Lesson
@@ -47,4 +47,4 @@ Once the project runs, later intent follows the one sequence under [New Intent i
 - A consumer repository at small size that the model check accepts.
 - One coded use case with Intent, Behavior, code, tests, and generated contracts.
 - When you specify the next use case, follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to place each of its code elements with its mark, then check.
-- When the product needs another frontend, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) and [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md) declare it. The checks are documented on [Model Builder](../tools/model.md), and all commands are listed on the [command index](../tools/README.md).
+- When the product ships another frontend, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) and [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md) declare it. The checks are documented on [Model Builder](../tools/model.md), and all commands are listed on the [command index](../tools/README.md).

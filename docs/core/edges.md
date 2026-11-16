@@ -80,7 +80,7 @@ It names its `address`, the route template its stack uses: a web path, a Blazor 
 
 An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen offers no use case and says so in its `summary`.
 
-A screen states what a person can do there, and what the person sees follows from it. The results it shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is looked up by the refusal's `code`. None of those are written on the screen. Intent never names a screen either: a flow step states what a person achieves, and the book adds the screen that carries the step as context.
+A screen states what a person can do there, and what the person sees follows from it. The results it shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`. None of those are written on the screen. Intent never names a screen either: a flow step states what a person achieves, and the book adds the screen that carries the step as context.
 
 The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`.
 

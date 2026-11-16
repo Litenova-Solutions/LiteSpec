@@ -27,7 +27,7 @@ The Role Suffixes table on the shared [Naming and Code Style](../../workspace/na
 | Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
 | Assembly marker | `{Product}AssemblyMarker` | `ClaimwickAssemblyMarker` |
 
-Mapping classes use `ApiMappings` instead of `Mappings`.
+Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
 
 ## Standards
 

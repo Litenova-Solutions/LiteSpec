@@ -56,7 +56,7 @@ Three rules hold for every option, whichever one a project picks, and the Standa
 
 **Statement:** An amount, count, or quantity shown in a column MUST use tabular figures, so digits of equal place sit under each other.
 
-**Rationale:** Proportional figures give each digit its own width, so digits in equal places stop lining up down a column. A misaligned reversal column is easy to misread at a glance, and the wrong row gets paid. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.
+**Rationale:** Proportional figures give each digit its own width, so digits in equal places stop lining up down a column. A misaligned reversal column is misread at a glance, and the wrong row gets paid. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.
 
 **Reviewed for:** Does every built figure column line up by place? Open built amount, count, and quantity columns and read down each one.
 
@@ -176,7 +176,7 @@ page
 
 **Rationale:** Keep groups, subtotals, and a grand total, with a count under each line. The count is the only completeness check. The runner-up ends in the payouts the statement became, which fits finance checking the statement against bank lines.
 
-Links on every line can be added later, to whichever option the project picks. Never ship the one-figure option as the statement: it hides how the figure was reached.
+Add links on every line later, to whichever option the project picks. Never ship the one-figure option as the statement: it hides how the figure was reached.
 
 **Reviewed for:** Does the built totals page match the wireframe its catalog entry chose? Open the built groups, subtotals, and payout endings beside the catalog entry recording the chosen option and its reason.
 
@@ -332,7 +332,7 @@ page
     text muted "Each trip uses its own zone. Your zone is Europe/Amsterdam."
 ```
 
-**Rationale:** Every moment carries its own zone. Expenses on one page come from offices in different zones, and trips cross zones.
+**Rationale:** Every moment carries its own zone. Expenses on one page come from offices in different zones, and a trip in another zone is a real case.
 
 **Cost:** A column of repeated zones is hard to read. Stating the zone once instead reads wrong for rows from another zone.
 

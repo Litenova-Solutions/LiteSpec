@@ -76,7 +76,7 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version, the `s
 
 **Statement:** A screen class under `Screens/` MUST carry the `<implements>` mark of the screen it renders, in the form the .NET stack states.
 
-**Rationale:** The mark links the screen to its record the way a .NET handler carries its use-case mark, so the builder and the check read the same link shape.
+**Rationale:** The mark links the screen to its record the way a .NET handler carries its use-case mark, so the builder and the check read one link.
 
 **Example:** The Claimwick `ExpenseListScreen` carries `/// <implements>screen/claimwick-app.expense-list</implements>`.
 

@@ -17,7 +17,7 @@ The `State` property is backed by an abstract state record with one sealed recor
 
 In Claimwick, an expense moves from submitted to approved when `Approve` runs. The method accepts only a submitted expense, stores an approved state carrying the approver and the decided time, and raises the approval event.
 
-Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` aggregate is the exception. It has no root, state record, or repository in Domain, and is reached through a port.
+Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` aggregate is the exception. It has no root, state record, or repository in Domain, and reaches code through a port.
 
 ### Closed Sets Without Enums
 

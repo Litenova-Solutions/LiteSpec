@@ -6,7 +6,7 @@
 
 One deployment serves independent customer organizations, and each organization keeps its own data and policy isolated from the others. A tenant is a separate customer, not a separate login.
 
-This page states how the product resolves tenant identity from trusted context, how it isolates each tenant's data and policy across every boundary a tenant touches, and how it records the operations that cross tenant lines. A project selects this extension when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer's data to another.
+This page states how the product resolves tenant identity from trusted context, isolates each tenant's data and policy across authorization, storage, caches, reactions, jobs, exports, diagnostics, and recovery, and records the operations that cross tenant lines. A project selects this extension when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer's data to another.
 
 ## Activation
 
@@ -48,7 +48,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A multi-tenant decision MUST define shared-table, schema, or database isolation and state its guarantee and operating trade-off.
 
-**Rationale:** Shared tables, separate schemas, and separate databases isolate data differently, and each choice moves work between queries, migrations, backups, and scaling. Naming the model with its guarantee and its operating trade-off tells every later choice which isolation it can rely on.
+**Rationale:** Shared tables, separate schemas, and separate databases isolate differently and operate differently, and each choice moves work between queries, migrations, backups, and scaling. Naming the model with its guarantee and its operating trade-off tells every later choice which isolation it can rely on.
 
 **Reviewed for:** Does the adoption decision name its isolation model with its guarantee and operating trade-off? Check the adoption decision.
 

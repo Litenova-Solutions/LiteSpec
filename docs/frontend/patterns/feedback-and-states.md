@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-This page defines the patterns for the states a screen shows around its main work. Each pattern answers one recurring question about those states, from what an empty list shows to how a failed command reports itself, and every decided state says what happened, what it means, and what the reader can do next.
+This page defines the patterns for the states a screen shows around its work. Each pattern answers one recurring question about those states, from what an empty list shows to how a failed command reports itself, and every decided state says what happened, what it means, and what the reader can do next.
 
 Each pattern names a default option: the shape the project builds unless the owner records another choice in the project's pattern catalog, the file that holds the project's interface decisions.
 
@@ -13,7 +13,7 @@ Each pattern names a default option: the shape the project builds unless the own
 
 A pattern answers one recurring question about screen states, such as what a list shows before its first records exist. It states that question, then names its default option: the shape the project builds unless the owner records another choice. It then states how the default behaves on a narrow screen, the reason it is the default, which alternative fits which case, and which shape to leave out.
 
-Each option is one `####` heading with a stable option ID, one wireframe, and short parts after it: its rationale, its cost, and sometimes a reference naming the established product the option follows.
+Each option is one `####` heading with a stable option ID, one wireframe, and short parts after it: its rationale, its cost, and sometimes a reference to the outside product it learns from.
 
 A wireframe states the structure of the option and the copy it shows, and nothing about color, font, or components: the team builds the chosen option in its own stack and design system. For example, the loading pattern's default draws skeleton rows at the real row height, and an owner who needs a re-read indicator records the thin-bar option instead. The [UI patterns page](../patterns.md) states the catalog contract and the wireframe language.
 
@@ -93,7 +93,7 @@ Every wireframe follows the six rules in Standards below: a refusal or error mes
 
 **Statement:** A route that loses its connection MUST keep the user's unsent input and show the error state with a retry action.
 
-**Rationale:** A long expense form lost to a dropped connection is typed again or abandoned. Keeping the unsent input on screen with a retry action lets the reader retry the read instead of retyping the form.
+**Rationale:** A long expense form lost to a train tunnel is typed again or abandoned. Keeping the unsent input on screen with a retry action lets the reader retry the read instead of retyping the form.
 
 **Reviewed for:** Does every built route keep typed input when the connection drops and offer a retry? Drop the connection on each route holding unsent input and try the retry.
 

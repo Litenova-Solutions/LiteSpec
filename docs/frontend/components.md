@@ -201,7 +201,7 @@ The level column marks which target each criterion belongs to: AA for every proj
 
 **Statement:** A data component MUST render loading, empty, error, forbidden, and ready.
 
-**Rationale:** A component rendering only its ready state leaves the user with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test covering it. Naming every state up front gives each one a designed drawing.
+**Rationale:** A component rendering only its ready state leaves the user with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test covering it. Naming every arrival state up front gives each one a designed drawing.
 
 A route adds `not-found` under `litespec/frontend/rendering#define-every-route-state`, because a missing target resolves at the route rather than inside a component. Each state name is a term in the project glossary.
 
