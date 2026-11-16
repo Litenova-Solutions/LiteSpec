@@ -13,7 +13,7 @@ static class BookLexiconParsers
     /// <summary>Gets the model-page sections the book explains from, in display order.</summary>
     static IReadOnlyList<string> SectionHeadings { get; } =
     [
-        "Completion Stages", "Check Levels",
+        "Completion Stages", "Check Levels", "Links",
     ];
 
 
@@ -117,6 +117,29 @@ static class BookLexiconParsers
         return sections;
     }
 
+    /// <summary>The reach-states paragraph: what claimed and verified mean for a link, from the Book section's own paragraph.</summary>
+    /// <param name="file">The carried page.</param>
+    /// <param name="lines">The page lines.</param>
+    /// <returns>The reach-states section.</returns>
+    /// <follows>litespec/core/model#explain-the-book-from-litespec-definitions</follows>
+    public static LexiconSection ParseReachStates(string file, string[] lines)
+    {
+        var at = BookLexiconTables.HeadingIndex(lines, "The Book");
+        if (at < 0)
+        {
+            throw new BookLexiconException(file, $"'{file}' holds no '### The Book' section.");
+        }
+
+        var paragraph = BookLexiconTables.Paragraphs(BookLexiconTables.SectionBody(lines, at))
+            .FirstOrDefault(p => p.Contains("`claimed`", StringComparison.Ordinal));
+        if (paragraph is null)
+        {
+            throw new BookLexiconException(file, $"'{file}' section '### The Book' holds no claimed paragraph.");
+        }
+
+        return new LexiconSection(paragraph, "model.md, The Book");
+    }
+
     /// <summary>The finding-code table: check level and meaning per code, read by column name.</summary>
     /// <param name="file">The carried page.</param>
     /// <param name="lines">The page lines.</param>
@@ -167,7 +190,8 @@ static class BookLexiconParsers
                     source = BookLexiconTables.EmptyToNull(BookLexiconTables.Unfield(paragraph, "Source:"));
                 }
                 else if (!paragraph.StartsWith("Aliases:", StringComparison.Ordinal)
-                    && !paragraph.StartsWith("Rejected:", StringComparison.Ordinal))
+                    && !paragraph.StartsWith("Rejected:", StringComparison.Ordinal)
+                    && !paragraph.StartsWith("Home:", StringComparison.Ordinal))
                 {
                     definition.Add(paragraph);
                 }

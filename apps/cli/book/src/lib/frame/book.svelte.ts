@@ -29,7 +29,7 @@ import type {
   View,
 } from "./shard-types";
 import { isScenarioType } from "./shard-types";
-import { areaKeysOf } from "./product-areas";
+import { UNFULFILLED_AREA, areaGroupKey, areaKeysOf } from "./product-areas";
 import {
   parseIntentCoverageEntries,
   parseLexicon,
@@ -135,6 +135,10 @@ export class Book {
   search: BookSearch | null = null;
   private outlineLoaded: Record<string, boolean> = {};
   private shardLoaded: Record<string, boolean> = {};
+  /** The layer loads in flight, so concurrent callers share one load instead of appending the layer twice. */
+  private layerLoads: Record<string, Promise<void>> = {};
+  /** Bumped whenever the model clears, so a layer load that finishes after a rebuild discards its stale outline. */
+  private loadGen = 0;
   private searchPromise: Promise<void> | null = null;
   private securityPromise: Promise<void> | null = null;
   private coveragePromise: Promise<void> | null = null;
@@ -295,6 +299,8 @@ export class Book {
     this.securityPromise = null;
     this.coveragePromise = null;
     this.productAreasPromise = null;
+    this.layerLoads = {};
+    this.loadGen++;
     this.renderedNav = null;
     this.touch();
   }
@@ -380,6 +386,8 @@ export class Book {
 
   async ensureLayer(key: string): Promise<void> {
     if (this.outlineLoaded[key]) return;
+    const running = this.layerLoads[key];
+    if (running) return running;
     const layer = this.layerByKey[key];
     if (!layer) return;
     if (!layer.outline.length) {
@@ -388,14 +396,27 @@ export class Book {
       this.kidsOf["layer/" + key] = this.rootsOf[key] ?? [];
       return;
     }
+    // One shared load per layer: every concurrent caller awaits the same
+    // promise, so the outline is added once no matter how many callers overlap.
+    const gen = this.loadGen;
+    const run = (async (): Promise<void> => {
+      try {
+        const values = await Promise.all(
+          layer.outline.map(async (shard) => parseOutlineNodes(await this.shards.load(shard))),
+        );
+        if (gen === this.loadGen) this.addLayerOutline(key, values);
+      } finally {
+        if (gen === this.loadGen) {
+          this.outlineLoaded[key] = true;
+          this.touchOutline();
+        }
+      }
+    })();
+    this.layerLoads[key] = run;
     try {
-      const values = await Promise.all(
-        layer.outline.map(async (shard) => parseOutlineNodes(await this.shards.load(shard))),
-      );
-      this.addLayerOutline(key, values);
+      await run;
     } finally {
-      this.outlineLoaded[key] = true;
-      this.touchOutline();
+      if (this.layerLoads[key] === run) delete this.layerLoads[key];
     }
   }
 
@@ -961,8 +982,56 @@ export class Book {
     this.expanded = next;
   }
 
+  /** Closes every record, group and layer except the path to the selected record, so only the layer headers and that path stay visible. */
   collapseAll(): void {
-    this.expanded = {};
+    const sel = this.selected ? stripStep(this.selected) : null;
+    const keepExpanded = new Set<string>();
+    const keepGroups = new Set<string>();
+    let keepLayer: string | null = null;
+    if (sel && (this.node[sel] || this.rec[sel])) {
+      const chain: string[] = [sel];
+      let current = this.parentOf[sel] ?? null;
+      while (current && !chain.includes(current)) {
+        chain.push(current);
+        current = this.parentOf[current] ?? null;
+      }
+      for (const id of chain) {
+        if ((this.kidsOf[id] ?? []).length) keepExpanded.add(id);
+        const holder = this.parentOf[id] ?? this.layerOf[id] ?? "";
+        if (holder) keepGroups.add(holder + "|" + this.groupOf(id).key);
+      }
+      if (this.productAreas) {
+        for (const key of areaKeysOf(this.productAreas, chain)) keepGroups.add(key);
+      }
+      keepLayer = this.layerOf[sel] ?? null;
+    }
+    const nextOpen: Record<string, boolean> = {};
+    if (keepLayer) nextOpen[keepLayer] = true;
+    this.openLayers = nextOpen;
+    const nextExpanded: Record<string, boolean> = {};
+    for (const id of keepExpanded) nextExpanded[id] = true;
+    this.expanded = nextExpanded;
+    // Every group header the outline renders, using the same rule as the row
+    // builder: children of one record type list directly, without a header.
+    const closed: Record<string, boolean> = {};
+    const groupKeyOf = (id: string): string =>
+      id.includes("#finding-") || id.startsWith("finding/") ? "type:finding" : this.groupOf(id).key;
+    const visit = (kids: readonly string[], parent: string): void => {
+      const keys = new Set(kids.map(groupKeyOf));
+      if (keys.size > 1) for (const key of keys) closed[parent + "|" + key] = true;
+      for (const id of kids) {
+        const next = this.kidsOf[id];
+        if (next?.length) visit(next, id);
+      }
+    };
+    for (const layer of this.man?.layers ?? []) visit(this.rootsOf[layer.key] ?? [], layer.key);
+    if (this.productAreas) {
+      for (const mod of this.productAreas.modules) closed[areaGroupKey(mod.id)] = true;
+      const un = this.productAreas.unfulfilled;
+      if (un.features.length || un.flows.length) closed[areaGroupKey(UNFULFILLED_AREA)] = true;
+    }
+    for (const key of keepGroups) delete closed[key];
+    this.closedGroups = closed;
   }
 
   private async preloadUpChain(id: string): Promise<void> {

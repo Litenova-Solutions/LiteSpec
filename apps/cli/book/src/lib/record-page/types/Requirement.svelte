@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { book, esc, stripStep } from "$lib/frame";
+  import { book, esc, hoverState, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { RecordLink, TypeTag } from "$lib/record";
+  import { Hover, RecordLink, TypeTag } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
@@ -71,13 +71,16 @@
         <li class="grid grid-cols-[20px_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5 border-b border-border-subtle py-3 pr-4 hover:bg-layer-hover">
           <TypeTag type={book.typeOf(stripStep(rid))} />
           <span class="min-w-0 text-sm">
-            <RecordLink id={rid} />{#if state}{" "}<span
+            <RecordLink id={rid} />{#if state}{" "}<Hover hover={hoverState(book, state === "Verified" ? "verified" : "claimed")}>
+              <span
+                data-explain={state === "Verified" ? "verified" : "claimed"}
                 class="inline-flex h-[18px] items-center gap-1 rounded-full px-2 text-xs tracking-[0.32px] {state === 'Verified'
                   ? 'bg-tag-teal text-tag-teal-foreground'
                   : 'bg-tag-warm text-tag-warm-foreground'}"
               >
                 {state}
-              </span>{/if}
+              </span>
+            </Hover>{/if}
           </span>
         </li>
       {/each}

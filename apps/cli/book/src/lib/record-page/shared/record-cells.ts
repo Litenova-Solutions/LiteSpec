@@ -43,11 +43,12 @@ const TAG_TONE: Record<TagTone, string> = {
   outline: "ring-1 ring-inset ring-border-strong text-text-secondary",
 };
 
-/** A state tag, small inside tables and summaries, full size in the results table. */
+/** A state tag, small inside tables and summaries, full size in the results table. A tag with an explanation key opens it on hover, focus or click. */
 export function tag(text: string, tone: TagTone, size: "sm" | "md" = "sm", explain?: string): string {
   const height = size === "sm" ? "h-[18px]" : "h-6";
-  const ex = explain ? ` data-explain="${esc(explain)}"` : "";
-  return `<span class="inline-flex ${height} items-center gap-1 rounded-full px-2 text-xs tracking-[0.32px] ${TAG_TONE[tone]}"${ex}>${esc(text)}</span>`;
+  const ex = explain ? ` data-explain="${esc(explain)}" tabindex="0"` : "";
+  const cursor = explain ? " cursor-help" : "";
+  return `<span class="inline-flex ${height} items-center gap-1 rounded-full px-2 text-xs tracking-[0.32px]${cursor} ${TAG_TONE[tone]}"${ex}>${esc(text)}</span>`;
 }
 
 const CLS_TONE: Record<string, TagTone> = {
@@ -76,9 +77,11 @@ export function refLink(book: Book, id: string, label?: string): string {
   return `<span class="font-mono text-xs text-text-secondary">${esc(label ?? b)}</span>`;
 }
 
-/** A result outcome as a tag: success reads green, a refusal reads red. */
+/** A result outcome as a tag: success reads green, a refusal reads red. Each explains from the glossary. */
 export function outcomeTag(outcome: string): string {
-  return outcome === "success" ? tag("Success", "green", "md") : tag(capitalize(outcome || "refusal"), "red", "md");
+  return outcome === "success"
+    ? tag("Success", "green", "md", "g:outcome")
+    : tag(capitalize(outcome || "refusal"), "red", "md", "g:refusal");
 }
 
 /** A field's type with the record its values come from below it. */

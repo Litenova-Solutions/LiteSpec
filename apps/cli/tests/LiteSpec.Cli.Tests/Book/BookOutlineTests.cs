@@ -485,16 +485,128 @@ public sealed class BookOutlineTests
 
         var useCase = Find(outline.Layers, "use-case/lending.borrow-copy");
         Assert.NotNull(useCase);
-        var open = useCase!.Children.SingleOrDefault(child => string.Equals(child.Id, "finding/1", StringComparison.Ordinal));
+        var open = useCase!.Children.SingleOrDefault(child => string.Equals(child.Id, "use-case/lending.borrow-copy#finding-1", StringComparison.Ordinal));
         Assert.NotNull(open);
         Assert.Equal("finding", open!.Kind);
         Assert.Equal("finding", open.Type);
         Assert.Equal("Use case 'use-case/lending.borrow-copy' has no handler, reaction or job.", open.Label);
-        var accepted = useCase.Children.SingleOrDefault(child => string.Equals(child.Id, "finding/3", StringComparison.Ordinal));
+        var accepted = useCase.Children.SingleOrDefault(child => string.Equals(child.Id, "use-case/lending.borrow-copy#finding-2", StringComparison.Ordinal));
         Assert.NotNull(accepted);
         Assert.Equal("finding", accepted!.Kind);
 
-        Assert.Null(Find(outline.Layers, "finding/2"));
+        Assert.Null(Find(outline.Layers, "finding/1"));
+        Assert.All(AllIds(outline.Layers), id => Assert.False(id.StartsWith("finding/", StringComparison.Ordinal), $"Finding node id '{id}' matches no record."));
+    }
+
+    /// <summary>A term stating layer behavior sits under the Behavior Terms group, and an intent term or a term stating no layer sits under the Intent Terms group.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void BehaviorLayerTermSitsUnderBehaviorTerms()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("term", "term/business", "Business", "approved", fields: new JsonObject { ["layer"] = "intent" }),
+            Record("term", "term/sign-in", "sign-in", "approved", fields: new JsonObject { ["layer"] = "behavior" }),
+            Record("term", "term/loan", "Loan", "approved"));
+
+        var outline = BookOutline.Build(model);
+
+        Assert.Empty(outline.Unplaced);
+
+        var intentTerms = Find(outline.Layers, "intent/term");
+        Assert.NotNull(intentTerms);
+        Assert.Equal("Terms", intentTerms!.Label);
+        Assert.Contains(intentTerms.Children, child => string.Equals(child.Id, "term/business", StringComparison.Ordinal));
+        Assert.Contains(intentTerms.Children, child => string.Equals(child.Id, "term/loan", StringComparison.Ordinal));
+        Assert.DoesNotContain(intentTerms.Children, child => string.Equals(child.Id, "term/sign-in", StringComparison.Ordinal));
+
+        var behaviorTerms = Find(outline.Layers, "behavior/term");
+        Assert.NotNull(behaviorTerms);
+        Assert.Equal("Terms", behaviorTerms!.Label);
+        Assert.Contains(behaviorTerms.Children, child => string.Equals(child.Id, "term/sign-in", StringComparison.Ordinal));
+        Assert.DoesNotContain(behaviorTerms.Children, child => string.Equals(child.Id, "term/business", StringComparison.Ordinal));
+    }
+
+    /// <summary>A term record displays its word in Title Case: verbs capitalize, hyphenated parts each capitalize, and small words stay lowercase past the first.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void TermTitleDisplaysInTitleCase()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("term", "term/sign-in", "sign-in", "approved"),
+            Record("term", "term/chart-of-accounts", "chart of accounts", "approved"),
+            Record("term", "term/business", "Business", "approved"));
+
+        var outline = BookOutline.Build(model);
+
+        var signIn = Find(outline.Layers, "term/sign-in");
+        Assert.NotNull(signIn);
+        Assert.Equal("Sign-In", signIn!.Label);
+
+        var chart = Find(outline.Layers, "term/chart-of-accounts");
+        Assert.NotNull(chart);
+        Assert.Equal("Chart of Accounts", chart!.Label);
+
+        var business = Find(outline.Layers, "term/business");
+        Assert.NotNull(business);
+        Assert.Equal("Business", business!.Label);
+    }
+
+    /// <summary>A finding node id names its subject record and its 1-based position among that subject's findings, open findings before known ones.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void FindingNodeIdNamesItsSubjectAndPosition()
+    {
+        var model = FullModel(
+            [
+                Record("product", "product/library", "Library", "approved"),
+                Record("module", "module/lending", "Lending", "reviewed"),
+                Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed"),
+            ],
+            findings: new JsonArray(
+                new JsonObject
+                {
+                    ["code"] = "first",
+                    ["tier"] = "G",
+                    ["message"] = "First.",
+                    ["subject"] = "use-case/lending.borrow-copy",
+                },
+                new JsonObject
+                {
+                    ["code"] = "second",
+                    ["tier"] = "G",
+                    ["message"] = "Second.",
+                    ["subject"] = "use-case/lending.borrow-copy",
+                }),
+            known: new JsonArray(
+                new JsonObject
+                {
+                    ["code"] = "third",
+                    ["tier"] = "A",
+                    ["message"] = "Third.",
+                    ["subject"] = "use-case/lending.borrow-copy",
+                    ["outcome"] = "accepted",
+                    ["reason"] = "Later.",
+                }));
+
+        var outline = BookOutline.Build(model);
+
+        var useCase = Find(outline.Layers, "use-case/lending.borrow-copy");
+        Assert.NotNull(useCase);
+        Assert.Equal(
+            new[]
+            {
+                "use-case/lending.borrow-copy#finding-1",
+                "use-case/lending.borrow-copy#finding-2",
+                "use-case/lending.borrow-copy#finding-3",
+            },
+            useCase!.Children
+                .Where(child => string.Equals(child.Kind, "finding", StringComparison.Ordinal))
+                .Select(child => child.Id)
+                .OrderBy(id => id, StringComparer.Ordinal)
+                .ToList());
+        Assert.All(AllIds(outline.Layers), id => Assert.False(id.StartsWith("finding/", StringComparison.Ordinal), $"Finding node id '{id}' matches no record."));
     }
 
     /// <summary>Containment follows the identifier home: aggregates, use cases, results and rules.</summary>
@@ -1022,6 +1134,26 @@ public sealed class BookOutlineTests
         foreach (var child in node.Children)
         {
             Collect(child, found);
+        }
+    }
+
+    static List<string> AllIds(IReadOnlyList<BookOutlineNode> layers)
+    {
+        var found = new List<string>();
+        foreach (var layer in layers)
+        {
+            CollectAll(layer, found);
+        }
+
+        return found;
+    }
+
+    static void CollectAll(BookOutlineNode node, List<string> found)
+    {
+        found.Add(node.Id);
+        foreach (var child in node.Children)
+        {
+            CollectAll(child, found);
         }
     }
 

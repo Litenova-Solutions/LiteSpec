@@ -15,7 +15,7 @@ static class BookModel
     /// <summary>The navigation layers, in display order.</summary>
     public static readonly IReadOnlyList<BookLayer> Layers =
     [
-        new("Why", ["product", "goal", "vision", "constraint", "research", "decision", "requirement"]),
+        new("Why", ["product", "goal", "direction", "constraint", "research", "decision", "requirement"]),
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
         new("Flows", ["flow"]),
@@ -32,7 +32,7 @@ static class BookModel
         {
             ["product"] = ("Product", "Product"),
             ["goal"] = ("Goal", "Goals"),
-            ["vision"] = ("Vision", "Visions"),
+            ["direction"] = ("Direction", "Directions"),
             ["constraint"] = ("Constraint", "Constraints"),
             ["research"] = ("Research", "Research"),
             ["decision"] = ("Decision", "Decisions"),
@@ -104,9 +104,58 @@ static class BookModel
             : new SplitId(id[..slash], rest[..dot], rest[(dot + 1)..]);
     }
 
-    /// <summary>The title a record sorts and links under: its title, or its id when empty.</summary>
+    /// <summary>The title a record sorts and links under: its display title, or its id when empty.</summary>
     /// <param name="record">The record.</param>
     /// <returns>The sort title.</returns>
     public static string SortTitle(JsonObject record) =>
-        BookRender.IsTruthy(record["title"]) ? BookRender.Str(record["title"]) : BookRender.PropText(record, "id");
+        BookRender.IsTruthy(record["title"])
+            ? DisplayTitle(BookRender.StrProp(record, "type"), BookRender.Str(record["title"]))
+            : BookRender.PropText(record, "id");
+
+    /// <summary>Small words that stay lowercase in a term title unless they open it.</summary>
+    static readonly HashSet<string> TermSmallWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to", "with",
+    };
+
+    /// <summary>The title a record displays under: a term record shows its term in Title Case, every other record shows its title.</summary>
+    /// <param name="type">The record type, or null.</param>
+    /// <param name="title">The record title as written.</param>
+    /// <returns>The display title.</returns>
+    public static string DisplayTitle(string? type, string title) =>
+        string.Equals(type, "term", StringComparison.Ordinal) && title.Length > 0
+            ? TermTitleCase(title)
+            : title;
+
+    /// <summary>One glossary word in Title Case: every word opens uppercase, every hyphenated part opens uppercase, and a small word stays lowercase unless it opens the title.</summary>
+    /// <param name="term">The glossary word as written.</param>
+    /// <returns>The word in Title Case.</returns>
+    public static string TermTitleCase(string term)
+    {
+        var words = term.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        for (var at = 0; at < words.Length; at++)
+        {
+            var word = words[at];
+            if (word.Contains('-'))
+            {
+                words[at] = string.Join("-", word.Split('-').Select(Cap));
+            }
+            else if (at > 0 && TermSmallWords.Contains(word))
+            {
+                words[at] = word.ToLowerInvariant();
+            }
+            else
+            {
+                words[at] = Cap(word);
+            }
+        }
+
+        return string.Join(" ", words);
+    }
+
+    /// <summary>One word with its first letter uppercased, the rest unchanged.</summary>
+    /// <param name="word">The word to capitalize, possibly empty.</param>
+    /// <returns>The word with its first letter uppercased.</returns>
+    static string Cap(string word) =>
+        word.Length == 0 ? word : char.ToUpperInvariant(word[0]) + word[1..];
 }

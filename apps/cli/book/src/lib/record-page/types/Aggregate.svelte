@@ -35,8 +35,8 @@
     model.states.map((s) => [
       thRow(
         esc(s.name) +
-          (s.created ? ` ${tag("created as", "outline")}` : "") +
-          (s.unreached ? ` ${tag("not reachable", "outline", "sm", "reachable")}` : ""),
+          (s.created ? ` ${tag("created as", "outline", "sm", "g:creation")}` : "") +
+          (s.unreached ? ` ${tag("not reachable", "outline", "sm")}` : ""),
       ),
       td(esc(s.meaning)),
     ]),

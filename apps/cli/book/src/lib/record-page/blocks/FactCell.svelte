@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover } from "$lib/record";
   import type { Snippet } from "svelte";
 
   // One fact tile: a label, a value, and an optional hint below it. A short
-  // figure reads big; a sentence never does.
+  // figure reads big; a sentence never does. Hovering the label explains the field.
   type Props = {
     k: string;
     html?: string | null;
@@ -15,7 +16,7 @@
 </script>
 
 <div class="bg-background p-4">
-  <div class="text-xs tracking-[0.32px] text-text-secondary">{book.fieldLabel(k)}</div>
+  <div class="text-xs tracking-[0.32px] text-text-secondary"><Hover hover={hoverSection(book, k, "")}>{book.fieldLabel(k)}</Hover></div>
   <div class="mt-1 min-w-0 [overflow-wrap:anywhere] {big ? 'text-[28px] leading-9 font-light tabular-nums' : 'text-sm'} [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
     {#if html !== null}
       {@html html}

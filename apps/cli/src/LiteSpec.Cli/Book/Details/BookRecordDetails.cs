@@ -179,7 +179,7 @@ static class BookRecordDetails
         var detail = new JsonObject
         {
             ["type"] = BookRender.StrProp(record, "type") ?? "",
-            ["title"] = BookRender.StrProp(record, "title") ?? "",
+            ["title"] = BookModel.DisplayTitle(BookRender.StrProp(record, "type"), BookRender.StrProp(record, "title") ?? ""),
             ["folder"] = BookRender.StrProp(record, "folder") ?? "",
             ["module"] = BookRender.StrNode(BookRender.StrProp(record, "module")),
             ["fields"] = fields,

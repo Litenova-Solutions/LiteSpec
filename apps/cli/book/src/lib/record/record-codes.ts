@@ -2,7 +2,7 @@
 // learned from the hover explanation and the About this book table. Each code is
 // unique; a type the table does not hold reads with its first two letters.
 const CODES: Record<string, string> = {
-  product: "P", vision: "V", goal: "G", problem: "Pb", feature: "F", requirement: "R", flow: "Fl",
+  product: "P", direction: "Di", goal: "G", problem: "Pb", feature: "F", requirement: "R", flow: "Fl",
   actor: "A", role: "Ro", constraint: "C", decision: "D", research: "Rs", waiver: "Dp", term: "T",
   module: "M", aggregate: "Ag", "use-case": "U", result: "Rt", scenario: "S", rule: "Ru",
   "domain-event": "E", "module-event": "ME", "integration-event": "IE", "read-model": "RM", reaction: "Re", job: "J",
@@ -51,7 +51,7 @@ const COLOR_CLASS: Record<string, string> = {
 
 const TYPE_COLOR: Record<string, string> = {
   product: "gray", term: "gray",
-  vision: "magenta", goal: "green", problem: "red", feature: "blue", requirement: "purple", flow: "cyan",
+  direction: "magenta", goal: "green", problem: "red", feature: "blue", requirement: "purple", flow: "cyan",
   constraint: "warm", research: "cool", decision: "yellow", actor: "teal", role: "teal",
   module: "cool", aggregate: "blue", rule: "magenta", "use-case": "teal", result: "green", scenario: "cyan",
   "domain-event": "yellow", "module-event": "yellow", "integration-event": "yellow", reaction: "purple", job: "purple",

@@ -161,13 +161,13 @@ public sealed class BookViewsTests
         Assert.Equal("test", Str(test, "kind"));
         Assert.Equal("scenario/borrow-copy.borrowing-an-available-copy-succeeds", parents["test/Library.Tests.BorrowTests.Borrowing_An_Available_Copy_Succeeds"]);
 
-        var finding = FindNode(tops, "finding/1");
+        var finding = FindNode(tops, "use-case/lending.return-copy#finding-1");
         Assert.Equal("finding", Str(finding, "kind"));
-        Assert.Equal("use-case/lending.return-copy", parents["finding/1"]);
+        Assert.Equal("use-case/lending.return-copy", parents["use-case/lending.return-copy#finding-1"]);
 
-        var known = FindNode(tops, "finding/2");
+        var known = FindNode(tops, "flow/borrowing#finding-1");
         Assert.Equal("finding", Str(known, "kind"));
-        Assert.Equal("flow/borrowing", parents["finding/2"]);
+        Assert.Equal("flow/borrowing", parents["flow/borrowing#finding-1"]);
     }
 
     /// <summary>A record detail renders its explanation as text: headings, spans, lists, tables, code and quotes.</summary>
@@ -190,8 +190,8 @@ public sealed class BookViewsTests
         Assert.Contains("<blockquote>", html, StringComparison.Ordinal);
         Assert.Contains("<hr>", html, StringComparison.Ordinal);
         Assert.Contains("href=\"#use-case/lending.borrow-copy\"", html, StringComparison.Ordinal);
-        Assert.Contains("<span class=\"reviewer-only\">Borrow Copy</span>", html, StringComparison.Ordinal);
-        Assert.Contains("<span class=\"dev-only mono\">use-case/lending.borrow-copy</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<a href=\"#use-case/lending.borrow-copy\" title=\"use-case/lending.borrow-copy\">Borrow Copy</a>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Borrow Copyuse-case/lending.borrow-copy", html, StringComparison.Ordinal);
         Assert.DoesNotContain("## Bounds", html, StringComparison.Ordinal);
 
         var sections = Obj(loan, "sections");
@@ -828,7 +828,7 @@ public sealed class BookViewsTests
     /// <returns>True when the type starts its own outline layer. A feature naming solved problems nests under each problem instead.</returns>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
-            or "waiver" or "term" or "goal" or "vision" or "problem" or "feature"
+            or "waiver" or "term" or "goal" or "direction" or "problem" or "feature"
             or "requirement" or "constraint" or "decision" or "research" or "flow"
             or "actor" or "rule";
 

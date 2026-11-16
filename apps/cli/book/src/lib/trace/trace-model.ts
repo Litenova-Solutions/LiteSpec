@@ -1,7 +1,7 @@
 // The trace's local model: the goal-to-behavior trace, the words for
 // implementation kinds, and the kept-by sentences. Every band word comes from
 // the lexicon's layer labels; the store supplies records and relations.
-import { capitalize, isScenarioType, pluralize, stripStep } from "$lib/frame";
+import { capitalize, completionLines, isScenarioType, pluralize, stageLine, stripStep } from "$lib/frame";
 import type { Book, BookRecord, BookTest, ImplKind } from "$lib/frame";
 
 /** A goal nothing serves reads as a gap in the trace and the Intent tree. */
@@ -76,9 +76,14 @@ export function proofTestKey(test: BookTest): string {
   return (test.name ?? "") + "|" + (test.path ?? test.file ?? "");
 }
 
+/** Which way a trace edge points from the walked record: its out edge, its in edge, or containment with no edge. */
+export type TraceEdgeDir = "out" | "in" | "contains";
+
 export interface DownEntry {
   id: string;
   phrase: string;
+  field: string | null;
+  dir: TraceEdgeDir;
 }
 
 // Down the authority order: what each record type leads to in the layer below,
@@ -92,19 +97,21 @@ export function downOf(book: Book, id: string): DownEntry[] {
   const linked = (list: readonly string[] | null | undefined, field: string) => {
     for (const raw of list ?? []) {
       const x = stripStep(raw) ?? "";
-      if (book.has(x) && x !== self) out.push({ id: x, phrase: book.phraseFor(field, book.typeOf(x), "inverse") });
+      if (book.has(x) && x !== self) {
+        out.push({ id: x, phrase: book.phraseFor(field, book.typeOf(x), "inverse"), field, dir: "in" });
+      }
     }
   };
   // Records reached by containment, not by a link field, read in the trace's own words.
   const contained = (list: readonly string[], phrase: string) => {
     for (const raw of list) {
       const x = stripStep(raw) ?? "";
-      if (book.has(x) && x !== self) out.push({ id: x, phrase });
+      if (book.has(x) && x !== self) out.push({ id: x, phrase, field: null, dir: "contains" });
     }
   };
   if (t === "product") contained(book.order.filter((x) => book.typeOf(x) === "goal"), "a goal of the product");
-  if (t === "product") contained(book.order.filter((x) => book.typeOf(x) === "vision"), "a vision of the product");
-  if (t === "vision") {
+  if (t === "product") contained(book.order.filter((x) => book.typeOf(x) === "direction"), "a direction of the product");
+  if (t === "direction") {
     linked(book.ins(id, "basedOn"), "basedOn");
     linked(book.ins(id, "cites"), "cites");
   }
@@ -123,10 +130,10 @@ export function downOf(book: Book, id: string): DownEntry[] {
 }
 
 export type TraceRow =
-  | { kind: "rec"; id: string; depth: number; phrase: string; here: boolean; showPh: boolean }
+  | { kind: "rec"; id: string; depth: number; phrase: string; here: boolean; showPh: boolean; field: string | null; dir: TraceEdgeDir; via: string | null }
   | { kind: "note"; note: string; depth: number; band: string }
   | { kind: "gap"; gap: string; depth: number; band: string }
-  | { kind: "more"; more: number; depth: number; t: string; band: string };
+  | { kind: "more"; more: number; depth: number; t: string; band: string; field: string | null; dir: TraceEdgeDir; phrase: string; via: string | null };
 
 /** The stable key for a trace row: the record id, or the band text it shows. */
 export function traceRowKey(row: TraceRow): string {
@@ -148,6 +155,22 @@ export interface TraceModel {
   bands: TraceBand[];
 }
 
+/** The walk edge from one trace record to the next: the carrier's out edge first, else its in edge, else containment. */
+function walkEdge(book: Book, carrierId: string, nextId: string): { field: string | null; dir: TraceEdgeDir; phrase: string } {
+  const next = stripStep(nextId);
+  for (const edge of book.outEdges(carrierId)) {
+    if (edge.id === next) {
+      return { field: edge.field, dir: "out", phrase: book.phraseFor(edge.field, book.typeOf(carrierId), "forward") };
+    }
+  }
+  for (const edge of book.inEdges(carrierId)) {
+    if (edge.id === next) {
+      return { field: edge.field, dir: "in", phrase: book.phraseFor(edge.field, book.typeOf(next), "inverse") };
+    }
+  }
+  return { field: null, dir: "contains", phrase: "" };
+}
+
 export function buildTrace(book: Book, id: string): TraceModel {
   void book.rev;
   const intentBand = book.layerByKey.intent?.label ?? "Intent";
@@ -159,12 +182,14 @@ export function buildTrace(book: Book, id: string): TraceModel {
   // so the trace reaches code and tests without the detail.
   const top = book.typeOf(id);
   const quiet = !isScenarioType(top) && top !== "result" && top !== "scenario" && top !== "rule";
-  for (const x of up) {
+  // Each record above the open one is reached from the record below it: the
+  // last one above from the open record itself.
+  up.forEach((x, i) => {
     seen[x] = true;
-    rows.push({ kind: "rec", id: x, depth: 0, phrase: "", here: false, showPh: false });
-  }
+    rows.push({ kind: "rec", id: x, depth: 0, here: false, showPh: false, via: up[i + 1] ?? id, ...walkEdge(book, up[i + 1] ?? id, x) });
+  });
   seen[id] = true;
-  rows.push({ kind: "rec", id, depth: 0, phrase: "", here: true, showPh: false });
+  rows.push({ kind: "rec", id, depth: 0, phrase: "", here: true, showPh: false, field: null, dir: "contains", via: null });
   const walk = (x: string, depth: number): void => {
     if (depth > 5) return;
     const kids = downOf(book, x);
@@ -180,31 +205,31 @@ export function buildTrace(book: Book, id: string): TraceModel {
     if (!kids.length && gapText) {
       rows.push({ kind: "gap", gap: gapText, depth: depth + 1, band: bandOf(book, x) });
     }
+    // Records reached together read together: grouped per relationship and
+    // type, in first-seen order. Every reached record stays in the model; the
+    // section caps each opened list with a Show N more button instead.
     const by: Record<string, DownEntry[]> = {};
     for (const k of kids) {
       if (seen[k.id]) continue;
-      const key = book.typeOf(k.id);
+      const key = (k.field ?? "") + "|" + k.dir + "|" + book.typeOf(k.id);
       const entries = by[key] ?? [];
       entries.push(k);
       by[key] = entries;
     }
-    for (const t of Object.keys(by)) {
-      const entries = by[t] ?? [];
+    for (const key of Object.keys(by)) {
+      const entries = by[key] ?? [];
+      const first = entries[0];
+      const t = first ? book.typeOf(first.id) : "";
       const hide = quiet && (t === "result" || t === "scenario");
-      entries.forEach((k, i) => {
+      for (const k of entries) {
         seen[k.id] = true;
         if (hide) {
           walk(k.id, depth);
-          return;
+          continue;
         }
-        if (i < 3) {
-          rows.push({ kind: "rec", id: k.id, depth: depth + 1, phrase: k.phrase, here: false, showPh: false });
-          walk(k.id, depth + 1);
-        } else if (i === 3) {
-          const first = entries[0];
-          rows.push({ kind: "more", more: entries.length - 3, depth: depth + 1, t, band: bandOf(book, first ? first.id : x) });
-        }
-      });
+        rows.push({ kind: "rec", id: k.id, depth: depth + 1, phrase: k.phrase, here: false, showPh: false, field: k.field, dir: k.dir, via: x });
+        walk(k.id, depth + 1);
+      }
     }
   };
   walk(id, 0);
@@ -223,35 +248,484 @@ export function buildTrace(book: Book, id: string): TraceModel {
   return { rows, show: rows.length >= 2, shown, bands };
 }
 
-/** One Trace section group: the rows under one band label. */
+/** One displayed trace record with the records reached through it nested below. A top direct node reads from the open record's side; a nested node reads from its carrier's side. */
+export interface RailNode {
+  row: TraceRow;
+  phrase: string;
+  tip: string;
+  carrierId: string | null;
+  children: RailNode[];
+}
+
+/** One Trace section relationship: the directly linked records under one relationship label, each with its nested records. The field and direction read the link from the open record's side; containment carries no field. */
+export interface RailRelation {
+  key: string;
+  label: string;
+  tip: string;
+  field: string | null;
+  dir: TraceEdgeDir;
+  phrase: string;
+  nodes: RailNode[];
+}
+
+/** One Trace section group: the relationship groups under one band label, then the carriers whose children sit in this band with their nested records, with the band's gaps after them. */
 export interface RailGroup {
   label: string;
-  rows: TraceRow[];
+  relations: RailRelation[];
+  orphans: RailNode[];
+  gaps: Extract<TraceRow, { kind: "gap" }>[];
+}
+
+/** One trace relationship label: its phrase in sentence case, as the record page's Links table reads it. */
+export function relationLabel(phrase: string): string {
+  return capitalize(phrase.replace(/^is\s+/i, "").replace(/^are\s+/i, ""));
+}
+
+/** One trace relationship read as a sentence: "This use case fulfills each record below". */
+export function relationSentence(book: Book, openId: string, phrase: string): string {
+  return "This " + book.typeName(book.typeOf(openId)).toLowerCase() + " " + phrase + " each record below";
+}
+
+/** One trace item read as a sentence: "This use case fulfills the requirement Name". */
+export function traceSentence(book: Book, openId: string, phrase: string, rowId: string): string {
+  return (
+    "This " +
+    book.typeName(book.typeOf(openId)).toLowerCase() +
+    " " +
+    phrase +
+    " the " +
+    book.typeName(book.typeOf(rowId)).toLowerCase() +
+    " " +
+    book.title(rowId)
+  );
+}
+
+/** One nested trace item read as a sentence naming its carrier: "The requirement Name cites the decision Other". */
+export function carrierSentence(book: Book, carrierId: string, phrase: string, rowId: string): string {
+  return (
+    "The " +
+    book.typeName(book.typeOf(carrierId)).toLowerCase() +
+    " " +
+    book.title(carrierId) +
+    " " +
+    phrase +
+    " the " +
+    book.typeName(book.typeOf(rowId)).toLowerCase() +
+    " " +
+    book.title(rowId)
+  );
+}
+
+/** The open record's direct edge to a trace record: its out edge first, else the record's edge pointing at it, else null. */
+function directEdge(book: Book, openId: string, rowId: string): { field: string; dir: "out" | "in" } | null {
+  const row = stripStep(rowId);
+  for (const edge of book.outEdges(openId)) {
+    if (edge.id === row) return { field: edge.field, dir: "out" };
+  }
+  for (const edge of book.inEdges(openId)) {
+    if (edge.id === row) return { field: edge.field, dir: "in" };
+  }
+  return null;
 }
 
 // Record bands read in layer order; the Implementation and Proof groups follow in the section.
 const RAIL_GROUP_ORDER = ["intent", "behavior", "governance"];
 
-/** The Trace section's record groups: the trace's cross-layer rows under their band label, in layer order. Gaps read along even when their band is the open record's. */
+/** The open record's side of a direct link: the field, direction and phrase it reads with. Containment reads as contains. */
+function openSide(book: Book, openId: string, rowId: string, walk: { field: string | null; dir: TraceEdgeDir; phrase: string }): { field: string | null; dir: TraceEdgeDir; phrase: string } {
+  const direct = directEdge(book, openId, rowId);
+  if (direct) {
+    const phrase =
+      direct.dir === "out"
+        ? book.phraseFor(direct.field, book.typeOf(openId), "forward")
+        : book.phraseFor(direct.field, book.typeOf(rowId), "inverse");
+    return { field: direct.field, dir: direct.dir, phrase };
+  }
+  if (walk.dir === "contains") return { field: walk.field, dir: walk.dir, phrase: "contains" };
+  return { field: walk.field, dir: walk.dir, phrase: walk.phrase };
+}
+
+/** Whether a trace record links directly to the open record: its own edge, or the open record as its carrier. */
+function isDirect(book: Book, openId: string, row: Extract<TraceRow, { kind: "rec" }>): boolean {
+  if (row.via === openId) return true;
+  return directEdge(book, openId, row.id) !== null;
+}
+
+/** A carrier shown as a nesting parent: its tooltip reads from the open record when direct, else names its own carrier. */
+function carrierParentTip(book: Book, openId: string, carrierId: string, carrierRow: Extract<TraceRow, { kind: "rec" }> | undefined): string {
+  const direct = directEdge(book, openId, carrierId);
+  if (direct) {
+    const phrase =
+      direct.dir === "out"
+        ? book.phraseFor(direct.field, book.typeOf(openId), "forward")
+        : book.phraseFor(direct.field, book.typeOf(carrierId), "inverse");
+    return traceSentence(book, openId, phrase, carrierId);
+  }
+  if (carrierRow && carrierRow.via === openId) {
+    const phrase = carrierRow.dir === "contains" ? "contains" : carrierRow.phrase;
+    return traceSentence(book, openId, phrase, carrierId);
+  }
+  if (carrierRow && carrierRow.via) {
+    const phrase = carrierRow.dir === "contains" ? "contains" : carrierRow.phrase;
+    return carrierSentence(book, carrierRow.via, phrase, carrierId);
+  }
+  return book.title(carrierId);
+}
+
+/** The Trace section's record groups: the trace's cross-layer rows under their band label, in layer order. A relationship label groups only the records linked directly to the open record; a record reached through other records nests under its chain of carriers down from the open record, each level with its carrier-side phrase. A carrier outside the band reads as a nesting parent. Gaps read along even when their band is the open record's. */
 export function railGroups(book: Book, model: TraceModel, openId: string): RailGroup[] {
   void book.rev;
   const openBand = bandOf(book, openId);
-  const byLabel = new Map<string, TraceRow[]>();
+  const rowById = new Map<string, Extract<TraceRow, { kind: "rec" }>>();
+  const rowIndex = new Map<TraceRow, number>();
+  model.rows.forEach((row, i) => {
+    rowIndex.set(row, i);
+    if (row.kind === "rec" && !row.here) rowById.set(row.id, row);
+  });
+  const gapsByLabel = new Map<string, Extract<TraceRow, { kind: "gap" }>[]>();
+  const recsByLabel = new Map<string, Extract<TraceRow, { kind: "rec" }>[]>();
+  const moresByLabel = new Map<string, Extract<TraceRow, { kind: "more" }>[]>();
   for (const row of model.rows) {
-    const label = row.kind === "rec" ? bandOf(book, row.id) : row.kind === "note" ? null : row.band;
+    if (row.kind === "note") continue;
+    if (row.kind === "rec" && row.here) continue;
+    const label = row.kind === "rec" ? bandOf(book, row.id) : row.band;
     if (label === null) continue;
-    if (label === openBand && row.kind !== "gap") continue;
-    const list = byLabel.get(label);
-    if (list) list.push(row);
-    else byLabel.set(label, [row]);
+    if (row.kind === "gap") {
+      const list = gapsByLabel.get(label) ?? [];
+      list.push(row);
+      gapsByLabel.set(label, list);
+      continue;
+    }
+    if (label === openBand) continue;
+    if (row.kind === "rec") {
+      const list = recsByLabel.get(label) ?? [];
+      list.push(row);
+      recsByLabel.set(label, list);
+    } else {
+      const list = moresByLabel.get(label) ?? [];
+      list.push(row);
+      moresByLabel.set(label, list);
+    }
+  }
+  const labels = new Set<string>([...recsByLabel.keys(), ...moresByLabel.keys(), ...gapsByLabel.keys()]);
+  const groups: RailGroup[] = [];
+  for (const label of labels) {
+    const recs = recsByLabel.get(label) ?? [];
+    const mores = moresByLabel.get(label) ?? [];
+    const nodes = new Map<string, RailNode & { index: number; direct: boolean; key: string; field: string | null; dir: TraceEdgeDir }>();
+    for (const row of recs) {
+      const direct = isDirect(book, openId, row);
+      if (direct) {
+        const side = openSide(book, openId, row.id, row);
+        const key = (side.field ?? "") + "|" + side.dir + "|" + side.phrase;
+        nodes.set(row.id, {
+          row,
+          phrase: side.phrase,
+          tip: traceSentence(book, openId, side.phrase, row.id),
+          carrierId: null,
+          children: [],
+          index: rowIndex.get(row) ?? 0,
+          direct: true,
+          key,
+          field: side.field,
+          dir: side.dir,
+        });
+      } else {
+        const via = row.via ?? openId;
+        const phrase = row.dir === "contains" ? "contains" : row.phrase;
+        nodes.set(row.id, {
+          row,
+          phrase,
+          tip: carrierSentence(book, via, phrase, row.id),
+          carrierId: via,
+          children: [],
+          index: rowIndex.get(row) ?? 0,
+          direct: false,
+          key: "",
+          field: row.field,
+          dir: row.dir,
+        });
+      }
+    }
+    // Records in this band reached through another record in this band nest under their carrier.
+    const attached = new Set<string>();
+    for (const node of nodes.values()) {
+      if (node.direct || !node.carrierId) continue;
+      const parent = nodes.get(node.carrierId);
+      if (parent) {
+        parent.children.push(node);
+        attached.add((node.row as Extract<TraceRow, { kind: "rec" }>).id);
+      }
+    }
+    for (const node of nodes.values()) node.children.sort((a, b) => (rowIndex.get(a.row) ?? 0) - (rowIndex.get(b.row) ?? 0));
+    const topDirect = [...nodes.values()].filter((n) => n.direct).sort((a, b) => a.index - b.index);
+    const topOrphanRoots = [...nodes.values()].filter((n) => !n.direct && !attached.has((n.row as Extract<TraceRow, { kind: "rec" }>).id));
+    // Direct collapse rows read in their relationship group; indirect collapse rows nest under their carrier.
+    const directMores: (RailNode & { index: number; key: string; field: string | null; dir: TraceEdgeDir })[] = [];
+    const moresByCarrier = new Map<string, Extract<TraceRow, { kind: "more" }>[]>();
+    for (const row of mores) {
+      const via = row.via ?? openId;
+      if (via === openId) {
+        const phrase = row.dir === "contains" ? "contains" : row.phrase;
+        const key = (row.field ?? "") + "|" + row.dir + "|" + phrase;
+        directMores.push({ row, phrase, tip: "", carrierId: null, children: [], index: rowIndex.get(row) ?? 0, key, field: row.field, dir: row.dir });
+      } else {
+        const list = moresByCarrier.get(via) ?? [];
+        list.push(row);
+        moresByCarrier.set(via, list);
+      }
+    }
+    for (const [via, list] of moresByCarrier) {
+      const parent = nodes.get(via);
+      const leaves: RailNode[] = list
+        .sort((a, b) => (rowIndex.get(a) ?? 0) - (rowIndex.get(b) ?? 0))
+        .map((row) => ({ row, phrase: row.dir === "contains" ? "contains" : row.phrase, tip: "", carrierId: via, children: [] }));
+      if (parent) {
+        parent.children.push(...leaves);
+        parent.children.sort((a, b) => (rowIndex.get(a.row) ?? 0) - (rowIndex.get(b.row) ?? 0));
+      }
+    }
+    const relationsByKey = new Map<string, RailRelation & { order: number }>();
+    for (const node of topDirect) {
+      const hit = relationsByKey.get(node.key);
+      if (hit) {
+        hit.nodes.push(node);
+      } else {
+        relationsByKey.set(node.key, {
+          key: node.key,
+          label: relationLabel(node.phrase),
+          tip: relationSentence(book, openId, node.phrase),
+          field: node.field,
+          dir: node.dir,
+          phrase: node.phrase,
+          nodes: [node],
+          order: node.index,
+        });
+      }
+    }
+    for (const more of directMores) {
+      const hit = relationsByKey.get(more.key);
+      if (hit) {
+        hit.nodes.push(more);
+      } else {
+        relationsByKey.set(more.key, {
+          key: more.key,
+          label: relationLabel(more.phrase),
+          tip: relationSentence(book, openId, more.phrase),
+          field: more.field,
+          dir: more.dir,
+          phrase: more.phrase,
+          nodes: [more],
+          order: more.index,
+        });
+      }
+    }
+    const relations = [...relationsByKey.values()]
+      .sort((a, b) => a.order - b.order)
+      .map((rel) => {
+        rel.nodes.sort((a, b) => (rowIndex.get(a.row) ?? 0) - (rowIndex.get(b.row) ?? 0));
+        return { key: rel.key, label: rel.label, tip: rel.tip, field: rel.field, dir: rel.dir, phrase: rel.phrase, nodes: rel.nodes };
+      });
+    // Indirect records whose carriers sit outside this band read nested under
+    // their full chain of carriers down from the open record. Each chain level
+    // reads with its connecting phrase from its own carrier's side, and chains
+    // sharing a prefix share their parents, so every reached record appears once.
+    const chainForLeaf = (startVia: string, excludeId: string | null = null): string[] => {
+      const reversed: string[] = [];
+      const seen = new Set<string>([openId]);
+      if (excludeId) seen.add(excludeId);
+      let cur: string | null = startVia;
+      let guard = 0;
+      while (cur && cur !== openId && !seen.has(cur) && guard < 12) {
+        seen.add(cur);
+        reversed.push(cur);
+        const carrierRow = rowById.get(cur);
+        if (!carrierRow || !carrierRow.via) break;
+        cur = carrierRow.via;
+        guard++;
+      }
+      reversed.reverse();
+      return reversed;
+    };
+    const intermediateById = new Map<string, RailNode>();
+    const getIntermediate = (id: string): RailNode => {
+      const kept = intermediateById.get(id);
+      if (kept) return kept;
+      const carrierRow = rowById.get(id);
+      const row: Extract<TraceRow, { kind: "rec" }> =
+        carrierRow ?? { kind: "rec", id, depth: 0, phrase: "", here: false, showPh: false, field: null, dir: "contains", via: null };
+      let phrase = "";
+      if (carrierRow) {
+        phrase = carrierRow.dir === "contains" ? "contains" : carrierRow.phrase;
+      } else {
+        const direct = directEdge(book, openId, id);
+        if (direct) {
+          phrase =
+            direct.dir === "out"
+              ? book.phraseFor(direct.field, book.typeOf(openId), "forward")
+              : book.phraseFor(direct.field, book.typeOf(id), "inverse");
+        }
+      }
+      const node: RailNode = { row, phrase, tip: carrierParentTip(book, openId, id, carrierRow), carrierId: carrierRow?.via ?? null, children: [] };
+      intermediateById.set(id, node);
+      return node;
+    };
+    const ensureChild = (parent: RailNode, child: RailNode): void => {
+      if (!parent.children.includes(child)) parent.children.push(child);
+    };
+    const orphans: RailNode[] = [];
+    const orphanTopIds = new Set<string>();
+    const chains = new Map<string, string[]>();
+    for (const node of topOrphanRoots) {
+      const leafId = (node.row as Extract<TraceRow, { kind: "rec" }>).id;
+      chains.set(leafId, chainForLeaf(node.carrierId ?? openId, leafId));
+    }
+    const orderedOrphans = [...topOrphanRoots].sort((a, b) => {
+      const ai = (a.row as Extract<TraceRow, { kind: "rec" }>).id;
+      const bi = (b.row as Extract<TraceRow, { kind: "rec" }>).id;
+      const ac = chains.get(ai) ?? [];
+      const bc = chains.get(bi) ?? [];
+      return ac.length - bc.length || a.index - b.index;
+    });
+    for (const node of orderedOrphans) {
+      const leafId = (node.row as Extract<TraceRow, { kind: "rec" }>).id;
+      const chain = chains.get(leafId) ?? [];
+      let bandAt = -1;
+      for (let i = chain.length - 1; i >= 0; i--) {
+        const id = chain[i];
+        if (id && nodes.has(id)) {
+          bandAt = i;
+          break;
+        }
+      }
+      if (bandAt >= 0) {
+        const ancestorId = chain[bandAt];
+        const ancestor = ancestorId ? nodes.get(ancestorId) : undefined;
+        if (!ancestor) continue;
+        let current: RailNode = ancestor;
+        for (let i = bandAt + 1; i < chain.length; i++) {
+          const id = chain[i];
+          if (!id) continue;
+          const mid = getIntermediate(id);
+          ensureChild(current, mid);
+          current = mid;
+        }
+        ensureChild(current, node);
+      } else {
+        let current: RailNode | null = null;
+        for (const id of chain) {
+          if (!id) continue;
+          const mid = getIntermediate(id);
+          if (current === null) {
+            if (!orphanTopIds.has(id)) {
+              orphanTopIds.add(id);
+              orphans.push(mid);
+            }
+          } else {
+            ensureChild(current, mid);
+          }
+          current = mid;
+        }
+        if (current) ensureChild(current, node);
+        else orphans.push(node);
+      }
+    }
+    for (const [via, list] of moresByCarrier) {
+      if (nodes.has(via)) continue;
+      const leaves: RailNode[] = [...list]
+        .sort((a, b) => (rowIndex.get(a) ?? 0) - (rowIndex.get(b) ?? 0))
+        .map((m) => ({ row: m, phrase: m.dir === "contains" ? "contains" : m.phrase, tip: "", carrierId: via, children: [] }));
+      const kept = intermediateById.get(via);
+      if (kept) {
+        for (const leaf of leaves) ensureChild(kept, leaf);
+        continue;
+      }
+      const chain = chainForLeaf(via);
+      let bandAt = -1;
+      for (let i = chain.length - 1; i >= 0; i--) {
+        const id = chain[i];
+        if (id && nodes.has(id)) {
+          bandAt = i;
+          break;
+        }
+      }
+      if (bandAt >= 0) {
+        const ancestorId = chain[bandAt];
+        const ancestor = ancestorId ? nodes.get(ancestorId) : undefined;
+        if (!ancestor) continue;
+        let current: RailNode = ancestor;
+        for (let i = bandAt + 1; i < chain.length; i++) {
+          const id = chain[i];
+          if (!id) continue;
+          const mid = getIntermediate(id);
+          ensureChild(current, mid);
+          current = mid;
+        }
+        for (const leaf of leaves) ensureChild(current, leaf);
+      } else {
+        let current: RailNode | null = null;
+        for (const id of chain) {
+          if (!id) continue;
+          const mid = getIntermediate(id);
+          if (current === null) {
+            if (!orphanTopIds.has(id)) {
+              orphanTopIds.add(id);
+              orphans.push(mid);
+            }
+          } else {
+            ensureChild(current, mid);
+          }
+          current = mid;
+        }
+        if (current) {
+          for (const leaf of leaves) ensureChild(current, leaf);
+        }
+      }
+    }
+    for (const top of orphans) top.carrierId = null;
+    const minRowIndex = (node: RailNode): number => {
+      let best = rowIndex.get(node.row) ?? Number.MAX_SAFE_INTEGER;
+      for (const child of node.children) {
+        const childBest = minRowIndex(child);
+        if (childBest < best) best = childBest;
+      }
+      return best;
+    };
+    const sortTree = (node: RailNode): void => {
+      for (const child of node.children) sortTree(child);
+      node.children.sort((a, b) => minRowIndex(a) - minRowIndex(b));
+    };
+    for (const node of nodes.values()) sortTree(node);
+    for (const top of orphans) sortTree(top);
+    orphans.sort((a, b) => minRowIndex(a) - minRowIndex(b));
+    const gaps = gapsByLabel.get(label) ?? [];
+    if (relations.length || orphans.length || gaps.length) groups.push({ label, relations, orphans, gaps });
   }
   const rank = (label: string): number => {
     const at = RAIL_GROUP_ORDER.findIndex((key) => (book.layerByKey[key]?.label ?? "") === label);
     return at < 0 ? RAIL_GROUP_ORDER.length : at;
   };
-  return [...byLabel]
-    .map(([label, rows]) => ({ label, rows }))
-    .sort((a, b) => rank(a.label) - rank(b.label) || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+  return groups.sort((a, b) => rank(a.label) - rank(b.label) || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+}
+
+/** Whether the Trace section shows anything for a record: cross-layer rows, implementation, or proof. */
+export function traceSectionVisible(book: Book, id: string): boolean {
+  void book.rev;
+  const rec = book.get(id);
+  if (!rec) return false;
+  if (railGroups(book, buildTrace(book, id), id).length > 0) return true;
+  if (rec.expect && (rec.expect.impl || (rec.impl ?? []).length > 0)) return true;
+  return !!rec.expect && !!rec.expect.proof;
+}
+
+/** Whether the Completion section shows anything for a record: a stage, parked children, or completion lines. */
+export function completionSectionVisible(book: Book, id: string): boolean {
+  void book.rev;
+  const r = book.get(id);
+  if (!r) return false;
+  if (stageLine(r.completion)) return true;
+  if ((r.completion?.parkedBy ?? []).length > 0) return true;
+  return completionLines(r.completion).some((line) => line.mark !== "none-expected");
 }
 
 /** The step suffixes a record carries for a flow, from its serves field. */
@@ -316,4 +790,135 @@ export function stepSuffixFor(book: Book, rowId: string, openId: string, traceId
   const [only] = positions;
   if (positions.length === 1 && only !== undefined) return "Step " + only;
   return "Steps " + stepListText(positions);
+}
+
+/** One record type counted in a trace summary line. */
+export interface RailTypeCount {
+  type: string;
+  count: number;
+}
+
+/** A relationship's direct records counted by type, in first-seen order. The summary line reads these counts; nested records read under their own headings once their carriers open. */
+export function relationTypeCounts(book: Book, rel: RailRelation): RailTypeCount[] {
+  void book.rev;
+  const counts: RailTypeCount[] = [];
+  const byType = new Map<string, RailTypeCount>();
+  for (const node of rel.nodes) {
+    if (node.row.kind !== "rec") continue;
+    const type = book.typeOf(node.row.id);
+    const hit = byType.get(type);
+    if (hit) hit.count++;
+    else {
+      const next = { type, count: 1 };
+      byType.set(type, next);
+      counts.push(next);
+    }
+  }
+  return counts;
+}
+
+/** The orphan tops of a band counted by type, in first-seen order. */
+export function orphanTypeCounts(book: Book, orphans: RailNode[]): RailTypeCount[] {
+  void book.rev;
+  const counts: RailTypeCount[] = [];
+  const byType = new Map<string, RailTypeCount>();
+  for (const node of orphans) {
+    if (node.row.kind !== "rec") continue;
+    const type = book.typeOf(node.row.id);
+    const hit = byType.get(type);
+    if (hit) hit.count++;
+    else {
+      const next = { type, count: 1 };
+      byType.set(type, next);
+      counts.push(next);
+    }
+  }
+  return counts;
+}
+
+/** Every record a tree holds: its rec rows at every depth, plus collapsed counts. */
+export function countTreeRecs(nodes: RailNode[]): number {
+  let n = 0;
+  const walk = (list: RailNode[]): void => {
+    for (const node of list) {
+      if (node.row.kind === "rec") n++;
+      else if (node.row.kind === "more") n += node.row.more;
+      if (node.children.length) walk(node.children);
+    }
+  };
+  walk(nodes);
+  return n;
+}
+
+/** Every record a band holds: its relationships and orphans at every depth. A band with more than 8 opens its summaries collapsed. */
+export function bandRecCount(group: RailGroup): number {
+  let n = countTreeRecs(group.orphans);
+  for (const rel of group.relations) n += countTreeRecs(rel.nodes);
+  return n;
+}
+
+/** One group of nested trace records under their shared carrier-side phrase. The field and direction read the link from the carrier's side; containment carries no field. */
+export interface RailChildGroup {
+  phrase: string;
+  label: string;
+  field: string | null;
+  dir: TraceEdgeDir;
+  nodes: RailNode[];
+}
+
+/** Nested trace records grouped by their carrier-side phrase, in first-seen order. The tree reads each phrase once as the heading above its group. */
+export function groupChildrenByPhrase(children: RailNode[]): RailChildGroup[] {
+  const groups: RailChildGroup[] = [];
+  const byPhrase = new Map<string, RailChildGroup>();
+  for (const child of children) {
+    const phrase = child.phrase;
+    let group = byPhrase.get(phrase);
+    if (!group) {
+      group = { phrase, label: relationLabel(phrase), field: null, dir: "contains", nodes: [] };
+      byPhrase.set(phrase, group);
+      groups.push(group);
+    }
+    group.nodes.push(child);
+    if (group.field === null && (child.row.kind === "rec" || child.row.kind === "more")) {
+      const field = child.row.field;
+      const dir = child.row.dir;
+      if (field && (dir === "out" || dir === "in")) {
+        group.field = field;
+        group.dir = dir;
+      }
+    }
+  }
+  return groups;
+}
+
+/** The records of one band that indirect carriers lead to, counted by type through every nesting level. */
+export function orphanBandCounts(book: Book, orphans: RailNode[], band: string): RailTypeCount[] {
+  void book.rev;
+  const counts: RailTypeCount[] = [];
+  const byType = new Map<string, RailTypeCount>();
+  const seen = new Set<string>();
+  const visit = (node: RailNode): void => {
+    if (node.row.kind === "rec" && !seen.has(node.row.id)) {
+      seen.add(node.row.id);
+      if (bandOf(book, node.row.id) === band) {
+        const type = book.typeOf(node.row.id);
+        const hit = byType.get(type);
+        if (hit) hit.count++;
+        else {
+          const next = { type, count: 1 };
+          byType.set(type, next);
+          counts.push(next);
+        }
+      }
+    }
+    for (const child of node.children) visit(child);
+  };
+  for (const node of orphans) visit(node);
+  return counts;
+}
+
+/** The carriers of indirect records as a phrase: "2 features", "1 requirement and 3 flows". */
+export function orphanCarrierPhrase(book: Book, orphans: RailNode[]): string {
+  const parts = orphanTypeCounts(book, orphans).map((c) => pluralize(c.count, book.typeName(c.type).toLowerCase()));
+  return parts.length <= 1 ? (parts[0] ?? "") : parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1];
 }

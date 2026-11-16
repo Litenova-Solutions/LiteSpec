@@ -14,6 +14,7 @@ window.BookData = createShardLoader(document);
 export const book = new Book(window.BookData);
 
 export { Book, type Explanation } from "./book.svelte";
+export { hoverRecord, hoverType, hoverRelation, hoverSection, hoverState, type Hover } from "./hover-text";
 export { capitalize, dedupe, formatCount, formatLabel, pluralize, stripStep } from "./text";
 export { cn, type WithElementRef, type WithoutChild, type WithoutChildrenOrChild } from "./cn";
 export { duration, esc, inline, recordRefHtml, safeHref, sourceLinkHref, srcHref } from "./html";

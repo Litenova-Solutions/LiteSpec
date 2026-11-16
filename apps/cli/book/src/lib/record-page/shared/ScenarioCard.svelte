@@ -30,7 +30,7 @@
     <summary class="flex min-h-10 cursor-pointer items-center gap-3 px-2 hover:bg-layer-hover">
       <RecordIcon name="chev" class="size-4 text-text-secondary motion-safe:transition-transform {open ? 'rotate-90' : ''}" />
       <span class="flex-1">{s.title}</span>
-      {#if ri}{@html tag(ri.title, ri.outcome === "success" ? "green" : "red")}{/if}
+      {#if ri}{@html tag(ri.title, ri.outcome === "success" ? "green" : "red", "sm", "g:result")}{/if}
       <ProofMark state={s.proof?.state ?? null} />
     </summary>
     <div class="pb-6 pl-9">

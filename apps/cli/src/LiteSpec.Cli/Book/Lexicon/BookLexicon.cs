@@ -70,6 +70,7 @@ sealed class BookLexicon
         var types = BookLexiconParsers.ParseTypes(modelFile, model);
         var links = BookLexiconSchema.Links(Path.Combine(liteSpecRoot, "schemas", "record.schema.yaml"));
         var sections = BookLexiconParsers.ParseSections(modelFile, model);
+        sections["Reach States"] = BookLexiconParsers.ParseReachStates(modelFile, model);
         var findings = BookLexiconParsers.ParseFindings(toolsFile, BookLexiconTables.ReadLines(toolsFile));
         var glossary = BookLexiconParsers.ParseGlossary(glossaryFile, BookLexiconTables.ReadLines(glossaryFile));
 

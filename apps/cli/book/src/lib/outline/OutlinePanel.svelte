@@ -4,6 +4,7 @@
   import { book } from "$lib/frame";
   import type { View } from "$lib/frame";
   import FilterPanel from "./FilterPanel.svelte";
+  import NavFilter from "./NavFilter.svelte";
   import OutlineRow from "./OutlineRow.svelte";
   import SecurityView from "./SecurityView.svelte";
   import OutlineTools from "./OutlineTools.svelte";
@@ -11,14 +12,15 @@
   import { outlineState } from "./outline-state.svelte";
   import { buildOutlineRows, ROW_HEIGHT, securityGroups, type OutlineRow as OutlineRowData } from "./outline-rows";
 
-  // The book's left navigation: view tabs, tools and filters over the
-  // virtualized outline, or the security groups. Every row keeps one fixed
-  // height per kind, so the virtualizer never measures.
+  // The book's left navigation: view tabs, tools, the navigation filter and
+  // filters over the virtualized outline, or the security groups. Every row
+  // keeps one fixed height per kind, so the virtualizer never measures.
   const outlinesReady = $derived.by(() => (book.man?.layers ?? []).every((l) => book.isLayerLoaded(l.key)));
-  const outlineLoading = $derived(book.anyFilter() && !outlinesReady);
+  const navQuery = $derived(outlineState.navFilter.trim());
+  const outlineLoading = $derived((book.anyFilter() || navQuery !== "") && !outlinesReady);
   const rows = $derived.by((): OutlineRowData[] => {
     if (outlineLoading) return [];
-    if (book.view === "outline") return buildOutlineRows(book);
+    if (book.view === "outline") return buildOutlineRows(book, navQuery);
     return [];
   });
   const models = $derived.by(() => ({
@@ -37,7 +39,7 @@
 
   let loadingOutlines = false;
   $effect(() => {
-    if (book.anyFilter() && !outlinesReady && !loadingOutlines) {
+    if ((book.anyFilter() || navQuery !== "") && !outlinesReady && !loadingOutlines) {
       loadingOutlines = true;
       void book.ensureAllOutlines().finally(() => { loadingOutlines = false; });
     }
@@ -95,7 +97,7 @@
     if (book.view === "outline" && virt) {
       const idx = untrack(() => rows).findIndex((r) => r.kind === "record" && r.id === key);
       if (idx < 0) return;
-      virt.scrollToIndex(idx, { align: "center" });
+      virt.scrollToIndex(idx, { align: "auto" });
       for (let t = 0; t < 8; t++) {
         await new Promise((r) => requestAnimationFrame(r));
         const el = rowEl(key);
@@ -108,21 +110,28 @@
     } else {
       const el = rowEl(key);
       if (!el) return;
-      el.scrollIntoView({ block: "center" });
+      el.scrollIntoView({ block: "nearest" });
       if (doFocus) el.focus({ preventScroll: true });
     }
   }
 
   $effect(() => {
     void book.view;
+    void outlineState.navFilter;
     if (scrollEl) scrollEl.scrollTop = 0;
   });
   let lastTick = 0;
+  let revealedSel: string | null = null;
   $effect(() => {
     const sel = book.selected;
     const tick = outlineState.revealRequest;
     void book.view;
-    if (untrack(() => outlineLoading)) {
+    const loading = outlineLoading;
+    // A record in a layer that is still loading has no row yet; these
+    // revisions retry its reveal when its outline data arrives.
+    void book.outlineRev;
+    void book.areasRev;
+    if (loading) {
       lastTick = tick;
       return;
     }
@@ -132,8 +141,19 @@
     // A selection the reader made by clicking a row is already in view; only
     // outside selections scroll the outline, and only to a row outside it.
     const fromOutline = untrack(() => outlineState.fromOutline);
-    if (!doFocus && fromOutline === sel) return;
+    if (!doFocus && fromOutline === sel) {
+      revealedSel = sel;
+      return;
+    }
     if (fromOutline !== null) untrack(() => { outlineState.fromOutline = null; });
+    if (book.view === "outline") {
+      // The row may still be missing while its layer loads; a later revision
+      // retries. A selection already revealed stays put when other layers load.
+      const present = untrack(() => rows).some((r) => r.kind === "record" && r.id === sel);
+      if (!present) return;
+      if (!doFocus && revealedSel === sel) return;
+      revealedSel = sel;
+    }
     void reveal(sel, doFocus);
   });
 
@@ -147,6 +167,9 @@
   <div class="border-b border-border-subtle p-4">
     <ViewTabs onViewChange={(v) => void switchView(v)} />
     <OutlineTools />
+    {#if book.view === "outline"}
+      <NavFilter />
+    {/if}
     <FilterPanel onRevealRequest={() => outlineState.requestReveal()} />
   </div>
   <div

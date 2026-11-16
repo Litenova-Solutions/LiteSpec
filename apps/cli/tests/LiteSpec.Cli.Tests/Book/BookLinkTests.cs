@@ -33,6 +33,19 @@ public sealed class BookLinkTests
         Assert.DoesNotContain("javascript:", html, StringComparison.Ordinal);
     }
 
+    /// <summary>A record identifier in prose renders as one link with the record title alone and the identifier in the title attribute.</summary>
+    /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
+    [Fact]
+    public void RecordIdentifierRendersAsTitleOnlyLink()
+    {
+        (string Href, string Title)? LinkRecord(string target) =>
+            target == "permission/connect-chat-agents" ? ("#permission/connect-chat-agents", "Connect Chat Agents") : null;
+        var html = BookMarkdown.Render("guarded by permission/connect-chat-agents as a self grant", LinkRecord);
+
+        Assert.Contains("<a href=\"#permission/connect-chat-agents\" title=\"permission/connect-chat-agents\">Connect Chat Agents</a>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Connect Chat Agentspermission/connect-chat-agents", html, StringComparison.Ordinal);
+    }
+
     /// <summary>Allowed targets stay links: http, https, mailto, fragments, relative paths and the editor scheme.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]

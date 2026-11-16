@@ -133,7 +133,7 @@ export function lexiconLinkVaries(lex: Lexicon, field: string): boolean {
   return dedupe(rows.map((link) => link.inverse ?? "")).length > 1;
 }
 
-/** The LiteSpec text that explains a key: a proof state, a check level, a glossary term or a record type. */
+/** The LiteSpec text that explains a key: a proof state, a reach state, a stage, a check level, a glossary term or a record type. */
 export function lexiconExplain(lex: Lexicon, key: string): Explanation | null {
   const stages = (): Explanation => ({
     title: "Completion Stages",
@@ -150,6 +150,11 @@ export function lexiconExplain(lex: Lexicon, key: string): Explanation | null {
     text: lexiconSection(lex, "Check Levels"),
     source: lexiconSectionSource(lex, "Check Levels", "model.md, Check Levels"),
   });
+  const reach = (title: string): Explanation => ({
+    title,
+    text: lexiconSection(lex, "Reach States"),
+    source: lexiconSectionSource(lex, "Reach States", "model.md, The Book"),
+  });
   const table: Record<string, () => Explanation> = {
     awaiting: stages,
     unconfirmed: stages,
@@ -160,6 +165,12 @@ export function lexiconExplain(lex: Lexicon, key: string): Explanation | null {
     norun: stages,
     coded: () => glossary("Coded", "coded"),
     reachable: () => glossary("Reachable", "reachable"),
+    specified: () => glossary("Specified", "specified"),
+    unfulfilled: () => glossary("Unfulfilled", "unfulfilled"),
+    claimed: () => reach("Claimed"),
+    verified: () => reach("Verified"),
+    "reach-claimed": () => reach("Reach claimed"),
+    "reach-verified": () => reach("Reach verified"),
     G: levels,
     S: levels,
     A: levels,

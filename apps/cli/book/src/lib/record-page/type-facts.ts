@@ -118,7 +118,7 @@ const facts: Record<string, FactFn> = {
     return out;
   },
   "integration-event": (f, r) => {
-    const out: Fact[] = [{ key: "Direction", text: f.direction === "in" ? "Arrives from outside" : "Leaves the system" }];
+    const out: Fact[] = [{ key: "Action", text: f.action === "receive" ? "Arrives from outside" : "Leaves the system" }];
     // The use cases that publish it, computed from the domain event each raises and the domain event this translates.
     const publishers = (r.in ?? []).filter((edge) => edge.key === "publishes").length;
     if (publishers) out.push({ key: "Published by", text: pluralize(publishers, "use case") });

@@ -208,6 +208,15 @@
   code, kbd, samp { font-family: var(--font-mono); }
 }
 
+/* A finding reached from the outline flashes once so the reader lands on it. */
+.finding-anchor:target {
+  animation: finding-flash 1.8s ease-out 1;
+}
+@keyframes finding-flash {
+  from { background-color: var(--layer-selected); }
+  to { background-color: transparent; }
+}
+
 /* Readers who ask for reduced motion get none of the book's transitions. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

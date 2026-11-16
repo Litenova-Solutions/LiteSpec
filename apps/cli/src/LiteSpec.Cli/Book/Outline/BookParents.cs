@@ -28,7 +28,7 @@ static class BookParents
         {
             ["product"] = new("product", [], "none"),
             ["goal"] = new("goal", ["product"], "product"),
-            ["vision"] = new("vision", ["product"], "product"),
+            ["direction"] = new("direction", ["product"], "product"),
             ["problem"] = new("problem", ["product"], "product"),
             ["constraint"] = new("constraint", ["product"], "product"),
             ["research"] = new("research", ["product"], "product"),
@@ -216,7 +216,7 @@ static class BookParents
             "product" => null,
             "goal" or "problem" or "constraint" or "research" => index.ProductId,
             "decision" or "runbook" or "waiver" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
-            "vision" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" => index.ProductId,
+            "direction" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" => index.ProductId,
             "feature" => index.ProductId,
             "permission" or "integration-event" => ModuleFromFile(index, record),
             "requirement" => FeatureFromFolder(index, record) ?? FeatureParent(index, id) ?? ProductParentForUndottedRequirement(index, id),

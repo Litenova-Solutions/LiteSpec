@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { book, cn } from "$lib/frame";
+  import { book, cn, hoverState } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
+  import { Hover } from "$lib/record";
   import PageSection from "./blocks/PageSection.svelte";
   import { checkLevelText } from "./page-values";
 
@@ -26,12 +27,15 @@
     {#each list as x, i (i)}
       {@const level = String(x.level ?? x.tier ?? "")}
       {@const label = x.covered ? "Covered" : checkLevelText(x.level ?? x.tier)}
-      <div class={i > 0 ? "mt-6 border-t border-border-subtle pt-6" : ""}>
+      {@const explainKey = x.covered ? "covered" : level}
+      <div id={"finding-" + (i + 1)} class={"finding-anchor scroll-mt-20" + (i > 0 ? " mt-6 border-t border-border-subtle pt-6" : "")}>
         <h3 class="text-sm leading-6 font-semibold">{book.findingMeaning(String(x.code ?? ""))}</h3>
         <p class="mt-2">
-          <button type="button" class={cn(TAG, tagClass(level, !!x.covered))} data-explain={x.covered ? "covered" : level}>
-            {label}
-          </button>
+          <Hover hover={{ ...hoverState(book, explainKey), title: label }}>
+            <button type="button" class={cn(TAG, tagClass(level, !!x.covered))} data-explain={explainKey}>
+              {label}
+            </button>
+          </Hover>
         </p>
         <div class="mt-2 text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline [&_code]:bg-layer [&_code]:px-1 [&_code]:font-mono [&_code]:text-xs">
           {@html String(x.messageHtml ?? "")}

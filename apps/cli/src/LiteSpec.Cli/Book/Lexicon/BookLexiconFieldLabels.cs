@@ -40,7 +40,7 @@ static class BookLexiconFieldLabels
             ["receives"] = "Receives", ["failure"] = "Failure", ["operations"] = "Operations", ["timeout"] = "Timeout", ["onTimeout"] = "On timeout",
             ["erasure"] = "Erasure", ["acceptedBy"] = "Accepted by",
             ["keyedBy"] = "Keyed by", ["from"] = "From", ["accumulate"] = "Accumulate", ["erasedBy"] = "Erased by", ["removedBy"] = "Removed by", ["freshness"] = "Freshness", ["decidedBy"] = "Decided by",
-            ["direction"] = "Direction", ["eventType"] = "Event type", ["subject"] = "Subject", ["payload"] = "Payload",
+            ["eventType"] = "Event type", ["subject"] = "Subject", ["payload"] = "Payload",
             ["dataschema"] = "Dataschema", ["type"] = "Type", ["required"] = "Required", ["of"] = "Of", ["name"] = "Name", ["label"] = "Label",
             ["amount"] = "Amount", ["currency"] = "Currency", ["purpose"] = "Purpose", ["period"] = "Period", ["classification"] = "Classification",
             ["exercises"] = "Exercises", ["background"] = "Background", ["auth"] = "Auth", ["grant"] = "Grant", ["tenant"] = "Tenant",

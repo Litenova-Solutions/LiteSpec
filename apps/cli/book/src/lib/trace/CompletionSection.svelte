@@ -1,6 +1,7 @@
 <script lang="ts">
   import { book, completionLines, stageLine } from "$lib/frame";
   import { RecordIcon, RecordLink } from "$lib/record";
+  import { completionSectionVisible } from "./trace-model";
 
   // The Completion section: the model stage with its scope counts and parked
   // children, and whether the record has the code and tests it expects, with
@@ -13,6 +14,7 @@
   const parkedBy = $derived(r?.completion?.parkedBy ?? []);
   const lines = $derived(r ? completionLines(r.completion).filter((l) => l.mark !== "none-expected") : []);
   const scenariosOf = $derived(r?.completion?.scenarios?.of ?? 0);
+  const visible = $derived(id ? completionSectionVisible(book, id) : false);
 
   function expiryText(expiresOn: string | null | undefined): string {
     if (!expiresOn) return "Lasting, no expiry date";
@@ -20,7 +22,7 @@
   }
 </script>
 
-{#if stage || parkedBy.length || lines.length}
+{#if visible}
   <section aria-labelledby="rail-completion-h" class="mb-8 last:mb-0">
     <h2 id="rail-completion-h" class="mb-4 text-sm font-semibold">Completion</h2>
     {#if stage}

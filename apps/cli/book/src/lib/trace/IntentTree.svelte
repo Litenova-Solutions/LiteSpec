@@ -5,7 +5,7 @@
   import { FEATURE_GAP_TEXT, GAP_TEXT, GOAL_GAP_TEXT, keptBySentence } from "./trace-model";
 
   // The Intent tree: the product down through goals, features, requirements and
-  // flows, and through its visions to the decisions and requirements naming them, one level per click. A row opens the level below it; the title
+  // flows, and through its directions to the decisions and requirements naming them, one level per click. A row opens the level below it; the title
   // opens the record's page. Escape closes the tree and returns focus to the
   // control that opened it.
   type Props = { onClose: () => void };
@@ -22,7 +22,7 @@
       await book.ensureRecords(
         book.order.filter((x) => {
           const t = book.typeOf(x);
-          return t === "goal" || t === "vision" || t === "feature";
+          return t === "goal" || t === "direction" || t === "feature";
         }),
       );
       const pid = book.productId();
@@ -58,7 +58,7 @@
     void book.rev;
     return {
       goals: book.order.filter((x) => book.typeOf(x) === "goal"),
-      visions: book.order.filter((x) => book.typeOf(x) === "vision"),
+      directions: book.order.filter((x) => book.typeOf(x) === "direction"),
       orphans: Object.keys(book.rec).filter((x) => {
         if (book.rec[x]?.type !== "feature") return false;
         const advances = book.rec[x]?.fields?.advances;
@@ -71,13 +71,13 @@
     void book.rev;
     const t = id.startsWith("tv/") ? id : book.typeOf(id);
     if (t === "product") {
-      return [...roots.goals, ...roots.visions, "tv/no-goal"];
+      return [...roots.goals, ...roots.directions, "tv/no-goal"];
     }
     if (t === "tv/no-goal") {
       return roots.orphans;
     }
     if (t === "goal") return book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature");
-    if (t === "vision") return [...book.ins(id, "basedOn"), ...book.ins(id, "cites")];
+    if (t === "direction") return [...book.ins(id, "basedOn"), ...book.ins(id, "cites")];
     if (t === "feature") return book.kids(id).filter((x) => book.typeOf(x) === "requirement");
     if (t === "requirement") return book.ins(id, "cites").filter((x) => book.typeOf(x) === "flow");
     return [];
@@ -102,7 +102,7 @@
         ? { text: pluralize(kids.length, "requirement"), gap: false }
         : { text: FEATURE_GAP_TEXT, gap: true };
     }
-    if (t === "vision") {
+    if (t === "direction") {
       const decisions = kids.filter((x) => book.typeOf(x) === "decision").length;
       const requirements = kids.length - decisions;
       const parts = [
@@ -113,8 +113,8 @@
     }
     if (t === "product") {
       const goals = kids.filter((x) => book.typeOf(x) === "goal").length;
-      const visions = kids.filter((x) => book.typeOf(x) === "vision").length;
-      return { text: pluralize(goals, "goal") + (visions ? ", " + pluralize(visions, "vision") : ""), gap: false };
+      const directions = kids.filter((x) => book.typeOf(x) === "direction").length;
+      return { text: pluralize(goals, "goal") + (directions ? ", " + pluralize(directions, "direction") : ""), gap: false };
     }
     return { text: "", gap: false };
   }

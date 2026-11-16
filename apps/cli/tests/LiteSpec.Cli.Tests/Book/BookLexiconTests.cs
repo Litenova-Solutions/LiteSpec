@@ -175,7 +175,7 @@ public sealed class BookLexiconTests
             new List<string>
             {
                 "requirement", "product", "permission", "rule", "result", "scenario", "domain-event",
-                "entry-point", "setting", "goal", "vision", "constraint", "research", "decision",
+                "entry-point", "setting", "goal", "direction", "constraint", "research", "decision",
                 "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
                 "reaction", "job", "notification", "external-system", "module-event", "integration-event",
                 "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
@@ -371,7 +371,7 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("reviewBy"));
     }
 
-    /// <summary>Each glossary term carries its definition, layer and source; aliases and rejected words stay out.</summary>
+    /// <summary>Each glossary term carries its definition, layer and source; aliases, rejected words and the home line stay out.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
     public void GlossarySplitsDefinitionLayerAndSource()
@@ -384,6 +384,7 @@ public sealed class BookLexiconTests
         var expense = glossary["expense"]!.AsObject();
         Assert.Equal("Expense", expense["term"]!.GetValue<string>());
         Assert.Equal("One cost a person claims back.", expense["definition"]!.GetValue<string>());
+        Assert.DoesNotContain("Home:", expense["definition"]!.GetValue<string>(), StringComparison.Ordinal);
         Assert.Equal("Intent", expense["layer"]!.GetValue<string>());
         Assert.Equal("plain English", expense["source"]!.GetValue<string>());
 
@@ -405,7 +406,7 @@ public sealed class BookLexiconTests
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var sections = lexicon.ToJson()["sections"]!.AsObject();
-        Assert.Equal(2, sections.Count);
+        Assert.Equal(4, sections.Count);
 
         var statuses = sections["Completion Stages"]!.AsObject();
         Assert.Equal("Completion is computed from code, tests and passing scenarios.", statuses["text"]!.GetValue<string>());
@@ -414,6 +415,26 @@ public sealed class BookLexiconTests
         var levels = sections["Check Levels"]!.AsObject();
         Assert.Equal("Every check has a tier.", levels["text"]!.GetValue<string>());
         Assert.Equal("model.md, Check Levels", levels["source"]!.GetValue<string>());
+
+        var links = sections["Links"]!.AsObject();
+        Assert.Equal("A link is a typed reference from one record to another.", links["text"]!.GetValue<string>());
+        Assert.Equal("model.md, Links", links["source"]!.GetValue<string>());
+    }
+
+    /// <summary>The reach-states paragraph carries the Book section's claimed sentence and names its LiteSpec source.</summary>
+    /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
+    [Fact]
+    public void ReachStatesCarryClaimedParagraphAndSource()
+    {
+        using var temp = TestCli.Temp("book-lexicon");
+        var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
+        var sections = lexicon.ToJson()["sections"]!.AsObject();
+
+        var reach = sections["Reach States"]!.AsObject();
+        Assert.Equal(
+            "The book leads with completion, and it says `claimed` for a link and `verified` for proof: a `fulfills` link reads as a claim until its scenarios pass.",
+            reach["text"]!.GetValue<string>());
+        Assert.Equal("model.md, The Book", reach["source"]!.GetValue<string>());
     }
 
     /// <summary>Each finding code carries its tier and meaning; the reason-code table is not a finding table.</summary>
@@ -543,6 +564,16 @@ public sealed class BookLexiconTests
         ### Check Levels
 
         Every check has a tier.
+
+        ### Links
+
+        A link is a typed reference from one record to another.
+
+        ### The Book
+
+        The book is the model made readable: it renders the in-memory model for people, and judges nothing itself. It lives in the Proof record layer.
+
+        The book leads with completion, and it says `claimed` for a link and `verified` for proof: a `fulfills` link reads as a claim until its scenarios pass.
         """;
 
     static string ToolsPage() =>
@@ -576,6 +607,8 @@ public sealed class BookLexiconTests
         ### Expense
 
         One cost a person claims back.
+
+        Home: docs/core/intent.md.
 
         Layer: Intent.
 

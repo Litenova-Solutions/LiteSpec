@@ -39,7 +39,7 @@ static class BookOutline
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
     /// <summary>The record types that top the intent layer under their type groups, in display order.</summary>
-    static readonly IReadOnlyList<string> IntentTopOrder = ["vision", "goal", "problem", "feature", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
+    static readonly IReadOnlyList<string> IntentTopOrder = ["direction", "goal", "problem", "feature", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
     /// <summary>The record types under a module, in display order: aggregates with their use cases first, then the module's other records by type.</summary>
     static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "job", "read-model", "notification", "setting", "permission"];
     /// <summary>The record types under an aggregate, in display order.</summary>
@@ -83,11 +83,12 @@ static class BookOutline
         foreach (var pair in byId)
         {
             var title = StrProp(pair.Value, "title");
+            var type = StrProp(pair.Value, "type") ?? "";
             nodes[pair.Key] = new BookOutlineNode(
                 pair.Key,
                 BookOutlineKinds.Record,
-                title is { Length: > 0 } ? title : pair.Key,
-                StrProp(pair.Value, "type") ?? "",
+                title is { Length: > 0 } ? LiteSpec.Cli.Book.BookModel.DisplayTitle(type, title) : pair.Key,
+                type,
                 []);
         }
 
@@ -383,7 +384,7 @@ static class BookOutline
         }
     }
 
-    /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
+    /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings when the project claims neither Implementation nor Proof. Each node id names its subject and its 1-based position among that subject's findings, in the same open-then-covered order the record shards carry, so the id opens the subject record at that finding.</summary>
     /// <param name="model">The parsed model object that holds the open and covered findings.</param>
     /// <param name="byId">The record object for each record identifier.</param>
     /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
@@ -400,10 +401,9 @@ static class BookOutline
         entries.AddRange(FindingEntries(model["findings"]));
         entries.AddRange(FindingEntries(model["covered"]));
 
-        var at = 0;
+        var perSubject = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var finding in entries)
         {
-            at++;
             if (claims.Implementation is null && claims.Proof is null && IsLevelS(finding))
             {
                 continue;
@@ -417,9 +417,12 @@ static class BookOutline
 
             if (attached.TryGetValue(target, out var placed) && placed)
             {
+                perSubject.TryGetValue(target, out var seen);
+                var position = seen + 1;
+                perSubject[target] = position;
                 var message = StrProp(finding, "message") ?? "";
                 nodes[target].Children.Add(new BookOutlineNode(
-                    "finding/" + at,
+                    target + "#finding-" + position.ToString(CultureInfo.InvariantCulture),
                     BookOutlineKinds.Finding,
                     message.Length > 110 ? message[..108] + "..." : message,
                     BookOutlineKinds.Finding,
@@ -573,9 +576,9 @@ static class BookOutline
     }
 
     /// <summary>Selects the layer a record tops when placement lifts it out of its parent.</summary>
-    /// <param name="record">The record object, whose file path marks a technical decision.</param>
+    /// <param name="record">The record object, whose file path marks a technical decision and whose layer field marks a behavior term.</param>
     /// <param name="type">The record type.</param>
-    /// <returns>The layer key for the record type: root for the product, with technical decisions and runbooks in implementation, waivers in governance, and unknown types in intent.</returns>
+    /// <returns>The layer key for the record type: root for the product, with technical decisions and runbooks in implementation, waivers in governance, behavior terms in behavior, and unknown types in intent.</returns>
     static string OwnLayer(JsonObject record, string type) =>
         type switch
         {
@@ -583,10 +586,17 @@ static class BookOutline
             "waiver" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "runbook" => "implementation",
-            "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" or "role" or "term" => "intent",
+            "term" => IsBehaviorTerm(record) ? "behavior" : "intent",
+            "goal" or "direction" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" or "role" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
             _ => "intent",
         };
+
+    /// <summary>Determines whether a term record belongs to the behavior layer from its written layer field.</summary>
+    /// <param name="record">The record object that holds the layer field.</param>
+    /// <returns>True when the record states layer behavior; otherwise false.</returns>
+    static bool IsBehaviorTerm(JsonObject record) =>
+        string.Equals(BookRender.StrProp(BookRender.Fields(record), "layer"), "behavior", StringComparison.Ordinal);
 
     /// <summary>Determines whether a decision record is a technical decision from its file path.</summary>
     /// <param name="record">The record object that holds the file path.</param>

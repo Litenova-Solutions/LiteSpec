@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { book, dedupe, inline } from "$lib/frame";
+  import { book, dedupe, hoverState, inline } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { RenderedProse, SourceLink } from "$lib/record";
+  import { Hover, RenderedProse, SourceLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import Note from "../blocks/Note.svelte";
@@ -73,7 +73,7 @@
         <div class="bg-background p-4 text-sm">
           <p class="m-0">
             <b>{String(o.name ?? "")}</b>
-            {#if chosen}{" "}<span class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-green px-2 text-xs tracking-[0.32px] text-tag-green-foreground">Chosen</span>{/if}
+            {#if chosen}{" "}<Hover hover={hoverState(book, "g:chosen")}><span data-explain="g:chosen" class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-green px-2 text-xs tracking-[0.32px] text-tag-green-foreground">Chosen</span></Hover>{/if}
           </p>
           <div class="mt-3 text-xs tracking-[0.32px] text-text-secondary">{book.fieldLabel("pros")}</div>
           <p class="mt-1 mb-0">{String(o.pros ?? "")}</p>

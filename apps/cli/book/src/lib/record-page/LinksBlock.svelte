@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover, RecordIcon } from "$lib/record";
   import PageSection from "./blocks/PageSection.svelte";
   import RecordList from "./blocks/RecordList.svelte";
   import { relationLabelOf } from "./page-values";
   import type { PhraseLookup } from "./page-values";
 
   // The links of a record, grouped by relation, eight with a Show all button each.
+  // Each group heading explains its link from this record's side.
   type Props = { id: string };
   let { id }: Props = $props();
   const rows = $derived(book.connectionsOf(id));
@@ -34,10 +36,15 @@
 </script>
 
 {#if rows.length}
-  <PageSection blockKey="links" heading="Links" count={rows.length}>
+  <PageSection blockKey="links" heading="Links" count={rows.length} recordId={id}>
     {#each groups as g (g.label)}
       <h3 class="mt-5 flex min-h-8 items-center justify-between border-b border-border-subtle text-sm font-semibold">
-        {g.heading}
+        <Hover hover={hoverSection(book, g.label, id)} side="bottom">
+          <span class="inline-flex items-center gap-1.5">
+            {g.heading}
+            <RecordIcon name="info" class="size-3.5 font-normal text-text-secondary" />
+          </span>
+        </Hover>
         <span class="font-normal text-text-secondary tabular-nums">{g.items.length}</span>
       </h3>
       <RecordList ids={g.items.map((x) => x.id)} limit={8} moreKey={id + "|" + g.label} />

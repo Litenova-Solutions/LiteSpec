@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover } from "$lib/record";
   import type { Snippet } from "svelte";
 
   // A definition list of facts. Pairs carry rendered HTML and empty pairs drop
@@ -17,7 +18,7 @@
   <dl class="grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] border-t border-border-subtle text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
     {#if pairs}
       {#each rows as p (p.label)}
-        <dt class="border-b border-border-subtle py-3 pr-2 font-semibold">{book.fieldLabel(p.label)}</dt>
+        <dt class="border-b border-border-subtle py-3 pr-2 font-semibold"><Hover hover={hoverSection(book, p.label, "")}>{book.fieldLabel(p.label)}</Hover></dt>
         <dd class="m-0 min-w-0 border-b border-border-subtle py-3">{@html p.html}</dd>
       {/each}
     {:else}

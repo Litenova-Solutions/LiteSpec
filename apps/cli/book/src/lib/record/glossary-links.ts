@@ -34,7 +34,9 @@ export function createTermMatcher(entries: TermEntry[]): TermMatcher | null {
   terms.sort((a, b) => b.term.length - a.term.length);
   if (!terms.length) return null;
   return {
-    pattern: new RegExp(terms.map((t) => escapeTerm(t.term)).join("|"), "gi"),
+    // A term links only as a whole word, with an optional plural ending, so
+    // "book" never links inside "unbooked".
+    pattern: new RegExp(String.raw`(?<![\p{L}\p{N}-])(` + terms.map((t) => escapeTerm(t.term)).join("|") + String.raw`)(?:e?s)?(?![\p{L}\p{N}])`, "giu"),
     recordOf: new Map(terms.map((t) => [t.term.toLowerCase(), t.recordId])),
   };
 }
@@ -86,7 +88,7 @@ function link(root: HTMLElement): void {
     let key = "";
     let found: RegExpExecArray | null;
     while ((found = matcher.pattern.exec(text)) !== null) {
-      const candidate = found[0].toLowerCase();
+      const candidate = (found[1] ?? found[0]).toLowerCase();
       if (!linked.has(candidate)) {
         at = found.index;
         length = found[0].length;

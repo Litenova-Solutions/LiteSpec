@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
+  import { Hover } from "$lib/record";
   import { fieldRowsFor } from "./type-facts";
 
   // The field table: the type's relations and facts, then the plain fields.
@@ -23,7 +24,7 @@
   <dl class="mt-6 grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] border-t border-border-subtle text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
     {#each rows as row, i (i)}
       <dt class="border-b border-border-subtle py-3 pr-2 font-semibold">
-        {row.label}
+        <Hover hover={hoverSection(book, row.label, id)}>{row.label}</Hover>
       </dt>
       <dd class="m-0 min-w-0 border-b border-border-subtle py-3">
         {@html row.html}

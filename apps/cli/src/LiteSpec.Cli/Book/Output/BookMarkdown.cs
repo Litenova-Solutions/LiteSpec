@@ -31,7 +31,7 @@ static partial class BookMarkdown
     [GeneratedRegex(@"\*([^*\n]+)\*")]
     private static partial Regex Italic();
     /// <summary>The pattern of one record identifier with an optional fragment, covering every record type prefix.</summary>
-    [GeneratedRegex(@"\b((?:product|goal|vision|problem|feature|constraint|research|decision|requirement|flow|term|module|aggregate|rule|event|module-event|integration-event|reaction|job|notification|setting|view|use-case|result|scenario|actor|role|permission|entry-point|screen|external-system|runbook|waiver|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)")]
+    [GeneratedRegex(@"\b((?:product|goal|direction|problem|feature|constraint|research|decision|requirement|flow|term|module|aggregate|rule|event|module-event|integration-event|reaction|job|notification|setting|view|use-case|result|scenario|actor|role|permission|entry-point|screen|external-system|runbook|waiver|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)")]
     private static partial Regex RecordId();
     /// <summary>The pattern of one heading line with its level marks and text.</summary>
     [GeneratedRegex(@"^(#{1,6})\s+(.*)$")]
@@ -330,8 +330,7 @@ static partial class BookMarkdown
                     return match.Value;
                 }
 
-                return $"<a href=\"{target.Value.Href}\"><span class=\"reviewer-only\">{BookRender.Esc(target.Value.Title)}</span>"
-                    + $"<span class=\"dev-only mono\">{match.Value}</span></a>";
+                return $"<a href=\"{target.Value.Href}\" title=\"{BookRender.Esc(match.Value)}\">{BookRender.Esc(target.Value.Title)}</a>";
             });
         }
 

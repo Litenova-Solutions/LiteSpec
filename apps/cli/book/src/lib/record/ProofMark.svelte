@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { cn, proofLabel } from "$lib/frame";
+  import { book, cn, hoverState, proofLabel } from "$lib/frame";
   import type { ProofState } from "$lib/frame";
+  import Hover from "./Hover.svelte";
   import RecordIcon from "./RecordIcon.svelte";
 
   // A proof state as a state tag; hovering explains it from LiteSpec's Completion Stages section.
@@ -20,9 +21,10 @@
 </script>
 
 {#if state !== null}
-  <button
-    type="button"
-    class={cn("inline-flex h-6 cursor-pointer items-center gap-1 rounded-full px-2 text-xs tracking-[0.32px]", tone)}
-    data-explain={state}
-  ><RecordIcon name={state} class="size-3.5" />{label}</button>
+  <Hover hover={hoverState(book, state)}>
+    <span
+      data-explain={state}
+      class={cn("inline-flex h-6 cursor-pointer items-center gap-1 rounded-full px-2 text-xs tracking-[0.32px]", tone)}
+    ><RecordIcon name={state} class="size-3.5" />{label}</span>
+  </Hover>
 {/if}

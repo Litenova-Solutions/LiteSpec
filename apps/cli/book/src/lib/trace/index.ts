@@ -2,3 +2,4 @@
 
 export { default as IntentTree } from "./IntentTree.svelte";
 export { default as RecordRail } from "./RecordRail.svelte";
+export { completionSectionVisible, traceSectionVisible } from "./trace-model";

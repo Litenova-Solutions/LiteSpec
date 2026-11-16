@@ -37,6 +37,24 @@ public sealed class BookEnrichTests
         Assert.Equal(3, src["line"]?.GetValue<int>());
     }
 
+    /// <summary>Each detail carries only its own fields and explanation: the product's boundary, excludes and prose never leak onto another record's page.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void EachDetailCarriesOnlyItsOwnFieldsAndExplanation()
+    {
+        var model = NewModel(
+            Record("product", "product/library", "Library", fieldsJson: """{"summary":"Books lend.","boundary":"Lending only.","excludes":["No sales."]}""", explanation: "# Library\n\nLibrary lends books."),
+            Record("entry-point", "entry-point/library-web", "Library Web", fieldsJson: """{"summary":"The web app.","kind":"browser"}""", explanation: "# Library Web\n\nThe web app."));
+        var entry = DetailsOf(model)["entry-point/library-web"];
+        var fields = Obj(entry, "fields");
+        Assert.Equal("The web app.", Str(fields, "summary"));
+        Assert.Null(fields["boundary"]);
+        Assert.Null(fields["excludes"]);
+        var intro = Str(Obj(entry, "sections"), "intro") ?? "";
+        Assert.Contains("The web app.", intro, StringComparison.Ordinal);
+        Assert.DoesNotContain("Library lends books.", intro, StringComparison.Ordinal);
+    }
+
     /// <summary>Every parent matches the outline parent for the same record.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]

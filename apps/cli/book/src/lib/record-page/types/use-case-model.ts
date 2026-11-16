@@ -1,7 +1,9 @@
 // The use-case page model: the results partitioned by outcome, the input and
-// output, and the counts the jump links read. The component resolves the
-// linked records; the model reads only values.
+// output, the states a command moves its aggregates into, and the counts the
+// jump links read. The component resolves the linked records; the model reads
+// only values.
 
+import { dedupe } from "$lib/frame";
 import type { BookRecord, RecordFields } from "$lib/frame";
 import { freshnessDecidedBy, freshnessNoteHtml, isRecord, objectList, pagingRows, stringField, useCaseFields } from "../page-values";
 
@@ -26,6 +28,35 @@ export interface UseCaseOutputSection {
   freshnessHtml: string;
   decidedBy: string | null;
   fields: { name: string; meaning: string }[];
+}
+
+/** One written aggregate with the transitions that move it, resolved by the component. */
+export interface WrittenAggregate {
+  id: string;
+  title: string;
+  transitions: RecordFields[];
+}
+
+/** One state a command moves a written aggregate into. */
+export interface AggregateMove {
+  aggregate: string;
+  to: string;
+}
+
+/**
+ * The moves a command makes: for each written aggregate, the distinct states
+ * its transitions enter through the command, in record order. Every fact comes
+ * from the records.
+ */
+export function movesOf(movedBy: string, written: WrittenAggregate[]): AggregateMove[] {
+  return written.flatMap((w) =>
+    dedupe(
+      w.transitions
+        .filter((t) => String(t.movedBy ?? "") === movedBy)
+        .map((t) => String(t.to ?? ""))
+        .filter((to) => to !== ""),
+    ).map((to) => ({ aggregate: w.title, to })),
+  );
 }
 
 export interface UseCaseModel {

@@ -1,21 +1,24 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
-  import { pageSections } from "$lib/record";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover, pageSections, RecordIcon } from "$lib/record";
   import type { Snippet } from "svelte";
 
   // One page section: a heading from the field label, an optional count, and an
   // optional aside. Blocks that only list linked records stay off the page; the
   // rail shows them. A zero count or empty HTML hides the block. The heading
-  // takes focus so the rail's On this page links can land on it.
+  // takes focus so the rail's On this page links can land on it, and hovering
+  // it explains the section with an info mark beside the text. The explained
+  // record defaults to the open record; a caller showing another record passes it.
   type Props = {
     blockKey: string;
     heading: string;
     count?: number | null;
     aside?: string;
     html?: string | null;
+    recordId?: string | null;
     children?: Snippet;
   };
-  let { blockKey, heading, count = null, aside = "", html = null, children }: Props = $props();
+  let { blockKey, heading, count = null, aside = "", html = null, recordId = null, children }: Props = $props();
 
   const LINKS_IN_RAIL = new Set([
     "based on", "depends on", "governs", "raised by", "fulfilled by", "governed by", "fulfills",
@@ -35,6 +38,10 @@
     );
   });
 
+  const label = $derived(book.fieldLabel(heading));
+  const forId = $derived(recordId ?? book.selected ?? "");
+  const hover = $derived(hoverSection(book, heading, forId));
+
   // A shown section lists itself in the rail's On this page.
   $effect(() => {
     if (hidden) return;
@@ -45,7 +52,12 @@
 {#if !hidden}
   <section class="mt-10 scroll-mt-20" id={"b-" + blockKey}>
     <h2 tabindex="-1" class="mb-2 flex items-baseline gap-3 text-xl leading-7 font-normal outline-none">
-      {book.fieldLabel(heading)}
+      <Hover {hover} side="bottom">
+        <span class="inline-flex items-center gap-1.5">
+          {label}
+          <RecordIcon name="info" class="size-3.5 text-text-secondary" />
+        </span>
+      </Hover>
       {#if count != null}<span class="text-sm text-text-secondary tabular-nums">{count}</span>{/if}
       {#if aside}<span class="ml-auto text-xs tracking-[0.32px] text-text-secondary">{aside}</span>{/if}
     </h2>

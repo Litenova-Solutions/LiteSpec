@@ -2,6 +2,7 @@
   import { book, copyText, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { RecordIcon, SourceLink, TypeTag } from "$lib/record";
+  import * as Tooltip from "$lib/ui/tooltip";
 
   // The page header: the breadcrumb from the product down through the layer
   // and the parent chain, the title, the kind badge, the identifier, the
@@ -36,6 +37,8 @@
   });
   // A long chain keeps its ends: the first crumb, an ellipsis, the last two.
   const shown = $derived(links.length > 4 ? [...links.slice(0, 1), null, ...links.slice(-2)] : links);
+  // The breadcrumb path as it reads, every crumb and the title, for the Copy path button.
+  const crumbPath = $derived([...links.map((c) => c.label), rTitle].join(" / "));
 
   let copied = $state(false);
   let timer: number | null = null;
@@ -76,37 +79,83 @@
     <li class="flex min-w-0 items-center gap-2">
       {#if shown.length}<span class="shrink-0 text-text-secondary" aria-hidden="true">/</span>{/if}
       <span aria-current="page" class="min-w-0 truncate">{rTitle}</span>
+      <Tooltip.Root>
+        <Tooltip.Trigger>
+          {#snippet child({ props })}
+            <button
+              {...props}
+              type="button"
+              class="grid size-6 shrink-0 cursor-pointer place-items-center hover:bg-hover-wash"
+              aria-label="Copy path"
+              onclick={() => copy(crumbPath)}
+            >
+              <RecordIcon name="copy" />
+            </button>
+          {/snippet}
+        </Tooltip.Trigger>
+        <Tooltip.Content side="top">Copy path</Tooltip.Content>
+      </Tooltip.Root>
     </li>
   </ol>
 </nav>
 <header class="mt-5 flex items-start justify-between gap-6">
   <div class="min-w-0">
-    <h1 id="record-title" tabindex="-1" class="m-0 text-[32px] leading-10 font-normal outline-none">{rTitle}</h1>
+    <h1 id="record-title" tabindex="-1" class="group m-0 text-[32px] leading-10 font-normal outline-none">
+      {rTitle}{#if r}
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <button
+                {...props}
+                type="button"
+                class="ml-3 inline-grid size-6 cursor-pointer place-items-center align-middle opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-hover-wash motion-safe:transition-opacity motion-safe:duration-150"
+                aria-label="Copy title"
+                onclick={() => copy(r.title)}
+              >
+                <RecordIcon name="copy" />
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="top">Copy title</Tooltip.Content>
+        </Tooltip.Root>
+      {/if}
+    </h1>
     <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
       <TypeTag type={r ? r.type : book.typeOf(id)} size="lg" />
       {#if !r}
-        <span class="inline-flex h-6 items-center rounded-full bg-tag-red px-2 text-xs tracking-[0.32px] text-tag-red-foreground">Not found</span>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <button
+                {...props}
+                type="button"
+                class="inline-flex h-6 cursor-help items-center rounded-full bg-tag-red px-2 text-xs tracking-[0.32px] text-tag-red-foreground"
+              >
+                Not found
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="top">No record with this identifier is in the book.</Tooltip.Content>
+        </Tooltip.Root>
       {/if}
       <span class="inline-flex min-h-6 items-center gap-2 bg-layer pl-2 font-mono text-xs [overflow-wrap:anywhere]">
         {b}
-        <button
-          type="button"
-          class="grid size-6 cursor-pointer place-items-center hover:bg-hover-wash"
-          aria-label="Copy ID"
-          onclick={() => copy(b)}
-        >
-          <RecordIcon name="copy" />
-        </button>
-        {#if r}
-          <button
-            type="button"
-            class="grid size-6 cursor-pointer place-items-center hover:bg-hover-wash"
-            aria-label="Copy title"
-            onclick={() => copy(r.title)}
-          >
-            <RecordIcon name="copy" />
-          </button>
-        {/if}
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <button
+                {...props}
+                type="button"
+                class="grid size-6 cursor-pointer place-items-center hover:bg-hover-wash"
+                aria-label="Copy identifier"
+                onclick={() => copy(b)}
+              >
+                <RecordIcon name="copy" />
+              </button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="top">Copy identifier</Tooltip.Content>
+        </Tooltip.Root>
       </span>
       {#if r?.src}
         <SourceLink src={r.src} />
@@ -152,5 +201,5 @@
   {/if}
 </header>
 {#if !r}
-  <p class="mt-6 max-w-[44rem] text-xl leading-7 font-light">No record with this identifier is in the book.</p>
+  <p class="mt-6 text-xl leading-7 font-light">No record with this identifier is in the book.</p>
 {/if}

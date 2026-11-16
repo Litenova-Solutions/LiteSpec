@@ -24,6 +24,13 @@
   const leadHtml = $derived(r && leadField ? proseOf(r, leadField) : "");
   const leadPlain = $derived(r && leadField && !leadHtml ? String(r.fields?.[leadField] ?? "") : "");
   const leadInline = $derived(r && leadPlain ? inline(book, leadPlain, r.src ?? null) : "");
+  // The statement as its own line, only while the summary leads: a record
+  // without a summary keeps the statement as the lead and shows no line.
+  const statementHtml = $derived(r && leadField === "summary" && r.fields?.statement != null ? proseOf(r, "statement") : "");
+  const statementPlain = $derived(
+    r && leadField === "summary" && !statementHtml && r.fields?.statement != null ? String(r.fields.statement) : "",
+  );
+  const statementInline = $derived(r && statementPlain ? inline(book, statementPlain, r.src ?? null) : "");
 
   $effect(() => {
     if (!id) return;
@@ -46,9 +53,16 @@
     <ScreenCapture {id} {r} />
   {/if}
   {#if leadHtml}
-    <div class="mt-6 max-w-[44rem]"><RenderedProse html={leadHtml} lead /></div>
+    <div class="mt-6"><RenderedProse html={leadHtml} lead /></div>
   {:else if leadInline}
-    <p class="mt-6 max-w-[44rem] text-xl leading-7 font-light [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline" use:glossaryLinks={leadInline}>{@html leadInline}</p>
+    <p class="mt-6 text-xl leading-7 font-light [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline" use:glossaryLinks={leadInline}>{@html leadInline}</p>
+  {/if}
+  {#if statementHtml || statementInline}
+    {@const statementLine = statementHtml || statementInline}
+    <dl class="mt-6 grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
+      <dt class="py-3 pr-2 font-semibold">Statement</dt>
+      <dd class="m-0 min-w-0 py-3" use:glossaryLinks={statementLine}>{@html statementLine}</dd>
+    </dl>
   {/if}
   <FieldTable {id} {r} />
   <EvidenceBlock {r} />

@@ -4,6 +4,8 @@
 
 export { default as AboutBook } from "./AboutBook.svelte";
 export { default as TopBar } from "./TopBar.svelte";
+export { PanelWidth } from "./panel-width.svelte";
+export type { PanelWidthOptions } from "./panel-width.svelte";
 export {
   delegatedRecordId,
   openRecord,

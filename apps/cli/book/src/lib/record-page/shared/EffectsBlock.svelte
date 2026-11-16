@@ -20,7 +20,7 @@
       const target =
         refLink(book, tgt) +
         (op ? ` <span class="font-mono text-xs text-text-helper">${esc(formatLabel(op))}</span>` : "") +
-        (e.timing ? ` ${tag(capitalize(e.timing), "outline")}` : "");
+        (e.timing ? ` ${tag(capitalize(e.timing), "outline", "sm", "g:" + String(e.timing).toLowerCase())}` : "");
       return [[thRow(EFFECT_VERBS[k].label), td(target), td(cond ? cond : muted("None"))]];
     }),
   );

@@ -26,7 +26,7 @@
   }
 
   function resultCell(x: { id?: string | null; title: string; kind?: string }): string {
-    if (isGeneric(x)) return `<span data-explain="g:generic refusal">${esc(x.title)}</span>`;
+    if (isGeneric(x)) return `<span data-explain="g:generic refusal" tabindex="0" class="cursor-help">${esc(x.title)}</span>`;
     if (x.id && book.has(stripStep(x.id))) return refLink(book, x.id, x.title);
     return esc(x.title);
   }

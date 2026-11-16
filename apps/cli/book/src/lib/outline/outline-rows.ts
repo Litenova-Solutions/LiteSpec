@@ -9,12 +9,12 @@
 import { UNFULFILLED_AREA, areaGroupKey, areaKeysOf, capitalize, formatCount, formatLabel, proofRank, stripStep } from "$lib/frame";
 import type { Book, RecordFields, SecurityItem } from "$lib/frame";
 
-/** One virtual row in the outline. */
+/** One virtual row in the outline. Record and group rows carry their tree guide lines, one per ancestor depth below the top level, and whether they sit on the selected record's branch. */
 export type OutlineRow =
   | { kind: "layer"; key: string; layer: string; total: number; shown: number; done: number }
-  | { kind: "group"; key: string; gk: string; label: string; count: number; completion: string; open: boolean; depth: number }
-  | { kind: "record"; key: string; id: string; depth: number; level: number; kids: number; open: boolean; dim: boolean }
-  | { kind: "note"; key: string; text: string }
+  | { kind: "group"; key: string; gk: string; label: string; count: number; completion: string; open: boolean; depth: number; guides: boolean[]; branch: boolean }
+  | { kind: "record"; key: string; id: string; depth: number; level: number; kids: number; open: boolean; dim: boolean; guides: boolean[]; branch: boolean }
+  | { kind: "note"; key: string; text: string; depth: number }
   | { kind: "switch"; key: string };
 
 /** The pixel height per row kind for the virtualizer: layer headers 32, every other row 28. */
@@ -23,13 +23,85 @@ export const ROW_HEIGHT: Record<OutlineRow["kind"], number> = {
 };
 
 const INDENTS = [
-  "pl-0", "pl-[14px]", "pl-[28px]", "pl-[42px]", "pl-[56px]", "pl-[70px]",
-  "pl-[84px]", "pl-[98px]", "pl-[112px]", "pl-[126px]", "pl-[140px]", "pl-[154px]", "pl-[168px]",
+  "pl-3", "pl-[26px]", "pl-[40px]", "pl-[54px]", "pl-[68px]", "pl-[82px]",
+  "pl-[96px]", "pl-[110px]", "pl-[124px]", "pl-[138px]", "pl-[152px]", "pl-[166px]", "pl-[180px]",
 ];
 
-/** The indentation class for an outline depth, clamped to the deepest step. */
+/** The indentation class for an outline depth: the shared 12px left padding plus one 14px step per depth, clamped to the deepest step. */
 export function indentClass(depth: number): string {
-  return INDENTS[Math.min(Math.max(depth, 0), INDENTS.length - 1)] ?? "pl-0";
+  return INDENTS[Math.min(Math.max(depth, 0), INDENTS.length - 1)] ?? "pl-3";
+}
+
+/** The left padding in pixels per outline depth, mirroring the indent classes above. */
+const INDENT_PX = [12, 26, 40, 54, 68, 82, 96, 110, 124, 138, 152, 166, 180];
+
+/** The left padding in pixels for an outline depth, clamped to the deepest step. */
+export function indentPx(depth: number): number {
+  return INDENT_PX[Math.min(Math.max(depth, 0), INDENT_PX.length - 1)] ?? 180;
+}
+
+/** The pixel offset of a guide line at an ancestor depth: centered on that depth's type badge column. */
+export function guideLeft(depth: number): number {
+  return indentPx(depth) + 10;
+}
+
+/** A row's guide lines from its ancestors' last-child flags: one entry per ancestor depth below the top level, true while that branch continues below the row and false where it ends at the row. */
+export function guideFlags(lasts: readonly boolean[], isLast: boolean, depth: number): boolean[] {
+  const out: boolean[] = new Array(Math.max(0, depth - 1)).fill(true);
+  let innerAllLast = isLast;
+  for (let level = depth - 1; level >= 1; level--) {
+    const ownLast = level + 1 === depth ? isLast : (lasts[level + 1] ?? false);
+    out[level - 1] = !ownLast || !innerAllLast;
+    innerAllLast = innerAllLast && ownLast;
+  }
+  return out;
+}
+
+/** Whether an outline id names a finding leaf: `<subject>#finding-<k>`, or the older `finding/<n>` form. */
+export function isFindingId(id: string): boolean {
+  return id.includes("#finding-") || id.startsWith("finding/");
+}
+
+/** The page anchor a finding row scrolls to: `finding-<k>`, or null when the id names no anchor. */
+export function findingAnchor(id: string): string | null {
+  const at = id.indexOf("#finding-");
+  return at < 0 ? null : id.slice(at + 1);
+}
+
+/** The subject record a finding leaf hangs under: the id before `#finding-<k>`, or the outline parent of the older form. */
+export function findingSubject(book: Book, id: string): string {
+  const at = id.indexOf("#finding-");
+  if (at >= 0) return id.slice(0, at);
+  return book.parent(id) ?? "";
+}
+
+/** The group key the findings under a record gather under. */
+const FINDING_GROUP = "type:finding";
+
+/** The title a navigation row shows: a finding leaf reads its message from its outline node, every other row reads the store title. */
+export function navTitle(book: Book, id: string): string {
+  if (isFindingId(id)) return book.node[id]?.label || book.title(id);
+  return book.title(id);
+}
+
+/** Whether a row matches the navigation filter: its shown title or its identifier holds the text, case-insensitive. */
+function matchesNav(book: Book, id: string, query: string): boolean {
+  return navTitle(book, id).toLowerCase().includes(query) || id.toLowerCase().includes(query);
+}
+
+/** The rows the navigation filter keeps: every match with the ancestors that show where each match sits. */
+function navMatches(book: Book, query: string): Set<string> {
+  const set = new Set<string>();
+  const q = query.toLowerCase();
+  for (const id of book.orderWithProduct()) {
+    if (!matchesNav(book, id, q)) continue;
+    let current: string | null = id;
+    while (current && !set.has(current)) {
+      set.add(current);
+      current = book.parentOf[current] ?? null;
+    }
+  }
+  return set;
 }
 
 /** The navigation icon per record layer; an unknown layer reads as the core stack. */
@@ -63,6 +135,7 @@ function precompute(book: Book): RowPrecompute {
   const ranks = new Map<string, number>();
   return {
     group(id: string): { key: string; label: string } {
+      if (isFindingId(id)) return { key: FINDING_GROUP, label: "Findings" };
       let found = groups.get(id);
       if (!found) {
         found = book.groupOf(id);
@@ -81,7 +154,7 @@ function precompute(book: Book): RowPrecompute {
     title(id: string): string {
       let found = titles.get(id);
       if (found === undefined) {
-        found = book.title(id);
+        found = navTitle(book, id);
         titles.set(id, found);
       }
       return found;
@@ -116,7 +189,7 @@ export function recordsBelow(book: Book, id: string): string[] {
   const stack = [...book.kids(id)];
   while (stack.length > 0) {
     const current = stack.pop();
-    if (current === undefined || seen.has(current)) continue;
+    if (current === undefined || seen.has(current) || isFindingId(current)) continue;
     seen.add(current);
     if (book.isReal(current)) out.push(current);
     stack.push(...book.kids(current));
@@ -129,11 +202,6 @@ export function belowSummary(book: Book, id: string): string {
   const below = recordsBelow(book, id);
   if (!below.length) return "no records below";
   return recordCount(below.length) + " below, " + book.completeCounts(below);
-}
-
-/** The navigation tooltip for a record: its type with the records-below summary. */
-export function recordTip(book: Book, id: string): string {
-  return book.typeName(book.typeOf(id)) + ", " + belowSummary(book, id);
 }
 
 /** The navigation tooltip for a type group: its records and their completion. */
@@ -191,20 +259,28 @@ function layerCounts(book: Book, pre: RowPrecompute, filtering: boolean): Map<st
   return counts;
 }
 
-/** One record row and, when open, its children grouped by record type. The path is positional, so every row key is unique and a record shown under two parents keeps two keys. */
-function walkRecord(book: Book, pre: RowPrecompute, id: string, depth: number, rows: OutlineRow[], path: string): void {
-  if (!book.isVisible(id)) return;
-  const kids = book.kids(id).filter((k) => book.isVisible(k));
-  const open = kids.length > 0 && (book.anyFilter() ? true : !!book.expanded[id]);
+/** What one row build shows: which rows stay visible, and whether anything narrows the tree. While the navigation filter holds text every kept row renders open, without writing the reader's expansion. */
+interface WalkFilter {
+  vis(id: string): boolean;
+  filtering: boolean;
+  navFiltering: boolean;
+}
+
+/** One record row and, when open, its children grouped by record type. The path is positional, so every row key is unique and a record shown under two parents keeps two keys. A finding leaf is always a leaf: the store reads its subject's children for its own id. The lasts flags hold each ancestor level's last-child flag by level, for the row's guide lines. */
+function walkRecord(book: Book, pre: RowPrecompute, filter: WalkFilter, id: string, depth: number, rows: OutlineRow[], path: string, lasts: readonly boolean[], isLast: boolean, branch: Set<string>): void {
+  if (!filter.vis(id)) return;
+  const kids = isFindingId(id) ? [] : book.kids(id).filter((k) => filter.vis(k));
+  const open = kids.length > 0 && (filter.filtering ? true : !!book.expanded[id]);
   rows.push({
     kind: "record", key: "row/" + path, id, depth,
     level: book.depthOf[id] ?? depth, kids: kids.length, open, dim: book.anyFilter() && !book.isDirectMatch(id),
+    guides: guideFlags(lasts, isLast, depth), branch: branch.has(id),
   });
-  if (open) walkGroups(book, pre, kids, id, depth + 1, rows, path);
+  if (open) walkGroups(book, pre, filter, kids, id, depth + 1, rows, path, [...lasts, isLast], branch);
 }
 
-/** Children grouped by record type, each with its completion for its tooltip. Children of one record type list directly, without a group header. */
-function walkGroups(book: Book, pre: RowPrecompute, kids: string[], parent: string, depth: number, rows: OutlineRow[], path: string): void {
+/** Children grouped by record type, each with its completion for its tooltip. Children of one record type list directly, without a group header. Findings gather under their own group with no completion: a finding is open or covered, never complete. Only visible children walk, so each row knows whether it ends its flattened sibling run. */
+function walkGroups(book: Book, pre: RowPrecompute, filter: WalkFilter, kids: string[], parent: string, depth: number, rows: OutlineRow[], path: string, lasts: readonly boolean[], branch: Set<string>): void {
   const groups: { key: string; label: string; list: string[] }[] = [];
   const byKey: Record<string, { key: string; label: string; list: string[] }> = {};
   for (const id of kids) {
@@ -217,98 +293,130 @@ function walkGroups(book: Book, pre: RowPrecompute, kids: string[], parent: stri
     }
     entry.list.push(id);
   }
-  const filtering = book.anyFilter();
+  const filtering = filter.filtering;
   const shaped = groups
     .map((g, gi) => {
       const list = sortKids(book, pre, g.list);
-      return { g, gi, list, visible: list.filter((id) => book.isVisible(id)) };
+      return { g, gi, list, visible: list.filter((id) => filter.vis(id)) };
     })
     .filter((s) => s.visible.length);
   const only = shaped.length === 1 ? shaped[0] : undefined;
   if (only) {
     const gpath = path + "/g" + only.gi;
-    for (const [i, id] of only.list.entries()) walkRecord(book, pre, id, depth, rows, gpath + "/r" + i);
+    for (const [i, id] of only.visible.entries()) walkRecord(book, pre, filter, id, depth, rows, gpath + "/r" + i, lasts, i === only.visible.length - 1, branch);
     return;
   }
-  for (const s of shaped) {
+  for (const [si, s] of shaped.entries()) {
     const gk = parent + "|" + s.g.key;
     const gpath = path + "/g" + s.gi;
     const closed = !filtering && !!book.closedGroups[gk];
+    const groupLast = si === shaped.length - 1;
     rows.push({
       kind: "group", key: "group/" + gpath, gk, label: s.g.label,
-      count: s.visible.length, completion: completeCounts(pre, s.visible), open: !closed, depth,
+      count: s.visible.length, completion: s.g.key === FINDING_GROUP ? "" : completeCounts(pre, s.visible), open: !closed, depth,
+      guides: guideFlags(lasts, false, depth), branch: s.visible.some((id) => branch.has(id)),
     });
     if (!closed) {
-      for (const [i, id] of s.list.entries()) walkRecord(book, pre, id, depth, rows, gpath + "/r" + i);
+      for (const [i, id] of s.visible.entries()) walkRecord(book, pre, filter, id, depth, rows, gpath + "/r" + i, lasts, groupLast && i === s.visible.length - 1, branch);
     }
   }
 }
 
 /** The Intent layer grouped by product area: one group per Behavior module with its features and flows, then the features and flows no module reaches. */
-function walkAreas(book: Book, pre: RowPrecompute, rows: OutlineRow[]): void {
+function walkAreas(book: Book, pre: RowPrecompute, filter: WalkFilter, rows: OutlineRow[], branch: Set<string>): void {
   const areas = book.productAreas;
   if (!areas) {
-    rows.push({ kind: "note", key: "layer/intent/areas-loading", text: "Loading the product areas." });
+    if (!filter.navFiltering) rows.push({ kind: "note", key: "layer/intent/areas-loading", text: "Loading the product areas.", depth: 1 });
     return;
   }
-  const filtering = book.anyFilter();
-  let gi = 0;
-  const walkArea = (id: string, label: string, list: string[]): void => {
-    const sorted = sortKids(book, pre, list);
-    const visible = sorted.filter((entry) => book.isVisible(entry));
-    if (filtering && !visible.length) return;
-    if (id === UNFULFILLED_AREA && !visible.length) return;
-    const gk = areaGroupKey(id);
-    const gpath = "layer/intent-area/g" + gi++;
+  const filtering = filter.filtering;
+  const candidates = [
+    ...areas.modules.map((mod) => ({ id: mod.id, label: mod.title, list: [...mod.features, ...mod.flows] })),
+    { id: UNFULFILLED_AREA, label: "Not yet fulfilled", list: [...areas.unfulfilled.features, ...areas.unfulfilled.flows] },
+  ];
+  const rendered = candidates
+    .map((area) => {
+      const sorted = sortKids(book, pre, area.list);
+      return { ...area, sorted, visible: sorted.filter((entry) => filter.vis(entry)) };
+    })
+    .filter((area) => (filtering || area.id === UNFULFILLED_AREA ? area.visible.length > 0 : true));
+  for (const [gi, area] of rendered.entries()) {
+    const gk = areaGroupKey(area.id);
+    const gpath = "layer/intent-area/g" + gi;
     const closed = !filtering && !!book.closedGroups[gk];
+    const groupLast = gi === rendered.length - 1;
     rows.push({
-      kind: "group", key: "group/" + gpath, gk, label,
-      count: visible.length, completion: completeCounts(pre, visible), open: !closed, depth: 1,
+      kind: "group", key: "group/" + gpath, gk, label: area.label,
+      count: area.visible.length, completion: completeCounts(pre, area.visible), open: !closed, depth: 1,
+      guides: [], branch: area.visible.some((id) => branch.has(id)),
     });
     if (!closed) {
-      for (const [i, entry] of sorted.entries()) walkRecord(book, pre, entry, 1, rows, gpath + "/r" + i);
+      for (const [i, entry] of area.visible.entries()) walkRecord(book, pre, filter, entry, 1, rows, gpath + "/r" + i, [false], groupLast && i === area.visible.length - 1, branch);
     }
-  };
-  for (const mod of areas.modules) walkArea(mod.id, mod.title, [...mod.features, ...mod.flows]);
-  walkArea(UNFULFILLED_AREA, "Not yet fulfilled", [...areas.unfulfilled.features, ...areas.unfulfilled.flows]);
+  }
 }
 
-/** The outline rows: the product root, then layer headers, records and field groups. */
-function buildRows(book: Book): OutlineRow[] {
+/** The outline rows: the product root, then layer headers, records and field groups. While the navigation filter holds text only matches and their ancestors render, all open, with the reader's expansion untouched. */
+function buildRows(book: Book, navFilter: string): OutlineRow[] {
   const rows: OutlineRow[] = [];
   const filtering = book.anyFilter();
+  const navFiltering = navFilter !== "";
+  const nav = navFiltering ? navMatches(book, navFilter) : null;
+  const navLayers = new Set<string>();
+  if (nav) for (const id of nav) {
+    const found = book.layerOf[id];
+    if (found) navLayers.add(found);
+  }
+  const filter: WalkFilter = {
+    vis: (id) => book.isVisible(id) && (!nav || nav.has(id)),
+    filtering: filtering || navFiltering,
+    navFiltering,
+  };
   const pre = precompute(book);
   const counts = layerCounts(book, pre, filtering);
+  // The selected record's branch: the record with its ancestors, whose guide lines read stronger.
+  const branch = new Set<string>();
+  if (book.selected) {
+    const start = stripStep(book.selected);
+    branch.add(start);
+    let parent = book.parentOf[start] ?? null;
+    while (parent && !branch.has(parent)) {
+      branch.add(parent);
+      parent = book.parentOf[parent] ?? null;
+    }
+  }
   // The product root above the first layer group: one record row, so
   // selection, reveal and keyboard moves treat it like any record.
   const pid = book.productId();
-  if (pid && book.has(pid) && book.isVisible(pid)) {
+  if (pid && book.has(pid) && filter.vis(pid)) {
     rows.push({
       kind: "record", key: "root", id: pid, depth: 0,
       level: 1, kids: 0, open: false, dim: filtering && !book.isDirectMatch(pid),
+      guides: [], branch: branch.has(pid),
     });
   }
   for (const layer of book.man?.layers ?? []) {
+    if (navFiltering && !navLayers.has(layer.key)) continue;
     if (!book.isLayerLoaded(layer.key)) {
       rows.push({ kind: "layer", key: "layer/" + layer.key, layer: layer.key, total: 0, shown: 0, done: 0 });
-      if (book.openLayers[layer.key]) rows.push({ kind: "note", key: "layer/" + layer.key + "/loading", text: "Loading." });
+      if (book.openLayers[layer.key]) rows.push({ kind: "note", key: "layer/" + layer.key + "/loading", text: "Loading.", depth: 1 });
       continue;
     }
     const entry = counts.get(layer.key) ?? { total: 0, shown: 0, done: 0 };
     if (filtering && !entry.shown) continue;
     rows.push({ kind: "layer", key: "layer/" + layer.key, layer: layer.key, total: entry.total, shown: entry.shown, done: entry.done });
-    if (!(filtering || book.openLayers[layer.key])) continue;
+    if (!(filter.filtering || book.openLayers[layer.key])) continue;
     if (layer.key === "intent") {
-      rows.push({ kind: "switch", key: "layer/intent/switch" });
+      if (!navFiltering) rows.push({ kind: "switch", key: "layer/intent/switch" });
       if (book.intentGrouping === "product-area") {
-        walkAreas(book, pre, rows);
+        walkAreas(book, pre, filter, rows, branch);
         continue;
       }
     }
     const roots = book.rootsOf[layer.key] ?? [];
     const base = "layer/" + layer.key;
-    if (roots.length > 1) walkGroups(book, pre, roots, layer.key, 1, rows, base);
-    else for (const [i, id] of roots.entries()) walkRecord(book, pre, id, 1, rows, base + "/r" + i);
+    if (roots.length > 1) walkGroups(book, pre, filter, roots, layer.key, 1, rows, base, [false], branch);
+    else for (const [i, id] of roots.entries()) walkRecord(book, pre, filter, id, 1, rows, base + "/r" + i, [false], true, branch);
   }
   return rows;
 }
@@ -316,8 +424,8 @@ function buildRows(book: Book): OutlineRow[] {
 /** The last row build per book, reused while its inputs are unchanged. */
 const rowCache = new WeakMap<Book, { sig: string; rows: OutlineRow[] }>();
 
-/** The inputs a row build reads, as one string: the outline, records, search and product-area revisions, the sort, the Intent grouping, the filters and the expansion. */
-function rowSignature(book: Book): string {
+/** The inputs a row build reads, as one string: the outline, records, search and product-area revisions, the sort, the Intent grouping, the filters, the navigation filter, the selection, the expansion and the record count. */
+function rowSignature(book: Book, navFilter: string): string {
   return JSON.stringify([
     book.outlineRev,
     book.recRev,
@@ -327,6 +435,8 @@ function rowSignature(book: Book): string {
     book.intentGrouping,
     book.query,
     book.active,
+    navFilter,
+    book.selected,
     book.expanded,
     book.closedGroups,
     book.openLayers,
@@ -334,12 +444,12 @@ function rowSignature(book: Book): string {
   ]);
 }
 
-/** The outline rows, memoized per book while the revision, sort, filters and expansion are unchanged. */
-export function buildOutlineRows(book: Book): OutlineRow[] {
-  const sig = rowSignature(book);
+/** The outline rows, memoized per book while the revision, sort, filters, navigation filter and expansion are unchanged. */
+export function buildOutlineRows(book: Book, navFilter = ""): OutlineRow[] {
+  const sig = rowSignature(book, navFilter);
   const cached = rowCache.get(book);
   if (cached && cached.sig === sig) return cached.rows;
-  const rows = buildRows(book);
+  const rows = buildRows(book, navFilter);
   rowCache.set(book, { sig, rows });
   return rows;
 }

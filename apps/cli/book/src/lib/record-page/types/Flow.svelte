@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { book, stripStep } from "$lib/frame";
+  import { book, hoverState, stripStep } from "$lib/frame";
   import type { BookRecord, ReachClaim, RecordFields } from "$lib/frame";
-  import { RecordIcon, RecordLink, TypeTag } from "$lib/record";
+  import { Hover, RecordIcon, RecordLink, TypeTag } from "$lib/record";
   import { Wireframe } from "$lib/wireframe";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
@@ -141,13 +141,22 @@
                     <TypeTag type={book.typeOf(stripStep(b))} />
                     <RecordLink id={b} />
                     {#if info}
-                      <span
-                        class="inline-flex h-[18px] items-center gap-1 rounded-full px-2 text-xs tracking-[0.32px] {info.built
-                          ? 'bg-tag-green text-tag-green-foreground'
-                          : 'bg-tag-warm text-tag-warm-foreground'}"
-                      >
-                        {info.built ? "coded" : "not coded"}
-                      </span>
+                      {#if info.built}
+                        <Hover hover={hoverState(book, "coded")}>
+                          <span
+                            data-explain="coded"
+                            class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-green px-2 text-xs tracking-[0.32px] text-tag-green-foreground"
+                          >
+                            Coded
+                          </span>
+                        </Hover>
+                      {:else}
+                        <span
+                          class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-warm px-2 text-xs tracking-[0.32px] text-tag-warm-foreground"
+                        >
+                          Not coded
+                        </span>
+                      {/if}
                       <span>{info.scenarios ? `${info.verified} of ${info.scenarios} scenarios confirmed` : "no scenarios"}</span>
                     {/if}
                   </div>
@@ -171,15 +180,21 @@
               {#if reach.ids.length}
                 <div class="flex flex-wrap items-center gap-2">
                   {#if reachVerified(reach.claims, reach.ids)}
-                    <span
-                      class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-teal px-2 text-xs tracking-[0.32px] text-tag-teal-foreground"
-                      >Reach verified</span
-                    >
+                    <Hover hover={hoverState(book, "reach-verified")}>
+                      <span
+                        data-explain="reach-verified"
+                        class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-teal px-2 text-xs tracking-[0.32px] text-tag-teal-foreground"
+                        >Reach verified</span
+                      >
+                    </Hover>
                   {:else}
-                    <span
-                      class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-warm px-2 text-xs tracking-[0.32px] text-tag-warm-foreground"
-                      >Reach claimed</span
-                    >
+                    <Hover hover={hoverState(book, "reach-claimed")}>
+                      <span
+                        data-explain="reach-claimed"
+                        class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-warm px-2 text-xs tracking-[0.32px] text-tag-warm-foreground"
+                        >Reach claimed</span
+                      >
+                    </Hover>
                   {/if}
                 </div>
               {/if}
