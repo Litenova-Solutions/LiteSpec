@@ -3,11 +3,11 @@
 **Stack:** react, svelte
 **Concern:** frontend-ui
 
-The web pages state what the React and Svelte frontends do the same way: one TypeScript toolchain, one generated API client, and one shared UI package across structure, rendering, components, UI, data, and testing. When you add a route, a component, or data code to either stack, find the shared rule here and the stack-specific rule on the stack page. No project selects this folder directly; selecting the [React Stack](react/stack.md) or the [Svelte Stack](svelte/stack.md) applies it through that stack's folder chain.
+React and Svelte frontends share one TypeScript toolchain, one generated API client, and one shared UI package. The pages in this folder state the rules both stacks follow for structure, rendering, components, UI, data, and testing. When you add a route, a component, or data code to either stack, the shared rule lives here and the stack-specific binding on the stack page. No project selects this folder directly: selecting the [React Stack](react/stack.md) or the [Svelte Stack](svelte/stack.md) applies it through that stack's folder chain.
 
 ## How the Pages Fit Together
 
-Each shared page pairs with one frontend principle page. The principle page says what holds for every frontend, the shared page states the rule once for what React and Svelte do the same way, and each stack page names the binding for its stack where the two differ. When you add a web screen, read in that order: the principle, then the shared page here, then the stack page where the stacks differ.
+Each shared page here pairs with one frontend principle page. The principle page states what holds for every frontend, the shared page states once what React and Svelte do the same way, and each stack page names the binding for its stack where the two differ. When you add a web screen, read in that order: the principle, then the shared page, then the stack page.
 
 ## Shared Web Pages
 

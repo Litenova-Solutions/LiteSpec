@@ -5,17 +5,19 @@
 
 The WebApi layer is the thin HTTP boundary of a LiteSpec backend. It converts each HTTP request into a message for the Application layer, dispatches it, and maps the result back to a stable HTTP response. Nothing else lives here: no business rules, no storage access, no provider calls.
 
-That thinness keeps HTTP replaceable transport, so the API evolves without touching business behavior. This page states what one endpoint owns, how routes, errors, and collection paging behave, and how the OpenAPI contract, the machine-readable description of the API, is generated from the code.
+That thinness keeps HTTP as replaceable transport, so the API evolves without touching business behavior. This page states what one endpoint owns, how routes, errors, and collection paging behave, and how the OpenAPI contract, the machine-readable description of the API, is generated from the code.
 
 ## Concepts
 
 ### Endpoints as Transport Adapters
 
-An endpoint does three things and nothing else: it converts HTTP input to an Application message, dispatches that message through its mediator, and maps the result to the HTTP response. A mediator here means the Application-facing entry point for commands or queries. One endpoint class serves one route operation and sits in its use case folder, and the host maps the endpoints through the one public assembly marker.
+An endpoint does three things and nothing else: it converts HTTP input to an Application message, dispatches that message through its mediator, and maps the result to the HTTP response. A mediator here means the Application-facing entry point for commands or queries.
+
+One endpoint class serves one route operation and sits in its use case folder, and the host maps the endpoints through the one public assembly marker.
 
 Business rules, persistence access, provider calls, and error mapping all live outside endpoints: the handler owns behavior, the guard owns target authorization, and one global handler owns error responses.
 
-Some endpoints have no handler to sit beside. The host keeps those: protocol endpoints, static assets, and development-only tooling, each carrying the mark naming the record it implements.
+Some endpoints belong to no use case, so they have no handler. The host keeps those: protocol endpoints, static assets, and development-only tooling, each carrying the mark naming the record it implements.
 
 In Claimwick, the submit-expense endpoint reads the HTTP request, maps it to the submit command, dispatches it through the command mediator, and maps the result to the response. It checks no business rule and catches no failure.
 
@@ -23,15 +25,15 @@ In Claimwick, the submit-expense endpoint reads the HTTP request, maps it to the
 
 Every error response uses RFC 9457 Problem Details: a standard body carrying a stable application `code`, the current `traceId`, and one `errors` entry per field failure. The stable code lets a client branch on the failure without parsing prose, and the trace identifier connects the response to its diagnostics.
 
-One global handler produces every error response. It maps each failure, validation, domain, or use-case, to its status and body. Because the mapping lives in one place, the same failure answers the same status and code from every endpoint.
+One global handler produces every error response. It maps every validation, domain, or use-case failure to its status and body. Because the mapping lives in one place, the same failure answers the same status and code from every endpoint.
 
 In Claimwick, reimbursing an expense that is not approved answers 409 with the code `spending.not-approved`, whatever endpoint received the request. The endpoint catches nothing.
 
 ### The Generated Contract
 
-The OpenAPI document is generated from the code during the Release build, with no handwritten copy. It declares each operation's stable `operationId`, the client method name, its authorization, request, success, and Problem Details metadata, plus precise schemas for every field.
+The OpenAPI document is generated from the code during the Release build, with no handwritten copy. For each operation it declares a stable `operationId`, the client method name, with its authorization, request, success, and Problem Details metadata. The document declares a precise schema for every field.
 
-Generation exists because a handwritten contract drifts from the code with the first unmirrored change. A generated contract is a function of the code: change the endpoint and the contract follows. The generated artifact is committed when a frontend or external consumer reads it, so every contract change is visible in review and CI fails when the document was not regenerated.
+Generation exists because a handwritten contract drifts from the code with the first unmirrored change. A generated contract derives from the code: change the endpoint and the contract follows. The generated artifact is committed when a frontend or external consumer reads it, so every contract change is visible in review and CI fails when the document was not regenerated.
 
 Comments on handlers are not contract documentation: operations carry explicit summaries.
 
@@ -47,7 +49,7 @@ Comments on handlers are not contract documentation: operations carry explicit s
 
 **Statement:** An endpoint MUST map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
-**Rationale:** When one endpoint class serves several operations, their input mappings, dispatches, and result mappings mix in one place, and one class changes for unrelated routes. One endpoint class per route operation gives each route a single owner, so its input mapping, dispatch, and result mapping live in one place.
+**Rationale:** When one endpoint class serves several operations, their input mappings, dispatches, and result mappings mix, and the class changes for unrelated routes. One endpoint class per route operation gives each route a single owner for all three.
 
 **Example:** At startup, the application discovers endpoint implementations, registers each one once, and maps them in deterministic name order. Discovery uses the platform's own reflection and dependency injection. It needs no separate scanning package.
 
@@ -63,7 +65,7 @@ Comments on handlers are not contract documentation: operations carry explicit s
 
 **Statement:** An endpoint MUST NOT take an aggregate repository, a persistence session or context, a provider client, or an application service.
 
-**Rationale:** An endpoint that takes a repository, session, provider, or application service can reach business state or providers without passing the pipeline. Endpoints hold no request-scoped dependency because the application registers them at startup; they take only mediators and HTTP-boundary services such as an actor accessor. Handlers take neither, since a handler sends no message.
+**Rationale:** An endpoint that takes a repository, session, provider, or application service can reach business state or providers without passing the pipeline. Endpoints hold no request-scoped dependency because the application registers them at startup; they take only mediators and HTTP-boundary services such as an actor accessor. Handlers take neither mediators nor HTTP-boundary services, since a handler sends no message.
 
 **Reviewed for:** Does any endpoint constructor take more than mediators and HTTP-boundary services? Look at the endpoint constructors in the use case folders.
 
@@ -91,7 +93,7 @@ Comments on handlers are not contract documentation: operations carry explicit s
 
 **Statement:** A WebApi endpoint MUST enforce only coarse authenticated, role, or scope policies, leaving target decisions to the application guard.
 
-**Rationale:** Authentication establishes who is calling, not whether the caller may act on this specific resource. An endpoint that decided target authorization would duplicate the business data access the guard already owns. Coarse policies at the endpoint check the caller; the application guard decides the target from the `access` the use-case record declares. Target authorization lives in `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
+**Rationale:** Authentication establishes who is calling, not whether the caller may act on this specific resource. An endpoint that decided target authorization would duplicate the business data access the guard already owns. Coarse policies at the endpoint check the caller; the application guard decides the target from the `access` the use-case record declares. `litespec/backend/application#enforce-target-authorization-in-the-pipeline` states target authorization.
 
 An operation applies a stable forbidden or not-found policy when revealing that a resource exists would leak information.
 
@@ -109,7 +111,7 @@ An operation applies a stable forbidden or not-found policy when revealing that 
 
 **Rationale:** A stable machine-readable code lets a client branch on the failure without parsing prose, and the trace identifier connects the response to its diagnostics. One entry per field failure tells the caller everything wrong with the request in one answer. RFC 9457 defines the Problem Details media type the contract uses.
 
-**Example:** The serialized contract is:
+**Example:** A validation failure returns this body:
 
 ```json
 {
@@ -130,11 +132,13 @@ An operation applies a stable forbidden or not-found policy when revealing that 
 }
 ```
 
-`type` is a stable absolute URI owned by the consumer. `errors` appears only when validity findings exist, carrying their member, code, and message. `code` carries the refusal result's stable code, and `detail` carries the free-form prose explanation. A request body names the same pair `code` and `reason` under `litespec/backend/api#name-failure-pairs-code-and-reason`.
+`type` is a stable absolute URI owned by the consumer. `errors` appears only when validity findings exist, carrying their member, code, and message.
+
+`code` carries the refusal result's stable code, and `detail` carries the free-form prose explanation. A request body names the same pair `code` and `reason` under `litespec/backend/api#name-failure-pairs-code-and-reason`.
 
 WebApi maps Application member names to their public JSON field names. `traceId` carries the trace identifier from the current [W3C Trace Context](https://www.w3.org/TR/trace-context/) `traceparent`, with the request identifier as fallback. The same shape applies to authentication and authorization failures.
 
-The global handler maps validation failures to 400, missing targets through the operation's disclosure policy, and forbidden failures to 403 or the declared 404. The derived `invalid-input` refusal answers 400, and the derived `forbidden` refusal answers 403 or the declared 404. It maps conflicts and state rejections to 409, and unexpected failures to 500 with code `internal-error`. It maps each known domain failure individually. It does not report cancellation from a disconnected request as an application error.
+The global handler maps validation failures to 400 and missing targets through the operation's disclosure policy. It maps forbidden failures to 403 or the declared 404. The derived `invalid-input` refusal answers 400, and the derived `forbidden` refusal answers 403 or the declared 404. It maps conflicts and state rejections to 409, and unexpected failures to 500 with code `internal-error`. It maps each known domain failure individually. It does not report cancellation from a disconnected request as an application error.
 
 In the Claimwick product, reimbursing an expense that is not approved ends with `result/reimburse-expense.not-approved`, which carries the code `spending.not-approved` and the status 409. For example, the global handler answers:
 
@@ -166,7 +170,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Statement:** A WebApi operation MUST return the status the outcome table assigns to its result.
 
-**Rationale:** A client branches on status before it reads a body, so a status that disagrees with the outcome table hides the real outcome. The stack derives the status from the use-case result: each success and refusal kind maps to exactly one status, with no recorded status on the record. The outcome table assigns each result its status once, and the operation returns exactly that status.
+**Rationale:** A client branches on status before it reads a body, so a status that disagrees with the outcome table hides the real outcome. The stack derives the status from the use-case result: each success and refusal kind maps to exactly one status, with no status recorded on the record, and the operation returns exactly that status.
 
 **Example:**
 
@@ -213,7 +217,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Statement:** A file upload operation MUST determine the file type from the file content rather than the media type or file name the client claims.
 
-**Rationale:** A claimed media type and a file name are caller input. Either one can name an image while the bytes carry anything else. Reading the type from the content itself keeps the declared media-type bound honest, because the check runs on what the server stores rather than on what the caller says it sent.
+**Rationale:** A claimed media type and a file name are caller input. Either one can name an image while the bytes carry anything else. Reading the type from the content itself enforces the declared media-type bound on what the server stores rather than on what the caller says it sent.
 
 **Example:** A Claimwick receipt photo named as an image is stored as an image only when its bytes read as one of the declared image types. Bytes of another type are refused even when the name and claimed type agree.
 
@@ -263,7 +267,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Rationale:** Cookies travel with every request, including ones a malicious page triggers, so a cookie-authenticated write needs proof the project's own page sent it. A page on another site adds no custom header, so the header's absence exposes a cross-site forgery. A write is any request other than GET, HEAD, or OPTIONS. The header takes the form `X-<Project>-Request: 1`, with the exact name set in project configuration.
 
-The refused request is unauthenticated, so it answers 401 under `litespec/backend/api#use-consistent-status-codes`. The frontend pages own sending the header. This rule owns the API refusal.
+The refused request is unauthenticated, so it answers 401 under `litespec/backend/api#use-consistent-status-codes`. The frontend pages state when the header is sent; this provision states when the API refuses a request without it.
 
 **Reviewed for:** Does every cookie-authenticated write without the marker header answer 401? Look at the write requests with cookie authentication.
 
@@ -295,7 +299,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Rationale:** A partial update names only the fields it changes. Sending them with PATCH and the merge-patch media type gives those semantics a standard meaning. A PUT body for a partial change either repeats fields the caller does not change or invents merge semantics per field. [RFC 5789](https://datatracker.ietf.org/doc/html/rfc5789) defines PATCH and [RFC 7386](https://datatracker.ietf.org/doc/html/rfc7386) defines the merge-patch media type.
 
-**Example:** A partial update sends only the changed members with `Content-Type: application/merge-patch+json`, and the endpoint reads the body as a sparse patch. A PUT keeps replacing the whole resource ([RFC 9110 section 9.3.4](https://datatracker.ietf.org/doc/html/rfc9110#section-9.3.4)), and DELETE stays a hard-state transition.
+**Example:** A partial update sends only the changed members with `Content-Type: application/merge-patch+json`, and the endpoint reads the body as a sparse patch. A PUT replaces the whole resource ([RFC 9110 section 9.3.4](https://datatracker.ietf.org/doc/html/rfc9110#section-9.3.4)), and DELETE remains a hard-state transition.
 
 **Reviewed for:** Does every partial update arrive as PATCH with the merge-patch media type? Look at the partial update requests.
 
@@ -309,7 +313,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Statement:** A collection endpoint MUST apply deterministic ordering, its record's declared default limit, and its record's declared maximum limit of 100 or lower.
 
-**Rationale:** An unbounded collection read turns one caller into a source of unbounded database and serialization work. Deterministic ordering keeps pages stable, the declared default limit bounds the common case, and the declared maximum of 100 or lower caps the worst case. The use-case record declares its paging with order, cursor or offset, default limit, and maximum limit, and the endpoint applies exactly that. Cursor mechanics live in `litespec/backend/api#use-opaque-cursors-for-collection-paging` and `litespec/backend/api#version-cursors-with-stable-sort-values`.
+**Rationale:** An unbounded collection read lets one caller cause unbounded database and serialization work. Deterministic ordering keeps pages stable, the declared default limit bounds the common case, and the declared maximum of 100 or lower caps the worst case. The use-case record declares its paging with order, cursor or offset, default limit, and maximum limit, and the endpoint applies exactly that. `litespec/backend/api#use-opaque-cursors-for-collection-paging` and `litespec/backend/api#version-cursors-with-stable-sort-values` state the cursor mechanics.
 
 **Example:** A request uses `after` as an opaque cursor and `limit` as a positive integer. The implementation fetches one record beyond the requested limit to determine whether another page exists. The response uses one shape:
 
@@ -364,11 +368,11 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Statement:** An application MUST generate its OpenAPI document during the Release build.
 
-**Rationale:** A handwritten contract drifts from the code it describes with the first unmirrored change. Generating the document during the Release build keeps the contract a function of the code, so the file the pinned generator reads stays current.
+**Rationale:** A handwritten contract drifts from the code it describes with the first unmirrored change. Generating the document during the Release build derives the contract from the code, so the file the pinned generator reads stays current.
 
 **Example:** The API source artifact is `apps/api/openapi/{ProjectName}.json`.
 
-Build-time generation boots the host, and a boot reaches every startup guard. A project whose composition refuses to start without a secret, a certificate, or a reachable dependency generates no contract from a clean checkout. Two answers are valid, and the project records which one it uses under `litespec/backend/api#generate-the-contract-without-hosted-dependencies`.
+Build-time generation boots the host, which runs every startup guard. A project whose composition refuses to start without a secret, a certificate, or a reachable dependency generates no contract from a clean checkout. Two answers are valid, and the project records which one it uses under `litespec/backend/api#generate-the-contract-without-hosted-dependencies`.
 
 | Answer | What the project does | What it costs |
 |:---|:---|:---|
@@ -377,7 +381,7 @@ Build-time generation boots the host, and a boot reaches every startup guard. A 
 
 Generation without hosted dependencies follows `litespec/backend/api#generate-the-contract-without-hosted-dependencies`.
 
-When a typed consumer reads the API, the pinned generator reads the source artifact. The generated client, its model types, its request schemas, and its query options are one workspace package, because every frontend and every command reads them.
+When a typed consumer reads the API, the pinned generator reads the source artifact. The generated client, model types, request schemas, and query options form one workspace package, because every frontend and every command reads them.
 
 **Reviewed for:** Does every Release build regenerate the OpenAPI artifact, with no contract gate passing on a changed tree? Look at the Release build output and the contract gate.
 
@@ -405,7 +409,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Statement:** Every operation in the generated contract MUST carry `x-litespec-use-case` naming the use case its endpoint implements.
 
-**Rationale:** The `operationId` names an operation for client code and keeps its casing for method names, so it is not the record identifier. Carrying the identifier itself in an extension, which the OpenAPI specification reserves for this kind of metadata, lets an integrator, a gateway log, or a support person go from an operation straight to its specification page. The value comes from the generated map of operation names to use cases, so it is written once, in the endpoint's mark.
+**Rationale:** The `operationId` names an operation for client code, cased for method names, so it is not the record identifier. Carrying the identifier itself in an extension, which the OpenAPI specification reserves for this kind of metadata, lets an integrator, a gateway log, or a support person go from an operation straight to its specification page. The value comes from the generated map of operation names to use cases, so it is written once, in the endpoint's mark.
 
 **Example:** The Claimwick operation `SubmitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
 
@@ -437,7 +441,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Rationale:** A consumer that learns an authentication requirement from a runtime 401 has already built the wrong client. Declared security schemes and per-operation requirements let it build the right one before its first call. Handwritten security metadata drifts from registered schemes, so the document derives them from the registered authentication schemes.
 
-**Example:** The implementation reads the registered authentication schemes and adds the matching `securitySchemes` and `security` entries. Handwritten security metadata drifts from registered schemes. An operation whose `access` grant is `anonymous` declares no security requirement.
+**Example:** The implementation reads the registered authentication schemes and adds the matching `securitySchemes` and `security` entries. An operation whose `access` grant is `anonymous` declares no security requirement.
 
 **Reviewed for:** Does every authenticated operation declare its security schemes and requirements in the generated contract? Look at the operations in the generated contract.
 
@@ -453,7 +457,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Rationale:** A caller that learns limits from the document validates before sending. A caller that learns them from runtime rejections discovers one limit per failed request. Declaring the closed value set, bounds, format, and required control headers of each field and parameter moves every checkable limit into the contract.
 
-**Example:** A label-only set publishes its values as an OpenAPI `enum`. A data-bearing set publishes a polymorphic `oneOf` model with a discriminator per `litespec/backend/api#mirror-each-closed-set-on-the-wire`. A converter on the boundary type keeps every serializer on the contract, including a test client using default options. Host-only conversion breaks readers that do not share host configuration.
+**Example:** A label-only set publishes its values as an OpenAPI `enum`. A data-bearing set publishes a polymorphic `oneOf` model with a discriminator per `litespec/backend/api#mirror-each-closed-set-on-the-wire`. A converter on the boundary type keeps every serializer producing the contracted shape, including a test client using default options. Host-only conversion breaks readers that do not share host configuration.
 
 An operation requiring a control header declares it as a required parameter, for example `Idempotency-Key` or `If-Match`. The implementation prefers results, enums, and parameter metadata derived from code over handwritten schemas that drift from code.
 
@@ -469,7 +473,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Statement:** An application MUST map its API exploration and diagnostic endpoints only when the host runs in the Development environment.
 
-**Rationale:** Development tooling exposes the full API surface for exploration. That is what development needs and what a hosted environment leaves unoffered. Mapping it in Development only keeps exploration local while hosted environments serve only the API.
+**Rationale:** Development tooling exposes the full API surface for exploration. That suits development; a hosted environment offers only the API. Mapping the tooling in Development only keeps exploration local.
 
 **Reviewed for:** Does any hosted environment serve exploration tooling, and does every Development host map it? Look at the mapped endpoints in each environment.
 
@@ -499,7 +503,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Statement:** A transport model for a label-only set MUST publish its values as an OpenAPI string `enum`.
 
-**Rationale:** A label-only set carries no case data, so its labels are the complete contract, and a string enum carries them exactly. The permission to use a plain enum for this one situation lives in `litespec/backend/domain#model-every-closed-set-as-a-type-hierarchy`.
+**Rationale:** A label-only set carries no case data, so its labels are the complete contract, and a string enum carries them exactly. `litespec/backend/domain#model-every-closed-set-as-a-type-hierarchy` states the permission to use a plain enum in this one situation.
 
 **Reviewed for:** Does every label-only set publish its string enum in the contract? Look at the label-only sets in the contract.
 
@@ -521,7 +525,7 @@ An operation requiring a control header declares it as a required parameter, for
 - Carry the metadata on the type, not only in host options.
 - Name the discriminator property, using a name such as `type` or `outcome`.
 - Opt cases in explicitly, so an unregistered subtype fails serialization.
-- A document or schema transformer completes discriminator metadata that the generator omits.
+- Complete discriminator metadata that the generator omits with a document or schema transformer.
 
 **Reviewed for:** Does every data-bearing set publish a oneOf model with a required string discriminator? Look at the data-bearing sets in the contract.
 
@@ -569,7 +573,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Replacement:** A project names its endpoint layout in its backend documentation.
 
-**Rationale:** When each endpoint sits in the `WebApi/` folder of its use case, the folder path matches the specification path, and a reader locates an operation from its use-case identifier without searching. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. The host keeps the endpoints that have no handler to sit beside: protocol endpoints, static assets, and development-only tooling.
+**Rationale:** When each endpoint sits in the `WebApi/` folder of its use case, the folder path matches the specification path, and a reader locates an operation from its use-case identifier without searching. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. The host keeps the endpoints that belong to no use case: protocol endpoints, static assets, and development-only tooling.
 
 **Example:** The endpoints sit in the `WebApi/` folder of their use case inside the `UseCases/` folder of their module and aggregate:
 
@@ -612,7 +616,7 @@ Module nesting, including the single-aggregate flat form, follows `litespec/back
 
 **Replacement:** A project names its transport suffixes in its backend documentation.
 
-**Rationale:** A name that ends in its boundary role keeps transport concerns visibly separate from Application messages and results. The suffix table that assigns each role its suffix lives in `litespec/workspace/naming#use-architectural-suffixes`.
+**Rationale:** A name that ends in its boundary role keeps transport concerns visibly separate from Application messages and results. `litespec/workspace/naming#use-architectural-suffixes` states the suffix table that assigns each role its suffix.
 
 **Example:** A passive HTTP DTO names its boundary role and ends in `Model`.
 
@@ -655,7 +659,7 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Replacement:** A project names its route shape in its backend documentation.
 
-**Rationale:** A route that names the aggregate plural, its identity, and the verb as the last segment reads the same for every command: the reader knows the record and the act before opening the handler. A route that repeats the noun or hides the verb makes each command route a fresh puzzle.
+**Rationale:** A route that names the aggregate plural, its identity, and the verb as the last segment reads the same for every command: the reader knows the record and the act before opening the handler. A route that repeats the noun or hides the verb forces the reader to learn each command route separately.
 
 **Example:**
 
@@ -712,7 +716,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Replacement:** A project names its boolean wire shape in its backend documentation.
 
-**Rationale:** Condition names state what the boolean means, and the camel-case form matches wire conventions. Boolean names live in `litespec/workspace/naming#use-intent-revealing-boolean-names`, and transport carries the camel-case form.
+**Rationale:** Condition names state what the boolean means, and the camel-case form matches wire conventions. `litespec/workspace/naming#use-intent-revealing-boolean-names` states the boolean names, and transport carries the camel-case form.
 
 **Example:** `IsBuyable` in code becomes `isBuyable` on the wire.
 

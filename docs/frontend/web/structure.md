@@ -3,9 +3,9 @@
 **Stack:** react, svelte
 **Concern:** frontend-ui
 
-React and Svelte frontends share one folder layout: a frame holding the values shared across routes, one route per address, and modules that mirror the backend's use cases, so each business area and user task sits in the same place on both sides.
+React and Svelte frontends share one folder layout: a frame holding the values shared across routes, one route per address, and modules that mirror the backend's use cases, so each business area and user task is found in the same place in the frontend and the backend.
 
-This page states the tree, the frame folder, the use-case marks, the generated records file, and the route tree the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share, following the structure rules in [Frontend Structure](../structure.md). A team that applies it while adding files keeps every use case findable by path and every mark checkable by type.
+[Frontend Structure](../structure.md) states the structure rules; this page states what the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share: the application tree, the frame folder, the use-case marks, the generated records file, and the route tree.
 
 ## Concepts
 
@@ -82,7 +82,7 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **Statement:** A frontend use-case folder MUST export one `litespec` constant whose `implements` names its use case, typed against the generated union of use-case identifiers.
 
-**Rationale:** The folder path mirrors the backend use case, which tells a reader where to look but tells a tool only a resemblance. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran. The route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves. A query folder at `{module}/use-cases/{use-case}/` mirrors a use case with no one aggregate, so its expected mark still names `use-case/<module>.<use-case>`, from the module and use-case segments alone.
+**Rationale:** The folder path mirrors the backend use case, which shows a reader where to look, but a path alone gives a tool nothing to check. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran. The route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves. A query folder at `{module}/use-cases/{use-case}/` mirrors a use case that belongs to no single aggregate, so its expected mark still names `use-case/<module>.<use-case>`, from the module and use-case segments alone.
 
 **Example:** The list-expenses module in the Claimwick web frontend exports its mark.
 
@@ -116,7 +116,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Statement:** A frontend's generated `litespec-records.ts` MUST sit in its frame folder and hold only the use cases and screens of that frontend's own entry points.
 
-**Rationale:** The records file is a cross-route value every module and route imports, which is what the frame holds. On both stacks it sits in the frame folder: `src/app/` on React and `src/lib/app/` on Svelte, so no stack-specific folder is needed. A union holding every browser use case of the project would let one frontend mark a use case only another frontend reaches, and the type check would pass; a union per frontend makes that mistake a type error. The file exports the `UseCaseId` and `ScreenId` unions, the `LiteSpecMark` type, and the `proves` helper browser tests annotate with.
+**Rationale:** The records file is a cross-route value every module and route imports, which is what the frame holds. On both stacks it lives in the frame folder: `src/app/` on React and `src/lib/app/` on Svelte, so no stack-specific folder is needed. A union holding every browser use case of the project would let one frontend mark a use case only another frontend reaches, and the type check would pass; a union per frontend makes that mistake a type error. The file exports the `UseCaseId` and `ScreenId` unions, the `LiteSpecMark` type, and the `proves` helper that browser tests annotate with.
 
 **Example:** `litespec model render` writes `apps/web/src/lib/app/litespec-records.ts` for the Claimwick web frontend, whose `UseCaseId` holds the use cases its entry point reaches and nothing else.
 
@@ -132,7 +132,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Statement:** A React folder MUST NOT be named `lib`, nor a Svelte folder under `src/lib` be named `stores`.
 
-**Rationale:** A `lib` folder on React would sit beside `src/app` as a second frame, and `src/app` already holds the frame. A `stores` folder on Svelte would gather shared state in one place, while the rules put shared state in the frame or beside its readers. Refusing both names stops the second home before anything moves into it.
+**Rationale:** A `lib` folder on React would add a second frame beside `src/app`, which already holds the frame. A `stores` folder on Svelte would gather shared state in one place, while the rules put shared state in the frame or beside its readers. Refusing both names keeps each value in the one place the rules give it.
 
 **Reviewed for:** Does any React folder take the name `lib`, or any Svelte folder under `src/lib` the name `stores`? Check the frontend tree.
 
@@ -146,7 +146,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Statement:** A frontend MUST place cross-route values in the frame folder its stack page states: client configuration, session read, language choice, permissions, formatting, and shell data.
 
-**Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. Filed in the frame folder, each has one home; filed in a route, each exists once per route with copies to keep equal. A browser API reached from a use-case module belongs here too, because a module renders and reads data rather than touching the device. This realizes litespec/frontend/structure#place-cross-route-values-in-the-frame.
+**Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. Placed in the frame folder, each has one home; placed in a route, each would exist once per route, with copies to keep equal. A browser API reached from a use-case module belongs here too, because a module renders and reads data rather than calling such APIs directly. This realizes litespec/frontend/structure#place-cross-route-values-in-the-frame.
 
 **Reviewed for:** Do all cross-route values and browser uses sit in the frame folder their stack page names? Check the frame folder and the route and module sources.
 
@@ -164,6 +164,6 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** The typed route artifacts derive from the files under `src/routes`. Generating them with the router's own command and leaving them untracked keeps one source of truth. Committed artifacts add a second copy that a renamed route file leaves behind.
+**Rationale:** The typed route artifacts derive from the files under `src/routes`. Generating them with the router's own command and leaving them untracked keeps one source of truth. Committed artifacts add a second copy that goes stale when a route file is renamed.
 
 **Reviewed for:** Does every build and type-check script run the router's generate command, with no generated artifact staying tracked? Check the package scripts and the version control status.

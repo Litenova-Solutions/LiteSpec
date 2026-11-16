@@ -3,17 +3,19 @@
 **Stack:** any
 **Concern:** workspace
 
-A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. The rules below define that tree, where each file kind lives inside it, and what `.litespec/project.yaml` declares. They apply to anyone who creates a file, and to agents locating code without asking.
+A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page defines that tree, where each file kind lives inside it, and what `.litespec/project.yaml` declares. It applies to anyone who creates a file, and to agents locating code without asking.
 
 ## Concepts
 
 ### Applications and Packages
 
-Two folders split the tree by purpose. The `apps/` folder holds what runs: the API, each frontend, and any deployed host. The `packages/` folder holds what is reused: shared configuration, generated API types, a thin client, and theme tokens. Deployable code stays out of libraries, and reusable code stays out of applications. A second frontend reuses the generated API types from `packages/` instead of importing the first frontend's code.
+Two folders split the tree by purpose. The `apps/` folder holds what runs: the API, each frontend, and any deployed host. The `packages/` folder holds what is reused: shared configuration, generated API types, a thin client, and theme tokens. Deployable code stays out of `packages/`, and reusable code stays out of applications. A second frontend reuses the generated API types from `packages/` instead of importing the first frontend's code.
 
 ### Records and Their Homes
 
-Each record type has one home in the tree. The [model page](../core/model.md) names the home, and the canonical tree below realizes it. Entries live in their home file instead of their own files, so an agent derives the path from the record type without searching. A scenario lives in its use-case file, while a requirement lives in its own folder inside its feature's folder.
+Each record type has one home in the tree. The [model page](../core/model.md) names the home for each type, and the canonical tree in `Use the Canonical Root Tree` shows where it is.
+
+Entries live in their home file instead of their own files, so an agent derives the path from the record type without searching. A scenario lives in its use-case file, while a requirement lives in its own folder inside its feature's folder.
 
 While it builds the model from records, code, routes, tests, and test runs, the model builder writes generated working files under `.litespec/model/`. The folder is rebuilt rather than reviewed.
 
@@ -100,7 +102,7 @@ While it builds the model from records, code, routes, tests, and test runs, the 
   pnpm-workspace.yaml                   when a frontend or TypeScript package exists
 ```
 
-A backend stack binding names the files that realize the entries in angle brackets.
+A backend stack binding names the files for the entries in angle brackets.
 
 Neither the backend application nor a frontend application sits at the workspace root. Under `behavior/modules/`, each module folder holds its typed folders, and `aggregates/` holds one folder per aggregate in plural kebab-case form.
 
@@ -142,7 +144,7 @@ An entry lives in its home file: permissions in the permissions file of their mo
 
 **Statement:** Production code MUST live under `apps/api/src/` and test code under `apps/api/tests/`.
 
-**Rationale:** Production code lives under `apps/api/src/` and test code under `apps/api/tests/`, so the two graphs stay apart by path. The split makes a test dependency reaching production code visible in the path itself, and keeps test helpers from shipping with the product.
+**Rationale:** The two graphs stay apart by path. The split makes a test dependency reaching production code visible in the path itself, and keeps test helpers from shipping with the product.
 
 **Example:** The backend tree looks like this:
 
@@ -163,7 +165,7 @@ apps/api/
 
 **Statement:** An independently runnable frontend, API, or deployed host MUST live under `apps/{name}/`.
 
-**Rationale:** Each root folder makes one promise: `apps/` runs, and `packages/` is reused. A reusable package under `apps/` or deployable code under `packages/` inverts that promise, so neither location tells the reader what it holds. One home per kind keeps the promise readable.
+**Rationale:** Each root folder has one purpose: `apps/` runs, and `packages/` is reused. A reusable package under `apps/`, or deployable code under `packages/`, breaks that split, so neither location tells the reader what it holds. One home per kind keeps each location meaningful.
 
 **Reviewed for:** Does each directory under `apps/` run on its own, with each directory under `packages/` imported by an application? Read the workspace root and the imports in `apps/`.
 
@@ -175,7 +177,7 @@ apps/api/
 
 **Statement:** A shared TypeScript package MUST have at least two consumers or carry generated output shared by design.
 
-**Rationale:** A shared package with one consumer pays versioning, publishing, and cross-package edits for an audience of one. Requiring two consumers, or generated output shared by design, keeps sharing deliberate. The baseline permits shared configuration, generated API types, a thin client, and CSS theme tokens.
+**Rationale:** A shared package with one consumer still costs versioning, publishing, and cross-package edits. Requiring two consumers, or generated output shared by design, keeps sharing deliberate. The baseline permits shared configuration, generated API types, a thin client, and CSS theme tokens.
 
 **Reviewed for:** Is each package under `packages/` imported by at least two consumers, or does it carry generated output shared by design? Read the imports in `apps/`.
 

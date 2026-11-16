@@ -3,7 +3,9 @@
 **Stack:** any
 **Concern:** operations
 
-Operating a product means starting it, watching it, and keeping its runtime state visible. This page states how a LiteSpec product does each: local startup, diagnostics, and the operating records that answer failures. It applies to everyone who operates a release and to any change that touches schema, external dependencies, or background work. A product that follows it stays observable with one maintainer on call. Deployment, rollback, backup, restore, alerts, runbooks, and the alerting regime live in the [Delivery extension](../ext/delivery.md) for projects that select it.
+Operating a product means starting it, watching it, and keeping its runtime state visible. This page states how a LiteSpec product does each: local startup, diagnostics, and the operating records that answer failures.
+
+It applies to everyone who operates a release and to any change that touches schema, external dependencies, or background work. A product that follows it stays observable with one maintainer on call. Deployment, rollback, backup, restore, alerts, runbooks, and the alerting regime are stated in the [Delivery extension](../ext/delivery.md) for projects that select it.
 
 ## Concepts
 
@@ -71,7 +73,9 @@ The sub-processor list answers the question every customer asks: which providers
 
 **Statement:** A host MUST carry the use-case identity of every mediated message, resolved from the generated registry, as `litespec.use_case` on its span, its log scope, and its error report.
 
-**Rationale:** A trace identifier joins the runtime records of one request to each other, but not to the specification. A person holding a slow span, a log line, or an error report still has to guess which use case it was. The identity is already a generated value, so a pipeline stage reads it from the registry once per message and stamps it on every surface under one name. Reactions, jobs, and outbox consumers carry it as well as requests. A metric carries it only as a label on an instrument whose series stay bounded: a duration histogram labeled by every use case multiplies its series by hundreds, so request instruments label by module instead.
+**Rationale:** A trace identifier joins the runtime records of one request to each other, but not to the specification. A person holding a slow span, a log line, or an error report still has to guess which use case it was.
+
+The identity is already a generated value, so a pipeline stage reads it from the registry once per message and stamps it on every surface under one name. Reactions, jobs, and outbox consumers carry it as well as requests. A metric carries it only as a label on an instrument whose series stay bounded: a duration histogram labeled by every use case multiplies its series by hundreds, so request instruments label by module instead.
 
 **Example:** When Claimwick receives a request to submit an expense, the span and the log scope carry `litespec.use_case = use-case/spending.submit-expense`, and an unhandled failure inside it reaches the error tracker with the same tag.
 
@@ -117,7 +121,7 @@ The sub-processor list answers the question every customer asks: which providers
 
 **Statement:** A Worker MUST publish its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior.
 
-**Rationale:** A Worker fails on its own schedule: its queue grows, its retries climb, and its oldest item ages, while WebApi keeps answering health checks. Without its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior, the failure stays invisible until the backlog is the incident. Watching WebApi alone hides a failed Worker behind healthy API answers while the queue grows unobserved.
+**Rationale:** A Worker fails on its own schedule: its queue grows, its retries climb, and its oldest item ages, while WebApi keeps answering health checks. Without its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior, the failure stays invisible until the backlog is the incident.
 
 **Reviewed for:** Does the Worker publish its own health, processing rate, failure count, retry count, oldest pending age, and shutdown behavior? Look at the Worker's health endpoints and metrics.
 

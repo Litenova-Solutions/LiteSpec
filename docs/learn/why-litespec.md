@@ -2,7 +2,7 @@
 
 When people or AI agents build software, they make decisions that rarely make it into the documentation. Requirements stay in chat threads. Business rules end up buried in handlers. The reasons behind a design disappear when someone leaves.
 
-AI agents make this harder to manage. Give two agents the same request and they may produce different designs. Both compile. Both pass their tests. But each introduces its own patterns, names, and assumptions.
+AI agents make this harder to manage: give two agents the same request and they may produce different designs. Both compile and both pass their tests, but each introduces its own patterns, names, and assumptions.
 
 LiteSpec gives teams a shared set of rules, a place to record what the product should do, and a tool that checks how those records connect to the implementation.
 
@@ -20,7 +20,7 @@ The same problems keep showing up:
 - A feature is treated as complete even though its storage, API, tests, or operational needs haven't been addressed.
 - Documentation describes behavior that the code and tests don't support.
 
-The problem isn't just inconsistent code. It's the lack of a reliable record of what was intended, what was decided, and what was actually built.
+Beneath these sits a deeper gap: no reliable record of what was intended, what was decided, and what was actually built.
 
 ## How LiteSpec Helps
 
@@ -62,8 +62,8 @@ Work moves through four layers:
 
 1. **Intent** describes what the product promises.
 2. **Behavior** defines how the application keeps those promises.
-3. **Code** (the Implementation layer) implements that behavior.
-4. **Tests** (the Proof layer) verify the promised examples through the application's public boundary.
+3. **Implementation** is the code that implements that behavior.
+4. **Proof** is the tests that verify the promised examples through the application's public boundary.
 
 The [record layers](../core/layers.md) define what belongs in each layer and how one translates into the next.
 

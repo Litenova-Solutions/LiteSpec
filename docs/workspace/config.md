@@ -9,11 +9,13 @@ Configuration is every value a workspace sets outside code: version pins, backen
 
 ### Settings and Environment
 
-A settings type is one class per backend section that names each field, its range, and its format. The application validates it when it starts, so a missing or malformed value fails startup with a named field instead of failing the first request that needs it. A frontend reads its environment through one validated module that separates server-only values from browser-visible ones, so no secret slips into the bundle. Tracked files carry only safe defaults and placeholders; real values live in user secrets locally and on the deployment platform when hosted. The `Email` section binds an `EmailSettings` type that validates its endpoint and sender at startup.
+A settings type is one class per backend section that names each field, its range, and its format. The application validates it when it starts, so a missing or malformed value fails startup with a named field instead of failing the first request that needs it. The `Email` section binds an `EmailSettings` type that validates its endpoint and sender at startup.
+
+A frontend reads its environment through one validated module that separates server-only values from browser-visible ones, so no secret slips into the bundle. Tracked files carry only safe defaults and placeholders; real values live in user secrets locally and on the deployment platform when hosted.
 
 ### Pins and Repeatability
 
-A repeatable build resolves the same versions on every machine. Three pins make it so: the manifest, `litespec.manifest.yaml`, pins the baseline stack the standards name; one root lockfile pins the JavaScript graph; and the toolchain pins name the package manager and Node.js releases. With every version pinned in one owned place, two checkouts of the same commit build the same result.
+A repeatable build resolves the same versions on every machine. That takes three pins: the manifest, `litespec.manifest.yaml`, pins the baseline stack the standards name; one root lockfile pins the JavaScript graph; and the toolchain pins name the package manager and Node.js releases. With every version pinned in one owned place, two checkouts of the same commit build the same result.
 
 ## Standards
 
@@ -49,7 +51,7 @@ A repeatable build resolves the same versions on every machine. Three pins make 
 
 **Statement:** A tracked configuration file MUST keep secrets out of tracked and observable data, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and contain only safe defaults and placeholders.
 
-**Rationale:** A tracked file reaches every clone and stays in history after deletion. No real value needs to be tracked: local development uses user secrets and hosted environments use the deployment platform. Safe defaults and placeholders keep the tracked file runnable as documentation.
+**Rationale:** A tracked file reaches every clone and stays in history after deletion. No real value needs to be tracked: local development uses user secrets and hosted environments use the deployment platform. Safe defaults and placeholders keep the tracked file working as documentation.
 
 **Reviewed for:** Does each tracked configuration file carry only safe defaults and placeholders, with real values in user secrets or the deployment platform? Read the tracked configuration files.
 
@@ -129,7 +131,7 @@ A repeatable build resolves the same versions on every machine. Three pins make 
 
 **Replacement:** A project committed to one log backend records its own logging setup in its host configuration.
 
-**Rationale:** Application code writes through standard logging abstractions while each host configures its exporter, so application code carries no provider choice. Switching a log backend then stays inside deployment settings instead of touching every call site.
+**Rationale:** Application code writes through standard logging abstractions while each host configures its exporter, so application code carries no provider choice. Switching a log backend stays inside deployment settings instead of touching every call site.
 
 **Reviewed for:** Does application source log through standard abstractions with exporter configuration in hosts, or does the host configuration name the project's own logging setup? Look at the logging calls and the host configuration.
 

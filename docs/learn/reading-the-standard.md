@@ -1,10 +1,10 @@
 # Read the Standard
 
-Most of the standard never applies to one project: a Svelte frontend follows different pages than a React one, and a project with no backend has no use for the API rules. A project records its selection in `.litespec/project.yaml`: its size, shape, technology stacks, the record layers it claims, and the extensions it selects. That selection decides which pages apply.
+A project applies only the part of LiteSpec its selection names: a Svelte frontend follows different pages than a React one, and a project with no backend has no use for the API rules. The project records its selection in `.litespec/project.yaml`: its size, shape, technology stacks, the record layers it claims, and the extensions it selects. That selection decides which pages apply.
 
 ## A Project's Selection
 
-Your project does not adopt all of LiteSpec. It records four choices in `.litespec/project.yaml` and selects any extensions it needs, and those entries decide which pages apply:
+The selection is four choices, plus any extensions the project selects:
 
 | Choice | Options | What it changes |
 |:---|:---|:---|
@@ -32,7 +32,7 @@ layers:
   proof: litespec
 ```
 
-That is five answers: size large, shape server, the dotnet and svelte stacks, no extensions, and every record layer claimed under LiteSpec practice. The selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`. Layers build downward: Behavior needs Intent, and Implementation and Proof each need Behavior, so a project leaves layers out from the bottom.
+That selection names size large, shape server, the dotnet and svelte stacks, no extensions, and every record layer under LiteSpec practice. It applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`. Layers build downward: Behavior needs Intent, and Implementation and Proof each need Behavior, so a project leaves layers out from the bottom.
 
 The project file holds more than the selection. `paths` points at the folders the tools read, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team reviewed. The [project file page](../reference/project-file.md) lists every field.
 
@@ -55,7 +55,7 @@ docs/
   ext/                          only the extensions a project selects
 ```
 
-Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack of their own. A React project applies `frontend/`, `frontend/web/`, and `frontend/web/react/`, and with `frontend/` it also applies `frontend/patterns/`, which holds no stack. The upper pages state the principle, such as "pages compose shared components only". The lower pages state how one stack follows it, such as which React component library and which test runner.
+Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack of their own. A React project applies `frontend/`, `frontend/web/`, and `frontend/web/react/`, and with `frontend/` it also applies `frontend/patterns/`, which holds no stack. The upper pages state the principle, for example that pages compose shared components only. The lower pages state how one stack follows it, for example which React component library and which test runner.
 
 The diagram shows which folders a server project with the dotnet and react stacks applies, and which it does not.
 
@@ -107,9 +107,13 @@ Projects depart from the standard in expected ways, and each way has a home:
 
 Every waiver states its kind. A gap the team means to close carries an expiry date, an exit, and the records in `closedBy` whose change closes it. A lasting choice carries `consequences` and no end date.
 
-A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it. A convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach. A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`.
+A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it. A convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach.
 
-A convention's `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`, and `rules` reads conventions only from the conventions folder. The scope must reach files: `model check` reports `convention-unreached` for a convention whose `Applies to` matches no file, folder, or record. Claimwick's `claimwick/conventions#confirm-large-payouts` applies to `behavior/entry-points/claimwick-app/screens/*/*`, the screens its payout rule governs.
+A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`.
+
+A convention's `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`. `rules` reads conventions only from the conventions folder.
+
+The scope must reach files: `model check` reports `convention-unreached` for a convention whose `Applies to` matches no file, folder, or record. Claimwick's `claimwick/conventions#confirm-large-payouts` applies to `behavior/entry-points/claimwick-app/screens/*/*`, the screens its payout rule governs.
 
 When guidance overlaps, the most specific source wins: your waiver or convention first, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the waiver in place of the original.
 

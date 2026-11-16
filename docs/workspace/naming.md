@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** workspace
 
-A name is the first documentation a reader meets: it states the business intent and architectural role without opening the file. In a LiteSpec codebase every architectural role carries a fixed suffix, every type an aggregate owns starts with the name of its root, and every frontend file follows one casing map. The rules below define those suffixes, anchors, and casings, with the exception-naming, boolean, async, and language-version rules beside them. They apply to anyone who names code, and especially to agents working across sessions.
+This page defines how code is named in a LiteSpec codebase: a fixed suffix per architectural role, the aggregate root name at the start of every type an aggregate owns, and one casing map for frontend files, with the exception-naming, boolean, async, and language-version rules beside them. A name states the business intent and architectural role without opening the file. The rules apply to anyone who names code, and especially to agents working across sessions.
 
 ## Concepts
 
@@ -13,7 +13,7 @@ An aggregate root is the single type through which outside code changes an aggre
 
 ### Role Suffixes
 
-Each architectural role carries a fixed suffix: a command handler ends in `CommandHandler`, a result part carries its result name, and an endpoint ends in `Endpoint`. The Role Suffixes table below lists every role with its pattern and one example. Full suffixes keep coordination apart from projection, and boundary data apart from business objects. Inside a use case folder the suffix also states the layer of the file: a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` is WebApi, and one ending in `Command`, `Query`, `Result`, `Handler`, or `Validator` is Application.
+Each architectural role carries a fixed suffix: a command handler ends in `CommandHandler`, a result part carries its result's full name, and an endpoint ends in `Endpoint`. The Role Suffixes table lists every role with its pattern and one example:
 
 | Role | Pattern | Example |
 |:---|:---|:---|
@@ -43,6 +43,8 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 | Polymorphic transport model case | `{Case}{Concept}Model` | `ShippedFulfillmentOutcomeModel` |
 | Persistence configuration | `{PersistedType}Configuration` | `PostConfiguration` |
 | Registration class | `{Layer}ServiceRegistration` | `InfrastructureServiceRegistration` |
+
+Full suffixes keep coordination apart from projection, and boundary data apart from business objects. Inside a use case folder the suffix also states the layer of the file: a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` is WebApi, and one ending in `Command`, `Query`, `Result`, `Handler`, or `Validator` is Application.
 
 ## Standards
 
@@ -76,7 +78,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **Example:**
 
-An event handler names its act and the business fact without the `Event` suffix. `NotifySubscribersOnPostPublishedHandler` answers `PostPublishedEvent` and sits with what it runs (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The name carries no technical suffix for the fact, so `NotifySubscribersOnPostPublishedEventHandler` is wrong, while the event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
+An event handler names its act and the business fact without the `Event` suffix. `NotifySubscribersOnPostPublishedHandler` answers `PostPublishedEvent` and lives in the folder of the use case it runs (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The name carries no technical suffix for the fact, so `NotifySubscribersOnPostPublishedEventHandler` is wrong, while the event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
 
 Application types keep their full suffix. The short forms `{UseCase}Result`, `{UseCase}Handler`, and `{UseCase}Validator` drop the command-or-query distinction the full name carries. A result part carries the full name of its result, as `litespec/workspace/naming#name-result-parts-after-their-result` states, not a bare summary name like `PostSummary`. The full role suffix distinguishes command coordination from query projection without opening the file.
 
@@ -114,7 +116,7 @@ The transport name drops the aggregate prefix of the Domain union, such as `Orde
 
 **Statement:** Each event handler and job class MUST live in the `Application/` folder of the use case its record runs, or, when it runs none, in the module `Notifications/` folder named for the notification it sends or the module `ExternalSystems/` folder named for the system it calls, with an event handler named `{Action}On{Fact}Handler`.
 
-**Rationale:** A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names the command of that use case from inside the folder of the use case, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact instead gathered the commands of several use cases under one name, and it never showed every reaction to the fact, because those reactions span modules. The question of what happens when a fact is recorded is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
+**Rationale:** A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names the command of that use case from inside the folder of the use case, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact would gather the commands of several use cases under one name instead, and it would never show every reaction to the fact, because those reactions span modules. The question of what happens when a fact is recorded is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
 **Example:** `Lending/Holds/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler` runs the expire-hold use case when a loan is returned, and `Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler` only sends the due notice.
 
@@ -160,7 +162,7 @@ The transport name drops the aggregate prefix of the Domain union, such as `Orde
 
 **Statement:** An exception name MUST state the rule that failed, using `{DomainType}{Reason}Exception` for a Domain rejection.
 
-**Rationale:** An exception name is the first diagnosis: it states which rule failed on which type. The form `{DomainType}{Reason}Exception` puts both in the name, and the `DomainType` is the aggregate root or an anchored owned type, so the name always starts with the aggregate root.
+**Rationale:** An exception name tells the reader which rule failed on which type. The form `{DomainType}{Reason}Exception` puts both in the name, and the `DomainType` is the aggregate root or an anchored owned type, so the name always starts with the aggregate root.
 
 **Reviewed for:** Does each exception name state its failed rule, with Domain rejections in `{DomainType}{Reason}Exception` form leading with the aggregate root? Read the exception names.
 
@@ -224,7 +226,7 @@ The transport name drops the aggregate prefix of the Domain union, such as `Orde
 
 **Replacement:** A project whose module carries different names per layer records its own per-layer names in its project documentation.
 
-**Rationale:** One business name per module keeps every layer pointing at the same word: the Posts module maps to `Shop/Posts`, `features/posts`, and `.litespec/behavior/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
+**Rationale:** One business name per module keeps every layer using the same word: the Posts module maps to `Shop/Posts`, `features/posts`, and `.litespec/behavior/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
 
 **Reviewed for:** Does one business name for each module span Domain, Application, endpoints, features, and documentation, or does the project documentation name the project's own per-layer names? Read the module names in each layer.
 
@@ -272,6 +274,6 @@ The transport name drops the aggregate prefix of the Domain union, such as `Orde
 
 **Replacement:** A project with client-facing names that predate its glossary records its own boundary naming in its project documentation.
 
-**Rationale:** Route segments and JSON field names are the contract clients read. Deriving them from the current aggregate or ubiquitous term, the shared Domain word for the concept, keeps the contract speaking the Domain language. Renaming a Domain concept then renames its boundary names with it, so the contract and the language stay aligned.
+**Rationale:** Route segments and JSON field names are the contract clients read. Deriving them from the current aggregate or ubiquitous term, the shared Domain word for the concept, keeps the contract in the Domain language. Renaming a Domain concept then renames its boundary names with it, so the contract and the language stay aligned.
 
 **Reviewed for:** Does each route segment and JSON field name derive from its current aggregate or ubiquitous term, or does the project documentation name the project's own boundary naming? Read the routes and contracts beside the glossary.

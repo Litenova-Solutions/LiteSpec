@@ -3,7 +3,7 @@
 **Stack:** dotnet
 **Concern:** domain
 
-Explain what selecting this stack applies: the folder it sits in, the single composition it brings, and the pages a project selecting it also takes on.
+Explain what selecting this stack applies: the folder it sits in, the single composition it brings, and the pages a selecting project also takes on.
 
 ## Standards
 

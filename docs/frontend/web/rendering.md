@@ -3,7 +3,7 @@
 **Stack:** react, svelte
 **Concern:** frontend-ui
 
-A route in a TypeScript web frontend carries metadata deciding how links and search meet it. This page states the metadata rule the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) add to the rendering rules in [Frontend Rendering and Routes](../rendering.md). A team that applies it while writing routes keeps every public route linkable and every private route out of search.
+A route in a TypeScript web frontend carries metadata that decides what links and search show for it. [Frontend Rendering and Routes](../rendering.md) states the rendering rules; this page adds the metadata rule the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share: every public route defines its title, description, canonical address, and indexing policy, and every private route refuses indexing.
 
 ## Concepts
 
@@ -33,9 +33,9 @@ The rendering rules for loaders, suspense reads, search schemas, chunk splits, i
 
 **Statement:** A public route MUST define its title, its description, its canonical address, and its indexing policy, while a private route refuses indexing.
 
-**Rationale:** A public route's title, description, canonical address, and indexing policy are what a search result and a shared link show. Without them the page arrives as a bare address. A private route refuses indexing, because an indexed console address exposes to search what a signed-in user believes is private.
+**Rationale:** A public route's title, description, canonical address, and indexing policy are what a search result and a shared link show. Without them, the result shows only a bare address. A private route refuses indexing, because an indexed console address exposes to search what a signed-in user believes is private.
 
-**Example:** A channel route states `og:*` tags and one alternate per language. A console route ships a `noindex` meta tag in its document.
+**Example:** A channel route states `og:*` tags and one alternate per language. A console route carries a `noindex` meta tag in its document.
 
 **Reviewed for:** Does every public route define its title, description, canonical address, and indexing policy, with every private route carrying a `noindex` marker? Check the route metadata.
 

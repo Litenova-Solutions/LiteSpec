@@ -10,7 +10,7 @@ A page applies when the project claims the record layer its rules govern, as the
 
 ## Layer Claims
 
-Every Quality page assigns its rules to one record layer. A rule applies when the project claims that layer in `layers` in `.litespec/project.yaml`:
+Every Quality page assigns each of its rules to a record layer. A rule applies when the project claims that layer in `layers` in `.litespec/project.yaml`:
 
 | Page | Layer its rules govern | Claim that applies it |
 |:---|:---|:---|

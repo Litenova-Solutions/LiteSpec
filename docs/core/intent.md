@@ -4,20 +4,20 @@
 
 **Concern:** records
 
-Intent is why the product exists and what it promises. It holds actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms, under the product record that stands above the record layers at `.litespec/product.yaml`.
+Intent is why the product exists and what it promises: its actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms, under the product record at `.litespec/product.yaml`.
 
-This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [Record Language](language.md) page states how each field, value, and record name is written.
+This page defines where each Intent record lives, what shape it takes, and what stays out of Intent. Behavior states how the system keeps these promises. The [Record Language](language.md) page states how each field, value, and record name is written.
 
 ## Concepts
 
 ### The Questions Intent Answers
 
-Each Intent record type answers one question. When you know which question you are asking, you know which record to write. When a record fits none of these questions, it probably belongs in Behavior or outside the records entirely. The table lists every type with the moment to write it and the moment to skip it.
+Each Intent record type answers one question, so the question you are asking names the record to write. When a record fits none of these questions, it probably belongs in Behavior or outside the records entirely.
 
 | Question | Record | Write It When | Skip It When | Familiar As |
 |:---|:---|:---|:---|:---|
 | What is the product and for whom? | product | Always, once | Never | Product brief |
-| Who touches the product? | actor | A person or organization appears in a problem, a flow or an access position | The candidate is a position, which is a role record, or a system, which stands alone as an external system record | Stakeholder |
+| Who touches the product? | actor | A person or organization appears in a problem, a flow or an access position | The candidate is a position (a role record) or a system (an external system record) | Stakeholder |
 | What software outcome do we want? | goal | You can name what you count | The system controls it directly: that is a quality requirement | Product goal |
 | Where is the product heading beyond what it promises now? | vision | A choice made now keeps a later destination open | You can name the pain and the offer: write the problem and the feature | Product vision |
 | What pain do people outside the team have today? | problem | You can name who suffers, what it costs them and what they do instead, with evidence | Only one solution is imaginable: it is a feature | Pain point |
@@ -35,11 +35,15 @@ A record earns its place by answering its question with evidence. A problem no s
 
 Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. Prices, markets, hiring, and launch dates stay out, except as a constraint that binds the software or as dated research behind a choice. [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) draws that boundary, and [The Software Test](#the-software-test) applies it to each record type.
 
-Read Intent in three steps: problem, then feature, then requirement. A problem names one pain an outsider suffers today, with the evidence that it is real. A feature is the offer against that pain: each feature stands in its own folder under `intent/features/`, names the problems it answers in `solves`, and names the goals it moves in `advances`. A requirement states one commitment Behavior fulfills. Each requirement sits in its own folder inside its feature's folder; a commitment no offer carries, such as tenant isolation, sits at product level instead.
+Read Intent along the chain from problem to requirement. A problem names one pain an outsider suffers today, with the evidence that it is real. A feature is the offer against that pain. Each feature stands in its own folder under `intent/features/`, names the problems it answers in `solves`, and names the goals it moves in `advances`. A requirement states one commitment Behavior fulfills. Each requirement sits in its own folder inside its feature's folder, and keeps one authoritative file there; a commitment no offer carries, such as tenant isolation, sits at product level instead.
 
-The [model page](model.md) defines the record types and their links. Each requirement keeps one authoritative file. The book gathers each feature with its requirements and the decisions behind them, and groups every feature under each problem it solves. The product states what it leaves out in `excludes`: only an `excludes` entry sets a requirement aside, and the product summary is never read as an exclusion.
+The [model page](model.md) defines the record types and their links. The book gathers each feature with its requirements and the decisions behind them, and groups every feature under each problem it solves.
 
-Intent states what the product decided and why; Behavior states what the system does today. A rule or use case matches the code, while a requirement can describe a position the code does not carry yet. The two layers connect in one direction: Behavior records name the requirements they fulfill and the flow steps they serve. An Intent record never describes Behavior, with two narrow exceptions: a decision names the records it settles in `decides`, and an actor names its roles in `holds`.
+The product states what it leaves out in `excludes`: only an `excludes` entry sets a requirement aside, and the product summary is never read as an exclusion.
+
+Intent states what the product decided and why; Behavior states what the system does today. A rule or use case matches the code, while a requirement can describe a position the code does not carry yet.
+
+The two layers connect in one direction: Behavior records name the requirements they fulfill and the flow steps they serve. An Intent record never describes Behavior, with two narrow exceptions: a decision names the records it settles in `decides`, and an actor names its roles in `holds`.
 
 ### The Software Test
 
@@ -59,7 +63,7 @@ The table applies the test to each type:
 
 A record that states company operation fails the test, whatever its folder. Reachability proves the rest: a record that reaches no Behavior is either unfinished work for the backlog or not software at all.
 
-### The Folder Is the Parent
+### Where Each Record Lives
 
 Each record sits in its parent's folder, and the folder names that parent. You find a requirement by walking from the product to its feature to the requirement itself:
 
@@ -88,7 +92,9 @@ Each record sits in its parent's folder, and the folder names that parent. You f
         pay-a-payout.yaml
 ```
 
-The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds visions, goals, constraints, decisions, research, actors, roles, flows, features, and product requirements. Each problem's folder holds the problem. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps. Every folder comes from a closed set per layer. A record of a type in the wrong folder, and a record type outside its allowed levels, are blocking findings.
+The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds problems, visions, goals, constraints, decisions, research, actors, roles, flows, features, and product requirements, each kind in its own folder. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps.
+
+Every folder comes from a closed set per layer. A record of a type in the wrong folder, and a record type outside its allowed levels, are blocking findings.
 
 Modules are not declared here. A module is a code boundary, so Behavior declares it. [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Behavior and code.
 
@@ -96,13 +102,15 @@ Modules are not declared here. A module is a code boundary, so Behavior declares
 
 An identifier names the record, not its place. `problem/organizers-wait-for-ticket-money` is unique in the product, and every link and citation uses it. When a feature answers a different problem, you change its `solves` and move no folder, because the identifier names no problem.
 
-Placement shows separately as the folder path and the record's `module`. The book and the CLI show the identifier together with that placement, so you can tell where a record sits without a second identifier.
+Placement is separate from the identifier: the folder path and the record's `module` state where the record sits. The book and the CLI show the identifier together with that placement, so you can tell where a record sits without a second identifier.
 
 ### How Intent Reaches Behavior
 
-Records disagree sometimes, and someone has to win. The [model page](model.md) states the authority order that settles conflicts between records. Goals, visions, problems, features, flows, actors, research, and prose carry no authority, and between peers a decision wins.
+Records disagree sometimes. The [model page](model.md) states the authority order that settles which one wins. Goals, visions, problems, features, flows, actors, research, and prose carry no authority, and between peers a decision wins.
 
-A decision settles its choice, and a feature states the choice as requirements. Behavior records name the requirements they fulfill and the flow steps they serve, and the code carries what happens today. When Behavior contradicts a requirement, either the code carries a defect or the product changed. A changed product means a new decision first, before any record or code moves. A lower record never overrides a higher one; only an entry in the product `excludes` sets a requirement aside.
+A decision settles its choice, and a feature states the choice as requirements. Behavior records name the requirements they fulfill and the flow steps they serve, and the code carries what happens today.
+
+When Behavior contradicts a requirement, either the code carries a defect or the product changed. A changed product means a new decision first, before any record or code moves. A lower record never overrides a higher one; only an entry in the product `excludes` sets a requirement aside.
 
 Facts from the outside world enter Intent as research or as a constraint, cited and dated. Where Intent stays silent, working code is evidence that a record is missing, not a defect to delete.
 
@@ -124,15 +132,15 @@ A requirement carries `kind`, `statement`, and `rationale`: whether it is functi
 
 Some commitments do not hold in every case. An `except` entry states in product words when the commitment does not hold, and `fallback` names the requirement that covers what happens then. The fallback carries no `except` of its own: exceptions stay one deep, so every exception ends in a promise.
 
-### Flows as Product Sentences
+### Flow Shape and Fields
 
 A flow is one task's path through the software: a trigger, ordered steps, alternative paths, step failures, and an end state. Its name is the standard user flow term, so it fits any actor. The fields match that shape: `steps` hold the main flow, and `branches` hold the alternative flows.
 
-A flow carries `actor`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and exactly one reason: `serves` naming one goal, or `answers` naming one problem or one constraint. Each reason field holds a list of exactly one identifier, the shape every link field has.
+A flow leads one actor toward one goal, problem, or constraint. It carries `actor`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and exactly one reason: `serves` naming one goal, or `answers` naming one problem or one constraint. Each reason field holds a list of exactly one identifier, the shape every link field has.
 
 `summary` states the flow's purpose in up to four sentences: who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom. The book renders it first on the page, so a cold reader learns the purpose before the mechanics. `startedWhen` states the observable state in which the flow starts, in one sentence; `finishedWhen` states the end, in one sentence.
 
-Each step carries its `id` (`s1`, `s2`, and so on) and one product sentence in `statement`, naming one act of its performer. A step names the actor taking the flow only at a handoff, in `actor`; it names the external system performing it in `system` when no person acts; and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `cites`. A step id reads `flow/<name>#s1`. The flow carries no `cites` of its own; the model reads the union of its steps.
+Each step carries its `id` (`s1`, `s2`, and so on) and one product sentence in `statement`, naming one act of its performer. A step names the actor taking the flow only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `cites`. A step id reads `flow/<name>#s1`. The flow carries no `cites` of its own; the model reads the union of its steps.
 
 `branches` states each path that leaves the order of the steps: the step it leaves, its condition, and the step it continues at, or `end`.
 
@@ -140,11 +148,11 @@ Steps name no use case. Use cases, reactions, and jobs point up with `serves`, n
 
 The book shows each flow as record detail: `startedWhen`, the steps as sentences with their `failure` texts, each branch as a sentence after the steps, `finishedWhen`, each step with the requirements it cites (with their statements, `except` entries, and fallbacks inline), the serving use cases' goals, and the Then clauses of their scenarios as context. Field names never render literally in flow detail.
 
-A flow leads one actor toward one goal, problem, or constraint. A step names another actor only at a handoff, and a flow with several reasons splits into several flows.
+A step names another actor only at a handoff, and a flow with several reasons splits into several flows.
 
 ### Staff Flows
 
-Flows are not only customer flows. A staff actor takes a staff flow the same way: finance exporting the approved batch moves through `serves` or `answers`, `startedWhen`, `finishedWhen`, steps, and `branches` like any other flow, and staff steps read as product sentences too.
+Flows are not only customer flows. A staff actor takes a staff flow the same way: finance exporting the approved batch carries `serves` or `answers`, `startedWhen`, `finishedWhen`, steps, and `branches` like any other flow, and staff steps read as product sentences too.
 
 A scheduled promise is different: it is a requirement that a job fulfills, not a flow, because no actor takes a path through it.
 
@@ -172,7 +180,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A consumer MUST keep its product record at `.litespec/product.yaml`, each vision, goal, problem, constraint, decision, research record, actor and flow in its own folder under `.litespec/intent/`, each feature in `intent/features/<name>/`, each feature requirement in its own folder in its feature's `requirements/` folder, and each product requirement in `intent/requirements/<name>/`.
 
-**Rationale:** Before building, an agent asks one question: what did the product decide? When Intent sits in one home per kind, every reader finds the answer in the same place. A second home for any kind starts a second truth about the product, and each plan cites the one it prefers. The folder is the parent: product level holds the product-wide kinds, and a feature's folder holds its requirements. Modules stay out because a module is a code boundary, and Intent is organized by reason, not by code. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+**Rationale:** Before building, an agent asks one question: what did the product decide? When Intent sits in one home per kind, every reader finds the answer in the same place. A second home for any kind starts a second truth about the product, and each plan cites the one it prefers.
+
+The folder is the parent: product level holds the product-wide kinds, and a feature's folder holds its requirements. Modules stay out because a module is a code boundary, and Intent is organized by reason, not by code. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
 **Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and any file under `intent/modules/`.
 
@@ -186,7 +196,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A consumer MUST state exactly one product record at `.litespec/product.yaml`, with `boundary`, `addresses`, and `summary`.
 
-**Rationale:** One product record gives every reader one answer to what the product is and who it serves. The `summary` states what the product is, and the `boundary` and `addresses` focus every later choice: two product statements let each plan cite the one it prefers. The product lists what it leaves out in `excludes`, in plain sentences. Only an `excludes` entry sets a requirement aside; the summary is never read as one.
+**Rationale:** One product record gives every reader one answer to what the product is and who it serves. The `summary` states what the product is, and the `boundary` and `addresses` focus every later choice: two product statements let each plan cite the one it prefers.
+
+The product lists what it leaves out in `excludes`, in plain sentences. Only an `excludes` entry sets a requirement aside; the summary is never read as one.
 
 **Checked by:** `litespec model check` reports no `product-count-invalid` finding, and `litespec model check` reports `record-invalid` for product fields outside the record schema.
 
@@ -216,7 +228,11 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** An Intent or Behavior record MUST state only behavior the application performs, data it holds, a refusal it raises at runtime, infrastructure it runs on, or a limit it enforces.
 
-**Rationale:** A record earns its place when the team can check it against the software. Company facts such as prices as an offer, markets, hiring, sales actions, launch dates, company goals, and founder concerns can be checked only against a bank account, a diary, or a contract, so they pull every review away from the product and toward the business. The rule keeps them out. A company fact that binds the application still enters: as a constraint when an authority or a limit binds the application, and as dated research when a choice rests on it. [The Software Test](#the-software-test) applies the boundary per record type: a goal states a software outcome, a problem states a user pain the software answers, a feature states a capability the software has, and a module names a product area, never a company function. Plan entitlements the software enforces stay, as settings and permissions; the price list as a company offer leaves.
+**Rationale:** A record earns its place when the team can check it against the software. Company facts such as prices as an offer, markets, hiring, sales actions, launch dates, company goals, and founder concerns can be checked only against a bank account, a diary, or a contract, so they pull every review away from the product and toward the business. The rule keeps them out.
+
+A company fact that binds the application still enters: as a constraint when an authority or a limit binds the application, and as dated research when a choice rests on it. [The Software Test](#the-software-test) applies the boundary per record type: a goal states a software outcome, a problem states a user pain the software answers, a feature states a capability the software has, and a module names a product area, never a company function.
+
+Plan entitlements the software enforces stay, as settings and permissions; the price list as a company offer leaves.
 
 **Example:** A library holds its lending limit as a setting the application enforces, so the limit stays as Behavior. The membership price it charges as an offer is a company fact: it enters only as dated research behind the decision that sets the limit.
 
@@ -232,7 +248,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** Each Intent record other than a vision MUST reach Behavior through its stated path.
 
-**Rationale:** The folder fixes where a record sits; reachability fixes that it leads to software. An Intent record no Behavior answers is either work the backlog still holds or content that was never software, and without this rule nobody can tell which. A vision is the one exception: it states where the product heads and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior.
+**Rationale:** The folder fixes where a record sits; reachability fixes that it leads to software. An Intent record no Behavior answers is either work the backlog still holds or content that was never software, and without this rule nobody can tell which.
+
+A vision is the one exception: it states where the product heads and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior.
 
 **Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior.
 
@@ -260,7 +278,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A goal MUST be moved by a flow serving it or by a quality requirement citing it.
 
-**Rationale:** A goal no flow serves and no quality requirement confirms is an outcome the product never touches: a company hope filed as a product goal. A flow serving the goal shows the path that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. Only a flow naming the goal in `serves` moves it; a flow answering a problem or a constraint moves no goal measure. An outcome the system controls directly is a quality requirement, not a goal, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+**Rationale:** A goal no flow serves and no quality requirement confirms is an outcome the product never touches: a company hope filed as a product goal. A flow serving the goal shows the path that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. Only a flow naming the goal in `serves` moves it; a flow answering a problem or a constraint moves no goal measure.
+
+An outcome the system controls directly is a quality requirement, not a goal, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
 **Example:** The library goal of faster pickup is moved by the borrow-and-return flow serving it. A goal of higher membership sales is moved by no flow, so it is no product goal.
 
@@ -356,7 +376,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A problem MUST name in `affects` a primary sufferer that is a person or organization actor outside the team building the product, and state the pain in `summary` and `statement` in fields.
 
-**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.
+**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page.
+
+Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.
 
 **Example:** In the library product, readers losing track of due dates is a problem whose primary sufferer is the reader. The library having too few staff for the summer is an internal limit, not a problem.
 
@@ -404,7 +426,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A problem MUST state in its explanation file what the sufferer does instead today with the burden that workaround carries, and what the pain costs them, with time, money and risk each in the sufferer's own units or the word `unknown`.
 
-**Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around. Work done by hand is no burden on its own, so the workaround names the burden: the time it takes, what the sufferer repeats or has to remember, and what it still misses. Time, money, and risk stay apart because each is judged in its own units; a total mixing them hides which one matters. Where nobody priced the cost or named the workaround, `unknown` states the gap honestly.
+**Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around. Work done by hand is no burden on its own, so the workaround names the burden: the time it takes, what the sufferer repeats or has to remember, and what it still misses.
+
+Time, money, and risk stay apart because each is judged in its own units; a total mixing them hides which one matters. Where nobody priced the cost or named the workaround, `unknown` states the gap honestly.
 
 **Example:** A reader who loses track of due dates pays late fees, an amount nobody has measured. The reader keeps a paper list of due dates, updates it at every loan and renewal, and cannot check it when the list stays at home.
 
@@ -500,7 +524,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A problem explanation file MUST carry Affected Users, Failure Cases, Current Workaround, Cost, Evidence, and Resolution Criteria, in that order, with an optional Example after Failure Cases.
 
-**Rationale:** The fields state who suffers and the pain in one sentence; the explanation carries everything else: the circumstances, each failure, one concrete case where the failures are hard to follow, the workaround in use, the cost, the evidence behind each claim, and the outcomes that would end each failure. A fixed order means a reader who learned one problem page finds each part on every problem page. A problem page is complete when a reader arriving cold can understand the problem, judge its evidence, and propose a different solution without asking its author. Settled by [decision/0044-state-problems-by-failure-case](../intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md), which gives each problem its failure cases and one resolution criterion for each.
+**Rationale:** The fields state who suffers and the pain in one sentence; the explanation carries everything else: the circumstances, each failure, one concrete case where the failures are hard to follow, the workaround in use, the cost, the evidence behind each claim, and the outcomes that would end each failure. A fixed order means a reader who learned one problem page finds each part on every problem page.
+
+A problem page is complete when a reader arriving cold can understand the problem, judge its evidence, and propose a different solution without asking its author. Settled by [decision/0044-state-problems-by-failure-case](../intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md), which gives each problem its failure cases and one resolution criterion for each.
 
 **Example:** The library problem on due dates lists its two failure cases, shows one reader at the desk with three overdue copies in Example, and closes with Resolution Criteria: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date.
 
@@ -688,7 +714,11 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A constraint MUST state its `authority`, `summary`, `sources`, `kind`, `applies`, and `appliesBecause` in fields, and What It Requires is generated from the requirements that cite it.
 
-**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `key`, `url`, and `readOn`, the shape research uses, so each rule cites its source by key. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. A constraint can state `effectiveFrom`, the date its rule starts to bind, and can name in `basedOn` the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in `basedOn`. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
+**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked.
+
+The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `key`, `url`, and `readOn`, the shape research uses, so each rule cites its source by key. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time.
+
+A constraint can state `effectiveFrom`, the date its rule starts to bind, and can name in `basedOn` the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in `basedOn`. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
 **Checked by:** `litespec model check` reports `record-invalid` for a constraint record file missing a required field or holding no source, and `field-invalid` for a `basedOn` that names no research record; the builder generates What It Requires from citing requirements.
 
@@ -702,7 +732,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** Each rule in a constraint's Rules section MUST cite one of the constraint's `sources` by key with a reference link `[text][key]`, and the explanation holds the generated source-links region that writes each source's link definition.
 
-**Rationale:** A reader checking a rule needs the source beside it, and a rule with two sources needs to show which one holds it. A law stating the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides. `model render` writes each source's link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
+**Rationale:** A reader checking a rule needs the source beside it, and a rule with two sources needs to show which one holds it. A law stating the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides.
+
+`model render` writes each source's link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
 **Checked by:** `litespec model check` reports `source-link-bare` for a bare URL, `source-key-unknown` for a key the constraint does not declare, and `source-unused` for a source no rule cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
 
@@ -716,7 +748,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** Each rule in a constraint's Rules section MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.
 
-**Rationale:** A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. A paragraph stating what the product does about the obligation mixes two authors in one rule, so the product's response stays in Effect on the Product, where each effect names the requirement holding it. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record's Open Questions. Scope says whom the rule covers; it is separate from `applies`, which says whether the rule binds the product at all. A constraint holds rules sharing one source, scope, and change, so rules changing separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
+**Rationale:** A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. A paragraph stating what the product does about the obligation mixes two authors in one rule, so the product's response stays in Effect on the Product, where each effect names the requirement holding it. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record's Open Questions.
+
+Scope says whom the rule covers; it is separate from `applies`, which says whether the rule binds the product at all. A constraint holds rules sharing one source, scope, and change, so rules changing separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
 **Reviewed for:** Does any constraint rule drop its condition, state a product effect, or state an unverified fact as settled? Look at each paragraph of the Rules section beside its source.
 
@@ -730,7 +764,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and carry Findings in its explanation file.
 
-**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. `readOn` says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect: the date a rule starts, or the period it covers, is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory. The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `key`, `url`, and `readOn`, and `publishedOn` where the source states its publication date. The explanation cites a source with a reference link `[text][key]`; a bare URL, an unknown key, or an unused source is a finding. Findings states each claim with its source, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. Open Questions holds what the sources do not establish, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
+**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. `readOn` says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect: the date a rule starts, or the period it covers, is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory.
+
+The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `key`, `url`, and `readOn`, and `publishedOn` where the source states its publication date. The explanation cites a source with a reference link `[text][key]`; a bare URL, an unknown key, or an unused source is a finding. Findings states each claim with its source, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. Open Questions holds what the sources do not establish, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
 **Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Findings in its explanation file, `source-link-bare` for a bare URL, `source-key-unknown` for an unknown key, and `source-unused` for an unused source.
 
@@ -744,7 +780,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** Each paragraph under a research record's Findings MUST state one claim with its conditions, cite its source key with a reference link, and say whether the source states the claim or the writer infers it.
 
-**Rationale:** A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per paragraph keeps each source tied to one statement. The record's question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
+**Rationale:** A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per paragraph keeps each source tied to one statement.
+
+The record's question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
 **Reviewed for:** Does any finding state an inference as a source statement, drop a condition the source gives, or answer a question other than the record's `question`? Look at each Findings paragraph beside its source. `litespec model check` reports `finding-source-missing` for a Findings paragraph with no source link, so this review covers the wording only.
 
@@ -758,7 +796,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A decision MUST state its `choice` and `consequences` in fields and carry Context and Decision in its explanation file.
 
-**Rationale:** A decision read cold needs its situation, its options, and its outcome in the same places every time. Context states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option; the `choice` field names it, and `consequences` states what follows. Evidence holds the supporting material with its confidence where the choice rests on it. The `reopenedWhen` condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
+**Rationale:** A decision read cold needs its situation, its options, and its outcome in the same places every time. Context states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option; the `choice` field names it, and `consequences` states what follows. Evidence holds the supporting material with its confidence where the choice rests on it.
+
+The `reopenedWhen` condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Context or Decision in its explanation file.
 
@@ -904,7 +944,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A quality requirement whose statement names a number MUST carry `measure`.
 
-**Rationale:** A number nobody defines cannot be checked: the team cannot tell what is counted. The `measure` names what is counted, so a quality statement naming a number without one is unfinished. A number in a functional or policy requirement asks for no `measure`. A requirement carrying `measure` needs a `check` and a passing run, and a quality statement naming a number with no `measure` reports at check level A.
+**Rationale:** A number nobody defines cannot be checked: the team cannot tell what is counted. The `measure` names what is counted, so a quality statement naming a number without one is unfinished. A number in a functional or policy requirement asks for no `measure`.
+
+A requirement carrying `measure` needs a `check` and a passing run, and a quality statement naming a number with no `measure` reports at check level A.
 
 **Checked by:** `litespec model check` reports `requirement-measure-missing` for a requirement carrying `measure` without `check` or a passing run, and for a quality statement naming a number with no `measure`.
 
@@ -918,7 +960,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A quality requirement MUST state the moment it holds for in `stimulus` and `environment`, what the product does in `response`, how that is measured in `measure`, and how that is confirmed in `check`, with `target`, `conditions`, `runsOn`, and `evidence` where they apply.
 
-**Rationale:** "Fast", "secure", or "always available" cannot be built to or checked. A quality requirement holds only for a moment that can happen: something arrives, under some condition, and the product answers within a measure. Written that way, it tells the builder what to design for and tells a test or a probe what to look for, and a later change in the moment (a bigger on-sale, a new attack) visibly reopens the target. The four fields follow the quality attribute scenario the architecture literature uses, so a reviewer can compare one target with another. The `check` names the probe or test confirming the measure, and it is required where the requirement carries `measure`. The `target` names the number aimed for, `conditions` names what holds while measuring, `runsOn` names where the check runs, and `evidence` names what the run leaves behind; each applies where the confirmation needs it.
+**Rationale:** "Fast", "secure", or "always available" cannot be built to or checked. A quality requirement holds only for a moment that can happen: something arrives, under some condition, and the product answers within a measure. Written that way, it tells the builder what to design for and tells a test or a probe what to look for, and a later change in the moment (a bigger on-sale, a new attack) visibly reopens the target. The four fields follow the quality attribute scenario the architecture literature uses, so a reviewer can compare one target with another.
+
+The `check` names the probe or test confirming the measure, and it is required where the requirement carries `measure`. The `target` names the number aimed for, `conditions` names what holds while measuring, `runsOn` names where the check runs, and `evidence` names what the run leaves behind; each applies where the confirmation needs it.
 
 **Example:** `requirement/approval-reminders.month-end-submission` has `kind: quality`, `stimulus` "Five hundred employees submit expenses in the last hour of the month", `environment` "Normal operation, one application instance down", `response` "Each submission is stored and acknowledged", `measure` "Share of submissions acknowledged within two seconds: at least 99 percent", and `check` "month-end acknowledgement probe".
 
@@ -1040,7 +1084,11 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** Each flow step MUST carry its `id`, its product sentence in `statement` naming one act of its performer and no use case, and in `cites` each requirement the step carries.
 
-**Rationale:** A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence states one act of its performer and may end with the product's observable response after the act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account". How the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits, and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `flow/<name>#s1`. A step naming its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the flow only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067.
+**Rationale:** A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence states one act of its performer and may end with the product's observable response after the act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account". How the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits, and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow).
+
+The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `flow/<name>#s1`. A step naming its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames.
+
+The performer and the failure text are optional: a step names the actor taking the flow only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067.
 
 **Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `flow/submit-and-reimburse#s4` in `serves`.
 
@@ -1104,7 +1152,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A condition that stops a flow MUST be the `failure` of the step it blocks, stating what the person sees and can do next with the requirement that holds the rule cited in the step's `cites`, and never stated only in a branch or in the explanation.
 
-**Rationale:** A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and the step's `cites` names the requirement holding the rule, so the rule is not restated in the flow. The `failure` states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.
+**Rationale:** A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and the step's `cites` names the requirement holding the rule, so the rule is not restated in the flow.
+
+The `failure` states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.
 
 **Example:** The step submitting an expense carries in `failure` that the expense cannot be submitted and the employee can attach the receipt and submit again, and cites in its `cites` the requirement holding the receipt rule.
 

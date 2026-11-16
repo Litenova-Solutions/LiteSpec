@@ -5,7 +5,7 @@
 
 The frontend keeps no copy of the API contract. It generates its client, types, schemas, and query options from the published OpenAPI document.
 
-The data rules live in [Frontend Data and State](../data.md). This page holds the TypeScript mechanism behind those rules that the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share. A team that applies it while writing data code keeps every application consistent with the contract and every failure recoverable by the reader.
+[Frontend Data and State](../data.md) states the data rules; this page states the TypeScript mechanism behind them that the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share.
 
 ## Concepts
 
@@ -29,11 +29,11 @@ The `code` field is the discriminator: the page branches on which code arrived, 
 - `client.unauthenticated` names a refused authentication.
 - `client.http-<status>` names a response status the client maps to no problem, with the status in place of `<status>`.
 
-The problem carries the `traceId` the API returns for the request, or the `X-Trace-Id` response header when the body carries none. Every error the user sees shows that identifier in copyable form inside its detail, while the headline states the message, so the user can paste it to support without reading it as the message.
+The problem carries the `traceId` the API returns for the request, or the `X-Trace-Id` response header when the body carries none. Every error the user sees shows that identifier in copyable form inside its detail, while the headline states the message, so the user can paste the identifier to support without mistaking it for the message.
 
-### The Generated Client and Its Wiring
+### Generating and Using the Client
 
-The generator behind `litespec/frontend/data#generate-the-client-from-the-published-contract` runs the hey-api plugins with the zod plugin, and each stack page names the TanStack Query plugin its client adds. The workspace regenerates with `pnpm api:types` and edits nothing under the generated directory, per `litespec/frontend/data#regenerate-the-client-rather-than-editing-it`.
+The client generator runs the hey-api plugins with the zod plugin, per `litespec/frontend/data#generate-the-client-from-the-published-contract`, and each stack page names the TanStack Query plugin its client adds. The workspace regenerates with `pnpm api:types` and edits nothing under the generated directory, per `litespec/frontend/data#regenerate-the-client-rather-than-editing-it`.
 
 ```json
 {
@@ -41,7 +41,7 @@ The generator behind `litespec/frontend/data#generate-the-client-from-the-publis
 }
 ```
 
-A successful command invalidates the TanStack Query entries its command changed, per `litespec/frontend/data#update-the-cache-a-command-changed`. A form validates against the generated zod schema extended with the application's own rules, per `litespec/frontend/data#validate-a-form-with-the-generated-schema`:
+A successful command invalidates the TanStack Query entries it changed, per `litespec/frontend/data#update-the-cache-a-command-changed`. A form validates against the generated zod schema extended with the application's own rules, per `litespec/frontend/data#validate-a-form-with-the-generated-schema`:
 
 ```ts
 zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.reason.trim().min(1, words.ui.required) })
@@ -57,7 +57,7 @@ A refusal renders through the shared problem alert beside the refused record or 
 <ProblemAlert error={mutation.error} describe={describe} />
 ```
 
-Failures map to the problem type above, per `litespec/frontend/data#map-every-failure-to-one-problem-type`. State ownership, locale dictionaries, the frame root, and the shared form entry point follow `litespec/frontend/data#assign-state-to-the-narrowest-owner`, `litespec/frontend/data#localize-copy-through-locale-dictionaries`, `litespec/frontend/data#keep-the-client-boundary-in-the-frame`, and `litespec/frontend/data#build-a-form-on-the-shared-form-library`. Each stack page names the component state, the dictionary library, the frame root, and the form entry point for its stack.
+Failures map to the problem type above, per `litespec/frontend/data#map-every-failure-to-one-problem-type`. State ownership, locale dictionaries, the frame root, and the shared form entry point follow `litespec/frontend/data#assign-state-to-the-narrowest-owner`, `litespec/frontend/data#localize-copy-through-locale-dictionaries`, `litespec/frontend/data#keep-the-client-boundary-in-the-frame`, and `litespec/frontend/data#build-a-form-on-the-shared-form-library` respectively, and each stack page names the component state, the dictionary library, the frame root, and the form entry point for its stack.
 
 ## Standards
 

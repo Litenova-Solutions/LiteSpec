@@ -3,9 +3,9 @@
 **Stack:** react, svelte
 **Concern:** frontend-ui
 
-Every screen in a TypeScript web frontend draws with composites from one shared UI package: shared building blocks for layout and interaction. No application draws its own.
+Every screen in a TypeScript web frontend draws with composites from one shared UI package: the shared building blocks for layout and interaction. No application draws its own.
 
-The component principles live in [Frontend Components](../components.md). This page states the TypeScript mechanism behind those principles for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md): the registry source holding the primitives every composite builds on, the closed list of refused raw elements, visual files for drawings no composite makes, the raw HTML sinks kept away from untrusted content, the typed component boundaries, and the route checks both stacks share. A team that applies it while writing pages keeps layout and interaction inside governed composites instead of scattered raw elements.
+[Frontend Components](../components.md) states the component principles; this page states the TypeScript mechanism behind them that the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share: where the primitives come from, which raw elements page code refuses, where the allowed exceptions live, how component boundaries stay typed, and which route checks both stacks run.
 
 ## Concepts
 
@@ -13,7 +13,7 @@ The component principles live in [Frontend Components](../components.md). This p
 
 The registry CLI writes the primitives into one folder nobody edits by hand. The composites sit beside them and import them, per `litespec/frontend/components#keep-shared-ui-in-one-package`.
 
-Page code declares no layout or interactive element, and each refusal names the composite to use, per `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`. The refused elements and their replacements are one closed list.
+Page code declares no layout or interactive element, and each refusal names the composite to use, per `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`. The table below is the whole list: every refused element with its replacement.
 
 | Refused | Use instead |
 |:---|:---|
@@ -23,9 +23,9 @@ Page code declares no layout or interactive element, and each refusal names the 
 | `input`, `select`, `textarea` | a field from the shared form library |
 | `form` | the shared form component |
 | `table` | `DataTable` |
-| `img` | the shared image component, which `litespec/frontend/components#use-a-composite-for-a-content-image` owns |
+| `img` | the shared image component, under `litespec/frontend/components#use-a-composite-for-a-content-image` |
 
-Text elements stay available, because a sentence is not a component decision: `p`, `h2`, `h3`, `em`, `strong`, `ul`, `ol`, and `li` carry prose. The floorplan owns the `h1`. Any other element follows the same rule: page code declares no other element, and the author adds a composite or a visual file instead.
+Text elements stay available for prose: `p`, `h2`, `h3`, `em`, `strong`, `ul`, `ol`, and `li` carry sentences, not layout or interaction. The floorplan owns the `h1`. Anything else follows the same rule: page code declares no other element, and the author adds a composite or a visual file instead.
 
 ### Style, Checks, and Raw Content
 
@@ -33,7 +33,9 @@ Class names merge through the one merge helper the shared package exports, with 
 
 A drawing no composite makes lives in a visual file, which draws with semantic theme tokens only, per `litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`. Each stack page names the visual file pattern, the class and style bindings, and the raw HTML sink for its stack.
 
-A visible card, panel, or section title renders as a heading at its correct level, per `litespec/frontend/components#expose-card-and-section-titles-as-headings`, and the route suite resolves each as a heading. The route suite checks keyboard reach, visible focus, target size, and status announcements on every route, per `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`. Stored rich content renders only under its recorded sanitization decision, per `litespec/frontend/components#sanitize-untrusted-rich-content`.
+A visible card, panel, or section title renders as a heading at its correct level, per `litespec/frontend/components#expose-card-and-section-titles-as-headings`, and the route suite resolves each as a heading. The route suite checks keyboard reach, visible focus, target size, and status announcements on every route, per `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`.
+
+Stored rich content renders only under its recorded sanitization decision, per `litespec/frontend/components#sanitize-untrusted-rich-content`.
 
 ## Standards
 
@@ -47,7 +49,7 @@ A visible card, panel, or section title renders as a heading at its correct leve
 
 **Statement:** Route and module code MUST pass the ESLint rules that refuse raw layout and interactive elements, class and style bindings, and layout utilities outside visual files, with each refusal naming the composite to use.
 
-**Rationale:** A lint gate that only refuses leaves the author searching the shared package for the replacement. A refusal that names the composite answers with the error. The refusal-to-composite map is approved once per stack, and each stack page names the mechanism that enforces it. Visual files stay allowlisted, because a drawing no composite makes has no composite to name. This gates litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code, litespec/frontend/components#write-no-class-name-in-page-code, and litespec/frontend/ui#keep-layout-inside-floorplans.
+**Rationale:** A lint gate that only refuses leaves the author searching the shared package for the replacement. A refusal that names the composite tells the author the replacement in the error itself. The refusal-to-composite map is approved once per stack, and each stack page names the mechanism that enforces it. Visual files stay allowlisted, because a drawing no composite makes has no composite to name. This gates litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code, litespec/frontend/components#write-no-class-name-in-page-code, and litespec/frontend/ui#keep-layout-inside-floorplans.
 
 **Reviewed for:** Does any refused element, binding, or layout utility show in the consumer's lint output outside visual files in route and module code? Check the lint output the consumer's configuration produces in CI.
 
@@ -61,7 +63,7 @@ A visible card, panel, or section title renders as a heading at its correct leve
 
 **Statement:** A component MUST type its props, its events, and its snippets under strict mode.
 
-**Rationale:** An untyped prop fails at the call site the next author writes, which is the most expensive place to learn a shape: after writing the code that uses it. Strict mode turns that failure into a build error at the author's own call. Typed events and snippets do the same for what the component reports and what it lets callers fill in. React components carry props and events; Svelte components add snippets.
+**Rationale:** An untyped prop fails at the call site the next author writes, after writing the code that uses it. Strict mode turns that failure into a build error at the author's own call. Typed events and snippets do the same for what the component reports and what it lets callers fill in. React components carry props and events; Svelte components add snippets.
 
 **Example:** A Svelte component types its props and derives its total; a React component types its props.
 

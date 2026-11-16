@@ -4,25 +4,25 @@
 
 **Concern:** frontend-ui
 
-A React frontend takes one of three rendering modes, chosen by who reads it: a static application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client.
+A React frontend takes one of three rendering modes, depending on who reads it: a static application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client.
 
-A team opening a React frontend chooses the mode under [Web Rendering and Routes](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
+A team opening a React frontend chooses its mode on [Web Rendering and Routes](../rendering.md) before writing routes. This page gives the names, files, and libraries the shared web pages leave to this stack, and the shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
 
 ## Concepts
 
 ### Where Each File Lives
 
-React names the three frontend parts as folders: `src/app` holds the frame, `src/routes` holds one file per address, and `src/modules` holds the use-case code. The router generates the typed route tree from the files under `src/routes`. Shared files use the `.tsx` extension.
+A React frontend holds its three parts in three folders: `src/app` holds the frame, `src/routes` holds one file per address, and `src/modules` holds the use-case code. The router generates the typed route tree from the files under `src/routes`. Shared files use the `.tsx` extension.
 
 For example, the library product keeps its frame in `src/app`, its loan list route in `src/routes/loans.tsx`, and its loan use-case code in `src/modules/loans`.
 
 ### How a Route Loads Its Data
 
-A React route is a file under `src/routes` that uses the router file convention, and the router builds the typed route tree from it. A shell is a pathless layout route whose file name starts with an underscore. Server-only code lives in a file whose name and import show the server ownership.
+A React route is a file under `src/routes` that uses the router file convention, and the router builds the typed route tree from it. A shell is a pathless layout route whose file name starts with an underscore. Server-only code lives in a file whose name and import identify it as server-only.
 
-A route fills its data before it draws. The loader prefetches the route's reads into the query cache, and the component reads back the key the loader filled with `useSuspenseQuery`. Reading the filled key keeps the component on the data the loader fetched.
+A route loads its data before it draws. The loader prefetches the route's reads into the query cache, and the component reads back the key the loader filled with `useSuspenseQuery`, so it renders the data the loader fetched.
 
-For example, the library loan list loader fetches the loan page for the page number `validateSearch` checked, and the component reads it back over the same key. Intent preloading extends the same idea to links: hovering or focusing a link fills the target's cache key during the wait before the click, so the target draws from data it already holds.
+For example, the library loan list loader fetches the loan page for the page number `validateSearch` checked, and the component reads it back over the same key. Intent preloading extends the same idea to links: hovering or focusing a link fills the target's cache key before the click, so the target draws from data it already holds.
 
 ### Which Files Declare an Address
 
@@ -32,31 +32,31 @@ Pathless layout routes, error components, and route groups are not route entries
 
 ### How Components Draw and Fail
 
-Component authoring follows [Frontend Components](../../components.md) and [TypeScript Web Components](../components.md). A class or style binding spells the `className` or `style` prop.
+Component authoring follows [Frontend Components](../../components.md) and [TypeScript Web Components](../components.md). A class or style binding uses the `className` or `style` prop.
 
-Two cases sit outside the composites. A drawing that no composite makes lives in a visual file. Raw HTML is the `dangerouslySetInnerHTML` prop: the one name a search finds, so a review can check each use.
+Two cases sit outside the composites. A drawing that no composite makes lives in a visual file. Raw HTML passes through the `dangerouslySetInnerHTML` prop: the one name a search finds, so a review can check each use.
 
 When a route fails, the failure renders in the route error component, which draws the shared problem state. The page-code lint enforces the refusals of [TypeScript Web Components](../components.md) in route and module folders.
 
 ### Where Data and Sentences Live
 
-Route data lives in the query cache, filled by loaders and read back by components. A component's own state is local component state. Generated reads get their cache keys from the client generator's `@tanstack/react-query` plugin, so entries from every route share one shape.
+Route data lives in the query cache, filled by loaders and read back by components. A component's own state is local component state. Generated reads take their cache keys from the client generator's `@tanstack/react-query` plugin, so entries from every route share one shape.
 
-Forms build on the form hook of the shared package: one entry point gives every form the same field wiring and the same display for a refusal on its field. Sentences live in locale dictionaries, one dictionary per language, under the contract stated in [Web Data and State](../data.md): the same fill, plural, and fallback behavior in every language the product ships.
+Forms build on the form hook of the shared package: one entry point gives every form the same field setup and the same display for a refusal on its field. Sentences live in locale dictionaries, one dictionary per language, under the contract stated in [Web Data and State](../data.md): the same fill, plural, and fallback behavior in every language the product ships.
 
 ### What Tests Leave in Place
 
-The mocks rule names the libraries a test must not replace: the rendering library, the router, and the query library stay in place, because a stand-in for any of them tests the stand-in instead of the screen. For example, the library loan list route test renders with the real router and query library and replaces only the network call.
+The mocks rule names the libraries a test leaves in place: the rendering library, the router, and the query library, because a stand-in for any of them tests the stand-in instead of the screen. For example, the library loan list route test renders with the real router and query library and replaces only the network call.
 
 ### How Shared UI Is Built
 
 The shadcn/ui registry is built with the `shadcn` CLI, pinned in the manifest as `shadcn`. One registry command builds the UI artifacts the same way in every React frontend.
 
-The state-to-tone table maps each application state to one tone. One table keeps a state reading the same tone on every route: the library product maps its overdue state to its warning tone in `src/app/states.tsx`.
+The state-to-tone table maps each application state to one tone. One table keeps every state in the same tone on every route: the library product maps its overdue state to its warning tone in `src/app/states.tsx`.
 
 ### Which Versions Are Pinned
 
-The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `stack.pnpm` key pins pnpm, and the `packages.npm` keys pin every npm package version. These keys name the pins; the manifest holds the values.
+The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `stack.pnpm` key pins pnpm, and the `packages.npm` keys pin every npm package version. The keys name what is pinned; the manifest holds the pinned values.
 
 ## Standards
 
@@ -150,7 +150,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A route file MUST read its route data with `useSuspenseQuery` over the key its loader filled.
 
-**Rationale:** Reading the filled key keeps the component on the data the loader fetched.
+**Rationale:** The component reads the key its loader filled, so it renders the data the loader fetched.
 
 **Example:** The library loan list component reads its loan page through `useSuspenseQuery` over the key its loader filled.
 
@@ -198,7 +198,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A file that holds a drawing no composite makes MUST end with `.visual.tsx`.
 
-**Rationale:** The suffix marks the one place outside the composites, so a search finds every custom drawing in one pass.
+**Rationale:** The suffix identifies the one place outside the composites, so a search finds every custom drawing in one pass.
 
 **Example:** The library loan due-date sparkline lives in `LoanSparkline.visual.tsx`.
 
@@ -214,7 +214,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A React component MUST pass raw HTML to the page only through `dangerouslySetInnerHTML`.
 
-**Rationale:** One named prop makes every raw HTML sink a name a search finds, and a review can check each use.
+**Rationale:** One named prop gives every raw HTML sink a name a search finds, so a review can check each use.
 
 **Example:** The library loan note passes its sanitized HTML through `dangerouslySetInnerHTML`, matching its recorded sanitization decision.
 
@@ -326,7 +326,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A React form MUST build on the form hook of the shared package.
 
-**Rationale:** One entry point gives every form the same field wiring and the same display for a refusal on its field.
+**Rationale:** One entry point gives every form the same field setup and the same display for a refusal on its field.
 
 **Example:** The library loan request form builds on the shared form hook, with no form library of its own.
 
@@ -374,7 +374,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** The state-to-tone table MUST live in `src/app/states.tsx`.
 
-**Rationale:** One file holds every state's tone, so a state reads the same tone on every route.
+**Rationale:** One file holds every state's tone, so a state shows the same tone on every route.
 
 **Example:** The library product maps its overdue state to its warning tone in `src/app/states.tsx`.
 

@@ -1,6 +1,6 @@
 # Project File
 
-`.litespec/project.yaml` is the one record of what a consumer project selected: its size, shape, technology stacks, extensions, paths, and pinned release. A consumer project is an application repository built against one pinned LiteSpec release. The team edits the file when the selection changes, and validates it with `litespec model check` before relying on it. What follows lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.
+`.litespec/project.yaml` is the single record of what a consumer project selected: its size, shape, stacks, extensions, paths, and pinned release. A consumer project is an application repository built against one pinned LiteSpec release. The team edits the file when the selection changes, and validates it with `litespec model check` before relying on it.
 
 ## Reference
 
@@ -15,7 +15,7 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | Template | `templates/consumer/project.yaml` in the release the tool carries |
 | Presets | `templates/presets/android-client.yaml`, `templates/presets/blazor-client.yaml`, `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml` |
 
-`litespec init` merges the template with one preset, and stamps the size, name, and reviewed release. `litespec model check` validates the written file against the schema, then runs the selection checks below. The model builder reads the paths, stack config, size, shape, and stacks from the same file.
+`litespec init` merges the template with one preset, and fills the size, name, and reviewed release. `litespec model check` validates the written file against the schema, then runs the selection checks below. The model builder reads the paths, `stackConfig`, size, shape, and stacks from the same file.
 
 ### Top-Level Fields
 
@@ -42,13 +42,13 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 
 What each field means and which reader uses it:
 
-- `schemaVersion` is the shape of this file, `1` in this release. The editor finds the schema from the first-line comment `# yaml-language-server: $schema=<url>`, which `litespec init` writes. No key in the data names it.
+- `schemaVersion` is the shape of this file, `1` in this release. The editor finds the schema from the first-line comment `# yaml-language-server: $schema=<url>`, which `litespec init` writes. No data key names the schema; the comment is the only place.
 - `project` names the project, and `litespec model check` checks it against the schema. See the `project` object below.
 - `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects; large adds goals, problems, features, flows, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
 - `layers` names the record layers the project claims, and the practice each follows. See the `layers` object below.
 - `explanations` names the record layers whose every record page carries an explanation file; see the `explanations` object below.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, while a client-only project names no backend stack. `litespec init` writes the value from the preset, `litespec model check` checks the backend count, and the model builder applies the shape.
-- `stacks` lists the selected stack ids: `dotnet` for the backend, and one entry per frontend from its platform. The list is required when the project claims `implementation` or `proof`; otherwise a stack entry is informational. `litespec model check` refuses an id the pinned release does not ship.
+- `stacks` lists the selected stack ids: `dotnet` for the backend, and one id per frontend, taken from the frontend's platform. The list is required when the project claims `implementation` or `proof`; otherwise a stack entry is informational. `litespec model check` refuses an id the pinned release does not ship.
 - `proof` tunes how the model builder confirms proof claims for the project; see the `proof` object below.
 - `marks` is the mark style: `xml` for documentation tags, or `attribute` for generated attributes. The model builder, the analyzers, and the source generator read it, and each reports a mark in the other style as `mark-style-invalid`.
 - `dependencies` names the dependency gate: the licenses every shipped package may carry without an admitting decision; see the `dependencies` object below.
@@ -171,7 +171,7 @@ What each field means and which reader uses it:
 
 - `docs` is the root of the specification tree: every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document. When omitted, the tools use `.litespec`.
 - `glossary` names the project glossary. `litespec model check` validates it, and scans the pages against its rejected words and mannered terms.
-- `behaviorDocs` names the behavior documentation root, and it is required.
+- `behaviorDocs` names the behavior documentation root.
 - `testRoots` lists the directories holding automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
 - `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
@@ -238,7 +238,7 @@ What each field means and which reader uses it:
 
 - `name` is the frontend name, such as `"web"`, and matches `^[a-z][a-z0-9-]*$`.
 - `path` is the frontend directory, such as `"apps/web"`. `litespec model check` reports a frontend whose directory is missing.
-- `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it, so a frontend outside the controlled UI contract still states that position instead of omitting the field. A `react` or `svelte` frontend is controlled, and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
+- `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it: a frontend outside the controlled UI contract states `blazor` or `android` instead of omitting the field. A `react` or `svelte` frontend is controlled, and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
 - `entryPoint` names the browser or device entry point the frontend serves, such as `"entry-point/claimwick-app"`. The model builder reads the frontend's screens, use cases, and records file through it. Without it, the entry points its screens name decide; before any screen exists, every browser entry point does.
 - `routeSuite` names the file or folder holding that frontend's route suite. The model builder reads it for the route-suite `proves` check, giving the suite a named subject instead of a convention.
 - `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.

@@ -4,15 +4,15 @@
 
 **Concern:** frontend-ui
 
-A Svelte frontend takes one of three rendering modes, chosen by who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client.
+A Svelte frontend takes one of three rendering modes, depending on who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client.
 
-A team opening a Svelte frontend chooses the mode under [Web Rendering and Routes](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
+A team opening a Svelte frontend chooses its mode on [Web Rendering and Routes](../rendering.md) before writing routes. This page gives the names, files, and libraries the shared web pages leave to this stack, and the shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
 
 ## Concepts
 
 ### Where Each File Lives
 
-Svelte names the frontend parts as folders: `src/lib/app` holds the frame, `src/routes` holds one folder per address, and `src/lib/modules` holds the use-case code. The toolkit generates the route types from the folders under `src/routes`.
+A Svelte frontend holds its parts in folders: `src/lib/app` holds the frame, `src/routes` holds one folder per address, and `src/lib/modules` holds the use-case code. The toolkit generates the route types from the folders under `src/routes`.
 
 Imports resolve through the `#lib` alias, which the frontend declares in the `imports` field of its `package.json` as `"#lib/*": "./src/lib/*"`. Shared files use the `.svelte` extension.
 
@@ -22,9 +22,9 @@ Route groups are folders under `src/routes` whose names stay in parentheses, suc
 
 Svelte routes are folders under `src/routes`, each holding a page. A shell is a layout file that holds the frame every child page shares. Server-only code lives in a server file or under the server library.
 
-A route fills its data before it draws. In Svelte terms, the page is a route file, the load is a loader, and the query creator is a suspense query: the load prefetches the route's reads into the query cache, and the page reads back the key the load filled. Reading the filled key keeps the page on the data the load fetched.
+A route loads its data before it draws. In Svelte terms, the page is a route file, the load is a loader, and the query creator is a suspense query: the load prefetches the route's reads into the query cache, and the page reads back the key the load filled, so it renders the data the load fetched.
 
-For example, the Claimwick expense list folder holds its page number schema, its load, and its page component: the load fetches the expense page for the checked page number, and the page reads it back with a query creator over the same key. Intent preloading extends the same idea to links: hovering or focusing a link fills the target's cache key during the wait before the click, so the target draws from data it already holds.
+For example, the Claimwick expense list folder holds its page number schema, its load, and its page component: the load fetches the expense page for the checked page number, and the page reads it back with a query creator over the same key. Intent preloading extends the same idea to links: hovering or focusing a link fills the target's cache key before the click, so the target draws from data it already holds.
 
 ### Which Files Declare an Address
 
@@ -34,31 +34,31 @@ Layout files (`+layout.svelte`, `+layout.ts`), error pages (`+error.svelte`), an
 
 ### How Components Draw and Fail
 
-Component authoring follows [Frontend Components](../../components.md) and [TypeScript Web Components](../components.md). A class or style binding spells `class`, `class:`, `style`, or `style:`.
+Component authoring follows [Frontend Components](../../components.md) and [TypeScript Web Components](../components.md). A class or style binding uses `class`, `class:`, `style`, or `style:`.
 
-Two cases sit outside the composites. A drawing that no composite makes lives in a visual file. Raw HTML is the `{@html}` tag: the one template tag a search finds, so a review can check each use.
+Two cases sit outside the composites. A drawing that no composite makes lives in a visual file. Raw HTML passes through the `{@html}` tag: the one template tag a search finds, so a review can check each use.
 
 When a route fails, the failure renders in the route error page, which draws the shared problem state. The page-code lint enforces the refusals of [TypeScript Web Components](../components.md) through the Svelte ESLint processor in route and module folders.
 
 ### Where Data and Sentences Live
 
-Route data lives in the query cache, filled by loads and read back by pages. A component's own state is a rune. Generated reads get their cache keys from the client generator's `@tanstack/svelte-query` plugin, so entries from every route share one shape.
+Route data lives in the query cache, filled by loads and read back by pages. A component's own state is a rune. Generated reads take their cache keys from the client generator's `@tanstack/svelte-query` plugin, so entries from every route share one shape.
 
-Forms build on the form creator of the shared package: one entry point gives every form the same field wiring and the same display for a refusal on its field. Sentences live in locale dictionaries, one dictionary per language, under the contract stated in [Web Data and State](../data.md): the same fill, plural, and fallback behavior in every language the product ships.
+Forms build on the form creator of the shared package: one entry point gives every form the same field setup and the same display for a refusal on its field. Sentences live in locale dictionaries, one dictionary per language, under the contract stated in [Web Data and State](../data.md): the same fill, plural, and fallback behavior in every language the product ships.
 
 ### What Tests Leave in Place
 
-The mocks rule names the libraries a test must not replace: Svelte, SvelteKit, the query library, and the form library stay in place, because a stand-in for any of them tests the stand-in instead of the screen. For example, the Claimwick expense page test renders with the real query library and replaces only the network call.
+The mocks rule names the libraries a test leaves in place: Svelte, SvelteKit, the query library, and the form library, because a stand-in for any of them tests the stand-in instead of the screen. For example, the Claimwick expense page test renders with the real query library and replaces only the network call.
 
 ### How Shared UI Is Built
 
 The registry is built with the `shadcn-svelte` CLI, pinned in the manifest as `shadcn-svelte`. One registry command builds the UI artifacts the same way in every Svelte frontend.
 
-The state-to-tone table maps each application state to one tone. One table keeps a state reading the same tone on every route: the Claimwick console maps its overdue state to its warning tone in `src/lib/app/states.ts`.
+The state-to-tone table maps each application state to one tone. One table keeps every state in the same tone on every route: the Claimwick console maps its overdue state to its warning tone in `src/lib/app/states.ts`.
 
 ### Which Versions Are Pinned
 
-The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `stack.pnpm` key pins pnpm, and the `packages.npm` keys pin every npm package version. These keys name the pins; the manifest holds the values.
+The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `stack.pnpm` key pins pnpm, and the `packages.npm` keys pin every npm package version. The keys name what is pinned; the manifest holds the pinned values.
 
 ## Standards
 
@@ -200,7 +200,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A route MUST read its route data with a query creator over the key its load filled.
 
-**Rationale:** Reading the filled key keeps the page on the data the load fetched.
+**Rationale:** The page reads the key its load filled, so it renders the data the load fetched.
 
 **Example:** The Claimwick expense list page reads its expense page through a query creator over the key its load filled.
 
@@ -273,7 +273,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A file that holds a drawing no composite makes MUST end with `.visual.svelte`.
 
-**Rationale:** The suffix marks the one place outside the composites, so a search finds every custom drawing in one pass.
+**Rationale:** The suffix identifies the one place outside the composites, so a search finds every custom drawing in one pass.
 
 **Example:** The Claimwick receipt sparkline lives in `ExpenseSparkline.visual.svelte`.
 
@@ -289,7 +289,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A Svelte component MUST pass raw HTML to the page only through `{@html}`.
 
-**Rationale:** One template tag makes every raw HTML sink a name a search finds, and a review can check each use.
+**Rationale:** One template tag gives every raw HTML sink a name a search finds, so a review can check each use.
 
 **Example:** The Claimwick expense note passes its sanitized HTML through `{@html}`, matching its recorded sanitization decision.
 
@@ -401,7 +401,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** A Svelte form MUST build on the form creator of the shared package.
 
-**Rationale:** One entry point gives every form the same field wiring and the same display for a refusal on its field.
+**Rationale:** One entry point gives every form the same field setup and the same display for a refusal on its field.
 
 **Example:** The Claimwick expense form builds on the shared form creator, with no form library of its own.
 
@@ -449,7 +449,7 @@ The `stack.node` key in `litespec.manifest.yaml` pins the Node version, the `sta
 
 **Statement:** The state-to-tone table MUST live in `src/lib/app/states.ts`.
 
-**Rationale:** One file holds every state's tone, so a state reads the same tone on every route.
+**Rationale:** One file holds every state's tone, so a state shows the same tone on every route.
 
 **Example:** The Claimwick console maps its overdue state to its warning tone in `src/lib/app/states.ts`.
 

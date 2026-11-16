@@ -12,9 +12,9 @@ litespec-maintain changelog --from <ref> [--root <path>] [--check] [--help]
 
 ## Description
 
-Each release tells readers of an earlier release what changed: which provision IDs were added, removed, or renamed, and which extensions arrived or left. This command computes those lists by comparing the provision index at a git ref with the current one, and writes them into the marked provision-diff section of `CHANGELOG.md`. An ID counts as renamed when one removed ID and one added ID share the same page and the same statement.
+Each release lists what changed since an earlier release: which provision IDs were added, removed, or renamed, and which extensions arrived or left. This command computes those lists by comparing the provision index at a git ref with the current one, and writes them into the marked provision-diff section of `CHANGELOG.md`. An ID counts as renamed when one removed ID and one added ID share the same page and the same statement.
 
-Run it after `litespec-maintain provisions`, as the last step before tagging a release, and never edit the marked section directly: the next run overwrites it.
+Run it after `litespec-maintain provisions`, as the last step before tagging a release. Never edit the marked section directly: the next run overwrites it.
 
 ## Arguments
 
@@ -53,4 +53,4 @@ litespec-maintain changelog --from v3.0.0 --check
 
 ## Underneath
 
-The old copies are read with `git show <ref>:docs/reference/provisions.json` and `git show <ref>:litespec.manifest.yaml`, run from the repository root. The comparison and the section rewrite have no separate entry point: they run only as part of this command.
+The command reads the old copies with `git show <ref>:docs/reference/provisions.json` and `git show <ref>:litespec.manifest.yaml`, run from the repository root. The comparison and the section rewrite have no separate entry point: they run only as part of this command.

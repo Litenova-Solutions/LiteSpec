@@ -3,17 +3,21 @@
 **Stack:** any
 **Concern:** application
 
-Security answers three questions for every operation: who acts, what it touches, and what it keeps. This page states how a LiteSpec product answers them through authentication, actor resolution, authorization, trust boundaries, secrets, browser defenses, personal data, abuse limits, audit events, and release security checks. It applies to anyone who builds or reviews an operation, an endpoint, a frontend, or a release. A product that follows it proves every operation runs for the right actor, touches only what it may, and keeps sensitive data safe.
+Security covers who acts, what an operation touches, and what it keeps: authentication, actor resolution, authorization, trust boundaries, secrets, browser defenses, personal data, abuse limits, audit events, and release security checks. It applies to anyone who builds or reviews an operation, an endpoint, a frontend, or a release.
 
 ## Concepts
 
 ### Actors, Roles, and Permissions
 
-Every protected operation answers one question: who may do what to which target. The actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role, and the role's scope sets its reach, such as one organization. A role allows permissions from the shared closed list, and each use case declares the permissions it needs. The application guard authorizes every protected operation from those declarations, so two operations about the same record ask the same question. For example, the use case that approves an expense declares the permission it needs, and the guard resolves the caller's roles at the scope of that expense.
+Every protected operation answers one question: who may do what to which target. The actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role, and the role's scope sets its reach, such as one organization. A role allows permissions from the shared closed list, and each use case declares the permissions it needs.
+
+The application guard authorizes every protected operation from those declarations, so two operations about the same record ask the same question. For example, the use case that approves an expense declares the permission it needs, and the guard resolves the caller's roles at the scope of that expense.
 
 ### Trust Boundaries
 
-A trust boundary is any point where data crosses from one party to another: a request arriving at the API, a file upload, a provider response, database content rendered into a new output, or generated text shown to a user. Each boundary validates what crosses it before use, because data that was safe in its old context can be unsafe in the new one. Application validators check message shape, while Domain checks business invariants. An expense receipt upload is validated as a file at the boundary before any use case reads it.
+A trust boundary is any point where data crosses from one party to another: a request arriving at the API, a file upload, a provider response, database content rendered into a new output, or generated text shown to a user. Each boundary validates what crosses it before use, because data that was safe in its old context can be unsafe in the new one.
+
+Application validators check message shape, while Domain checks business invariants. An expense receipt upload is validated as a file at the boundary before any use case reads it.
 
 ### Personal Data and Its Stores
 
@@ -45,7 +49,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** Actor resolution MUST follow `litespec/quality/security#use-one-current-actor-abstraction`.
 
-**Rationale:** Who acts must come from verified claims, not from the request. The WebApi boundary maps those claims to identity, roles, and scopes through the one current-actor accessor, and every operation reads the actor from there. Anything the caller sends can name anyone, so request data never supplies the current actor. With one resolution path, every operation answers who acts from the same verified source.
+**Rationale:** The actor comes from verified claims, not from the request. The WebApi boundary maps those claims to identity, roles, and scopes through the one current-actor accessor, and every operation reads the actor from there. Anything the caller sends can name anyone, so request data never supplies the current actor. With one resolution path, every operation answers who acts from the same verified source.
 
 **Reviewed for:** Does WebApi map verified claims through the one current-actor accessor, with no request data supplying the actor? Look at the actor resolution in WebApi.
 
@@ -59,7 +63,9 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** The application guard MUST authorize every protected operation from its use case's declared permissions, as `litespec/backend/application#enforce-target-authorization-in-the-pipeline` states, with endpoints adding only coarse policies.
 
-**Rationale:** Two operations about the same record must ask the same authorization question. The use case declares the permissions it needs, the guard resolves the actor roles at the scope of the target, and the decision follows from that declaration. A message whose target is always the caller carries no target (`litespec/core/access#remove-a-target-that-must-be-the-caller`). A handler never compares the caller with a target and never throws the forbidden refusal itself: the guard decides. Endpoints add only coarse policies, because a policy that cannot see business data cannot decide about an aggregate.
+**Rationale:** Two operations about the same record ask the same authorization question. The use case declares the permissions it needs, the guard resolves the actor roles at the scope of the target, and the decision follows from that declaration.
+
+A message whose target is always the caller carries no target (`litespec/core/access#remove-a-target-that-must-be-the-caller`). A handler never compares the caller with a target and never throws the forbidden refusal itself: the guard decides. Endpoints add only coarse policies, because a policy that cannot see business data cannot decide about an aggregate.
 
 **Reviewed for:** Does each protected operation pass the application guard from its use case's declared permissions? Look at the guard decision for each protected operation in the authorization tests and the pipeline.
 
@@ -145,7 +151,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** A frontend MUST apply framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of allowed rich content.
 
-**Rationale:** Everything the browser renders arrives as ordinary page content, including injected scripts, forged requests, malicious redirects, and hostile markup. Each defense on the list blocks one of those attacks: framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of allowed rich content. A route guard or hidden control only changes what the user sees, so it never replaces API authorization.
+**Rationale:** The browser renders every response as page content, so injected scripts, forged requests, malicious redirects, and hostile markup arrive as ordinary content. Each listed defense blocks one of those attacks. A route guard or hidden control only changes what the user sees, so it never replaces API authorization.
 
 **Reviewed for:** Does each frontend ship framework escaping, a Content Security Policy, secure headers, redirect validation, forgery protection, and rich-content sanitization? Look at the frontend host configuration and the response headers it sends.
 
@@ -201,7 +207,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** A log, trace, or diagnostic record MUST NOT carry personal data in clear.
 
-**Rationale:** Once a log line leaves the process, it flows through collectors, dashboards, and long-term archives the product does not control. Redaction at the sink is one pipeline stage that fails once, and by then the cleartext is already downstream. A field that is never emitted fails nowhere.
+**Rationale:** Once a log line leaves the process, it flows through collectors, dashboards, and long-term archives the product does not control. Redaction at the sink is one pipeline stage that fails once, and by then the cleartext is already downstream. A field that is never emitted cannot leak from the pipeline.
 
 **Reviewed for:** Do logs, traces, and diagnostic records carry personal data in clear? Search the log sinks and a sample of recent log output for personal fields.
 
@@ -215,7 +221,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** An unsalted digest of personal data MUST receive the same handling as the data itself.
 
-**Rationale:** A digest without a salt reverses by table lookup: anyone holding a table of common values recovers the original. It hides nothing, so it earns none of the relaxed handling a truly one-way value earns. Handling it the same as the data itself keeps the digest from leaking what the data would.
+**Rationale:** A digest without a salt reverses by table lookup: anyone holding a table of common values recovers the original. It hides nothing, so it gets none of the relaxed handling a truly one-way value gets. Handling it the same as the data itself keeps the digest from leaking what the data would.
 
 **Reviewed for:** Does each unsalted digest of personal data receive the handling its source data receives? Look at each hashing call on a personal field and the storage class of its result.
 
@@ -299,7 +305,9 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** A security audit event MUST record actor, action, target, outcome, timestamp, trace identifier, and available reason.
 
-**Rationale:** After an incident, the review reconstructs who did what to which target, with what outcome and why. That reconstruction is guesswork unless each security event records actor, action, target, outcome, timestamp, trace identifier, and reason. Audit records follow a documented retention and access policy, exclude secrets, and stay available for incident review. A consumer that activates the audit extension records the event through that extension instead, which states a wider field set, a classification rule, and a tamper-evidence rule.
+**Rationale:** After an incident, the review reconstructs who did what to which target, with what outcome and why. That reconstruction is guesswork unless each security event records actor, action, target, outcome, timestamp, trace identifier, and reason.
+
+Audit records follow a documented retention and access policy, exclude secrets, and stay available for incident review. A consumer that activates the audit extension records the event through that extension instead, which states a wider field set, a classification rule, and a tamper-evidence rule.
 
 **Reviewed for:** Does each security audit event record actor, action, target, outcome, timestamp, trace identifier, and reason? Look at the audit writes and a sample of audit records.
 

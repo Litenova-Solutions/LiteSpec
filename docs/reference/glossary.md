@@ -392,7 +392,7 @@ Source: LiteSpec.
 
 ### Decided By
 
-The command use case or aggregate that a `snapshot` or `eventual` freshness names in `decidedBy` as deciding the figure at write time.
+The command use case or aggregate that decides the figure at write time. A `snapshot` or `eventual` freshness names it in `decidedBy`.
 
 Layer: Behavior.
 
@@ -486,7 +486,7 @@ Source: plain English.
 
 ### Examples Table
 
-One table of rows a scenario reads through. It holds the values the parts argue about.
+One table of rows a scenario reads through. It holds the debated values.
 
 Home: docs/core/use-cases.md
 
@@ -848,7 +848,7 @@ Source: plain English.
 
 ### Product Area
 
-One Behavior module, as the book groups Intent. Each group lists the features and flows the module's use cases, reactions, jobs, or screens reach.
+One Behavior module. The book groups Intent by product area, with one group per module. Each group lists the features and flows the module's use cases, reactions, jobs, or screens reach.
 
 Home: docs/tools/book.md
 
@@ -1160,7 +1160,7 @@ Source: arc42; DDD's ubiquitous language.
 
 ### Token Role
 
-One named use of color that a token file values, such as text, card edge, or focus ring. It carries the limits its values meet in each declared scheme.
+One named use of color, such as text, card edge, or focus ring. The token file holds the role's values, and the role carries the limits they meet in each declared scheme.
 
 Home: docs/frontend/ui.md
 
@@ -1904,7 +1904,7 @@ Source: LiteSpec.
 
 ### Verified
 
-The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale. It is also the state of a requirement that everything fulfilling it verifies, with its measure's check passing.
+The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale. A requirement is verified when everything fulfilling it is verified and its measure's check passes.
 
 Home: docs/core/model.md
 

@@ -1,10 +1,10 @@
 # Published URLs
 
-An agent (software that reads task context, changes files, and runs checks) reaches LiteSpec through URLs on `https://litespec.dev`, not through a local copy of the repository. What follows lists every URL the site serves: its pattern, a real example for the current release, and what it returns, so an agent or a reader resolves any reference with a fetch.
+An [agent](glossary.md#agent) reaches LiteSpec through URLs on `https://litespec.dev`, not through a local copy of the repository. This page lists every URL the site serves: the pattern, a real example for the current release, and what each returns, so an agent or a reader resolves any reference with a fetch.
 
 ## Reference
 
-The site is generated from the standard at the repository root, so the site and the release it is built from state the same contract. That release is `7.0.0`, taken from the `version` field of `litespec.manifest.yaml`, and every release path below starts with it. A release candidate, such as `6.0.0-rc.1`, publishes no site: its tool writes links naming the release version, which the site serves once that release ships. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
+The site is generated from the standard in this repository, so the site and the release it is built from state the same contract. That release is `7.0.0`, taken from the `version` field of `litespec.manifest.yaml`, and every release path below starts with it. A release candidate, such as `6.0.0-rc.1`, publishes no site: its tool writes links naming the release version, and the site serves those links once that release ships. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
 
 ### Page URLs
 
@@ -22,7 +22,7 @@ The site is generated from the standard at the repository root, so the site and 
 | `https://litespec.dev/llms.txt` | `https://litespec.dev/llms.txt` | The root index for agents |
 | `https://litespec.dev/7.0.0/llms.txt` | `https://litespec.dev/7.0.0/llms.txt` | Every page of the release |
 
-Each index answers with `Content-Type: text/plain`. The root index explains how to use the site, lists every selection index and every layer bundle, and ends with the agent protocol block: the consumer template's generated agent protocol region, filled for the default selection and preceded by what each placeholder takes. The release index groups every page by area, with its raw Markdown URL and a one-line description.
+Each index answers with `Content-Type: text/plain`. The root index explains how to use the site, lists every selection index and every layer bundle, and ends with the agent protocol block: the consumer template's generated agent protocol region, filled for the default selection and preceded by what each placeholder accepts. The release index groups every page by area, with its raw Markdown URL and a one-line description.
 
 ### Selection Indexes
 
@@ -33,7 +33,7 @@ Each index answers with `Content-Type: text/plain`. The root index explains how 
 
 A selection key joins the shape and the stacks with dots: `server.dotnet.react` names a server project using the `dotnet` backend stack and the `react` frontend stack. A server selection names one backend stack and zero or one frontend stack, while a client-only selection names no backend stack and one frontend stack, such as `client-only.react`. Extensions never enter the key; the `AGENTS.md` block names the chosen extensions.
 
-A selection index answers with `Content-Type: text/plain`. It groups the pages the selection applies by layer, with each page linking its raw Markdown. The maintainer-only page stays out, while the authoring page stays in, because it holds consumer provisions. A Tools and Reference group lists the `rules`, `model`, `new`, and `skill` tool pages with the Published URLs page. A By Artifact group names, for each artifact kind the release provisions state, the pages of the selection that carry provisions for it, for the selection's stacks. The index then lists the extensions the selection may add and, when the selection holds a frontend stack, the UI pattern groups, each as a bare link, and ends with a note to fetch only the pages a task touches.
+A selection index answers with `Content-Type: text/plain`. It groups the pages that apply to the selection by layer, each linking its raw Markdown. It omits the maintainer-only page and keeps the authoring page, which holds consumer provisions. A Tools and Reference group lists the `rules`, `model`, `new`, and `skill` tool pages with the Published URLs page. A By Artifact group names, for each artifact kind the release provisions state, the pages of the selection that carry provisions for it. The index then lists the extensions the selection may add and, when the selection holds a frontend stack, the UI pattern groups, each as a bare link, and ends with a note to fetch only the pages a task touches.
 
 The selection page renders the `AGENTS.md` block from the consumer protocol template: the generated agent protocol region, with each placeholder filled for the chosen answers. `litespec init` writes the same region into a new consumer, and an owner pastes the page's block when adopting an existing project. With size `small`, shape `server`, stacks `dotnet` and `react`, and no extensions, the block opens with the region fence and the precedence sentence, carries the protocol lines with the selection's values, and closes with the region fence:
 
@@ -56,12 +56,12 @@ A layer is one folder's pages, concatenated in reading order. Each page opens wi
 
 - `core` covers the always-applied areas.
 - `backend` and `frontend` cover the principles.
-- A shared folder, such as `frontend/web`.
-- A stack folder, such as `backend/dotnet`, `frontend/web/react`, `frontend/web/svelte`, or `frontend/blazor`.
-- A UI pattern group, such as `patterns/record-detail`.
-- An extension, such as `ext/audit`.
+- A shared folder key, such as `frontend/web`, covers that folder.
+- A stack folder key, such as `backend/dotnet`, `frontend/web/react`, `frontend/web/svelte`, or `frontend/blazor`, covers that stack.
+- A UI pattern group key, such as `patterns/record-detail`, covers that group.
+- An extension key, such as `ext/audit`, covers that extension.
 
-The layers a selection applies decide the groups of its selection index, taken in reading order and without extensions and pattern groups.
+The layers that apply to a selection decide the groups of its selection index, taken in reading order and without extensions and pattern groups.
 
 ### Schema Files
 

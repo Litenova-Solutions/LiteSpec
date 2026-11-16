@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** operations
 
-Every pull request runs a fixed set of CI jobs, and each job checks one surface: compilation, tests, measured checks, the project model of records joined to code, documentation, and generated contracts. This page names those jobs and states which file changes select each one. No change merges with its surface unchecked. Mutation testing, the supply-chain gate, artifact promotion, branch protection, and the release job live in the [Delivery extension](../ext/delivery.md) for projects that select it.
+Every pull request runs a fixed set of CI jobs, and each job checks one surface: compilation, tests, measured checks, the project model of records joined to code, documentation, and generated contracts. This page names those jobs and states which file changes select each one. No change merges with its surface unchecked. Mutation testing, the supply-chain gate, artifact promotion, branch protection, and the release job are stated in the [Delivery extension](../ext/delivery.md) for projects that select it.
 
 ## Concepts
 
@@ -27,7 +27,11 @@ The model job runs `litespec model check`. That command blocks on the planned-In
 
 ### Measured Checks by Kind
 
-Each measured requirement names its check. Each kind of measure has one tool that runs it, and the measure job runs the check for each kind the change touches. The tools write their result files under `TestResults/`, and the builder reads those files the way it reads test runs, so a measured requirement shows verified once its check passes. Availability and latency objectives are evidenced in production only; a project that selects the [Delivery extension](../ext/delivery.md) states them as OpenSLO files there. For example, a change that affects API latency runs the k6 thresholds, and the threshold results under `TestResults/` mark the requirement verified.
+Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for each kind the change touches.
+
+The tools write their result files under `TestResults/`, and the builder reads those files the way it reads test runs, so a measured requirement shows verified once its check passes. For example, a change that affects API latency runs the k6 thresholds, and the threshold results under `TestResults/` mark the requirement verified.
+
+Availability and latency objectives show verified from production only; a project that selects the [Delivery extension](../ext/delivery.md) states them as OpenSLO files there.
 
 | Kind | Tool | Evidence |
 |:---|:---|:---|
@@ -37,11 +41,11 @@ Each measured requirement names its check. Each kind of measure has one tool tha
 | Availability and latency objectives | OpenTelemetry signals | Production dashboards linked in the book, with OpenSLO files where the Delivery extension applies. |
 | Security | An ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks | ZAP results under `TestResults/` with scan reports showing no unaccepted finding. |
 
-The ASVS target and the security scans live on the [Security](security.md) page, the availability objectives and dashboards on the [Operations](operations.md) page, and the route suite in `litespec/frontend/ui#pass-every-route-suite-check`.
+The [Security](security.md) page states the ASVS target and the security scans, the [Operations](operations.md) page states the availability objectives and dashboards, and `litespec/frontend/ui#pass-every-route-suite-check` states the route suite.
 
 ### Supply-Chain Gate
 
-Projects that select the [Delivery extension](../ext/delivery.md) get a supply-chain gate from it: scan scope, pin rules, inventory, and license review.
+The [Delivery extension](../ext/delivery.md) gives projects that select it a supply-chain gate: scan scope, pin rules, inventory, and license review.
 
 ## Standards
 
