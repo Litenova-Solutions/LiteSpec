@@ -26951,7 +26951,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060chevrons-beside-the-breadcrumb\u0060",
-      "rationale": "The default keeps the chevrons beside the breadcrumb. They keep the list order and cost almost no space. The jump-by-search option is the runner-up, and fits readers who know the next record number rather than its neighbor. Prefer the list drawer on triage queues where the reader skims many records. Never ship movement without a position: chevrons that never say 4 of 268 leave the reader lost in the queue.",
+      "rationale": "The default keeps the chevrons beside the breadcrumb. They keep the list order and cost almost no space. The jump-by-search option is the runner-up, and it fits readers who know the next record number rather than its neighbor. Prefer the list drawer on triage queues where the reader skims many records. Never ship movement without a position: chevrons that never show 4 of 268 leave the reader lost in the queue.",
       "example": ""
     },
     {
@@ -26969,7 +26969,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060every-identifier-copies\u0060",
-      "rationale": "The default keeps the always-visible copy button on each identifier, so support reaches for it without hunting. The in-place confirmation is the runner-up, and fits records where a miscopied reference causes real mistakes. Prefer the grouped card only where identifiers are quoted together, such as a reference pasted into a dispute. Where the same copy control repeats in every row of a table, it shows on hover and on keyboard focus, stays visible on a touch screen, and a repeated click restarts its confirmation instead of being ignored. Hover-only copy fits nowhere: touch screens have no hover, and the button would never appear. Never ship a property list whose long values clip without a way to expand them.",
+      "rationale": "The default keeps the always-visible copy button on each identifier, so support reaches for it without searching for it. The in-place confirmation is the runner-up, and it fits records where a miscopied reference causes real mistakes. Prefer the grouped card only where identifiers are quoted together, such as a reference pasted into a dispute. Where the same copy control repeats in every row of a table, it shows on hover and on keyboard focus, stays visible on a touch screen, and a repeated click restarts its confirmation instead of being ignored. Hover-only copy fits nowhere: touch screens have no hover, and the button would never appear. Never ship a property list whose long values clip without a way to expand them.",
       "example": ""
     },
     {
@@ -27005,7 +27005,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060a-file-list-with-a-drop-zone\u0060",
-      "rationale": "The default keeps the file list with a drop zone. Each row names the file and its kind, who added it, and its size, and the drop zone invites the next file. The evidence-grouped option is the runner-up, and fits a dispute, where Ben asks for kinds rather than files. Prefer the thumbnail option only where images dominate, such as receipt photos. Never ship a section that is only a drop zone: a record whose files hide behind an upload control reads as empty.",
+      "rationale": "The default keeps the file list with a drop zone. Each row names the file and its kind, who added it, and its size, and the drop zone accepts the next file. The evidence-grouped option is the runner-up, and it fits a dispute, where Ben asks for kinds rather than files. Prefer the thumbnail option only where images dominate, such as receipt photos. Never ship a section that is only a drop zone: a record whose files hide behind an upload control looks empty.",
       "example": ""
     },
     {
@@ -27059,7 +27059,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060a-notes-section-with-the-composer-on-top\u0060",
-      "rationale": "The default keeps the notes section with the composer on top. The newest note reads first, and internal scope is the default, so nothing leaks to the spender. The internal-or-spender composer is the runner-up, and fits records where staff write to the spender from the same box. Prefer notes mixed into the timeline only where what the team wrote explains what the system did next. Never ship notes without a scope marker: a reader who cannot tell internal from spender-visible will write the wrong one.",
+      "rationale": "The default keeps the notes section with the composer on top. The newest note reads first, and internal scope is the default, so nothing leaks to the spender. The internal-or-spender composer is the runner-up, and it fits records where staff write to the spender from the same composer. Prefer notes mixed into the timeline only where what the team wrote explains what the system did next. Never ship notes without a scope marker: a reader who cannot tell internal from spender-visible will use the wrong scope.",
       "example": ""
     },
     {
@@ -27185,7 +27185,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060summary-three-sections-history-in-the-aside\u0060",
-      "rationale": "The default keeps the record-page shape with a summary, three sections, and history in the aside. Spender, lines, and money each keep their own section. The money-first layout is the runner-up, and fits finance readers who reconcile payments against reversals. Prefer the tabbed layout only once a record outgrows three sections. Never ship the phone layout as the desktop page: stacked sections waste most of the width there.",
+      "rationale": "The default keeps the record-page shape with a summary, three sections, and history in the aside. Spender, lines, and money each keep their own section. The money-first layout is the runner-up, and it fits finance readers who reconcile payments against reversals. Prefer the tabbed layout only once a record outgrows three sections. Never ship the phone layout as the desktop page: stacked sections waste most of the width there.",
       "example": ""
     },
     {
@@ -27329,7 +27329,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A route MUST load each read it needs through one shared cache before its view renders.",
-      "rationale": "A view that renders before its reads complete shows a spinner after it appears, then swaps the spinner for content. That is two drawings for one navigation, with layout shifting between them. Loading through one shared cache puts the data in place for the first drawing, and the router keeps no second copy that could disagree.",
+      "rationale": "A view that renders before its reads complete shows a spinner after it appears, then replaces the spinner with content: two drawings for one navigation, with layout shifting between them. Loading each read through one shared cache puts the data in place for the first drawing, and the router keeps no second copy that could disagree.",
       "example": "An expense record route loads the expense and every read its sections need, before the view renders."
     },
     {
@@ -27383,7 +27383,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A view MUST read route data through the same cache entry its route filled.",
-      "rationale": "A view that reads under another key issues a second request for data the route already loaded, and the two answers can disagree when the data changes between them. Reading through the same entry renders the data the route approved. A failed read reaches the route\u0027s error boundary, which draws the shared problem state instead of a half-rendered view.",
+      "rationale": "A view that reads under another key issues a second request for data the route already loaded, and the two answers can disagree when the data changes between them. Reading through the same entry renders the data the route loaded. A failed read reaches the route\u0027s error boundary, which draws the shared problem state instead of a half-rendered view.",
       "example": ""
     },
     {
@@ -27437,7 +27437,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A route MUST declare its address parameters in a validated schema, including its filters and its page.",
-      "rationale": "Without a schema, a malformed address renders a page from nonsense values, and a filter kept outside the address is lost on the first share or navigation away. A validated schema makes the address the whole input: a shareable address restores the same filters and page, and validation refuses a malformed address at the boundary.",
+      "rationale": "Without a schema, a malformed address renders a page from invalid values, and a filter kept outside the address is lost on the first share or navigation away. A validated schema makes the address the complete input: a shareable address restores the same filters and page, and validation refuses a malformed address at the boundary.",
       "example": "The expense list schema declares its own text field and spreads the shared paging fields."
     },
     {
@@ -29723,7 +29723,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A Worker MUST publish its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior.",
-      "rationale": "A Worker fails on its own schedule: its queue grows, its retries climb, and its oldest item ages, while WebApi keeps answering health checks. Without its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior, the failure stays invisible until the backlog is the incident. Watching WebApi alone hides a failed Worker behind healthy API answers while the queue grows unobserved.",
+      "rationale": "A Worker fails on its own schedule: its queue grows, its retries climb, and its oldest item ages, while WebApi keeps answering health checks. Without its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior, the failure stays invisible until the backlog is the incident.",
       "example": ""
     },
     {
@@ -30516,7 +30516,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Emit structured logs through standard logging abstractions and keep exporter configuration in hosts.",
-      "rationale": "Application code writes through standard logging abstractions while each host configures its exporter, so application code carries no provider choice. Switching a log backend then stays inside deployment settings instead of touching every call site.",
+      "rationale": "Application code writes through standard logging abstractions while each host configures its exporter, so application code carries no provider choice. Switching a log backend stays inside deployment settings instead of touching every call site.",
       "example": ""
     },
     {
@@ -30534,7 +30534,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A tracked configuration file MUST keep secrets out of tracked and observable data, as \u0060litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data\u0060 states, and contain only safe defaults and placeholders.",
-      "rationale": "A tracked file reaches every clone and stays in history after deletion. No real value needs to be tracked: local development uses user secrets and hosted environments use the deployment platform. Safe defaults and placeholders keep the tracked file runnable as documentation.",
+      "rationale": "A tracked file reaches every clone and stays in history after deletion. No real value needs to be tracked: local development uses user secrets and hosted environments use the deployment platform. Safe defaults and placeholders keep the tracked file working as documentation.",
       "example": ""
     },
     {
@@ -30642,7 +30642,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A package absent from the manifest MUST be admitted by a technical decision whose \u0060admits\u0060 entry names the package with its owning layer, license, processing location, account owner, failure behavior, and operating cost.",
-      "rationale": "Every package arrives with a cost nobody revisits: updates, advisories, license review, and migration work. A hosted one adds a place personal data can travel and an account someone must own. The decision answers those costs while the alternatives are still fresh: its options and choice give the use case and the alternatives, its \u0060reopenedWhen\u0060 gives the removal condition, and its \u0060admits\u0060 entry gives the facts a dependency gate asks per package. A baseline package lands in the manifest in the same change as its decision, while a consumer-owned package lands in the consumer central file instead, because the manifest belongs to the LiteSpec release rather than to the consumer.",
+      "rationale": "Every package carries a cost nobody revisits: updates, advisories, license review, and migration work. A hosted one adds a place personal data can travel and an account someone must own. The decision answers those costs while the alternatives are still fresh: its options and choice give the use case and the alternatives, its \u0060reopenedWhen\u0060 gives the removal condition, and its \u0060admits\u0060 entry gives the facts a dependency gate asks per package. A baseline package is added to the manifest in the same change as its decision, while a consumer-owned package is added to the consumer central file instead, because the manifest belongs to the LiteSpec release rather than to the consumer.",
       "example": "The Claimwick \u0060decision/0005-render-receipts-as-pdf\u0060 decision chooses a PDF library over an HTML-to-PDF browser and admits \u0060nuget:PdfSharp\u0060 with layer \u0060Infrastructure\u0060, license \u0060MIT\u0060, location \u0060in-process\u0060, account owner \u0060none\u0060, failure behavior \u0022the receipt download fails and the expense stays readable\u0022, and operating cost \u0060none\u0060."
     },
     {
@@ -30661,7 +30661,7 @@
       "strength": "default",
       "statement": "Assign each baseline package to the owning layer named in the table in this section.",
       "rationale": "",
-      "example": "| Layer | Direct package groups |\n|:---|:---|\n| Domain | None |\n| Application | Required abstractions only, plus the declared read boundary |\n| Infrastructure | Providers and adapters required by implemented ports |\n| WebApi | Host, authentication, and documentation packages |\n| Test code | Test-only packages |\n\nA new package joins the narrowest layer that needs it. A central version entry does not authorize every layer to reference that package; the table decides who takes what. A consumer references conditional packages only after their extension activates."
+      "example": "| Layer | Direct package groups |\n|:---|:---|\n| Domain | None |\n| Application | Required abstractions only, plus the declared read boundary |\n| Infrastructure | Providers and adapters required by implemented ports |\n| WebApi | Host, authentication, and documentation packages |\n| Test code | Test-only packages |\n\nA new package belongs in the narrowest layer that needs it. A central version entry does not authorize every layer to reference that package; the table decides which layer takes each package. A consumer references conditional packages only after their extension activates."
     },
     {
       "id": "litespec/workspace/dependencies#follow-the-declared-dependency-graph",
@@ -30678,7 +30678,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A dependency between layers or modules MUST follow the declared graph and add no other edge.",
-      "rationale": "The declared graph lists the crossings review checks. An undeclared edge lets a layer reach past its boundary while review finds no graph that forbids it. Each new edge then needs an explicit decision instead of arriving silently with an import.",
+      "rationale": "The declared graph names the crossings between layers and modules that review checks. An undeclared edge lets a layer reach past its boundary while review has no graph that forbids it. Each new edge then needs an explicit decision instead of arriving silently with an import.",
       "example": ""
     },
     {
@@ -30696,7 +30696,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Application MUST depend only on messaging abstractions, required read abstractions, and the one declared read boundary.",
-      "rationale": "Application coordinates use cases through abstractions, while Infrastructure hides the technology behind them. A provider package in Application makes the coordination layer depend on the technology Infrastructure was meant to hide, so a provider change reaches two layers. Only messaging abstractions, required read abstractions, and the one declared read boundary stay.",
+      "rationale": "Application coordinates use cases through abstractions, while Infrastructure hides the technology behind them. A provider package in Application makes the coordination layer depend on the technology Infrastructure exists to hide, so a provider change reaches two layers. Only messaging abstractions, required read abstractions, and the one declared read boundary stay.",
       "example": ""
     },
     {
@@ -30750,7 +30750,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Keep generated API types free of dependencies and limit the shared client to the pinned generator\u0027s runtime, its query plugin, and those types.",
-      "rationale": "Generated types mirror the API contract, and the shared client only carries them to queries. Keeping the types free of dependencies and the client limited to the generator runtime, its query plugin, and those types keeps regeneration a pure function of the contract. A generated package that owns state, UI behavior, or authentication policy is no longer regenerable.",
+      "rationale": "Generated types mirror the API contract, and the shared client only passes them to queries. Keeping the types free of dependencies and the client limited to the generator runtime, its query plugin, and those types keeps regeneration dependent on the contract alone. A generated package that owns state, UI behavior, or authentication policy is no longer regenerable.",
       "example": ""
     },
     {
@@ -30786,7 +30786,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Keep assertion, substitution, host, container, and architecture-test packages inside test projects.",
-      "rationale": "Assertion, substitution, host, container, and architecture-test packages exist to verify code, not to run it. Once a production project references one, it ships to production with its own dependencies and advisories. Keeping them inside test projects keeps the shipped graph free of verification weight.",
+      "rationale": "Assertion, substitution, host, container, and architecture-test packages exist to verify code, not to run it. Once a production project references one, it ships to production with its own dependencies and advisories. Keeping them inside test projects keeps test packages out of the shipped graph.",
       "example": ""
     },
     {
@@ -30805,7 +30805,7 @@
       "strength": "required",
       "statement": "Every dependency version MUST resolve through central management or the committed lockfile, within the major \u0060litespec.manifest.yaml\u0060 pins where it pins one.",
       "rationale": "An inline version in one module file is invisible to the file that should own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place. The manifest pins the major of each baseline package, so a consumer takes a patch without waiting for a LiteSpec release, and it pins an exact version only where a check depends on exact output. The manifest belongs to the LiteSpec release rather than to the consumer, so the exact versions of a consumer live beside its code, admitted by \u0060litespec/workspace/dependencies#approve-new-packages-explicitly\u0060. Settled by [decision/0036-pin-third-party-packages-to-their-major](decision/0036-pin-third-party-packages-to-their-major).",
-      "example": "The Claimwick central version file holds Marten at 9.50.2 while the manifest pins \u00609.x\u0060, so a patch lands without a LiteSpec release. Its receipt PDF library sits exact in the same file with a decision record, because the manifest names only the baseline stack."
+      "example": "The Claimwick central version file holds Marten at 9.50.2 while the manifest pins \u00609.x\u0060, so the project takes a patch without waiting for a LiteSpec release. Its receipt PDF library is pinned exact in the same file with a decision record, because the manifest names only the baseline stack."
     },
     {
       "id": "litespec/workspace/dependencies#take-web-ui-packages-from-the-approved-baseline",
@@ -30822,7 +30822,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A React web frontend MUST take its UI packages from the \u0060uiBaseline\u0060 in \u0060litespec.manifest.yaml\u0060, and a Svelte web frontend from \u0060uiBaselineSvelte\u0060.",
-      "rationale": "A fixed UI baseline keeps every screen drawing from the same design system, styling, base components, icons, and utilities. Taking UI packages only from \u0060uiBaseline\u0060 for React and \u0060uiBaselineSvelte\u0060 for Svelte keeps that set reviewed and versioned in one place. Each baseline pins the design system, styling, base components, icons, and the utility packages the installed source imports directly.",
+      "rationale": "A fixed UI baseline keeps every screen on the same design system, styling, base components, icons, and utilities. Taking UI packages only from \u0060uiBaseline\u0060 for React and \u0060uiBaselineSvelte\u0060 for Svelte keeps that set reviewed and versioned in one place. Each baseline pins the design system, styling, base components, icons, and the utility packages the installed source imports directly.",
       "example": ""
     },
     {
@@ -30840,7 +30840,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Use one business name for a module across Domain, Application, endpoints, features, and documentation.",
-      "rationale": "One business name per module keeps every layer pointing at the same word: the Posts module maps to \u0060Shop/Posts\u0060, \u0060features/posts\u0060, and \u0060.litespec/behavior/modules/posts\u0060 without translation. A second name in any layer reads as a second concept that does not exist.",
+      "rationale": "One business name per module keeps every layer using the same word: the Posts module maps to \u0060Shop/Posts\u0060, \u0060features/posts\u0060, and \u0060.litespec/behavior/modules/posts\u0060 without translation. A second name in any layer reads as a second concept that does not exist.",
       "example": ""
     },
     {
@@ -30894,7 +30894,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Derive route segments and JSON field names from the current aggregate or ubiquitous term.",
-      "rationale": "Route segments and JSON field names are the contract clients read. Deriving them from the current aggregate or ubiquitous term, the shared Domain word for the concept, keeps the contract speaking the Domain language. Renaming a Domain concept then renames its boundary names with it, so the contract and the language stay aligned.",
+      "rationale": "Route segments and JSON field names are the contract clients read. Deriving them from the current aggregate or ubiquitous term, the shared Domain word for the concept, keeps the contract in the Domain language. Renaming a Domain concept then renames its boundary names with it, so the contract and the language stay aligned.",
       "example": ""
     },
     {
@@ -30930,7 +30930,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An exception name MUST state the rule that failed, using \u0060{DomainType}{Reason}Exception\u0060 for a Domain rejection.",
-      "rationale": "An exception name is the first diagnosis: it states which rule failed on which type. The form \u0060{DomainType}{Reason}Exception\u0060 puts both in the name, and the \u0060DomainType\u0060 is the aggregate root or an anchored owned type, so the name always starts with the aggregate root.",
+      "rationale": "An exception name tells the reader which rule failed on which type. The form \u0060{DomainType}{Reason}Exception\u0060 puts both in the name, and the \u0060DomainType\u0060 is the aggregate root or an anchored owned type, so the name always starts with the aggregate root.",
       "example": ""
     },
     {
@@ -30984,7 +30984,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each event handler and job class MUST live in the \u0060Application/\u0060 folder of the use case its record runs, or, when it runs none, in the module \u0060Notifications/\u0060 folder named for the notification it sends or the module \u0060ExternalSystems/\u0060 folder named for the system it calls, with an event handler named \u0060{Action}On{Fact}Handler\u0060.",
-      "rationale": "A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names the command of that use case from inside the folder of the use case, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact instead gathered the commands of several use cases under one name, and it never showed every reaction to the fact, because those reactions span modules. The question of what happens when a fact is recorded is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).",
+      "rationale": "A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names the command of that use case from inside the folder of the use case, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact would gather the commands of several use cases under one name instead, and it would never show every reaction to the fact, because those reactions span modules. The question of what happens when a fact is recorded is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).",
       "example": "\u0060Lending/Holds/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler\u0060 runs the expire-hold use case when a loan is returned, and \u0060Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler\u0060 only sends the due notice."
     },
     {
@@ -31021,7 +31021,7 @@
       "strength": "required",
       "statement": "An architectural type MUST carry the suffix its role assigns in the Role Suffixes table.",
       "rationale": "A short name hides the role: \u0060{UseCase}Handler\u0060 never says whether it coordinates a command or projects a query, and \u0060{UseCase}Request\u0060 never says it is passive boundary data. Full suffixes put the role in the name, so a reader sorts types without opening files.",
-      "example": "An event handler names its act and the business fact without the \u0060Event\u0060 suffix. \u0060NotifySubscribersOnPostPublishedHandler\u0060 answers \u0060PostPublishedEvent\u0060 and sits with what it runs (\u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060). The name carries no technical suffix for the fact, so \u0060NotifySubscribersOnPostPublishedEventHandler\u0060 is wrong, while the event type keeps its \u0060Event\u0060 suffix (\u0060litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root\u0060).\n\nApplication types keep their full suffix. The short forms \u0060{UseCase}Result\u0060, \u0060{UseCase}Handler\u0060, and \u0060{UseCase}Validator\u0060 drop the command-or-query distinction the full name carries. A result part carries the full name of its result, as \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060 states, not a bare summary name like \u0060PostSummary\u0060. The full role suffix distinguishes command coordination from query projection without opening the file.\n\nHTTP transport types keep their full suffix too. The short forms \u0060{UseCase}Request\u0060 and \u0060{UseCase}Response\u0060 drop the boundary marking. The \u0060Model\u0060 suffix marks the type as passive boundary data rather than an operation or rich business object. Other project-owned, passive HTTP DTOs also name their concrete role and end in \u0060Model\u0060, such as \u0060ListPostsResponseItemModel\u0060 or \u0060PaginationModel\u0060.\n\nA polymorphic transport model mirrors a Domain discriminated union (\u0060litespec/backend/api#mirror-each-closed-set-on-the-wire\u0060). Its abstract base names the concept and each sealed case names its case, with both ending in \u0060Model\u0060: \u0060FulfillmentOutcomeModel\u0060 and \u0060ShippedFulfillmentOutcomeModel\u0060.\n\nThe transport name drops the aggregate prefix of the Domain union, such as \u0060OrderFulfillmentOutcome\u0060, while its discriminator string keeps the stable case code of the Domain union unchanged."
+      "example": "An event handler names its act and the business fact without the \u0060Event\u0060 suffix. \u0060NotifySubscribersOnPostPublishedHandler\u0060 answers \u0060PostPublishedEvent\u0060 and lives in the folder of the use case it runs (\u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060). The name carries no technical suffix for the fact, so \u0060NotifySubscribersOnPostPublishedEventHandler\u0060 is wrong, while the event type keeps its \u0060Event\u0060 suffix (\u0060litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root\u0060).\n\nApplication types keep their full suffix. The short forms \u0060{UseCase}Result\u0060, \u0060{UseCase}Handler\u0060, and \u0060{UseCase}Validator\u0060 drop the command-or-query distinction the full name carries. A result part carries the full name of its result, as \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060 states, not a bare summary name like \u0060PostSummary\u0060. The full role suffix distinguishes command coordination from query projection without opening the file.\n\nHTTP transport types keep their full suffix too. The short forms \u0060{UseCase}Request\u0060 and \u0060{UseCase}Response\u0060 drop the boundary marking. The \u0060Model\u0060 suffix marks the type as passive boundary data rather than an operation or rich business object. Other project-owned, passive HTTP DTOs also name their concrete role and end in \u0060Model\u0060, such as \u0060ListPostsResponseItemModel\u0060 or \u0060PaginationModel\u0060.\n\nA polymorphic transport model mirrors a Domain discriminated union (\u0060litespec/backend/api#mirror-each-closed-set-on-the-wire\u0060). Its abstract base names the concept and each sealed case names its case, with both ending in \u0060Model\u0060: \u0060FulfillmentOutcomeModel\u0060 and \u0060ShippedFulfillmentOutcomeModel\u0060.\n\nThe transport name drops the aggregate prefix of the Domain union, such as \u0060OrderFulfillmentOutcome\u0060, while its discriminator string keeps the stable case code of the Domain union unchanged."
     },
     {
       "id": "litespec/workspace/naming#use-current-language-features",
@@ -31146,7 +31146,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Production code MUST live under \u0060apps/api/src/\u0060 and test code under \u0060apps/api/tests/\u0060.",
-      "rationale": "Production code lives under \u0060apps/api/src/\u0060 and test code under \u0060apps/api/tests/\u0060, so the two graphs stay apart by path. The split makes a test dependency reaching production code visible in the path itself, and keeps test helpers from shipping with the product.",
+      "rationale": "The two graphs stay apart by path. The split makes a test dependency reaching production code visible in the path itself, and keeps test helpers from shipping with the product.",
       "example": "The backend tree looks like this:\n\n\u0060\u0060\u0060text\napps/api/\n  \u003Cbackend project manifest\u003E\n  src/\n  tests/\n\u0060\u0060\u0060"
     },
     {
@@ -31182,7 +31182,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An independently runnable frontend, API, or deployed host MUST live under \u0060apps/{name}/\u0060.",
-      "rationale": "Each root folder makes one promise: \u0060apps/\u0060 runs, and \u0060packages/\u0060 is reused. A reusable package under \u0060apps/\u0060 or deployable code under \u0060packages/\u0060 inverts that promise, so neither location tells the reader what it holds. One home per kind keeps the promise readable.",
+      "rationale": "Each root folder has one purpose: \u0060apps/\u0060 runs, and \u0060packages/\u0060 is reused. A reusable package under \u0060apps/\u0060, or deployable code under \u0060packages/\u0060, breaks that split, so neither location tells the reader what it holds. One home per kind keeps each location meaningful.",
       "example": ""
     },
     {
@@ -31218,7 +31218,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A shared TypeScript package MUST have at least two consumers or carry generated output shared by design.",
-      "rationale": "A shared package with one consumer pays versioning, publishing, and cross-package edits for an audience of one. Requiring two consumers, or generated output shared by design, keeps sharing deliberate. The baseline permits shared configuration, generated API types, a thin client, and CSS theme tokens.",
+      "rationale": "A shared package with one consumer still costs versioning, publishing, and cross-package edits. Requiring two consumers, or generated output shared by design, keeps sharing deliberate. The baseline permits shared configuration, generated API types, a thin client, and CSS theme tokens.",
       "example": ""
     },
     {
@@ -31255,7 +31255,7 @@
       "strength": "required",
       "statement": "A consumer workspace MUST use the canonical root tree declared in this section.",
       "rationale": "",
-      "example": "A consumer workspace uses this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      features/\n        {feature}/\n          {feature}.yaml\n          requirements/\n            {requirement}/\n              {requirement}.yaml    one requirement, in its own folder\n      requirements/                 product requirements\n        {requirement}/\n          {requirement}.yaml\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/\n          aggregates/\n            {aggregate}/\n              aggregate.yaml\n              use-cases/\n                {use-case}/\n                  {use-case}.yaml   results and scenarios as entries\n              domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nNeither the backend application nor a frontend application sits at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder as \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.\n\nAn entry lives in its home file: permissions in the permissions file of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
+      "example": "A consumer workspace uses this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      features/\n        {feature}/\n          {feature}.yaml\n          requirements/\n            {requirement}/\n              {requirement}.yaml    one requirement, in its own folder\n      requirements/                 product requirements\n        {requirement}/\n          {requirement}.yaml\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/\n          aggregates/\n            {aggregate}/\n              aggregate.yaml\n              use-cases/\n                {use-case}/\n                  {use-case}.yaml   results and scenarios as entries\n              domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files for the entries in angle brackets.\n\nNeither the backend application nor a frontend application sits at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder as \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.\n\nAn entry lives in its home file: permissions in the permissions file of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
     }
   ]
 }
