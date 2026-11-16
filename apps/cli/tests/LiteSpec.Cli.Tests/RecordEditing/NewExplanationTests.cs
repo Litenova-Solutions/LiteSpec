@@ -50,27 +50,27 @@ public sealed class NewExplanationTests
         AssertSections(explanation, ["Target", "Measurement"]);
     }
 
-    /// <summary>New vision writes the record at product level and the explanation with the three vision sections when intent is listed.</summary>
+    /// <summary>New direction writes the record at product level and a free-form explanation with no fixed sections when intent is listed.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new vision writes the explanation with the three vision sections when intent is listed")]
-    public void NewVisionWritesTheExplanationWhenIntentIsListed()
+    [Fact(DisplayName = "new direction writes a free-form explanation with no fixed sections when intent is listed")]
+    public void NewDirectionWritesTheExplanationWhenIntentIsListed()
     {
         using var consumer = ConsumerWithLayers("intent");
 
         var result = TestCli.Run(
-            "new", "vision", "contractor-expenses", "--root", consumer.Path);
+            "new", "direction", "contractor-expenses", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "visions", "contractor-expenses", "contractor-expenses.yaml");
+            consumer.Path, ".litespec", "intent", "directions", "contractor-expenses", "contractor-expenses.yaml");
 
-        Assert.True(File.Exists(page), $"Expected the vision page at '{page}'.");
-        Assert.Contains("vision/contractor-expenses", File.ReadAllText(page));
+        Assert.True(File.Exists(page), $"Expected the direction page at '{page}'.");
+        Assert.Contains("direction/contractor-expenses", File.ReadAllText(page));
 
         var explanation = Path.ChangeExtension(page, ".md");
         Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Direction", "Effect on Current Design", "Trigger"]);
+        AssertSections(explanation, []);
     }
 
     /// <summary>New feature writes its feature page at product level with the feature sections when intent is listed.</summary>
@@ -100,11 +100,11 @@ public sealed class NewExplanationTests
     /// <returns>The record type and its fixed sections, in order.</returns>
     public static TheoryData<string, string[]> ExplanationTemplates() => new()
     {
-        { "product", ["Scope", "Users", "Out of Scope", "Direction"] },
+        { "product", ["Scope", "Users", "Out of Scope"] },
         { "actor", ["Responsibilities", "Knowledge", "Example"] },
         { "role", ["Access", "Limits"] },
         { "goal", ["Target", "Measurement"] },
-        { "vision", ["Direction", "Effect on Current Design", "Trigger"] },
+        { "direction", [] },
         { "problem", ["Affected Users", "Failure Cases", "Example", "Current Workaround", "Cost", "Evidence", "Resolution Criteria"] },
         { "constraint", ["Scope", "Rules", "Effect on the Product", "Open Points"] },
         { "research", ["Findings", "Open Questions", "Source Notes"] },
@@ -280,8 +280,9 @@ public sealed class NewExplanationTests
                 .ToArray());
 
         var firstSection = Array.FindIndex(lines, line => line.StartsWith("## ", StringComparison.Ordinal));
+        var opening = firstSection < 0 ? lines.Skip(1) : lines.Skip(1).Take(firstSection - 1);
         Assert.True(
-            lines.Skip(1).Take(firstSection - 1).Any(line => line.Trim().Length > 0 && !line.StartsWith('#')),
+            opening.Any(line => line.Trim().Length > 0 && !line.StartsWith('#')),
             $"Expected an opening paragraph between the H1 and the first H2 in '{file}'.");
     }
 }

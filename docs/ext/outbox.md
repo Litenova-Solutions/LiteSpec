@@ -72,11 +72,11 @@ It switches on no optional record type: integration events, module events, setti
 
 **Applies to:** artifact: record:integration-event
 
-**Statement:** Each integration event the outbox delivers MUST have an integration-event record carrying direction, payload, trust and, for an outbound event, the domain event it translates.
+**Statement:** Each integration event the outbox delivers MUST have an integration-event record carrying action, payload, trust and, for an outbound event, the domain event it translates.
 
 **Rationale:** A published fact without a record leaves readers depending on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. The [edges page](../core/edges.md) states the declaration and the record.
 
-**Reviewed for:** Does every delivered integration event have a record carrying direction, payload, trust, and, for an outbound event, `translates`? Check each event type beside its record.
+**Reviewed for:** Does every delivered integration event have a record carrying action, payload, trust, and, for an outbound event, `translates`? Check each event type beside its record.
 
 ### Keep Published Events Available for Read Model Rebuilds
 

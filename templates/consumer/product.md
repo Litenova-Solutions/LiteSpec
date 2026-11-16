@@ -13,7 +13,3 @@ Name who uses the product and what each of them does with it.
 ## Out of Scope
 
 Name what the product does not do, and say why it stays out.
-
-## Direction
-
-Optional. Point to the vision records that say where the product is heading, and name the decision the direction depends on.

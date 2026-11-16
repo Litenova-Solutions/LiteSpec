@@ -4,7 +4,7 @@
 
 **Concern:** records
 
-Intent is why the product exists and what it promises: its actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms, under the product record at `.litespec/product.yaml`.
+Intent is why the product exists and what it promises: its actors, goals, directions, problems, features, requirements, flows, constraints, research, decisions, and terms, under the product record at `.litespec/product.yaml`.
 
 This page defines where each Intent record lives, what shape it takes, and what stays out of Intent. Behavior states how the system keeps these promises. The [Record Language](language.md) page states how each field, value, and record name is written.
 
@@ -19,7 +19,7 @@ Each Intent record type answers one question, so the question you are asking nam
 | What is the product and for whom? | product | Always, once | Never | Product brief |
 | Who touches the product? | actor | A person or organization appears in a problem, a flow or an access position | The candidate is a position (a role record) or a system (an external system record) | Stakeholder |
 | What software outcome do we want? | goal | You can name what you count | The system controls it directly: that is a quality requirement | Product goal |
-| Where is the product heading beyond what it promises now? | vision | A choice made now keeps a later destination open | You can name the pain and the offer: write the problem and the feature | Product vision |
+| Which way might the product grow beyond what it promises now? | direction | A choice made now keeps a later way of growing open, or the owner wants a wish on record | You can name the pain and the offer: write the problem and the feature | Product direction |
 | What pain do people outside the team have today? | problem | You can name who suffers, what it costs them and what they do instead, with evidence | Only one solution is imaginable: it is a feature | Pain point |
 | What do we offer against a problem? | feature | Scope needs tracking | The commitment is permanent and no offer carries it, so it is a product requirement | Capability |
 | What exactly must hold? | requirement | Always | Never | User story |
@@ -54,7 +54,7 @@ The table applies the test to each type:
 | Type | Belongs when it is | Out when it is |
 |:---|:---|:---|
 | Goal | A software outcome: "Nights run without oversell or unreconciled money" | A business outcome: retention, revenue, market share |
-| Vision | Where the software heads: "Contractors submit expenses as employees do" | A roadmap entry with a date, a priority or a release |
+| Direction | A way the software may grow: "Contractors submit expenses as employees do" | A roadmap entry with a date, a priority or a release |
 | Problem | A user pain the software answers | A sales or market problem |
 | Feature | A capability the software has | A marketing tactic, a launch plan, or a refusal |
 | Requirement | A commitment Behavior fulfills | (always software when it reaches Behavior) |
@@ -71,7 +71,7 @@ Each record sits in its parent's folder, and the folder names that parent. You f
 .litespec/
   product.yaml               the product, above the record layers
   intent/
-    goals/  visions/  constraints/  decisions/  research/  actors/  roles/  flows/  features/  requirements/
+    goals/  directions/  constraints/  decisions/  research/  actors/  roles/  flows/  features/  requirements/
     problems/
       payouts-wait/
         payouts-wait.yaml
@@ -92,7 +92,7 @@ Each record sits in its parent's folder, and the folder names that parent. You f
         pay-a-payout.yaml
 ```
 
-The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds problems, visions, goals, constraints, decisions, research, actors, roles, flows, features, and product requirements, each kind in its own folder. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps.
+The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds problems, directions, goals, constraints, decisions, research, actors, roles, flows, features, and product requirements, each kind in its own folder. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps.
 
 Decision folders take their numbers from one sequence across every home, as `litespec/core/model#take-decision-numbers-from-one-sequence` states.
 
@@ -112,7 +112,7 @@ Placement is separate from the identifier: the folder path and the record's `mod
 
 ### How Intent Reaches Behavior
 
-Records disagree sometimes. The [model page](model.md) states the authority order that settles which one wins. Goals, visions, problems, features, flows, actors, research, and prose carry no authority, and between peers a decision wins.
+Records disagree sometimes. The [model page](model.md) states the authority order that settles which one wins. Goals, directions, problems, features, flows, actors, research, and prose carry no authority, and between peers a decision wins.
 
 A decision settles its choice, and a feature states the choice as requirements. Behavior records name the requirements they fulfill and the flow steps they serve, and the code carries what happens today.
 
@@ -162,13 +162,13 @@ Flows are not only customer flows. A staff actor takes a staff flow the same way
 
 A scheduled promise is different: it is a requirement that a job fulfills, not a flow, because no actor takes a path through it.
 
-### Visions
+### Directions
 
-A vision states where the product heads beyond what it promises now: a destination the owner wants the product to reach, such as contractors submitting expenses the way employees do. It carries `summary` and `statement`, sits at product level under `.litespec/intent/visions/`, and holds no date, priority, or status. Order and timing of work stay on the backlog, outside the records.
+A direction states a way the product might grow beyond what it promises now: a light wish the owner keeps in the records, which may or may not ever become requirements, such as contractors submitting expenses the way employees do. It states `statement`, takes `summary` only when the owner wants it, sits at product level under `.litespec/intent/directions/`, and holds no date, release, priority, status, or order among directions. Its explanation file is free-form. Order and timing of work stay on the backlog, outside the records.
 
-A vision exists so a choice made now can name the future it keeps open. A decision that shapes a record or a model so a vision stays reachable names the vision in `basedOn`. A requirement that takes a step toward a vision names it in `cites`. Nothing else links to a vision, and a vision links to nothing.
+A direction exists so a choice made today can name the future it keeps open. A decision that shapes a record or a model so a direction stays reachable names the direction in `basedOn`. A requirement that takes a step toward a direction names it in `cites`. Nothing else links to a direction, and a direction links to nothing except `terms`.
 
-A vision reaches no Behavior, by design. It promises nothing, so no reach check reads it and no planned-Intent finding reports it. An agent builds nothing from a vision: when the destination becomes concrete, someone writes the problem, the feature, and its requirements; the requirements cite the vision; and the usual reach rules apply to them.
+A direction reaches no Behavior, by design. It promises nothing, so no reach check reads it and no finding reports a direction that nothing cites: an uncited direction is a legitimate wish. An agent builds nothing from a direction until a requirement that cites it exists: when the way of growing becomes concrete, someone writes the problem, the feature, and its requirements; the requirements cite the direction; and the usual reach rules apply to them.
 
 ### What Intent Never Contains
 
@@ -216,11 +216,11 @@ The product lists what it leaves out in `excludes`, in plain sentences. Only an 
 
 **Applies to:** artifact: any; layer: behavior
 
-**Statement:** Each Intent record other than a vision MUST reach Behavior through its stated path.
+**Statement:** Each Intent record other than a direction MUST reach Behavior through its stated path.
 
 **Rationale:** The folder fixes where a record sits; reachability fixes that it leads to software. An Intent record no Behavior answers is either work the backlog still holds or content that was never software, and without this rule nobody can tell which.
 
-A vision is the one exception: it states where the product heads and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior.
+A direction is the one exception: it states a way the product may grow and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior.
 
 **Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior.
 
@@ -272,69 +272,69 @@ An outcome the system controls directly is a quality requirement, not a goal, an
 
 **Reviewed for:** Does every goal record its measured outcomes, each with a date, a value, and a source? Look at each goal record beside its completion.
 
-### State Each Vision in Its Fields
+### State Each Direction in Its Statement
 
-**ID:** `litespec/core/intent#state-each-vision-in-its-fields`
-
-**Strength:** required
-
-**Applies to:** artifact: record:vision
-
-**Statement:** A vision MUST state its `summary` and `statement` in fields and sit at product level under `.litespec/intent/visions/`.
-
-**Rationale:** Someone reads a vision long after it was written, usually to judge whether a choice still serves it. That reader needs the destination stated plainly: `statement` names it as a fact about the product once it is there, and `summary` says who wants it and why in one paragraph. The vision sits at product level because it belongs to the whole product: destinations such as contractors joining the employee flow cross modules, and a module-level vision would hide them. Settled by [decision/0041-record-product-vision](decision/0041-record-product-vision).
-
-**Example:** Claimwick's `vision/contractor-expenses` states "Contractors submit and track their work expenses in Claimwick as employees do." in `statement`, and its summary names the contractors who invoice their costs by hand today.
-
-**Checked by:** `litespec model check` reports `record-invalid` for a vision record file missing `summary` or `statement`, and `record-placement-invalid` for a vision outside `intent/visions/`.
-
-### Keep Dates and Priorities Out of Visions
-
-**ID:** `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
+**ID:** `litespec/core/intent#state-each-direction-in-its-statement`
 
 **Strength:** required
 
-**Applies to:** artifact: record:vision
+**Applies to:** artifact: record:direction
 
-**Statement:** A vision MUST name no date, release, priority, status, or order among visions.
+**Statement:** A direction MUST state the way the product may grow in its `statement` field and sit at product level under `.litespec/intent/directions/`.
 
-**Rationale:** A vision states where the product heads, which changes rarely. When the work happens, and in which order, is planning: it changes every week and belongs to the backlog, outside the records, as running the company does. A date or priority written into a vision goes stale without any check noticing, and a later reader takes a forgotten plan for a commitment.
+**Rationale:** Someone reads a direction long after it was written, usually to judge whether a choice still serves it. That reader needs the way of growing stated plainly: `statement` names the product once it has grown this way, as a present-tense fact. The direction sits at product level because it belongs to the whole product: ways of growing such as contractors joining the employee flow cross modules, and a module-level direction would hide them. The `summary` says who wants it and why, and stays optional, because a wish needs no case made for it; the explanation file is free-form, so the owner writes as much or as little as the wish needs. Settled by [decision/0094-record-product-directions](decision/0094-record-product-directions).
 
-**Example:** Claimwick's contractor vision names the destination only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board.
+**Example:** Claimwick's `direction/contractor-expenses` states "Contractors submit and track their work expenses in Claimwick as employees do." in `statement`, and its summary names the contractors who invoice their costs by hand today.
 
-**Reviewed for:** Does any vision name a date, a release, a priority, a status, or an order among visions? Look at each vision's fields and explanation file.
+**Checked by:** `litespec model check` reports `record-invalid` for a direction record file missing `statement`, and `record-placement-invalid` for a direction outside `intent/directions/`.
 
-### Build Nothing from a Vision
+### Keep Dates and Priorities Out of Directions
 
-**ID:** `litespec/core/intent#build-nothing-from-a-vision`
+**ID:** `litespec/core/intent#keep-dates-and-priorities-out-of-directions`
 
 **Strength:** required
 
-**Applies to:** artifact: record:vision
+**Applies to:** artifact: record:direction
 
-**Statement:** An agent MUST build no record below Intent, code, or test from a vision until a requirement that cites the vision exists.
+**Statement:** A direction MUST name no date, release, priority, status, or order among directions.
 
-**Rationale:** The specification is closed: an agent builds what Intent promises and nothing more. A vision promises nothing, so building from it adds behavior no requirement asks for. When the destination becomes concrete, the owner's problem, feature, and requirements state the promise and cite the vision, and the agent builds from those. Until then a vision may shape a decision that keeps it open, never the code itself.
+**Rationale:** A direction states a way the product may grow, which changes rarely. When the work happens, and in which order, is planning: it changes every week and belongs to the backlog, outside the records, as running the company does. A date or priority written into a direction goes stale without any check noticing, and a later reader takes a forgotten plan for a commitment.
 
-**Example:** An agent asked to add the approval reminders builds them from their requirements. It adds no contractor fields just because Claimwick holds a contractor vision.
+**Example:** Claimwick's contractor direction names the way of growing only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board.
 
-**Reviewed for:** Does any Behavior record, code, or test serve only a vision, with no citing requirement behind it? Compare the change with the requirements that cite each vision.
+**Reviewed for:** Does any direction name a date, a release, a priority, a status, or an order among directions? Look at each direction's fields and explanation file.
 
-### Cite the Vision a Decision Keeps Open
+### Build Nothing from a Direction
 
-**ID:** `litespec/core/intent#cite-the-vision-a-decision-keeps-open`
+**ID:** `litespec/core/intent#build-nothing-from-a-direction`
+
+**Strength:** required
+
+**Applies to:** artifact: record:direction
+
+**Statement:** An agent MUST build no record below Intent, code, or test from a direction until a requirement that cites the direction exists.
+
+**Rationale:** The specification is closed: an agent builds what Intent promises and nothing more. A direction promises nothing, so building from it adds behavior no requirement asks for. When the way of growing becomes concrete, the owner's problem, feature, and requirements state the promise and cite the direction, and the agent builds from those. Until then a direction may shape a decision that keeps it open, never the code itself.
+
+**Example:** An agent asked to add the approval reminders builds them from their requirements. It adds no contractor fields just because Claimwick holds a contractor direction.
+
+**Reviewed for:** Does any Behavior record, code, or test serve only a direction, with no citing requirement behind it? Compare the change with the requirements that cite each direction.
+
+### Cite the Direction a Decision Keeps Open
+
+**ID:** `litespec/core/intent#cite-the-direction-a-decision-keeps-open`
 
 **Strength:** required
 
 **Applies to:** artifact: record:decision
 
-**Statement:** A decision chosen so that a vision stays reachable MUST name that vision in `basedOn`.
+**Statement:** A decision chosen so that a direction stays reachable MUST name that direction in `basedOn`.
 
-**Rationale:** A choice made for a later destination looks like over-engineering to a reader who cannot see the destination. Naming the vision in `basedOn` gives the reason an identifier: the reader follows it to the vision, the book shows the decision under it, and a later change to the vision shows which choices to revisit. A reason kept only in prose is lost the first time someone rewrites the prose.
+**Rationale:** A choice made for a later way of growing looks like over-engineering to a reader who cannot see that way of growing. Naming the direction in `basedOn` gives the reason an identifier: the reader follows it to the direction, the book shows the decision under it, and a later change to the direction shows which choices to revisit. A reason kept only in prose is lost the first time someone rewrites the prose.
 
-**Example:** A Claimwick decision records who submitted each expense as a person rather than as an employee, and names `vision/contractor-expenses` in `basedOn`. A reader sees why the expense holds no employee number.
+**Example:** A Claimwick decision records who submitted each expense as a person rather than as an employee, and names `direction/contractor-expenses` in `basedOn`. A reader sees why the expense holds no employee number.
 
-**Reviewed for:** Does every decision made to keep a later destination open name that vision in `basedOn`? Look at each decision's options and consequences beside the visions.
+**Reviewed for:** Does every decision made to keep a later way of growing open name that direction in `basedOn`? Look at each decision's options and consequences beside the directions.
 
 ### Admit Only Outside Pains as Problems
 
@@ -832,7 +832,7 @@ A rationale adding a rule hides a second requirement where no check reads it. A 
 
 **Statement:** Each requirement MUST name its reasons in `cites`, including each constraint with `applies: true` that binds it.
 
-**Rationale:** A requirement with no stated reason cannot be rejudged when the world moves. The `cites` list holds the reasons: any of goal, vision, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are the connections explaining why the commitment exists. A requirement citing nothing reports as `requirement-cites-missing`.
+**Rationale:** A requirement with no stated reason cannot be rejudged when the world moves. The `cites` list holds the reasons: any of goal, direction, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are the connections explaining why the commitment exists. A requirement citing nothing reports as `requirement-cites-missing`.
 
 An outside rule the team acknowledged but no requirement answers is a rule the product can break unknowingly. Citing each applying constraint from the requirements bound by it ties the rule to the commitments obeying it, and What It Requires lists those commitments back on the constraint. A constraint with `applies: true` that no requirement cites reports as `constraint-unreached` at check level G.
 

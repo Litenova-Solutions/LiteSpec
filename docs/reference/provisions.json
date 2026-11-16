@@ -7600,33 +7600,33 @@
       "anchor": "describe-every-external-system-operation",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an external system operation without direction, timeout, timeout handling, response, or cache.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an external system operation without action, timeout, timeout handling, response, or cache.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:external-system",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each external system MUST describe its operations with direction, timeout, timeout handling, response, and cache.",
-      "rationale": "Without a declared shape, an outside call fails unpredictably: timeouts hang, retries double-charge, and responses fail to parse. Describing each operation with its direction of \u0060out\u0060 or \u0060in\u0060, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The \u0060retries\u0060 prose states the retry behavior in words beside \u0060onTimeout\u0060, while the retry count lives on the calling edge in \u0060onFailure.retry.maxAttempts\u0060.",
+      "statement": "Each external system MUST describe its operations with action, timeout, timeout handling, response, and cache.",
+      "rationale": "Without a declared shape, an outside call fails unpredictably: timeouts hang, retries double-charge, and responses fail to parse. Describing each operation with its action of \u0060send\u0060 or \u0060receive\u0060, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The \u0060retries\u0060 prose states the retry behavior in words beside \u0060onTimeout\u0060, while the retry count lives on the calling edge in \u0060onFailure.retry.maxAttempts\u0060.",
       "example": ""
     },
     {
-      "id": "litespec/core/edges#describe-every-integration-event-for-its-direction",
-      "heading": "Describe Every Integration Event for Its Direction",
+      "id": "litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives",
+      "heading": "Describe Every Integration Event the Product Sends or Receives",
       "page": "docs/core/edges.md",
-      "anchor": "describe-every-integration-event-for-its-direction",
+      "anchor": "describe-every-integration-event-the-product-sends-or-receives",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an integration event without direction, CloudEvents identity, typed payload, trust, or \u0060through\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an integration event without action, CloudEvents identity, typed payload, trust, or \u0060through\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:integration-event",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each integration event MUST declare its direction, its CloudEvents identity, its typed payload, the trust its readers place in it, and the external system it travels through in \u0060through\u0060.",
-      "rationale": "Without a stated direction, a published fact is read both ways: an outbound notice is answered as an order, and an inbound claim is taken as authoritative. The direction, the CloudEvents identity, the typed payload, the trust level, and the external system in \u0060through\u0060 state what the fact is, how far readers follow it, and what it travels through. Each payload field carries the field types use-case inputs use, as \u0060litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification\u0060 states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the \u0060dataschema\u0060 URL its payload follows. An inbound event also declares its \u0060correlation\u0060 and its \u0060arrivesThrough\u0060, while an outbound event declares its \u0060translates\u0060 domain event and its optional \u0060requires\u0060.",
+      "statement": "Each integration event MUST declare its action, its CloudEvents identity, its typed payload, the trust its readers place in it, and the external system it travels through in \u0060through\u0060.",
+      "rationale": "Without a stated action, a published fact is read both ways: an outbound notice is answered as an order, and an inbound claim is taken as authoritative. The action, the CloudEvents identity, the typed payload, the trust level, and the external system in \u0060through\u0060 state what the fact is, how far readers follow it, and what it travels through. Each payload field carries the field types use-case inputs use, as \u0060litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification\u0060 states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the \u0060dataschema\u0060 URL its payload follows. An inbound event also declares its \u0060correlation\u0060 and its \u0060arrivesThrough\u0060, while an outbound event declares its \u0060translates\u0060 domain event and its optional \u0060requires\u0060.",
       "example": ""
     },
     {
@@ -7990,22 +7990,22 @@
       "example": "A branch with \u0060step\u0060 s3, \u0060condition\u0060 the manager rejects the expense, and \u0060nextStep\u0060 end ends the flow at the rejection; the act of rejecting stays the step s3."
     },
     {
-      "id": "litespec/core/intent#build-nothing-from-a-vision",
-      "heading": "Build Nothing from a Vision",
+      "id": "litespec/core/intent#build-nothing-from-a-direction",
+      "heading": "Build Nothing from a Direction",
       "page": "docs/core/intent.md",
-      "anchor": "build-nothing-from-a-vision",
+      "anchor": "build-nothing-from-a-direction",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any Behavior record, code, or test serve only a vision, with no citing requirement behind it? Compare the change with the requirements that cite each vision.",
+      "evidence": "Does any Behavior record, code, or test serve only a direction, with no citing requirement behind it? Compare the change with the requirements that cite each direction.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:vision",
+      "artifact": "record:direction",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "An agent MUST build no record below Intent, code, or test from a vision until a requirement that cites the vision exists.",
-      "rationale": "The specification is closed: an agent builds what Intent promises and nothing more. A vision promises nothing, so building from it adds behavior no requirement asks for. When the destination becomes concrete, the owner\u0027s problem, feature, and requirements state the promise and cite the vision, and the agent builds from those. Until then a vision may shape a decision that keeps it open, never the code itself.",
-      "example": "An agent asked to add the approval reminders builds them from their requirements. It adds no contractor fields just because Claimwick holds a contractor vision."
+      "statement": "An agent MUST build no record below Intent, code, or test from a direction until a requirement that cites the direction exists.",
+      "rationale": "The specification is closed: an agent builds what Intent promises and nothing more. A direction promises nothing, so building from it adds behavior no requirement asks for. When the way of growing becomes concrete, the owner\u0027s problem, feature, and requirements state the promise and cite the direction, and the agent builds from those. Until then a direction may shape a decision that keeps it open, never the code itself.",
+      "example": "An agent asked to add the approval reminders builds them from their requirements. It adds no contractor fields just because Claimwick holds a contractor direction."
     },
     {
       "id": "litespec/core/intent#cite-a-source-for-each-constraint-rule",
@@ -8026,6 +8026,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#cite-the-direction-a-decision-keeps-open",
+      "heading": "Cite the Direction a Decision Keeps Open",
+      "page": "docs/core/intent.md",
+      "anchor": "cite-the-direction-a-decision-keeps-open",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does every decision made to keep a later way of growing open name that direction in \u0060basedOn\u0060? Look at each decision\u0027s options and consequences beside the directions.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:decision",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A decision chosen so that a direction stays reachable MUST name that direction in \u0060basedOn\u0060.",
+      "rationale": "A choice made for a later way of growing looks like over-engineering to a reader who cannot see that way of growing. Naming the direction in \u0060basedOn\u0060 gives the reason an identifier: the reader follows it to the direction, the book shows the decision under it, and a later change to the direction shows which choices to revisit. A reason kept only in prose is lost the first time someone rewrites the prose.",
+      "example": "A Claimwick decision records who submitted each expense as a person rather than as an employee, and names \u0060direction/contractor-expenses\u0060 in \u0060basedOn\u0060. A reader sees why the expense holds no employee number."
+    },
+    {
       "id": "litespec/core/intent#cite-the-reasons-of-every-requirement",
       "heading": "Cite the Reasons of Every Requirement",
       "page": "docs/core/intent.md",
@@ -8040,26 +8058,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each requirement MUST name its reasons in \u0060cites\u0060, including each constraint with \u0060applies: true\u0060 that binds it.",
-      "rationale": "A requirement with no stated reason cannot be rejudged when the world moves. The \u0060cites\u0060 list holds the reasons: any of goal, vision, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are the connections explaining why the commitment exists. A requirement citing nothing reports as \u0060requirement-cites-missing\u0060. An outside rule the team acknowledged but no requirement answers is a rule the product can break unknowingly. Citing each applying constraint from the requirements bound by it ties the rule to the commitments obeying it, and What It Requires lists those commitments back on the constraint. A constraint with \u0060applies: true\u0060 that no requirement cites reports as \u0060constraint-unreached\u0060 at check level G.",
+      "rationale": "A requirement with no stated reason cannot be rejudged when the world moves. The \u0060cites\u0060 list holds the reasons: any of goal, direction, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are the connections explaining why the commitment exists. A requirement citing nothing reports as \u0060requirement-cites-missing\u0060. An outside rule the team acknowledged but no requirement answers is a rule the product can break unknowingly. Citing each applying constraint from the requirements bound by it ties the rule to the commitments obeying it, and What It Requires lists those commitments back on the constraint. A constraint with \u0060applies: true\u0060 that no requirement cites reports as \u0060constraint-unreached\u0060 at check level G.",
       "example": ""
-    },
-    {
-      "id": "litespec/core/intent#cite-the-vision-a-decision-keeps-open",
-      "heading": "Cite the Vision a Decision Keeps Open",
-      "page": "docs/core/intent.md",
-      "anchor": "cite-the-vision-a-decision-keeps-open",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Does every decision made to keep a later destination open name that vision in \u0060basedOn\u0060? Look at each decision\u0027s options and consequences beside the visions.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:decision",
-      "layer": "intent",
-      "trace": false,
-      "strength": "required",
-      "statement": "A decision chosen so that a vision stays reachable MUST name that vision in \u0060basedOn\u0060.",
-      "rationale": "A choice made for a later destination looks like over-engineering to a reader who cannot see the destination. Naming the vision in \u0060basedOn\u0060 gives the reason an identifier: the reader follows it to the vision, the book shows the decision under it, and a later change to the vision shows which choices to revisit. A reason kept only in prose is lost the first time someone rewrites the prose.",
-      "example": "A Claimwick decision records who submitted each expense as a person rather than as an employee, and names \u0060vision/contractor-expenses\u0060 in \u0060basedOn\u0060. A reader sees why the expense holds no employee number."
     },
     {
       "id": "litespec/core/intent#claim-no-more-than-the-evidence-shows",
@@ -8188,22 +8188,22 @@
       "example": ""
     },
     {
-      "id": "litespec/core/intent#keep-dates-and-priorities-out-of-visions",
-      "heading": "Keep Dates and Priorities Out of Visions",
+      "id": "litespec/core/intent#keep-dates-and-priorities-out-of-directions",
+      "heading": "Keep Dates and Priorities Out of Directions",
       "page": "docs/core/intent.md",
-      "anchor": "keep-dates-and-priorities-out-of-visions",
+      "anchor": "keep-dates-and-priorities-out-of-directions",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any vision name a date, a release, a priority, a status, or an order among visions? Look at each vision\u0027s fields and explanation file.",
+      "evidence": "Does any direction name a date, a release, a priority, a status, or an order among directions? Look at each direction\u0027s fields and explanation file.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:vision",
+      "artifact": "record:direction",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A vision MUST name no date, release, priority, status, or order among visions.",
-      "rationale": "A vision states where the product heads, which changes rarely. When the work happens, and in which order, is planning: it changes every week and belongs to the backlog, outside the records, as running the company does. A date or priority written into a vision goes stale without any check noticing, and a later reader takes a forgotten plan for a commitment.",
-      "example": "Claimwick\u0027s contractor vision names the destination only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board."
+      "statement": "A direction MUST name no date, release, priority, status, or order among directions.",
+      "rationale": "A direction states a way the product may grow, which changes rarely. When the work happens, and in which order, is planning: it changes every week and belongs to the backlog, outside the records, as running the company does. A date or priority written into a direction goes stale without any check noticing, and a later reader takes a forgotten plan for a commitment.",
+      "example": "Claimwick\u0027s contractor direction names the way of growing only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board."
     },
     {
       "id": "litespec/core/intent#keep-each-rationale-to-its-reason",
@@ -8399,8 +8399,8 @@
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "Each Intent record other than a vision MUST reach Behavior through its stated path.",
-      "rationale": "The folder fixes where a record sits; reachability fixes that it leads to software. An Intent record no Behavior answers is either work the backlog still holds or content that was never software, and without this rule nobody can tell which. A vision is the one exception: it states where the product heads and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior.",
+      "statement": "Each Intent record other than a direction MUST reach Behavior through its stated path.",
+      "rationale": "The folder fixes where a record sits; reachability fixes that it leads to software. An Intent record no Behavior answers is either work the backlog still holds or content that was never software, and without this rule nobody can tell which. A direction is the one exception: it states a way the product may grow and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior.",
       "example": ""
     },
     {
@@ -8548,6 +8548,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#state-each-direction-in-its-statement",
+      "heading": "State Each Direction in Its Statement",
+      "page": "docs/core/intent.md",
+      "anchor": "state-each-direction-in-its-statement",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a direction record file missing \u0060statement\u0060, and \u0060record-placement-invalid\u0060 for a direction outside \u0060intent/directions/\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:direction",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A direction MUST state the way the product may grow in its \u0060statement\u0060 field and sit at product level under \u0060.litespec/intent/directions/\u0060.",
+      "rationale": "Someone reads a direction long after it was written, usually to judge whether a choice still serves it. That reader needs the way of growing stated plainly: \u0060statement\u0060 names the product once it has grown this way, as a present-tense fact. The direction sits at product level because it belongs to the whole product: ways of growing such as contractors joining the employee flow cross modules, and a module-level direction would hide them. The \u0060summary\u0060 says who wants it and why, and stays optional, because a wish needs no case made for it; the explanation file is free-form, so the owner writes as much or as little as the wish needs. Settled by [decision/0094-record-product-directions](decision/0094-record-product-directions).",
+      "example": "Claimwick\u0027s \u0060direction/contractor-expenses\u0060 states \u0022Contractors submit and track their work expenses in Claimwick as employees do.\u0022 in \u0060statement\u0060, and its summary names the contractors who invoice their costs by hand today."
+    },
+    {
       "id": "litespec/core/intent#state-each-exception-with-its-fallback",
       "heading": "State Each Exception with Its Fallback",
       "page": "docs/core/intent.md",
@@ -8690,24 +8708,6 @@
       "statement": "Each paragraph under a research record\u0027s Findings MUST state one claim with its conditions, cite its source key with a reference link, and say whether the source states the claim or the writer infers it.",
       "rationale": "A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per paragraph keeps each source tied to one statement. The record\u0027s question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).",
       "example": ""
-    },
-    {
-      "id": "litespec/core/intent#state-each-vision-in-its-fields",
-      "heading": "State Each Vision in Its Fields",
-      "page": "docs/core/intent.md",
-      "anchor": "state-each-vision-in-its-fields",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a vision record file missing \u0060summary\u0060 or \u0060statement\u0060, and \u0060record-placement-invalid\u0060 for a vision outside \u0060intent/visions/\u0060.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:vision",
-      "layer": "intent",
-      "trace": false,
-      "strength": "required",
-      "statement": "A vision MUST state its \u0060summary\u0060 and \u0060statement\u0060 in fields and sit at product level under \u0060.litespec/intent/visions/\u0060.",
-      "rationale": "Someone reads a vision long after it was written, usually to judge whether a choice still serves it. That reader needs the destination stated plainly: \u0060statement\u0060 names it as a fact about the product once it is there, and \u0060summary\u0060 says who wants it and why in one paragraph. The vision sits at product level because it belongs to the whole product: destinations such as contractors joining the employee flow cross modules, and a module-level vision would hide them. Settled by [decision/0041-record-product-vision](decision/0041-record-product-vision).",
-      "example": "Claimwick\u0027s \u0060vision/contractor-expenses\u0060 states \u0022Contractors submit and track their work expenses in Claimwick as employees do.\u0022 in \u0060statement\u0060, and its summary names the contractors who invoice their costs by hand today."
     },
     {
       "id": "litespec/core/intent#state-one-product",
@@ -10087,7 +10087,7 @@
       "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-title-invalid\u0060 for a page record whose identifier name is no word subsequence of its title, or whose record file is named for neither its identifier name nor the fixed file name of its type.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver",
+      "artifact": "record:product, record:goal, record:direction, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver",
       "layer": "any",
       "trace": false,
       "strength": "required",
@@ -10649,8 +10649,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement, and never for a vision alone.",
-      "rationale": "Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader learns. A current use case, decision, or requirement justifies that cost by naming the activation criterion. Preference and possible future need justify nothing, so speculative machinery stays out. A vision may justify the shape of a record or a model, such as a field that keeps a later destination reachable, but it activates no machinery: that cost waits for the requirement that cites the vision.",
+      "statement": "A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement, and never for a direction alone.",
+      "rationale": "Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader learns. A current use case, decision, or requirement justifies that cost by naming the activation criterion. Preference and possible future need justify nothing, so speculative machinery stays out. A direction may justify the shape of a record or a model, such as a field that keeps a later way of growing reachable, but it activates no machinery: that cost waits for the requirement that cites the direction.",
       "example": ""
     },
     {
@@ -13297,7 +13297,7 @@
       "anchor": "keep-release-phases-and-plans-out-of-records",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any record name a release phase, a later step, or a future plan where the product as it stands, a vision, an owner question, or a backlog item belongs? Check the records the change adds.",
+      "evidence": "Does any record name a release phase, a later step, or a future plan where the product as it stands, a direction, an owner question, or a backlog item belongs? Check the records the change adds.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
@@ -13305,7 +13305,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every record MUST state the product as it stands, with no release phase, later step or future plan in its prose.",
-      "rationale": "A phrase such as \u0022in the first release\u0022 or \u0022a later step\u0022 dates the record the day the release ships, and it promises a behavior no requirement holds. A destination the product heads for is a vision, an open choice is an owner question or a backlog item, and a limit of the current product is stated as a limit, not as a plan to lift it. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).",
+      "rationale": "A phrase such as \u0022in the first release\u0022 or \u0022a later step\u0022 dates the record the day the release ships, and it promises a behavior no requirement holds. A way the product may grow is a direction, an open choice is an owner question or a backlog item, and a limit of the current product is stated as a limit, not as a plan to lift it. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).",
       "example": "A permission record states \u0022The role cannot be limited to one business\u0022, not that staff will narrow the role in a later release."
     },
     {
@@ -17302,7 +17302,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A \u0060calls\u0060 effect MUST name an operation the cited external system declares.",
-      "rationale": "The effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache, so each call to the outside is a declared edge. A call to an undeclared operation ships as an unreviewed dependency. \u0060litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing\u0060 states the effect verbs, and the \u0060effect-undeclared\u0060 check reports an edge the records never declared.",
+      "rationale": "The effect names the system and its operation, and the operation states the action, timeout, retry, response, and cache, so each call to the outside is a declared edge. A call to an undeclared operation ships as an unreviewed dependency. \u0060litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing\u0060 states the effect verbs, and the \u0060effect-undeclared\u0060 check reports an edge the records never declared.",
       "example": "The Claimwick payout effect cites \u0060calls\u0060 on the payout bank \u0060send-batch\u0060 operation with its timeout and retry count."
     },
     {
@@ -17356,7 +17356,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An inbound integration event MUST declare \u0060trust\u0060 as trigger-only or payload with its correlation.",
-      "rationale": "An inbound fact carries one of two trusts: trigger-only wakes a read of the source, while payload is fit to act on. The \u0060trust\u0060 declaration states which one, and the correlation states how the event matches, so no handler guesses how far to trust the event\u0027s fields. \u0060litespec/core/edges#describe-every-integration-event-for-its-direction\u0060 states the record, and \u0060litespec/core/edges#name-how-every-inbound-integration-event-arrives\u0060 states how each inbound fact arrives. The record names in \u0060arrivesThrough\u0060 the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in \u0060through\u0060 the external system it travels through.",
+      "rationale": "An inbound fact carries one of two trusts: trigger-only wakes a read of the source, while payload is fit to act on. The \u0060trust\u0060 declaration states which one, and the correlation states how the event matches, so no handler guesses how far to trust the event\u0027s fields. \u0060litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives\u0060 states the record, and \u0060litespec/core/edges#name-how-every-inbound-integration-event-arrives\u0060 states how each inbound fact arrives. The record names in \u0060arrivesThrough\u0060 the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in \u0060through\u0060 the external system it travels through.",
       "example": ""
     },
     {
@@ -19544,14 +19544,14 @@
       "anchor": "declare-published-facts-as-integration-events",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every delivered integration event have a record carrying direction, payload, trust, and, for an outbound event, \u0060translates\u0060? Check each event type beside its record.",
+      "evidence": "Does every delivered integration event have a record carrying action, payload, trust, and, for an outbound event, \u0060translates\u0060? Check each event type beside its record.",
       "stack": "any",
       "concern": "infrastructure",
       "artifact": "record:integration-event",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Each integration event the outbox delivers MUST have an integration-event record carrying direction, payload, trust and, for an outbound event, the domain event it translates.",
+      "statement": "Each integration event the outbox delivers MUST have an integration-event record carrying action, payload, trust and, for an outbound event, the domain event it translates.",
       "rationale": "A published fact without a record leaves readers depending on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. The [edges page](../core/edges.md) states the declaration and the record.",
       "example": ""
     },
@@ -29850,7 +29850,7 @@
       "strength": "required",
       "statement": "A consumer workspace MUST use the canonical root tree declared in this section.",
       "rationale": "",
-      "example": "A consumer workspace uses this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      features/\n        {feature}/\n          {feature}.yaml\n          requirements/\n            {requirement}/\n              {requirement}.yaml    one requirement, in its own folder\n      requirements/                 product requirements\n        {requirement}/\n          {requirement}.yaml\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ module-events/ integration-events/ external-systems/\n          aggregates/\n            {aggregate}/\n              aggregate.yaml\n              use-cases/\n                {use-case}/\n                  {use-case}.yaml   results and scenarios as entries\n              domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files for the entries in angle brackets.\n\nNeither the backend application nor a frontend application sits at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder as \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.\n\nAn entry lives in its home file: permissions in the permissions file of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
+      "example": "A consumer workspace uses this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ directions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      features/\n        {feature}/\n          {feature}.yaml\n          requirements/\n            {requirement}/\n              {requirement}.yaml    one requirement, in its own folder\n      requirements/                 product requirements\n        {requirement}/\n          {requirement}.yaml\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ module-events/ integration-events/ external-systems/\n          aggregates/\n            {aggregate}/\n              aggregate.yaml\n              use-cases/\n                {use-case}/\n                  {use-case}.yaml   results and scenarios as entries\n              domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files for the entries in angle brackets.\n\nNeither the backend application nor a frontend application sits at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder as \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.\n\nAn entry lives in its home file: permissions in the permissions file of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
     }
   ]
 }

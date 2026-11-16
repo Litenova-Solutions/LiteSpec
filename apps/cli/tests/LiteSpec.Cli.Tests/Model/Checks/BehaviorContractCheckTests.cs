@@ -90,7 +90,7 @@ public sealed class BehaviorContractCheckTests
     }
 
     /// <summary>Integration Event With A Bad Dataschema Reports.</summary>
-    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
+    /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]
     public void IntegrationEventWithABadDataschemaReports()
     {

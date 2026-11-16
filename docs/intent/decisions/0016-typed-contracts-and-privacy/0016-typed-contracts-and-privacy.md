@@ -27,7 +27,7 @@ Use-case inputs and integration-event payload fields carry a `type` and a `requi
 
 ## Consequences
 
-The provisions `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/edges#describe-every-integration-event-for-its-direction` carry the typed fields. The provision `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` carries the privacy positions.
+The provisions `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives` carry the typed fields. The provision `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` carries the privacy positions.
 
 ## Evidence
 

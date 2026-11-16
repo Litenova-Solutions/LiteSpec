@@ -16,7 +16,7 @@ internal static class FolderChecks
     /// <summary>Type folders directly under <c>intent/</c>.</summary>
     private static readonly HashSet<string> IntentRootFolders = new(StringComparer.Ordinal)
     {
-        "goals", "visions", "problems", "constraints", "decisions", "research", "actors", "flows", "roles", "features", "requirements",
+        "goals", "directions", "problems", "constraints", "decisions", "research", "actors", "flows", "roles", "features", "requirements",
     };
 
     /// <summary>Folders directly under <c>implementation/</c>.</summary>

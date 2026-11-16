@@ -134,7 +134,7 @@ internal static class SchemaChecks
                 CheckObservations(record, findings);
                 break;
 
-            case RecordTypes.Vision:
+            case RecordTypes.Direction:
                 RequireString(record, RecordFields.Statement, findings);
                 break;
 
@@ -407,7 +407,7 @@ internal static class SchemaChecks
             case RecordTypes.IntegrationEvent:
                 RequireIds(record, RecordFields.Through, 1, findings);
 
-                if (record.Field(RecordFields.Direction) == "in")
+                if (record.Field(RecordFields.Action) == "receive")
                 {
                     RequireIds(record, RecordFields.ArrivesThrough, 1, findings);
                 }

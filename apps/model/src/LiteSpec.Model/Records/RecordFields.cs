@@ -213,8 +213,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `dependsOn` field.</summary>
     public const string DependsOn = "dependsOn";
 
-    /// <summary>Gets the name of the `direction` field.</summary>
-    public const string Direction = "direction";
     /// <summary>Gets the name of the `duration` field.</summary>
     public const string Duration = "duration";
 

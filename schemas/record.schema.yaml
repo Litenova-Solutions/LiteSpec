@@ -5,7 +5,7 @@ description: 'The record file holding a consumer record page: one page record or
 oneOf:
 - $ref: '#/$defs/productPage'
 - $ref: '#/$defs/goalPage'
-- $ref: '#/$defs/visionPage'
+- $ref: '#/$defs/directionPage'
 - $ref: '#/$defs/constraintPage'
 - $ref: '#/$defs/researchPage'
 - $ref: '#/$defs/decisionPage'
@@ -50,9 +50,9 @@ $defs:
   goalId:
     type: string
     pattern: '^goal/[a-z0-9][a-z0-9-]*$'
-  visionId:
+  directionId:
     type: string
-    pattern: '^vision/[a-z0-9][a-z0-9-]*$'
+    pattern: '^direction/[a-z0-9][a-z0-9-]*$'
   constraintId:
     type: string
     pattern: '^constraint/[a-z0-9][a-z0-9-]*$'
@@ -292,7 +292,7 @@ $defs:
       anyOf:
       - $ref: '#/$defs/constraintId'
       - $ref: '#/$defs/researchId'
-      - $ref: '#/$defs/visionId'
+      - $ref: '#/$defs/directionId'
       - $ref: '#/$defs/requirementId'
   researchIdArray:
     type: array
@@ -305,7 +305,7 @@ $defs:
     items:
       anyOf:
       - $ref: '#/$defs/goalId'
-      - $ref: '#/$defs/visionId'
+      - $ref: '#/$defs/directionId'
       - $ref: '#/$defs/problemId'
       - $ref: '#/$defs/featureId'
       - $ref: '#/$defs/constraintId'
@@ -1381,7 +1381,7 @@ $defs:
     additionalProperties: false
     required:
     - name
-    - direction
+    - action
     - timeout
     - rejected
     - accepted
@@ -1392,10 +1392,10 @@ $defs:
     properties:
       name:
         $ref: '#/$defs/nonEmptyString'
-      direction:
+      action:
         enum:
-        - out
-        - in
+        - send
+        - receive
       timeout:
         $ref: '#/$defs/nonEmptyString'
       retries:
@@ -2437,20 +2437,19 @@ $defs:
         type: array
         items:
           $ref: '#/$defs/goalObservation'
-  visionPage:
+  directionPage:
     type: object
     additionalProperties: false
     required:
     - type
     - id
     - title
-    - summary
     - statement
     properties:
       type:
-        const: vision
+        const: direction
       id:
-        $ref: '#/$defs/visionId'
+        $ref: '#/$defs/directionId'
       title:
         $ref: '#/$defs/nonEmptyString'
       terms:
@@ -3368,7 +3367,7 @@ $defs:
     - type
     - id
     - title
-    - direction
+    - action
     - eventType
     - source
     - subject
@@ -3389,10 +3388,10 @@ $defs:
         x-read-back-as: is used by
       records:
         $ref: '#/$defs/recordsArray'
-      direction:
+      action:
         enum:
-        - out
-        - in
+        - send
+        - receive
       eventType:
         $ref: '#/$defs/nonEmptyString'
       source:
@@ -3434,10 +3433,10 @@ $defs:
     allOf:
     - if:
         required:
-        - direction
+        - action
         properties:
-          direction:
-            const: out
+          action:
+            const: send
       then:
         required:
         - translates
@@ -3449,10 +3448,10 @@ $defs:
             - arrivesThrough
     - if:
         required:
-        - direction
+        - action
         properties:
-          direction:
-            const: in
+          action:
+            const: receive
       then:
         required:
         - correlation

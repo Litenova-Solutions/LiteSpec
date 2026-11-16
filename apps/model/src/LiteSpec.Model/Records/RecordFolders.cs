@@ -40,7 +40,7 @@ public static class RecordFolders
     [
         Scaffold("product", "", "product.yaml"),
         Scaffold("goal", "intent/goals/{name}", "{name}.yaml"),
-        Scaffold("vision", "intent/visions/{name}", "{name}.yaml"),
+        Scaffold("direction", "intent/directions/{name}", "{name}.yaml"),
         Scaffold("problem", "intent/problems/{name}", "{name}.yaml"),
         // A feature stands alone at product level; it names the problems it solves in its own record.
         Scaffold("feature", "intent/features/{name}", "{name}.yaml"),

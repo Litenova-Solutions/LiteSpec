@@ -26,7 +26,7 @@ public sealed class RecordTypesTests
     public void CitesLinksReasonsAndRequirements()
     {
         Assert.True(RecordTypes.LinkTargets["cites"].SetEquals(
-            ["goal", "vision", "problem", "feature", "constraint", "research", "decision", "requirement"]));
+            ["goal", "direction", "problem", "feature", "constraint", "research", "decision", "requirement"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("features"));
     }
 
@@ -135,7 +135,7 @@ public sealed class RecordTypesTests
     public void BasedOnLinksLimitsAndChoices()
     {
         Assert.True(RecordTypes.LinkTargets["basedOn"].SetEquals(
-            ["constraint", "research", "vision", "decision", "requirement"]));
+            ["constraint", "research", "direction", "decision", "requirement"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("acceptedBy"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("entryPoint"));
     }

@@ -1,7 +1,7 @@
 type: integration-event
 id: integration-event/loan-shipped
 title: Loan shipped
-direction: out
+action: send
 eventType: library.loan.shipped
 source: library-api
 subject: loan

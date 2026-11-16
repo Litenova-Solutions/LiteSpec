@@ -5,7 +5,7 @@ title: <Title in Title Case>
 terms:
 - <term id, or remove this line>
 # An outbound event carries translates; an inbound one carries arrivesThrough and correlation instead.
-direction: <out|in>
+action: <send|receive>
 eventType: <CloudEvents type>
 source: <CloudEvents source>
 subject: <what the event is about>

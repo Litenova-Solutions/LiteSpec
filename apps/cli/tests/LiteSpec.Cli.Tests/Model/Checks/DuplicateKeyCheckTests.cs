@@ -36,7 +36,7 @@ public sealed class DuplicateKeyCheckTests
     [InlineData(
         "external-system",
         "external-system/card-gateway",
-        """{"operations": [{"name": "charge-card", "direction": "out"}, {"name": "charge-card", "direction": "out"}]}""",
+        """{"operations": [{"name": "charge-card", "action": "send"}, {"name": "charge-card", "action": "send"}]}""",
         "Record 'external-system/card-gateway' names operation name 'charge-card' twice.")]
     [InlineData(
         "integration-event",

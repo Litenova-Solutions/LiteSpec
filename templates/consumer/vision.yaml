@@ -1,7 +1,0 @@
-type: vision
-id: vision/<name>
-title: <Title in Title Case>
-terms:
-- <term id, or remove this line>
-summary: <where the product is heading and why it is not there yet>
-statement: <the direction, in one sentence>

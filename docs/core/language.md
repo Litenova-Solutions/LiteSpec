@@ -20,7 +20,7 @@ Every field name belongs to one of eight word classes. The class decides the nam
 | 2. Link to many records | active present-tense verb | "flow serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `writes`, `covers`, `requires` |
 | 3. Link to one record in a role | singular noun naming the role | "the flow's actor is traveller" | `actor`, `audience`, `fallback`, `runbook`, `result`, `host`, `refusal` |
 | 4. Link where the target acts on this record | `<participle>By`, `<participle>Through`, `<participle>In` or `<participle>From`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `movedBy`, `boundBy`, `widenedBy`, `triggeredBy`, `reachedThrough`, `surfacesIn` |
-| 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `direction`, `trust`, `reach`, `lifecycle`, `level` |
+| 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `action`, `trust`, `reach`, `lifecycle`, `level` |
 | 6. Prose | singular noun for what the text is; plural noun for a list of sentences | "its statement is ..." | `statement`, `meaning`, `rationale`, `summary`, `conclusion`, `failure` |
 | 7. Condition | `<verb, participle or adjective>When` for a named condition; `condition` inside an entry | "it is frozenWhen ..." | `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen`, `runsWhen` |
 | 8. Reason | `<participle>Because`, or `reason` alone | "it appliesBecause ..." | `appliesBecause`, `exemptBecause`, `reason` |
@@ -59,7 +59,7 @@ Values are read far more than they are written, in records, in the book, and in 
 |:---|:---|:---|
 | `statement` (requirement, rule) | One present-tense declarative sentence, third person, product words, ending in a period | Ends in a period; no modal word in lower case such as "should" |
 | `statement` (goal) | The outcome as a present-tense fact about the world | Ends in a period |
-| `statement` (vision) | Where the product heads, as a present-tense fact about the product once it is there | Ends in a period |
+| `statement` (direction) | The product once it has grown this way, as a present-tense fact | Ends in a period |
 | `statement` (problem) | The pain as it happens today, present tense | Ends in a period |
 | step `statement` | Actor first, present tense: "The traveller pays for the booking." | Starts with "The" or an actor title; ends in a period |
 | `meaning` | A noun phrase starting with "A" or "An", no leading verb, at most 25 words; a domain-event or result `meaning` states its sentence in its text-kind form | Starts with A, An or The, or ends in a period for a domain event or a result; word count |
@@ -75,7 +75,7 @@ Each record type takes the name form its row states, in the word class that fits
 | Type | Name form | Example |
 |:---|:---|:---|
 | goal | outcome noun phrase | `more-completed-bookings` |
-| vision | the destination as a noun phrase | `group-bookings` |
+| direction | the way the product may grow, as a noun phrase | `group-bookings` |
 | problem | the pain as a short clause | `rooms-sell-out-at-checkout` |
 | feature | the offer as a noun phrase | `room-hold` |
 | requirement | the assertion | `room-held-during-checkout` |

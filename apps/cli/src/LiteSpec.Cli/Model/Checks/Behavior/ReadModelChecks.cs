@@ -227,7 +227,7 @@ internal static class ReadModelChecks
         if (model.ById.TryGetValue(Identifiers.BaseId(id), out var record)
             && (record.Type == RecordTypes.ModuleEvent
                 || (record.Type == RecordTypes.IntegrationEvent
-                    && record.Field(RecordFields.Direction) == "out")))
+                    && record.Field(RecordFields.Action) == "send")))
         {
             source = record;
             return true;

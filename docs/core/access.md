@@ -87,7 +87,7 @@ A browser entry point lists in `servedContent` the static content it serves, suc
 
 An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It stands alone and names no actor: software is never an actor, so the outside party gets a system record instead. An integration that calls the product is an external system calling through an API entry point.
 
-It declares each operation the product may call in `operations`, with its direction, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there does not run, with the Intent decision that accepts the limit.
+It declares each operation the product may call in `operations`, with its action, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there does not run, with the Intent decision that accepts the limit.
 
 ### Where Access Records Live
 

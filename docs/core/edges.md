@@ -9,7 +9,7 @@ Edges and Screens states how the product meets the outside: its integration even
 
 ### Integration Events
 
-An integration event is a published fact that crosses the bounded context in CloudEvents form. Its `direction` says which way the fact travels: `out` for facts the product emits, and `in` for facts it accepts from outside. A fact for the other modules of the same product is a module event instead, which never crosses the bounded context, as the [Automation page](automation.md#module-events) states. An integration event carries a full typed `payload`, because it crosses the bounded context and needs a full contract; a module event instead selects `fields` from the domain event it translates.
+An integration event is a published fact that crosses the bounded context in CloudEvents form. Its `action` says whether the product sends or receives the fact: `send` for facts the product emits, and `receive` for facts it accepts from outside. A fact for the other modules of the same product is a module event instead, which never crosses the bounded context, as the [Automation page](automation.md#module-events) states. An integration event carries a full typed `payload`, because it crosses the bounded context and needs a full contract; a module event instead selects `fields` from the domain event it translates.
 
 Each event states how far readers trust it. With `trigger-only` trust, the event only wakes the reader, and the reader goes back to the source for the facts. With `payload` trust, the fields on the event are fit to act on directly. The event carries `summary` and `delivery`: what it announces and who acts on it, and how it reaches its readers.
 
@@ -23,7 +23,7 @@ Every integration event names the external system it travels through in `through
 
 | Field | Meaning |
 |:---|:---|
-| `direction` | `out` or `in`. |
+| `action` | `send` or `receive`. |
 | `eventType`, `source`, `subject` | The CloudEvents type, source, and what the subject identifies. |
 | `payload` | `{ name, meaning, type, of, many, required, classification }` entries, with the field types and the list flag use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states. |
 | `dataschema` | The URL the payload follows, optional. |
@@ -95,7 +95,7 @@ An external system is one system outside the bounded context that the product ex
 
 When the integration calls the product rather than the other way around, that is still an external system: one calling through an API entry point. Claimwick's payout bank is an external system whose charge operation the spending module calls.
 
-Each operation declares its direction, timeout, response, and cache, and may state its retry behavior in `retries` prose. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
+Each operation declares its action, timeout, response, and cache, and may state its retry behavior in `retries` prose. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
 
 Its erasure position states how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported", "reason": "..." }`, `manual`, or `not-applicable` with its acceptance.
 
@@ -103,25 +103,25 @@ Its `summary` states what the system does for the product and who operates it. I
 
 | Field | Meaning |
 |:---|:---|
-| `operations` | `{ name, direction, timeout, onTimeout, retries, response, cache, rejected, accepted, unknown }` entries; direction is `out` or `in`, `retries` is optional prose. The outcome handling separates `rejected`, `accepted`, and `unknown`; the `unknown` case names its handling in `onUnknown` as `dedupe-key`, `reconcile`, or `retry-safe`. |
+| `operations` | `{ name, action, timeout, onTimeout, retries, response, cache, rejected, accepted, unknown }` entries; action is `send` or `receive`, `retries` is optional prose. The outcome handling separates `rejected`, `accepted`, and `unknown`; the `unknown` case names its handling in `onUnknown` as `dedupe-key`, `reconcile`, or `retry-safe`. |
 | `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported" | "manual" | "not-applicable", "reason": "..." }` with `basedOn`. `unsupported` means the operator cannot remove the data, `manual` means people remove it outside the product, and `not-applicable` means the system holds no personal data after the product sends it. |
 | `processes` | The aggregates and data classes the system holds, as `{ aggregate, dataClass }` entries. |
 
 ## Standards
 
-### Describe Every Integration Event for Its Direction
+### Describe Every Integration Event the Product Sends or Receives
 
-**ID:** `litespec/core/edges#describe-every-integration-event-for-its-direction`
+**ID:** `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`
 
 **Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
-**Statement:** Each integration event MUST declare its direction, its CloudEvents identity, its typed payload, the trust its readers place in it, and the external system it travels through in `through`.
+**Statement:** Each integration event MUST declare its action, its CloudEvents identity, its typed payload, the trust its readers place in it, and the external system it travels through in `through`.
 
-**Rationale:** Without a stated direction, a published fact is read both ways: an outbound notice is answered as an order, and an inbound claim is taken as authoritative. The direction, the CloudEvents identity, the typed payload, the trust level, and the external system in `through` state what the fact is, how far readers follow it, and what it travels through. Each payload field carries the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the `dataschema` URL its payload follows. An inbound event also declares its `correlation` and its `arrivesThrough`, while an outbound event declares its `translates` domain event and its optional `requires`.
+**Rationale:** Without a stated action, a published fact is read both ways: an outbound notice is answered as an order, and an inbound claim is taken as authoritative. The action, the CloudEvents identity, the typed payload, the trust level, and the external system in `through` state what the fact is, how far readers follow it, and what it travels through. Each payload field carries the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the `dataschema` URL its payload follows. An inbound event also declares its `correlation` and its `arrivesThrough`, while an outbound event declares its `translates` domain event and its optional `requires`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an integration event without direction, CloudEvents identity, typed payload, trust, or `through`.
+**Checked by:** `litespec model check` reports `record-invalid` for an integration event without action, CloudEvents identity, typed payload, trust, or `through`.
 
 ### Publish Every Outbound Integration Event from the Event It Translates
 
@@ -397,11 +397,11 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Applies to:** artifact: record:external-system
 
-**Statement:** Each external system MUST describe its operations with direction, timeout, timeout handling, response, and cache.
+**Statement:** Each external system MUST describe its operations with action, timeout, timeout handling, response, and cache.
 
-**Rationale:** Without a declared shape, an outside call fails unpredictably: timeouts hang, retries double-charge, and responses fail to parse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`, while the retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
+**Rationale:** Without a declared shape, an outside call fails unpredictably: timeouts hang, retries double-charge, and responses fail to parse. Describing each operation with its action of `send` or `receive`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`, while the retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an external system operation without direction, timeout, timeout handling, response, or cache.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system operation without action, timeout, timeout handling, response, or cache.
 
 ### State the Outcome of Every Outside Call
 

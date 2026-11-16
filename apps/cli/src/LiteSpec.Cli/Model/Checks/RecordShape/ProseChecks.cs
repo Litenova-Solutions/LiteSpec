@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The prose checks, advisory: every record holds a summary, every goal, problem, requirement and rule holds a statement, and a Behavior statement names what happens rather than a vague word.</summary>
+/// <summary>The prose checks, advisory: every record except a requirement or a direction holds a summary, every goal, direction, problem, requirement and rule holds a statement, and a Behavior statement names what happens rather than a vague word.</summary>
 /// <follows>litespec/core/use-cases#summarize-every-use-case</follows>
 /// <follows>litespec/core/model#state-what-happens-in-every-behavior-statement</follows>
 internal static class ProseChecks
@@ -27,13 +27,13 @@ internal static class ProseChecks
             .Where(record => !record.Derived)
             .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            // A requirement page carries no summary: its statement is its lead.
-            if (!record.IsEntry && record.Type != RecordTypes.Requirement && record.Field(RecordFields.Summary) is not { Length: > 0 })
+            // A requirement page carries no summary: its statement is its lead. A direction summary stays optional.
+            if (!record.IsEntry && record.Type != RecordTypes.Requirement && record.Type != RecordTypes.Direction && record.Field(RecordFields.Summary) is not { Length: > 0 })
             {
                 findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no summary field.", record.File, record.Line, SubjectOf(record)));
             }
 
-            if (record.Type is RecordTypes.Goal or RecordTypes.Vision or RecordTypes.Problem or RecordTypes.Requirement or RecordTypes.Rule
+            if (record.Type is RecordTypes.Goal or RecordTypes.Direction or RecordTypes.Problem or RecordTypes.Requirement or RecordTypes.Rule
                 && record.Field(RecordFields.Statement) is not { Length: > 0 })
             {
                 findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no statement field.", record.File, record.Line, SubjectOf(record)));

@@ -59,7 +59,7 @@ public sealed class ReadModelCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            ReimbursedEvent(temp.Path, "in"),
+            ReimbursedEvent(temp.Path, "receive"),
             ReadModel(temp.Path, EmployeeField),
             Reader(temp.Path));
 
@@ -235,13 +235,13 @@ public sealed class ReadModelCheckTests
 
     /// <summary>The outbound integration event of the spending module that a read model reads, with its payload.</summary>
     /// <param name="root">The consumer folder.</param>
-    /// <param name="direction">The direction the event declares.</param>
+    /// <param name="action">Whether the product sends or receives the event.</param>
     /// <returns>The integration event record.</returns>
-    static Record ReimbursedEvent(string root, string direction = "out") => TestModel.Record(
+    static Record ReimbursedEvent(string root, string action = "send") => TestModel.Record(
         "integration-event",
         "integration-event/expense-reimbursed",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "integration-events", "expense-reimbursed", "expense-reimbursed.yaml"),
-        "{\"direction\": \"" + direction + "\", \"translates\": \"domain-event/spending.expense-reimbursed\", \"payload\": [{\"name\": \"employeeId\", \"meaning\": \"The employee who was paid.\", \"classification\": \"personal\", \"type\": \"id\", \"required\": true}, {\"name\": \"amount\", \"meaning\": \"The amount paid.\", \"classification\": \"internal\", \"type\": \"money\", \"required\": true}]}");
+        "{\"action\": \"" + action + "\", \"translates\": \"domain-event/spending.expense-reimbursed\", \"payload\": [{\"name\": \"employeeId\", \"meaning\": \"The employee who was paid.\", \"classification\": \"personal\", \"type\": \"id\", \"required\": true}, {\"name\": \"amount\", \"meaning\": \"The amount paid.\", \"classification\": \"internal\", \"type\": \"money\", \"required\": true}]}");
 
     /// <summary>The outbound integration event that erases an expense held in the read model.</summary>
     /// <param name="root">The consumer folder.</param>
@@ -250,7 +250,7 @@ public sealed class ReadModelCheckTests
         "integration-event",
         "integration-event/expense-erased",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "integration-events", "expense-erased", "expense-erased.yaml"),
-        """{"direction": "out", "translates": "domain-event/spending.expense-erased", "payload": [{"name": "expenseId", "meaning": "The erased expense.", "classification": "internal", "type": "id", "required": true}]}""");
+        """{"action": "send", "translates": "domain-event/spending.expense-erased", "payload": [{"name": "expenseId", "meaning": "The erased expense.", "classification": "internal", "type": "id", "required": true}]}""");
 
     /// <summary>The domain event the reimbursed integration event translates, carrying the payload fields.</summary>
     /// <param name="root">The consumer folder.</param>

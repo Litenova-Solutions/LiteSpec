@@ -22,7 +22,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `statement-measure-missing` | A | proof | no | - | A requirement statement names a number without a `measure` field. | Add the missing `measure` field. |
 | `requirement-cites-missing` | A | any | no | - | A requirement cites no goal, problem, feature, constraint, research, or decision. | Cite the goal, problem, feature, constraint, research, or decision that the requirement serves. |
 | `constraint-unreached` | G | any | no | - | A constraint marked `applies: true` is cited by no requirement. | Cite the constraint from a requirement, or set `applies` to false if it does not apply. |
-| `intent-unreached` | G | behavior | no | - | An Intent record other than a vision reaches no Behavior record. | Connect the record to Behavior, or move the record to the backlog. |
+| `intent-unreached` | G | behavior | no | - | An Intent record other than a direction reaches no Behavior record. | Connect the record to Behavior, or move the record to the backlog. |
 | `decision-decides-missing` | G | any | no | - | A product decision names no record that it decides. | Name the records that the decision decides. |
 | `use-case-flow-missing` | G | any | no | - | A public use case sits in no flow, and no reaction, job, or other use case runs it. This check runs at large size only. | Serve a flow step with the use case, or name the reaction, job, or use case that runs it. |
 | `state-unreached` | G | any | no | - | No transition reaches a state. | Add a transition that reaches the state, or remove the state. |
@@ -125,7 +125,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `write-undeclared` | S | implementation | yes | - | The code writes an aggregate that the use case does not declare in `changes`. | Declare the aggregate in `changes`, or stop writing it. |
 | `result-undeclared` | S | implementation | yes | - | The code returns an outcome that no result declares. | Declare the outcome in a result, or stop returning it. |
 | `effect-undeclared` | S | implementation | yes | - | The code takes an edge that no record declares. The finding names a one-hop helper as `via 'Type.Method'`. | Declare the edge on the record, or stop taking it. |
-| `prose-missing` | A | any | no | - | A record holds no `summary` field, or a goal, vision, problem, requirement, or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
+| `prose-missing` | A | any | no | - | A record other than a direction holds no `summary` field, or a goal, direction, problem, requirement, or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
 | `explanation-orphaned` | G | any | no | - | A `.md` file under a record root has no frontmatter and no record file beside it, and it is not `README.md`. | Pair the file with a record file of the same name, or give it a document frontmatter block. |
 | `explanation-missing` | A | any | no | - | A record that needs an explanation file has none, or its explanation lacks a required section or holds its sections out of order. | Write the explanation file with its fixed sections in the order that the section table gives. |
 | `explanation-opening-missing` | A | any | no | - | An explanation file holds no paragraph between its H1 and its first H2. | Write the opening paragraph: what the record is, who it concerns, and the consequence at stake. |

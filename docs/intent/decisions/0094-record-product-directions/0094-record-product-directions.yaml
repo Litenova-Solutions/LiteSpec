@@ -1,0 +1,18 @@
+type: decision
+id: decision/0094-record-product-directions
+title: Record Product Directions as Light Records
+options:
+  - name: "Record each product wish as a direction record with only statement required and a free-form explanation file"
+    pros: "The name fits many small wishes that may never happen, one required field keeps a wish light, and the book shows the decisions that keep a direction open from basedOn, so no prose lists them."
+    cons: "One more rename across records, provisions, and the book, and a free-form file can stay empty where fixed sections prompted for more."
+  - name: "Keep the vision record with its three fixed sections"
+    pros: "No rename, and fixed sections prompt every record for the same points."
+    cons: "Vision names one statement for a whole product in common usage, while LiteSpec holds many small wishes; consumers repeat the statement across the sections and fill Effect on Current Design with copied design facts."
+  - name: "Keep wishes on the backlog only"
+    pros: "The records hold only promises, and planning stays with planning."
+    cons: "Agents and decisions in the repository never see a wish, so choices made for it read as over-engineering, and basedOn cannot name a record outside the repository."
+choice: "Record each product wish as a direction record with only statement required and a free-form explanation file"
+consequences: "A `direction` record lives at `.litespec/intent/directions/<name>/<name>.yaml` with required `statement` and optional `summary`, and a free-form explanation file. A decision names a direction in `basedOn`, and a requirement names one in `cites`; nothing else links to a direction. No reach check reads a direction, and no finding reports an uncited one. The four rules are `litespec/core/intent#state-each-direction-in-its-statement`, `litespec/core/intent#keep-dates-and-priorities-out-of-directions`, `litespec/core/intent#build-nothing-from-a-direction`, and `litespec/core/intent#cite-the-direction-a-decision-keeps-open`. The product explanation loses its optional Direction section. Claimwick carries `direction/contractor-expenses`."
+reopenedWhen: "Directions start carrying dates or priorities in practice, or no consumer cites a direction from a decision within two releases."
+supersedes:
+  - decision/0041-record-product-vision

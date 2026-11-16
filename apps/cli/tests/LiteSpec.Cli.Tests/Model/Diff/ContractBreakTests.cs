@@ -117,10 +117,10 @@ public sealed class ContractBreakTests
         var file = Path.Combine(temp.Path, "loan-shipped.yaml");
         var before = TestModel.Record(
             "integration-event", "integration-event/loan-shipped", file,
-            """{"direction": "out", "eventType": "library.loan.shipped", "payload": [{"name": "loanId"}]}""");
+            """{"action": "send", "eventType": "library.loan.shipped", "payload": [{"name": "loanId"}]}""");
         var after = TestModel.Record(
             "integration-event", "integration-event/loan-shipped", file,
-            """{"direction": "out", "eventType": "library.loan.shipped", "payload": [{"name": "loanId"}, {"name": "copyId"}]}""");
+            """{"action": "send", "eventType": "library.loan.shipped", "payload": [{"name": "loanId"}, {"name": "copyId"}]}""");
 
         var findings = ContractBreaks.Find(
             TestModel.Model(config, before),
@@ -142,10 +142,10 @@ public sealed class ContractBreakTests
         var file = Path.Combine(temp.Path, "loan-shipped.yaml");
         var before = TestModel.Record(
             "integration-event", "integration-event/loan-shipped", file,
-            """{"title": "Loan shipped", "direction": "out", "eventType": "library.loan.shipped"}""");
+            """{"title": "Loan shipped", "action": "send", "eventType": "library.loan.shipped"}""");
         var after = TestModel.Record(
             "integration-event", "integration-event/loan-shipped", file,
-            """{"title": "Loan is shipped", "direction": "out", "eventType": "library.loan.shipped"}""");
+            """{"title": "Loan is shipped", "action": "send", "eventType": "library.loan.shipped"}""");
 
         var findings = ContractBreaks.Find(
             TestModel.Model(config, before),
@@ -164,7 +164,7 @@ public sealed class ContractBreakTests
         var file = Path.Combine(temp.Path, "loan-shipped.yaml");
         var before = TestModel.Record(
             "integration-event", "integration-event/loan-shipped", file,
-            """{"direction": "out", "eventType": "library.loan.shipped"}""");
+            """{"action": "send", "eventType": "library.loan.shipped"}""");
 
         var findings = ContractBreaks.Find(
             TestModel.Model(config, before),

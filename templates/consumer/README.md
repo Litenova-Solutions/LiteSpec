@@ -21,8 +21,8 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `product.md` | `.litespec/product.md` | Explains the product beside its record file. |
 | `goal.yaml` | `.litespec/intent/goals/<name>/<name>.yaml` | States one measurable outcome the product serves, with the observations that show it. |
 | `goal.md` | `.litespec/intent/goals/<name>/<name>.md` | Explains the goal beside its record file. |
-| `vision.yaml` | `.litespec/intent/visions/<name>/<name>.yaml` | States where the product is heading beyond what it promises now. |
-| `vision.md` | `.litespec/intent/visions/<name>/<name>.md` | Explains the vision beside its record file. |
+| `direction.yaml` | `.litespec/intent/directions/<name>/<name>.yaml` | States one way the product might grow beyond what it promises now. |
+| `direction.md` | `.litespec/intent/directions/<name>/<name>.md` | Explains the direction beside its record file. |
 | `constraint.yaml` | `.litespec/intent/constraints/<name>/<name>.yaml` | Records one outside rule and whether it applies. |
 | `constraint.md` | `.litespec/intent/constraints/<name>/<name>.md` | Explains the constraint beside its record file. |
 | `research.yaml` | `.litespec/intent/research/<name>/<name>.yaml` | Records one outside fact that informs a choice. |
@@ -104,11 +104,11 @@ An explanation file lives in the record's folder beside its record file, sharing
 
 | Record | Sections, in order |
 |:---|:---|
-| product | Scope, Users, Out of Scope, Direction (optional) |
+| product | Scope, Users, Out of Scope |
 | actor | Responsibilities, Knowledge, Example (optional) |
 | role | Access, Limits |
 | goal | Target, Measurement |
-| vision | Direction, Effect on Current Design, Trigger |
+| direction | None: free-form body after the lead |
 | problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria |
 | constraint | Scope, Rules, Effect on the Product, Open Points (optional) |
 | research | Findings, Open Questions (optional), Source Notes (optional) |

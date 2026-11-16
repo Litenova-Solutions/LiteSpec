@@ -25,7 +25,7 @@ Every record belongs to the layer that owns it, and each layer answers one quest
 
 | Layer | Question | Records |
 |:--|:--|:--|
-| Intent | Why build it, and what do we promise? | goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role |
+| Intent | Why build it, and what do we promise? | goal, direction, problem, feature, requirement, constraint, decision, research, flow, actor, role |
 | Behavior | How does the system behave to keep the promises? | module, aggregate, rule, domain event, module event, integration event, use case, result, scenario, reaction, job, read model, notification, setting, permission, refusal set, entry point, screen, external system |
 | Implementation | How is it built and operated? | Code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | Tests, check results, the computed completion, the rendered book |

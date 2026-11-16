@@ -48,7 +48,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A `calls` effect MUST name an operation the cited external system declares.
 
-**Rationale:** The effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache, so each call to the outside is a declared edge. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** The effect names the system and its operation, and the operation states the action, timeout, retry, response, and cache, so each call to the outside is a declared edge. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The Claimwick payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
@@ -216,7 +216,7 @@ The stable codes live in the project error catalog, and `litespec/backend/api#re
 
 **Statement:** An inbound integration event MUST declare `trust` as trigger-only or payload with its correlation.
 
-**Rationale:** An inbound fact carries one of two trusts: trigger-only wakes a read of the source, while payload is fit to act on. The `trust` declaration states which one, and the correlation states how the event matches, so no handler guesses how far to trust the event's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states how each inbound fact arrives. The record names in `arrivesThrough` the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in `through` the external system it travels through.
+**Rationale:** An inbound fact carries one of two trusts: trigger-only wakes a read of the source, while payload is fit to act on. The `trust` declaration states which one, and the correlation states how the event matches, so no handler guesses how far to trust the event's fields. `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives` states the record, and `litespec/core/edges#name-how-every-inbound-integration-event-arrives` states how each inbound fact arrives. The record names in `arrivesThrough` the webhook entry point the provider calls or the external system whose broker or stream the module subscribes to, and every integration event names in `through` the external system it travels through.
 
 **Reviewed for:** Does every inbound integration event declare trigger-only or payload trust with its correlation? Check each inbound integration event record.
 

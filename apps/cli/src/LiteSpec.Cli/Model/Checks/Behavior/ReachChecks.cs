@@ -101,7 +101,7 @@ internal static class ReachChecks
     internal static void RunIntentUnreached(ProjectModel model, List<Finding> findings)
     {
         // Goals and constraints keep their own codes, so this check covers the other five.
-        // A vision promises nothing and reaches no Behavior by design, so no check reads it.
+        // A direction promises nothing and reaches no Behavior by design, so no check reads it.
         // A served-content entry fulfills the requirements it names for its entry point.
         var fulfilled = model.Records
             .Where(record => RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal))

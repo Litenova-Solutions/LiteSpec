@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ModuleEventCheckTests
 {
     /// <summary>A module event selecting a field its domain event does not carry reports event-field-uncarried.</summary>
-    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
+    /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]
     public void ModuleEventFieldNotCarriedReportsUncarried()
     {
@@ -22,7 +22,7 @@ public sealed class ModuleEventCheckTests
     }
 
     /// <summary>A module event selecting only carried fields passes the uncarried rule.</summary>
-    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
+    /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]
     public void ModuleEventFieldsCarriedPass()
     {
@@ -36,7 +36,7 @@ public sealed class ModuleEventCheckTests
     }
 
     /// <summary>An integration event publishing a field its domain event does not carry reports event-field-uncarried.</summary>
-    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
+    /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]
     public void IntegrationEventPayloadFieldNotCarriedReportsUncarried()
     {
@@ -44,14 +44,14 @@ public sealed class ModuleEventCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/expense.reimbursed", Path.Combine(temp.Path, "expense.yaml"), """{"meaning": "An expense was reimbursed.", "carries": [{"name": "expenseId", "type": "text"}]}"""),
-            TestModel.Record("integration-event", "integration-event/expense-reimbursed", Path.Combine(temp.Path, "reimbursed.yaml"), """{"direction": "out", "translates": "domain-event/expense.reimbursed", "payload": [{"name": "expenseId", "meaning": "The reimbursed expense.", "type": "text", "required": true}, {"name": "paidAt", "meaning": "When the expense was paid.", "type": "date-time", "required": true}]}"""));
+            TestModel.Record("integration-event", "integration-event/expense-reimbursed", Path.Combine(temp.Path, "reimbursed.yaml"), """{"action": "send", "translates": "domain-event/expense.reimbursed", "payload": [{"name": "expenseId", "meaning": "The reimbursed expense.", "type": "text", "required": true}, {"name": "paidAt", "meaning": "When the expense was paid.", "type": "date-time", "required": true}]}"""));
 
         Assert.Contains("event-field-uncarried", TestModel.Codes(model));
         Assert.DoesNotContain("integration-event-field-uncarried", TestModel.Codes(model));
     }
 
     /// <summary>A module event with empty fields passes the uncarried rule, because no field is published.</summary>
-    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
+    /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]
     public void ModuleEventWithEmptyFieldsPassesUncarried()
     {
@@ -65,7 +65,7 @@ public sealed class ModuleEventCheckTests
     }
 
     /// <summary>A module event with no fields passes the uncarried rule, because the shape check judges the missing list.</summary>
-    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
+    /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]
     public void ModuleEventWithoutFieldsPassesUncarried()
     {
@@ -79,7 +79,7 @@ public sealed class ModuleEventCheckTests
     }
 
     /// <summary>An integration event payload field without a type reports record-invalid.</summary>
-    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
+    /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]
     public void IntegrationEventPayloadFieldWithoutTypeReports()
     {
@@ -87,7 +87,7 @@ public sealed class ModuleEventCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/expense.reimbursed", Path.Combine(temp.Path, "expense.yaml"), """{"meaning": "An expense was reimbursed.", "carries": [{"name": "expenseId", "type": "text"}]}"""),
-            TestModel.Record("integration-event", "integration-event/expense-reimbursed", Path.Combine(temp.Path, "reimbursed.yaml"), """{"direction": "out", "translates": "domain-event/expense.reimbursed", "payload": [{"name": "expenseId", "meaning": "The reimbursed expense.", "required": true}]}"""));
+            TestModel.Record("integration-event", "integration-event/expense-reimbursed", Path.Combine(temp.Path, "reimbursed.yaml"), """{"action": "send", "translates": "domain-event/expense.reimbursed", "payload": [{"name": "expenseId", "meaning": "The reimbursed expense.", "required": true}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "holds payload field 'expenseId' with no type"));
     }
@@ -150,7 +150,7 @@ public sealed class ModuleEventCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/expense-exported", Path.Combine(temp.Path, "exported.yaml"), """{"direction": "out"}"""),
+            TestModel.Record("integration-event", "integration-event/expense-exported", Path.Combine(temp.Path, "exported.yaml"), """{"action": "send"}"""),
             TestModel.Record("reaction", "reaction/payouts.pay-on-expense-exported", Path.Combine(temp.Path, "pay.yaml"), """{"triggeredBy": ["integration-event/expense-exported"], "effects": [{"runs": "use-case/payouts.pay-expense", "timing": "async"}]}"""));
 
         Assert.Contains("reaction-trigger-foreign", TestModel.Codes(model));
@@ -164,7 +164,7 @@ public sealed class ModuleEventCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/bank-statement-received", Path.Combine(temp.Path, "statement.yaml"), """{"direction": "in"}"""),
+            TestModel.Record("integration-event", "integration-event/bank-statement-received", Path.Combine(temp.Path, "statement.yaml"), """{"action": "receive"}"""),
             TestModel.Record("reaction", "reaction/payouts.reconcile-on-statement-received", Path.Combine(temp.Path, "reconcile.yaml"), """{"triggeredBy": ["integration-event/bank-statement-received"], "effects": [{"runs": "use-case/payouts.reconcile-payout", "timing": "async"}]}"""));
 
         Assert.DoesNotContain("reaction-trigger-foreign", TestModel.Codes(model));

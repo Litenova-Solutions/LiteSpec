@@ -4,7 +4,7 @@ title: Text gateway
 summary: The text gateway sends overdue notices to readers.
 operations:
 - name: send-overdue-notice
-  direction: out
+  action: send
   timeout: 5 seconds
   rejected: The gateway refuses the notice, which queues for the next run.
   accepted: The gateway accepts the notice and returns a delivery receipt.
@@ -13,7 +13,7 @@ operations:
   response: A delivery receipt.
   cache: none, every notice is sent once
 - name: receive-delivery-receipt
-  direction: in
+  action: receive
   timeout: none
   rejected: The receipt names no sent notice, so it is dropped.
   accepted: The receipt is recorded against the notice.

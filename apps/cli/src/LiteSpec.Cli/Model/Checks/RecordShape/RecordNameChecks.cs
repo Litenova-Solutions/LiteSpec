@@ -110,7 +110,7 @@ internal static class RecordNameChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIntegrationEventWording(ProjectModel model, List<Finding> findings)
     {
-        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Direction) == "out"))
+        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Action) == "send"))
         {
             if (!Identifiers.TrySplit(record.Id, out _, out _, out var name) || name is null)
             {

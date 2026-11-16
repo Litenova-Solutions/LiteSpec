@@ -1,7 +1,7 @@
 type: integration-event
 id: integration-event/loan-borrowed
 title: Loan borrowed
-direction: out
+action: send
 eventType: lending.loan-borrowed
 source: lending-api
 subject: loan

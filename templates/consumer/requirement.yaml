@@ -21,7 +21,7 @@ check: <the check that confirms it, or remove this line>
 runsOn: <pull-request|nightly|pre-release|production, or remove this line>
 evidence: <where the confirmation is read, or remove this line>
 cites:
-- <goal, vision, problem, feature, constraint, research or decision id, or remove this line>
+- <goal, direction, problem, feature, constraint, research or decision id, or remove this line>
 except:
 - condition: <when the rule does not hold>
   fallback: requirement/<feature>.<name>

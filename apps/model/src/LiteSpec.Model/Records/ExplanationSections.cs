@@ -22,11 +22,11 @@ public static class ExplanationSections
         new Dictionary<string, IReadOnlyList<Section>>(StringComparer.Ordinal)
         {
             // Intent
-            [RecordTypes.Product] = Of(("Scope", false), ("Users", false), ("Out of Scope", false), ("Direction", true)),
+            [RecordTypes.Product] = Of(("Scope", false), ("Users", false), ("Out of Scope", false)),
             [RecordTypes.Actor] = Of(("Responsibilities", false), ("Knowledge", false), ("Example", true)),
             [RecordTypes.Role] = Of(("Access", false), ("Limits", false)),
             [RecordTypes.Goal] = Of(("Target", false), ("Measurement", false)),
-            [RecordTypes.Vision] = Of(("Direction", false), ("Effect on Current Design", false), ("Trigger", false)),
+            [RecordTypes.Direction] = Of(),
             [RecordTypes.Problem] = Of(("Affected Users", false), ("Failure Cases", false), ("Example", true), ("Current Workaround", false), ("Cost", false), ("Evidence", false), ("Resolution Criteria", false)),
             [RecordTypes.Constraint] = Of(("Scope", false), ("Rules", false), ("Effect on the Product", false), ("Open Points", true)),
             [RecordTypes.Research] = Of(("Findings", false), ("Open Questions", true), ("Source Notes", true)),

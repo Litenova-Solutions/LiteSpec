@@ -41,8 +41,8 @@ public static class RecordTypes
     /// <summary>Gets the `read-model` record type name.</summary>
     public const string ReadModel = "read-model";
 
-    /// <summary>Gets the `vision` record type name.</summary>
-    public const string Vision = "vision";
+    /// <summary>Gets the `direction` record type name.</summary>
+    public const string Direction = "direction";
 
     /// <summary>Gets the `waiver` record type name.</summary>
     public const string Waiver = "waiver";
@@ -150,7 +150,7 @@ public static class RecordTypes
     /// <summary>Every written record type.</summary>
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
-        "product", "goal", "vision", "constraint", "research", "decision", "requirement", "problem",
+        "product", "goal", "direction", "constraint", "research", "decision", "requirement", "problem",
         "feature", "actor", "role", "permission", "flow", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
         "reaction", "job", "notification", "setting", "read-model",
@@ -166,15 +166,15 @@ public static class RecordTypes
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["product"] = "root",
-            ["goal"] = "intent", ["vision"] = "intent", ["constraint"] = "intent",
+            ["goal"] = "intent", ["direction"] = "intent", ["constraint"] = "intent",
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
-            ["actor"] = "intent", ["flow"] = "intent", ["term"] = "intent",
+            ["actor"] = "intent", ["role"] = "intent", ["flow"] = "intent", ["term"] = "intent",
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
             ["domain-event"] = "behavior", ["module-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
             ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior",
-            ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
+            ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
             ["waiver"] = "governance",
         };
@@ -225,8 +225,8 @@ public static class RecordTypes
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
             ["decides"] = new HashSet<string>(),
-            ["cites"] = new HashSet<string> { "goal", "vision", "problem", "feature", "constraint", "research", "decision", "requirement" },
-            ["basedOn"] = new HashSet<string> { "constraint", "research", "vision", "decision", "requirement" },
+            ["cites"] = new HashSet<string> { "goal", "direction", "problem", "feature", "constraint", "research", "decision", "requirement" },
+            ["basedOn"] = new HashSet<string> { "constraint", "research", "direction", "decision", "requirement" },
             ["affects"] = new HashSet<string> { "actor" },
             ["audience"] = new HashSet<string> { "actor" },
             ["requires"] = new HashSet<string> { "actor", "permission" },

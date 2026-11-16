@@ -55,15 +55,15 @@
       "links": {}
     },
     {
-      "type": "vision",
-      "id": "vision/any-branch-lending",
+      "type": "direction",
+      "id": "direction/any-branch-lending",
       "title": "Any Branch Lending",
-      "file": ".litespec/intent/visions/any-branch-lending.yaml",
+      "file": ".litespec/intent/directions/any-branch-lending.yaml",
       "line": 1,
-      "explanation": "# Any Branch Lending\n\n## Direction\n\nMembers move between branches.",
+      "explanation": "# Any Branch Lending\n\nMembers move between branches.",
       "fields": {
-        "type": "vision",
-        "id": "vision/any-branch-lending",
+        "type": "direction",
+        "id": "direction/any-branch-lending",
         "title": "Any Branch Lending",
         "summary": "Members visit several branches and want to borrow and return anywhere.",
         "statement": "Members borrow at one branch and return at any other."

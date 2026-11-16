@@ -47,7 +47,7 @@ internal sealed class FieldValidator
 
     /// <summary>Gets the field names that name a closed set.</summary>
     private static readonly HashSet<string> ClosedSetNouns = new(
-        ["kind", "mode", "direction", "trust", "reach", "level"],
+        ["kind", "mode", "trust", "reach", "level"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name prose.</summary>

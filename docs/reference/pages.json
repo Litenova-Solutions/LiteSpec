@@ -3640,6 +3640,21 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0094-record-product-directions/0094-record-product-directions.md",
+      "path": "intent/decisions/0094-record-product-directions/0094-record-product-directions",
+      "style": "decision",
+      "area": "intent",
+      "title": "Record Product Directions as Light Records",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",

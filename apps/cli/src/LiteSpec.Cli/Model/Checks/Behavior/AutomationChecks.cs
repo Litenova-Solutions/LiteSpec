@@ -116,7 +116,7 @@ internal static class AutomationChecks
                 {
                     findings.Add(new Finding("reaction-trigger-foreign", $"Reaction '{reaction.Id}' in module '{reactionModule}' triggers on domain event '{trigger}' of module '{eventModule}'; it answers a module event or an inbound integration event instead.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
-                else if (resolved.Type == RecordTypes.IntegrationEvent && resolved.Field(RecordFields.Direction) == "out")
+                else if (resolved.Type == RecordTypes.IntegrationEvent && resolved.Field(RecordFields.Action) == "send")
                 {
                     findings.Add(new Finding("reaction-trigger-foreign", $"Reaction '{reaction.Id}' triggers on outbound integration event '{trigger}'; it answers an inbound integration event instead.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }

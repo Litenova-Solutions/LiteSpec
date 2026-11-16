@@ -1828,8 +1828,8 @@
         "slug":  "describe-every-external-system-operation"
     },
     {
-        "heading":  "Describe Every Integration Event for Its Direction",
-        "slug":  "describe-every-integration-event-for-its-direction"
+        "heading":  "Describe Every Integration Event the Product Sends or Receives",
+        "slug":  "describe-every-integration-event-the-product-sends-or-receives"
     },
     {
         "heading":  "Describe Every Notification with Audience Channel and Consent",

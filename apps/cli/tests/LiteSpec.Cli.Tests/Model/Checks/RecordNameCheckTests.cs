@@ -88,8 +88,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "events", "loan-borrowed.yaml"), """{"direction": "out"}"""),
-            TestModel.Record("integration-event", "integration-event/claim-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "claim-staged.yaml"), """{"direction": "in"}"""));
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "events", "loan-borrowed.yaml"), """{"action": "send"}"""),
+            TestModel.Record("integration-event", "integration-event/claim-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "claim-staged.yaml"), """{"action": "receive"}"""));
 
         Assert.DoesNotContain("integration-event-name-invalid", TestModel.Codes(model));
     }
@@ -103,7 +103,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/refund-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "refund-staged.yaml"), """{"direction": "out"}"""));
+            TestModel.Record("integration-event", "integration-event/refund-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "refund-staged.yaml"), """{"action": "send"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "integration-event-name-invalid").Message;
         Assert.Contains("staged", message, StringComparison.Ordinal);

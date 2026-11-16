@@ -17,7 +17,7 @@ static class RecordPages
     /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
-        "product", "goal", "vision", "problem", "feature", "requirement", "constraint", "research",
+        "product", "goal", "direction", "problem", "feature", "requirement", "constraint", "research",
         "decision", "flow", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
         "runbook", "waiver", "screen", "read-model",

@@ -24,6 +24,6 @@ admits:
   location: <where the package is used, or remove this line>
   failureBehavior: <what happens when the package fails, or remove this line>
 basedOn:
-- <constraint, research, vision or requirement id, or remove this line>
+- <constraint, research, direction or requirement id, or remove this line>
 supersedes:
 - decision/<number>-<name, or remove this line>

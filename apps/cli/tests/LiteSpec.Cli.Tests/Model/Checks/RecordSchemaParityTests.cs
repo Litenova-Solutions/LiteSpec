@@ -26,7 +26,7 @@ public sealed class RecordSchemaParityTests
     {
         ["product"] = ("product/library", """{"summary": "The lending desk.", "boundary": "The lending desk only.", "addresses": ["actor/reader"]}"""),
         ["goal"] = ("goal/faster-pickup", """{"summary": "Readers wait less.", "statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days."}"""),
-        ["vision"] = ("vision/open-shelves", """{"summary": "Open shelves.", "statement": "Every reader finds a copy."}"""),
+        ["direction"] = ("direction/open-shelves", """{"summary": "Open shelves.", "statement": "Every reader finds a copy."}"""),
         ["constraint"] = ("constraint/privacy-law", """{"summary": "Reader data is personal.", "authority": "Privacy law.", "sources": [{"key": "privacy-law", "url": "https://example.com/privacy-law", "readOn": "2026-01-02"}], "kind": "legal", "applies": true, "appliesBecause": "We hold reader data."}"""),
         ["research"] = ("research/loan-terms", """{"summary": "Loan terms.", "sources": [{"key": "lib-manual", "url": "https://example.com/manual", "readOn": "2026-01-02"}], "question": "How long is a loan?", "conclusion": "Loans run for two weeks."}"""),
         ["decision"] = ("decision/0001-loan-store", """{"summary": "Loan storage.", "options": [{"name": "Documents", "pros": "Simple.", "cons": "Slow."}], "choice": "Documents.", "consequences": "Loans are documents.", "reopenedWhen": "Reads exceed one second."}"""),
@@ -90,7 +90,7 @@ public sealed class RecordSchemaParityTests
     [
         ("product", "boundary"), ("product", "addresses"),
         ("goal", "statement"), ("goal", "measure"), ("goal", "target"),
-        ("vision", "statement"),
+        ("direction", "statement"),
         ("constraint", "authority"), ("constraint", "sources"), ("constraint", "kind"), ("constraint", "applies"), ("constraint", "appliesBecause"),
         ("research", "sources"), ("research", "conclusion"),
         ("decision", "options"), ("decision", "reopenedWhen"), ("decision", "choice"),

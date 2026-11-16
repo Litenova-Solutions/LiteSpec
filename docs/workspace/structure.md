@@ -40,7 +40,7 @@ While it builds the model from records, code, routes, tests, and test runs, the 
     glossary.yaml
     product.yaml
     intent/
-      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/
+      goals/ directions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/
       features/
         {feature}/
           {feature}.yaml

@@ -230,6 +230,14 @@ Home: docs/core/intent.md
 
 Source: RBAC.
 
+### After-Commit
+
+The effect timing for work that runs only after the use case commits its change, so a refused or failed command sends and calls nothing.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
 ### Aggregate
 
 One unit of business state that stays consistent and changes in one step, with states and invariants.
@@ -261,6 +269,14 @@ Layer: Behavior.
 Home: docs/core/privacy.md
 
 Source: the GDPR.
+
+### Async
+
+The effect timing for work that runs on its own after the commit, apart from the request that caused it. A reaction that states no timing runs async.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
 
 ### Automation
 
@@ -307,6 +323,14 @@ Layer: Behavior.
 Home: docs/core/use-cases.md
 
 Source: the Business Rules Group.
+
+### Chosen
+
+The option a decision record names in its `choice` field: the one option the team adopted from the options it compared.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
 
 ### Cites
 
@@ -380,6 +404,14 @@ Home: docs/core/intent.md
 
 Source: plain English.
 
+### Creation
+
+The transition that brings a new aggregate instance into being and sets the first state it holds.
+
+Home: docs/core/domain-model.md
+
+Source: LiteSpec.
+
 ### Data Class
 
 One named group of aggregate fields. The group shares one classification, one purpose, one erasure position, and one retention period with its basis and enforcement.
@@ -419,6 +451,16 @@ Layer: Behavior.
 Home: docs/core/edges.md
 
 Source: LiteSpec.
+
+### Direction
+
+A way the product may grow beyond what it promises now, stated without a date or priority. A decision keeping it open cites it, and nothing builds from it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: product direction practice.
 
 ### Domain
 
@@ -638,9 +680,17 @@ Home: docs/core/layers.md
 
 Source: LiteSpec.
 
+### Inline
+
+The effect timing for a call that runs inside the use case before it answers. Only a query's `calls` effect may be inline.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
 ### Integration Event
 
-One published fact crossing the bounded context. It carries its direction, payload, and trust, and names the external system it travels through. A fact for another module of the same product is a module event instead.
+One published fact crossing the bounded context. It carries its action (send or receive), payload, and trust, and names the external system it travels through. A fact for another module of the same product is a module event instead.
 
 Layer: Behavior.
 
@@ -653,6 +703,14 @@ Source: DDD.
 The record layer that states why the product exists and what it promises.
 
 Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Internal
+
+The classification of a value the business keeps for its own use that identifies no person and is not published.
+
+Home: docs/core/privacy.md
 
 Source: LiteSpec.
 
@@ -802,6 +860,14 @@ Home: docs/core/access.md
 
 Source: LiteSpec.
 
+### Personal
+
+The classification of a value that identifies a person or can be tied to one, so privacy law and the data class's erasure position apply to it.
+
+Home: docs/core/privacy.md
+
+Source: LiteSpec.
+
 ### Personal Data
 
 One risk value. It marks permissions that keep personal or sensitive data.
@@ -896,6 +962,14 @@ Source: the GDPR.
 
 Rejected: pseudonymise, the British spelling.
 
+### Public
+
+The classification of a value anyone may see without harm, such as a published price or a product name.
+
+Home: docs/core/privacy.md
+
+Source: LiteSpec.
+
 ### Purpose
 
 The reason for keeping personal data, stated on each data class.
@@ -933,6 +1007,14 @@ One record stating work that runs when a domain, module, or integration event ar
 Layer: Behavior.
 
 Home: docs/core/automation.md
+
+Source: LiteSpec.
+
+### Receive
+
+The action of an integration event or an external-system operation that the outside starts: the fact or the call arrives at the product.
+
+Home: docs/core/edges.md
 
 Source: LiteSpec.
 
@@ -988,7 +1070,7 @@ Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows, or one guarantee it keeps. An `except` entry names its fallback requirement, and a tenant-set value is no exception to the requirement. Its `cites` names the goals, visions, problems, features, constraints, research, and decisions behind it.
+One behavior the product shows, or one guarantee it keeps. An `except` entry names its fallback requirement, and a tenant-set value is no exception to the requirement. Its `cites` names the goals, directions, problems, features, constraints, research, and decisions behind it.
 
 Layer: Intent.
 
@@ -1079,6 +1161,22 @@ One page a person sees through a browser or device entry point. It serves a flow
 Layer: Behavior.
 
 Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Send
+
+The action of an integration event or an external-system operation that the product starts: the product emits the fact or makes the call.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Sensitive
+
+The classification of personal data that needs more care than other personal data. A sensitive data class kept with `pseudonymize`, `retain` or `exempt` names the requirement or decision that accepts it.
+
+Home: docs/core/privacy.md
 
 Source: LiteSpec.
 
@@ -1223,16 +1321,6 @@ Layer: Behavior.
 Home: docs/core/use-cases.md
 
 Source: LiteSpec.
-
-### Vision
-
-Where the product is heading beyond what it promises now, stated without a date or priority. A decision keeping it open cites it, and nothing builds from it.
-
-Layer: Intent.
-
-Home: docs/core/intent.md
-
-Source: product vision practice.
 
 ### Voice
 

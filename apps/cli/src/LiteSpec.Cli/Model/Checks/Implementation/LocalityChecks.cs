@@ -489,7 +489,7 @@ internal static class LocalityChecks
 
         return record.Type switch
         {
-            RecordTypes.Goal or RecordTypes.Vision or RecordTypes.Problem or RecordTypes.Feature
+            RecordTypes.Goal or RecordTypes.Direction or RecordTypes.Problem or RecordTypes.Feature
                 or RecordTypes.Constraint or RecordTypes.Research or RecordTypes.Decision
                 or RecordTypes.Requirement or RecordTypes.Flow or RecordTypes.Actor
                 or RecordTypes.Role => "intent",

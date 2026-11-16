@@ -16,7 +16,7 @@ Each layer answers one question, each layer is written from the layer above it a
 
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | people and agents | goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
+| Intent | Why build it, and what do we promise? | people and agents | goal, direction, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
 | Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
@@ -37,7 +37,7 @@ A record type is one kind of statement a project can write, and each type answer
 |:--|:--|:--|
 | `product` | root | What is built, and for whom? |
 | `goal` | intent | Which measurable outcome does the product serve? |
-| `vision` | intent | Where is the product heading beyond what it promises now? |
+| `direction` | intent | Which way might the product grow beyond what it promises now? |
 | `problem` | intent | Which pain does someone have today? |
 | `feature` | intent | What is offered, and which problems does it solve? |
 | `constraint` | intent | Which outside rules hold? |
@@ -116,7 +116,7 @@ Each parent with child records holds them in a folder named for the child type i
 |:--|:--|:--|:--|:--|:--|
 | `product` | Root | product | `product.yaml` | none | `product/<name>` |
 | `goal` | Intent | product | `intent/goals/<name>/<name>.yaml` | product | `goal/<name>` |
-| `vision` | Intent | product | `intent/visions/<name>/<name>.yaml` | product | `vision/<name>` |
+| `direction` | Intent | product | `intent/directions/<name>/<name>.yaml` | product | `direction/<name>` |
 | `problem` | Intent | product | `intent/problems/<name>/<name>.yaml` | product | `problem/<name>` |
 | `feature` | Intent | product | `intent/features/<name>/<name>.yaml` | product | `feature/<name>` |
 | `requirement` | Intent | product | `intent/features/<feature>/requirements/<name>/<name>.yaml` or `intent/requirements/<name>/<name>.yaml` | feature or product | `requirement/<feature>.<name>` or `requirement/<name>` |
@@ -205,7 +205,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 
 | Folder | Record layer | Holds |
 |:---|:---|:---|
-| `.litespec/intent/` | Intent | Goals, visions, problems, features with their requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
+| `.litespec/intent/` | Intent | Goals, directions, problems, features with their requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
 | `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, module events, integration events, permissions and refusal sets; entry points with their screens; external systems |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, test runs, and operating logs. No person writes a fact here that a tool can compute |
@@ -258,7 +258,7 @@ A `.md` file with no frontmatter and no record file beside it is an orphaned exp
 
 Anything a check reads is a field in the record file. Anything that only helps someone understand goes in the explanation file. The split keeps checked facts where the checks read them, and prose where people read it.
 
-Every record carries one `summary`, and a record that makes a testable claim also carries one `statement`. The opening paragraph and the fixed sections of each record type live in the explanation file, and so does any project-specific section under its own H2 heading.
+Every record except a direction carries one `summary`, and a record that makes a testable claim also carries one `statement`. A direction states `statement` and takes `summary` only when the owner wants one. The opening paragraph and the fixed sections of each record type live in the explanation file, and so does any project-specific section under its own H2 heading.
 
 ### Research and Decision Articles
 
@@ -293,7 +293,7 @@ An identifier is the one name every link and citation uses for a record. It name
 |:---|:---|:---|
 | `product` | `product/<name>` | `product/claimwick` |
 | `goal` | `goal/<name>` | `goal/faster-reimbursement` |
-| `vision` | `vision/<name>` | `vision/contractor-expenses` |
+| `direction` | `direction/<name>` | `direction/contractor-expenses` |
 | `problem` | `problem/<name>` | `problem/expenses-wait-weeks` |
 | `feature` | `feature/<name>` | `feature/approval-reminders` |
 | `constraint` | `constraint/<name>` | `constraint/tax-receipt-retention` |
@@ -381,12 +381,12 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `addresses` | product | actor | addresses | is addressed by |
 | `basedOn` | constraint | research | is based on | is a basis for |
 | `decides` | decision | generic record | decides | is decided by |
-| `basedOn` | decision | constraint, research, vision, requirement | is based on | is a basis for |
+| `basedOn` | decision | constraint, research, direction, requirement | is based on | is a basis for |
 | `supersedes` | decision | decision | supersedes | is superseded by |
 | `affects` | problem | actor | affects | is affected by |
 | `solves` | feature | problem | solves | is solved by |
 | `advances` | feature | goal | advances | is advanced by |
-| `cites` | requirement | goal, vision, problem, feature, constraint, research, decision | cites | is cited by |
+| `cites` | requirement | goal, direction, problem, feature, constraint, research, decision | cites | is cited by |
 | `except.fallback` | requirement | requirement | falls back to | is the fallback for |
 | `holds` | actor | role | holds | is held by |
 | `allows` | role | permission | allows | is allowed by |
@@ -582,7 +582,7 @@ Each Intent type reaches Behavior in its own way:
 - A constraint is answered by a requirement or by a flow.
 - Research is cited by a record that reaches Behavior.
 - A decision decides a record that reaches Behavior.
-- A vision reaches nothing by design: decisions and requirements cite it, and no reach check reads it, as the [intent page](intent.md#visions) states.
+- A direction reaches nothing by design: decisions and requirements cite it, and no reach check reads it, as the [intent page](intent.md#directions) states.
 
 A record that reaches no Behavior gets an `intent-unreached` finding: it is either unfinished work, which belongs on the backlog, or not software.
 
@@ -953,7 +953,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver
+**Applies to:** artifact: record:product, record:goal, record:direction, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver
 
 **Statement:** Every page record MUST take its identifier name, and so its folder and file names, from the words of its title in title order.
 

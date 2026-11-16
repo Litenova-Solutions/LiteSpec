@@ -9,7 +9,7 @@ processes:
   dataClass: <data class name>
 operations:
 - name: <operation name>
-  direction: <out|in>
+  action: <send|receive>
   timeout: <how long the caller waits, such as PT30S>
   retries: <how the caller retries, or remove this line>
   rejected: <what the system does when it refuses the call, and what the caller does then>

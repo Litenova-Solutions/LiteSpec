@@ -16,7 +16,7 @@ A title is the record's name wherever records are listed: book lists, outlines, 
 | problem | A clause naming the failure or its consequence, never a theme or a feature | Expenses Wait Weeks |
 | feature | A noun phrase naming the capability | Receipt Capture with Offline Upload |
 | goal | An outcome noun phrase; the number and date stay in fields | Reimbursement Within Five Working Days |
-| vision | A noun phrase naming where the product heads; no date or priority | Contractor Expenses |
+| direction | A noun phrase naming the way the product may grow; no date or priority | Contractor Expenses |
 | flow | A verb phrase naming the actor's task | Submit an Expense Claim with Receipts |
 | actor | A role noun phrase | Approver |
 | requirement | A phrase naming the specific behavior or fact it requires, never a bare noun | Expense Above Threshold Carries Receipt |
@@ -42,15 +42,15 @@ Identifiers, acronyms, and words with inner capitals keep their written form, an
 
 An explanation file holds the prose beside a record file: it says what the record means, why it matters, and how it reads beside its neighbors. It opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order.
 
-A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. An Example section holds at most 120 words.
+A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. An Example section holds at most 120 words. A direction's explanation file is free-form: an H1 with the record title, a lead paragraph, then any body the owner wants, with or without H2 sections.
 
 | Record type | Sections, in order |
 |:---|:---|
-| product | Scope, Users, Out of Scope, Direction (optional) |
+| product | Scope, Users, Out of Scope |
 | actor | Responsibilities, Knowledge, Example (optional) |
 | role | Access, Limits |
 | goal | Target, Measurement |
-| vision | Direction, Effect on Current Design, Trigger |
+| direction | None: free-form body after the lead |
 | problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria |
 | constraint | Scope, Rules, Effect on the Product, Open Points (optional) |
 | research | Findings, Open Questions (optional), Source Notes (optional) |
@@ -336,11 +336,11 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Statement:** Every record MUST state the product as it stands, with no release phase, later step or future plan in its prose.
 
-**Rationale:** A phrase such as "in the first release" or "a later step" dates the record the day the release ships, and it promises a behavior no requirement holds. A destination the product heads for is a vision, an open choice is an owner question or a backlog item, and a limit of the current product is stated as a limit, not as a plan to lift it. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
+**Rationale:** A phrase such as "in the first release" or "a later step" dates the record the day the release ships, and it promises a behavior no requirement holds. A way the product may grow is a direction, an open choice is an owner question or a backlog item, and a limit of the current product is stated as a limit, not as a plan to lift it. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
 
 **Example:** A permission record states "The role cannot be limited to one business", not that staff will narrow the role in a later release.
 
-**Reviewed for:** Does any record name a release phase, a later step, or a future plan where the product as it stands, a vision, an owner question, or a backlog item belongs? Check the records the change adds.
+**Reviewed for:** Does any record name a release phase, a later step, or a future plan where the product as it stands, a direction, an owner question, or a backlog item belongs? Check the records the change adds.
 
 ### Write Each Documentation Page as One Kind
 

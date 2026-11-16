@@ -74,7 +74,7 @@ public sealed class NewEveryTypeTests
     {
         yield return ["product", "claimwick", "product.yaml", "Claimwick", "product/claimwick"];
         yield return ["goal", "faster-reimbursement", "intent/goals/faster-reimbursement/faster-reimbursement.yaml", "Faster Reimbursement", "goal/faster-reimbursement"];
-        yield return ["vision", "one-desk", "intent/visions/one-desk/one-desk.yaml", "One Desk", "vision/one-desk"];
+        yield return ["direction", "one-desk", "intent/directions/one-desk/one-desk.yaml", "One Desk", "direction/one-desk"];
         yield return ["problem", "waiting-for-money", "intent/problems/waiting-for-money/waiting-for-money.yaml", "Waiting for Money", "problem/waiting-for-money"];
         yield return ["feature", "approval", "intent/features/approval/approval.yaml", "Approval", "feature/approval"];
         yield return ["requirement", "approval.decided-in-five", "intent/features/approval/requirements/decided-in-five/decided-in-five.yaml", "Decided in Five", "requirement/approval.decided-in-five"];

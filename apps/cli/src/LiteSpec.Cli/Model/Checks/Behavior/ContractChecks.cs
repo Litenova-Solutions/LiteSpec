@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</follows>
 /// <follows>litespec/core/use-cases#mark-every-provider-verified-input</follows>
 /// <follows>litespec/core/use-cases#type-every-output-field</follows>
-/// <follows>litespec/core/edges#describe-every-integration-event-for-its-direction</follows>
+/// <follows>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</follows>
 /// <follows>litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind</follows>
 internal static class ContractChecks
 {

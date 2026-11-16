@@ -60,7 +60,7 @@ For example, a project-reference test proves Claimwick's Domain has no Infrastru
 
 Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader learns. New machinery arrives only for a current documented requirement. Preference and possible future need justify nothing.
 
-For example, Claimwick adds no cache until a use case names the freshness it needs, and a vision of future scale adds none. Restraint covers machinery only, and never blocks shaping a record so a later requirement stays reachable.
+For example, Claimwick adds no cache until a use case names the freshness it needs, and a direction toward future scale adds none. Restraint covers machinery only, and never blocks shaping a record so a later requirement stays reachable.
 
 ### Naming Boundary Intent
 
@@ -406,9 +406,9 @@ For example, a Claimwick use case with no endpoint yet stays on its branch until
 
 **Applies to:** artifact: any
 
-**Statement:** A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement, and never for a vision alone.
+**Statement:** A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement, and never for a direction alone.
 
-**Rationale:** Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader learns. A current use case, decision, or requirement justifies that cost by naming the activation criterion. Preference and possible future need justify nothing, so speculative machinery stays out. A vision may justify the shape of a record or a model, such as a field that keeps a later destination reachable, but it activates no machinery: that cost waits for the requirement that cites the vision.
+**Rationale:** Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader learns. A current use case, decision, or requirement justifies that cost by naming the activation criterion. Preference and possible future need justify nothing, so speculative machinery stays out. A direction may justify the shape of a record or a model, such as a field that keeps a later way of growing reachable, but it activates no machinery: that cost waits for the requirement that cites the direction.
 
 **Reviewed for:** Does each added package, project, wrapper, process, cache, queue, or pattern cite a current use case, decision, or requirement? Check the added machinery beside the use cases, decisions, and requirements it cites.
 
