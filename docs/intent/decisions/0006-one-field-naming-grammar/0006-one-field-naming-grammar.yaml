@@ -7,7 +7,7 @@ options:
     cons: Every renamed field moves schema, templates, provisions, checks, and consumer records in one change.
   - name: Define without renaming
     pros: No record migrates and no citation sweep is needed.
-    cons: Definitions fix readers but not search or tooling, and the invalid values keep arriving under the colliding names.
+    cons: Definitions guide readers but not search or tooling, and invalid values keep arriving under the colliding names.
   - name: Rename fields but skip the reads-as columns
     pros: The change stays smaller and the Links table keeps its current shape.
     cons: Carriers sharing one verb, such as the three serves rows, stay ambiguous in prose, and book connection labels stay invented.

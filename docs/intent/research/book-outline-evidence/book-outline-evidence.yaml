@@ -8,5 +8,5 @@ sources:
   - path: docs/tools/book.md
     readOn: 2026-10-30
     key: book
-question: Where does the book outline place each record today, and where does that placement invent a parent LiteSpec never named?
+question: Where does the book outline place each record, and where does the builder invent a parent LiteSpec never named?
 conclusion: The outline places Behavior correctly but invents Intent groupings from file paths and build order, splits the glossary by layer, and deletes the Implementation and Proof layers it builds, so the book teaches a second hierarchy beside the model's own.

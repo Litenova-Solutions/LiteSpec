@@ -1,6 +1,6 @@
 # Write Each Shared Record Rule Once
 
-Several record types repeat the same faults, and each fault has one cause in LiteSpec's guidance. This decision states each shared rule once, as a provision that applies to every record type it concerns, instead of writing a copy for each type.
+Several record types repeat the same faults, and each fault has one cause in LiteSpec's guidance. This decision states each shared rule once. Each rule is a provision that applies to every record type it concerns, instead of a copy written for each type.
 
 ## Context
 
@@ -24,11 +24,11 @@ LiteSpec compared 3 options for where a shared rule is written. The table sets e
 
 A rule that more than one record type shares is one provision. The provision applies to every record type it concerns, and each record type's page and template cite it instead of stating a copy.
 
-The shared rules cover what an explanation file describes, keeping the conditions when a claim is shortened, drawing each Example detail from the cast or a cited record, splitting a record whose parts change separately, and keeping release phases and plans out of records.
+The shared rules cover describing what an explanation file holds, keeping the conditions when a claim is shortened, drawing each Example detail from the cast or a cited record, splitting a record whose parts change separately, and keeping release phases and plans out of records.
 
 ## Consequences
 
-The existing rule about behavior in explanation files applies to every Intent explanation file under the same identifier. The Example prompts of the eight templates share one sentence form, and the flow, aggregate and job prompts add the detail their type needs. No template still asks for numbers worked through or opens a prompt with walk.
+The existing rule about behavior in explanation files applies to every Intent explanation file under the same identifier. The Example prompts of the eight templates share one sentence form, and the flow, aggregate and job prompts add the detail their type needs. No template asks for numbers worked through or opens a prompt with walk.
 
 Each provision is required and reviewed for, since no check can judge whether a summary keeps its condition.
 

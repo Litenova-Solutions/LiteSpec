@@ -12,7 +12,7 @@ options:
     pros: Each side reads without following the inverse.
     cons: Two written sides drift apart, and neither is the source of truth.
   - name: Drop the reader link entirely
-    pros: No link, no direction dispute.
+    pros: No link means no dispute about direction.
     cons: Whether a setting is read at all becomes unknowable in the model again.
 choice: Name readers on the use case and compute the inverse
 consequences: "`litespec/core/model#write-links-on-the-record-that-points` puts the link on the use case, and `litespec/core/language#name-each-field-by-its-word-class` reads `reads` as a link verb. `litespec/core/use-cases#name-the-settings-each-use-case-reads` is restated for `reads`."

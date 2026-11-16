@@ -1,6 +1,6 @@
 # Publish Release Candidates from Release Branches
 
-A consumer validates a LiteSpec release before the release is final, and a defect it finds must be fixed before the final tag. This decision lets a release branch publish candidate packages, so the consumer tests the packages it will install.
+A consumer validates a LiteSpec release before the release is final, and a defect it finds is fixed before the final tag. This decision lets a release branch publish candidate packages, so the consumer tests the packages it will install.
 
 ## Context
 
@@ -30,7 +30,7 @@ Every place that reads the release version reads the full version a candidate ca
 
 A candidate's site deploys to a versioned path beside the current release, so the links a candidate writes into a consumer's agent file resolve while the consumer validates it. The final release removes the candidate's site.
 
-The release procedure runs the candidates first. A defect found by the consumer is fixed on the branch and shipped in the next candidate, and the final tag on main follows the first candidate the consumer passes.
+The release procedure runs the candidates first. A defect the consumer finds is fixed on the branch and shipped in the next candidate, and the final tag on main follows the first candidate the consumer passes.
 
 ## Revisit Conditions
 

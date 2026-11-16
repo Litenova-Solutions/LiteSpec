@@ -1,6 +1,6 @@
 # Name Each Identifier from Its Title
 
-A record stored as its own file takes its folder name and file name from its identifier. This decision takes every page record's identifier name from its title, so readers who browse the folders see what the record says.
+A record stored as its own file takes its folder name and file name from its identifier. This decision derives every page record's identifier name from its title, so readers who browse the folders see what the record says.
 
 ## Context
 
@@ -22,11 +22,11 @@ LiteSpec compared 3 options for how an identifier name relates to its title. The
 
 Every page record takes its identifier name from the words of its title in title order. The name words appear in the title words in the same order, with title words allowed in between, so words may be left out but none added or changed.
 
-The owner prefix and the decision number name the home and the sequence rather than the record, so neither faces the title. The record file carries the identifier name or the fixed file name of its type, and the folder check already keeps each named folder on its file's stem.
+The owner prefix and the decision number name the home and the sequence rather than the record, so neither is checked against the title. The record file carries the identifier name or the fixed file name of its type, and the folder check already keeps each named folder on its file's stem.
 
 ## Consequences
 
-`litespec model check` reports `identifier-title-invalid` for a page record outside the rule. Claimwick renames five requirements to take their names from their titles, so the example stays a perfect example of the rule.
+`litespec model check` reports `identifier-title-invalid` for a page record outside the rule. Claimwick renames five requirements to take their names from their titles, so the example follows the rule.
 
 ## Revisit Conditions
 

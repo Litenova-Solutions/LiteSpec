@@ -1,10 +1,10 @@
 # Read Another Module Through a Read Model
 
-A module often needs to know something another module owns, such as what an order cost when a refund decides how much to return. This decision adds the read-model record: a module's own copy of what it needs, filled from the integration events the owner publishes. Cross-module readers that return the owner's current state for any caller give way to read models, screens that call each owner's query, and decision ports.
+A module often needs to know something another module owns, such as what an order cost when a refund decides how much to return. This decision adds the read-model record. The record is a module's own copy of what it needs, filled from the integration events the owner publishes. Read models, screens that call each owner's query, and decision ports replace cross-module readers that return the owner's current state for any caller.
 
 ## Context
 
-In 6.0.0 a module read another module's data through a read port in the owner's `Contracts/Ports/` folder. One large consumer had 86 such readers named in 741 files of other modules, and the busiest reader had 18 methods, several named for their one caller. No record said which fields crossed the boundary, and a personal field could travel to any reader.
+In 6.0.0 a module read another module's data through a read port in the owner's `Contracts/Ports/` folder. One large consumer had 86 such readers named in 741 files of other modules. The busiest reader had 18 methods, several named for their one caller. No record said which fields crossed the boundary. A personal field could travel to any reader.
 
 ## Options
 
@@ -16,15 +16,21 @@ In 6.0.0 a module read another module's data through a read port in the owner's 
 
 ## Decision
 
-A `read-model` is a Behavior record at `behavior/modules/<module>/read-models/<name>/`, with the identifier `read-model/<module>.<name>`. It names the other module's aggregate it keeps one row per in `keyedBy`. Each field names its source as `integration-event/<name>#<field>`, and may accumulate with `sum` or `count`. A personal or sensitive field names the event that erases it in `erasedBy`. `removedBy` names the events that remove a row, and `freshness` states how stale a reader may see it. A use case names the read model in `reads`.
+A `read-model` is a Behavior record at `behavior/modules/<module>/read-models/<name>/`, with the identifier `read-model/<module>.<name>`. It names the other module's aggregate in `keyedBy` and keeps one row per aggregate.
 
-Three other answers cover what a read model does not. A screen that only shows another module's data calls each owner's own query and joins the answers. A command whose decision needs another module's current value asks one question through a decision port. Repositories, outside-system ports and rule calculators stay ports.
+Each field names its source as `integration-event/<name>#<field>`. It may accumulate with `sum` or `count`. A personal or sensitive field names the event that erases it in `erasedBy`. `removedBy` names the events that remove a row. `freshness` states how stale a reader may see it. A use case names the read model in `reads`.
+
+Three other patterns cover what a read model does not. A screen that only shows another module's data calls each owner's own query and joins the answers. A command whose decision needs another module's current value asks one question through a decision port. Repositories, outside-system ports, and rule calculators stay ports.
 
 ## Consequences
 
-`model check` reports `read-model-source-unknown`, `read-model-erasure-missing`, `read-model-unused` and `read-model-key-invalid`. Code sits in a module `ReadModels/` folder, one folder per read model, holding the read-model document, one projection per source event and the read model's reader. The book shows each read model under its module with the events that feed it. Claimwick's reporting module carries a read model of reimbursed expenses.
+`model check` reports `read-model-source-unknown`, `read-model-erasure-missing`, `read-model-unused`, and `read-model-key-invalid`.
 
-With the outbox extension, every integration event a read model names is kept for as long as a read model may rebuild from it, so a new read model fills from history instead of from the owner's tables.
+Code sits in a module `ReadModels/` folder, one folder per read model. Each folder holds the read-model document, one projection per source event, and the read model's reader.
+
+The book shows each read model under its module with the events that fill it. Claimwick's reporting module carries a read model of reimbursed expenses.
+
+With the outbox extension, every integration event a read model names is kept for as long as a read model may rebuild from it. A new read model fills from history instead of from the owner's tables.
 
 ## Evidence
 

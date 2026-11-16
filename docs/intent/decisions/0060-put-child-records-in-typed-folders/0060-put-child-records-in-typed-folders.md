@@ -1,6 +1,6 @@
 # Put Child Records in Typed Folders
 
-A parent record holds child records, such as the requirements of a feature or the use cases of an aggregate. This decision puts every child stored as its own file in a folder named for its type, so a reader of a parent folder sees its own files and each kind of child apart from the others.
+A parent record holds child records, such as the requirements of a feature or the use cases of an aggregate. This decision puts every child stored as its own file in a folder named for its type. A reader of a parent folder sees its own files and each kind of child apart from the others.
 
 ## Context
 
@@ -28,7 +28,7 @@ The homes are the same for every module. Features stand alone in the product's f
 
 ## Consequences
 
-The flat module layouts are removed, so each module has one layout. The set of folders that a module may hold is closed, and a subfolder outside that set reports `record-placement-invalid`. Creation and renaming write only these homes.
+The flat module layouts are removed, so each module has one layout. The set of folders that a module may hold is closed. `model check` reports `record-placement-invalid` for a subfolder outside that set. Creation and renaming write only these homes.
 
 Identifiers do not change, because none names a type folder. Code paths keep their layer names, since the typed folders organize records and do not change how code is named. The folder reference page is generated from the folder table, so the table and the page cannot drift.
 

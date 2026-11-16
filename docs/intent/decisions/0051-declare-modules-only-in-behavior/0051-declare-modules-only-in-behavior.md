@@ -1,6 +1,6 @@
 # Declare Modules Only in Behavior
 
-LiteSpec's layers run from the product's intent down to its code, and each layer is written from the one above it. This decision keeps the module, a code boundary with its dependencies, in Behavior, where it is written from the aggregates it groups.
+LiteSpec's layers run from the product's intent down to its code, and each layer is written from the one above it. This decision keeps the module in Behavior. The module is a code boundary with its dependencies, written from the aggregates it groups.
 
 ## Context
 
@@ -24,13 +24,13 @@ LiteSpec compared 3 options for where a module is declared. The table sets each 
 
 A module is declared only in Behavior, at `behavior/modules/<module>/module.yaml`, with its explanation beside it. Intent holds goals, problems, constraints, decisions and research at product level, and its features stand in `intent/features/`.
 
-The Behavior page holds the Modules as Product Areas concept, since a module is the place where one name runs through Behavior and code. The book groups Intent by problem and Behavior by module.
+The Behavior page holds the Modules as Product Areas concept, since the module is where Behavior and code share one name. The book groups Intent by problem and Behavior by module.
 
 ## Consequences
 
 `record-placement-invalid` reports any file under `intent/modules/`, and the closed folder set of Intent loses its module level. The Intent questions name problem, then feature, then requirement. The glossary names Behavior as the layer of Module.
 
-The change is a major-release change, since the module record moves and the module provision takes a Behavior identifier. Each consumer moves its module records under the changelog's upgrade step.
+The change is a major-release change, since the module record moves and the module provision takes a Behavior identifier. Each consumer moves its module records by following the changelog's upgrade step.
 
 ## Revisit Conditions
 

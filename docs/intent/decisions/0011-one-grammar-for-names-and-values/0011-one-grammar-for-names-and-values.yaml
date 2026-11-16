@@ -7,7 +7,7 @@ options:
     cons: Every renamed field moves schema, templates, provisions, checks, and consumer records in one change.
   - name: Define without renaming
     pros: No record migrates and no citation sweep is needed.
-    cons: Definitions fix readers but not search or tooling, and the invalid values keep arriving under the colliding names.
+    cons: Definitions guide readers but not search or tooling, and invalid values keep arriving under the colliding names.
   - name: Rename fields but skip the value style
     pros: The change stays smaller and values keep their current freedom.
     cons: Free-text values keep their mini-languages, so checks still parse prose instead of reading objects.

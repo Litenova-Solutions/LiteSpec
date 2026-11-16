@@ -3,14 +3,14 @@ id: decision/0009-research-states-its-conclusion
 title: Research States Its Conclusion
 options:
   - name: A conclusion field plus dated sources
-    pros: One sentence as data renders in the book and gives every citing decision a stable takeaway to point at.
+    pros: One sentence as data renders in the book and gives every citing decision a stable takeaway.
     cons: Every research record gains a field to write.
   - name: A Conclusion body section
     pros: No schema or checker change is needed.
     cons: Seven invented heading names show the drift a section codifies, and prose cannot be cited as data.
   - name: A record-level confidence field
     pros: One comparable value summarizes how far to trust each record.
-    cons: One value falsifies multi-claim records, so confidence stays in Answer, claim by claim.
+    cons: One value misstates records with several claims, so confidence stays in Answer, claim by claim.
   - name: Leave research as question plus Answer
     pros: No author writes anything new.
     cons: A record finding stays editable in prose, and the book renders pages whose takeaway no field states.

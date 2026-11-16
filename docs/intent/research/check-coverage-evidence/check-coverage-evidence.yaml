@@ -15,4 +15,4 @@ sources:
     readOn: 2026-10-30
     key: suppression
 question: Which links and parents does the checker enforce, which does it only report, and which does no check read at all?
-conclusion: "The checker is dense below a requirement and almost absent above it: no check reads a feature's goal, a requirement's origin, a rule's fulfillment, or a flow's goal, and those four unchecked links hold the largest measured gaps in the largest consumer."
+conclusion: "The checker runs many checks below a requirement and almost none above it: no check reads a feature's goal, a requirement's origin, a rule's fulfillment, or a flow's goal, and those four unchecked links contain the largest measured gaps in the largest consumer."

@@ -3,16 +3,16 @@ id: decision/0076-remove-shapes-nothing-needs
 title: Remove Shapes Nothing Needs
 options:
   - name: "Remove each shape the review found unused or unheld"
-    pros: "No mode stands without a field, no kind stands without a use, and no prose stays that a typed shape already holds."
+    pros: "No mode stands without a field. No kind stands without a use. No prose stays that a typed shape already holds."
     cons: "Records using the shapes move in one release."
   - name: "Keep the shapes and stop writing them"
     pros: "No record breaks and no check changes."
-    cons: "Authors keep finding and using dead shapes, and checks keep covering them."
+    cons: "Authors keep finding and using dead shapes. Checks keep covering them."
   - name: "Remove only the unused values and keep the unused fields"
     pros: "The move is smaller."
     cons: "Empty fields stay in every record and template."
 choice: "Remove each shape the review found unused or unheld"
-consequences: "Removed: the `compensated` consistency mode, the `manual` job kind, the `default` and `cross-aggregate` rule kinds, the `not-pending` idempotency mode, `builtAsynchronously` folded into `timing`, the external-system prose fields `sends`, `receives`, and `failure`, `writes` on reactions and jobs, the `floorplan` link on screens, and the two dead container definitions in the schema. `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` keeps atomic and per-record. The `compensated` mode stays removed: its undo had no field, and the `compensates` link on the reaction is that field. Kept for thin evidence: the `reservation` and `frozen-value` rule kinds, the erasure positions, and the job scheduling fields. The `store` aggregate kind is finished with its `owner` field and a Claimwick instance."
+consequences: "Removed: the `compensated` consistency mode, the `manual` job kind, the `default` and `cross-aggregate` rule kinds, and the `not-pending` idempotency mode. Also removed: `builtAsynchronously` folded into `timing` and the external-system prose fields `sends`, `receives`, and `failure`. Also removed: `writes` on reactions and jobs, the `floorplan` link on screens, and the two dead container definitions in the schema. `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` keeps atomic and per-record. The `compensated` mode stays removed. Its undo had no field, and the `compensates` link on the reaction is that field. The `reservation` and `frozen-value` rule kinds, the erasure positions, and the job scheduling fields stay for thin evidence. The `store` aggregate kind is finished with its `owner` field and a Claimwick instance."
 reopenedWhen: "A removed shape proves to be the only shape carrying a behavior a product needs."
 basedOn:
   - research/check-coverage-evidence

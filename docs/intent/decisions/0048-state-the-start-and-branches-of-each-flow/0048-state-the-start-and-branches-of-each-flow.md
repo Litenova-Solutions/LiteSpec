@@ -1,12 +1,12 @@
 # State the Start and Branches of Each Flow
 
-A flow shows one actor reaching one goal through an ordered set of steps. This decision gives each flow a start written as an observable state and a structured list of branches, so the path a flow may take off its main order is a field that a check reads.
+A flow shows one actor reaching one goal through an ordered set of steps. This decision gives each flow a start written as an observable state and a structured list of branches. The path a flow may take off its main order is a field that a check reads.
 
 ## Context
 
 A flow's start sat in a Preconditions section, and its alternate paths sat in a field named `betweenSteps` and in a Variations section. The field held prose, so an action could appear in a branch and never reach a step. A reader could not tell which step a branch left, or where the flow went next.
 
-The flow that served as the reference example also served a step that belonged to another flow. A use case that fulfilled a requirement in a flow with a different goal was hard to find, because the order of the flow did not show which steps it held.
+The reference example flow held a step that belonged to another flow. A use case that fulfilled a requirement in a flow with a different goal was hard to find. The order of the flow did not show which steps it held.
 
 ## Options
 
@@ -30,7 +30,7 @@ A flow's Example starts from `startedWhen` and performs its steps in order. Each
 
 `record-invalid` reports a flow without `startedWhen`, a `betweenSteps` field, or a branch that lacks a field. `field-invalid` reports a branch whose step names no step of the flow. The book renders the start before the steps and each branch as a sentence after them.
 
-`litespec/core/intent#state-when-each-flow-starts` and `litespec/core/intent#branch-a-flow-only-between-its-steps` are required. `litespec/core/intent#reach-each-finish-condition-through-a-step` and `litespec/core/intent#state-each-flow-blocker-as-a-step-failure` are reviewed for. The order provision names `branches` in place of `betweenSteps`.
+`litespec/core/intent#state-when-each-flow-starts` and `litespec/core/intent#branch-a-flow-only-between-its-steps` are required. `litespec/core/intent#reach-each-finish-condition-through-a-step` and `litespec/core/intent#state-each-flow-blocker-as-a-step-failure` are reviewed for. The provision that leads each flow toward the record it exists for names `branches` in place of `betweenSteps`.
 
 ## Revisit Conditions
 

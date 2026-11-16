@@ -3,17 +3,17 @@ id: decision/0077-use-the-standard-term-for-each-concept
 title: Use the Standard Term for Each Concept
 options:
   - name: "Rename every name the table lists, and keep the rest"
-    pros: "One standard term stands behind each concept across record, folder, code, book, and finding code, and the collisions leave the language."
-    cons: "Every renamed name moves in every file in one release."
+    pros: "One standard term names each concept across record, folder, code, book, and finding code. The collisions are removed from the language."
+    cons: "Every renamed term moves in every file in one release."
   - name: "Rename only the record types"
     pros: "The move is smaller."
     cons: "Fields, codes, and prose keep the old words beside the new types."
   - name: "Keep every name"
     pros: "No file moves."
-    cons: "View still collides with UI and database views, event still reads beside integration-event, and the checks keep saying writes while the field says changes."
+    cons: "View still collides with UI and database views. Event still appears beside integration-event. The checks keep using writes while the field uses changes."
 choice: "Rename every name the table lists, and keep the rest"
-consequences: "Renamed: `view` to `read-model`, `event` to `domain-event`, `changes` to `writes`, `transitions.by` to `movedBy`, `runsWhere` to `runsWhen`, `onFailure.then` to `ifExhausted`, audit `exempt` to `exemptBecause`, `commercial-data` to `frozen-value`, `permission-list` and `entry-point-list` to `permission-set` and `entry-point-set`, `role-orphaned` and `permission-orphaned` to `role-unused` and `permission-unused`, `atomic-group-*` to `atomicity-*`, `constituent` to `part`, `notification-sender-missing` to `notification-effect-missing`, and the provision part `Deviation` to `Waiver`. Kept: `reaction`, `job`, `scenario`, `result`, `rule`, `refusal`, `entry point`, `reachedThrough`, and `effects`. The word-class rule allows a participle with `By`, `Through`, `In`, or `From`. The glossary gains Read Model, Rule Set, Setting Set, Permission Set, Refusal Set, and Act, merges Event into Domain Event, and prose drops door and systems home. `litespec/core/language#name-each-field-by-its-word-class` and `litespec/core/authoring#use-one-term-for-one-concept` state the grammar and the one term."
-reopenedWhen: "A renamed term collides with another concept, or practice settles on a better standard term."
+consequences: "Renamed: `view` to `read-model`, `event` to `domain-event`, `changes` to `writes`, `transitions.by` to `movedBy`, and `runsWhere` to `runsWhen`. Also renamed: `onFailure.then` to `ifExhausted`, audit `exempt` to `exemptBecause`, and `commercial-data` to `frozen-value`. Also renamed: `permission-list` and `entry-point-list` to `permission-set` and `entry-point-set`, and `role-orphaned` and `permission-orphaned` to `role-unused` and `permission-unused`. Also renamed: `atomic-group-*` to `atomicity-*`, `constituent` to `part`, `notification-sender-missing` to `notification-effect-missing`, and the provision part `Deviation` to `Waiver`. Kept: `reaction`, `job`, `scenario`, `result`, `rule`, `refusal`, `entry point`, `reachedThrough`, and `effects`. The word-class rule allows a participle with `By`, `Through`, `In`, or `From`. The glossary gains Read Model, Rule Set, Setting Set, Permission Set, Refusal Set, and Act. It merges Event into Domain Event. Prose drops door and systems home. `litespec/core/language#name-each-field-by-its-word-class` and `litespec/core/authoring#use-one-term-for-one-concept` state the grammar and the one term."
+reopenedWhen: "A renamed term collides with another concept. Or practice settles on a better standard term."
 basedOn:
   - research/naming-grammar-evidence
   - research/field-naming-evidence

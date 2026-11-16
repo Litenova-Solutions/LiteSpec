@@ -30,9 +30,9 @@ Documentation pages keep why it matters where it describes a documentation page'
 
 ## Consequences
 
-The testing provision named for a flow test takes the verb covers, and each citation of it moves in the same change. `describe-every-flow` asks for the person who takes the flow, what they achieve and the consequence at stake. The fix text of the opening finding and the glossary entry for Flow use the same words.
+The testing provision named for a flow test takes the verb covers, and each citation of it moves in the same change. `describe-every-flow` asks for who takes the flow, what they achieve and the consequence at stake. The fix text of the opening finding and the glossary entry for Flow use the same words.
 
-No search of the specification outside the intent records finds the flow sense of walk, or why it matters in record guidance, once the change lands.
+After the change, no search of the specification outside the intent records finds the flow sense of walk, or why it matters in record guidance.
 
 ## Revisit Conditions
 

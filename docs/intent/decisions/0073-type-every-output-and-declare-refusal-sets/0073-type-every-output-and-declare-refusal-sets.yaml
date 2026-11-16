@@ -3,17 +3,17 @@ id: decision/0073-type-every-output-and-declare-refusal-sets
 title: Type Every Output and Declare Refusal Sets
 options:
   - name: "Typed outputs with files and rows, and one refusal set per module"
-    pros: "Every output field carries a type, files state content types and size, each refusal code is declared once with its meaning and problem type, and generic refusals derive instead of being written."
-    cons: "Every output gains types, and each module writes its refusal set."
+    pros: "Every output field carries a type. Files state content types and size. Each refusal code is declared once with its meaning and problem type. Generic refusals derive instead of being written."
+    cons: "Every output gains types. Each module writes its refusal set."
   - name: "Keep untyped outputs and per-result refusal prose"
     pros: "No record moves and no set is written."
-    cons: "File handling stays in prose, and refusal codes scatter across results with no shared meaning."
+    cons: "File handling stays in prose. Refusal codes spread across results with no shared meaning."
   - name: "A product-wide refusal list"
     pros: "One list holds every code."
-    cons: "Modules share codes they never raise, and the list grows into a second taxonomy beside the modules."
+    cons: "Modules share codes they never raise. The list becomes a second taxonomy beside the modules."
 choice: "Typed outputs with files and rows, and one refusal set per module"
-consequences: "A `file` value type carries `contentTypes` and `maxSize`. Every output field carries `type`; a list of rows takes `type: list` with `of` a shape of typed fields, `minItems`, and `unique` keys; a choice takes `choices`. `litespec/core/use-cases#type-every-output-field` states the rule. Each module declares its refusal codes once in `behavior/modules/<m>/refusals.yaml` as `{code, meaning, problemType}` with `code` in `<module>.<name>` form; a result's `code` names a code in its module's set, and a rule's `refusal` names a code whose every carrying result is the rule's refusal in that use case. Derived refusals are never written: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated`, and `sign-in-too-old`. `litespec/core/use-cases#declare-each-modules-refusals-once` states the set. One rule states one condition with its refusal code; a module-level rule over several aggregates names them in `binds`."
-reopenedWhen: "A refusal needs a code no module set can declare, or a value needs a shape the value types cannot carry."
+consequences: "A `file` value type carries `contentTypes` and `maxSize`. Every output field carries `type`. A list of rows takes `type: list` with `of` a shape of typed fields, `minItems`, and `unique` keys. A choice takes `choices`. `litespec/core/use-cases#type-every-output-field` states the rule. Each module declares its refusal codes once in `behavior/modules/<m>/refusals.yaml` as `{code, meaning, problemType}` with `code` in `<module>.<name>` form. A result's `code` names a code in its module's set. A rule's `refusal` names a code whose every carrying result is the rule's refusal in that use case. Derived refusals are never written: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated`, and `sign-in-too-old`. `litespec/core/use-cases#declare-each-modules-refusals-once` states the set. One rule states one condition with its refusal code. A module-level rule over several aggregates names them in `binds`."
+reopenedWhen: "A refusal needs a code no module set can declare. Or a value needs a shape the value types cannot carry."
 basedOn:
   - research/lower-layers-practice
   - research/field-naming-evidence

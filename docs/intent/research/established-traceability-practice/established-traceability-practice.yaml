@@ -66,4 +66,4 @@ sources:
     readOn: 2026-10-30
     key: nkdagility-resources-blog-rethinking-product
 question: What do established requirements and traceability practices require of hierarchy, and where do they warn against requiring it?
-conclusion: Established practice requires every requirement to name an origin and computes every inverse link, and it warns that links without training, named tolerances, and a promotion rule become theatre rather than traceability.
+conclusion: Established practice requires every requirement to name an origin and computes every inverse link, and it warns that links without training, named tolerances, and a promotion rule give no traceability.

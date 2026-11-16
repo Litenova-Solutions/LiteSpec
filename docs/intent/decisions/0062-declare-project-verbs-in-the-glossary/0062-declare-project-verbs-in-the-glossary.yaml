@@ -7,7 +7,7 @@ options:
     cons: "Every project verb moves from its convention page into the glossary as a verb term."
   - name: "A separate typed verb list file"
     pros: "The verbs are checked data without touching the glossary."
-    cons: "Product words split across two files, and a verb means one thing in each."
+    cons: "Product words split across two files, and one verb can carry two meanings."
   - name: "Keep the Markdown convention"
     pros: "No record moves and no check is written."
     cons: "The verb list stays prose no tool reads, so an undeclared verb passes every check."

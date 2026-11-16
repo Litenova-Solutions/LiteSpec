@@ -6,9 +6,9 @@ An actor is a person, organization or system that uses the product. This decisio
 
 The Access section of an actor restated the access its role grants, and it added rules about sessions and sign-in. The role's own files already state the permissions and their limits, so the same grant appeared in two places and could drift.
 
-An actor often stated what users know as a fact about every user, for example that a user has no training in accounting. The actor had no section for an assumption of the product, so the assumption landed in the opening paragraph.
+An actor often stated what users know as a fact about every user, for example that a user has no training in accounting. The actor had no section for an assumption of the product, so the writer put the assumption in the opening paragraph.
 
-Product rules, such as an approval rule, also appeared in actor files, since the rule against behavior in explanation files applied only to features and requirements at that time. The example for an actor often carried numbers that said nothing about the actor.
+Product rules, such as an approval rule, also appeared in actor files, since the rule against behavior in explanation files applied only to features and requirements. The example for an actor often carried numbers that said nothing about the actor.
 
 ## Options
 
@@ -32,7 +32,7 @@ The `holds` field names the role and its scope. The role's own files state its p
 
 ## Consequences
 
-`litespec/core/intent#state-what-the-product-assumes-each-actor-knows` is required and reviewed for. It asks whether an actor explanation states a user's knowledge as a fact about every user. The shared provision that keeps product rules out of Intent explanation files applies to actors as it applies to every other Intent record.
+`litespec/core/intent#state-what-the-product-assumes-each-actor-knows` is required and reviewed for. It asks whether an actor explanation states a user's knowledge as a fact about every user. The shared provision that keeps product rules out of Intent explanation files applies to actors as to every other Intent record.
 
 `litespec new actor` writes the new sections. The section check fails an actor explanation that keeps an Access section or lacks Responsibilities or Knowledge.
 

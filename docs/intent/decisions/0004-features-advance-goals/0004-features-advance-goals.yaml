@@ -3,14 +3,14 @@ id: decision/0004-features-advance-goals
 title: Features Advance Goals
 options:
   - name: Advances for goals, solves for problems
-    pros: One verb per meaning ends the three-target split of serves, every live feature already solves exactly one problem, and the goal link is the thin edge the trace needs.
+    pros: One verb per meaning ends the three-target split of serves. Every live feature already solves exactly one problem, and the goal link is the first small step the trace needs.
     cons: Features, provisions, checks, and the book must all learn the new verb in one change.
   - name: Keep serves for features
     pros: No field renames and no citation sweep are needed.
     cons: Serves keeps three target sets and two meanings, and invalid values already exist where authors must guess which targets a carrier allows.
   - name: Goals optional for features
-    pros: With few goals, forcing one goal per feature risks vague pasted claims that carry less information than the Offering.
-    cons: The reader starting at most planned features reaches no goal, and only a handful of live requirements trace to any goal at all.
+    pros: With few goals, forcing one goal per feature risks vague claims that carry less information than the Offering.
+    cons: A reader who starts at most planned features reaches no goal, and only a few live requirements trace to any goal.
   - name: One shared link for goals and problems
     pros: A feature carries one list instead of two.
     cons: A goal states an outcome and a problem states a pain, so one list hides which the feature moves.

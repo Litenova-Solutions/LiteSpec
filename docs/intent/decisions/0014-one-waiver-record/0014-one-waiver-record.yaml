@@ -3,7 +3,7 @@ id: decision/0014-one-waiver-record
 title: One Waiver Record
 options:
   - name: One waiver record with kind, scope and closing records
-    pros: One shape carries every waiver with its kind, reason, scope, closing records for a gap and consequences for a lasting choice, and covers only what it names.
+    pros: One shape carries every waiver with its kind, reason, scope, closing records for a gap, and consequences for a lasting choice. It covers only what it names.
     cons: Deviations, known gaps, deferrals and the frozen phase all migrate to the one record in one change.
   - name: Keep four mechanisms and tighten each
     pros: Each mechanism keeps its readers.
@@ -15,7 +15,7 @@ options:
     pros: No waiver, no waiver abuse.
     cons: One-person teams stall on advisory findings.
 choice: One waiver record with kind, scope and closing records
-consequences: "The waiver record is the one shape for every waiver. `kind` states whether the waiver is a gap or a lasting choice, because whether a waiver ends is a fact the reader needs on the record. `covers` names a provision, a page or finding codes. A gap carries `expiresOn`, `exit` and `closedBy`, the typed records whose change closes the gap. A lasting waiver carries `consequences` and no end date. `litespec/core/waivers#record-accepted-gaps-as-waivers`, `litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver` and `litespec/core/release#record-accepted-debt-as-a-waiver` state the uses this decision unifies. The decision also fixes the analyzer rule: an analyzer matches a waiver by its `covers` against its own LS rule ID."
+consequences: "The waiver record is the one shape for every waiver. `kind` states whether the waiver is a gap or a lasting choice, because whether a waiver ends is a fact the reader needs on the record. `covers` names a provision, a page or finding codes. A gap carries `expiresOn`, `exit`, and `closedBy`, the typed records whose change closes the gap. A lasting waiver carries `consequences` and no end date. `litespec/core/waivers#record-accepted-gaps-as-waivers`, `litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver`, and `litespec/core/release#record-accepted-debt-as-a-waiver` state the uses this decision unifies. The decision also fixes the analyzer rule: an analyzer matches a waiver by its `covers` against its own LS rule ID."
 reopenedWhen: A waiver appears that covers neither a provision, a page nor named finding codes.
 basedOn:
   - research/lower-layers-practice
