@@ -9,7 +9,7 @@ kind: <command>
 access:
   grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
   tenant: <own|cross|public|none>
-  recentSignIn: setting/<module>.<name, or remove this line>
+  recentSignInLimit: setting/<module>.<name, or remove this line>
 serves:
 - flow/<name>#s1
 fulfills:
@@ -20,11 +20,17 @@ reachedThrough:
 - entry-point/<name>
 raises:
 - domain-event/<aggregate>.<name, or remove this line>
+steps:
+- statement: <one step, in one sentence naming who acts>
+  cites:
+  - rule/<home>.<name, or remove this line>
+edgeCases:
+- <one unusual path, in one sentence, or remove this line>
 input:
 - name: <field name>
   meaning: <what the field holds>
   type: id
-  of: <identified record id>
+  identifies: <identified record id>
   required: <true|false, or remove this line>
   rules:
   - rule/<home>.<name, or remove this line>
@@ -43,12 +49,12 @@ input:
   - <allowed value>
   origin: <caller|claim|derived|verified-claim>
   classification: <public|internal|personal|sensitive>
-# A file field carries contentTypes and maxSize instead of of. An origin of verified-claim carries verifiedBy.
+# A file field carries contentTypes and maxSize instead of identifies. An origin of verified-claim carries verifiedBy.
 output:
 - name: <field name>
   meaning: <what the field holds>
   type: id
-  of: aggregate/module.name
+  identifies: aggregate/module.name
   many: false
 paging:
   mode: pages
@@ -99,7 +105,7 @@ idempotency:
   replay: <returns-first-result|refuses|acts-again, or remove this line>
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this command needs no idempotency, or remove this line>
-requiresConsent: rule/<home>.<name, or remove this line>
+consentRule: rule/<home>.<name, or remove this line>
 # audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level and target.
 audit:
   level: <required|optional|none>

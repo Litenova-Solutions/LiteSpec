@@ -15,6 +15,7 @@
   const f: RecordFields = $derived(r.fields ?? {});
   const selected = $derived(stringList(f, "fields"));
   const translates = $derived(stringField(f, "translates"));
+  const compatibility = $derived(stringField(f, "compatibility") ?? "");
   // The translated domain event's carries by name: each selected field reads its type here.
   const carryOf = $derived.by(() => {
     const byName: Record<string, RecordFields> = {};
@@ -26,9 +27,10 @@
   });
 </script>
 
-{#if translates}
+{#if translates || compatibility}
   <DefinitionList>
-    <DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>
+    {#if translates}<DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>{/if}
+    {#if compatibility}<DefinitionRow label="compatibility">{compatibility}</DefinitionRow>{/if}
   </DefinitionList>
 {/if}
 {#if selected.length}

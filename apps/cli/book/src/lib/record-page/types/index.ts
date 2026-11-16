@@ -24,6 +24,7 @@ import Layer from "./Layer.svelte";
 import Module from "./Module.svelte";
 import Notification from "./Notification.svelte";
 import Permission from "./Permission.svelte";
+import PermissionSet from "./PermissionSet.svelte";
 import Problem from "./Problem.svelte";
 import Product from "./Product.svelte";
 import Reaction from "./Reaction.svelte";
@@ -72,6 +73,7 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   screen: Screen,
   role: Role,
   permission: Permission,
+  "permission-set": PermissionSet,
   "entry-point": EntryPoint,
   "external-system": ExternalSystem,
   runbook: Runbook,

@@ -34,7 +34,7 @@ internal static class AccessChecks
 
     /// <summary>
     ///     Reports a grant outside its forms or naming no permission record, a system grant reached through an outside entry point,
-    ///     a recentSignIn that names no setting, and a device entry point whose kind is not device.
+    ///     a recentSignInLimit that names no setting, and a device entry point whose kind is not device.
     /// </summary>
     /// <param name="model">The loaded project model that holds every use case, permission, setting and entry point.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -71,17 +71,17 @@ internal static class AccessChecks
                 }
             }
 
-            if (Str(access, RecordFields.RecentSignIn) is { } window
+            if (Str(access, RecordFields.RecentSignInLimit) is { } window
                 && (!window.StartsWith(RecordTypes.Setting + "/", StringComparison.Ordinal) || !model.ById.TryGetValue(window, out var setting) || setting.Type != RecordTypes.Setting))
             {
-                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignIn '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignInLimit '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
             foreach (var id in reached)
             {
                 if (model.ById.TryGetValue(id, out var point)
                     && point.Type == RecordTypes.EntryPoint
-                    && point.Field(RecordFields.Auth) == DeviceAuth
+                    && point.Field(RecordFields.Authentication) == DeviceAuth
                     && point.Field(RecordFields.Kind) != "device")
                 {
                     findings.Add(new Finding("record-invalid", $"Entry point '{point.Id}' states auth device but its kind is '{point.Field(RecordFields.Kind)}', not device.", point.File, point.Line, SubjectOf(point)));

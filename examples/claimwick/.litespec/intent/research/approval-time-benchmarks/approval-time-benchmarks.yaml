@@ -6,5 +6,15 @@ sources:
 - url: https://example.com/expense-study
   readOn: 2026-02-10
   key: example-expense-study
+  note: A single small industry study with no company count, read on 2026-02-10.
 question: How fast do small companies decide expenses?
 conclusion: According to one small recent industry study, small companies decide expenses within one week.
+findings:
+- statement: Small companies decide expense claims within one week.
+  sources:
+  - example-expense-study
+- statement: Five business days is a defensible target for Claimwick.
+  sources:
+  - example-expense-study
+openQuestions:
+- The study does not state how many companies it covers.

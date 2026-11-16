@@ -253,16 +253,30 @@ public sealed partial class StandardsValidatorTests
         },
         [], [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
-    /// <summary>Field name carrying two shapes.</summary>
-    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
-    [Fact(DisplayName = "field name carrying two shapes")]
-    public void FieldNameCarryingTwoShapes() => Check(
+    /// <summary>Two record types sharing a field name with different shapes.</summary>
+    /// <proves>litespec/core/language#read-each-field-name-in-its-record-type</proves>
+    [Fact(DisplayName = "two record types sharing a field name with different shapes")]
+    public void TwoTypesSharingANameWithDifferentShapes() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"betaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        []);
+
+    /// <summary>Plural record-type noun holding prose.</summary>
+    /// <proves>litespec/core/language#read-each-field-name-in-its-record-type</proves>
+    [Fact(DisplayName = "plural record-type noun holding prose")]
+    public void PluralRecordTypeNounHoldingProse() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.yaml",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"rules\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"ruleId\":{\"type\":\"string\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
         [MaintainerDiagnostics.Codes.FieldNameShape]);

@@ -4,8 +4,8 @@ title: <Title in Title Case>
 terms:
 - <term id, or remove this line>
 summary: <what a person does on this screen, or remove this line>
-# A screen carries address or host, never both.
-address: <route address, such as /expenses>
+# A screen carries route or host, never both.
+route: <route address, such as /expenses>
 offers:
 - use-case/<module>.<name, or remove this line>
 serves:
@@ -15,5 +15,9 @@ fulfills:
 pageFrame:
   pattern: <page frame pattern, such as list-page>
   option: <chosen option>
+task: <the job the person does here, in one to three sentences>
+states:
+- name: <State, such as Empty or Loading>
+  shows: <what the screen shows in this state, in one sentence>
 leadsTo:
 - screen/<home>.<name, or remove this line>

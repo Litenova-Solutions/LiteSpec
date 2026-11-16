@@ -13,7 +13,7 @@
   let { r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
   const whatHappens = $derived(proseOf(r, "whatHappens"));
-  const rawParams: unknown[] = $derived(Array.isArray(f.params) ? f.params : f.params ? [f.params] : []);
+  const rawParams: unknown[] = $derived(Array.isArray(f.parameters) ? f.parameters : f.parameters ? [f.parameters] : []);
   const stringParams = $derived(rawParams.length > 0 && typeof rawParams[0] === "string");
   const params = $derived(rawParams.filter(isRecord));
   const claims = $derived(objectList(f, "claims"));
@@ -23,7 +23,7 @@
   <PageSection blockKey="wh" heading="whatHappens"><RenderedProse html={whatHappens} /></PageSection>
 {/if}
 {#if rawParams.length}
-  <PageSection blockKey="params" heading="params" count={rawParams.length}>
+  <PageSection blockKey="params" heading="parameters" count={rawParams.length}>
     {#if stringParams}
       <div class="flex flex-wrap gap-2">
         {#each rawParams as p, i (i)}<code class="bg-layer px-1 font-mono text-xs">{String(p)}</code>{/each}

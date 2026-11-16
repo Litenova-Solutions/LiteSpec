@@ -4,9 +4,12 @@ Approve Expense is the decision by which a manager accepts a submitted expense. 
 
 ## Flow
 
-The manager opens a submitted expense and approves it. Spending runs two checks before it accepts the decision: it refuses the approval with `spending.own-expense` when the approver submitted the expense, and with `spending.not-submitted` when the expense is already decided.
+1. The manager opens a submitted expense.
+2. Spending refuses the approval with `spending.own-expense` when the approver submitted it.
+3. Spending refuses the approval with `spending.not-submitted` when the expense is decided.
+4. Spending moves the expense to Approved and raises the approved event.
 
-Otherwise the expense moves to Approved, and `domain-event/expense.approved` is raised with the approver and the decision time. No audit entry is stored for the approval. The first approval moves the expense out of Submitted, so a second approval finds it decided and is refused.
+The first approval moves the expense out of Submitted, so a second approval finds it decided and is refused. No audit entry is stored for the approval.
 
 ## Example
 
@@ -16,4 +19,6 @@ Ben then approves the same expense again. Spending refuses the second approval w
 
 ## Edge Cases
 
-Ben cannot approve his own expenses: when Ben submits a train fare of his own and then tries to approve it, spending refuses with `spending.own-expense`. The expense stays Submitted, because spending refused the decision.
+- Spending refuses approval of the manager's own expense with `spending.own-expense`.
+
+The expense stays Submitted, because spending refused the decision.

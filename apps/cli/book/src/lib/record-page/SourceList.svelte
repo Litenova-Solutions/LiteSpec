@@ -37,6 +37,7 @@
           {#each sources as x, i (String(x.key ?? i))}
             {@const readOn = stringField(x, "readOn")}
             {@const published = stringField(x, "publishedOn")}
+            {@const note = stringField(x, "note")}
             {@const href = x.path ? null : safeHref(book, x.url)}
             {@const host = href ? hostOf(String(x.url ?? "")) : ""}
             {@const title = stringField(x, "title")}
@@ -55,6 +56,9 @@
                 {/if}
                 {#if published}
                   <span class="mt-1 block text-xs tracking-[0.32px] text-text-secondary">published {book.fmtDate(published)}</span>
+                {/if}
+                {#if note}
+                  <span class="mt-1 block text-sm">{note}</span>
                 {/if}
               </th>
               <td class="bg-layer border-t border-border-subtle px-4 py-3 align-top text-sm">{readOn ? book.fmtDate(readOn) : ""}</td>

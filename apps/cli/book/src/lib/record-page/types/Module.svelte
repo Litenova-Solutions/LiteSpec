@@ -3,10 +3,14 @@
   import type { BookRecord } from "$lib/frame";
   import { TypeTag } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
+  import BulletList from "../blocks/BulletList.svelte";
+  import { stringList } from "../page-values";
 
-  // A module: how many records of each behavior kind it holds.
+  // A module: what it is responsible for, what it excludes, and how many records of each behavior kind it holds.
   type Props = { id: string; r: BookRecord };
-  let { id }: Props = $props();
+  let { id, r }: Props = $props();
+  const responsibilities = $derived(stringList(r.fields ?? {}, "responsibilities"));
+  const excludes = $derived(stringList(r.fields ?? {}, "excludes"));
   const KINDS = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "permission", "job", "notification", "setting", "read-model"];
   const all = $derived(KINDS.flatMap((t) => book.descByType(id, t, 6)));
   const rows = $derived(
@@ -16,6 +20,16 @@
   );
 </script>
 
+{#if responsibilities.length}
+  <PageSection blockKey="resp" heading="responsibilities" count={responsibilities.length}>
+    <BulletList items={responsibilities} />
+  </PageSection>
+{/if}
+{#if excludes.length}
+  <PageSection blockKey="exc" heading="excludes" count={excludes.length}>
+    <BulletList items={excludes} />
+  </PageSection>
+{/if}
 {#if all.length}
   <PageSection blockKey="size" heading="Records">
     <!-- A scrollable region stays keyboard reachable through its tabindex. -->

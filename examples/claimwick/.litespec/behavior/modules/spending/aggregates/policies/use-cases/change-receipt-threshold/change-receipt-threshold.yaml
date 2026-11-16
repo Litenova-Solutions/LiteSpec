@@ -14,6 +14,18 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises: []
+steps:
+- statement: The manager sends the new threshold with its currency.
+  cites:
+  - aggregate/spending.policy
+- statement: Spending refuses the change with `spending.negative-threshold` when the threshold is negative.
+  cites:
+  - result/change-receipt-threshold.negative-threshold
+  - rule/policy.threshold-never-negative
+- statement: Spending stores the new threshold on the policy.
+  cites:
+  - result/change-receipt-threshold.threshold-set
+  - aggregate/spending.policy
 input:
 - name: threshold
   meaning: The new receipt threshold with its currency.

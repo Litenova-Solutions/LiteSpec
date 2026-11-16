@@ -88,9 +88,9 @@ export function outcomeTag(outcome: string): string {
 export function fieldType(book: Book, x: RecordFields): string {
   const type = x.type === undefined || x.type === null ? "" : esc(x.type);
   let of = "";
-  if (Array.isArray(x.of)) of = x.of.length ? esc(x.of.map(String).join(", ")) : "";
-  else if (x.of !== undefined && x.of !== null && String(x.of) !== "") {
-    const id = stripStep(String(x.of));
+  if (Array.isArray(x.identifies)) of = x.identifies.length ? esc(x.identifies.map(String).join(", ")) : "";
+  else if (x.identifies !== undefined && x.identifies !== null && String(x.identifies) !== "") {
+    const id = stripStep(String(x.identifies));
     of = book.has(id) ? esc(book.title(id)) : esc(id);
   }
   return type + (of ? muted(of) : "");

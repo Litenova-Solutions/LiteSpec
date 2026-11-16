@@ -22,7 +22,7 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 Run `litespec new research <name>` from the consumer root. The command writes the record file at `.litespec/intent/research/<name>/<name>.yaml`, reserves the identifier `research/<name>`, and writes the explanation file `<name>.md` from the research template with the title filled in.
 
-Research is an article type: the YAML file carries the question, the sources, and the conclusion, while the explanation file carries the findings in prose.
+Research is an article type: the YAML file carries the question, the sources, the findings, and the conclusion, while the explanation file restates the findings in prose.
 
 The template ships with placeholders. Replace every one of them, because `model check` reports any placeholder you leave unchanged. This satisfies `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
@@ -70,9 +70,32 @@ One record can hold four dates, and each means something different:
 
 The read date shows only when someone read the source, never when a rate or rule applies. This satisfies `litespec/core/intent#record-research-with-its-question-conclusion-and-sources`.
 
+### State the Findings in Fields
+
+```yaml
+type: research
+id: research/approval-time-benchmarks
+title: Approval Time Benchmarks
+question: How fast do small companies decide expenses?
+sources:
+  - key: example-expense-study
+    url: https://example.com/expense-study
+    readOn: 2026-02-10
+    note: The study surveys small companies in one country and addresses managers who approve expenses.
+findings:
+  - statement: The surveyed small companies decide expense claims within one week.
+    sources:
+      - example-expense-study
+openQuestions:
+  - Whether the one-week figure holds for companies with more than fifty employees.
+conclusion: According to one small recent industry study, small companies decide expenses within one week.
+```
+
+The explanation file restates `findings`, `openQuestions`, and each source's `note` in its Findings, Open Questions, and Source Notes sections; it adds no fact the record lacks.
+
 ### Write One Claim per Finding
 
-Under Findings, give each finding its own paragraph. Each paragraph states one claim with the conditions it holds under, cites its source key as a reference link `[text][key]`, and says whether the source states the claim or you infer it.
+State each finding as one item of `findings`, and restate each item under Findings in its own paragraph. Each item states one claim with the conditions it holds under, names its sources by key, and says whether the source states the claim or you infer it.
 
 | Instead of | Write |
 |:---|:---|
@@ -110,7 +133,7 @@ The weak version turns a source's figure into a promise for the product. The str
 
 ### Write Open Questions as Specific Questions
 
-Under Open Questions, optional, write what the sources do not establish. State each gap as a question that names what to investigate next.
+Under Open Questions, optional, write what the sources do not establish. State each question as one item of `openQuestions`; Open Questions restates that field. State each gap as a question that names what to investigate next.
 
 | Instead of | Write |
 |:---|:---|
@@ -120,7 +143,7 @@ The weak version names no gap and no next step. The strong version names the pop
 
 ### Write Source Notes
 
-Under Source Notes, optional, describe each source: what it covers, the audience it addresses, and where sources disagree. A note on a source's audience tells the reader how far its figures travel.
+Where the source needs a note, state it in the entry's `note`. Under Source Notes, optional, describe each source: what it covers, the audience it addresses, and where sources disagree. A note on a source's audience tells the reader how far its figures travel.
 
 | Instead of | Write |
 |:---|:---|

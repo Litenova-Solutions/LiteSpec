@@ -135,7 +135,7 @@ internal static class ContractChecks
         var authenticated = useCase.Ids(RecordFields.ReachedThrough)
             .Where(id => model.ById.TryGetValue(Identifiers.BaseId(id), out var point)
                 && point.Type == RecordTypes.EntryPoint
-                && point.Field(RecordFields.Auth) is { Length: > 0 } auth
+                && point.Field(RecordFields.Authentication) is { Length: > 0 } auth
                 && auth != "none")
             .ToList();
 
@@ -296,7 +296,7 @@ internal static class ContractChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckContractOf(ProjectModel model, Record record, string label, string array, string name, string type, JsonElement entry, List<Finding> findings)
     {
-        var has = entry.TryGetProperty(RecordFields.Of, out var of);
+        var has = entry.TryGetProperty(RecordFields.Identifies, out var of);
 
         if (type == "id")
         {
@@ -437,7 +437,7 @@ internal static class ContractChecks
     {
         foreach (var point in model.Records.Where(record => record.Type == RecordTypes.EntryPoint))
         {
-            foreach (var auth in point.Ids(RecordFields.Auth).Order(StringComparer.Ordinal))
+            foreach (var auth in point.Ids(RecordFields.Authentication).Order(StringComparer.Ordinal))
             {
                 if (!EntryPointAuth.Contains(auth))
                 {

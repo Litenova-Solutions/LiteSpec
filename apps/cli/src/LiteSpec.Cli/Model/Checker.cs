@@ -73,6 +73,7 @@ static class Checker
         LinkChecks.Run,
         ExplanationChecks.Run,
         ResearchSourceChecks.Run,
+        SourcedStatementChecks.Run,
         SourceLinkChecks.Run,
         ConstraintChecks.Run,
         FormatChecks.Run,

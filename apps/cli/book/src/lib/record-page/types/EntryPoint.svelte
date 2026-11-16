@@ -1,17 +1,27 @@
 <script lang="ts">
-  import { book, esc, stripStep } from "$lib/frame";
+  import { book, duration, esc, stripStep } from "$lib/frame";
   import type { BookRecord, RecordFields } from "$lib/frame";
+  import { RecordLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
+  import BulletList from "../blocks/BulletList.svelte";
+  import DefinitionList from "../blocks/DefinitionList.svelte";
+  import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import NavigationMap from "../shared/NavigationMap.svelte";
   import { codeOf, refLink, td, thRow } from "../shared/record-cells";
-  import { objectList, screenFields, stringField, stringList } from "../page-values";
+  import { objectField, objectList, screenFields, stringField, stringList } from "../page-values";
 
-  // An entry point: the content it serves with the requirement each entry
-  // fulfills, and the navigation map of its screens.
+  // An entry point: who uses it, how authentication holds, its limits, the content it serves, and the navigation map.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
+  const audience = $derived(stringList(f, "audience"));
+  const authentication = $derived(stringList(f, "authentication"));
+  const session = $derived(objectField(f, "session"));
+  const lifetime = $derived(session ? (stringField(session, "lifetime") ?? "") : "");
+  const idleTimeout = $derived(session ? (stringField(session, "idleTimeout") ?? "") : "");
+  const reauth = $derived(stringList(f, "reauthenticationTriggers"));
+  const limits = $derived(stringList(f, "limits"));
   const served = $derived(objectList(f, "servedContent"));
   // The screens of this entry point in outline order: the screens placed
   // below it, and the screens naming it as their entry point.
@@ -29,11 +39,11 @@
     for (const x of screens) out[x] = stringList(book.get(x)?.fields, "leadsTo").map((t) => stripStep(t));
     return out;
   });
-  // The start screen is the one at the root address; the map marks it, and
+  // The start screen is the one at the root route; the map marks it, and
   // shows no marker until the data carries that screen.
   const start = $derived.by(() => {
     for (const x of screens) {
-      if (screenFields(book.get(x)?.fields ?? {}).address === "/") return x;
+      if (screenFields(book.get(x)?.fields ?? {}).route === "/") return x;
     }
     return null;
   });
@@ -44,6 +54,38 @@
   }
 </script>
 
+{#if audience.length}
+  <PageSection blockKey="aud" heading="audience" count={audience.length}>
+    <DefinitionList>
+      <DefinitionRow label="Audience">
+        {#each audience as x, i (x)}{#if i > 0}{", "}{/if}<RecordLink id={stripStep(x)} />{/each}
+      </DefinitionRow>
+    </DefinitionList>
+  </PageSection>
+{/if}
+{#if authentication.length || lifetime || idleTimeout}
+  <PageSection blockKey="auth" heading="authentication">
+    <DefinitionList>
+      {#if authentication.length}
+        <DefinitionRow label="authentication">
+          {#each authentication as x, i (x)}{#if i > 0}{", "}{/if}<code class="bg-layer px-1 font-mono text-xs">{x}</code>{/each}
+        </DefinitionRow>
+      {/if}
+      {#if lifetime}<DefinitionRow label="Lifetime">{duration(lifetime)}</DefinitionRow>{/if}
+      {#if idleTimeout}<DefinitionRow label="Idle timeout">{duration(idleTimeout)}</DefinitionRow>{/if}
+    </DefinitionList>
+  </PageSection>
+{/if}
+{#if reauth.length}
+  <PageSection blockKey="reauth" heading="reauthenticationTriggers" count={reauth.length}>
+    <BulletList items={reauth} />
+  </PageSection>
+{/if}
+{#if limits.length}
+  <PageSection blockKey="limits" heading="limits" count={limits.length}>
+    <BulletList items={limits} />
+  </PageSection>
+{/if}
 {#if served.length}
   <PageSection blockKey="served" heading="servedContent" count={served.length}>
     <DataTable

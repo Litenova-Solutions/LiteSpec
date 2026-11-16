@@ -8,3 +8,7 @@ kind: <person|organization>
 belongsToTeam: <true|false>
 holds:
 - role/<name, or remove this line>
+responsibilities:
+- <one task or decision the actor answers for, in one sentence>
+knowledge:
+- <one assumption the product makes about what the actor knows, in one sentence>

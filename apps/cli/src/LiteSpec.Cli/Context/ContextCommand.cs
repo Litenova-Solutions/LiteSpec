@@ -10,8 +10,8 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Context;
 
 /// <summary>
-///     The <c>litespec context</c> command: writes the consumer's records and
-///     explanation files as one compact plain-text file for an AI chat.
+///     The <c>litespec context</c> command: writes the consumer's records
+///     as one compact plain-text file for an AI chat.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class ContextCommand
@@ -26,11 +26,10 @@ static class ContextCommand
     public const string Usage = """
         Usage: litespec context [--root <folder>] [--out <file-or-folder>] [--layers <list>] [--modules <list>] [--types <list>] [--include records|explanations|both] [--full] [--help]
 
-        Writes the consumer's records and explanation files as one compact
+        Writes the consumer's records as one compact
         plain-text file for an AI chat: a short header, then one block per
         file between '=== BEGIN FILE: <relative path> ===' and
-        '=== END FILE: <relative path> ===', each explanation file
-        following its record file, and a closing
+        '=== END FILE: <relative path> ===', and a closing
         '=== END OF CONTEXT: <n> files ===' line. The product record comes first and
         is always included. The command never edits, moves or deletes a
         LiteSpec file.
@@ -40,7 +39,7 @@ static class ContextCommand
           --layers    Comma list of intent, behavior, implementation, proof, governance. Defaults to all.
           --modules   Comma list of module names; limits Behavior records to those modules.
           --types     Comma list of record types to keep, such as use-case,rule.
-          --include   One of records, explanations, or both. Defaults to both.
+          --include   One of records, explanations, or both. Defaults to records.
           --full      Keep the files as written instead of compacting them.
           --help      Print this text and exit.
 
@@ -118,7 +117,7 @@ static class ContextCommand
             }
         }
 
-        var include = parsed.Value("--include") ?? "both";
+        var include = parsed.Value("--include") ?? "records";
 
         if (include.Length == 0)
         {

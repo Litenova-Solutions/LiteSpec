@@ -10,20 +10,22 @@ The affected employee submitted an expense and waits for a decision on it. For t
 
 ## Failure Cases
 
-- **An expense waits without a decision.** Nothing shows the approver how long an expense has waited, so the expense waits until the employee chases it. Until then, the employee carries the amount from their own account.
-- **The employee cannot see the decision.** Nothing tells the employee when the approver decides, so the employee learns the outcome only by asking. A decided expense still looks open, and the employee chases a decision the approver already made.
+- An expense waits without a decision while the approver sees no waiting time and the employee carries the amount.
+- The employee learns the decision only by asking and chases a decision already made.
+
+Ava submits the 48.90 EUR train fare on Monday. Ben sees the fare with no waiting time, so the fare waits while Ava carries the amount. When Ben decides it on Tuesday, Ava still sees it as open and asks Ben before she learns the decision.
+
+## Example
+
+Ava submits the 48.90 EUR train fare for the client visit and waits for Ben. The fare shows no waiting time, so Ben leaves it undecided while Ava carries the amount. Ava emails Ben, and Ben answers from memory that he has not decided it yet.
 
 ## Current Workaround
 
-Employees email the approver to ask for a faster decision. The approver answers from memory, with no record of how long the expense has waited.
-
-Each employee repeats that email for each waiting expense, and keeps track of which expenses are still open unaided.
+Employees email the approver to ask for a faster decision. The approver answers from memory with no record of the wait. Each employee repeats the email for each waiting expense.
 
 ## Cost
 
-The cost is counted in weeks of waiting, not in money. Employees carry the amount from their own account for the length of the wait, and the evidence puts the average wait at 3 weeks. Employees reported that figure; nobody measured it.
-
-No total of carried money is recorded for this problem, so the money cost is unknown.
+Employees carry the amount from their own account for the length of the wait. The average wait is three weeks as reported, and the money cost is unknown.
 
 ## Evidence
 
@@ -33,7 +35,7 @@ The record marks the claim as reported, not measured. The research sets the comp
 
 ## Resolution Criteria
 
-- Each submitted expense is decided within 5 business days.
+- Each submitted expense is decided within five business days.
 - The employee sees the decision without asking the approver.
 
 The 5-day rule is set in `requirement/approval.decided-within-five-days`.

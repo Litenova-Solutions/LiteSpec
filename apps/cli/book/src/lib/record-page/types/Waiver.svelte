@@ -13,7 +13,7 @@
   let { r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
   const kind = $derived(stringField(f, "kind"));
-  const exit = $derived(proseOf(r, "exit"));
+  const exit = $derived(proseOf(r, "exitWhen"));
   const consequences = $derived(proseOf(r, "consequences"));
   const closedBy = $derived(stringList(f, "closedBy"));
   const paths = $derived(stringList(f, "paths"));
@@ -28,7 +28,7 @@
   <PageSection blockKey="kind" heading="kind">{capitalize(kind)}</PageSection>
 {/if}
 {#if exit}
-  <PageSection blockKey="exit" heading="exit"><RenderedProse html={exit} /></PageSection>
+  <PageSection blockKey="exit" heading="exitWhen"><RenderedProse html={exit} /></PageSection>
 {/if}
 {#if consequences}
   <PageSection blockKey="cons" heading="consequences"><RenderedProse html={consequences} /></PageSection>

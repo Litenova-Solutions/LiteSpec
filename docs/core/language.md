@@ -193,11 +193,25 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
-**Rationale:** One grammar with no list of exceptions means a reader who learned `cites` on a flow understands `cites` on a requirement the same way. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
+**Rationale:** One grammar means a reader who learned `serves` on a flow understands `serves` on a use case the same way. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
 
 **Example:** The Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
 **Reviewed for:** Does every field use the name its word class gives it? Check the field names the change adds against the word-class table.
+
+### Read Each Field Name in Its Record Type
+
+**ID:** `litespec/core/language#read-each-field-name-in-its-record-type`
+
+**Strength:** required
+
+**Statement:** A field name MUST read naturally in its record type, MUST keep one name for one concept across record types, and MUST hold links to a record type when it names that type, in the singular or the plural.
+
+**Rationale:** A reader meets a field inside one record, so its record type gives the name its meaning: a constraint's `scope` and a role's `scope` each read plainly where they stand. Forcing one meaning per word across every type pushes new fields toward names nobody uses. Two things stay fixed because they mislead across types: one concept keeps one name, so `summary` and `fulfills` read the same everywhere, and a name that names a record type, such as `rules`, always holds links to that type. Settled by [decision/0096-read-field-names-in-their-record-type](decision/0096-read-field-names-in-their-record-type).
+
+**Example:** A Claimwick screen, the Expense List (`screen/claimwick-app.expense-list`), lists its `states` (Empty, Loading, Failed), and the expense aggregate (`aggregate/spending.expense`) lists its lifecycle `states` (Submitted, Approved, Refused, Reimbursed, Erased). Each reads plainly in its record. A Claimwick constraint states its legal rules in `obligations`, because `rules` holds links to rule records.
+
+**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date.
 
 ### Name a Boolean as a Predicate
 

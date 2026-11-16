@@ -35,7 +35,15 @@ advances:
   - goal/faster-reimbursement
 terms:
   - term/expense
+successCriteria:
+  - An expense above the 25 EUR threshold cannot be submitted without a receipt.
+  - No manager can approve their own expense.
+excludes:
+  - Reminders for late decisions belong to feature/approval-reminders.
+  - Whether a manager on leave hands decisions to a deputy is open for the owner.
 ```
+
+The explanation file restates `successCriteria` and `excludes` in its Success Criteria and Boundaries sections; it adds no fact the record lacks.
 
 Write each link on the feature, the record that points. This satisfies `litespec/core/intent#state-each-feature-with-its-offering` and `litespec/core/model#write-links-on-the-record-that-points`.
 
@@ -144,11 +152,11 @@ Under Capabilities, describe what the user can do, with one short paragraph or s
 |:---|:---|
 | Expenses waiting more than 10 days show in red. | No requirement states it. Add a requirement for it, or remove the sentence. |
 
-This satisfies `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`.
+This satisfies `litespec/core/writing#explain-the-same-specification-the-records-state`.
 
 ### State Success Criteria the Feature Controls
 
-Under Success Criteria, list only the outcomes the feature brings about on its own, each one checkable by a tester. Move an outcome that depends on people or on other features to the goal the feature advances.
+Under Success Criteria, list only the outcomes the feature brings about on its own, each one checkable by a tester. State them in `successCriteria`; the section restates that field. Move an outcome that depends on people or on other features to the goal the feature advances.
 
 | Instead of | Write |
 |:---|:---|
@@ -158,7 +166,7 @@ How fast managers decide depends on the managers, so the weak version sets a tes
 
 ### State the Boundaries
 
-Under Boundaries, say what the feature leaves to other features, which features or decisions it depends on, and which questions the owner has not decided. Check the other Intent records first, and keep only the questions none of them settles.
+Under Boundaries, say what the feature leaves to other features, which features or decisions it depends on, and which questions the owner has not decided. State them in `excludes`; the section restates that field. Check the other Intent records first, and keep only the questions none of them settles.
 
 ```markdown
 Reminders for late decisions are not part of this feature. They belong to `feature/approval-reminders`.
@@ -185,7 +193,7 @@ This satisfies `litespec/core/writing#use-literal-words` and `litespec/core/writ
 
 When a statement needs context it cannot carry, such as the date a comparison uses or a term a reader may misread, add `<name>.md` beside `<name>.yaml` in the requirement folder. Open it with one paragraph and add an optional Example.
 
-Leave acceptance criteria out of it, because the Behavior scenarios that fulfill the requirement state them, and describe no behavior the statement does not hold. When the statement and its rationale say everything, leave the file out. This satisfies `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`.
+Leave acceptance criteria out of it, because the Behavior scenarios that fulfill the requirement state them, and describe no behavior the statement does not hold. When the statement and its rationale say everything, leave the file out. This satisfies `litespec/core/writing#explain-the-same-specification-the-records-state`.
 
 ## Check
 

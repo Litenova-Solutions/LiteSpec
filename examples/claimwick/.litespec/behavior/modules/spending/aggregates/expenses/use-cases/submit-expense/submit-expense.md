@@ -4,9 +4,12 @@ Submit Expense is how an employee files a work cost so that a manager can decide
 
 ## Flow
 
-The employee sends the amount, its currency and the receipt, when one is attached. Spending checks the receipt rule against the receipt threshold in the policy. An expense above the receipt threshold with no receipt is refused with `spending.receipt-missing`.
+1. The employee sends the amount, currency and receipt.
+2. Spending checks the receipt rule against the threshold.
+3. Spending refuses the submission with `spending.receipt-missing` when the receipt is missing.
+4. Spending stores the expense as Submitted and raises the submitted event.
 
-Otherwise spending stores the expense as Submitted and raises `domain-event/expense.submitted`. Each request creates a new expense with a new identity, while a repeated request returns the first result instead: the requestId key recognizes the repeat.
+Each request creates a new expense with a new identity, while a repeated request returns the first result instead: the requestId key recognizes the repeat.
 
 ## Example
 
@@ -16,4 +19,6 @@ Ava submits the 48.90 EUR fare with the receipt attached. The fare is above the 
 
 ## Edge Cases
 
-Ava cannot submit the fare without its receipt: if she submits the 48.90 EUR fare without the receipt, spending refuses it with `spending.receipt-missing`. The records name no next step for Ava after that refusal. The records also do not say whether an amount equal to the 25 EUR threshold needs a receipt.
+- Spending refuses a threshold expense with no receipt with `spending.receipt-missing`.
+
+The records name no next step for Ava after that refusal. The records also do not say whether an amount equal to the 25 EUR threshold needs a receipt.

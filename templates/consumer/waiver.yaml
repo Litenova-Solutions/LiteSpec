@@ -12,8 +12,8 @@ subject:
 paths:
 - <path the waiver applies to, or remove this line>
 reason: <why the project sets it aside>
-# A lasting waiver carries consequences and no expiresOn, exit or closedBy.
-exit: <how the gap closes, or remove this line>
+# A lasting waiver carries consequences and no expiresOn, exitWhen or closedBy.
+exitWhen: <how the gap closes, or remove this line>
 consequences: <what the project accepts>
 expiresOn: <expiry date, such as 2027-01-01, or remove this line>
 closedBy:

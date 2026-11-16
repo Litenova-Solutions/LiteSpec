@@ -17,13 +17,13 @@ summary: |-
 
   Employees submit and attach. Managers approve and reject. Finance reimburses.
 boundary: Claimwick submits, approves, and reimburses work expenses with receipts.
-addresses:
+users:
 - actor/employee
 - actor/manager
 - actor/finance
 ```
 
-The `addresses` list names the three actors that hold the product's roles. The actors live in `.litespec/intent/actors/`, and their roles live in `.litespec/intent/roles/`. A `brand` block after `addresses` states the voice the screens write in: calm, plain, and exact, with the rules each screen follows.
+The `users` list names the three actors that hold the product's roles. The actors live in `.litespec/intent/actors/`, and their roles live in `.litespec/intent/roles/`. A `brand` block after `users` states the voice the screens write in: calm, plain, and exact, with the rules each screen follows.
 
 ## The Spending Module
 
@@ -158,19 +158,19 @@ steps:
 - id: s1
   statement: The employee submits the expense with its amount and currency.
   actor: actor/employee
-  cites:
+  carries:
   - requirement/approval.above-threshold-receipt
   - requirement/approval-reminders.month-end-submission
 - id: s2
   statement: The employee attaches the receipt to the expense.
   actor: actor/employee
-  cites:
+  carries:
   - requirement/approval.above-threshold-receipt
 - id: s3
   statement: The manager approves or rejects the expense.
   actor: actor/manager
   failure: The expense waits unseen, and the approver gets a reminder.
-  cites:
+  carries:
   - requirement/approval.decided-within-five-days
   - requirement/approval.nobody-approves-own-expense
   - requirement/approval-reminders.remind-approver-after-three-days
@@ -181,7 +181,7 @@ branches:
   nextStep: end
 ```
 
-The flow names its one reason in `serves`, the goal it moves. A flow that resolves a pain names its problem or constraint in `answers` instead. Each step cites the requirements it depends on, while the flow itself carries no `cites`.
+The flow names its one reason in `serves`, the goal it moves. A flow that resolves a pain names its problem or constraint in `answers` instead. Each step cites the requirements it depends on, while the flow itself holds no `carries`.
 
 Use cases point at these steps: the submit use case serves `flow/submit-and-reimburse#s1`, and the approve use case serves `#s3`. A branch names the step where the path differs and the step it continues at, so the order of steps changes only through `branches`. Steps name no use case themselves, so a step can change its handler without the flow changing.
 

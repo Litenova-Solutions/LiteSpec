@@ -302,7 +302,7 @@ internal static class UiBlueprintChecks
     /// <returns>True when the address is / or its last segment is sign-in; otherwise false.</returns>
     private static bool IsStart(Record screen)
     {
-        if (screen.Field(RecordFields.Address) is not { Length: > 0 } address)
+        if (screen.Field(RecordFields.Route) is not { Length: > 0 } address)
         {
             return false;
         }

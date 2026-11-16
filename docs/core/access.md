@@ -19,11 +19,11 @@ This is role-based access control: permissions attach to roles, never to actors 
 
 ### Actors, Roles, and Scopes
 
-An actor is one party that acts in the product: a person acting directly, or an organization, a company or group acting as one party. The `kind` field says which, so a reviewer knows who answers for what the actor does. Each actor also states in `belongsToTeam` whether it belongs to the team that builds and runs the product.
+An actor is one party that acts in the product: a person acting directly, or an organization, a company or group acting as one party. The `kind` field says which, so a reviewer knows who answers for what the actor does. Each actor also states in `belongsToTeam` whether it belongs to the team that builds and runs the product. The actor states its responsibilities in `responsibilities`, the acts the product holds it to, and what the product assumes it knows in `knowledge`.
 
 Software is never an actor. An outside system is recorded as an external system instead, and internal machinery gets no actor at all.
 
-A role is one named set of permissions granted together, and it holds the one scope of its grant. The scope is a kebab-case level naming how far the grant reaches, such as `platform`, `tenant`, or `self`, and the role is the only place that reach is stated. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation.
+A role is one named set of permissions granted together, and it holds the one scope of its grant. The scope is a kebab-case level naming how far the grant reaches, such as `platform`, `tenant`, or `self`, and the role is the only place that reach is stated. The role states its limits in `limits`, the acts inside its scope that the grant does not allow. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation.
 
 An actor lists each role it holds in `holds`, by role identifier. A hold names only the role: the reach comes from the role's scope, and one actor's hold cannot widen or narrow it.
 
@@ -37,13 +37,13 @@ A permission name opens with a verb that says what the grant does: a verb from t
 
 The `risk` field marks a sensitive permission, and it is the only risk field any record carries: a permission that guards a query or use case disclosing personal or financial data carries the `personal-data` or `access` risk, just like a permission for a write.
 
-A permission allows exactly the use cases whose `access` grant names it. No permission implies another by its name, and `manage-` is a naming convention only. When roles must differ on a destructive use case, that use case takes its own permission, and the permission carries the use case's risk.
+A permission allows exactly the use cases whose `access` grant names it. No permission implies another by its name, and `manage-` is a naming convention only. When roles must differ on a destructive use case, that use case takes its own permission, and the permission carries the use case's risk. A permission set may carry `excludes` stating what the set does not allow, one sentence per exclusion. The explanation restates Boundaries from `excludes`.
 
 ### What the Access Field Declares
 
-Each use case declares `access` in three parts: the grant the call must satisfy, the tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignIn`. The entry point the call arrives through declares `auth`, how the caller proves identity. The entry point authenticates, and the use case authorizes.
+Each use case declares `access` in three parts: the grant the call must satisfy, the tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignInLimit`. The entry point the call arrives through declares `authentication`, how the caller proves identity. The entry point authenticates, and the use case authorizes.
 
-The `auth` list on an entry point names one or more of `session`, `token`, `device`, `link`, `app`, or `none`.
+The `authentication` list on an entry point names one or more of `session`, `token`, `device`, `link`, `app`, or `none`.
 
 The `grant` on a use case takes one of five forms:
 
@@ -53,11 +53,11 @@ The `grant` on a use case takes one of five forms:
 - `anonymous`, for an open call.
 - `system`, for work an internal trigger runs with no outside caller.
 
-The `recentSignIn` field names a `setting/` identifier holding the sign-in window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use cases](use-cases.md) page states the use-case fields around access.
+The `recentSignInLimit` field names a `setting/` identifier holding the sign-in window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use cases](use-cases.md) page states the use-case fields around access.
 
 ### Refusals That Need No Written Result
 
-Some refusals follow from access and input rules, so they need no written result. A call with no authentication where one is needed ends in the derived unauthenticated result. A call without the grant ends in the derived forbidden result. A call whose sign-in is older than the `recentSignIn` window ends in the derived sign-in-too-old result. A call with input that breaks its rules ends in the derived invalid input result.
+Some refusals follow from access and input rules, so they need no written result. A call with no authentication where one is needed ends in the derived unauthenticated result. A call without the grant ends in the derived forbidden result. A call whose sign-in is older than the `recentSignInLimit` window ends in the derived sign-in-too-old result. A call with input that breaks its rules ends in the derived invalid input result.
 
 [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them. A permission allows a call, and the call still meets every rule, so holding a permission never bypasses a rule refusal. This is stated once here, not on each role.
 
@@ -79,9 +79,9 @@ Each pattern proves its allowed and refused calls with scenarios, as [Prove Hier
 
 ### Entry Points
 
-An entry point is how people or systems reach the product from outside. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) lists the kinds, and each entry point declares its `auth`. A device caller authenticates with its own auth kind, `device`, and the protocol detail for devices lives in the devices extension.
+An entry point is how people or systems reach the product from outside. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) lists the kinds, and each entry point declares its `authentication`. A device caller authenticates with its own authentication kind, `device`, and the protocol detail for devices lives in the devices extension.
 
-A browser entry point lists in `servedContent` the static content it serves, such as a script or a legal text: entries of `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so served content is content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive.
+A browser entry point lists in `servedContent` the static content it serves, such as a script or a legal text: entries of `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so served content is content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. An entry point also names its `audience` in `actor/...` ids, and where sessions apply its `session` lifetime and idle timeout as ISO 8601 durations. Its `reauthenticationTriggers` states when a fresh sign-in is required, and its `limits` states what the entry point does not do. The explanation restates Audience from `audience`, Authentication from `authentication`, `session`, and `reauthenticationTriggers`, and Limits from `limits`.
 
 ### External Systems
 
@@ -167,13 +167,13 @@ Without a named scope, every grant reads as product-wide, and the narrowest gran
 
 **Applies to:** artifact: record:role
 
-**Statement:** A role MUST name the permissions it allows in `allows`.
+**Statement:** A role MUST name the permissions it allows in `allows` and state its limits in `limits`.
 
-**Rationale:** The `allows` list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
+**Rationale:** The `allows` list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior. The `limits` state the acts inside the role's scope that the grant does not allow, so a reader sees the edge of the grant on the role itself.
 
 **Example:** `role/employee` allows `permission/request-expense`, which the submit use case cites in its grant.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry, and `permission-unused` for a permission allowed by no role.
+**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry or no `limits`, and `permission-unused` for a permission allowed by no role.
 
 ### State Every Permission with Its Meaning
 
@@ -211,21 +211,21 @@ Without a named scope, every grant reads as product-wide, and the narrowest gran
 
 **Checked by:** `litespec model check` reports `record-invalid` for a use case without `access`, `grant`, or `tenant`.
 
-### Authenticate Every Caller Through a Declared Auth Kind
+### Authenticate Every Caller Through a Declared Authentication Kind
 
-**ID:** `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`
+**ID:** `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`
 
 **Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
-**Statement:** Each entry point MUST name its auth kinds from session, token, device, link, app, and none.
+**Statement:** Each entry point MUST name its authentication kinds from session, token, device, link, app, and none.
 
-**Rationale:** The auth kind says how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
+**Rationale:** The authentication kind says how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
 
 **Example:** An expense submission names `session`, a library self-checkout kiosk names `device`, and a public catalog names `none`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an `auth` kind outside session, token, device, link, app, and none.
+**Checked by:** `litespec model check` reports `record-invalid` for an `authentication` kind outside session, token, device, link, app, and none.
 
 ### Authorize Every Use Case Through a Declared Grant
 
@@ -245,23 +245,23 @@ System never authorizes an outside request, and a call with no authentication wh
 
 **Checked by:** `litespec model check` reports `record-invalid` for a grant outside permission, self, signed-in, anonymous, and system, and `reference-unknown` for a permission no record defines.
 
-### Require a Recent Sign-In by Setting
+### Limit the Age of a Sign-In by a Setting
 
-**ID:** `litespec/core/access#require-a-recent-sign-in-by-setting`
+**ID:** `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`
 
 **Strength:** required
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** A use case that requires a recent sign-in MUST name the window in `recentSignIn` with a `setting/` identifier.
+**Statement:** A use case that requires a recent sign-in MUST name the window in `recentSignInLimit` with a `setting/` identifier.
 
 **Rationale:** Some operations need a fresh sign-in: changing a sign-in method or approving a large payout on a week-old session is not the same as doing it just after signing in. The window is a product decision, so it lives in a setting that states its range and setter, and every use case that needs it names the same setting instead of typing its own duration.
 
 A call whose sign-in is older than the window ends in the derived sign-in-too-old result. Settled by [decision/0074-declare-access-settings-and-deadlines](decision/0074-declare-access-settings-and-deadlines).
 
-**Example:** Claimwick payout approval above the threshold names `setting/spending.sign-in-window` in `recentSignIn`; a session older than the window ends in the derived sign-in-too-old result.
+**Example:** Claimwick payout approval above the threshold names `setting/spending.sign-in-window` in `recentSignInLimit`; a session older than the window ends in the derived sign-in-too-old result.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a `recentSignIn` that names no `setting/` identifier and `reference-unknown` for a setting no record defines.
+**Checked by:** `litespec model check` reports `record-invalid` for a `recentSignInLimit` that names no `setting/` identifier and `reference-unknown` for a setting no record defines.
 
 ### Remove a Target That Must Be the Caller
 
@@ -457,9 +457,9 @@ The opening verb is a naming convention only: no permission implies another by i
 
 **Applies to:** artifact: record:permission-set
 
-**Statement:** A module permissions file MUST hold permission entries only, and its explanation states only the risks and boundaries of those entries, without restating a permission's meaning or adding a grant.
+**Statement:** A module permissions file MUST hold permission entries only, and its explanation states only the risks and boundaries of those entries in `excludes`, without restating a permission's meaning or adding a grant.
 
-**Rationale:** Each permission is defined once, in its entry: its `meaning` is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so the explanation holds what the entries cannot.
+**Rationale:** Each permission is defined once, in its entry: its `meaning` is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so `excludes` states what the set does not allow and the explanation holds what the entries cannot.
 
 A permission that guards a query or use case disclosing personal or financial data carries the `personal-data` or `access` risk, like a permission for a write. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once). Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing).
 

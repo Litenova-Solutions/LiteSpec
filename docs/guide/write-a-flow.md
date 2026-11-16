@@ -101,7 +101,7 @@ When a condition stops the flow, write it as the `failure` of the step it blocks
 
 | Instead of | Write |
 |:---|:---|
-| `s4 failure: Finance must not pay out expenses that were not approved, as the policy requires.` | `s4 failure: The expense is not approved, so it waits and no payout is made.`, with `requirement/approval.decided-within-five-days` in the step's `cites` |
+| `s4 failure: Finance must not pay out expenses that were not approved, as the policy requires.` | `s4 failure: The expense is not approved, so it waits and no payout is made.`, with `requirement/approval.decided-within-five-days` in the step's `carries` |
 
 The weak version states a rule in the flow, which belongs to the requirement, and it names no outcome a reader can observe. The strong version states the blocked outcome and cites the requirement that holds it. This satisfies `litespec/core/intent#state-each-flow-blocker-as-a-step-failure` and `litespec/core/writing#use-literal-words`.
 
@@ -133,7 +133,7 @@ The weak version names a clause no step reaches. The erasure happens in a job th
 
 ### Cite the Requirements from Each Step
 
-Give each step `cites` with the requirement identifiers it depends on, so the requirement behind a blocker or a response sits in the record, not only in prose. Use the requirement identifiers, such as `requirement/approval.decided-within-five-days`. Leave `cites` off the flow itself: its reason sits in `serves` or `answers`, and each step cites what it alone needs.
+Give each step `carries` with the requirement identifiers it depends on, so the requirement behind a blocker or a response sits in the record, not only in prose. Use the requirement identifiers, such as `requirement/approval.decided-within-five-days`. Leave `carries` off the flow itself: its reason sits in `serves` or `answers`, and each step cites what it alone needs.
 
 This satisfies `litespec/core/intent#state-each-flow-blocker-as-a-step-failure`.
 

@@ -18,6 +18,7 @@
   const translates = $derived(stringField(f, "translates"));
   const trust = $derived(stringField(f, "trust"));
   const correlation = $derived(stringField(f, "correlation"));
+  const compatibility = $derived(stringField(f, "compatibility") ?? "");
   const dataschema = $derived(f.dataschema);
   const dataschemaHtml = $derived.by(() => {
     if (dataschema === undefined || dataschema === null || String(dataschema) === "") return "";
@@ -42,6 +43,7 @@
     {#if translates}<DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>{/if}
     {#if trust}<DefinitionRow label="Trust">{trust}</DefinitionRow>{/if}
     {#if correlation}<DefinitionRow label="Correlation">{correlation}</DefinitionRow>{/if}
+    {#if compatibility}<DefinitionRow label="compatibility">{compatibility}</DefinitionRow>{/if}
     {#if dataschemaHtml}<DefinitionRow label="Dataschema" html={dataschemaHtml} />{/if}
   </DefinitionList>
 </PageSection>

@@ -1,5 +1,11 @@
 type: permission-set
 title: Permissions
+excludes:
+- The request-expense permission does not cover approving or refusing an expense.
+- The post-reimbursement permission does not cover exporting approved expenses.
+- The list-expenses permission reads expenses and changes none of them.
+- The manage-reminder-preference permission does not let a manager change another preference.
+- The remove-personal-data permission does not remove the expense.
 records:
 - type: permission
   id: permission/request-expense

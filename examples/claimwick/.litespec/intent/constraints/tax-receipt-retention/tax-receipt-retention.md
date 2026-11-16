@@ -8,7 +8,7 @@ The rule covers business receipts. Claimwick holds only the receipts of expenses
 
 ## Rules
 
-The national tax law requires a company to keep its business receipts for seven years [National tax law][national-tax-law].
+A company keeps its business receipts for seven years [National tax law][national-tax-law].
 
 ## Effect on the Product
 

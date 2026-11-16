@@ -7,6 +7,12 @@ affects:
 - actor/<name>
 summary: <the pain, who feels it, and what it costs, in one paragraph>
 statement: <the pain, in one sentence>
+failureCases:
+- <one failure that can happen on its own, in one sentence>
+workaround: <what sufferers do today instead, in one to three sentences>
+cost: <what the pain costs sufferers, in one to three sentences>
+resolutionCriteria:
+- <one observable outcome that shows the failure no longer happens, in one sentence>
 evidence:
 - claim: <what the source shows>
   source: <source name>

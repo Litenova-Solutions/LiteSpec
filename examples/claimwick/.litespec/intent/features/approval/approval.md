@@ -19,20 +19,18 @@ The 25 EUR threshold comes from `decision/0001-receipt-threshold`. The 5-day tar
 
 ## Success Criteria
 
-- An expense above the 25 EUR threshold cannot be submitted without a receipt.
-- No manager can approve their own expense.
+- An expense above the 25 EUR threshold is refused without a receipt.
+- No manager approves their own expense.
 - An approved expense is reimbursed at most once.
-- The employee sees the decision on each expense in their own list, without asking the manager.
+- The employee sees the decision on each expense in the employee list without asking the manager.
 
 How fast a decision arrives depends on the managers as well as on the feature, so it is measured as a goal rather than listed here: `goal/decided-in-days` sets a median of under 120 hours.
 
 ## Boundaries
 
-Reminders for late decisions are not part of this feature. They belong to `feature/approval-reminders`, which advances the same goal.
-
-The feature depends on `decision/0001-receipt-threshold` for the 25 EUR threshold.
-
-One question is open for the owner: whether a manager on leave hands decisions to a deputy.
+- Reminders for late decisions belong to feature/approval-reminders.
+- The feature depends on decision/0001-receipt-threshold for the 25 EUR threshold.
+- Whether a manager on leave hands decisions to a deputy is open for the owner.
 
 ## Example
 

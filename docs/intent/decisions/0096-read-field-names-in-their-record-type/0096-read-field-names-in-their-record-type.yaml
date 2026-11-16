@@ -1,0 +1,14 @@
+type: decision
+id: decision/0096-read-field-names-in-their-record-type
+title: Read Field Names in Their Record Type
+context: "The review counted 291 field names and found about 20 with more than one meaning, while the stated policy claimed one meaning per word everywhere. The validator enforced a narrower rule, so the stated policy pushed new fields toward less natural names."
+options:
+  - name: "Read each field name in its record type, keep one name per concept across types, and keep three checked guards"
+    pros: "New fields take the names their readers already use, such as a constraint's scope and a screen's states, and the stated rule matches the schema, where about 20 names already mean different things on different types."
+    cons: "One word can mean two things on two types, so the book labels and explains fields per type where a name is shared."
+  - name: "Keep one meaning per field name across every record type"
+    pros: "A reader who learned a name once knows it everywhere."
+    cons: "New fields take less natural names, and about 20 existing names already depart from the rule, among them kind, mode, name, key and fields."
+choice: "Read each field name in its record type, keep one name per concept across types, and keep three checked guards"
+consequences: "A field name is read in the context of its record type. One concept keeps one name across types. litespec-maintain validate keeps three guards: a field named after a record type, singular or plural, holds links to that type; a link verb holds links; a date name holds a date. The same-shape check across types is removed. The book labels and explains a shared name per record type. Eleven fields are renamed for readability: product addresses to users, screen address to route, flow-step cites to carries, of to identifies, auth to authentication, dedupKey to deduplicationKey, params to parameters, requiresConsent to consentRule, recentSignIn to recentSignInLimit, atBound to outOfRange, and waiver exit to exitWhen; an external operation's timeout becomes an ISO 8601 duration. The records-complete fields take their natural names: a constraint's scope and a screen's states."
+reopenedWhen: "Readers or agents misread a shared field name because of its other meaning, or a check needs one meaning per name to work."

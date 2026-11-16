@@ -26,7 +26,7 @@ A browser suite needs a deployment, and nothing in the suite starts one, so the 
 
 ### Reaching a Screen
 
-A browser test reaches a screen when a `page.goto` literal or template in the test matches that screen's `address` template. Click-through navigation inference is out of scope.
+A browser test reaches a screen when a `page.goto` literal or template in the test matches that screen's `route` template. Click-through navigation inference is out of scope.
 
 In the same test, the test confirms a scenario when an assertion holds the refusal `code` or the success result's declared text or code, and the reached screen offers the scenario's use case. A flow test therefore uses one `page.goto` for each screen where it proves a scenario.
 
@@ -77,9 +77,9 @@ Four related rules live on other pages:
 
 **Strength:** required
 
-**Statement:** A browser test that proves a scenario MUST reach a screen that offers the scenario's use case by a `page.goto` literal or template matching that screen's `address`.
+**Statement:** A browser test that proves a scenario MUST reach a screen that offers the scenario's use case by a `page.goto` literal or template matching that screen's `route`.
 
-**Rationale:** A test that only clicks through navigation names no screen where it proved the scenario, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the `page.goto` target against the screen `address` templates produces the deterministic reach the reader computes.
+**Rationale:** A test that only clicks through navigation names no screen where it proved the scenario, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the `page.goto` target against the screen `route` templates produces the deterministic reach the reader computes.
 
 **Example:** The evidence specification opens `/expenses`, the address of `screen/claimwick-app.expense-list`, which offers `use-case/spending.list-expenses`. That navigation is the reach the check reads.
 

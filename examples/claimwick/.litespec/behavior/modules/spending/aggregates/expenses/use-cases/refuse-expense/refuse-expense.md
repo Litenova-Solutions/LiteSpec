@@ -4,9 +4,11 @@ Refuse Expense is the decision by which a manager turns down a submitted expense
 
 ## Flow
 
-The manager opens a submitted expense and rejects it with a reason. The records carry the reason in the reason input so the employee sees it. Spending refuses the rejection with `spending.not-submitted` when the expense is already decided.
+1. The manager opens a submitted expense and gives a reason.
+2. Spending refuses the refusal with `spending.not-submitted` when the expense is decided.
+3. Spending moves the expense to Refused and raises the refused event.
 
-Otherwise the expense moves to Refused, and `domain-event/expense.refused` is raised with the refusing manager and the decision time. No audit entry is stored. A second rejection of the same expense is refused, because the first rejection already decided it.
+No audit entry is stored. A second rejection of the same expense is refused, because the first rejection already decided it.
 
 ## Example
 

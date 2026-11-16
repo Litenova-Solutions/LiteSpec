@@ -15,14 +15,16 @@ Each use case links back to the Intent it carries, as `litespec/core/model#conne
 
 | Field | Meaning |
 |:---|:---|
-| `access` | `{ grant, tenant }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. Each use case declares its grant and tenant scope in `access`, as `litespec/core/access#declare-access-on-every-use-case` states. The entry point the call arrives through declares `auth`, as [Access](access.md) states. |
-| `input` | Entries of `{ name, meaning, type, of, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `of` field names the record an `id` refers to, or the row shape of a `list`. The `choices` field names the allowed values of a `choice`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `of` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
+| `access` | `{ grant, tenant }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. Each use case declares its grant and tenant scope in `access`, as `litespec/core/access#declare-access-on-every-use-case` states. The entry point the call arrives through declares `authentication`, as [Access](access.md) states. |
+| `input` | Entries of `{ name, meaning, type, identifies, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `identifies` field names the record an `id` refers to, or the row shape of a `list`. The `choices` field names the allowed values of a `choice`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `identifies` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
 | `writes`, `reads` | The ids of aggregates written, and the ids of aggregates, read models, and settings read. A read model is the module's own copy of another module's state, as [Automation](automation.md) states. |
 | `consistency` | `{ mode, boundBy, guards }`, on a command writing two or more aggregates or reading an aggregate whose rule guards its write. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`. The `guards` field lists the aggregates the command reads, and does not write, whose rule named in `boundBy` must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. A query carries no `consistency`. |
 | `effects` | Entries of `{ sends / calls, timing, onFailure, onExhausted, before, forEach }` with exactly one verb. The timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A use case runs no other use case and declares no integration event. A reaction runs the follow-on work, and an outbound integration event names the event it translates. The effect graph holds no cycle except through a domain event with a stated end condition, as `litespec/core/principles#end-every-effect-cycle-in-a-domain-event` states. |
 | `idempotency` | `{ mode, key, scope, reason, replay, recognizedBy }`, on a command only. The mode is `key`, `state`, or `none`. The `key` templates `{field}` placeholders over the input field names. The `scope` is `tenant`, `account`, `login`, or `global`. The `replay` is `returns-first-result`, `refuses`, or `acts-again`. Mode `state` also carries `recognizedBy` naming the state checked. A query carries no `idempotency`. |
 | `audit` | `{ level, target }` with level `required`, `optional`, or `none`, or `{ exemptBecause }` with its justification. The `audit` extension owns this field: a command declares it only when the project selects that extension. A level of `none` is not audited. Async work audits at request time. |
 | `background` | The optional Given shared by every scenario of the use case. A use case carrying `background` holds at least two scenarios. |
+| `steps` | The command steps in order, each `statement` naming who acts and `cites` naming the rules, results, settings, events, read models, external systems, and aggregates the step applies. |
+| `edgeCases` | Cases the command does not follow the steps for, one sentence per case. |
 
 Each consistency mode defines its promise for the writes of one use case:
 
@@ -35,7 +37,7 @@ No mode reaches past the use case. Every follow-on state change runs after the c
 
 Each effect entry carries one `onFailure` shape: `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`. The `mode` is `retry`, `skip-and-log`, or `discard`. The `retry` and `ifExhausted` fields accompany `mode: retry`, while `deadLetter`, `surfacesIn`, and `runbook` are optional. The `onExhausted` field names the act when retries run out. The `before` field orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
-The `summary` field states what the use case is, in one paragraph. Each use case carries `summary`. A command describes its steps under Flow in its explanation file, as [Summarize Every Use Case, Actor, Role, and External System](#summarize-every-use-case-actor-role-and-external-system) states.
+The `summary` field states what the use case is, in one paragraph. Each use case carries `summary`. A command lists its steps in `steps` in order, and each step cites the rules, results, settings, events, read models, external systems, and aggregates the step applies. The explanation file restates the steps under Flow. Scenarios still prove the behavior, as [Summarize Every Use Case, Actor, Role, and External System](#summarize-every-use-case-actor-role-and-external-system) states.
 
 The `exposure` field states in plain words who reaches the use case, through which entry points, under which permission, and what is at stake if it goes wrong. Example and Notes live in the explanation file beside the record file.
 
@@ -155,7 +157,7 @@ A use case, reaction, or job names the settings it reads in `reads`.
 | `dated` | `true` when each value applies from a date and never changes a posted record. |
 | `setBy` | `product`, `operator`, or `tenant`. |
 | `key` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`. Operator settings name it, as [Name the Configuration Key of Every Operator Setting](#name-the-configuration-key-of-every-operator-setting) states. |
-| `atBound` | `refuse`, `truncate`, or `degrade`. |
+| `outOfRange` | `refuse`, `truncate`, or `degrade`. |
 | `secret` | Whether the value is secret. |
 | `fulfills` | The requirements the setting carries. |
 
@@ -281,7 +283,7 @@ A use case, reaction, or job names the settings it reads in `reads`.
 
 **Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type, the origin, and the classification states what arrives, what it is, and how far to trust it.
 
-The type comes from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, and `id`. The origin is `caller`, `claim`, `verified-claim`, or `derived`. An `id` field names the record it refers to in `of`, a `choice` field names its allowed values in `choices`, a `file` field names its media types in `contentTypes` with its limit in `maxSize`, and a `list` field names its row shape in `of`. Other types carry no `of` and no `choices`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`, as [Mark Every Provider-Verified Input](#mark-every-provider-verified-input) states. The `rules` field names the `rule/` identifiers bounding the value, and `required` states whether the caller sends the field. A money field carries an amount with an ISO 4217 currency, as [Record Language](language.md) states.
+The type comes from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, and `id`. The origin is `caller`, `claim`, `verified-claim`, or `derived`. An `id` field names the record it refers to in `identifies`, a `choice` field names its allowed values in `choices`, a `file` field names its media types in `contentTypes` with its limit in `maxSize`, and a `list` field names its row shape in `identifies`. Other types carry no `identifies` and no `choices`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`, as [Mark Every Provider-Verified Input](#mark-every-provider-verified-input) states. The `rules` field names the `rule/` identifiers bounding the value, and `required` states whether the caller sends the field. A money field carries an amount with an ISO 4217 currency, as [Record Language](language.md) states.
 
 A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time. Settled by [decision/0016-typed-contracts-and-privacy](decision/0016-typed-contracts-and-privacy) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
@@ -289,13 +291,13 @@ A type on each field lets the builder compare the records with the generated con
 
 ```json
 "input": [
-  { "name": "expenseId", "type": "id", "of": "aggregate/spending.expense", "origin": "caller" },
+  { "name": "expenseId", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller" },
   { "name": "amount", "type": "money", "rules": ["rule/spending.positive-amount"], "origin": "caller" },
-  { "name": "lines", "type": "list", "of": { "fields": [{ "name": "amount", "type": "money", "required": true, "meaning": "The line amount." }], "minItems": 1 }, "origin": "caller" }
+  { "name": "lines", "type": "list", "identifies": { "fields": [{ "name": "amount", "type": "money", "required": true, "meaning": "The line amount." }], "minItems": 1 }, "origin": "caller" }
 ]
 ```
 
-**Checked by:** `litespec model check` reports `record-invalid` for a use-case input without name, meaning, or type, without `of` on an `id` or `list` field, without `choices` on a `choice` field, or with `of` or `choices` on another type.
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case input without name, meaning, or type, without `identifies` on an `id` or `list` field, without `choices` on a `choice` field, or with `identifies` or `choices` on another type.
 
 ### Bound Every Caller-Supplied Input Value
 
@@ -555,9 +557,9 @@ The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `asyn
 
 **Statement:** Each output field MUST carry its value type.
 
-**Rationale:** An output field without a type returns whatever its author fetched. Readers and screens guess the shape from code. Carrying the value type from the input types on every field of an `include` group and of a command output states the shape beside the promise, so the builder compares the records with the generated contract. A list of rows takes `type: list` with its row shape in `of`, as the input types state. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
+**Rationale:** An output field without a type returns whatever its author fetched. Readers and screens guess the shape from code. Carrying the value type from the input types on every field of an `include` group and of a command output states the shape beside the promise, so the builder compares the records with the generated contract. A list of rows takes `type: list` with its row shape in `identifies`, as the input types state. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
 
-**Example:** The list-expenses query types its amount field `money`. It types its lines field `list` with the row shape in `of`.
+**Example:** The list-expenses query types its amount field `money`. It types its lines field `list` with the row shape in `identifies`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an output field without `type`.
 
@@ -817,9 +819,9 @@ The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `asyn
 
 **Statement:** Each use case, actor, role, and external system MUST carry `summary`.
 
-**Rationale:** A reader landing cold needs the story before its fields. One paragraph states what the use case is; its steps live under Flow in the explanation file beside a command, where they stay readable without a shape a check must parse. An actor or role `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say, so the grant reads as a decision rather than a row. An external system `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say, so the dependency reads as a decision rather than a row.
+**Rationale:** A reader landing cold needs the story before its fields. One paragraph states what the use case is; its steps live in `steps` in order, and the explanation restates them under Flow. An actor or role `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say, so the grant reads as a decision rather than a row. An external system `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say, so the dependency reads as a decision rather than a row.
 
-**Example:** The submit-expense summary states that an employee files a work expense for approval. Its Flow section lists validation, storage, and the approver notice in order.
+**Example:** The submit-expense summary states that an employee files a work expense for approval. Its `steps` list validation, storage, and the approver notice in order, and its Flow section restates them.
 
 **Checked by:** `litespec model check` reports `prose-missing` for a use case, actor, role, or external system without `summary`.
 

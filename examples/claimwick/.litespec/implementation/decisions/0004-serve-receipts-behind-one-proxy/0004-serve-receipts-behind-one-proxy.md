@@ -4,7 +4,7 @@ Claimwick serves receipt files through one Caddy proxy. Receipts are the proof t
 
 ## Context
 
-Receipts need one hardened entry point, and the team needs it in place before the pilot starts.
+Receipts needed one hardened entry point before the pilot started.
 
 The choice rests on `requirement/approval-reminders.month-end-submission`. The team tested the proxy against a month-end load.
 

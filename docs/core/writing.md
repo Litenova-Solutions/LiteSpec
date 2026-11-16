@@ -42,38 +42,39 @@ Identifiers, acronyms, and words with inner capitals keep their written form, an
 
 An explanation file holds the prose beside a record file: it says what the record means, why it matters, and how it reads beside its neighbors. It opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order.
 
-A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. An Example section holds at most 120 words. A direction's explanation file is free-form: an H1 with the record title, a lead paragraph, then any body the owner wants, with or without H2 sections.
+A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. Each section restates and elaborates its backing fields, and an `Example` section may only use details from the cast or from cited records (`litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record`). An Example section holds at most 120 words. A direction's explanation file is free-form: an H1 with the record title, a lead paragraph, then any body the owner wants, with or without H2 sections.
 
-| Record type | Sections, in order |
-|:---|:---|
-| product | Scope, Users, Out of Scope |
-| actor | Responsibilities, Knowledge, Example (optional) |
-| role | Access, Limits |
-| goal | Target, Measurement |
-| direction | None: free-form body after the lead |
-| problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria |
-| constraint | Scope, Rules, Effect on the Product, Open Points (optional) |
-| research | Findings, Open Questions (optional), Source Notes (optional) |
-| decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
-| feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
-| requirement | Example (optional); the explanation file itself is optional |
-| flow | Example, Branches (optional) |
-| module | Responsibilities, Boundaries, Example (optional) |
-| aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
-| use-case | Flow, Example (optional), Edge Cases (optional) |
-| rule-set | Rationale, Example (optional) |
-| reaction | Trigger and Effect, Failure Handling, Example (optional) |
-| job | Invocation, Failure Handling, Example (optional) |
-| read-model | Sources, Freshness, Example (optional) |
-| notification | Content, Delivery, Example |
-| integration-event | Consumers, Compatibility, Example |
-| external-system | Use, Data Shared, Failure Handling |
-| entry-point | Audience, Authentication, Limits (optional) |
-| screen | Task, States, Example |
-| permission-set | Risk, Boundaries (optional) |
-| setting-set | Defaults, Changes (optional) |
-| runbook | Prerequisites, Steps, Verification, Recovery |
-| waiver | Provision, Reason, Risk, Expiry |
+| Record type | Sections | Backing fields per section |
+|:---|:---|:---|
+| product | Scope, Users, Out of Scope | Scope: boundary; Users: users; Out of Scope: excludes |
+| actor | Responsibilities, Knowledge, Example (optional) | Responsibilities: responsibilities; Knowledge: knowledge; Example: none, illustration only |
+| role | Access, Limits | Access: allows, scope; Limits: limits |
+| goal | Target, Measurement | Target: target; Measurement: measure, observations |
+| direction | None: free-form body after the lead | None: free-form body after the lead |
+| problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria | Affected Users: affects; Failure Cases: failureCases; Example: none, illustration only; Current Workaround: workaround; Cost: cost; Evidence: evidence; Resolution Criteria: resolutionCriteria |
+| constraint | Scope, Rules, Effect on the Product, Open Points (optional) | Scope: scope; Rules: obligations; Effect on the Product: productEffect; Open Points: openPoints |
+| research | Findings, Open Questions (optional), Source Notes (optional) | Findings: findings; Open Questions: openQuestions; Source Notes: sources (their `note`) |
+| decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions | Context: context; Options: options; Decision: choice; Consequences: consequences; Evidence: basedOn; Revisit Conditions: reopenedWhen |
+| feature | Capabilities, Success Criteria, Boundaries, Example (optional) | Capabilities: the feature's requirements; Success Criteria: successCriteria; Boundaries: excludes; Example: none, illustration only |
+| requirement | Example (optional); the explanation file itself is optional | Example: none, illustration only |
+| flow | Example, Branches (optional) | Example: none, illustration only; Branches: branches |
+| module | Responsibilities, Boundaries, Example (optional) | Responsibilities: responsibilities; Boundaries: excludes; Example: none, illustration only |
+| aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) | Lifecycle: states, transitions; Data and Retention: data, dataClasses; Example: none, illustration only; Limits: limits |
+| use-case | Flow, Example (optional), Edge Cases (optional) | Flow: steps; Example: none, illustration only; Edge Cases: edgeCases |
+| rule-set | Rationale, Example (optional) | Rationale: each rule's rationale; Example: none, illustration only |
+| reaction | Trigger and Effect, Failure Handling, Example (optional) | Trigger and Effect: triggeredBy, effects, outcomes; Failure Handling: onFailure; Example: none, illustration only |
+| job | Invocation, Failure Handling, Example (optional) | Invocation: kind, schedule, runsWhen; Failure Handling: onFailure; Example: none, illustration only |
+| read-model | Sources, Freshness, Example (optional) | Sources: fields, keyedBy; Freshness: freshness; Example: none, illustration only |
+| notification | Content, Delivery, Example | Content: template, parameters, locale; Delivery: channel, deliveredThrough, frequency; Example: none, illustration only |
+| module-event | Consumers, Compatibility, Example (optional) | Consumers: the records that read the event (computed); Compatibility: compatibility; Example: none, illustration only |
+| integration-event | Consumers, Compatibility, Example | Consumers: the records that read the event (computed); Compatibility: compatibility; Example: none, illustration only |
+| external-system | Use, Data Shared, Failure Handling | Use: summary; Data Shared: processes; Failure Handling: operations |
+| entry-point | Audience, Authentication, Limits (optional) | Audience: audience; Authentication: authentication, session, reauthenticationTriggers; Limits: limits |
+| screen | Task, States, Example | Task: task; States: states; Example: none, illustration only |
+| permission-set | Risk, Boundaries (optional) | Risk: the risk of each permission; Boundaries: excludes |
+| setting-set | Defaults, Changes (optional) | Defaults: each setting's default, range, unit; Changes: each setting's setBy |
+| runbook | Prerequisites, Steps, Verification, Recovery | Prerequisites: prerequisites; Steps: procedure; Verification: verification; Recovery: recovery |
+| waiver | Provision, Reason, Risk, Expiry | Provision: covers; Reason: reason; Risk: consequences; Expiry: expiresOn, exitWhen |
 
 A decision record compares its options with pros and cons, as `litespec/core/intent#record-each-decision-option-with-pros-and-cons` states, with its context and choice as `litespec/core/intent#state-each-decision-with-context-and-choice` states.
 
@@ -270,13 +271,13 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Applies to:** artifact: any
 
-**Statement:** Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.
+**Statement:** Each explanation file MUST hold the fixed sections of its record type in the order of the section table, and each section MUST explain the fields the table pairs it with.
 
-**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem holds its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
+**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem holds its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Each section is the human version of the fields the table pairs it with, so every page of a type keeps the same reading order. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
 
 **Example:** The Claimwick problem explanation for waiting expenses holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page.
 
-**Reviewed for:** Does every explanation file use its record type's fixed sections in order, under its H1 title? Check the explanation files beside the records the change adds against the explanation-section table.
+**Checked by:** `litespec model check` reports `explanation-missing` for a missing or out-of-order section and `explanation-section-unbacked` for a section whose backing fields are empty on its record.
 
 ### Open Each Explanation File with a Paragraph
 
@@ -294,21 +295,37 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Checked by:** `litespec model check` reports `explanation-opening-missing` for an explanation file with no prose between its H1 and its first H2.
 
-### Interpret Fields in Explanations, Never Restate Them
+### Explain the Same Specification the Records State
 
-**ID:** `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`
+**ID:** `litespec/core/writing#explain-the-same-specification-the-records-state`
 
 **Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** Every explanation file MUST interpret its record's fields in plain words, describing only what those fields and the records they cite state, without restating a field value.
+**Statement:** Every explanation file MUST state the same specification as its record, restated and elaborated for a person, and MUST NOT add a fact or contradict a field of its record or of a record it cites.
 
-**Rationale:** An explanation that copies a field value becomes a second copy that drifts with the next edit to the record. Interpretation says what the record means, why it matters, and how it reads beside its neighbors, with context and an example the fields cannot hold. A behavior appearing only in prose is a second commitment no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. A new behavior becomes a record or leaves the prose. Proposed by decision 0070 and [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
+**Rationale:** The record is the primary source an agent builds from; the explanation is the same specification written for a person who arrives cold. Restating a field in plain words, with its reason, its context and an example, is what makes the record readable, so repetition is expected. A fact that appears only in the explanation splits the specification in two, and a sentence that contradicts a field leaves the reader unsure which to trust. When they disagree, the record wins and the explanation is corrected. Settled by [decision/0095-keep-the-whole-specification-in-the-records](../intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records.md).
 
-**Example:** A Claimwick feature explanation says the approval reminders end the wait that costs employees weeks, instead of copying the feature's `offering`. A sentence stating a behavior no record holds becomes a record or is removed.
+**Example:** A Claimwick feature explanation restates the approval reminders' `offering`, explains why a reminder for expenses waiting past three business days ends the wait that costs employees weeks, and walks through one reminder with the cast. It names no behavior the feature's requirements do not state.
 
-**Reviewed for:** Does any explanation file restate a field value instead of interpreting it, or describe behavior its record's fields and cited records do not state? Check each explanation file against its record's fields and the records it cites.
+**Reviewed for:** Does any explanation file add a fact its record and the records it cites do not state, or contradict one of their fields? Compare each explanation file with its record.
+
+### Update a Record and Its Explanation Together
+
+**ID:** `litespec/core/writing#update-a-record-and-its-explanation-together`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A change to a record field MUST update the record's explanation file in the same change, and a change to an explanation file MUST leave it stating what its record states.
+
+**Rationale:** An explanation repeats its record on purpose, so every copy drifts unless the change that edits one edits the other. Making the update part of the same change keeps the two equal at every commit, which is when people read them. Settled by [decision/0095-keep-the-whole-specification-in-the-records](../intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records.md).
+
+**Example:** A Claimwick change that shortens `setting/spending.approval-reminder-delay` from `PT72H` to `PT48H` edits the setting's `default` and the sentence in its explanation that says when a manager gets a reminder, in one commit.
+
+**Reviewed for:** Does a change that edits a record field leave its explanation file stating the old value or behavior? Compare the changed records with their explanation files.
 
 ### Take Each Example Detail from the Cast or a Cited Record
 

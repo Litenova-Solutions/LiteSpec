@@ -8,7 +8,7 @@ Name who listens to the event and why each one needs it.
 
 ## Compatibility
 
-Say how the contract stays stable when the event changes, and which changes are allowed.
+Explains `compatibility`. Say how the contract stays stable when the event changes, and which changes are allowed.
 
 ## Example
 

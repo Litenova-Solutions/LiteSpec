@@ -37,6 +37,8 @@ dataClasses:
   exceptions:
   - field: <field name>
     onErasure: <erase|pseudonymize|anonymize|retain|exempt>
+limits:
+- <one thing the aggregate does not hold, in one sentence, or remove this line>
 records:
 - type: domain-event
   id: domain-event/<aggregate>.<name>
@@ -47,7 +49,7 @@ records:
   carries:
   - name: <field name>
     type: id
-    of: <identified record id>
+    identifies: <identified record id>
   - name: <field name>
     type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
   # A choice field carries choices, and a file field carries contentTypes and maxSize.

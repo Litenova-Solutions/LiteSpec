@@ -2,53 +2,63 @@ type: use-case
 id: use-case/spending.list-expenses
 title: List Expenses
 summary: An employee sees their own expenses with the latest state of each.
-exposure: A signed-in employee reaches this query through the expenses app under the list-expenses permission. The list shows only that employee's own expenses, so a wrong filter would show another person's costs.
+exposure: A signed-in employee reaches this query through the expenses app under
+  the list-expenses permission. The list shows only that employee's own
+  expenses, so a wrong filter would show another person's costs.
 kind: query
 access:
   grant: permission/list-expenses
   tenant: own
 serves:
-- flow/submit-and-reimburse#s5
+  - flow/submit-and-reimburse#s5
 fulfills:
-- requirement/approval.decided-within-five-days
+  - requirement/approval.decided-within-five-days
 reachedThrough:
-- entry-point/claimwick-app
+  - entry-point/claimwick-app
 raises: []
+steps:
+  - statement: The employee lists their own expenses.
+    cites:
+      - aggregate/spending.expense
+  - statement: Spending returns the expenses newest first.
+    cites:
+      - result/list-expenses.listed
+      - aggregate/spending.expense
 output:
   include:
     rows:
       fields:
-      - name: expenses
-        meaning: The set of rows with one row per expense, newest first.
-        type: list
-        of:
-          fields:
-          - name: expenseId
-            meaning: The listed expense.
-            type: id
-            of: aggregate/spending.expense
-            required: true
-          - name: amount
-            meaning: The exact amount of the expense.
-            type: decimal
-            required: true
-          - name: currency
-            meaning: The ISO 4217 currency code of the amount.
-            type: text
-            required: true
-          - name: state
-            meaning: The latest lifecycle state of the expense.
-            type: text
-            required: true
-          - name: submittedAt
-            meaning: The time the expense was submitted.
-            type: date-time
-            required: true
-          unique:
-          - expenseId
+        - name: expenses
+          meaning: The set of rows with one row per expense, newest first.
+          type: list
+          identifies:
+            fields:
+              - name: expenseId
+                meaning: The listed expense.
+                type: id
+                identifies: aggregate/spending.expense
+                required: true
+              - name: amount
+                meaning: The exact amount of the expense.
+                type: decimal
+                required: true
+              - name: currency
+                meaning: The ISO 4217 currency code of the amount.
+                type: text
+                required: true
+              - name: state
+                meaning: The latest lifecycle state of the expense.
+                type: text
+                required: true
+              - name: submittedAt
+                meaning: The time the expense was submitted.
+                type: date-time
+                required: true
+            unique:
+              - expenseId
       classification: internal
       reads:
-      - aggregate/spending.expense
+        - aggregate/spending.expense
       freshness:
         mode: immediate
 paging:
@@ -58,18 +68,18 @@ paging:
   defaultLimit: 25
   maxLimit: 100
 reads:
-- aggregate/spending.expense
+  - aggregate/spending.expense
 records:
-- type: result
-  id: result/list-expenses.listed
-  title: Listed
-  outcome: success
-  meaning: The expenses are listed.
-- type: scenario
-  id: scenario/list-expenses.listing-own-expenses-succeeds
-  title: Listing Own Expenses Succeeds
-  given: An employee submitted two expenses.
-  when: The employee lists their expenses.
-  then: Both expenses are listed.
-  result: result/list-expenses.listed
-  exercises: []
+  - type: result
+    id: result/list-expenses.listed
+    title: Listed
+    outcome: success
+    meaning: The expenses are listed.
+  - type: scenario
+    id: scenario/list-expenses.listing-own-expenses-succeeds
+    title: Listing Own Expenses Succeeds
+    given: An employee submitted two expenses.
+    when: The employee lists their expenses.
+    then: Both expenses are listed.
+    result: result/list-expenses.listed
+    exercises: []

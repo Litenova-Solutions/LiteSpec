@@ -1,34 +1,35 @@
 type: read-model
 id: read-model/reporting.reimbursed-expense
 title: Reimbursed Expense
-summary: What Reporting keeps about each reimbursed expense to list the payouts per employee.
+summary: What Reporting keeps about each reimbursed expense to list the payouts
+  per employee.
 keyedBy: aggregate/spending.expense
 fields:
-- name: employeeId
-  meaning: The employee the expense was reimbursed to.
-  type: id
-  of: actor/employee
-  from: module-event/spending.expense-reimbursed#employeeId
-  classification: personal
-  erasedBy: module-event/spending.expense-personal-data-erased
-- name: amount
-  meaning: The exact amount paid.
-  type: decimal
-  from: module-event/spending.expense-reimbursed#amount
-  classification: internal
-- name: currency
-  meaning: The ISO 4217 currency code of the amount.
-  type: text
-  from: module-event/spending.expense-reimbursed#currency
-  classification: internal
-- name: reimbursedAt
-  meaning: The time the payment was posted.
-  type: date-time
-  from: module-event/spending.expense-reimbursed#reimbursedAt
-  classification: internal
+  - name: employeeId
+    meaning: The employee the expense was reimbursed to.
+    type: id
+    identifies: actor/employee
+    from: module-event/spending.expense-reimbursed#employeeId
+    classification: personal
+    erasedBy: module-event/spending.expense-personal-data-erased
+  - name: amount
+    meaning: The exact amount paid.
+    type: decimal
+    from: module-event/spending.expense-reimbursed#amount
+    classification: internal
+  - name: currency
+    meaning: The ISO 4217 currency code of the amount.
+    type: text
+    from: module-event/spending.expense-reimbursed#currency
+    classification: internal
+  - name: reimbursedAt
+    meaning: The time the payment was posted.
+    type: date-time
+    from: module-event/spending.expense-reimbursed#reimbursedAt
+    classification: internal
 freshness:
   mode: snapshot
   within: PT5S
   decidedBy: use-case/spending.reimburse-expense
 terms:
-- term/expense
+  - term/expense

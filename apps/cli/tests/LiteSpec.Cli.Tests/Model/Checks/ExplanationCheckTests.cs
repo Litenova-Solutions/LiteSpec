@@ -68,10 +68,10 @@ public sealed class ExplanationCheckTests
         Assert.DoesNotContain("explanation-orphaned", TestModel.Codes(model));
     }
 
-    /// <summary>A decision with no explanation file reports the missing file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <summary>A decision with no explanation file needs none when its layer is not listed.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
     [Fact]
-    public void DecisionWithoutAnExplanationReports()
+    public void DecisionWithoutAnExplanationNeedsNone()
     {
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "decisions", "0001-loan-period.yaml");
@@ -79,16 +79,11 @@ public sealed class ExplanationCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", file, """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
-        Assert.Equal("Decision 'decision/0001-loan-period' holds no explanation file '.litespec/decisions/0001-loan-period.md'.", finding.Message);
-        Assert.Equal(file, finding.Path);
-        Assert.Equal(1, finding.Line);
-        Assert.Equal("decision/0001-loan-period", finding.Subject);
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
 
     /// <summary>A decision explanation without Context reports the missing section.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void DecisionExplanationWithoutContextReports()
     {
@@ -114,7 +109,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A decision explanation with Context passes.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void DecisionExplanationWithContextPasses()
     {
@@ -135,7 +130,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A research explanation without Findings reports the missing section.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void ResearchExplanationWithoutFindingsReports()
     {
@@ -161,7 +156,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A research explanation with Findings passes.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void ResearchExplanationWithFindingsPasses()
     {
@@ -181,10 +176,10 @@ public sealed class ExplanationCheckTests
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
 
-    /// <summary>A research record with no explanation file reports the missing file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <summary>A research record with no explanation file needs none when its layer is not listed.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
     [Fact]
-    public void ResearchWithoutAnExplanationReports()
+    public void ResearchWithoutAnExplanationNeedsNone()
     {
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "benchmarks.yaml");
@@ -192,16 +187,11 @@ public sealed class ExplanationCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/loan-period-benchmarks", file, """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
-        Assert.Equal("Research 'research/loan-period-benchmarks' holds no explanation file '.litespec/benchmarks.md'.", finding.Message);
-        Assert.Equal(file, finding.Path);
-        Assert.Equal(1, finding.Line);
-        Assert.Equal("research/loan-period-benchmarks", finding.Subject);
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
 
     /// <summary>An entry of an article type needs no explanation file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void EntryOfAnArticleTypeNeedsNoExplanation()
     {
@@ -221,7 +211,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A page outside the article types needs no explanation file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void NonArticlePageNeedsNoExplanation()
     {

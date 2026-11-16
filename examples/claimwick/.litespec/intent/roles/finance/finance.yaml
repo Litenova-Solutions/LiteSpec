@@ -10,3 +10,6 @@ allows:
 - permission/export-expenses
 - permission/manage-reminder-preference
 - permission/remove-personal-data
+limits:
+- Finance does not decide expenses.
+- Finance does not submit expenses.

@@ -24,6 +24,15 @@ sealed class BookLexicon
     /// <summary>Gets the field labels by field name, seeded from the book's field-label table.</summary>
     public IReadOnlyDictionary<string, string> Fields { get; } = BookLexiconFieldLabels.Labels;
 
+    /// <summary>
+    ///     Reads one field under its label, trying the typed entry of the form
+    ///     record-type dot field before the plain entry.
+    /// </summary>
+    /// <param name="field">The field name.</param>
+    /// <param name="recordType">The record type reading the field, or null for the plain entry.</param>
+    /// <returns>The label for the field on that record type, or the field name when no entry names it.</returns>
+    public static string FieldLabel(string field, string? recordType = null) => BookLexiconFieldLabels.FieldLabel(field, recordType);
+
     /// <summary>Gets the glossary entries by lowercase term, in glossary order.</summary>
     public IReadOnlyDictionary<string, LexiconGlossaryEntry> Glossary { get; }
 

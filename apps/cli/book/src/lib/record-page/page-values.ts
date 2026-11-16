@@ -148,7 +148,7 @@ export function flowBranchSentence(steps: RecordFields[], branch: RecordFields):
 
 /** The fields the screen renderer reads. */
 export interface ScreenFields {
-  address?: string;
+  route?: string;
   host?: string;
   entryPoint?: string;
   offers: string[];
@@ -157,7 +157,7 @@ export interface ScreenFields {
 /** The fields the screen renderer reads, through the typed readers. */
 export function screenFields(f: RecordFields): ScreenFields {
   return {
-    address: stringField(f, "address"),
+    route: stringField(f, "route"),
     host: stringField(f, "host"),
     entryPoint: stringField(f, "entryPoint"),
     offers: stringList(f, "offers"),
@@ -409,7 +409,7 @@ export function typedFieldHtml(book: Book, x: RecordFields) {
   const bits: string[] = [];
   if (x.type) bits.push(`<span class="${codeCls}">${esc(x.type)}</span>`);
   if (x.required) bits.push(badgeHtml("Required"));
-  if (x.of) bits.push(Array.isArray(x.of) ? esc(x.of.join(", ")) : inlineRefHtml(book, String(x.of)));
+  if (x.identifies) bits.push(Array.isArray(x.identifies) ? esc(x.identifies.join(", ")) : inlineRefHtml(book, String(x.identifies)));
   return bits.join(" ");
 }
 

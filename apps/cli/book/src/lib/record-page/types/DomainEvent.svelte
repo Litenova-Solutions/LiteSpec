@@ -10,7 +10,7 @@
 </script>
 
 {#if carries.length}
-  <PageSection blockKey="carry" heading="carries" count={carries.length}>
+  <PageSection blockKey="carry" heading="domain-event.carries" count={carries.length}>
     <ul class="grid gap-1">
       {#each carries as c, i (i)}
         <li>

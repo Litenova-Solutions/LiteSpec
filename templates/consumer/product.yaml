@@ -5,7 +5,7 @@ terms:
 - <term id, or remove this line>
 summary: <what the product is, who it is for, and what it never does, in one paragraph>
 boundary: <what the product does, in one sentence>
-addresses:
+users:
 - actor/<name>
 excludes:
 - <what the product never does, or remove this block>

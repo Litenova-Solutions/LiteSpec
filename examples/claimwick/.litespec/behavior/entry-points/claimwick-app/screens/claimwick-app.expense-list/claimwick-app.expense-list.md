@@ -24,7 +24,11 @@ page
 
 ## States
 
-With no expenses yet, the employee reads that the list is empty and follows its pointer to the new expense form. While the list loads, its rows show as placeholders. When the list fails to load, the page says the list is unavailable and offers to try again. No refusal appears here, because listing takes no input the product can refuse.
+- Empty: The list says it is empty and points to the new expense form. With no expenses yet, the employee follows its pointer to the new expense form.
+- Loading: The rows show as placeholders while the list loads.
+- Failed: The page says the list is unavailable and offers to try again.
+
+No refusal appears here, because listing takes no input the product can refuse.
 
 ## Example
 

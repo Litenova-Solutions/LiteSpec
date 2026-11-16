@@ -95,7 +95,7 @@ properties:
       proof:
       - behavior
   explanations:
-    description: The record layers whose every record page carries an explanation file. Each entry is intent or behavior, the layers that hold record pages. A page on a listed layer without its explanation file, or with a required H2 section missing, is an explanation-missing finding. A layer left out keeps its explanation file optional, except the article types, which always require one.
+    description: The record layers whose every record page carries an explanation file. Each entry is intent or behavior, the layers that hold record pages. A page on a listed layer without its explanation file, or with a required H2 section missing, is an explanation-missing finding. A layer left out keeps its explanation file optional.
     type: object
     additionalProperties: false
     required:

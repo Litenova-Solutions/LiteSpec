@@ -26,7 +26,7 @@
   const valueType = $derived(stringField(f, "valueType") ?? "");
   const range = $derived(stringField(f, "range"));
   const setBy = $derived(stringField(f, "setBy") ?? "");
-  const atBound = $derived(stringField(f, "atBound"));
+  const atBound = $derived(stringField(f, "outOfRange"));
   const runbook = $derived(stringField(f, "runbook"));
 </script>
 
@@ -38,7 +38,7 @@
     <FactCell k="setBy">{capitalize(setBy)}</FactCell>
   </FactGrid>
   <DefinitionList>
-    {#if atBound}<DefinitionRow label="atBound">{atBound}</DefinitionRow>{/if}
+    {#if atBound}<DefinitionRow label="outOfRange">{atBound}</DefinitionRow>{/if}
     {#if readers.length}
       <DefinitionRow label="Read by">
         {#each readers as x, i (x)}{#if i > 0}{", "}{/if}<RecordLink id={x} />{/each}

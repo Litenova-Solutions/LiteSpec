@@ -13,6 +13,8 @@
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f = $derived(r.fields ?? {});
+  const context = $derived(stringField(f, "context") ?? "");
+  const contextHtml = $derived(context ? inline(book, context, r.src ?? null) : "");
   const choice = $derived(stringField(f, "choice") ?? "");
   const opts = $derived(objectList(f, "options"));
   const consequences = $derived(proseOf(r, "consequences"));
@@ -57,6 +59,9 @@
   });
 </script>
 
+{#if context}
+  <PageSection blockKey="ctx" heading="context"><RenderedProse html={contextHtml} /></PageSection>
+{/if}
 {#if choice}
   <Note kind="good" icon="passing">
     <b>{book.fieldLabel("choice")}</b><br />{choice}

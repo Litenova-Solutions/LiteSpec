@@ -4,9 +4,10 @@ List Reimbursed Expenses gives finance a list of the expenses that were paid, wi
 
 ## Flow
 
-Finance asks for the reimbursed expenses. Reporting reads `read-model/reporting.reimbursed-expense` and returns one row per reimbursed expense, newest first. A row holds the expense identity, the employee, the amount, the currency and the reimbursement time.
+1. Finance asks for the reimbursed expenses.
+2. Reporting returns one row per reimbursed expense newest first.
 
-The rows may lag the spending module by up to five seconds, which the read model's freshness allows. The list pages at 25 rows by default and 100 at most.
+A row holds the expense identity, the employee, the amount, the currency and the reimbursement time. The rows may lag the spending module by up to five seconds, which the read model's freshness allows. The list pages at 25 rows by default and 100 at most.
 
 ## Example
 

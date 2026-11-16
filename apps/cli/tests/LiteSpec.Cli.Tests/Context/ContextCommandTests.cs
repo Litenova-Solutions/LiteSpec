@@ -32,6 +32,10 @@ public sealed class ContextCommandTests
         Assert.Equal($"=== END OF CONTEXT: {begins.Count} files ===", text.TrimEnd('\n').Split('\n')[^1]);
         Assert.Contains($"Files: {begins.Count}", text);
 
+        // The default writes records only, so no explanation block appears.
+        Assert.Contains("include=records", text);
+        Assert.DoesNotContain(begins, block => block.EndsWith(".md ===", StringComparison.Ordinal));
+
         var recordsOnly = Path.Combine(output.Path, "records-only.txt");
         var filtered = TestCli.Run("context", "--root", Root, "--out", recordsOnly, "--layers", "behavior", "--include", "records");
 
@@ -42,5 +46,16 @@ public sealed class ContextCommandTests
             .ToList();
         Assert.Contains(blocks, block => block.EndsWith(".yaml ===", StringComparison.Ordinal));
         Assert.DoesNotContain(blocks, block => block.EndsWith(".md ===", StringComparison.Ordinal));
+
+        var both = Path.Combine(output.Path, "both.txt");
+        var bothRun = TestCli.Run("context", "--root", Root, "--out", both, "--include", "both");
+
+        Assert.Equal(0, bothRun.Status);
+        var bothBlocks = File.ReadAllText(both)
+            .Split('\n')
+            .Where(line => line.StartsWith("=== BEGIN FILE: ", StringComparison.Ordinal))
+            .ToList();
+        Assert.Contains(bothBlocks, block => block.EndsWith(".yaml ===", StringComparison.Ordinal));
+        Assert.Contains(bothBlocks, block => block.EndsWith(".md ===", StringComparison.Ordinal));
     }
 }

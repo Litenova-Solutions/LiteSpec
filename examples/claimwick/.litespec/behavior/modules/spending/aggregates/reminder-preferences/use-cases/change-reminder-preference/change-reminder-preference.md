@@ -4,9 +4,11 @@ Change Reminder Preference lets a manager set whether they get a reminder for a 
 
 ## Flow
 
-The manager sends whether they get reminders and, when asking for none, the reason. Spending refuses a change by anyone but the manager the preference belongs to or finance with `spending.not-preference-owner`. Otherwise the preference applies from then on: asking for no reminder records the preference, and asking for reminders again removes it. The change raises no event.
+1. The manager sends whether they get reminders.
+2. Spending refuses the change with `spending.not-preference-owner` when the changer differs.
+3. Spending records the choice or removes the preference.
 
-Sending the same choice again leaves the same preference in place.
+The change raises no event. Sending the same choice again leaves the same preference in place.
 
 ## Example
 

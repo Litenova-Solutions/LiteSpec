@@ -17,6 +17,7 @@
   const refusalLink = $derived(refusalId ?? "");
   const binds = $derived(stringList(f, "binds"));
   const reads = $derived(stringList(f, "reads"));
+  const rationale = $derived(stringField(f, "rationale") ?? "");
   const frozenWhen = $derived(stringField(f, "frozenWhen"));
   const releasedHtml = $derived.by(() => {
     const v = f.releasedBy;
@@ -41,6 +42,9 @@
     <Note kind="quiet" icon="info" html="This rule names no refusal; it holds by construction." />
   {/if}
 </PageSection>
+{#if rationale}
+  <PageSection blockKey="rat" heading="rationale">{rationale}</PageSection>
+{/if}
 {#if binds.length}
   <PageSection blockKey="binds" heading="binds" count={binds.length}><RecordList ids={binds} /></PageSection>
 {/if}

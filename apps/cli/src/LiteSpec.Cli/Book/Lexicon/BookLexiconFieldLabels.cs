@@ -2,6 +2,9 @@ namespace LiteSpec.Cli.Book.Lexicon;
 
 /// <summary>
 ///     The field labels by field name, seeded from the book's field-label table.
+///     A name that means different things on different record types carries a
+///     typed entry of the form record-type dot field that wins over the plain
+///     entry of the same field, so each record type reads in its own context.
 /// </summary>
 /// <follows>litespec/core/model#name-book-labels-with-litespec-terms</follows>
 static class BookLexiconFieldLabels
@@ -10,7 +13,7 @@ static class BookLexiconFieldLabels
     public static IReadOnlyDictionary<string, string> Labels { get; } =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["boundary"] = "Boundary", ["excludes"] = "Excludes", ["addresses"] = "Addresses", ["audience"] = "Audience", ["requires"] = "Requires", ["movedBy"] = "Moved by", ["ifExhausted"] = "If exhausted", ["exemptBecause"] = "Exempt because", ["boundBy"] = "Bound by", ["widenedBy"] = "Widened by", ["parts"] = "Parts", ["solves"] = "Solves", ["answers"] = "Answers", ["observations"] = "Observations", ["outcomes"] = "Outcomes",
+            ["boundary"] = "Boundary", ["excludes"] = "Excludes", ["users"] = "Users", ["audience"] = "Audience", ["requires"] = "Requires", ["movedBy"] = "Moved by", ["ifExhausted"] = "If exhausted", ["exemptBecause"] = "Exempt because", ["boundBy"] = "Bound by", ["widenedBy"] = "Widened by", ["parts"] = "Parts", ["solves"] = "Solves", ["answers"] = "Answers", ["observations"] = "Observations", ["outcomes"] = "Outcomes",
             ["source"] = "Source", ["authority"] = "Authority", ["applies"] = "Applies", ["appliesBecause"] = "Applies because",
             ["question"] = "Question", ["sources"] = "Sources", ["readOn"] = "Read on", ["conclusion"] = "Conclusion",
             ["options"] = "Options", ["choice"] = "Choice", ["pros"] = "Pros", ["cons"] = "Cons", ["reopenedWhen"] = "Reopened when", ["supersedes"] = "Supersedes",
@@ -36,20 +39,20 @@ static class BookLexiconFieldLabels
             ["outcome"] = "Outcome",
             ["given"] = "Given", ["when"] = "When", ["then"] = "Then", ["examples"] = "Examples",
             ["carries"] = "Carries", ["fields"] = "Fields", ["path"] = "Path", ["contentType"] = "Content type", ["cacheControl"] = "Cache control", ["versioning"] = "Versioning", ["servedContent"] = "Served content",
-            ["address"] = "Address", ["entryPoint"] = "Entry point", ["offers"] = "Offers", ["implements"] = "Implements",
+            ["route"] = "Route", ["entryPoint"] = "Entry point", ["offers"] = "Offers", ["implements"] = "Implements",
             ["receives"] = "Receives", ["failure"] = "Failure", ["operations"] = "Operations", ["timeout"] = "Timeout", ["onTimeout"] = "On timeout",
             ["erasure"] = "Erasure", ["acceptedBy"] = "Accepted by",
             ["keyedBy"] = "Keyed by", ["from"] = "From", ["accumulate"] = "Accumulate", ["erasedBy"] = "Erased by", ["removedBy"] = "Removed by", ["freshness"] = "Freshness", ["decidedBy"] = "Decided by",
             ["eventType"] = "Event type", ["subject"] = "Subject", ["payload"] = "Payload",
-            ["dataschema"] = "Dataschema", ["type"] = "Type", ["required"] = "Required", ["of"] = "Of", ["name"] = "Name", ["label"] = "Label",
+            ["dataschema"] = "Dataschema", ["type"] = "Type", ["required"] = "Required", ["identifies"] = "Identifies", ["name"] = "Name", ["label"] = "Label",
             ["amount"] = "Amount", ["currency"] = "Currency", ["purpose"] = "Purpose", ["period"] = "Period", ["classification"] = "Classification",
-            ["exercises"] = "Exercises", ["background"] = "Background", ["auth"] = "Auth", ["grant"] = "Grant", ["tenant"] = "Tenant",
+            ["exercises"] = "Exercises", ["background"] = "Background", ["authentication"] = "Authentication", ["grant"] = "Grant", ["tenant"] = "Tenant",
             ["trust"] = "Trust", ["correlation"] = "Correlation", ["translates"] = "Translates",
             ["template"] = "Template", ["channel"] = "Channel", ["consent"] = "Consent", ["frequency"] = "Frequency",
-            ["dedupKey"] = "Dedup key", ["params"] = "Params", ["locale"] = "Locale", ["suppressedWhen"] = "Suppressed when", ["claims"] = "Claims",
+            ["deduplicationKey"] = "Deduplication key", ["parameters"] = "Parameters", ["locale"] = "Locale", ["suppressedWhen"] = "Suppressed when", ["claims"] = "Claims",
             ["schedule"] = "Schedule", ["batchSize"] = "Batch size", ["lease"] = "Lease", ["serviceLevel"] = "Service level",
             ["runsWhen"] = "Runs when", ["guard"] = "Guard",
-            ["valueType"] = "Value type", ["default"] = "Default", ["range"] = "Range", ["unit"] = "Unit", ["atBound"] = "At bound", ["secret"] = "Secret", ["restart"] = "Restart",
+            ["valueType"] = "Value type", ["default"] = "Default", ["range"] = "Range", ["unit"] = "Unit", ["outOfRange"] = "Out of range", ["secret"] = "Secret", ["restart"] = "Restart",
             ["releasedBy"] = "Released by", ["frozenWhen"] = "Frozen when", ["history"] = "History",
             ["value"] = "Value", ["trigger"] = "Trigger", ["severity"] = "Severity",
             ["reason"] = "Reason",
@@ -62,8 +65,34 @@ static class BookLexiconFieldLabels
             ["consequences"] = "Consequences",
             ["refusals"] = "Refusals", ["delivery"] = "Delivery",
             ["impact"] = "Impact", ["prerequisites"] = "Prerequisites", ["procedure"] = "Procedure", ["verification"] = "Verification",
-            ["recovery"] = "Recovery", ["escalation"] = "Escalation", ["exit"] = "Exit", ["key"] = "Key",
+            ["recovery"] = "Recovery", ["escalation"] = "Escalation", ["exitWhen"] = "Exit when", ["key"] = "Key",
             ["brand"] = "Brand", ["density"] = "Density", ["voice"] = "Voice", ["pageFrame"] = "Page frame",
             ["leadsTo"] = "Leads to", ["sentence"] = "Sentence", ["sentences"] = "Sentences", ["wireframe"] = "Wireframe",
+            ["failureCases"] = "Failure cases", ["workaround"] = "Workaround", ["cost"] = "Cost", ["resolutionCriteria"] = "Resolution criteria",
+            ["coverage"] = "Coverage", ["obligations"] = "Obligations", ["productEffect"] = "Effect on the product", ["openPoints"] = "Open points",
+            ["findings"] = "Findings", ["openQuestions"] = "Open questions", ["note"] = "Note", ["successCriteria"] = "Success criteria",
+            ["responsibilities"] = "Responsibilities", ["knowledge"] = "Knowledge", ["limits"] = "Limits", ["context"] = "Context",
+            ["edgeCases"] = "Edge cases", ["compatibility"] = "Compatibility", ["session"] = "Session", ["reauthenticationTriggers"] = "Reauthentication triggers",
+            ["task"] = "Task", ["consentRule"] = "Consent rule", ["recentSignInLimit"] = "Recent sign-in limit",
+            ["constraint.scope"] = "Coverage", ["role.scope"] = "Scope", ["screen.states"] = "States",
+            ["aggregate.states"] = "States", ["flow.carries"] = "Carries", ["domain-event.carries"] = "Carries",
         };
+
+    /// <summary>
+    ///     Reads one field under its label, trying the typed entry of the form
+    ///     record-type dot field before the plain entry of the plain field name.
+    /// </summary>
+    /// <param name="field">The field name.</param>
+    /// <param name="recordType">The record type reading the field, or null for the plain entry.</param>
+    /// <returns>The label for the field on that record type, or the field name when no entry names it.</returns>
+    public static string FieldLabel(string field, string? recordType)
+    {
+        if (!string.IsNullOrEmpty(recordType) && !field.Contains('.', StringComparison.Ordinal)
+            && Labels.TryGetValue(recordType + "." + field, out var typed))
+        {
+            return typed;
+        }
+
+        return Labels.TryGetValue(field, out var label) ? label : field;
+    }
 }

@@ -18,4 +18,4 @@ Say what the waiver risks for the product and the people who use it.
 
 State the kind of the waiver and when it ends. A gap waiver names the date the gap closes and the records in closedBy whose change closes it. A lasting waiver states that it has no end, and why.
 
-<!-- A lasting waiver states kind: lasting with consequences and no expiresOn, exit or closedBy. -->
+<!-- A lasting waiver states kind: lasting with consequences and no expiresOn, exitWhen or closedBy. -->

@@ -2,16 +2,29 @@
   import { book, capitalize, esc } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
+  import BulletList from "../blocks/BulletList.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import { inlineRefHtml, tdHtml } from "../page-html";
   import { stringField, stringList } from "../page-values";
 
-  // An actor: the roles it holds. The scope of each grant is the role's own.
+  // An actor: what it is responsible for, what it knows, and the roles it holds.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
+  const responsibilities = $derived(stringList(r.fields ?? {}, "responsibilities"));
+  const knowledge = $derived(stringList(r.fields ?? {}, "knowledge"));
   const holds = $derived(stringList(r.fields ?? {}, "holds"));
 </script>
 
+{#if responsibilities.length}
+  <PageSection blockKey="resp" heading="responsibilities" count={responsibilities.length}>
+    <BulletList items={responsibilities} />
+  </PageSection>
+{/if}
+{#if knowledge.length}
+  <PageSection blockKey="know" heading="knowledge" count={knowledge.length}>
+    <BulletList items={knowledge} />
+  </PageSection>
+{/if}
 {#if holds.length}
   <PageSection blockKey="holds" heading="holds" count={holds.length}>
     <DataTable

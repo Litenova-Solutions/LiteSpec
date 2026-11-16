@@ -7,7 +7,7 @@ fields:
 - name: <field name>
   meaning: <what the field holds>
   type: id
-  of: <identified record id>
+  identifies: <identified record id>
   from: module-event/sample.entry#sampleField
   classification: <public|internal|personal|sensitive>
 - name: <field name>

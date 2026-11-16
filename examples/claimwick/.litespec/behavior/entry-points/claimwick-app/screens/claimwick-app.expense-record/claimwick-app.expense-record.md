@@ -4,7 +4,7 @@ The expense record is the page where one expense is read and decided: its facts,
 
 ## Task
 
-The reader checks the expense, then acts: approving, refusing, reimbursing, attaching a missing receipt, or erasing personal data past its retention, depending on who they are and what the state permits.
+The reader checks the expense, then acts depending on who they are and what the state permits.
 
 ```wireframe
 page
@@ -31,9 +31,13 @@ page
     message "You submitted this expense, so another manager must decide it." critical
 ```
 
+Each action shows only when the expense state permits it: approval and refusal on a submitted expense, reimbursement on an approved one, and erasure past its retention.
+
 ## States
 
-While the expense loads, its facts show as placeholders. Each action shows only when the expense state permits it: approval and refusal on a submitted expense, reimbursement on an approved one, and erasure past its retention. When the expense does not exist, the page says so and links back to the list. When an action is refused, the refusal sentence appears beside the action.
+- Loading: The expense facts show as placeholders while the expense loads.
+- Missing: The page says the expense does not exist and links back to the list.
+- Refused: The refusal sentence appears beside the action.
 
 ## Example
 

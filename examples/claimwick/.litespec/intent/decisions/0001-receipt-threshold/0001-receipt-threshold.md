@@ -4,7 +4,7 @@ Claimwick asks for a receipt on expenses above a set amount. That amount is the 
 
 ## Context
 
-Small expenses need no proof, and large expenses do. Finance must keep the tax file defensible, and a receipt is the proof it uses.
+Small expenses needed no proof and large expenses did. Finance kept the tax file defensible with a receipt as proof.
 
 Asking for proof on every expense would cost more in filing than tiny expenses pay out. A high threshold, on the other hand, lets some fraud pass without proof.
 

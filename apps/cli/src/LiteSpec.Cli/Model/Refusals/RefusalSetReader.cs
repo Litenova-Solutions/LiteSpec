@@ -103,7 +103,7 @@ static class RefusalSetReader
     /// <summary>
     ///     The generic refusals a use case derives: <c>forbidden</c> when it names a grant other than anonymous or
     ///     system, <c>unauthenticated</c> for <c>signed-in</c>, <c>sign-in-too-old</c> when it sets
-    ///     <c>recentSignIn</c>, <c>invalid-input</c> when an input carries rules, <c>not-found</c> when an input is an
+    ///     <c>recentSignInLimit</c>, <c>invalid-input</c> when an input carries rules, <c>not-found</c> when an input is an
     ///     id of an aggregate, and <c>conflict</c> when a command declares <c>conflicts</c>.
     /// </summary>
     /// <param name="useCase">The use case record.</param>
@@ -123,7 +123,7 @@ static class RefusalSetReader
             codes.Add("unauthenticated");
         }
 
-        if (AccessHas(useCase, RecordFields.RecentSignIn))
+        if (AccessHas(useCase, RecordFields.RecentSignInLimit))
         {
             codes.Add("sign-in-too-old");
         }
@@ -134,7 +134,7 @@ static class RefusalSetReader
         }
 
         if (useCase.Objects(RecordFields.Input).Any(input =>
-            TextOf(input, RecordFields.Type) == "id" && TextOf(input, RecordFields.Of).StartsWith("aggregate/", StringComparison.Ordinal)))
+            TextOf(input, RecordFields.Type) == "id" && TextOf(input, RecordFields.Identifies).StartsWith("aggregate/", StringComparison.Ordinal)))
         {
             codes.Add("not-found");
         }

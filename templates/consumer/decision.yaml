@@ -5,6 +5,7 @@ summary: <the choice, in one sentence, or remove this line>
 terms:
 - <term id, or remove this line>
 kind: <provider|package|format|boundary|topology|replacement, or remove this line>
+context: <the situation that forced the choice, in one to three sentences>
 options:
 - name: <option name>
   pros: <what speaks for it>

@@ -5,6 +5,7 @@ summary: The expense-personal-data-erased event announces that the personal data
 fields:
 - expenseId
 translates: domain-event/expense.personal-data-erased
+compatibility: The selection may gain a new field the domain event carries. No field may be removed, and no meaning may change.
 terms:
 - term/expense
 - term/personal-data

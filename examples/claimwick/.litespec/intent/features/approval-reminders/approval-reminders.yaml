@@ -7,3 +7,10 @@ solves:
 - problem/expenses-wait-weeks
 advances:
 - goal/decided-in-days
+successCriteria:
+- The product sends the approver one reminder for each expense that waits past three business days without a decision.
+- The reminder names the expense and its waiting time.
+- Expenses decided in time never trigger a reminder.
+excludes:
+- Submitting expenses belongs to feature/approval.
+- Deciding expenses belongs to feature/approval.

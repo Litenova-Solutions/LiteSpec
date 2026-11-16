@@ -7,3 +7,4 @@ terms:
 fields:
 - <field name of the translated domain event>
 translates: domain-event/<aggregate>.<name>
+compatibility: <how the contract stays stable when the event changes, in one to three sentences>

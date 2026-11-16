@@ -10,10 +10,10 @@ audience:
 channel:
 - <email|sms|push>
 deliveredThrough: external-system/<name>
-requiresConsent: rule/<home>.<name, or remove this line>
+consentRule: rule/<home>.<name, or remove this line>
 frequency: <once|per-attempt>
-dedupKey: <dedup template, such as reminder-{expenseId}>
-params:
+deduplicationKey: <dedup template, such as reminder-{expenseId}>
+parameters:
 - <parameter name>
 locale: <the languages the template ships, such as English only>
 suppressedWhen: <when no message goes out, or remove this line>

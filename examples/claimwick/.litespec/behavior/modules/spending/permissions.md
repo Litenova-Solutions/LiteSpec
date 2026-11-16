@@ -8,11 +8,9 @@ Two permissions carry a risk tag: `permission/post-reimbursement` is tagged mone
 
 ## Boundaries
 
-A permission allows only the action its meaning states. These readings are not allowed by the list:
-
-- `permission/request-expense` does not cover approving or refusing an expense. Attaching a receipt uses the same permission, because the attach use case cites it.
-- `permission/approve-expense` covers refusing an expense too, because the refuse use case cites it.
-- `permission/post-reimbursement` does not cover exporting the approved expenses. Export has its own permission.
-- `permission/list-expenses` reads expenses and changes none of them.
-- `permission/manage-reminder-preference` does not let a manager change another manager's preference. Only finance changes a preference that belongs to someone else.
-- `permission/remove-personal-data` removes personal data of a decided expense only. It does not remove the expense.
+- The request-expense permission does not cover approving or refusing an expense. Attaching a receipt uses the same permission, because the attach use case cites it.
+- The approve-expense permission covers refusing an expense too, because the refuse use case cites it.
+- The post-reimbursement permission does not cover exporting approved expenses.
+- The list-expenses permission reads expenses and changes none of them.
+- The manage-reminder-preference permission does not let a manager change another preference. Only finance changes a preference that belongs to someone else.
+- The remove-personal-data permission does not remove the expense.

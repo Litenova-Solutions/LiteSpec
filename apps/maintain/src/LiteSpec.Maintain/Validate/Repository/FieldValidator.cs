@@ -6,7 +6,9 @@ using static LiteSpec.Maintain.Validate.RepositoryWalk;
 namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
-///     The field-naming contract: one concept, one name, and one shape on every record that carries it.
+///     The field-naming contract: a field name reads in its record type, one concept keeps
+///     one name across types, a type noun holds links, a link verb holds links, and a date
+///     name holds a date. The same name may hold a different shape on another record type.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal sealed class FieldValidator
@@ -23,14 +25,9 @@ internal sealed class FieldValidator
     /// <summary>Gets the shared validation context.</summary>
     private ValidationContext Context { get; }
 
-    // One concept keeps one name and one shape everywhere it appears, so an
-    // author who has learned a field on one record has learned it on them all.
-    // The names below are the declared exceptions beside the provision; every
-    // other field follows the rule.
-    // (litespec/core/language#name-each-field-by-its-word-class)
-    /// <summary>Gets the fields excepted from the same-shape rule.</summary>
-    private static readonly HashSet<string> SameShapeExceptions = new(["addresses", "code", "evidence", "subject"], StringComparer.Ordinal);
-
+    // A field name reads in its record type, so the same name may hold
+    // different shapes on different record types. Only three guards stay.
+    // (litespec/core/language#read-each-field-name-in-its-record-type)
     /// <summary>Gets the fields excepted from the ISO date name rule.</summary>
     private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn"], StringComparer.Ordinal);
 
@@ -40,7 +37,7 @@ internal sealed class FieldValidator
     // (litespec/core/language#name-each-field-by-its-word-class)
     /// <summary>Gets the field names that read as link verbs.</summary>
     private static readonly HashSet<string> LinkVerbFields = new(
-        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "writes", "covers", "addresses",
+        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "writes", "covers",
             "allows", "affects", "holds", "offers", "sends", "translates", "admits", "decides", "carries",
             "binds", "exercises"],
         StringComparer.Ordinal);
@@ -134,58 +131,6 @@ internal sealed class FieldValidator
             .ToHashSet(StringComparer.Ordinal);
         var nouns = idDefs.Select(name => name[..^2]).ToHashSet(StringComparer.Ordinal);
 
-        var shapes = new Dictionary<string, List<(string Def, string? Shape)>>(StringComparer.Ordinal);
-        foreach (var (def, properties) in scope)
-        {
-            foreach (var (field, node) in properties!.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                if (!shapes.TryGetValue(field, out var seen))
-                {
-                    seen = [];
-                    shapes[field] = seen;
-                }
-
-                seen.Add((def, FieldShape(node, defs, [])));
-            }
-        }
-
-        foreach (var field in shapes.Keys.OrderBy(name => name, StringComparer.Ordinal))
-        {
-            if (SameShapeExceptions.Contains(field))
-            {
-                continue;
-            }
-
-            string? shapeA = null;
-            string? defA = null;
-            string? shapeB = null;
-            string? defB = null;
-            foreach (var (def, shape) in shapes[field])
-            {
-                if (shape is null)
-                {
-                    continue;
-                }
-
-                if (shapeA is null)
-                {
-                    shapeA = shape;
-                    defA = def;
-                }
-                else if (shape != shapeA)
-                {
-                    shapeB = shape;
-                    defB = def;
-                    break;
-                }
-            }
-
-            if (shapeB is not null)
-            {
-                add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` holds {shapeA} in {defA} and {shapeB} in {defB}; rename one concept or record the exception in litespec/core/language#name-each-field-by-its-word-class");
-            }
-        }
-
         var reported = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (def, properties) in scope)
         {
@@ -216,6 +161,17 @@ internal sealed class FieldValidator
                     else if (shape == "string" && !ReachesTypeId(node, TypeIdsFor(field, idDefs), defs, []))
                     {
                         add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds prose; use the plural name for a list and another name for prose");
+                    }
+                }
+
+                // A plural type noun holds links to that type, like the singular.
+                // (litespec/core/language#read-each-field-name-in-its-record-type)
+                if (field.Length > 1 && field.EndsWith('s') && nouns.Contains(field[..^1]))
+                {
+                    var pluralNoun = field[..^1];
+                    if (!ReachesTypeId(node, TypeIdsFor(pluralNoun, idDefs), defs, []))
+                    {
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds no links to `{pluralNoun}`; use another name for prose");
                     }
                 }
 
@@ -474,7 +430,7 @@ internal sealed class FieldValidator
     /// <param name="typeIds">The identifier definitions of the record type.</param>
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
-    /// <returns>True when every branch reaches an identifier definition.</returns>
+    /// <returns>True when every branch reaches an identifier definition, following an array's items.</returns>
     private static bool ReachesTypeId(JsonNode? node, HashSet<string> typeIds, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
@@ -511,6 +467,12 @@ internal sealed class FieldValidator
             {
                 return branches.All(branch => ReachesTypeId(branch, typeIds, defs, visited));
             }
+        }
+
+        // A list of links: the items schema names the type.
+        if (JsonString(obj["type"]) == "array" && obj["items"] is JsonObject items)
+        {
+            return ReachesTypeId(items, typeIds, defs, visited);
         }
 
         return false;

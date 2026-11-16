@@ -3,6 +3,7 @@
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
+  import BulletList from "../blocks/BulletList.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import { clsTag, codeOf, muted, mutedInline, refLink, tag, td, thRow } from "../shared/record-cells";
@@ -30,6 +31,7 @@
     }),
   );
   const model = $derived(aggregateModel(f, r));
+  const limits = $derived(stringList(f, "limits"));
   const evs = $derived(book.eventsOf(id));
   const stateRows = $derived(
     model.states.map((s) => [
@@ -85,7 +87,7 @@
   <Note kind="good" icon="passing"><b>Finished when</b> {af.finishedWhen}</Note>
 {/if}
 {#if model.states.length}
-  <PageSection blockKey="states" heading="states" count={model.states.length}>
+  <PageSection blockKey="states" heading="aggregate.states" count={model.states.length}>
     <DataTable head={["State", "Meaning"]} caption={`States of ${r.title}`} rows={stateRows} />
   </PageSection>
 {/if}
@@ -111,4 +113,9 @@
 {/if}
 {#if evs.length}
   <PageSection blockKey="events" heading="Domain events" count={evs.length}><RecordList ids={evs} /></PageSection>
+{/if}
+{#if limits.length}
+  <PageSection blockKey="limits" heading="limits" count={limits.length}>
+    <BulletList items={limits} />
+  </PageSection>
 {/if}

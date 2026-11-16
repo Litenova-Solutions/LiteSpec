@@ -84,7 +84,7 @@ internal static class ReachChecks
             return [];
         }
 
-        return steps.EnumerateArray().SelectMany(step => LinkStrings(step, RecordFields.Cites));
+        return steps.EnumerateArray().SelectMany(step => LinkStrings(step, RecordFields.Carries));
     }
 
     /// <summary>Whether a quality requirement is proved outside Behavior: it names its check, or a test proves it.</summary>

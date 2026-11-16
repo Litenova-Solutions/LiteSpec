@@ -4,11 +4,11 @@ Say what this aggregate keeps track of, who depends on it and why it exists as o
 
 ## Lifecycle
 
-Say each state it can hold and what moves it from one state to the next.
+Explains `states`, `transitions`. Say each state it can hold and what moves it from one state to the next.
 
 ## Data and Retention
 
-Say what data the aggregate keeps, how sensitive it is and how long it is kept.
+Explains `data`, `dataClasses`. Say what data the aggregate keeps, how sensitive it is and how long it is kept.
 
 ## Example
 
@@ -16,4 +16,4 @@ Optional. One concrete case from the example cast that passes through the states
 
 ## Limits
 
-Optional. Say what the aggregate does not hold, and why.
+Explains `limits`. Optional. Say what the aggregate does not hold, and why.

@@ -113,7 +113,7 @@ type: screen
 id: screen/claimwick-app.expense-list
 title: Expense List
 summary: An employee sees their own expenses, newest first, with the amount and the latest state of each.
-address: /expenses
+route: /expenses
 offers:
 - use-case/spending.list-expenses
 serves:

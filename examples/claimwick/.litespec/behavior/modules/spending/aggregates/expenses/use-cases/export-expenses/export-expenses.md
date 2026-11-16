@@ -4,7 +4,9 @@ Export Expenses gives finance a file of the approved expenses since the last exp
 
 ## Flow
 
-Finance asks for an export of every expense approved since the last export. Spending refuses with `spending.nothing-approved` when no approved expense waits for it. Otherwise spending writes one file with one row for each approved expense.
+1. Finance asks for the approved expenses of the period.
+2. Spending refuses the export with `spending.nothing-approved` when none awaits it.
+3. Spending writes one file with one row per approved expense.
 
 Each row holds the expense identity, the amount, the currency, the approver and the approval time, and the file classifies its data as internal. The file holds every approved expense of the period, so the records set no paging. The records state no row limit or file size either.
 
@@ -16,4 +18,6 @@ The file holds two rows, each giving the expense identity, the amount and curren
 
 ## Edge Cases
 
-No expense may be approved in a week. When Cara exports a week in which no expense was approved, spending refuses with `spending.nothing-approved`, and no file is written, because no approved expense awaits it.
+- Spending refuses an export with no approved expense with `spending.nothing-approved`.
+
+No file is written, because no approved expense awaits it.

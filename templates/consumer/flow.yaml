@@ -15,7 +15,7 @@ steps:
 - id: s1
   statement: <what the actor does, in one sentence>
   actor: actor/<name, or remove this line>
-  cites:
+  carries:
   - requirement/<feature>.<name, or remove this line>
   failure: <what goes wrong at this step, or remove this line>
 branches:

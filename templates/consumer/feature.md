@@ -8,11 +8,11 @@ Group what the user can do by task, one short subsection or paragraph per task, 
 
 ## Success Criteria
 
-List the outcomes the feature brings about on its own, each one a tester can check.
+Explains `successCriteria`. List the outcomes the feature brings about on its own, each one a tester can check.
 
 ## Boundaries
 
-Say what the feature leaves to other features, which features it depends on, and each open question the owner has not decided.
+Explains `excludes`. Say what the feature leaves to other features, which features it depends on, and each open question the owner has not decided.
 
 ## Example
 

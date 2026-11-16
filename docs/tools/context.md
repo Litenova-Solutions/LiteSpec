@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec context` writes the consumer's records and explanation files as one compact plain-text file for an AI chat.
+`litespec context` writes the consumer's records as one compact plain-text file for an AI chat.
 
 ## Synopsis
 
@@ -12,9 +12,9 @@ litespec context [--root <folder>] [--out <file-or-folder>] [--layers <list>] [-
 
 ## Description
 
-The command reads every record file under the consumer's record roots, each with the explanation file beside it, and writes them as one UTF-8 text file with LF line endings, so an author can paste the specification into an AI chat to discuss it. It never edits, moves, or deletes a LiteSpec file.
+The command reads every record file under the consumer's record roots, each with the explanation file beside it, and writes them as one UTF-8 text file with LF line endings, so an author can paste the specification into an AI chat to discuss it. It never edits, moves, or deletes a LiteSpec file. The records hold the whole specification, and the explanations add human context.
 
-The output opens with a short header, then holds one block per file between `=== BEGIN FILE: <relative path> ===` and `=== END FILE: <relative path> ===`, and closes with `=== END OF CONTEXT: <n> files ===`. Each explanation follows its record file. The product record comes first and is always included, and the rest follow the book's outline order: by record layer first, then by path.
+The output opens with a short header, then holds one block per file between `=== BEGIN FILE: <relative path> ===` and `=== END FILE: <relative path> ===`, and closes with `=== END OF CONTEXT: <n> files ===`. With `--include both`, each explanation follows its record file. The product record comes first and is always included, and the rest follow the book's outline order: by record layer first, then by path.
 
 Unless you pass `--full`, the output is compacted to save tokens. From YAML it drops comments, blank lines, and keys with an empty value, and collapses runs of spaces inside scalar text to one while keeping the indentation. From Markdown it drops HTML comments and trailing whitespace, collapses repeated blank lines to one, and drops an explanation's first `# Title` line when it equals the record's title. Values, identifiers, and wording stay untouched. With `--full`, the files are kept as written.
 
@@ -41,7 +41,7 @@ None.
 | `--layers <list>` | all layers | Comma list of `intent`, `behavior`, `implementation`, `proof`, `governance`; keeps those record layers. |
 | `--modules <list>` | all modules | Comma list of module names; limits Behavior records to those modules. |
 | `--types <list>` | all types | Comma list of record types; keeps the record files holding one of them. |
-| `--include <kind>` | `both` | One of `records`, `explanations`, or `both`. |
+| `--include <kind>` | `records` | One of `records`, `explanations`, or `both`. |
 | `--full` | off | Keeps the files as written instead of compacting them. |
 | `--help` | off | Prints the usage text and exits 0. |
 

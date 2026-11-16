@@ -4,7 +4,7 @@ Claimwick App is the browser app where people use the spending features of Claim
 
 ## Audience
 
-Employees, managers and finance staff reach spending through this app. Employees submit expenses and attach receipts. Managers approve or refuse expenses and set the receipt threshold. Finance exports approved expenses, reimburses them and erases personal data.
+Employees, managers and finance staff reach spending through this app. The record names them as `actor/employee`, `actor/manager` and `actor/finance`. Employees submit expenses and attach receipts. Managers approve or refuse expenses and set the receipt threshold. Finance exports approved expenses, reimburses them and erases personal data.
 
 ## Authentication
 

@@ -14,7 +14,7 @@ payload:
   meaning: <what the field holds>
   classification: <public|internal|personal|sensitive>
   type: id
-  of: <identified record id>
+  identifies: <identified record id>
 - name: <field name>
   meaning: <what the field holds>
   classification: <public|internal|personal|sensitive>
@@ -30,3 +30,4 @@ trust: <trigger-only|payload, or remove this line>
 correlation: <how the receiver matches the event, or remove this line>
 translates: domain-event/<aggregate>.<name>
 dataschema: <schema URL, or remove this line>
+compatibility: <how the contract stays stable when the event changes, in one to three sentences>

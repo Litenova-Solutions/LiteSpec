@@ -190,10 +190,12 @@ function linkSectionBody(
   return { title, body: both.length <= 240 ? ascii(both) : ascii(first) };
 }
 
-/** A fixed section's body: its carried section text or its glossary definition, else its title only. */
+/** A fixed section's body: its carried section text or its glossary definition, else its title only.
+ *  The label reads typed by the record type first, so scope on a constraint wins over scope alone. */
 function fixedSectionBody(book: Book, sectionKey: string, recordId: string): Hover {
   const lex = book.lex;
-  const label = lexiconFieldLabel(lex, sectionKey);
+  const type = recordId ? book.typeOf(recordId) : book.selected ? book.typeOf(book.selected) : null;
+  const label = lexiconFieldLabel(lex, sectionKey, type);
   const lower = label.toLowerCase();
   // Three headings read with their title only: "Operations" and "Access" name
   // LiteSpec words of another sense (a route operation, a risk value), and a
@@ -268,7 +270,8 @@ export function hoverSection(book: Book, sectionKey: string, recordId: string): 
   const key = inbound ? sectionKey.slice("Points at this: ".length) : sectionKey;
   const direct = lexiconResolveField(book.lex, key);
   if (direct !== null) return linkSection(book, direct, recordId, inbound ? "in" : null);
-  const back = reverseLink(book.lex, lexiconFieldLabel(book.lex, sectionKey));
+  const type = recordId ? book.typeOf(recordId) : book.selected ? book.typeOf(book.selected) : null;
+  const back = reverseLink(book.lex, lexiconFieldLabel(book.lex, sectionKey, type));
   if (back !== null) return linkSection(book, back.field, recordId, back.dir);
   return fixedSectionBody(book, sectionKey, recordId);
 }

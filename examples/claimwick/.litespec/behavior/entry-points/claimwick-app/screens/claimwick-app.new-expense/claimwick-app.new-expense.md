@@ -23,7 +23,9 @@ page
 
 ## States
 
-While the submission runs, the submit action shows it is working and takes no second press. When the submission is refused, the refusal sentence appears beside the receipt field. When the submission fails to reach the server, every entered value stays in place and the page offers to try again.
+- Working: The submit action shows it is working and takes no second press.
+- Refused: The refusal sentence appears beside the receipt field.
+- Failed: Every entered value stays in place and the page offers to try again.
 
 ## Example
 

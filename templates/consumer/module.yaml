@@ -6,3 +6,7 @@ terms:
 summary: <what product area this module covers, or remove this line>
 dependsOn:
 - module/<name, or remove this line>
+responsibilities:
+- <one thing the module owns, in one sentence>
+excludes:
+- <one thing the module leaves to another module, in one sentence>

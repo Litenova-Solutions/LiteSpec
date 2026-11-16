@@ -8,7 +8,7 @@
   let { r }: Props = $props();
   const captures = $derived(r.captures ?? []);
   const captureState = $derived(r.captureState ?? (captures.length ? "captured" : ""));
-  const routeText = $derived(routeTextOf(r.route) ?? stringField(r.fields ?? {}, "address") ?? "");
+  const routeText = $derived(routeTextOf(r.route) ?? stringField(r.fields ?? {}, "route") ?? "");
 
   const current = $derived(pickCapture(captures, { width: "desktop", theme: "light" }));
   const src = $derived(current ? String(current.bookPath ?? current.path) : "");

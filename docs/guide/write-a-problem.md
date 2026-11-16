@@ -38,6 +38,31 @@ This follows the problem row of the title forms on the [Writing](../core/writing
 
 Start the fields with the sufferer in `affects`. Then state the pain in `summary` and in a one-sentence `statement`. That sentence names the sufferer, the condition they face, and the consequence, without naming any solution.
 
+```yaml
+type: problem
+id: problem/expenses-wait-weeks
+title: Expenses Wait Weeks
+affects:
+  - actor/employee
+summary: Employees who submit work expenses wait weeks for a decision and chase managers by email.
+statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.
+failureCases:
+  - An expense waits without a decision because nothing shows the approver how long it has waited.
+  - The employee cannot see the decision because nothing tells the employee when the approver decides.
+workaround: Employees email the approver for each expense that waits and keep track of which expenses are still open.
+cost: Employees report an average wait of 3 weeks; nobody has measured it. No total of carried money is recorded, so the money cost is unknown.
+resolutionCriteria:
+  - Each submitted expense is decided within 5 business days.
+  - The employee sees the decision without asking the approver.
+evidence:
+  - claim: Employees wait three weeks on average for reimbursement.
+    source: research/approval-time-benchmarks
+    readOn: 2026-11-01
+    kind: reported
+```
+
+The explanation file restates `failureCases`, `workaround`, `cost`, and `resolutionCriteria` in its Failure Cases, Current Workaround, Cost, and Resolution Criteria sections; it adds no fact the record lacks.
+
 | Instead of | Write |
 |:---|:---|
 | `statement: Employees need a reminder dashboard for approvals.` | `statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.` |
@@ -66,7 +91,7 @@ This satisfies `litespec/core/intent#claim-no-more-than-the-evidence-shows`.
 
 ### Give Each Failure Its Own Entry
 
-Under Failure Cases, give each failure that can happen on its own its own entry. For each entry, say what is missing or wrong, how the sufferer notices it, and what follows when they do not.
+Under Failure Cases, give each failure that can happen on its own as its own item of `failureCases`. For each item, say what is missing or wrong, how the sufferer notices it, and what follows when they do not.
 
 ```markdown
 - **An expense waits without a decision.** Nothing shows the approver how long an expense has waited, so it waits until the employee chases it. Until then, the employee carries the amount from their own account.
@@ -81,7 +106,7 @@ Add the optional Example section when a concrete case helps the reader see the f
 
 ### Describe the Workaround and Its Burden
 
-Under Current Workaround, say what the sufferer does today and what that costs in effort: the time it takes, what they repeat or have to remember, and what it still misses. The burden is what the manual work costs, not the fact that it is manual.
+Under Current Workaround, say what the sufferer does today and what that costs in effort: the time it takes, what they repeat or have to remember, and what it still misses. State it in `workaround`; the section restates that field. The burden is what the manual work costs, not the fact that it is manual.
 
 | Instead of | Write |
 |:---|:---|
@@ -91,7 +116,7 @@ This satisfies `litespec/core/intent#state-the-cost-and-workaround-of-every-prob
 
 ### Separate Measured Facts, Estimates, and Unknowns
 
-Under Cost, keep time, money, and risk apart, each in the sufferer's own units. Say whether each figure was measured, estimated, or reported, and write "unknown" where nobody has a figure. Keep a possible loss possible until someone observes it.
+Under Cost, keep time, money, and risk apart, each in the sufferer's own units. State it in `cost`; the section restates that field. Say whether each figure was measured, estimated, or reported, and write "unknown" where nobody has a figure. Keep a possible loss possible until someone observes it.
 
 | Instead of | Write |
 |:---|:---|
@@ -120,7 +145,7 @@ This satisfies `litespec/core/intent#grade-problem-evidence-by-kind`, `litespec/
 
 ### Write One Resolution Criterion per Failure Case
 
-Under Resolution Criteria, give each failure case one observable outcome for the sufferer that shows the failure has ended. Name no feature, format, or screen there. The feature that delivers the outcome names the problem in `solves`.
+Under Resolution Criteria, give each failure case one observable outcome for the sufferer that shows the failure has ended, as one item of `resolutionCriteria`. Name no feature, format, or screen there. The feature that delivers the outcome names the problem in `solves`.
 
 | Instead of | Write |
 |:---|:---|

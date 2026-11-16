@@ -244,7 +244,7 @@ rationale: |
 
 An explanation file is the optional `<name>.md` beside its record file, with the same name in the record's own folder. It is plain Markdown with no frontmatter: no field joins the two files, so the shared name is the link, and a rename moves both. It opens with `# <record title>`, then one paragraph of prose, then H2 sections in the order of the explanation-section table in [the writing standard](writing.md).
 
-It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier.
+It restates the record in the same specification for people, elaborating each field in plain words with context and an example. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier.
 
 Inside Intent and Behavior records, a generated region derives from other records only. The file stays optional unless the project lists the record's layer in `explanations.layers` in [the project file](../reference/project-file.md).
 
@@ -262,7 +262,7 @@ Every record except a direction carries one `summary`, and a record that makes a
 
 ### Research and Decision Articles
 
-Two record types read as prose articles: `research` and `decision`. Their explanation file is required, and it carries the required H2 sections: Findings for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.
+Two record types read as prose articles: `research` and `decision`. Their explanation file, when present, carries the required H2 sections in the order the writing standard gives: Findings for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.
 
 ### How Record Files Are Read
 
@@ -378,7 +378,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `exercises` | scenario | rule | exercises | is exercised by |
 | `competesWith` | scenario | use case | competes with | is competed with by |
 | `servedContent.fulfills` | entry point | requirement | fulfills | is fulfilled by |
-| `addresses` | product | actor | addresses | is addressed by |
+| `users` | product | actor | is used by | uses |
 | `basedOn` | constraint | research | is based on | is a basis for |
 | `decides` | decision | generic record | decides | is decided by |
 | `basedOn` | decision | constraint, research, direction, requirement | is based on | is a basis for |
@@ -395,13 +395,13 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `answers` | flow | problem, constraint | answers | is answered by |
 | `steps.actor` | flow | actor | is performed by | performs |
 | `steps.system` | flow | external system | is performed by | performs |
-| `steps.cites` | flow | requirement | carries | is carried by |
+| `steps.carries` | flow | requirement | carries | is carried by |
 | `dependsOn` | module | module | depends on | is depended on by |
 | `transitions.movedBy` | aggregate | use case, job | is moved by | moves |
 | `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
 | `dataClasses.periodStartsAt` | aggregate | domain event | starts at | starts the period of |
 | `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
-| `access.recentSignIn` | use case | setting | is limited by | limits |
+| `access.recentSignInLimit` | use case | setting | is limited by | limits |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
 | `computedBy` | use case | rule | is computed by | computes |
 | `reachedThrough` | use case | entry point | is reached through | reaches |
@@ -414,7 +414,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `effects.calls` | use case, reaction, job | external operation | calls | is called by |
 | `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
-| `requiresConsent` | use case, notification | rule | needs consent under | sets consent for |
+| `consentRule` | use case, notification | rule | needs consent under | sets consent for |
 | `triggeredBy` | reaction | domain event, module event, integration event | is triggered by | triggers |
 | `compensates` | reaction | use case | compensates | is compensated by |
 | `effects.runs` | reaction, job | use case | runs | is run by |
@@ -470,7 +470,7 @@ Some facts a reader needs sit on the record even though the model could derive t
 | Link | Stated or Computed | Reason or Check |
 |:--|:--|:--|
 | Inverse of a written link | Kept computed | The book renders it from the reads-as phrases |
-| Flow citations from step cites | Kept computed | The steps sit in the same file |
+| Flow citations from step carries | Kept computed | The steps sit in the same file |
 | Integration event publishers | Kept computed | Storage states the publishing module |
 | Reactions listed on a domain event | Kept computed | Inverse of `triggeredBy`, shown in the book |
 | Retention schedule from data classes | Kept computed | Judgement rendered in the book |
@@ -559,7 +559,7 @@ A waiver outranks the LiteSpec provision its `covers` names for the project that
 
 When code and the specification disagree, the specification wins where Intent has spoken. Where the specification is silent, an agent builds nothing: something that seems missing becomes a question to the owner or a backlog item, never code.
 
-An accepted gap becomes a gap waiver with an `expiresOn` date, an `exit` and `closedBy`: the findings its `covers` names are covered, and do not fail the run, until that date.
+An accepted gap becomes a gap waiver with an `expiresOn` date, an `exitWhen` and `closedBy`: the findings its `covers` names are covered, and do not fail the run, until that date.
 
 Module order states dependencies and grants no authority.
 
@@ -576,7 +576,7 @@ Storage fixes where a record sits. Reachability fixes that it leads to software:
 Each Intent type reaches Behavior in its own way:
 
 - A goal reaches a flow serving it or a quality requirement.
-- A flow serves one goal or answers one problem or constraint, and each step cites the requirements it carries.
+- A flow serves one goal or answers one problem or constraint, and each step carries the requirements it names.
 - A problem reaches a feature, a requirement, or a flow that answers it.
 - A feature or requirement reaches a use case, screen, flow, or quality scenario in Behavior.
 - A constraint is answered by a requirement or by a flow.
@@ -607,7 +607,7 @@ Each type takes its stage from its children:
 - A requirement is `unfulfilled` when no Behavior record fulfills it, `specified` when a fulfiller has no code, `coded` when every fulfiller has code and not every fulfiller is verified, and `verified` when every fulfiller is verified and its measure passes.
 - A use case is `unfulfilled` when no scenario specifies it, `specified` when a scenario specifies it and no code implements it, `coded` when code implements it and not every scenario is verified, and `verified` when every scenario has a passing proof that is not stale.
 - A flow takes the stage of its weakest step: an unserved step is `unfulfilled`, a served step with no code is `specified`, a step with code and no passing proof exercising it is `coded`, and an exercised step is `verified`.
-- A feature takes the stage of its weakest in-scope requirement and flow. Its in-scope requirements are the requirements on the feature page, and its in-scope flows are the flows whose steps cite those requirements.
+- A feature takes the stage of its weakest in-scope requirement and flow. Its in-scope requirements are the requirements on the feature page, and its in-scope flows are the flows whose steps carry those requirements.
 - A goal takes the stage of its weakest in-scope feature, flow, and requirement. Its in-scope flows are the flows serving it.
 - A goal's completion shows delivery only: its outcome reads `not measured` until the goal records `observations` with date, measured value, and source, and a goal is never shown as reached from delivery alone.
 
@@ -631,7 +631,7 @@ A capture is a screenshot of a built screen, filed where the builder can match i
 
 The builder records each screen's captures as `captures` with `path`, `theme`, `width` and `capturedOn`, and its `captureState` as `captured`, `route-not-captured` or `no-route`.
 
-The route slug drops the leading slash of the screen address, joins its segments with a hyphen, reduces a bracketed, braced, colon or dollar parameter to its name, and names the root route `home`, so `/events/[id]` becomes `events-id` and the default pattern names its desktop light capture `events-id--light--1440.png`. `capturedOn` is the capture file's last-write date in UTC. A screen with an address and no matching capture is `route-not-captured`; a screen with no address and no route carrying it is `no-route`.
+The route slug drops the leading slash of the screen route, joins its segments with a hyphen, reduces a bracketed, braced, colon or dollar parameter to its name, and names the root route `home`, so `/events/[id]` becomes `events-id` and the default pattern names its desktop light capture `events-id--light--1440.png`. `capturedOn` is the capture file's last-write date in UTC. A screen with a route and no matching capture is `route-not-captured`; a screen with no route and no route carrying it is `no-route`.
 
 A missing gallery folder captures nothing and fails nothing. A gallery inside a declared frontend folder serves only the screens of that frontend's entry point, so two frontends that both serve the root route never share a capture.
 
@@ -697,7 +697,7 @@ The book shows each flow as record detail:
 - The steps with their `statement` and `failure`.
 - Each branch as a sentence after the steps.
 - Its `finishedWhen`.
-- For each step, the requirements the step cites, with their statements and their `except` and fallback inline.
+- For each step, the requirements the step carries, with their statements and their `except` and fallback inline.
 - For each step, the serving behavior in one line.
 - The Then clauses of its scenarios, as context.
 
@@ -801,22 +801,6 @@ A generated region that `model render` writes from the record file is not a seco
 
 **Reviewed for:** Does any explanation file state a fact a check reads, or any page carry field values outside the record file? Compare each explanation file with its record file.
 
-### Require an Explanation File for Article Types
-
-**ID:** `litespec/core/model#require-an-explanation-file-for-article-types`
-
-**Strength:** required
-
-**Applies to:** artifact: record:research, record:decision
-
-**Statement:** A research or decision page MUST carry its explanation file with the required H2 sections.
-
-**Rationale:** Research and decision records are read as prose: a research's Findings and a decision's Decision are what the reader comes for. The required sections keep each article complete: Findings for research, and Context, Options, Decision, Consequences, and Revisit Conditions for decision.
-
-**Example:** `research/approval-time-benchmarks` carries its Findings in `approval-time-benchmarks.md`.
-
-**Checked by:** `litespec model check` reports `explanation-missing` for an article type with no explanation file or with a required H2 section missing or its sections out of order.
-
 ### Require Explanation Files on the Layers a Project Names
 
 **ID:** `litespec/core/model#require-explanation-files-on-the-layers-a-project-names`
@@ -827,7 +811,7 @@ A generated region that `model render` writes from the record file is not a seco
 
 **Statement:** A record page on a layer the project lists in `explanations.layers` MUST carry its explanation file with the required H2 sections.
 
-**Rationale:** On a complex product, every record needs explaining for people who did not write it. Listing a layer in `explanations.layers` makes the explanation a gate instead of a habit.
+**Rationale:** On a complex product, every record needs explaining for people who did not write it. Listing a layer in `explanations.layers` makes the explanation a gate instead of a habit. On a layer the project does not list, the explanation file is optional for every record type, including research and decision records.
 
 **Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check.
 
@@ -895,7 +879,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Rationale:** A folder states that everything inside it belongs to the record above it. Content is what a record states and what it changes; its links are its reasons, not its content. A record filed under one of several records its content spans claims a scope it does not hold, and a reader looking for every record of its type must search the folder of every possible parent. The reason a record exists can change while its content stays the same, so a link field keeps that change to one line where a folder would move the record. Settled by [decision/0078-place-each-record-by-its-content](decision/0078-place-each-record-by-its-content).
 
-**Example:** In the Claimwick product, `flow/submit-and-reimburse` cites requirements of both `feature/approval` and `feature/approval-reminders`, so it sits in `intent/flows/` under the product and names its goal in `serves`. A reaction answering another module's integration event sits with the module whose records it changes, and names the event in `triggeredBy`.
+**Example:** In the Claimwick product, `flow/submit-and-reimburse` carries requirements of both `feature/approval` and `feature/approval-reminders`, so it sits in `intent/flows/` under the product and names its goal in `serves`. A reaction answering another module's integration event sits with the module whose records it changes, and names the event in `triggeredBy`.
 
 **Reviewed for:** Does any record sit under a record that holds only part of its content, and does any record type in the Placement Table take a parent whose scope is narrower than its content? Compare each record's folder with the records it cites and the records that serve it.
 
@@ -978,6 +962,22 @@ A feature requirement sits under its feature in its own folder, and types at pro
 **Example:** The Claimwick submit-expense use case states its `exposure` in plain words, and `exposure-reference-drift` reports an entry point it names that `reachedThrough` lacks.
 
 **Checked by:** `litespec model check` reports `rule-governs-drift`, `exposure-reference-drift`, `exposure-missing`, `classification-drift` and `data-class-fields-drift` for a stated copy that differs from its source.
+
+### Keep the Whole Specification in the Records
+
+**ID:** `litespec/core/model#keep-the-whole-specification-in-the-records`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every fact an agent needs to build the product MUST stand in a record field, and no fact MAY stand only in an explanation file.
+
+**Rationale:** An agent builds from the records, and a check reads only fields. A fact written only in prose reaches neither: the agent builds without it, and no finding notices when it changes. Keeping every fact in a field makes the YAML a complete specification on its own, and leaves the explanation file free to restate and elaborate it for people. Settled by [decision/0095-keep-the-whole-specification-in-the-records](decision/0095-keep-the-whole-specification-in-the-records).
+
+**Example:** Claimwick's `problem/expenses-wait-weeks` states its failure cases in `failureCases` and the condition that ends the problem in `resolutionCriteria`. Its explanation's Failure Cases section restates those cases and walks through one with the cast.
+
+**Checked by:** `litespec model check` reports `explanation-section-unbacked` for an explanation section whose backing fields are empty on its record. Whether prose adds a fact no field holds is reviewed: does any explanation file state a fact that no field of its record or of a record it cites holds?
 
 ### Write Links on the Record That Points
 
@@ -1181,7 +1181,7 @@ Kept in Intent, the rule and the target stand as the promises they are, the deci
 
 **Rationale:** A name in plain words, such as a decision number without its identifier, cannot be resolved: nothing tells whether the record still exists after a rename or a move. The identifier in backticks is the one form every check reads, so a stale name fails the check at the line that names it instead of sending the reader after a record nobody wrote.
 
-**Example:** A waiver exit reads "The gap closes when `decision/0005-render-receipts-as-pdf` lands." rather than "The gap closes when Decision 5 lands."
+**Example:** A waiver `exitWhen` reads "The gap closes when `decision/0005-render-receipts-as-pdf` lands." rather than "The gap closes when Decision 5 lands."
 
 **Checked by:** `litespec model check` reports `reference-unknown` for a backticked identifier that names no written record and for a backticked provision the carried release does not ship.
 
@@ -1265,7 +1265,7 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Rationale:** A reader judging a screen needs to see it, and a capture named by its route, theme, and width is the copy the built screen makes. The route slug names the file the same way everywhere: the leading slash dropped, segments joined with a hyphen, a parameter reduced to its name, and the root route named `home`. A missing gallery folder captures nothing and fails nothing, so a project with no photography yet still builds its model.
 
-**Example:** The Claimwick web gallery holds `expenses--light--1440.png`, so `screen/expenses.list` at `/expenses` shows that capture at theme `light` and width 1440 with `captureState` `captured`; a screen with no address shows `no-route`.
+**Example:** The Claimwick web gallery holds `expenses--light--1440.png`, so `screen/expenses.list` at `/expenses` shows that capture at theme `light` and width 1440 with `captureState` `captured`; a screen with no route shows `no-route`.
 
 **Reviewed for:** Which screens with a route have no capture? Look at `captureState` `route-not-captured` on screen records in the model.
 

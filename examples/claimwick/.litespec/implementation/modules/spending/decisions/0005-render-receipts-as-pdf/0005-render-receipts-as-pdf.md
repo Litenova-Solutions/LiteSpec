@@ -4,7 +4,7 @@ Claimwick renders each receipt as a PDF file that finance keeps next to its expe
 
 ## Context
 
-Finance keeps each receipt as a file next to its expense. Behind this choice sits `constraint/tax-receipt-retention`, the constraint the decision rests on.
+Finance kept each receipt as a file next to its expense for the tax file. Behind this choice sits `constraint/tax-receipt-retention`, the constraint the decision rests on.
 
 ## Options
 

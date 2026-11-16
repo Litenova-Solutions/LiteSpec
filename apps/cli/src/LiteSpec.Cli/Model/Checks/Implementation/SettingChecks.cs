@@ -238,7 +238,7 @@ internal static class SettingChecks
 
         var where = keys.Count == 1 ? $"template '{keys[0]}'" : "its templates";
 
-        foreach (var param in notification.Strings(RecordFields.Params))
+        foreach (var param in notification.Strings(RecordFields.Parameters))
         {
             var pascal = Naming.Pascal(param);
 

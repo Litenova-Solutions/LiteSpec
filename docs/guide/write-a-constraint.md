@@ -108,7 +108,28 @@ The weak version states no rule and no subject. The strong version opens with th
 
 ### Write Scope
 
-Under Scope, say which subjects, transactions, and periods the rule covers, and what it leaves out. Scope says whom the rule itself covers. Whether the rule binds the product stays in the `applies` field and `appliesBecause`, so Scope does not repeat them.
+Under Scope, say which subjects, transactions, and periods the rule covers, and what it leaves out. State it in `scope`; Scope restates that field. Scope says whom the rule itself covers. Whether the rule binds the product stays in the `applies` field and `appliesBecause`, so Scope does not repeat them.
+
+```yaml
+type: constraint
+id: constraint/tax-receipt-retention
+title: Tax Receipt Retention
+authority: National tax law
+summary: National tax law requires a company to keep its business receipts for seven years.
+kind: legal
+applies: true
+appliesBecause: Claimwick stores receipts for reimbursed expenses.
+scope: The rule covers business receipts. Claimwick holds only the receipts of expenses it reimburses.
+obligations:
+  - statement: A company keeps its business receipts for seven years.
+    sources:
+      - national-tax-law
+productEffect: An expense above the receipt threshold carries its receipt, which the product keeps for the retention period.
+openPoints:
+  - Whether the seven-year period counts from the expense date or the payout date is open.
+```
+
+The explanation file restates `scope`, `obligations`, `productEffect`, and `openPoints` in its Scope, Rules, Effect on the Product, and Open Points sections; it adds no fact the record lacks.
 
 | Instead of | Write |
 |:---|:---|
@@ -118,7 +139,7 @@ This satisfies `litespec/core/intent#state-each-constraint-rule-with-its-conditi
 
 ### Write Rules, One Paragraph per Rule
 
-Under Rules, give each rule its own paragraph with its condition. Cite the source that states the rule as a reference link `[text][key]` to a key in `sources`. Keep to the outside obligation; what the product does about it belongs in Effect on the Product.
+Under Rules, restate each `obligations` item as its own paragraph with its condition. Each item states one outside rule as a fact and names its sources by key. Cite the source that states the rule as a reference link `[text][key]` to a key in `sources`. Keep to the outside obligation; what the product does about it belongs in Effect on the Product.
 
 | Instead of | Write |
 |:---|:---|
@@ -129,7 +150,7 @@ The first weak version names the product, not the law, and states a rule the sou
 
 ### Write Effect on the Product, Naming Each Requirement
 
-Under Effect on the Product, give each effect the rule has on the product its own paragraph, and name each requirement that holds it by identifier. Name here every requirement that cites this constraint, and make every requirement named here cite it back.
+Under Effect on the Product, give each effect the rule has on the product its own paragraph, and name each requirement that holds it by identifier. State it in `productEffect`; the section restates that field. Name here every requirement that cites this constraint, and make every requirement named here cite it back.
 
 | Instead of | Write |
 |:---|:---|
@@ -141,7 +162,7 @@ When a constraint carries `applies: false`, say in one sentence that the rule bi
 
 ### Write Open Points as Questions About Application
 
-Under Open Points, optional, keep to questions about how a verified rule applies to the product. Name who settles each question and which behavior waits on it. A question about the facts of the rule belongs in the research record's Open Questions; the constraint names that question in one line.
+Under Open Points, optional, keep to questions about how a verified rule applies to the product. State each question as one item of `openPoints`; Open Points restates that field. Name who settles each question and which behavior waits on it. A question about the facts of the rule belongs in the research record's `openQuestions`; the constraint names that question in one line.
 
 | Instead of | Write |
 |:---|:---|

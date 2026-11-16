@@ -22,11 +22,13 @@
 
   const LINKS_IN_RAIL = new Set([
     "based on", "depends on", "governs", "raised by", "fulfilled by", "governed by", "fulfills",
-    "fulfills and serves", "advances", "basedOn", "audience", "requires", "actor", "dependsOn",
+    "fulfills and serves", "advances", "basedOn", "requires", "actor", "dependsOn",
     "decides", "raises", "subject", "affects", "replaces", "implements", "calls", "proves",
     "serves", "advances", "cites",
   ]);
 
+  const forId = $derived(recordId ?? book.selected ?? "");
+  const headingType = $derived(forId ? book.typeOf(forId) : null);
   const hidden = $derived.by(() => {
     if (count === 0) return true;
     if (html !== null && !html) return true;
@@ -34,18 +36,17 @@
     return (
       LINKS_IN_RAIL.has(heading) ||
       LINKS_IN_RAIL.has(heading.toLowerCase()) ||
-      LINKS_IN_RAIL.has(book.fieldLabel(heading).toLowerCase())
+      LINKS_IN_RAIL.has(book.fieldLabel(heading, headingType).toLowerCase())
     );
   });
 
-  const label = $derived(book.fieldLabel(heading));
-  const forId = $derived(recordId ?? book.selected ?? "");
+  const label = $derived(book.fieldLabel(heading, headingType));
   const hover = $derived(hoverSection(book, heading, forId));
 
   // A shown section lists itself in the rail's On this page.
   $effect(() => {
     if (hidden) return;
-    return pageSections.add({ key: blockKey, label: book.fieldLabel(heading), count: count ?? null });
+    return pageSections.add({ key: blockKey, label: book.fieldLabel(heading, headingType), count: count ?? null });
   });
 </script>
 

@@ -2,89 +2,108 @@ type: use-case
 id: use-case/spending.export-expenses
 title: Export Expenses
 summary: Finance collects the approved expenses so the payout batch can run.
-exposure: Signed-in finance staff reach this query through the expenses app under the export-expenses permission. A wrong file pays the wrong expenses, so the file carries every approved expense of the period and nothing else.
+exposure: Signed-in finance staff reach this query through the expenses app
+  under the export-expenses permission. A wrong file pays the wrong expenses, so
+  the file carries every approved expense of the period and nothing else.
 kind: query
 access:
   grant: permission/export-expenses
   tenant: own
 serves:
-- flow/export-approved-expenses#s1
+  - flow/export-approved-expenses#s1
 fulfills:
-- requirement/approval.decided-within-five-days
+  - requirement/approval.decided-within-five-days
 reachedThrough:
-- entry-point/claimwick-app
+  - entry-point/claimwick-app
+steps:
+  - statement: Finance asks for the approved expenses of the period.
+    cites:
+      - aggregate/spending.expense
+  - statement: Spending refuses the export with `spending.nothing-approved` when
+      none awaits it.
+    cites:
+      - result/export-expenses.nothing-approved
+      - rule/expense.export-carries-approved
+  - statement: Spending writes one file with one row per approved expense.
+    cites:
+      - result/export-expenses.exported
+      - aggregate/spending.expense
+edgeCases:
+  - Spending refuses an export with no approved expense with
+    `spending.nothing-approved`.
 output:
   include:
     file:
       fields:
-      - name: rows
-        meaning: The set of rows with one row per approved expense.
-        type: list
-        of:
-          fields:
-          - name: expenseId
-            meaning: The approved expense.
-            type: id
-            of: aggregate/spending.expense
-            required: true
-          - name: amount
-            meaning: The exact amount of the expense.
-            type: decimal
-            required: true
-          - name: currency
-            meaning: The ISO 4217 currency code of the amount.
-            type: text
-            required: true
-          - name: approver
-            meaning: The manager who approved the expense.
-            type: id
-            of: actor/manager
-            required: true
-          - name: approvedAt
-            meaning: The time the expense was approved.
-            type: date-time
-            required: true
-          unique:
-          - expenseId
+        - name: rows
+          meaning: The set of rows with one row per approved expense.
+          type: list
+          identifies:
+            fields:
+              - name: expenseId
+                meaning: The approved expense.
+                type: id
+                identifies: aggregate/spending.expense
+                required: true
+              - name: amount
+                meaning: The exact amount of the expense.
+                type: decimal
+                required: true
+              - name: currency
+                meaning: The ISO 4217 currency code of the amount.
+                type: text
+                required: true
+              - name: approver
+                meaning: The manager who approved the expense.
+                type: id
+                identifies: actor/manager
+                required: true
+              - name: approvedAt
+                meaning: The time the expense was approved.
+                type: date-time
+                required: true
+            unique:
+              - expenseId
       classification: internal
       reads:
-      - aggregate/spending.expense
+        - aggregate/spending.expense
       freshness:
         mode: immediate
 paging:
   mode: none
   reason: one file holds every approved expense of the period
 reads:
-- aggregate/spending.expense
+  - aggregate/spending.expense
 records:
-- type: result
-  id: result/export-expenses.exported
-  title: Exported
-  outcome: success
-  meaning: The approved expenses are exported.
-- type: result
-  id: result/export-expenses.nothing-approved
-  title: Nothing Approved
-  outcome: refusal
-  code: spending.nothing-approved
-  sentence: No approved expense awaits export, so there is no batch to send.
-  sentences:
-    nl: Er wacht geen goedgekeurde uitgave op export, dus er is geen batch om te verzenden.
-- type: scenario
-  id: scenario/export-expenses.exporting-approved-expenses-succeeds
-  title: Exporting Approved Expenses Succeeds
-  given: Two expenses were approved this week.
-  when: Finance exports the approved expenses.
-  then: The approved expenses are exported.
-  result: result/export-expenses.exported
-  exercises:
-  - rule/expense.export-carries-approved
-- type: scenario
-  id: scenario/export-expenses.exporting-with-nothing-approved-is-refused
-  title: Exporting with Nothing Approved Is Refused
-  given: No expense was approved this week.
-  when: Finance exports the approved expenses.
-  then: The export is refused because no approved expense awaits it.
-  result: result/export-expenses.nothing-approved
-  exercises:
-  - rule/expense.export-carries-approved
+  - type: result
+    id: result/export-expenses.exported
+    title: Exported
+    outcome: success
+    meaning: The approved expenses are exported.
+  - type: result
+    id: result/export-expenses.nothing-approved
+    title: Nothing Approved
+    outcome: refusal
+    code: spending.nothing-approved
+    sentence: No approved expense awaits export, so there is no batch to send.
+    sentences:
+      nl: Er wacht geen goedgekeurde uitgave op export, dus er is geen batch om te
+        verzenden.
+  - type: scenario
+    id: scenario/export-expenses.exporting-approved-expenses-succeeds
+    title: Exporting Approved Expenses Succeeds
+    given: Two expenses were approved this week.
+    when: Finance exports the approved expenses.
+    then: The approved expenses are exported.
+    result: result/export-expenses.exported
+    exercises:
+      - rule/expense.export-carries-approved
+  - type: scenario
+    id: scenario/export-expenses.exporting-with-nothing-approved-is-refused
+    title: Exporting with Nothing Approved Is Refused
+    given: No expense was approved this week.
+    when: Finance exports the approved expenses.
+    then: The export is refused because no approved expense awaits it.
+    result: result/export-expenses.nothing-approved
+    exercises:
+      - rule/expense.export-carries-approved

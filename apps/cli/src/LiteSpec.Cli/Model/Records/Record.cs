@@ -203,7 +203,7 @@ sealed class Record : IRecordFields
     }
 
     /// <summary>
-    ///     The requirement identifiers a flow carries: the union of its steps' <c>cites</c>, in step
+    ///     The requirement identifiers a flow carries: the union of its steps' <c>carries</c>, in step
     ///     order with each identifier once. A flow holds no citations of its own, so this is its
     ///     computed citation list.
     /// </summary>
@@ -211,6 +211,46 @@ sealed class Record : IRecordFields
     public IReadOnlyList<string> StepCitations()
     {
         if (Type != RecordTypes.Flow
+            || Raw.ValueKind != JsonValueKind.Object
+            || !Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            || steps.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var ids = new List<string>();
+
+        foreach (var step in steps.EnumerateArray())
+        {
+            if (step.ValueKind != JsonValueKind.Object || !step.TryGetProperty(RecordFields.Carries, out var carries))
+            {
+                continue;
+            }
+
+            var citedIds = carries.ValueKind == JsonValueKind.Array
+                ? carries.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.String).Select(entry => entry.GetString()!)
+                : Enumerable.Empty<string>();
+
+            foreach (var cited in citedIds)
+            {
+                if (!ids.Contains(cited, StringComparer.Ordinal))
+                {
+                    ids.Add(cited);
+                }
+            }
+        }
+
+        return ids;
+    }
+
+    /// <summary>
+    ///     The records a use case applies: the union of its steps' <c>cites</c>, in step
+    ///     order with each identifier once. A use case holds no citations of its own.
+    /// </summary>
+    /// <returns>The cited record identifiers of the use case, or an empty list for any other record type.</returns>
+    public IReadOnlyList<string> AppliedCitations()
+    {
+        if (Type != RecordTypes.UseCase
             || Raw.ValueKind != JsonValueKind.Object
             || !Raw.TryGetProperty(RecordFields.Steps, out var steps)
             || steps.ValueKind != JsonValueKind.Array)

@@ -19,13 +19,13 @@ No record declares the publishing as an effect, and no user code publishes the e
 
 A read model in another module copies module events or integration events, as the [Automation page](automation.md#read-models) states. Claimwick emits `integration-event/reimbursement-requested` when spending approves an expense, for example, and the payout bank settles the reimbursement from it.
 
-Every integration event names the external system it travels through in `through`. An outbound event publishes only fields its translated domain event carries. Consumers, Compatibility, and Example live in the explanation file beside the record file.
+Every integration event names the external system it travels through in `through`. An outbound event publishes only fields its translated domain event carries. The record carries `compatibility`, and the explanation file beside the record restates Compatibility from `compatibility`, holds Consumers, and carries Example.
 
 | Field | Meaning |
 |:---|:---|
 | `action` | `send` or `receive`. |
 | `eventType`, `source`, `subject` | The CloudEvents type, source, and what the subject identifies. |
-| `payload` | `{ name, meaning, type, of, many, required, classification }` entries, with the field types and the list flag use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states. |
+| `payload` | `{ name, meaning, type, identifies, many, required, classification }` entries, with the field types and the list flag use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states. |
 | `dataschema` | The URL the payload follows, optional. |
 | `trust` | `trigger-only` or `payload`. |
 | `correlation` | How an inbound event is matched, inbound only. |
@@ -33,6 +33,7 @@ Every integration event names the external system it travels through in `through
 | `requires` | The permission reading it, outbound only, optional. |
 | `through` | The `external-system/...` the event travels through, required. |
 | `arrivesThrough` | How an inbound event arrives, required on an inbound event: an `entry-point/...` of kind `webhook` or an `external-system/...` whose broker or stream the module subscribes to. |
+| `compatibility` | How the event stays compatible with its consumers, required. |
 
 ### Notifications
 
@@ -46,24 +47,33 @@ Claimwick's `notification/spending.receipt-reminder` sends the `receipt-reminder
 
 | Field | Meaning |
 |:---|:---|
-| `template`, `params`, `locale` | The template key, its parameters, and where the language comes from. |
+| `template`, `parameters`, `locale` | The template key, its parameters, and where the language comes from. |
 | `audience`, `channel` | The actors addressed and the channels: `email`, `sms`, `push`. |
 | `deliveredThrough` | The `external-system/...` delivering the message, required. |
-| `requiresConsent` | The `rule/...` requiring consent for the send, where consent applies. |
-| `frequency`, `dedupKey` | `once` or `per-attempt`, and the dedup template over the trigger payload. |
+| `consentRule` | The `rule/...` requiring consent for the send, where consent applies. |
+| `frequency`, `deduplicationKey` | `once` or `per-attempt`, and the deduplication template over the trigger payload. |
 | `suppressedWhen` | The suppression condition, optional. |
 | `claims` | `{ claim, requirement }` entries for what the message says. |
 | `fulfills` | The requirements carried. |
 
 ### Entry Points
 
-An entry point is one way outside callers reach the product. Each entry point declares its `auth`, as the [Access page](access.md) states.
+An entry point is one way outside callers reach the product. Each entry point declares its `authentication`, as the [Access page](access.md) states, and names its `audience` in `actor/...` ids.
 
 Served content is a static script or legal text with its path, content type, cache control, and versioning, listed in `servedContent` on a browser entry point. It is content served unchanged, not a use case run, so it carries no behavior.
 
 | Kind | Meaning |
 |:---|:---|
 | `browser`, `api`, `webhook`, `device`, `cli`, `mcp` | A browser app, a public interface, an inbound hook, a device, a command line, or a model context channel. |
+
+| Field | Meaning |
+|:---|:---|
+| `audience` | The `actor/...` ids using this entry point, required. |
+| `session` | How long a session lasts, `{ lifetime, idleTimeout }` as ISO 8601 durations, where sessions apply. |
+| `reauthenticationTriggers` | When a fresh sign-in is required, one sentence per trigger. |
+| `limits` | What the entry point does not do, one sentence per limit. |
+
+The explanation restates Audience from `audience`, Authentication from `authentication`, `session`, and `reauthenticationTriggers`, and Limits from `limits`.
 
 An entry point that people use states two things about its audience. Its `density` says how much each screen shows at once: `public-light` for pages that show little, `application-balanced` for screens that balance work and guidance, or `admin-dense` for screens that pack dense rows. Its `voice` says in a sentence or two how the product addresses that audience.
 
@@ -75,9 +85,9 @@ The optional `protocol` block belongs to the `devices` extension. The [access pa
 
 A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `behavior/entry-points/<entry-point>/screens/<entry-point>.<name>/<entry-point>.<name>.yaml` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. The folder already states its entry point, so the record writes no up-link.
 
-It names its `address`, the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination. It names the use cases it `offers` and the flow steps it `serves`.
+It names its `route`, the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination. It names the use cases it `offers` and the flow steps it `serves`.
 
-An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen offers no use case and says so in its `summary`.
+An overlay with no route of its own names the screen it opens on in `host` instead. A screen carries exactly one of `route` and `host`, as [Give Every Screen a Route or a Host](#give-every-screen-a-route-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen offers no use case and says so in its `summary`.
 
 A screen states what a person can do there, and what the person sees follows from it. The results it shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`. None of those are written on the screen. Intent never names a screen either: a flow step states what a person achieves, and the book adds the screen that carries the step as context.
 
@@ -95,7 +105,7 @@ An external system is one system outside the bounded context that the product ex
 
 When the integration calls the product rather than the other way around, that is still an external system: one calling through an API entry point. Claimwick's payout bank is an external system whose charge operation the spending module calls.
 
-Each operation declares its action, timeout, response, and cache, and may state its retry behavior in `retries` prose. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
+Each operation declares its action, timeout, response, and cache, and may state its retry behavior in `retries` prose. The timeout is an ISO 8601 duration such as `PT10S`. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
 
 Its erasure position states how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported", "reason": "..." }`, `manual`, or `not-applicable` with its acceptance.
 
@@ -103,7 +113,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 | Field | Meaning |
 |:---|:---|
-| `operations` | `{ name, action, timeout, onTimeout, retries, response, cache, rejected, accepted, unknown }` entries; action is `send` or `receive`, `retries` is optional prose. The outcome handling separates `rejected`, `accepted`, and `unknown`; the `unknown` case names its handling in `onUnknown` as `dedupe-key`, `reconcile`, or `retry-safe`. |
+| `operations` | `{ name, action, timeout, onTimeout, retries, response, cache, rejected, accepted, unknown }` entries; action is `send` or `receive`, `timeout` is an ISO 8601 duration, `retries` is optional prose. The outcome handling separates `rejected`, `accepted`, and `unknown`; the `unknown` case names its handling in `onUnknown` as `dedupe-key`, `reconcile`, or `retry-safe`. |
 | `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported" | "manual" | "not-applicable", "reason": "..." }` with `basedOn`. `unsupported` means the operator cannot remove the data, `manual` means people remove it outside the product, and `not-applicable` means the system holds no personal data after the product sends it. |
 | `processes` | The aggregates and data classes the system holds, as `{ aggregate, dataClass }` entries. |
 
@@ -167,7 +177,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Statement:** Each inbound integration event MUST name how it arrives in `arrivesThrough`.
 
-**Rationale:** An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, with its own trust decision. Naming the arrival gives each inbound fact one entry point with one auth, where trust and correlation hold. That is either the `webhook` entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).
+**Rationale:** An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, with its own trust decision. Naming the arrival gives each inbound fact one entry point with one authentication, where trust and correlation hold. That is either the `webhook` entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).
 
 **Example:** Claimwick's receipt-scan-available event names the scanning provider webhook entry point in `arrivesThrough`, and the payout-settled event names the payout bank stream the spending module subscribes to.
 
@@ -181,9 +191,9 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Applies to:** artifact: record:notification
 
-**Statement:** Each notification MUST declare its template, audience, channel, consent rule, frequency, dedup key, parameters, locale, and delivering system.
+**Statement:** Each notification MUST declare its template, audience, channel, consent rule, frequency, deduplication key, parameters, locale, and delivering system.
 
-**Rationale:** A message without a declared audience and consent reaches the wrong actors, ignores consent, and repeats without control. Declaring the template with its parameters and locale, the audience, the channel of `email`, `sms`, or `push`, the consent rule in `requiresConsent`, the frequency of `once` or `per-attempt`, the dedup key, and the delivering system in `deliveredThrough` puts the message beside its promise. A notification is a message to a person; a webhook to a system is an outbound integration event. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios show the message sending nothing. A use case that needs consent names the same rule in its `requiresConsent`.
+**Rationale:** A message without a declared audience and consent reaches the wrong actors, ignores consent, and repeats without control. Declaring the template with its parameters and locale, the audience, the channel of `email`, `sms`, or `push`, the consent rule in `consentRule`, the frequency of `once` or `per-attempt`, the deduplication key, and the delivering system in `deliveredThrough` puts the message beside its promise. A notification is a message to a person; a webhook to a system is an outbound integration event. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios show the message sending nothing. A use case that needs consent names the same rule in its `consentRule`.
 
 **Checked by:** `litespec model check` reports `notification-effect-missing` for a notification no use case, reaction, or job sends, and fails a notification without its declared fields.
 
@@ -211,7 +221,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Applies to:** artifact: record:notification
 
-**Statement:** Every parameter a notification declares in `params` MUST appear as a placeholder in at least one of its template's texts.
+**Statement:** Every parameter a notification declares in `parameters` MUST appear as a placeholder in at least one of its template's texts.
 
 **Rationale:** A declared parameter is part of the message's promise: the order number in a confirmation, or the name in a reminder. A parameter the template never uses is a promise the message does not keep, and it usually means someone rewrote the template without updating the record.
 
@@ -257,11 +267,11 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Applies to:** artifact: record:entry-point
 
-**Statement:** Each entry point MUST declare its kind and its `auth`.
+**Statement:** Each entry point MUST declare its kind and its `authentication`.
 
-**Rationale:** An entry point with no kind is entered any way: a webhook is called as a page, and a device as a browser. Declaring the kind, one of `browser`, `api`, `webhook`, `device`, `cli`, or `mcp`, together with its auth, states how callers arrive and how they prove themselves.
+**Rationale:** An entry point with no kind is entered any way: a webhook is called as a page, and a device as a browser. Declaring the kind, one of `browser`, `api`, `webhook`, `device`, `cli`, or `mcp`, together with its `authentication`, states how callers arrive and how they prove themselves.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` or `auth`.
+**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` or `authentication`.
 
 ### State the Density and Voice of Each Entry Point
 
@@ -295,21 +305,21 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Checked by:** `litespec model check` reports `screen-unimplemented` (level S) for a screen no route marks, and `behavior-unrecorded` (level S) for a route with no mark or a mark naming no screen.
 
-### Give Every Screen an Address or a Host
+### Give Every Screen a Route or a Host
 
-**ID:** `litespec/core/edges#give-every-screen-an-address-or-a-host`
+**ID:** `litespec/core/edges#give-every-screen-a-route-or-a-host`
 
 **Strength:** required
 
 **Applies to:** artifact: record:screen
 
-**Statement:** Each screen MUST carry exactly one of `address` and `host`.
+**Statement:** Each screen MUST carry exactly one of `route` and `host`.
 
-**Rationale:** A route screen without an address is unreachable, and an overlay with one is two pages fighting over a route. An address places a screen on its route, while a host places an overlay on the screen it opens on. Exactly one of the two places every page once.
+**Rationale:** A route screen without a route is unreachable, and an overlay with one is two pages fighting over a route. A route places a screen on its route, while a host places an overlay on the screen it opens on. Exactly one of the two places every page once.
 
-**Example:** The Claimwick expense list carries the address `/expenses`, and its confirm overlay names the expense list in `host` instead.
+**Example:** The Claimwick expense list carries the route `/expenses`, and its confirm overlay names the expense list in `host` instead.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a screen without exactly one of `address` and `host`.
+**Checked by:** `litespec model check` reports `record-invalid` for a screen without exactly one of `route` and `host`.
 
 ### Match a Screen's Offers to Its Calls
 

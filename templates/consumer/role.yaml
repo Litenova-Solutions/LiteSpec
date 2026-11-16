@@ -7,3 +7,5 @@ summary: <what holders of this role may do>
 scope: <scope, such as self, team or platform>
 allows:
 - permission/<name>
+limits:
+- <one thing the role does not grant, in one sentence>

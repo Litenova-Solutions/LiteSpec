@@ -2,7 +2,15 @@ type: screen
 id: screen/claimwick-app.expense-record
 title: Expense Record
 summary: A reader sees one expense with its state and the actions that state permits.
-address: /expenses/{expenseId}
+route: /expenses/{expenseId}
+task: The reader checks the expense, then acts depending on who they are and what the state permits.
+states:
+- name: Loading
+  shows: The expense facts show as placeholders while the expense loads.
+- name: Missing
+  shows: The page says the expense does not exist and links back to the list.
+- name: Refused
+  shows: The refusal sentence appears beside the action.
 offers:
 - use-case/spending.approve-expense
 - use-case/spending.attach-receipt

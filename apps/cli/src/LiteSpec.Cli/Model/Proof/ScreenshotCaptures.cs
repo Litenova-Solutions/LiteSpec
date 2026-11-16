@@ -25,7 +25,7 @@ static class ScreenshotCaptures
 
         foreach (var record in model.Records.Where(record => record.Type == RecordTypes.Screen))
         {
-            var address = record.Field(RecordFields.Address)
+            var address = record.Field(RecordFields.Route)
                 ?? model.Screens.FirstOrDefault(screen => screen.ScreenId == record.Id)?.Route;
 
             if (address is not { Length: > 0 })

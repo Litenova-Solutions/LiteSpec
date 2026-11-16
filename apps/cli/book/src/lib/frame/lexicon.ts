@@ -52,8 +52,15 @@ export function lexiconTypeQuestion(lex: Lexicon, type: string): string {
   return lex.types?.[type]?.question ?? "";
 }
 
-/** A field's LiteSpec label; an unknown field renders raw, never invented. */
-export function lexiconFieldLabel(lex: Lexicon, field: string): string {
+/** A field's LiteSpec label; an unknown field renders raw, never invented.
+ *  A typed entry of the form record-type dot field wins over the plain entry,
+ *  so scope on a constraint and scope on a role read in their own context.
+ *  A field that already carries its record type (screen.states) reads as written. */
+export function lexiconFieldLabel(lex: Lexicon, field: string, recordType?: string | null): string {
+  if (recordType && field.indexOf(".") < 0) {
+    const typed = lex.fields?.[recordType + "." + field];
+    if (typed) return typed;
+  }
   return lex.fields?.[field] || field;
 }
 
@@ -114,7 +121,7 @@ export function lexiconPhraseFor(
 ): string {
   const row = linkRow(lex, field, carrierType);
   const text = row?.[dir];
-  if (row === null || row === undefined || !text) return lexiconFieldLabel(lex, field);
+  if (row === null || row === undefined || !text) return lexiconFieldLabel(lex, field, carrierType);
   if (text.includes(" / ")) {
     const parts = text.split(" / ");
     const idx = carrierType ? row.carriers.indexOf(carrierType) : -1;

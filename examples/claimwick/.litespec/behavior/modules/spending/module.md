@@ -4,13 +4,18 @@ Spending is the Claimwick module that handles work expenses: it tracks each expe
 
 ## Responsibilities
 
-The module submits, decides, reimburses and exports work expenses. It also tracks the receipts and the policy that set which expenses need them.
+- Spending submits, decides, reimburses and exports work expenses.
+- Spending tracks receipts and the receipt threshold policy.
+- Spending holds the receipt threshold for submission checks.
 
-Submission starts each expense, and a manager's decision moves it on. Finance then reimburses the approved expenses and exports them in one batch. The policy holds the receipt threshold, which tells the module which expenses need a receipt.
+Submission starts each expense, and a manager's decision moves it on. Finance then reimburses the approved expenses and exports them in one batch.
 
 ## Boundaries
 
-The module depends on no other module. Its record lists no dependencies, so Spending holds its own expenses, receipts and policy. The record names no other module that Spending calls.
+- Spending depends on no other module.
+- Spending calls no other module.
+
+Its record lists no dependencies, so Spending holds its own expenses, receipts and policy.
 
 ## Example
 

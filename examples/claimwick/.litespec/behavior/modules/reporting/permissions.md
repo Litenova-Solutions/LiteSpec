@@ -8,4 +8,5 @@ This permission set names what each person may do in the reporting module, with 
 
 ## Boundaries
 
-`permission/list-reimbursed-expenses` lists the reimbursed expenses and changes none of them. It does not grant the right to reimburse an expense, which the spending module names in `permission/post-reimbursement`.
+- The list-reimbursed-expenses permission does not grant the right to reimburse an expense.
+- The list-reimbursed-expenses permission changes none of the expenses it lists.

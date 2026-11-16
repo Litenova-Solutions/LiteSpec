@@ -4,8 +4,8 @@ Say what access this role grants, in plain words, and name the actors that hold 
 
 ## Access
 
-Say why these permissions are granted together, without listing them again. The record's `allows` field already names them.
+Explains `allows`, `scope`. Say why these permissions are granted together, without listing them again. The record's `allows` field already names them.
 
 ## Limits
 
-Say what a reader might assume this role grants but it does not, and say why.
+Explains `limits`. Say what a reader might assume this role grants but it does not, and say why.

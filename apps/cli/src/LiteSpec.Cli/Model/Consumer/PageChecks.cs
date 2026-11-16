@@ -145,20 +145,8 @@ static class PageChecks
             add(new Finding("page-invalid", $"type '{type}' names a document; documents live in '.md' files", file, 1, subject));
         }
 
-        if (type is not null && RecordFile.ArticleTypes.Contains(type))
-        {
-            var explanation = RecordFile.ExplanationPathOf(file);
-
-            if (!File.Exists(explanation))
-            {
-                add(new Finding(
-                    "page-invalid",
-                    $"type '{type}' requires an explanation file '{Path.GetFileName(explanation)}' beside the record file",
-                    file,
-                    1,
-                    subject));
-            }
-        }
+        // The explanation file is required only on a layer the project lists in
+        // explanations.layers; no record type requires one on its own. (Model checks cover it.)
 
         return true;
     }

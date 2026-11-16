@@ -67,14 +67,14 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `integration-event.md` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.md` | Explains the integration event beside its record file. |
 | `read-model.yaml` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml` | Defines one read model a module keeps from the events another module publishes, with its key, fields and freshness. |
 | `read-model.md` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.md` | Explains the read model beside its record file. |
-| `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one entry point into the system: its kind, auth, density, voice, and the content a browser entry point serves. |
+| `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one entry point into the system: its kind, authentication, density, voice, and the content a browser entry point serves. |
 | `entry-point.md` | `.litespec/behavior/entry-points/<entry-point>/entry-point.md` | Explains the entry point beside its entry-point file. |
 | `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | Records one page a person sees through an entry point: what it offers, the steps it serves, the interface requirements it fulfills, its page frame, and the screens it leads to. |
 | `screen.md` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.md` | Explains the screen beside its record file. |
 | `release-record.md` | `.litespec/releases/<YYYY-MM-DD>.md` | Records one release: what it ships and the evidence it was gated on. |
 | `runbook.yaml` | `.litespec/implementation/runbooks/<name>/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
 | `runbook.md` | `.litespec/implementation/runbooks/<name>/<name>.md` | Explains the runbook beside its record file. |
-| `waiver.yaml` | `.litespec/governance/waivers/<name>/<name>.yaml` | Records one waiver from the provisions, pages or finding codes it names, with its kind and reason. A gap the team means to close also names its expiry date, exit and closing records, while a lasting waiver states its consequences instead. |
+| `waiver.yaml` | `.litespec/governance/waivers/<name>/<name>.yaml` | Records one waiver from the provisions, pages or finding codes it names, with its kind and reason. A gap the team means to close also names its expiry date, exitWhen and closing records, while a lasting waiver states its consequences instead. |
 | `waiver.md` | `.litespec/governance/waivers/<name>/<name>.md` | Explains the waiver beside its record file. |
 
 ## Entry Lists and Page Styles

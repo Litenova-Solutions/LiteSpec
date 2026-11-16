@@ -563,9 +563,11 @@ export class Book {
     return String(this.lex.types?.[type]?.layer ?? "").split(",")[0]?.trim() ?? "";
   }
 
-  /** A field reads with its LiteSpec label; an unknown field renders raw, never invented. */
-  fieldLabel(field: string): string {
-    return lexiconFieldLabel(this.lex, field);
+  /** A field reads with its LiteSpec label; an unknown field renders raw, never invented.
+   *  A typed entry wins over the plain entry; without a record type the open record reads. */
+  fieldLabel(field: string, recordType?: string | null): string {
+    const type = recordType ?? (this.selected ? this.typeOf(this.selected) : null);
+    return lexiconFieldLabel(this.lex, field, type);
   }
 
   resolveField(field: string): string | null {

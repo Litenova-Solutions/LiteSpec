@@ -9,5 +9,6 @@ fields:
 - currency
 - reimbursedAt
 translates: domain-event/expense.reimbursed
+compatibility: The selection may gain a new field the domain event carries. No field may be removed, and no meaning may change.
 terms:
 - term/expense

@@ -36,12 +36,13 @@ An event with several outcomes needs one reaction per outcome, because a reactio
 
 A module event is a fact one module publishes for the other modules of the same product. It is a contract between modules: the publishing module states the fact once, and each consuming module answers it from a reaction or copies it into a read model. The event travels in process through the transactional outbox, with no external transport. A module event never crosses the bounded context; a fact for readers outside the product is an integration event, as the [Edges and Screens page](edges.md#integration-events) states.
 
-The event carries the identifier `module-event/<module>.<name>`, such as `module-event/spending.expense-approved`, and lives at `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml`, under its publishing module. The record carries `summary`, and the explanation file beside it holds Consumers and Compatibility.
+The event carries the identifier `module-event/<module>.<name>`, such as `module-event/spending.expense-approved`, and lives at `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml`, under its publishing module. The record carries `summary` and `compatibility`, and the explanation file beside it restates Compatibility from `compatibility` and holds Consumers.
 
 | Field | Meaning |
 |:---|:---|
 | `translates` | The domain event of its own module it carries, required; the event's publishers are the use cases raising it, so each module event has exactly one publishing module. |
 | `fields` | The names of the fields of the translated domain event that the module event publishes. |
+| `compatibility` | How the event stays compatible with its consumers, required. |
 | `terms` | The glossary terms used, optional. |
 
 A module event carries no `action`, no CloudEvents identity, no `trust`, and no `through`: it travels one way between known modules, and nothing outside the product reads it. It keeps its record and name as the published contract between modules, and it selects in `fields` the fields of the domain event it translates, publishing only fields that event carries. The book shows each selected field with the domain event's type and meaning. No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each module event that translates them, built from the domain event alone, in the same commit.
@@ -80,7 +81,7 @@ The name is a singular noun phrase for the thing the model keeps one row per, su
 | Field | Meaning |
 |:---|:---|
 | `keyedBy` | The `aggregate/...` of another module the read model keeps one row per. |
-| `fields` | `{ name, meaning, type, of, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `module-event/<module>.<name>#<field>` or `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `of`, `many` and `classification` have the same meaning as on use-case inputs. |
+| `fields` | `{ name, meaning, type, identifies, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `module-event/<module>.<name>#<field>` or `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `identifies`, `many` and `classification` have the same meaning as on use-case inputs. |
 | `erasedBy` | On a `personal` or `sensitive` field, the `module-event/...` or `integration-event/...` whose arrival erases the field, required. |
 | `removedBy` | The `module-event/...` or `integration-event/...` ids whose arrival removes the row, optional. |
 | `freshness` | How stale a row may be when a reader sees it: `{ mode, within, decidedBy }` with `mode` of `immediate`, `snapshot`, or `eventual`, `within` an ISO 8601 duration, and `decidedBy` naming the command use case or aggregate that decides the row at write time, as on query output groups. |

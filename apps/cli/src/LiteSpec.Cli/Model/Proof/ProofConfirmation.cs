@@ -161,10 +161,10 @@ static class ProofConfirmation
 
         var reached = model.Records
             .Where(record => record.Type == RecordTypes.Screen
-                && record.Field(RecordFields.Address) is { } address
+                && record.Field(RecordFields.Route) is { } address
                 && record.Ids(RecordFields.Offers).Contains(scenarioUseCase.Id, StringComparer.Ordinal))
             .Any(screen => test.Gotos.Any(target =>
-                Readers.FrontendFactsRules.AddressMatches(screen.Field(RecordFields.Address)!, target)));
+                Readers.FrontendFactsRules.AddressMatches(screen.Field(RecordFields.Route)!, target)));
 
         if (!reached)
         {

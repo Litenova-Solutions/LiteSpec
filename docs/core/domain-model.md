@@ -13,12 +13,14 @@ Inside one deployment boundary, the product speaks one business language, as the
 
 A module is one business area. Its record sits at `behavior/modules/<m>/module.yaml` and carries a `summary` and the `dependsOn` links to the modules it relies on, as `litespec/core/behavior#shape-each-module-page` states, in the home the [model page](model.md) names. Intent holds no module: each module is declared only in Behavior, beside the aggregates it groups.
 
-Each child record sits in a typed folder inside its module, such as `aggregates/<aggregate>/`, `integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. Responsibilities, Boundaries, and Example live in the explanation file beside the record file.
+Each child record sits in a typed folder inside its module, such as `aggregates/<aggregate>/`, `integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. The explanation file beside the record restates Responsibilities from `responsibilities` and Boundaries from `excludes` and carries Example.
 
 | Field | Meaning |
 |:---|:---|
 | `summary` | What the area covers, in one paragraph. |
 | `dependsOn` | The modules this module relies on. |
+| `responsibilities` | What the area covers, one sentence per responsibility. |
+| `excludes` | What the area does not cover, one sentence per exclusion. |
 
 ### Glossary
 
@@ -42,7 +44,7 @@ A term that declares a project use-case verb carries `verbKind` with the kind it
 
 An aggregate is the product's consistency boundary: the state that stays valid together, guarded by its invariants and changed in one step through its root. Its identifier carries its module, so containment follows the identifier and needs no link field. Claimwick's expense aggregate carries states such as Approved and Reimbursed. An aggregate with no lifecycle declares the single state `Active`.
 
-An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Lifecycle, Data and Retention, Example, and Limits live in the explanation file beside the record file.
+An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. The optional `limits` field states what the aggregate does not do, one sentence per limit. The explanation file beside the record restates Limits from `limits` and carries Lifecycle, Data and Retention, and Example.
 
 `transitions` lists every allowed change with the use case or job moving it. Each entry names the state left in `from`, the state entered in `to`, and the moving use case or job in `movedBy`. A creation, the change that brings an instance into being, writes `-` as the state left. A transition moved by time carries `after` with the ISO 8601 duration counted from entering its source state, and `movedBy` names the job.
 
@@ -62,7 +64,7 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 
 ### Rules
 
-A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
+A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. Its optional `rationale` states why the rule holds. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
 
 A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules.
 

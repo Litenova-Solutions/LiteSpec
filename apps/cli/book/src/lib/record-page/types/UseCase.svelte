@@ -3,6 +3,7 @@
   import type { BookRecord, RecordFields } from "$lib/frame";
   import { RecordLink, RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
+  import BulletList from "../blocks/BulletList.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
@@ -13,6 +14,7 @@
   import ScenarioBlock from "../shared/ScenarioBlock.svelte";
   import { clsTag, codeOf, fieldType, muted, refLink, td, thRow } from "../shared/record-cells";
   import { proseOf } from "../page-prose";
+  import { objectList, stringList } from "../page-values";
   import { useCaseModel } from "./use-case-model";
 
   // A use case: access, data, input and output, effects, results and scenarios.
@@ -29,6 +31,8 @@
   const scs = $derived(book.scenariosOf(id).filter((s) => book.get(stripStep(s))));
   const whatHappens = $derived(proseOf(r, "whatHappens"));
   const exposure = $derived(proseOf(r, "exposure"));
+  const steps = $derived(objectList(f, "steps"));
+  const edgeCases = $derived(stringList(f, "edgeCases"));
   const inputClassification = $derived.by(() => {
     const all = model.input.map((x) => String(x.classification ?? ""));
     if (!all.length || !all[0]) return "";
@@ -49,6 +53,10 @@
     if (!rules.length) return muted("None");
     return rules.map((rule) => refLink(book, String(rule))).join(", ");
   }
+
+  function stepCiteIds(step: RecordFields): string[] {
+    return (Array.isArray(step.cites) ? step.cites : []).map(String).filter(Boolean);
+  }
 </script>
 
 {#if whatHappens}
@@ -56,6 +64,23 @@
 {/if}
 {#if exposure}
   <PageSection blockKey="exp" heading="exposure"><RenderedProse html={exposure} /></PageSection>
+{/if}
+{#if steps.length}
+  <PageSection blockKey="steps" heading="steps" count={steps.length}>
+    <ol class="m-0 list-decimal space-y-3 pl-6 text-sm">
+      {#each steps as s, i (String(s.statement ?? "") + "#" + i)}
+        {@const cites = stepCiteIds(s)}
+        <li>
+          <p class="m-0">{String(s.statement ?? "")}</p>
+          {#if cites.length}
+            <p class="mt-1 mb-0 flex flex-wrap items-center gap-2">
+              {#each cites as cite, j (cite + "#" + j)}{#if j > 0}<span class="text-text-secondary">,</span>{/if}<RecordLink id={cite} />{/each}
+            </p>
+          {/if}
+        </li>
+      {/each}
+    </ol>
+  </PageSection>
 {/if}
 <AccessBlock {id} {f} />
 <DataTouched {id} {f} guarantees carrier={r.type} />
@@ -116,6 +141,11 @@
 {#if model.results.length}
   <PageSection blockKey="res" heading="Results" count={model.results.length}>
     <ResultCards items={model.results} caption={`Results of ${r.title}`} />
+  </PageSection>
+{/if}
+{#if edgeCases.length}
+  <PageSection blockKey="edge" heading="edgeCases" count={edgeCases.length}>
+    <BulletList items={edgeCases} />
   </PageSection>
 {/if}
 <ScenarioBlock {id} {scs} />

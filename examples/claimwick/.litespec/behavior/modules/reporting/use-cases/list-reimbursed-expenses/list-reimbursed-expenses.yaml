@@ -2,51 +2,61 @@ type: use-case
 id: use-case/reporting.list-reimbursed-expenses
 title: List Reimbursed Expenses
 summary: Finance lists the reimbursed expenses with the employee each one was paid to.
-exposure: Signed-in finance staff reach this query through the expenses app under the list-reimbursed-expenses permission. Each row names the employee who was paid, so the list stays inside finance.
+exposure: Signed-in finance staff reach this query through the expenses app
+  under the list-reimbursed-expenses permission. Each row names the employee who
+  was paid, so the list stays inside finance.
 kind: query
 access:
   grant: permission/list-reimbursed-expenses
   tenant: own
 fulfills:
-- requirement/approval.reimbursed-expenses-listed
+  - requirement/approval.reimbursed-expenses-listed
 reachedThrough:
-- entry-point/claimwick-app
+  - entry-point/claimwick-app
+steps:
+  - statement: Finance asks for the reimbursed expenses.
+    cites:
+      - read-model/reporting.reimbursed-expense
+  - statement: Reporting returns one row per reimbursed expense newest first.
+    cites:
+      - result/list-reimbursed-expenses.listed
+      - read-model/reporting.reimbursed-expense
 output:
   include:
     rows:
       fields:
-      - name: expenses
-        meaning: The set of rows with one row per reimbursed expense, newest first.
-        type: list
-        of:
-          fields:
-          - name: expenseId
-            meaning: The reimbursed expense.
-            type: id
-            of: aggregate/spending.expense
-            required: true
-          - name: employeeId
-            meaning: The employee the expense was paid to.
-            type: id
-            of: actor/employee
-            required: true
-          - name: amount
-            meaning: The exact amount paid.
-            type: decimal
-            required: true
-          - name: currency
-            meaning: The ISO 4217 currency code of the amount.
-            type: text
-            required: true
-          - name: reimbursedAt
-            meaning: The time the payment was posted.
-            type: date-time
-            required: true
-          unique:
-          - expenseId
+        - name: expenses
+          meaning: The set of rows with one row per reimbursed expense, newest first.
+          type: list
+          identifies:
+            fields:
+              - name: expenseId
+                meaning: The reimbursed expense.
+                type: id
+                identifies: aggregate/spending.expense
+                required: true
+              - name: employeeId
+                meaning: The employee the expense was paid to.
+                type: id
+                identifies: actor/employee
+                required: true
+              - name: amount
+                meaning: The exact amount paid.
+                type: decimal
+                required: true
+              - name: currency
+                meaning: The ISO 4217 currency code of the amount.
+                type: text
+                required: true
+              - name: reimbursedAt
+                meaning: The time the payment was posted.
+                type: date-time
+                required: true
+            unique:
+              - expenseId
       classification: internal
       reads:
-      - aggregate/spending.expense
+        - aggregate/spending.expense
       freshness:
         mode: snapshot
         within: PT5S
@@ -58,18 +68,18 @@ paging:
   defaultLimit: 25
   maxLimit: 100
 reads:
-- read-model/reporting.reimbursed-expense
+  - read-model/reporting.reimbursed-expense
 records:
-- type: result
-  id: result/list-reimbursed-expenses.listed
-  title: Listed
-  outcome: success
-  meaning: The reimbursed expenses are listed.
-- type: scenario
-  id: scenario/list-reimbursed-expenses.listing-reimbursed-expenses-succeeds
-  title: Listing Reimbursed Expenses Succeeds
-  given: Finance reimbursed two expenses.
-  when: Finance lists the reimbursed expenses.
-  then: Both expenses are listed with the employee each was paid to.
-  result: result/list-reimbursed-expenses.listed
-  exercises: []
+  - type: result
+    id: result/list-reimbursed-expenses.listed
+    title: Listed
+    outcome: success
+    meaning: The reimbursed expenses are listed.
+  - type: scenario
+    id: scenario/list-reimbursed-expenses.listing-reimbursed-expenses-succeeds
+    title: Listing Reimbursed Expenses Succeeds
+    given: Finance reimbursed two expenses.
+    when: Finance lists the reimbursed expenses.
+    then: Both expenses are listed with the employee each was paid to.
+    result: result/list-reimbursed-expenses.listed
+    exercises: []

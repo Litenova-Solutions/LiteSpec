@@ -21,8 +21,8 @@ internal static class SchemaChecks
     /// <summary>The flow field that a flow no longer carries; its paths are branches now.</summary>
     const string RemovedFlowBranchField = "betweenSteps";
 
-    /// <summary>The product field naming the problems the product addresses; the model holds no constant for it.</summary>
-    const string ProductAddresses = "addresses";
+    /// <summary>The product field naming the actors the product serves.</summary>
+    const string ProductAddresses = "users";
 
     /// <summary>The observation date key on a goal.</summary>
     const string DateField = "date";
@@ -144,17 +144,22 @@ internal static class SchemaChecks
                 RequireEnum(record, RecordFields.Kind, ["technical", "organizational", "convention", "legal"], findings);
                 RequireBoolean(record, RecordFields.Applies, findings);
                 RequireString(record, RecordFields.AppliesBecause, findings);
+                RequireString(record, RecordFields.Scope, findings);
+                RequireArray(record, RecordFields.Obligations, 1, findings);
+                RequireString(record, RecordFields.ProductEffect, findings);
                 break;
 
             case RecordTypes.Research:
                 RequireArray(record, RecordFields.Sources, 1, findings);
                 RequireString(record, RecordFields.Conclusion, findings);
+                RequireArray(record, RecordFields.Findings, 1, findings);
                 break;
 
             case RecordTypes.Decision:
                 RequireArray(record, RecordFields.Options, 1, findings);
                 RequireString(record, RecordFields.ReopenedWhen, findings);
                 RequireString(record, RecordFields.Choice, findings);
+                RequireString(record, RecordFields.Context, findings);
                 break;
 
             case RecordTypes.Requirement:
@@ -187,6 +192,10 @@ internal static class SchemaChecks
             case RecordTypes.Problem:
                 RequireIds(record, RecordFields.Affects, 1, findings);
                 RequireString(record, RecordFields.Statement, findings);
+                RequireArray(record, RecordFields.FailureCases, 1, findings);
+                RequireString(record, RecordFields.Workaround, findings);
+                RequireString(record, RecordFields.Cost, findings);
+                RequireArray(record, RecordFields.ResolutionCriteria, 1, findings);
                 break;
 
             case RecordTypes.Feature:
@@ -198,16 +207,21 @@ internal static class SchemaChecks
 
                 // A feature stands on its own and names the problems it solves.
                 RequireIds(record, RecordFields.Solves, 1, findings);
+                RequireArray(record, RecordFields.SuccessCriteria, 1, findings);
+                RequireArray(record, RecordFields.Excludes, 1, findings);
                 break;
 
             case RecordTypes.Actor:
                 RequireEnum(record, RecordFields.Kind, ["person", "organization"], findings);
+                RequireArray(record, RecordFields.Responsibilities, 1, findings);
+                RequireArray(record, RecordFields.Knowledge, 1, findings);
                 RequireRoleHolds(record, findings);
                 break;
 
             case RecordTypes.Role:
                 RequirePattern(record, RecordFields.Scope, @"^[a-z0-9]+(-[a-z0-9]+)*$", "kebab-case", findings);
                 RequireIds(record, RecordFields.Allows, 1, findings);
+                RequireArray(record, RecordFields.Limits, 1, findings);
                 break;
 
             case RecordTypes.Permission:
@@ -238,6 +252,8 @@ internal static class SchemaChecks
 
             case RecordTypes.Module:
                 RequireArray(record, RecordFields.DependsOn, 0, findings);
+                RequireArray(record, RecordFields.Responsibilities, 1, findings);
+                RequireArray(record, RecordFields.Excludes, 1, findings);
                 break;
 
             case RecordTypes.Aggregate:
@@ -267,6 +283,7 @@ internal static class SchemaChecks
 
             case RecordTypes.UseCase:
                 RequireEnum(record, RecordFields.Kind, ["command", "query"], findings);
+                RequireArray(record, RecordFields.Steps, 1, findings);
                 // A use case only a reaction or a job runs has no entry point of its own: only the
                 // rest must name one.
                 if (!RunTargets(model).Contains(record.Id))
@@ -394,7 +411,7 @@ internal static class SchemaChecks
 
                 if (record.Has(RecordFields.Consent))
                 {
-                    findings.Add(new Finding("record-invalid", $"Notification '{record.Id}' holds consent as prose; name the rule in requiresConsent.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Notification '{record.Id}' holds consent as prose; name the rule in consentRule.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 if (record.Field(RecordFields.Channel) == "webhook")
@@ -406,6 +423,7 @@ internal static class SchemaChecks
 
             case RecordTypes.IntegrationEvent:
                 RequireIds(record, RecordFields.Through, 1, findings);
+                RequireString(record, RecordFields.Compatibility, findings);
 
                 if (record.Field(RecordFields.Action) == "receive")
                 {
@@ -414,8 +432,13 @@ internal static class SchemaChecks
 
                 break;
 
+            case RecordTypes.ModuleEvent:
+                RequireString(record, RecordFields.Compatibility, findings);
+                break;
+
             case RecordTypes.EntryPoint:
                 RequireEnum(record, RecordFields.Kind, ["browser", "api", "webhook", "device", "cli", "mcp"], findings);
+                RequireIds(record, RecordFields.Audience, 1, findings);
 
                 // An entry point carries no fulfills itself; a served-content entry carries it, and otherwise the use case it reaches fulfills the requirement.
                 if (record.Has(RecordFields.Fulfills))
@@ -431,13 +454,15 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Screen:
-                if (record.Has(RecordFields.Address) && record.Has(RecordFields.Host))
+                RequireString(record, RecordFields.Task, findings);
+                RequireArray(record, RecordFields.States, 1, findings);
+                if (record.Has(RecordFields.Route) && record.Has(RecordFields.Host))
                 {
-                    findings.Add(new Finding("record-invalid", $"Screen '{record.Id}' carries address and host.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Screen '{record.Id}' carries route and host.", record.File, record.Line, SubjectOf(record)));
                 }
-                else if (!record.Has(RecordFields.Address) && !record.Has(RecordFields.Host))
+                else if (!record.Has(RecordFields.Route) && !record.Has(RecordFields.Host))
                 {
-                    findings.Add(new Finding("record-invalid", $"Screen '{record.Id}' carries neither address nor host.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Screen '{record.Id}' carries neither route nor host.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -490,14 +515,14 @@ internal static class SchemaChecks
         if (record.Field(RecordFields.Kind) == "gap")
         {
             RequireDate(record, RecordFields.ExpiresOn, findings);
-            RequireString(record, RecordFields.Exit, findings);
+            RequireString(record, RecordFields.ExitWhen, findings);
             RequireIds(record, WaiverClosedBy, 1, findings);
         }
         else if (record.Field(RecordFields.Kind) == "lasting")
         {
             RequireString(record, RecordFields.Consequences, findings);
 
-            foreach (var field in new[] { RecordFields.ExpiresOn, RecordFields.Exit, WaiverClosedBy })
+            foreach (var field in new[] { RecordFields.ExpiresOn, RecordFields.ExitWhen, WaiverClosedBy })
             {
                 if (record.Has(field))
                 {
@@ -596,12 +621,40 @@ internal static class SchemaChecks
                     findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' names system '{systemId}' in a step, which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
-                // A step cites the requirements it carries, and nothing else.
-                foreach (var cited in LinkStrings(step, RecordFields.Cites))
+                // A step carries the requirements it cites, and nothing else.
+                foreach (var cited in LinkStrings(step, RecordFields.Carries))
                 {
                     if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && citedRecord.Type != RecordTypes.Requirement)
                     {
-                        findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' step cites '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
+                        findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' step carries '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
+                    }
+                }
+            }
+        }
+
+        if (record.Type == RecordTypes.UseCase
+            && record.Raw.TryGetProperty(RecordFields.Steps, out var useCaseSteps)
+            && useCaseSteps.ValueKind == JsonValueKind.Array)
+        {
+            var appliedTypes = new HashSet<string>(StringComparer.Ordinal)
+            {
+                RecordTypes.Rule, RecordTypes.Result, RecordTypes.Setting, RecordTypes.DomainEvent,
+                RecordTypes.ReadModel, RecordTypes.ExternalSystem, RecordTypes.Aggregate,
+            };
+
+            foreach (var step in useCaseSteps.EnumerateArray())
+            {
+                if (step.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                // A step applies the rules, results, settings and events it names, and nothing else.
+                foreach (var cited in LinkStrings(step, RecordFields.Cites))
+                {
+                    if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && !appliedTypes.Contains(citedRecord.Type))
+                    {
+                        findings.Add(new Finding("record-invalid", $"Use case '{record.Id}' step cites '{cited}', which is a {citedRecord.Type}, not a rule, result, setting, domain event, read model, external system or aggregate.", record.File, record.Line, SubjectOf(record)));
                     }
                 }
             }
@@ -1052,7 +1105,7 @@ internal static class SchemaChecks
 
             if (output.ValueKind == JsonValueKind.Object
                 && Str(output, RecordFields.Type) == "list"
-                && output.TryGetProperty(RecordFields.Of, out var rows))
+                && output.TryGetProperty(RecordFields.Identifies, out var rows))
             {
                 Behavior.ContractChecks.CheckRowShape(record, "Use case", "output", Str(output, RecordFields.Name) ?? "(no name)", rows, findings);
             }

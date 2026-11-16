@@ -13,7 +13,7 @@
   let { id, f }: Props = $props();
   const a = $derived(objectField(f, "access"));
   const who = $derived(book.performers(id));
-  const auth = $derived(stringList(a, "auth"));
+  const auth = $derived(stringList(a, "authentication"));
   const grant = $derived(a ? (stringField(a, "grant") ?? "") : "");
   const selfGrant = $derived(grant.startsWith("self(") && grant.endsWith(")") ? grant.slice(5, -1) : "");
   const reachedThrough = $derived(stringList(f, "reachedThrough"));
@@ -24,7 +24,7 @@
   <PageSection blockKey="acc" heading="access">
     <DefinitionList>
       {#if auth.length}
-        <DefinitionRow label="Auth">
+        <DefinitionRow label="authentication">
           {#each auth as x, i (x)}{#if i > 0}{", "}{/if}<code class="bg-layer px-1 font-mono text-xs">{x}</code>{/each}
         </DefinitionRow>
       {/if}

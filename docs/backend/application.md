@@ -171,7 +171,7 @@ A conflict refuses the same input the same way until the caller rereads the reso
 
 **Statement:** The authorization guard, not the handler, MUST authorize every message from the `access` its use-case record declares.
 
-**Rationale:** Authorization decided in each handler is decided differently in each handler. The guard decides once from what the record declares: the `auth` kinds the caller presents, the `grant` naming a permission, a `self` scope over one, `anonymous`, or `system`, and the `tenant` scope naming the tenants the call reaches. Ownership, tenant, role, state, or delegated access resolves against the target data through a scope owner lookup for the record the message names.
+**Rationale:** Authorization decided in each handler is decided differently in each handler. The guard decides once from what the record declares: the `authentication` kinds the caller presents, the `grant` naming a permission, a `self` scope over one, `anonymous`, or `system`, and the `tenant` scope naming the tenants the call reaches. Ownership, tenant, role, state, or delegated access resolves against the target data through a scope owner lookup for the record the message names.
 
 A handler never compares the caller with a target, and never throws the forbidden refusal itself. Code names no permitted action outside that grant, so the record stays the one list of who may run a use case. Where the stack generates code, it generates one constant per `permission/` record from the records.
 
@@ -489,7 +489,7 @@ One global step, running in the command pipeline before the commit, stages each 
 
 A setting record owns its type, its default, its range, its unit, and what happens at the bound. Tenant-set values are data nobody reviews: they live in stored tenant state the handler reads per tenant.
 
-**Example:** The receipt threshold binds to a spending options value. The handler reads the bound and refuses past it with `atBound: refuse`.
+**Example:** The receipt threshold binds to a spending options value. The handler reads the bound and refuses past it with `outOfRange: refuse`.
 
 **Reviewed for:** Does every handler read its settings through a typed options value or stored tenant data, with no raw lookup? Look at each setting read in the handlers.
 

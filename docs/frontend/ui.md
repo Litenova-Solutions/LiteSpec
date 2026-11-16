@@ -53,7 +53,16 @@ A floorplan exposes its name on its frame. A reviewer and the route suite read t
 
 ### The Screen Blueprint
 
-A screen record is the Behavior record that describes one screen. Its blueprint is the part of the record that says how the screen is built and where it leads. The `pageFrame` field names the page-frame pattern the screen follows and the option the product catalog chose. The `leadsTo` field names the screens a person reaches from this screen in one step.
+A screen record is the Behavior record that describes one screen. Its blueprint is the part of the record that says how the screen is built and where it leads. The `pageFrame` field names the page-frame pattern the screen follows and the option the product catalog chose. The `leadsTo` field names the screens a person reaches from this screen in one step. The `task` field states what a person does on the screen. The `states` field lists each screen state with its `name` and `shows` stating what the screen shows in it.
+
+| Field | Meaning |
+|:---|:---|
+| `task` | What a person does on the screen, in one to three sentences, required. |
+| `states` | Each screen state with `name` in sentence case and `shows` stating what the screen shows, required. |
+| `pageFrame` | The page-frame pattern and option the screen follows. |
+| `leadsTo` | The screens a person reaches from this screen in one step. |
+
+The `task` names the same work the screen's pattern and wireframe show, and the `states` name the screen states the pattern's states and the wireframe's states show. The explanation restates Task from `task` and States from `states`.
 
 The explanation file beside the screen record holds one `wireframe` block, written in the wireframe language that [UI patterns](patterns.md) defines. Each action in that block names a use case the screen offers, each state names a glossary term for the record shown, and each refusal names a result of an offered use case.
 

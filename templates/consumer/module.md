@@ -4,11 +4,11 @@ Say what product area this module covers, who uses it and why it is a separate a
 
 ## Responsibilities
 
-Say what the module owns, in one or two sentences.
+Explains `responsibilities`. Say what the module owns, in one or two sentences.
 
 ## Boundaries
 
-Say what the module leaves to other modules, and why that split holds.
+Explains `excludes`. Say what the module leaves to other modules, and why that split holds.
 
 ## Example
 

@@ -6,3 +6,6 @@ scope: self
 allows:
 - permission/request-expense
 - permission/list-expenses
+limits:
+- The employee does not approve expenses.
+- The employee does not reimburse approved expenses.

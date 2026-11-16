@@ -2,48 +2,52 @@ type: flow
 id: flow/submit-and-reimburse
 title: Submit and Reimburse
 actor: actor/employee
-summary: An employee who paid a work cost submits the expense and waits for a decision. The flow starts at the paid cost and ends when the reimbursement lands in the employee account. A good flow decides each expense within five business days, because the employee plans around the money.
+summary: An employee who paid a work cost submits the expense and waits for a
+  decision. The flow starts at the paid cost and ends when the reimbursement
+  lands in the employee account. A good flow decides each expense within five
+  business days, because the employee plans around the money.
 serves:
-- goal/decided-in-days
+  - goal/decided-in-days
 startedWhen: The employee has paid a work cost and has not yet submitted it.
 finishedWhen: The employee holds the reimbursement.
 steps:
-- id: s1
-  statement: The employee submits the expense with its amount and currency.
-  actor: actor/employee
-  cites:
-  - requirement/approval.above-threshold-receipt
-  - requirement/approval-reminders.month-end-submission
-- id: s2
-  statement: The employee attaches the receipt to the expense.
-  actor: actor/employee
-  cites:
-  - requirement/approval.above-threshold-receipt
-- id: s3
-  statement: The manager approves or rejects the expense.
-  actor: actor/manager
-  failure: The expense waits unseen, and the approver gets a reminder.
-  cites:
-  - requirement/approval.decided-within-five-days
-  - requirement/approval.nobody-approves-own-expense
-  - requirement/approval-reminders.remind-approver-after-three-days
-- id: s4
-  statement: Finance reimburses the approved expense.
-  actor: actor/finance
-  failure: The expense is not approved, so it waits and no payout is made.
-  cites:
-  - requirement/approval.expense-reimbursed-at-most-once
-- id: s5
-  statement: The employee watches each expense in their own list.
-  actor: actor/employee
-  cites:
-  - requirement/approval.decided-within-five-days
-- id: s6
-  statement: The manager sets whether they get an approval reminder for a waiting expense.
-  actor: actor/manager
-  cites:
-  - requirement/approval-reminders.remind-approver-after-three-days
+  - id: s1
+    statement: The employee submits the expense with its amount and currency.
+    actor: actor/employee
+    carries:
+      - requirement/approval.above-threshold-receipt
+      - requirement/approval-reminders.month-end-submission
+  - id: s2
+    statement: The employee attaches the receipt to the expense.
+    actor: actor/employee
+    carries:
+      - requirement/approval.above-threshold-receipt
+  - id: s3
+    statement: The manager approves or rejects the expense.
+    actor: actor/manager
+    failure: The expense waits unseen, and the approver gets a reminder.
+    carries:
+      - requirement/approval.decided-within-five-days
+      - requirement/approval.nobody-approves-own-expense
+      - requirement/approval-reminders.remind-approver-after-three-days
+  - id: s4
+    statement: Finance reimburses the approved expense.
+    actor: actor/finance
+    failure: The expense is not approved, so it waits and no payout is made.
+    carries:
+      - requirement/approval.expense-reimbursed-at-most-once
+  - id: s5
+    statement: The employee watches each expense in their own list.
+    actor: actor/employee
+    carries:
+      - requirement/approval.decided-within-five-days
+  - id: s6
+    statement: The manager sets whether they get an approval reminder for a waiting
+      expense.
+    actor: actor/manager
+    carries:
+      - requirement/approval-reminders.remind-approver-after-three-days
 branches:
-- step: s3
-  condition: the manager rejects the expense
-  nextStep: end
+  - step: s3
+    condition: the manager rejects the expense
+    nextStep: end

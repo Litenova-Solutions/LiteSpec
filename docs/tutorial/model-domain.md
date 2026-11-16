@@ -176,5 +176,5 @@ Intent records say what the product promises; Behavior records say how the produ
 
 - One module with its terms, aggregates, data classes, rules, use cases, results, scenarios, domain events, module events, reactions, jobs, read models, notifications, settings, and permissions.
 - Person-chosen identifiers throughout, with every citation resolved and every edge between records declared.
-- Every scenario proved by a passing test, or covered by a gap waiver with `kind`, `expiresOn`, `exit` and `closedBy`.
+- Every scenario proved by a passing test, or covered by a gap waiver with `kind`, `expiresOn`, `exitWhen` and `closedBy`.
 - Next, follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to place each specified element in code. When you entered this tutorial from [Start a Consumer Repository](getting-started.md) step 16, return there instead and continue with step 17.

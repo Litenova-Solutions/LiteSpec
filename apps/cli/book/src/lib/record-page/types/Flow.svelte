@@ -134,6 +134,12 @@
                   <RecordLink id={String(s.system)} />
                 </div>
               {/if}
+              {#if Array.isArray(s.carries) && s.carries.length}
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-text-secondary">{book.fieldLabel("carries", "flow")}:</span>
+                  {#each s.carries as c, j (String(c) + "#" + j)}{#if j > 0}{", "}{/if}<RecordLink id={String(c)} />{/each}
+                </div>
+              {/if}
               {#if by.length}
                 {#each by as b (b)}
                   {@const info = serverInfo[b] ?? null}

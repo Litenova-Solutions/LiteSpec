@@ -8,3 +8,6 @@ allows:
 - permission/list-expenses
 - permission/manage-policy
 - permission/manage-reminder-preference
+limits:
+- The approver does not approve their own expense.
+- The approver does not reimburse an approved expense.

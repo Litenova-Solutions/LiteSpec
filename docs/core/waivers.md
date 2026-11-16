@@ -23,13 +23,13 @@ It states what the project sets aside, why, and where the waiver applies. It bin
 | `reason` | yes | Why the project sets the rule aside. |
 | `subject` or `paths` | one of them | The records, or the file globs from the repository root, that the waiver covers. |
 | `expiresOn` | on a gap | The date the gap closes. A lasting waiver carries no date. |
-| `exit` | on a gap | How the gap closes. A lasting waiver carries no exit. |
+| `exitWhen` | on a gap | How the gap closes. A lasting waiver carries no exitWhen. |
 | `closedBy` | on a gap | The records whose change closes the gap. A lasting waiver carries no closing records. |
 | `consequences` | on a lasting waiver | What the project accepts by setting the rule aside. |
 
 ### When to Record One
 
-Choose the kind by whether the work ends. A gap waiver is work the team means to close: it carries `kind: gap` with an `expiresOn` date, an `exit`, and `closedBy`, and holds until that date. A lasting waiver is a choice the project keeps: it carries `kind: lasting` with `consequences` and no end date, and holds for as long as its reason holds.
+Choose the kind by whether the work ends. A gap waiver is work the team means to close: it carries `kind: gap` with an `expiresOn` date, an `exitWhen`, and `closedBy`, and holds until that date. A lasting waiver is a choice the project keeps: it carries `kind: lasting` with `consequences` and no end date, and holds for as long as its reason holds.
 
 ### How a Waiver Covers a Finding
 
@@ -75,9 +75,9 @@ A provision of Strength `default` gives way to the project's own choice, recorde
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** An accepted gap MUST live as a gap waiver with an `expiresOn` date, an `exit`, and `closedBy`.
+**Statement:** An accepted gap MUST live as a gap waiver with an `expiresOn` date, an `exitWhen`, and `closedBy`.
 
-**Rationale:** Missing work with no date is reported by nothing. A gap waiver with an `expiresOn` date turns the same missing work into a dated promise: its `covers` findings stay covered until the date, the `exit` says how the gap closes, `closedBy` names the records whose change closes it, and `waiver-expired` reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
+**Rationale:** Missing work with no date is reported by nothing. A gap waiver with an `expiresOn` date turns the same missing work into a dated promise: its `covers` findings stay covered until the date, the `exitWhen` says how the gap closes, `closedBy` names the records whose change closes it, and `waiver-expired` reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in `.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
 
@@ -92,7 +92,7 @@ covers:
 subject:
   - use-case/spending.export-expenses
 reason: Export waits for the finance file format.
-exit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
+exitWhen: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
 expiresOn: 2027-06-01
 closedBy:
   - use-case/spending.export-expenses
@@ -144,7 +144,7 @@ Until 2027-06-01 the `use-case-unimplemented` finding is covered and the run pas
 
 **Statement:** Every gap waiver MUST name the records whose change closes the gap in `closedBy`.
 
-**Rationale:** An `exit` says how a gap closes in prose, but prose names no record a check can verify. Naming the closing records in `closedBy` shows the reader what to change, and lets the check report an entry that names no written record. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).
+**Rationale:** An `exitWhen` says how a gap closes in prose, but prose names no record a check can verify. Naming the closing records in `closedBy` shows the reader what to change, and lets the check report an entry that names no written record. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).
 
 **Example:** The Claimwick waiver for the unimplemented export names `use-case/spending.export-expenses` in `closedBy`, so the gap closes when the export use case gains its handler.
 

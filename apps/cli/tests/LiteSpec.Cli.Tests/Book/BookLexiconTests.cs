@@ -257,7 +257,7 @@ public sealed class BookLexiconTests
         Assert.Equal("Pros", lexicon.Fields["pros"]);
         Assert.Equal("Cons", lexicon.Fields["cons"]);
         Assert.Equal("Excludes", lexicon.Fields["excludes"]);
-        Assert.Equal("Addresses", lexicon.Fields["addresses"]);
+        Assert.Equal("Users", lexicon.Fields["users"]);
         Assert.Equal("Audience", lexicon.Fields["audience"]);
         Assert.Equal("Requires", lexicon.Fields["requires"]);
         Assert.Equal("Moved by", lexicon.Fields["movedBy"]);
@@ -295,11 +295,11 @@ public sealed class BookLexiconTests
         Assert.Equal("Period", lexicon.Fields["period"]);
         Assert.Equal("Type", lexicon.Fields["type"]);
         Assert.Equal("Required", lexicon.Fields["required"]);
-        Assert.Equal("Of", lexicon.Fields["of"]);
+        Assert.Equal("Identifies", lexicon.Fields["identifies"]);
         Assert.Equal("Dataschema", lexicon.Fields["dataschema"]);
         Assert.Equal("Amount", lexicon.Fields["amount"]);
         Assert.Equal("Currency", lexicon.Fields["currency"]);
-        Assert.Equal("Auth", lexicon.Fields["auth"]);
+        Assert.Equal("Authentication", lexicon.Fields["authentication"]);
         Assert.Equal("Grant", lexicon.Fields["grant"]);
         Assert.Equal("Tenant", lexicon.Fields["tenant"]);
         Assert.Equal("Initial delay", lexicon.Fields["initialDelay"]);
@@ -322,7 +322,7 @@ public sealed class BookLexiconTests
         Assert.Equal("Rejected", lexicon.Fields["rejected"]);
         Assert.Equal("Failure", lexicon.Fields["failure"]);
         Assert.Equal("Cache control", lexicon.Fields["cacheControl"]);
-        Assert.Equal("Address", lexicon.Fields["address"]);
+        Assert.Equal("Route", lexicon.Fields["route"]);
         Assert.Equal("Entry point", lexicon.Fields["entryPoint"]);
         Assert.Equal("Offers", lexicon.Fields["offers"]);
         Assert.Equal("Implements", lexicon.Fields["implements"]);

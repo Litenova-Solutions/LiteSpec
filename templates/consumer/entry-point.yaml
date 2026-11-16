@@ -5,8 +5,17 @@ summary: <who reaches the product here and how, or remove this line>
 terms:
 - <term id, or remove this line>
 kind: <browser|api|webhook|device|cli|mcp>
-auth:
+authentication:
 - <session|token|device|link|app|none>
+audience:
+- actor/<name>
+session:
+  lifetime: PT1H
+  idleTimeout: PT30M
+reauthenticationTriggers:
+- <one action that requires sign-in again, in one sentence, or remove this line>
+limits:
+- <one thing this entry point does not offer, in one sentence, or remove this line>
 density: <public-light|application-balanced|admin-dense, or remove this line>
 voice: <how the product addresses this audience, or remove this line>
 languages:

@@ -9,7 +9,7 @@ kind: <query>
 access:
   grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
   tenant: <own|cross|public|none>
-  recentSignIn: setting/<module>.<name, or remove this line>
+  recentSignInLimit: setting/<module>.<name, or remove this line>
 serves:
 - flow/<name>#s1
 fulfills:
@@ -20,6 +20,12 @@ reachedThrough:
 - entry-point/<name>
 raises:
 - domain-event/<aggregate>.<name, or remove this line>
+steps:
+- statement: <one step, in one sentence naming who acts>
+  cites:
+  - rule/<home>.<name, or remove this line>
+edgeCases:
+- <one unusual path, in one sentence, or remove this line>
 input:
 - name: <field name>
   meaning: <what the field holds>
@@ -27,7 +33,7 @@ input:
   required: <true|false, or remove this line>
   origin: <caller|claim|derived|verified-claim>
   classification: <public|internal|personal|sensitive>
-# A file field carries contentTypes and maxSize, a choice field carries choices, and an id field carries of. An origin of verified-claim carries verifiedBy.
+# A file field carries contentTypes and maxSize, a choice field carries choices, and an id field carries identifies. An origin of verified-claim carries verifiedBy.
 output:
   include:
     <group>:
@@ -35,7 +41,7 @@ output:
       - name: <field name>
         meaning: <what the field holds>
         type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
-        of: <identified record id, or remove this line>
+        identifies: <identified record id, or remove this line>
         many: <true|false, or remove this line>
       - name: <field name>
         meaning: <what the field holds>
@@ -63,7 +69,7 @@ effects:
 - sends: notification/<module>.<name>
   timing: <inline|after-commit|async>
 # A query carries no idempotency, consistency or conflicts; see use-case-command.yaml.
-requiresConsent: rule/<home>.<name, or remove this line>
+consentRule: rule/<home>.<name, or remove this line>
 # audit applies only when the project selects the audit extension. An exempt query carries exemptBecause instead of level and target.
 audit:
   level: <required|optional|none>

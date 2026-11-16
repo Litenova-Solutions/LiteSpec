@@ -100,7 +100,7 @@ Every folder comes from a closed set per layer. A record of a type in the wrong 
 
 Every Intent record sits in the home its type names, as `litespec/core/model#write-every-record-in-its-home` states.
 
-Each explanation file interprets its record without adding behavior, as `litespec/core/writing#interpret-fields-in-explanations-never-restate-them` states.
+Each explanation file states the same specification as its record, restated and elaborated for a person, as `litespec/core/writing#explain-the-same-specification-the-records-state` states.
 
 Modules are not declared here. A module is a code boundary, so Behavior declares it. [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Behavior and code.
 
@@ -146,7 +146,7 @@ A flow leads one actor toward one goal, problem, or constraint. It carries `acto
 
 `summary` states the flow's purpose in up to four sentences: who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom. The book renders it first on the page, so a cold reader learns the purpose before the mechanics. `startedWhen` states the observable state in which the flow starts, in one sentence; `finishedWhen` states the end, in one sentence.
 
-Each step carries its `id` (`s1`, `s2`, and so on) and one product sentence in `statement`, naming one act of its performer. A step names another actor only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `cites`. A step id reads `flow/<name>#s1`. The flow carries no `cites` of its own; the model reads the union of its steps.
+Each step carries its `id` (`s1`, `s2`, and so on) and one product sentence in `statement`, naming one act of its performer. A step names another actor only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `carries`. A step id reads `flow/<name>#s1`. The flow carries no `carries` of its own; the model reads the union of its steps.
 
 `branches` states each path that leaves the order of the steps: the step it leaves, its condition, and the step it continues at, or `end`.
 
@@ -184,9 +184,9 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Applies to:** artifact: record:product
 
-**Statement:** A consumer MUST state exactly one product record at `.litespec/product.yaml`, with `boundary`, `addresses`, and `summary`.
+**Statement:** A consumer MUST state exactly one product record at `.litespec/product.yaml`, with `boundary`, `users`, and `summary`.
 
-**Rationale:** One product record gives every reader one answer to what the product is and who it serves. The `summary` states what the product is, and the `boundary` and `addresses` focus every later choice: two product statements let each plan cite the one it prefers.
+**Rationale:** One product record gives every reader one answer to what the product is and who it serves. The `summary` states what the product is, and the `boundary` and `users` focus every later choice: two product statements let each plan cite the one it prefers.
 
 The product lists what it leaves out in `excludes`, in plain sentences. Only an `excludes` entry sets a requirement aside; the summary is never read as one.
 
@@ -344,15 +344,15 @@ An outcome the system controls directly is a quality requirement, not a goal, an
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem MUST name in `affects` a primary sufferer that is a person or organization actor outside the team building the product, state the pain in `summary` and `statement` in fields, and carry graded evidence.
+**Statement:** A problem MUST name in `affects` a primary sufferer that is a person or organization actor outside the team building the product, state the pain in `summary` and `statement` in fields, carry graded evidence, state its failure cases in `failureCases`, its workaround in `workaround`, its cost in `cost`, and its resolution criteria in `resolutionCriteria`.
 
-**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. The graded evidence shows the pain is real, as [Grade Problem Evidence by Kind](#grade-problem-evidence-by-kind) states.
+**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. The graded evidence shows the pain is real, as [Grade Problem Evidence by Kind](#grade-problem-evidence-by-kind) states. The `failureCases` state each failure that can happen on its own as its own sentence, with what is missing or wrong, how the sufferer finds it, and what follows when they do not. The `workaround` states what the sufferer does instead today, with the burden that work carries. The `cost` states what the pain costs the sufferer, with time, money, and risk kept apart. The `resolutionCriteria` state one observable outcome per failure case, with no solution named. The explanation file restates each of these fields in its fixed sections.
 
 Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.
 
 **Example:** In the library product, readers losing track of due dates is a problem whose primary sufferer is the reader. The library having too few staff for the summer is an internal limit, not a problem.
 
-**Checked by:** `litespec model check` reports `problem-sufferer-invalid` for a problem whose primary sufferer is no person or organization outside the team; `litespec model check` reports `record-invalid` for a problem record file missing `affects`, `summary` or `statement`.
+**Checked by:** `litespec model check` reports `problem-sufferer-invalid` for a problem whose primary sufferer is no person or organization outside the team; `litespec model check` reports `record-invalid` for a problem record file missing `affects`, `summary` or `statement`; `litespec model check` reports `record-invalid` for a problem record file missing `failureCases`, `workaround`, `cost`, or `resolutionCriteria`.
 
 ### Open Each Problem with Its Gap and Consequence
 
@@ -378,13 +378,13 @@ Content that is no problem goes to its own record: a solution in disguise become
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem explanation file MUST list under Failure Cases each failure that can happen independently as its own entry, naming what is missing or wrong, how the sufferer finds it, and what follows when they do not.
+**Statement:** Each item of a problem's `failureCases` MUST state one failure that can happen independently on its own, naming what is missing or wrong, how the sufferer finds it, and what follows when they do not.
 
-**Rationale:** Two failures joined in one sentence read as one, and the reader cannot see that each needs its own check and its own resolution. Direction matters: when two records should agree, an entry missing from the first and an entry missing from the second are found by different checks, so a solution running only one check leaves the other failure in place. Naming how the sufferer finds each failure, and what follows when they miss it, shows what the failure costs and what a solution has to catch.
+**Rationale:** Two failures joined in one sentence read as one, and the reader cannot see that each needs its own check and its own resolution. Direction matters: when two records should agree, an entry missing from the first and an entry missing from the second are found by different checks, so a solution running only one check leaves the other failure in place. Naming how the sufferer finds each failure, and what follows when they miss it, shows what the failure costs and what a solution has to catch. The explanation file's Failure Cases section restates each `failureCases` item for a person.
 
 **Example:** The library problem of readers losing due dates lists two failure cases. A loan missing from the reader's paper list goes overdue unnoticed, and the reader learns of it from the late fee. A renewed loan keeps its old date on the list, so the reader returns the copy early and loses the renewal.
 
-**Reviewed for:** Does every failure case stand on its own, with how the sufferer finds it and what follows when they miss it? Look at the Failure Cases section of each problem explanation file.
+**Reviewed for:** Does every failure case stand on its own, with how the sufferer finds it and what follows when they miss it? Look at each `failureCases` item of each problem record beside the Failure Cases section of its explanation file.
 
 ### State the Cost and Workaround of Every Problem
 
@@ -394,15 +394,15 @@ Content that is no problem goes to its own record: a solution in disguise become
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem MUST state in its explanation file what the sufferer does instead today with the burden that workaround carries, and what the pain costs them, with time, money and risk each in the sufferer's own units or the word `unknown`.
+**Statement:** A problem MUST state in `workaround` what the sufferer does instead today with the burden that workaround carries, and in `cost` what the pain costs them, with time, money and risk each in the sufferer's own units or the word `unknown`.
 
 **Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around. Work done by hand is no burden on its own, so the workaround names the burden: the time it takes, what the sufferer repeats or has to remember, and what it still misses.
 
-Time, money, and risk stay apart because each is judged in its own units; a total mixing them hides which one matters. Where nobody priced the cost or named the workaround, `unknown` states the gap honestly.
+Time, money, and risk stay apart because each is judged in its own units; a total mixing them hides which one matters. Where nobody priced the cost or named the workaround, `unknown` states the gap honestly. The explanation file restates `workaround` and `cost` in its Current Workaround and Cost sections.
 
 **Example:** A reader who loses track of due dates pays late fees, an amount nobody has measured. The reader keeps a paper list of due dates, updates it at every loan and renewal, and cannot check it when the list stays at home.
 
-**Reviewed for:** Does every problem state its workaround with its burden, and its cost with time, money, and risk kept apart? Look at Current Workaround and Cost in each problem explanation file.
+**Reviewed for:** Does every problem state its workaround with its burden, and its cost with time, money, and risk kept apart? Look at the `workaround` and `cost` fields of each problem record beside the Current Workaround and Cost sections of its explanation file.
 
 ### Claim No More Than the Evidence Shows
 
@@ -460,7 +460,7 @@ Time, money, and risk stay apart because each is judged in its own units; a tota
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem MUST name no product, feature, solution, or implementation in its `statement` or its Resolution Criteria, and resolve each failure case with an observable outcome for the sufferer.
+**Statement:** A problem MUST name no product, feature, solution, or implementation in its `statement` or its `resolutionCriteria`, and resolve each failure case with an observable outcome for the sufferer.
 
 **Rationale:** A statement naming a solution files a missing feature as a pain: the reader accepts the answer before weighing the pain, and every alternative answer reads as off-topic. A statement naming the sufferer, the condition, and the consequence leaves the answer to the feature that solves it.
 
@@ -468,7 +468,7 @@ Criteria covering one failure let a solution end half the problem and look finis
 
 **Example:** "Readers lose track of due dates" names a pain. "Readers need a reminder dashboard" names a solution and is reported. The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks.
 
-**Reviewed for:** Does any problem `statement` or Resolution Criteria outcome name a product, feature, solution, or implementation, and does every failure case have a resolution criterion stating an observable outcome for the sufferer? Look at the problem statements beside their sufferers and at Failure Cases beside Resolution Criteria in each problem explanation file.
+**Reviewed for:** Does any problem `statement` or `resolutionCriteria` outcome name a product, feature, solution, or implementation, and does every failure case have a resolution criterion stating an observable outcome for the sufferer? Look at the problem statements beside their sufferers and at `failureCases` beside `resolutionCriteria` in each problem record and its explanation file.
 
 ### Solve Problems with Standalone Features
 
@@ -496,7 +496,7 @@ Criteria covering one failure let a solution end half the problem and look finis
 
 **Statement:** A problem explanation file MUST carry Affected Users, Failure Cases, Current Workaround, Cost, Evidence, and Resolution Criteria, in that order, with an optional Example after Failure Cases.
 
-**Rationale:** The fields state who suffers and the pain in one sentence; the explanation carries everything else: the circumstances, each failure, one concrete case where the failures are hard to follow, the workaround in use, the cost, the evidence behind each claim, and the outcomes that would end each failure. A fixed order means a reader who learned one problem page finds each part on every problem page.
+**Rationale:** The fields state who suffers, the pain, each failure, the workaround, the cost, and the outcomes that would end each failure; the explanation restates them in fixed sections and adds the circumstances, one concrete case where the failures are hard to follow, and the evidence behind each claim. A fixed order means a reader who learned one problem page finds each part on every problem page.
 
 A problem page is complete when a reader arriving cold can understand the problem, judge its evidence, and propose a different solution without asking its author. Settled by [decision/0044-state-problems-by-failure-case](../intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md), which gives each problem its failure cases and one resolution criterion for each.
 
@@ -512,11 +512,11 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:feature
 
-**Statement:** A feature MUST state its `offering` and name the goals it moves in `advances`.
+**Statement:** A feature MUST state its `offering`, its success criteria in `successCriteria`, what it leaves out in `excludes`, and name the goals it moves in `advances`.
 
-**Rationale:** A feature without a written scope grows with every reading: each builder fills the gap with behavior nobody asked for. The `offering` states what is in and what is out, where the links are. The `solves` list ties the offer to the pains it answers, and `advances` ties it to the goals it moves, so each offer traces to a pain beside an outcome. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** A feature without a written scope grows with every reading: each builder fills the gap with behavior nobody asked for. The `offering` states what is in and what is out, where the links are. The `successCriteria` state only outcomes the feature brings about on its own and a tester can check. The `excludes` state what the feature leaves to other features, which features it depends on, and each open question its owner has not decided. The explanation file restates both fields in its Success Criteria and Boundaries sections. The `solves` list ties the offer to the pains it answers, and `advances` ties it to the goals it moves, so each offer traces to a pain beside an outcome. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
-**Reviewed for:** Does every feature state its offering and name the goals it moves? Look at each feature record beside its goals.
+**Reviewed for:** Does every feature state its offering, its success criteria, what it leaves out, and the goals it moves? Look at each feature record beside its goals.
 
 ### State the Boundaries of Every Feature
 
@@ -526,13 +526,13 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:feature
 
-**Statement:** A feature explanation file MUST state under Boundaries what the feature leaves to other features, which features it depends on, and each open question its owner has not decided.
+**Statement:** A feature MUST state in `excludes` what it leaves to other features, which features it depends on, and each open question its owner has not decided.
 
 **Rationale:** A feature answering part of a problem reads as answering all of it unless its edges are written down. Builders then fill the gap with behavior nobody asked for. Naming what the feature leaves to other features, and which features it depends on, keeps each behavior in one feature. An open question written beside the feature reaches the owner as a question instead of reaching the code as a guess. Settled by [decision/0046-write-features-for-builders-and-testers](../intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers.md), which writes each feature for the people who build and test it.
 
 **Example:** The Claimwick approval feature leaves reminders for late decisions to the approval reminders feature, depends on the receipt threshold decision, and names one open question: whether a manager on leave hands decisions to a deputy.
 
-**Reviewed for:** Does every feature explanation state what the feature leaves to other features, what it depends on, and its open questions? Look at the Boundaries section of each feature explanation file.
+**Reviewed for:** Does every feature state what the feature leaves to other features, what it depends on, and its open questions? Look at `excludes` and the Boundaries section of each feature explanation file.
 
 ### State Success Criteria the Feature Controls
 
@@ -542,13 +542,13 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:feature
 
-**Statement:** A feature explanation file MUST state under Success Criteria only outcomes that the feature brings about on its own and a tester can check.
+**Statement:** A feature MUST state in `successCriteria` only outcomes that the feature brings about on its own and a tester can check.
 
 **Rationale:** A criterion the feature cannot guarantee sets a test nobody can pass: importing a bank statement does not make the book balance equal the statement balance, because an entry can be missing or wrong and a later entry moves the balance again. A criterion the feature controls, such as showing both balances for the same date, can be built and checked. An outcome depending on people or on other features belongs to the goal the feature advances.
 
 **Example:** The library feature for due dates states that a reader sees the due date of every copy they hold, not that no reader pays a late fee, which depends on the reader returning the copy in time.
 
-**Reviewed for:** Does every success criterion state an outcome the feature brings about on its own, one a tester can check? Look at the Success Criteria section of each feature explanation file.
+**Reviewed for:** Does every success criterion state an outcome the feature brings about on its own, one a tester can check? Look at `successCriteria` and the Success Criteria section of each feature explanation file.
 
 ### Split Records Whose Parts Change Separately
 
@@ -574,13 +574,13 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:actor
 
-**Statement:** An actor MUST carry a `kind` of person or organization and state in `belongsToTeam` whether it belongs to the team building and running the product.
+**Statement:** An actor MUST carry a `kind` of person or organization, state in `belongsToTeam` whether it belongs to the team building and running the product, state its responsibilities in `responsibilities`, and state what the product assumes it knows in `knowledge`.
 
-**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport, or a renderer is never an actor. Only a person or an organization can hold a role, suffer a problem, and take a flow. `belongsToTeam` reads as a predicate about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport, or a renderer is never an actor. Only a person or an organization can hold a role, suffer a problem, and take a flow. `belongsToTeam` reads as a predicate about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. The `responsibilities` state the acts the product holds the actor to. The `knowledge` states the product's assumption about what the actor knows. The explanation file restates both fields in its Responsibilities and Knowledge sections. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
 **Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway is an external system, not an actor.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an actor record file with a kind outside person and organization, or with no `belongsToTeam`; `litespec model check` reports `record-invalid` for such a kind.
+**Checked by:** `litespec model check` reports `record-invalid` for an actor record file with a kind outside person and organization, or with no `belongsToTeam`, `responsibilities`, or `knowledge`.
 
 ### State What the Product Assumes Each Actor Knows
 
@@ -590,13 +590,13 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:actor
 
-**Statement:** An actor explanation MUST state what the product assumes the actor knows in its Knowledge section, as an assumption of the product, and states no user's knowledge as a fact about every user.
+**Statement:** An actor MUST state in `knowledge` what the product assumes the actor knows, as an assumption of the product, and it states no user's knowledge as a fact about every user.
 
-**Rationale:** What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as "has no training in accounting" written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Written as "Claimwick does not assume the employee knows the expense policy", it names the product's assumption and the actor it applies to. Proposed by [decision/0053-actors-by-responsibility-and-knowledge](decision/0053-actors-by-responsibility-and-knowledge).
+**Rationale:** What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as "has no training in accounting" written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Written as "Claimwick does not assume the employee knows the expense policy", it names the product's assumption and the actor it applies to. The explanation file restates `knowledge` in its Knowledge section. Proposed by [decision/0053-actors-by-responsibility-and-knowledge](decision/0053-actors-by-responsibility-and-knowledge).
 
 **Example:** Claimwick's employee actor states in its Knowledge section that Claimwick does not assume the employee knows the expense policy.
 
-**Reviewed for:** Does any actor explanation state a user's knowledge as a fact about every user instead of an assumption of the product? Look at the opening paragraph and the Knowledge section of each actor explanation.
+**Reviewed for:** Does any actor `knowledge` item state a user's knowledge as a fact about every user instead of an assumption of the product? Look at the `knowledge` items and the Knowledge section of each actor explanation.
 
 ### Name Every Actor from a Flow, a Problem or an Access Position
 
@@ -638,11 +638,11 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:constraint
 
-**Statement:** A constraint MUST state its `authority`, `summary`, `sources`, `kind`, `applies`, and `appliesBecause` in fields, and What It Requires is generated from the requirements that cite it.
+**Statement:** A constraint MUST state its `authority`, `summary`, `sources`, `kind`, `applies`, `appliesBecause`, `scope`, `obligations`, and `productEffect` in fields, and What It Requires is generated from the requirements that cite it.
 
 **Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked.
 
-The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `key`, `url`, and `readOn`, the shape research uses, so each rule cites its source by key. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time.
+The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `key`, `url`, and `readOn`, the shape research uses, so each rule cites its source by key. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. The `scope` states which subjects, transactions, and periods the rule covers. The `obligations` state each outside rule as one sourced statement with the keys of the sources that support it. The `productEffect` states what the rule changes in the product, naming each requirement that holds it. The `openPoints` hold optional questions about application. The explanation file restates each of these fields in its fixed sections.
 
 A constraint can state `effectiveFrom`, the date its rule starts to bind, and can name in `basedOn` the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in `basedOn`. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
@@ -656,13 +656,13 @@ A constraint can state `effectiveFrom`, the date its rule starts to bind, and ca
 
 **Applies to:** artifact: record:constraint
 
-**Statement:** Each rule in a constraint's Rules section MUST cite one of the constraint's `sources` by key with a reference link `[text][key]`, and the explanation holds the generated source-links region that writes each source's link definition.
+**Statement:** Each item of a constraint's `obligations` MUST name in its `sources` one key of the constraint's `sources`, and the explanation holds the generated source-links region that writes each source's link definition.
 
-**Rationale:** A reader checking a rule needs the source beside it, and a rule with two sources needs to show which one holds it. A law stating the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides.
+**Rationale:** A reader checking an obligation needs the source beside it, and an obligation with two sources needs to show which one holds it. A law stating the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides.
 
 `model render` writes each source's link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
-**Checked by:** `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for a key the constraint does not declare, and `source-unused` for a source no rule cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
+**Checked by:** `litespec model check` reports `constraint-obligation-source-unknown` for an `obligations` item naming a key the constraint's `sources` list does not hold; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for a key the constraint does not declare, and `source-unused` for a source no obligation cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
 
 ### State Each Constraint Rule with Its Condition
 
@@ -672,13 +672,13 @@ A constraint can state `effectiveFrom`, the date its rule starts to bind, and ca
 
 **Applies to:** artifact: record:constraint
 
-**Statement:** Each rule in a constraint's Rules section MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.
+**Statement:** Each item of a constraint's `obligations` MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.
 
-**Rationale:** A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. A paragraph stating what the product does about the obligation mixes two authors in one rule, so the product's response stays in Effect on the Product, which holds free prose about the effect. The book shows the requirements citing the constraint from their `cites` links. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record's Open Questions.
+**Rationale:** A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. An item stating what the product does about the obligation mixes two authors in one rule, so the product's response stays in `productEffect`, which the explanation's Effect on the Product section restates. The book shows the requirements citing the constraint from their `cites` links. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the `openQuestions` of the research record.
 
 Scope says whom the rule covers; it is separate from `applies`, which says whether the rule binds the product at all. A constraint holds rules sharing one source, scope, and change, so rules changing separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
-**Reviewed for:** Does any constraint rule drop its condition, state a product effect, or state an unverified fact as settled? Look at each paragraph of the Rules section beside its source.
+**Reviewed for:** Does any `obligations` item drop its condition, state a product effect, or state an unverified fact as settled? Look at each `obligations` item beside its source and the Rules section of the explanation.
 
 ### Record Research with Its Question, Conclusion, and Sources
 
@@ -688,13 +688,13 @@ Scope says whom the rule covers; it is separate from `applies`, which says wheth
 
 **Applies to:** artifact: record:research
 
-**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and carry Findings in its explanation file.
+**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and state its `findings` in fields.
 
 **Rationale:** A fact without its source cannot be rechecked when a decision depends on it. `readOn` says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect: the date a rule starts, or the period it covers, is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory.
 
-The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `key`, `url`, and `readOn`, and `publishedOn` where the source states its publication date. The explanation cites a source with a reference link `[text][key]`; a bare URL, an unknown key, or an unused source is a finding. Findings states each claim with its source, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. Open Questions holds what the sources do not establish, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
+The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `key`, `url`, and `readOn`, an optional `note` holding what a later reader needs about that source, and `publishedOn` where the source states its publication date. The `findings` state each claim with its sources, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. The `openQuestions` hold what the sources do not establish. The explanation file restates each of these fields in its fixed sections, citing a source with a reference link `[text][key]`; a bare URL, an unknown key, or an unused source is a finding. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Findings in its explanation file, `source-link-bare` for a bare URL, `reference-unknown` for an unknown key, and `source-unused` for an unused source.
+**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, `findings`, or `sources`; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for an unknown key, and `source-unused` for an unused source.
 
 ### State Each Research Finding with Its Source
 
@@ -704,13 +704,13 @@ The `conclusion` states in one sentence what the sources establish, with the con
 
 **Applies to:** artifact: record:research
 
-**Statement:** Each paragraph under a research record's Findings MUST state one claim with its conditions, cite its source key with a reference link, and say whether the source states the claim or the writer infers it.
+**Statement:** Each item of a research record's `findings` MUST state one claim with its conditions, name in its `sources` one key of the record's `sources`, and say whether the source states the claim or the writer infers it.
 
-**Rationale:** A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per paragraph keeps each source tied to one statement.
+**Rationale:** A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per item keeps each source tied to one statement.
 
 The record's question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
-**Reviewed for:** Does any finding state an inference as a source statement, drop a condition the source gives, or answer a question other than the record's `question`? Look at each Findings paragraph beside its source. `litespec model check` reports `finding-source-missing` for a Findings paragraph with no source link, so this review covers the wording only.
+**Reviewed for:** Does any `findings` item state an inference as a source statement, drop a condition the source gives, or answer a question other than the record's `question`? Look at each `findings` item beside its source. `litespec model check` reports `research-finding-source-unknown` for a `findings` item naming a key the record's `sources` list does not hold, and `finding-source-missing` for a Findings paragraph with no source link, so this review covers the wording only.
 
 ### State Each Decision with Context and Choice
 
@@ -720,13 +720,13 @@ The record's question tests the findings: a finding answering another question b
 
 **Applies to:** artifact: record:decision
 
-**Statement:** A decision MUST state its `choice` and `consequences` in fields and carry Context and Decision in its explanation file.
+**Statement:** A decision MUST state its `context`, `choice`, and `consequences` in fields and carry Decision in its explanation file.
 
-**Rationale:** A decision read cold needs its situation, its options, and its outcome in the same places every time. Context states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option; the `choice` field names it, and `consequences` states what follows. Evidence holds the supporting material with its confidence where the choice rests on it.
+**Rationale:** A decision read cold needs its situation, its options, and its outcome in the same places every time. The `context` states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option in the explanation; the `choice` field names it, and `consequences` states what follows. The explanation file restates `context` in its Context section. Evidence holds the supporting material with its confidence where the choice rests on it.
 
 The `reopenedWhen` condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Context or Decision in its explanation file.
+**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Decision in its explanation file.
 
 ### Record Each Decision Option with Pros and Cons
 
@@ -882,7 +882,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Statement:** A functional or policy requirement MUST be fulfilled only from Behavior records.
 
-**Rationale:** Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, entry point, and screen. An entry point fulfills through a served content entry in its `servedContent` list, and a screen fulfills a requirement about the interface, such as what a chart shows. A flow names the requirements it shows in its steps' `cites`, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in `basedOn`, by its `check`, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.
+**Rationale:** Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, entry point, and screen. An entry point fulfills through a served content entry in its `servedContent` list, and a screen fulfills a requirement about the interface, such as what a chart shows. A flow names the requirements it shows in its steps' `carries`, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in `basedOn`, by its `check`, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.
 
 **Checked by:** `litespec model check` reports `requirement-fulfillment-missing` for a requirement no Behavior record fulfills.
 
@@ -896,7 +896,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Statement:** A flow MUST lead one actor toward the record it exists for through ordered steps, naming exactly one reason, one goal in `serves` or one problem or constraint in `answers`, and stating each path off that order in `branches`.
 
-**Rationale:** A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in `cites` the requirements it carries, and the use cases, reactions, and jobs serving each step point up with `serves`. `branches` holds the paths leaving the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).
+**Rationale:** A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in `carries` the requirements it carries, and the use cases, reactions, and jobs serving each step point up with `serves`. `branches` holds the paths leaving the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).
 
 **Example:** Claimwick held a 21-step flow with five actors, from filing an expense to closing the month. Split by reason, it is four flows: file an expense; approve an expense; reimburse the employee; close the month.
 
@@ -986,7 +986,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Applies to:** artifact: record:flow
 
-**Statement:** Each flow step MUST carry its `id`, its product sentence in `statement` naming one act of its performer and no use case, and in `cites` each requirement the step carries.
+**Statement:** Each flow step MUST carry its `id`, its product sentence in `statement` naming one act of its performer and no use case, and in `carries` each requirement the step carries.
 
 **Rationale:** A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence states one act of its performer and may end with the product's observable response after the act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account". How the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits, and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow).
 
@@ -1054,15 +1054,15 @@ The performer and the failure text are optional: a step names another actor only
 
 **Applies to:** artifact: record:flow
 
-**Statement:** A condition that stops a flow MUST be the `failure` of the step it blocks, stating what the person sees and can do next with the requirement that holds the rule cited in the step's `cites`, and never stated only in a branch or in the explanation.
+**Statement:** A condition that stops a flow MUST be the `failure` of the step it blocks, stating what the person sees and can do next with the requirement that holds the rule carried in the step's `carries`, and never stated only in a branch or in the explanation.
 
-**Rationale:** A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and the step's `cites` names the requirement holding the rule, so the rule is not restated in the flow.
+**Rationale:** A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and the step's `carries` names the requirement holding the rule, so the rule is not restated in the flow.
 
 The `failure` states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.
 
-**Example:** The step submitting an expense carries in `failure` that the expense cannot be submitted and the employee can attach the receipt and submit again, and cites in its `cites` the requirement holding the receipt rule.
+**Example:** The step submitting an expense carries in `failure` that the expense cannot be submitted and the employee can attach the receipt and submit again, and carries in its `carries` the requirement holding the receipt rule.
 
-**Reviewed for:** Does every condition stopping the flow sit as the `failure` of the step it blocks, stating what the person sees and can do next, with the requirement holding the rule cited in the step's `cites`? Read each branch and each Example sentence naming a refusal or a wait.
+**Reviewed for:** Does every condition stopping the flow sit as the `failure` of the step it blocks, stating what the person sees and can do next, with the requirement holding the rule carried in the step's `carries`? Read each branch and each Example sentence naming a refusal or a wait.
 
 ### State When Each Flow Finishes
 

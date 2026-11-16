@@ -12,6 +12,7 @@ records:
   - <term id, or remove this line>
   kind: <invariant|precondition|calculation|atomicity|reservation|frozen-value>
   statement: <what holds, in one sentence>
+  rationale: <why the rule exists, in one to three sentences completing because without the word, or remove this line>
   governs:
   - <aggregate/<module>.<name> or use-case/<module>.<name>, or remove this line>
   binds:

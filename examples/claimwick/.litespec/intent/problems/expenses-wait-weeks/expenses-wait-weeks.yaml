@@ -5,6 +5,14 @@ affects:
 - actor/employee
 summary: Submitted expenses wait weeks for a decision, so employees chase managers by email. Decisions arrive late without notice.
 statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.
+failureCases:
+- An expense waits without a decision while the approver sees no waiting time and the employee carries the amount.
+- The employee learns the decision only by asking and chases a decision already made.
+workaround: Employees email the approver to ask for a faster decision. The approver answers from memory with no record of the wait. Each employee repeats the email for each waiting expense.
+cost: Employees carry the amount from their own account for the length of the wait. The average wait is three weeks as reported, and the money cost is unknown.
+resolutionCriteria:
+- Each submitted expense is decided within five business days.
+- The employee sees the decision without asking the approver.
 evidence:
 - claim: Employees wait three weeks on average for reimbursement.
   source: research/approval-time-benchmarks

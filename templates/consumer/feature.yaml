@@ -9,3 +9,7 @@ solves:
 - problem/<name>
 advances:
 - goal/<name, or remove this line>
+successCriteria:
+- <one outcome the feature brings about on its own, in one sentence>
+excludes:
+- <one thing the feature leaves to another feature, in one sentence>

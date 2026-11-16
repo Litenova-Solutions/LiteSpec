@@ -16,9 +16,10 @@ static class BookProseFields
         "summary", "statement", "offering", "consequences",
         "refusals", "delivery", "impact",
         "prerequisites", "procedure", "verification", "recovery", "escalation",
-        "exposure", "exit",
+        "exposure", "exitWhen",
         "description", "whatHappens", "whyItMatters", "situation", "purpose", "position",
         "goal", "meaning", "boundary", "question", "reason", "rationale", "appliesBecause",
+        "workaround", "cost", "scope", "productEffect", "context", "compatibility", "task",
     ];
 
     /// <summary>Renders one record's prose fields to HTML with hash record links.</summary>
