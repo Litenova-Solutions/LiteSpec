@@ -1,10 +1,10 @@
 # LiteSpec Brand Assets
 
-The logo files and social images for LiteSpec, a Litenova Solutions product, live in this folder. The site draws the mark from `apps/site/src/components/Mark.astro` and serves copies of the icons and the share image from `apps/site/public/`, while the CLI and analyzer packages use `logo/png/icon-128.png` as their NuGet icon. Nothing else here ships anywhere.
+This folder holds the logo files and social images for LiteSpec, a Litenova Solutions product. The site draws the mark from `apps/site/src/components/Mark.astro` and serves copies of the icons and the share image from `apps/site/public/`, while the CLI and analyzer packages use `logo/png/icon-128.png` as their NuGet icon. Nothing else here ships anywhere.
 
 ## The Mark
 
-The Litenova Solutions mark is a square frame around an L and a saffron `/>`. LiteSpec keeps the frame and the L, and sets three saffron rules, the lines of a specification, where the `/>` sat. The mark is drawn on the same 240 grid at the same stroke weight of 14:
+The Litenova Solutions mark is a square frame around an L and a saffron `/>`. The LiteSpec mark keeps the frame and the L, and replaces the `/>` with three saffron rules, the lines of a specification. Both marks are drawn on the same 240 grid at stroke weight 14:
 
 - The frame runs 14 thick on all four sides.
 - The L stands 120 tall and 40 wide, with a stem and foot 14 thick, positioned 43.68 from the left and 60 from the top.
@@ -12,6 +12,8 @@ The Litenova Solutions mark is a square frame around an L and a saffron `/>`. Li
 - The top rule aligns with the L's top, the bottom rule with its baseline, and the middle rule with the center line at 120.
 
 At 48 pixels and below, the icons switch to a heavier cut (stroke 20) that keeps the rules apart.
+
+The lockups set the name at half the mark's height, cap-centered on it and 96 units to its right, with Manrope's kerning and 0.01 em tracking, matching the Litenova Solutions lockups.
 
 ## Colors
 
@@ -71,4 +73,6 @@ The `social/` folder holds images on navy carrying the site's headline, matching
 
 ## Updating
 
-The SVG files are the sources. The PNG files, `favicon.ico`, and the copies in `apps/site/public/` are renders of them produced in a browser. When the mark changes, update `apps/site/src/components/Mark.astro`, the mark in `apps/cli/book/src/lib/components/shell/TopBar.svelte`, and the SVG files together, then render the PNG files again at the sizes their names state. When the site headline changes, render the social images again. The lockups set the name at half the mark's height, cap-centered on it and 96 units to its right, with Manrope's kerning and 0.01 em tracking, matching the Litenova Solutions lockups.
+The SVG files are the sources. The PNG files, `favicon.ico`, and the copies in `apps/site/public/` are renders of them produced in a browser.
+
+When the mark changes, update `apps/site/src/components/Mark.astro`, the mark in `apps/cli/book/src/lib/components/shell/TopBar.svelte`, and the SVG files together, then render the PNG files again at the sizes their names state. When the site headline changes, render the social images again.

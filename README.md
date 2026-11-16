@@ -5,9 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-litespec.dev-blue.svg)](https://litespec.dev/7.0.0/)
 
-LiteSpec is a standard for specification-driven development of one bounded-context business application by people and coding agents. Without a checked link between the written intent and the code, the two drift apart: a record says one thing, the code does another, and a test proves neither. A team writes what the product must do as records, and the `litespec` tool checks the specification and its links, and helps agents find the provisions that apply.
+LiteSpec is a standard for specification-driven development of one bounded-context business application by people and coding agents. Without a checked link between the written intent and the code, the two drift apart: a record says one thing, the code does another, and a test proves neither. A team writes what the product must do as records, and the `litespec` tool checks the specification and its links and helps agents find the provisions that apply.
 
-The standard defines two things. The specification model is the record types in which a product states what it must do, linked from Intent through Behavior to the code and tests that carry it. The engineering provisions are the experience of how to build such an application, each marked as required, a default, or advisory. Each fact has one written home, and the tool checks the connections between homes, so people and coding agents work from the same written source.
+The standard has two parts. The specification model holds the record types in which a product states what it must do, linked from Intent through Behavior to the code and tests that carry it. The engineering provisions hold the experience of building such an application, each marked as required, a default, or advisory. Each fact has one written home, and the tool checks the connections between homes, so people and coding agents work from the same written source.
 
 ## How It Works
 
@@ -24,7 +24,7 @@ The `litespec` tool reads the records and the code, builds a project model, and 
 
 Each project declares the record layers it claims in the `layers` key of `.litespec/project.yaml`, along with the practice each claimed layer follows. The layers build on each other: claiming `behavior` requires `intent`, and claiming `implementation` or `proof` requires `behavior`.
 
-| Layer | Values | What the project claims |
+| Layer | Allowed Values | What the project claims |
 |:---|:---|:---|
 | `intent` | `litespec` | Its Intent records follow the record model. |
 | `behavior` | `litespec` | Its Behavior records follow the record model. |
@@ -33,7 +33,11 @@ Each project declares the record layers it claims in the `layers` key of `.lites
 
 `litespec model check`, the book, `litespec rules`, and the analyzers report only what the claimed layers cover.
 
-Each check carries a check level, which states what its finding rests on. Whether a finding blocks follows from the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. Findings about links between records always sit at level G or S, and always block. The part of the tool that reads one stack's code and tests and follows their marks back to records is called a stack reader, and a reader counts as qualified once it has run and its handshake has matched.
+Each check carries a check level, which states what its finding rests on. Whether a finding blocks follows from the strength of the provision it reports: a finding on a required provision blocks unless a waiver covers it, and a finding on an advisory provision never blocks.
+
+Findings about links between records always sit at level G or S, and always block.
+
+The part of the tool that reads one stack's code and tests and follows their marks back to records is called a stack reader. A reader counts as qualified once it has run and its handshake has matched.
 
 | Check Level | Meaning |
 |:---|:---|
@@ -45,7 +49,9 @@ Each check carries a check level, which states what its finding rests on. Whethe
 
 ## How Agents Use It
 
-An agent asks the tool which provisions apply instead of loading standard pages. Before it edits a file, it asks which provisions govern that file: `litespec rules <path>` lists them grouped by strength, each with the reason it was retrieved, after the decisions and waivers the file follows. If a statement alone does not settle the question, `litespec rules <provision-id>` prints the full provision. Before the agent reports done, it runs `litespec rules --since <base>`, answers the Reviewed for question of every provision the change set returns, and names each judged provision with its outcome in the completion report.
+An agent asks the tool which provisions apply instead of loading standard pages. Before it edits a file, it asks which provisions govern that file: `litespec rules <path>` lists them grouped by strength, each with the reason it was retrieved, after the decisions and waivers the file follows. If a statement alone does not settle the question, `litespec rules <provision-id>` prints the full provision.
+
+Before the agent reports done, it runs `litespec rules --since <base>`, answers the Reviewed for question of every provision the change set returns, and names each judged provision with its outcome in the completion report.
 
 To learn what the specification says, the agent queries the model: `litespec model query <record-id>` returns a single record with its computed links, while `litespec model query --search <text>` and `litespec model query --list <type>` find records. The agent builds only what the specification states, and when something looks missing, it asks the owner or files a backlog item; it never writes code for what the specification does not state.
 
@@ -53,7 +59,7 @@ The project's `AGENTS.md` carries the agent protocol as a region the tool genera
 
 ## Installation
 
-The `litespec` command line ships as a native executable for Windows, Linux, and macOS, so it needs no .NET runtime. A repository with the .NET SDK installs it as a local .NET tool instead. Run these commands from the consumer repository root, which is the folder that will hold `.litespec/project.yaml`.
+Install the `litespec` command line in one of two ways. A repository with the .NET SDK installs it as a local .NET tool. A repository without .NET installs the standalone native executable for Windows, Linux, or macOS, which needs no .NET runtime. Run the install from the consumer repository root, which is the folder that will hold `.litespec/project.yaml`.
 
 ```bash
 dotnet new tool-manifest
@@ -63,7 +69,7 @@ dotnet litespec init --preset dotnet-react --size small
 
 Run `dotnet new tool-manifest` only when the repository has no `.config/dotnet-tools.json` yet. The `dotnet tool install` step records `LiteSpec.Cli` in that manifest at the named release.
 
-A repository without .NET installs the standalone binary from the GitHub release and runs it as `litespec`:
+Without the .NET SDK, install the standalone binary from the GitHub release and run it as `litespec`:
 
 ```bash
 curl -fsSL https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.sh | sh
@@ -89,7 +95,7 @@ The command validates the project file, the record files, and the language of th
 
 These are the CLI commands, with each `model` subcommand on its own row:
 
-| Command | Does |
+| Command | What It Does |
 |:---|:---|
 | `litespec init` | Writes `.litespec/project.yaml` for a new consumer from a preset. |
 | `litespec new` | Creates a record file in its one legal folder and reserves its identifier. |

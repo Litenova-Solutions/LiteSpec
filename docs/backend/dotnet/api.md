@@ -4,21 +4,29 @@
 
 **Concern:** web-api
 
-Every HTTP operation in a .NET backend runs through one small endpoint class in its use case folder, and the OpenAPI contract is generated from those classes at build time. This page defines the .NET form of the shared [HTTP API](../api.md) rules: the endpoint contract, the metadata each operation declares, how transport models express closed sets, and how the global handler derives HTTP statuses from refusal codes.
+In a .NET backend, each HTTP operation runs through one small endpoint class in its use case folder, and the OpenAPI contract is generated from those classes at build time. This page defines how the shared [HTTP API](../api.md) rules apply to .NET: the endpoint contract, the metadata each operation declares, how transport models express closed sets, and how the global handler derives HTTP statuses from refusal codes.
 
 ## Concepts
 
 ### Endpoint Classes
 
-A WebApi endpoint is a small class that owns one route operation. It converts HTTP input to an Application command or query, sends that message through the mediator, and maps the result back to HTTP.
+A WebApi endpoint is a small class that serves one route operation. It converts HTTP input to an Application command or query, sends that message through the mediator, and maps the result back to HTTP.
 
-Each endpoint implements the product-owned `IEndpoint` contract: one method that maps the route on the route builder. At startup, the host discovers every endpoint and maps each one exactly once, in type-name order.
+Each endpoint implements the product-owned `IEndpoint` contract, which has one method that maps the route on the route builder. At startup, the host finds every endpoint and maps each one exactly once, in type-name order.
 
-One global handler maps each thrown failure to its HTTP status and Problem Details body, so endpoints carry no error mapping of their own.
+One global handler maps each thrown failure to its HTTP status and Problem Details body. Endpoints carry no error mapping of their own.
 
 ### Operation Metadata
 
-The OpenAPI generator builds the published contract from metadata declared on each operation: a stable `operationId` that generated clients use to name their calls, the authorization policies that guard it, the request and success shapes, the failure statuses it can answer, and a summary. Comments on route lambdas never reach the contract, so this metadata is declared explicitly with typed results or `Produces` entries.
+The OpenAPI generator builds the published contract from metadata declared on each operation:
+
+- A stable `operationId`, which generated clients use to name their calls.
+- The authorization policies that guard the operation.
+- The request and success shapes.
+- The failure statuses the operation can answer.
+- A summary.
+
+Comments on route lambdas do not reach the contract, so this metadata is declared explicitly with typed results or `Produces` entries.
 
 ## Standards
 
@@ -32,7 +40,7 @@ The OpenAPI generator builds the published contract from metadata declared on ea
 
 **Statement:** A WebApi endpoint MUST implement `IEndpoint`, map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
-**Rationale:** When one class owns one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, and a change to one route silently affects another, while a second routing pattern grows beside the first unnoticed. This provision binds `litespec/backend/api#map-one-operation-per-endpoint` for .NET.
+**Rationale:** When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route can affect another, and a second routing pattern can grow beside the first unnoticed. This provision binds `litespec/backend/api#map-one-operation-per-endpoint` for .NET.
 
 **Example:** The WebApi project owns this contract:
 
@@ -43,7 +51,7 @@ internal interface IEndpoint
 }
 ```
 
-At startup, the host scans the modules assembly through its one public marker for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so it needs no extra scanning package.
+At startup, the host scans the modules assembly through its one public marker for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so no extra scanning package is needed.
 
 **Reviewed for:** Does every mapped route run through one `IEndpoint` type that converts input, dispatches, and maps the result? Look at the endpoints in the use case folders.
 
@@ -57,7 +65,7 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **Statement:** WebApi code MUST NOT route requests through MVC controllers or `ControllerBase`.
 
-**Rationale:** Controllers and endpoint classes route, filter, and map errors through different models. When both exist, a reviewer checks two mappings for every behavior, and error responses drift apart. One model means one place defines how requests reach handlers and how failures reach clients.
+**Rationale:** Controllers and endpoint classes route, filter, and map errors through different models. When both exist, a reviewer checks two mappings for every behavior, and error responses drift apart. With one model, one place defines how requests reach handlers and how failures reach clients.
 
 **Checked by:** `dotnet build` reports `LS2003` for a WebApi class deriving from `ControllerBase` or carrying `ApiController`.
 
@@ -71,7 +79,7 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **Statement:** An operation MUST declare a stable `operationId`, a summary, its authorization, request, success, and Problem Details metadata, and typed results or `Produces` metadata.
 
-**Rationale:** Generated clients name their calls from `operationId`, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary is declared explicitly. This provision binds `litespec/backend/api#declare-stable-operation-metadata-in-the-contract` for .NET.
+**Rationale:** Generated clients name their calls from `operationId`, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments do not reach the contract, so the summary is declared explicitly. This provision binds `litespec/backend/api#declare-stable-operation-metadata-in-the-contract` for .NET.
 
 **Reviewed for:** Does every operation declare a stable `operationId`, a summary, authorization, request, success, and Problem Details metadata, and typed results or `Produces` entries? Look at each operation.
 
@@ -85,7 +93,7 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **Statement:** WebApi MUST map each refusal code to its HTTP status in one global handler.
 
-**Rationale:** The specification records each refusal with its stable `code` and no transport status, so the stack derives the status its transport needs. The outcome-to-status assignment lives in `litespec/backend/api#use-consistent-status-codes`; this provision binds it for .NET.
+**Rationale:** The specification records each refusal with its stable `code` and no transport status, so each stack derives the status its transport needs. The outcome-to-status assignment is stated in `litespec/backend/api#use-consistent-status-codes`; this provision binds it for .NET.
 
 The handler uses ASP.NET Core `AddProblemDetails` with one `IExceptionHandler`:
 
@@ -118,7 +126,7 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Statement:** A data-bearing set MUST map to an abstract base record with one sealed record per case, carrying the discriminator that `litespec/backend/api#mark-polymorphic-models-with-discriminators` requires.
 
-**Rationale:** A concrete base record cannot mark the discriminator as required, so a client could send a payload that names no case. This provision binds `litespec/backend/api#mark-polymorphic-models-with-discriminators` for .NET and adds no discriminator rule of its own.
+**Rationale:** A concrete base record has no way to mark the discriminator as required, so a client could send a payload that names no case. This provision binds `litespec/backend/api#mark-polymorphic-models-with-discriminators` for .NET and adds no discriminator rule of its own.
 
 **Example:**
 
@@ -142,7 +150,9 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Replacement:** A project names its endpoint layout in its WebApi documentation.
 
-**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Transport types take the names their boundary roles assign under `litespec/backend/api#name-transport-types-by-their-boundary-role`, and transport mapping lives in WebApi under `litespec/backend/application#keep-mappings-at-the-owning-boundary`. Response models carry the query's declared `include` groups. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
+**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Transport types take the names their boundary roles assign under `litespec/backend/api#name-transport-types-by-their-boundary-role`, and transport mapping sits in WebApi under `litespec/backend/application#keep-mappings-at-the-owning-boundary`. Response models carry the query's declared `include` groups.
+
+Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
 **Example:** The endpoint layout is:
 
@@ -216,7 +226,7 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Replacement:** A project names its startup layout in its WebApi documentation.
 
-**Rationale:** Middleware runs in registration order, so authentication registered after endpoints never runs. When one file shows the whole sequence, a reviewer sees the order at a glance; when registration scatters across files, a misplaced call hides. This file binds `litespec/backend/architecture#compose-each-process-explicitly` for WebApi.
+**Rationale:** Middleware runs in registration order, so authentication registered after endpoints does not run. When one file shows the whole sequence, a reviewer sees the order at a glance; when registration scatters across files, a misplaced call is hard to spot. This file binds `litespec/backend/architecture#compose-each-process-explicitly` for WebApi.
 
 **Example:** The visible order is trusted forwarded headers, exception handling, transport security, authentication, authorization, endpoints, and then health. Forwarded headers appear only when the deployment boundary requires trusted proxies. OpenAPI and Scalar map only in Development.
 

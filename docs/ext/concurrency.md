@@ -4,7 +4,7 @@
 
 **Concern:** application
 
-Concurrency and idempotency rules stop overlapping writes from silently overwriting each other and stop a retried request from executing twice. This page states how a project documents conflicting writes, coordinates them with versions, and makes retried operations return one result through client keys and fingerprints. A team applies it when overlap or retry can corrupt behavior, so its callers get one predictable outcome instead of a silent overwrite or a duplicated effect.
+Overlapping writes can silently overwrite each other, and a retried request can execute twice. This page states how a project documents conflicting writes, coordinates them with versions, and makes retried operations return one result through client keys and fingerprints. A project applies it when overlap or retry can corrupt behavior, so its callers get one predictable outcome.
 
 ## Activation
 
@@ -18,9 +18,9 @@ Enable `concurrency` when accepted writes can conflict with each other, or when 
 
 This extension replaces no baseline provision. `litespec/ext/concurrency#return-precondition-outcomes` adds the 428 outcome for a missing precondition to the outcome table that `litespec/backend/api#use-consistent-status-codes` owns.
 
-It switches on `setting`: key retention is a setting record under `litespec/ext/concurrency#set-key-retention`.
+Selecting this extension switches on the `setting` record type: key retention is a setting record under `litespec/ext/concurrency#set-key-retention`.
 
-Its client-key standards apply to operations whose `idempotency.mode` is `key`. Every stored aggregate already carries a version the store compares at commit, under `litespec/backend/persistence#version-every-aggregate`. The version standards on this page govern what the caller sees for a conflict.
+The client-key standards apply to operations whose `idempotency.mode` is `key`. Every stored aggregate already carries a version the store compares at commit, under `litespec/backend/persistence#version-every-aggregate`; the version standards on this page govern what the caller sees for a conflict.
 
 ## Standards
 
@@ -34,7 +34,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Statement:** A command that can conflict with another accepted write MUST state `conflicts` naming what conflicts in `on`, which write wins in `winner`, and the refusal code the loser gets in `refusal`.
 
-**Rationale:** Version coordination exists to protect one invariant. The `on` entry names the conflicting operations and the invalid combined result they would leave, so an implementation tells a conflict it rejects from contention it absorbs. The `winner` entry names which write wins: `first-write` keeps the accepted change and refuses the late write, `last-write` lets the late write replace the accepted change, and `merge` combines both writes. The `refusal` entry names the refusal code the loser gets from the module's refusal set, so the caller learns the loss as a declared refusal with its stable code.
+**Rationale:** Version coordination exists to protect one invariant. The `on` entry names the conflicting operations and the invalid combined result they would leave, so an implementation distinguishes a conflict it rejects from contention it absorbs. The `winner` entry names which write wins: `first-write` keeps the accepted change and refuses the late write, `last-write` lets the late write replace the accepted change, and `merge` combines both writes. The `refusal` entry names the refusal code the loser gets from the module's refusal set, so the caller learns the loss as a declared refusal with its stable code.
 
 **Example:** Claimwick's approve-expense command states `conflicts` with `on` naming a second approval of the same expense, `winner: first-write`, and `refusal` naming the approve conflict code the late approval gets.
 
@@ -50,7 +50,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Statement:** An implementation MUST NOT require a caller-supplied version without a `conflicts` entry on its command.
 
-**Rationale:** Every stored aggregate already carries a baseline version that the store compares at commit, so the version itself needs no record. Requiring the caller to supply a version adds a rejection path the caller has to handle: a missing or stale caller version refuses an otherwise valid write. The `conflicts` entry stays the gate for that caller burden: no entry, no caller-version requirement.
+**Rationale:** Every stored aggregate already carries a baseline version that the store compares at commit, so the version itself needs no record. Requiring the caller to supply a version adds a rejection path the caller has to handle: a missing or stale caller version refuses an otherwise valid write. The `conflicts` entry is the condition for that caller burden: without an entry, the implementation requires no caller version.
 
 **Reviewed for:** Does every caller-version requirement have a `conflicts` entry on its command? Check the versioned operations beside the use case records.
 
@@ -64,7 +64,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Statement:** An implementation MUST compare the caller-supplied version with the stored version in the same transaction as the change.
 
-**Rationale:** The caller-supplied version marks which write the caller saw, and the stored version marks what the database holds. Comparing the two in the same transaction as the change detects a competing accepted write against the same state, through the selected persistence model. A comparison outside that transaction races the commit it claims to guard.
+**Rationale:** The caller-supplied version marks which write the caller saw, and the stored version marks what the database holds. Comparing the two in the same transaction as the change detects a competing accepted write against the same state, through the selected persistence model. A comparison outside that transaction can miss a competing write that commits between the comparison and the change.
 
 **Reviewed for:** Does every caller-version comparison run inside the transaction carrying its change? Check the conflicting-write paths.
 
@@ -136,7 +136,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Statement:** An HTTP API MUST NOT expose a provider-specific version value in another contract field.
 
-**Rationale:** The `ETag` is the one contract field that carries the persistence version. A provider-specific version leaked into another field gives callers a second version to depend on. Hiding it keeps the coordination behind one boundary the project can change.
+**Rationale:** The `ETag` is the one contract field that carries the persistence version. A provider-specific version leaked into another field gives callers a second version to depend on. Hiding it keeps the persistence version behind one contract field, so the project can change it without breaking callers.
 
 **Reviewed for:** Does any transport model expose a provider-specific version value outside the `ETag`? Check the public transport models.
 
@@ -234,7 +234,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Statement:** An idempotency implementation MUST store a cryptographic hash when support does not require original sensitive request content.
 
-**Rationale:** The fingerprint has to compare requests, not to show what they contained. A cryptographic hash preserves the comparison while the original sensitive content stays out of the store. Support keeps original content only where it needs the original to help.
+**Rationale:** The fingerprint has to compare requests, not to show what they contained. A cryptographic hash preserves the comparison while the original sensitive content stays out of the store. The store keeps original content only where support needs the original.
 
 **Reviewed for:** Does any idempotency store keep original sensitive content that support never needs? Check the fingerprint store.
 
@@ -346,7 +346,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Statement:** An idempotency owner MUST remove expired records through a bounded maintenance process.
 
-**Rationale:** Expired keys accumulate without cleanup, and cleanup without bounds steals capacity from live work. A bounded maintenance process removes expired records within fixed limits on rate and batch. The store stays small without starving the application.
+**Rationale:** Expired keys accumulate without cleanup, and cleanup without bounds takes capacity from live work. A bounded maintenance process removes expired records within fixed limits on rate and batch. The store stays small without starving the application.
 
 **Reviewed for:** Does every expired-record cleanup run as a bounded maintenance process? Check the cleanup jobs.
 

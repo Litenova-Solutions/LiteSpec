@@ -4,17 +4,17 @@
 
 **Concern:** frontend-ui
 
-An expenses list shows many records of one kind so a reader can find one expense, compare rows, and act on them. Every list in a product asks the same questions: which columns it shows, how it sorts, filters, and pages, and how it handles row density, selection, row actions, table states, status, money, export, search, grouping, expansion, pinning, and the layout of a short list. These patterns settle each question once, with drawings to choose from. A team building a list screen starts from them, the owner picks an option, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared answer per question keeps every list behaving the same way, so a reader who learns one list knows them all.
+An expenses list shows many records of one kind so a reader can find one expense, compare rows, and act on them. This page settles the recurring questions every such list asks, with one wireframe drawing per option to choose from. A team building a list screen starts from these patterns, the owner picks an option, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared answer per question keeps every list behaving the same way, so a reader who learns one list knows them all.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-Each pattern answers one recurring question about lists, such as which columns a table shows. It names the question and the situation, the default option a project builds unless its catalog records another, how the default behaves on a narrow screen, and why the default won over its rivals. Below that, each option shows one wireframe drawing with its own rationale, its cost, and the outside product it learns from, where one exists. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+Each pattern answers one recurring question about lists, such as which columns a table shows. It names the question and the situation it arises in. It then names the default option, which a project builds unless its catalog records another, how the default behaves on a narrow screen, and why the default was chosen over the other options. Below that, each option shows one wireframe drawing with its own rationale, its cost, and the outside product it learns from, where one exists. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
 
 ### The Running Example
 
-Every drawing on this page uses one example: the Claimwick expenses list for Harbor and Pine. It holds 268 expenses across many spenders and trips, and expense EXP-1042 for Ava stands in as one row. Filters, sorting, and paging narrow the list, and the money column shows amounts such as EUR 125.00. Five rules in the Standards section hold for every option on the page: the list view lives in the address, money columns align right with their currency, the sorted column carries its mark, the result count is announced, and a scrolling table sits in a named region.
+Every drawing on this page uses one example: the Claimwick expenses list for Harbor and Pine. It holds 268 expenses across many spenders and trips, and expense EXP-1042 for Ava serves as the example row. Filters, sorting, and paging narrow the list, and the money column shows amounts such as EUR 125.00. Five rules in the Standards section hold for every option on the page: the list view lives in the address, money columns align right with their currency, the sorted column carries its mark, the result count is announced, and a scrolling table sits in a named region.
 
 ## Standards
 
@@ -26,7 +26,7 @@ Every drawing on this page uses one example: the Claimwick expenses list for Har
 
 **Statement:** A list MUST keep its filters, sort order, and page in the URL, and its expanded groups where it groups rows.
 
-**Rationale:** Readers pass list views around: they open one expense and come back, they refresh, they paste a link to a colleague. When the filters, sort order, page, and expanded groups live in the URL, all three return to the same rows. Without that, opening one record wipes out the filters the reader set, and a pasted link opens the unfiltered first page instead of the rows under discussion.
+**Rationale:** Readers pass list views around: they open one expense and come back, they refresh, and they paste a link to a colleague. When the filters, sort order, page, and expanded groups live in the URL, each of these returns to the same rows. Without that, opening one record wipes out the filters the reader set, and a pasted link opens the unfiltered first page instead of the rows under discussion.
 
 **Reviewed for:** Does every built list keep its filters, sort, page, and expanded groups after a reload? Change the view on each built list and reload the address.
 
@@ -50,7 +50,7 @@ Every drawing on this page uses one example: the Claimwick expenses list for Har
 
 **Statement:** A sortable column header MUST be a button inside its header cell, with `aria-sort` and its direction on the sorted column only.
 
-**Rationale:** A screen-reader user needs to hear which column orders the list and to change it like any other button. A header drawn as plain text hides the sorting, and a sorted column with no mark keeps the order silent even though the rows follow it. The button shape plus `aria-sort` with its direction on the sorted column gives both. This is WCAG 1.3.1 Info and Relationships.
+**Rationale:** A screen-reader user needs to hear which column orders the list and to change it like any other button. A header drawn as plain text hides the sorting, and a sorted column with no mark keeps the order silent even though the rows follow it. A button inside the header cell lets the reader change the order, and `aria-sort` with its direction on the sorted column announces which column orders the list. This is WCAG 1.3.1 Info and Relationships.
 
 **Reviewed for:** Is every built sortable header a button, and does only the sorted column carry the direction mark? Open built tables and read each sortable header and the sorted column.
 
@@ -62,7 +62,7 @@ Every drawing on this page uses one example: the Claimwick expenses list for Har
 
 **Statement:** A list MUST announce its result count after a filter or search and its selection total after a selection changes, once per change through the page's polite status region.
 
-**Rationale:** A filter narrows 268 expenses to 58, and a screen-reader user sitting on that list hears nothing: the rows changed under them. A bulk selection of "3 selected, EUR 412.00" stays silent too, so the reader acts without knowing the scope. Announcing the result count after each filter or search, and the selection total after each selection change, through the page's polite status region, keeps both in the open. Announce once per change, through the region in `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`. This is WCAG 4.1.3 Status Messages.
+**Rationale:** A filter narrows 268 expenses to 58, and a screen-reader user reading that list hears nothing: the rows changed under them. A bulk selection of "3 selected, EUR 412.00" stays silent too, so the reader acts without knowing the scope. Announcing the result count after each filter or search, and the selection total after each selection change, through the page's polite status region, keeps the reader informed of both. Announce once per change, through the region in `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`. This is WCAG 4.1.3 Status Messages.
 
 **Reviewed for:** Does every built list announce its result count after a filter or search, and its selection total after a selection change, once per change? Change the view and the selection on built lists and listen for the announcement.
 
@@ -74,7 +74,7 @@ Every drawing on this page uses one example: the Claimwick expenses list for Har
 
 **Statement:** A table that scrolls sideways MUST sit in a named region that takes keyboard focus and shows a cue at each edge it can still scroll.
 
-**Rationale:** A sideways scroll without a focus stop is pointer-only, so a keyboard user on a 390 px screen has no other way to reach the columns past the edge, and without a cue at the edge a sighted user has no sign that more columns exist. A named region gives the table a stop in the tab order and a name for assistive technology, and the edge cue shows there is more to scroll to. This is WCAG 2.1.1 Keyboard.
+**Rationale:** A sideways scroll without a focus stop is pointer-only, so a keyboard user on a 390 px screen has no other way to reach the columns past the edge. Without a cue at the edge, a sighted user has no sign that more columns exist. A named region gives the table a stop in the tab order and a name for assistive technology, and the edge cue shows there is more to scroll to. This is WCAG 2.1.1 Keyboard.
 
 **Reviewed for:** Does every built sideways-scrolling table take keyboard focus, carry a name, and show a cue at each edge it can still scroll? Open built wide tables at 390 px and tab to each table edge.
 
@@ -90,7 +90,7 @@ Every drawing on this page uses one example: the Claimwick expenses list for Har
 
 **Replacement:** A project that replaces the default records the lists it keeps short enough to fit.
 
-**Rationale:** On a long expense list the header scrolls out of sight, and the reader scrolls back up to relearn which column is which. A header fixed in place keeps the names visible, but a focused row sliding under it looks lost even though focus sits on it. Keeping the header visible while scrolling, with no focused row hidden under it, answers both. This is WCAG 2.4.11 Focus Not Obscured.
+**Rationale:** On a long expense list the header scrolls out of sight, and the reader scrolls back up to relearn which column is which. A header fixed in place keeps the names visible, but a focused row sliding under it looks lost even though focus sits on it. Keeping the header visible while scrolling, with no focused row hidden under it, answers both problems. This is WCAG 2.4.11 Focus Not Obscured.
 
 **Reviewed for:** Does every built tall table keep its header in view while scrolling, with no focused row hidden under it? Scroll built long lists with the keyboard.
 
@@ -195,7 +195,7 @@ page
     action quiet "Reset to default"
 ```
 
-**Rationale:** A Columns control opens a popover listing every column with a checkbox each, plus Reset to default. The expense column stays always shown and says so. A view-options menu or a display panel works the same way.
+**Rationale:** A Columns control opens a popover listing every column with one checkbox per column, plus Reset to default. The expense column stays always shown and is marked as such. A view-options menu or a display panel works the same way.
 
 **Cost:** The popover covers the table while it is open. Drag-to-reorder inside it would be a second feature, and one most readers would never find.
 
@@ -240,7 +240,7 @@ page
 
 **Compact:** Below 640 pixels the table turns into two-line rows and the headers leave with it, so a Sort control in the toolbar carries the same sort. The compact option is `headers-on-a-desktop-a-sort-control-on-a-phone`.
 
-**Rationale:** Every sortable header carries its own arrow, which states that headers sort on touch screens too. The runner-up is headers on a desktop with a Sort control on the phone list: it becomes necessary the moment the table becomes rows below 640 pixels.
+**Rationale:** Every sortable header carries its own arrow, which shows that headers sort on touch screens too. The runner-up is headers on a desktop with a Sort control on the phone list: it becomes necessary the moment the table becomes rows below 640 pixels.
 
 Never ship multi-column sort: no finance question needs two keys.
 
@@ -332,7 +332,7 @@ page
     action quiet "Next >"
 ```
 
-**Rationale:** Sorting lives in one named control, Sort newest first, instead of several header affordances. It works on a touch screen and states itself in words.
+**Rationale:** Sorting sits in one named control, Sort newest first, instead of several header controls. It works on a touch screen and names the order in words.
 
 **Cost:** The reader has to find the control to change the order, and on a desktop table sorting belongs in the headers.
 
@@ -462,7 +462,7 @@ page
 
 **Compact:** Below 640 pixels the table turns into two-line record rows with the amount on the right, and sorting and comparison down a column move to the desktop. The compact option is `a-record-list-instead-of-a-table`.
 
-**Rationale:** Stay at 40 pixels: two lines fit, the row scans, and it matches the default size. The runner-up is 24 pixels, for a working queue where every row is read once and acted on.
+**Rationale:** Stay at 40 pixels: two lines fit, rows are easy to scan, and it matches the default size. The runner-up is 24 pixels, for a working queue where every row is read once and acted on.
 
 Never ship a density control the reader sets: most readers set it once, and a screenshot suite then holds three versions of every page. The phone answer is a record list.
 
@@ -487,7 +487,7 @@ page
     action quiet "Next >"
 ```
 
-**Rationale:** The medium default height: two lines of text fit and the row scans.
+**Rationale:** The medium default height: two lines of text fit and the row is easy to scan.
 
 **Cost:** Twenty-five rows take 1000 pixels, so 268 rows fill eleven screens: fine for browsing, slow for counting.
 
@@ -513,7 +513,7 @@ page
     action quiet "Next >"
 ```
 
-**Rationale:** The extra-small height puts one line per row, so the eye travels straight down a column. It fits a queue a finance reader works through rather than reads.
+**Rationale:** The extra-small height puts one line per row, so a reader scans straight down a column. It fits a queue a finance reader works through rather than reads.
 
 **Cost:** One line leaves nowhere for the trip name under the expense code: it has to be dropped or opened from the row.
 
@@ -539,7 +539,7 @@ page
     action quiet "Next >"
 ```
 
-**Rationale:** Each record gets a card-width block with two lines and its own commands on the right: the shape the phone layout wants.
+**Rationale:** Each record gets a card-width block with two lines and its own commands on the right: the shape that fits a phone layout.
 
 **Cost:** No columns means no sorting and no comparison down a column: every table capability traded for reading one record well.
 
@@ -555,7 +555,7 @@ page
 
 **Compact:** The default reflows: the selection count and money stack above the table, with the reverse commands wrapping under them.
 
-**Rationale:** A bar above the table names the count and the money, and on a reversals page that total is the thing a reader checks before acting. The runner-up is a floating pill for reversible bulk work, such as resending receipts or tagging, where the pill leaves the table in place.
+**Rationale:** A bar above the table names the count and the money, and on a reversals page that total is the figure a reader checks before acting. The runner-up is a floating pill for reversible bulk work, such as resending receipts or tagging, where the pill leaves the table in place.
 
 Never ship the bar at the foot: on a long table the action sits off screen while the checkboxes that enabled it do not.
 
@@ -649,7 +649,7 @@ page
     action destructive "Reverse 3 payouts"
 ```
 
-**Rationale:** The primary button opens a dialog naming the count and the money. A bulk reversal is rare and irreversible, which is the kind of action that needs an interruption.
+**Rationale:** The primary button opens a dialog naming the count and the money. A bulk reversal is rare and irreversible, which is the kind of action that needs a confirm step before it commits.
 
 **Cost:** Two steps for a batch the reader spent a minute selecting: acceptable on money, wrong for anything reversible such as a bulk tag.
 
@@ -744,7 +744,7 @@ page
     text muted "25 of 268 shown"
 ```
 
-**Rationale:** Infinite scroll breaks keyboard users, so loading stays a button the reader presses, and the count stays visible so the total is never a surprise.
+**Rationale:** Infinite scroll does not work for keyboard users, so loading stays a button the reader presses, and the count stays visible so the total is never a surprise.
 
 **Cost:** A link to a specific page no longer exists, and that link is the main reason admin lists land on pagination.
 
@@ -762,7 +762,7 @@ page
 
 **Compact:** Below 640 pixels the list turns into one card per expense with its commands on the card. The compact option is the compact form of `one-inline-action-the-rest-in-a-row-menu`.
 
-**Rationale:** One inline command keeps the common job one click away while the row stays narrow, and the rest live in the row menu. Prefer the side preview where acting needs the record context, such as the lines before a resend. Never ship hover-revealed actions: hover fails on touch, and a second focusable render doubles the table for no gain.
+**Rationale:** One inline command keeps the common job one click away while the row stays narrow, and the rest sit in the row menu. Prefer the side preview where acting needs the record context, such as the lines before a resend. Never ship hover-revealed actions: hover fails on touch, and a second focusable render doubles the table for no gain.
 
 **Reviewed for:** Do the built row commands match the wireframe the catalog entry chose? Open the built inline actions, row menus, and side previews beside the catalog entry recording the chosen option and its reason.
 
@@ -799,7 +799,7 @@ page
         action "Resend"
 ```
 
-**Rationale:** The first row command sits inline and everything else hides behind the row's overflow menu. On a phone the list turns into cards with the commands on each card, because the phone is for acting on one expense.
+**Rationale:** The first row command sits inline and everything else hides behind the row's overflow menu. On a phone the list turns into cards with the commands on each card, because on a phone the reader acts on one expense at a time.
 
 **Cost:** The second command stays invisible, and the overflow is a 32-pixel target to find in every row. Cards run tall: three expenses fill the screen where rows fit six.
 
@@ -849,7 +849,7 @@ page
       item: link "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
 
-**Rationale:** No commands on the row at all. Clicking the expense number opens the record and every command lives there: the table is for finding, the record is for acting.
+**Rationale:** No commands on the row at all. Clicking the expense number opens the record and every command is there: the table is for finding, the record is for acting.
 
 **Cost:** Bulk work becomes one row at a time, so this shape fits finding, not acting.
 
@@ -983,7 +983,7 @@ page
       item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text muted "Ben asked for evidence" · text "EUR 45.00"
 ```
 
-**Rationale:** The state pairs with its reason: Disputed with why Ben asked, Awaiting payment with how old the wait is. The word says what, the line says why, and the reader never opens a row to learn the reason.
+**Rationale:** The state pairs with its reason: Disputed says why Ben asked for evidence, and Awaiting payment says how old the wait is. The word says what, the line says why, and the reader never opens a row to learn the reason.
 
 **Cost:** Two lines double the row height for every row, including paid rows whose reason is nothing. Only right on a queue where most rows need a decision.
 
@@ -1084,7 +1084,7 @@ page
       item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · text "Reversed" · text "EUR 50.00" · text "EUR 50.00"
 ```
 
-**Rationale:** Where reversals are common the net matters more than the gross, and a second column turns a negative into a fact instead of something the reader reconstructs.
+**Rationale:** Where reversals are common the net matters more than the gross, and a second column shows the returned amount as its own figure instead of leaving the reader to reconstruct it.
 
 **Cost:** Two money columns on a five-column table are a lot of numbers, and most rows read identical in both: the reader scans two equal columns to learn nothing.
 
@@ -1100,7 +1100,7 @@ page
 
 **Compact:** The default reflows: the Export CSV command sits beside the search above the table, which scrolls sideways inside its region.
 
-**Rationale:** One Export button downloads the filtered rows as CSV, so the accountant's job costs one click and no decisions. Prefer a background export past a few thousand rows, where a direct download would time out. Never ship copy as the only export: copying the visible page silently drops every row past the pager.
+**Rationale:** One Export button downloads the filtered rows as CSV, so the accountant's job takes one click and no decisions. Prefer a background export past a few thousand rows, where a direct download would time out. Never ship copy as the only export: copying the visible page silently drops every row past the pager.
 
 **Reviewed for:** Does the built download flow match the wireframe the catalog entry chose? Open the built CSV buttons, dialogs, and background exports beside the catalog entry recording the chosen option and its reason.
 
@@ -1142,7 +1142,7 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** A large file prepares in the background while the reader keeps working, then email delivers a download link. Past a few thousand rows a direct download times out, and a progress note beats a failed one.
+**Rationale:** A large file prepares in the background while the reader keeps working, then the reader gets a download link by email. Past a few thousand rows a direct download times out, and a progress note is better than a failed one.
 
 **Cost:** The file arrives later, so the reader cannot reconcile against it right away, and the export needs its own failure state for when the job dies overnight.
 
@@ -1181,7 +1181,7 @@ page
 
 **Compact:** The default reflows: the match count stays under the search box, and the table with its highlighted cells scrolls sideways.
 
-**Rationale:** Highlight the matches in the cells, so the reader sees why each row matched without opening it. Prefer a scope control once readers search across trips and must say which one. Never ship a match column on its own: it spends a column stating what the highlight already shows.
+**Rationale:** Highlight the matches in the cells, so the reader sees why each row matched without opening it. Prefer a scope control once readers search across trips and must say which one. Never ship a match column on its own: it uses a column to state what the highlight already shows.
 
 **Reviewed for:** Does the built list search match the wireframe the catalog entry chose? Open the built highlighted cells and scoped searches beside the catalog entry recording the chosen option and its reason.
 
@@ -1200,7 +1200,7 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
 
-**Rationale:** The matched text marks itself where it sits. The term stays visible in the box and every match reads clear in its cell, so the reader trusts the filter.
+**Rationale:** The matched text is marked where it sits. The term stays visible in the box and every match is clear in its cell, so the reader trusts the filter.
 
 **Cost:** Highlighting needs the match offsets from the server, not the rows alone: a client-side guess highlights the wrong occurrence on long text.
 
@@ -1244,7 +1244,7 @@ page
     message info "Searching 268 expenses for ava rotterdam visit."
 ```
 
-**Rationale:** The list says when a search is still running instead of showing yesterday's rows as if they matched. The reader waits instead of acting on a stale list.
+**Rationale:** The list says when a search is still running instead of showing the old rows as if they matched. The reader waits instead of acting on a stale list.
 
 **Cost:** A visible search state needs debouncing and canceling: without them every keystroke queues a request and the indicator flickers.
 
@@ -1287,7 +1287,7 @@ page
       item: text "EXP-1037" · text "Eli" · status "Disputed" critical · text "EUR 45.00"
 ```
 
-**Rationale:** Like bank statements and payout lists, money groups by day with a subtotal per group. The reader sees the shape of the spending and still opens any row.
+**Rationale:** Like bank statements and payout lists, money groups by day with a subtotal per group. The reader sees how spending falls across days and still opens any row.
 
 **Cost:** Without a flat row order, pagination and select-all both get harder to reason about across group edges.
 
@@ -1338,7 +1338,7 @@ page
     item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The table stays flat and the reader sorts by the would-be group field instead. Nothing hides, paging stays simple, and the eye groups adjacent equal values on its own.
+**Rationale:** The table stays flat and the reader sorts by the would-be group field instead. Nothing hides, paging stays simple, and the reader groups adjacent equal values on their own.
 
 **Cost:** No subtotals, so a reader who wants today's takings sorts by date and adds the rows up by hand. Sorting is not grouping; it only looks like it.
 
@@ -1420,7 +1420,7 @@ page
     item: link "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The expense number is a link and everything lives on the record page: one pattern for detail everywhere, and the list stays a list.
+**Rationale:** The expense number is a link and everything is on the record page: one pattern for detail everywhere, and the list stays a list.
 
 **Cost:** Every question costs a page load and a back button: checking three expenses means six page loads where expansion needs none.
 
@@ -1436,7 +1436,7 @@ page
 
 **Compact:** The default reflows: the expense column stays pinned while the other columns scroll under it.
 
-**Rationale:** The expense column stays pinned while the rest scroll: the row stays named at any scroll position, and it costs no control. The runner-up pins the actions too; prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.
+**Rationale:** The expense column stays pinned while the rest scroll: the row stays named at any scroll position, and it needs no control. The runner-up pins the actions too; prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.
 
 **Reviewed for:** Do the built fixed columns match the wireframe the catalog entry chose? Open the built frozen first columns beside the catalog entry recording the chosen option and its reason.
 

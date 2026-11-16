@@ -3,23 +3,25 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-This page holds the patterns for the product frame around every screen: the sidebar, breadcrumb, header bar, tabs, icons, language and theme, command palette, account menu, notifications, help, and workspace switching. The frame lets a reader move between areas and know where they are. One shared product frame keeps every page reachable by address and marked in place, so a reader never loses where they are.
+The navigation patterns define the product frame around every screen: the sidebar, breadcrumb, header bar, tabs, icons, language and theme, command palette, account menu, notifications, help, and workspace switching. The frame moves a reader between areas and shows where the open page sits: every page opens directly from its own address, and the frame marks the area holding it.
 
-A team building the product frame starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions.
+A team building the product frame starts from these patterns. The owner picks an option from the drawings, and the team records the choice in its pattern catalog, which records the project's interface decisions.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-Each pattern answers one recurring question about moving through the console: how the sidebar shows seven areas, or how the trail behaves four levels deep. Each pattern names its question, the default option a project builds, how the default behaves on a narrow screen, and why the default won over the others.
+Each pattern answers one recurring question about moving through the console, such as how the sidebar shows seven areas or how the trail behaves four levels deep. Each pattern names its question, the default option a project builds, how the default behaves on a narrow screen, and why it was chosen over the others.
 
-Below that, each option shows one wireframe drawing: a plain-text sketch of the parts on the screen, with no color, font, spacing, or component library. Each drawing carries its own rationale, its cost, and sometimes a reference to the outside product it learns from. The team builds the chosen option with its own components, in its own design system.
+Each option below it shows one wireframe drawing: a plain-text sketch of the parts on the screen, with no color, font, spacing, or component library. Each drawing carries its own rationale, its cost, and sometimes a reference to the outside product it learns from. The team builds the chosen option with its own components, in its own design system.
 
 A pattern catalog is the project's record of these choices: one entry per pattern, naming the option picked and who picked it. [UI Patterns](../patterns.md) states what each catalog entry holds and the wireframe language these drawings share.
 
 ### The Running Example
 
-The drawings on this page use the Claimwick expense console for Harbor and Pine: seven areas from Home to Settings, expense EXP-1042 for Ava, and the Amsterdam sales cost centre. The frame marks the current area, and every page carries its own address. The Standards section states the three rules every option keeps: the navigation marks the section holding the current page, every page opens directly from its own URL, and a row of sibling pages is a navigation landmark of links rather than a tab list.
+The drawings on this page use the Claimwick expense console for Harbor and Pine, with seven areas from Home to Settings, expense EXP-1042 for Ava, and the Amsterdam sales cost centre.
+
+The frame marks the current area, and every page has its own address. The Standards section states the three rules every option keeps: the navigation marks the section holding the current page, every page opens directly from its own URL, and a row of sibling pages is a navigation landmark of links rather than a tab list.
 
 ## Standards
 
@@ -59,7 +61,7 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 
 **Statement:** A row of sibling pages MUST be a navigation landmark of links with `aria-current="page"` on the current page, leaving the tab list for switching panels within one page.
 
-**Rationale:** A screen reader announces a tab list as panels on one page, so a reader who opens Receipts from a tab expects the address to stay and the Back button to skip it. A navigation landmark of links tells the truth: each page has its own address, and the Back button returns to the page before it. WCAG 2.2 criterion 1.3.1 Info and Relationships and criterion 4.1.2 Name, Role, Value require the announced role to match the behavior.
+**Rationale:** A screen reader announces a tab list as panels on one page, so a reader who opens Receipts from a tab expects the address to stay and the Back button to skip it. A navigation landmark of links matches the behavior: each page has its own address, and the Back button returns to the page before it. WCAG 2.2 criterion 1.3.1 Info and Relationships and criterion 4.1.2 Name, Role, Value require the announced role to match the behavior.
 
 **Example:** On the Standard expense page, the Amounts, Receipts, Reversals, and Details row looks like tabs but is built as links: opening Receipts changes the address, and the Back button returns to the previous page.
 
@@ -80,9 +82,9 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 
 **Compact:** Below the md breakpoint, the sidebar turns into an off-canvas sheet: the same entries slide in over a scrim, and a control closes them again.
 
-**Rationale:** Grouped areas with expandable sub-items are the default because two levels hold all seven areas, with each sub-item indented under its area and the current item marked. Groups with live counts are the runner-up for areas that hold a queue, such as reversals, where the count saves a visit. Recent pages above the areas fit a reader who resumes the same few records.
+**Rationale:** Grouped areas with expandable sub-items are the default: two levels hold all seven areas, each sub-item sits indented under its area, and the current item stays marked. Groups with live counts are the runner-up for areas that hold a queue, such as reversals, where the count saves a visit. Recent pages above the areas fit a reader who resumes the same few records.
 
-Never ship a flat list of every page: past a hundred entries the list is an index, not a map, and that lookup job belongs to the command palette.
+Never ship a flat list of every page: past a hundred entries the list stops showing the structure, and that lookup belongs to the command palette.
 
 **Reviewed for:** Does the built area list match the wireframe its catalog entry chose? Open the built console frame, with its grouped areas and marked item, beside the catalog entry recording the chosen option and its reason.
 
@@ -411,9 +413,9 @@ page
 
 **Compact:** The default reflows on a narrow screen: the row scrolls on one line, keeps the current page in view, and never wraps.
 
-**Rationale:** The tab row with the active tab in the URL is the default because a pasted link carries the facet. The row looks like tabs but is built as navigation links, one address per page, following Draw Sibling Pages as Links, Not Tabs. The current page is marked by more than color, with weight or an underline. Tabs drawn as real links are the runner-up and the most defensible alternative: middle click and the Back button behave as a reader expects. Headed sections on one page fit a record with a handful of facets that all fit.
+**Rationale:** The tab row with the active tab in the URL is the default because a pasted link carries the facet. The row looks like tabs but is built as navigation links, one address per page, following Draw Sibling Pages as Links, Not Tabs. The current page is marked by more than color, with weight or an underline. Tabs drawn as real links are the runner-up: middle click and the Back button behave as a reader expects. Headed sections on one page fit a record with a handful of facets that all fit.
 
-Never ship a segmented control for facets: three segments are its ceiling, and it can't carry counts or overflow.
+Never ship a segmented control for facets: it fits at most three segments, and it can't carry counts or overflow.
 
 **Reviewed for:** Does the built tab row match the wireframe its catalog entry chose? Open the built in-page tabs, with the active tab in the URL, beside the catalog entry recording the chosen option and its reason.
 
@@ -504,7 +506,7 @@ page
 
 **Compact:** The default reflows on a narrow screen: the areas stack above the content in one column, and each icon stays beside its label.
 
-**Rationale:** An icon beside every label is the default because the icon reinforces the label instead of replacing it, which makes seven areas easy to scan. Icons only for the actions, with words for the areas, are the runner-up where the icon budget is short. Words alone fit a small set of areas with no icon set to keep.
+**Rationale:** An icon beside every label is the default because the icon reinforces the label instead of replacing it, which makes seven areas easy to scan. Icons only for the actions, with words for the areas, are the runner-up where the project keeps a small icon set. Words alone fit a small set of areas with no icon set to keep.
 
 Never ship icons that carry state in the frame: the theme and language as bare glyphs force the reader to hover over each to tell them apart.
 
@@ -611,7 +613,7 @@ page
 
 **Compact:** The default reflows on a narrow screen: the language switch stays in the header showing its value, and the theme choice stays in the account menu.
 
-**Rationale:** The default splits the two switches. The theme follows the device, because few readers change it during a day and the device already states the preference; System, Light, and Dark stay in the account menu for the reader who overrides it. The language stays in the header showing its value, because a wrong language makes every other word unreadable. Both switches in the header, each showing its value, are the runner-up for a product whose staff switch theme during a shift.
+**Rationale:** The default splits the two switches. The theme follows the device, because few readers change it during a day and the device already states the preference. System, Light, and Dark stay in the account menu for the reader who overrides it. The language stays in the header showing its value, because a wrong language makes every other word unreadable. Both switches in the header, each showing its value, are the runner-up for a product whose staff switch theme during a shift.
 
 Never ship with no language switch: one language is a commercial decision about which companies Claimwick serves, and Claimwick already serves companies in two languages.
 
@@ -1102,7 +1104,7 @@ page
 
 **Rationale:** A workspace switcher at the top of the sidebar is the default because it moves the whole console without visiting the list. The trail sibling menu is the runner-up on record pages four levels deep, where the sidebar context is far away. Recent workspaces first in the palette fit a reader who switches by keyboard.
 
-Never ship back-to-list as the only path: it costs the most to exactly the companies with the most cost centres.
+Never ship back-to-list as the only path: it burdens most the companies with the most cost centres.
 
 **Reviewed for:** Does the built cost centre picker match the wireframe its catalog entry chose? Open the built switcher, with recent workspaces first, beside the catalog entry recording the chosen option and its reason.
 

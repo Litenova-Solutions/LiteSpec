@@ -1,8 +1,10 @@
 # LiteSpec.Model
 
+The shared model library holds the rules both command lines use.
+
 ## Audience
 
-You maintain the shared model library in `apps/model/`: changing how a record file parses, how an identifier or a finding code is formed, how a C# mark is read, or how a layer claim is kept. Once you have read it, you know which project owns each rule and how to prove a change through its tests.
+You maintain the shared model library in `apps/model/`: changing how a record file parses, how an identifier or a finding code is formed, how a C# mark is read, or how a layer claim is kept. After reading this page, you know which project owns each rule and how to prove a change through its tests.
 
 ## What It Is
 

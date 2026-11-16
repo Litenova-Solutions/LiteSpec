@@ -1,6 +1,6 @@
 # LiteSpec Documentation
 
-LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `.litespec/project.yaml` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
+LiteSpec is a standard for building one business application from written rules that tools check. This index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `.litespec/project.yaml` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
 
 ## Which Page Do You Want
 
@@ -11,7 +11,7 @@ A **reference** lists exact values, options, and defaults for lookup.
 A **command** page documents one command: its options, its exit codes, and what it runs underneath.
 A standards page states the provisions a reader cites for one concern.
 
-A project applies only some folders below. [Read the Standard](learn/reading-the-standard.md) explains which folders a selection applies and how a provision ID cites one rule.
+[Read the Standard](learn/reading-the-standard.md) explains which folders a selection applies and how a provision ID cites one rule.
 
 ## Standard
 
@@ -93,7 +93,7 @@ These principles hold for every frontend, including the Blazor stack and a nativ
 
 ### Web
 
-The TypeScript web pages the React and Svelte stacks share. This folder is a group, not a stack: no project selects it directly.
+These are the TypeScript web pages the React and Svelte stacks share. This folder is a group, not a stack: no project selects it directly.
 
 - [Web Structure](frontend/web/structure.md): the application tree, the frame, use-case marks, and the generated records file.
 - [Web Rendering and Routes](frontend/web/rendering.md): the route metadata rule both stacks share.
@@ -190,7 +190,7 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 
 ### Analyzers
 
-The Roslyn analyzers that report LiteSpec rule breaks as compiler errors on .NET code.
+The Roslyn analyzers report LiteSpec rule breaks as compiler errors on .NET code.
 
 - [Analyzers overview](analyzers/README.md): what the analyzers check, how a rule runs, and where each rule is documented.
 - [Check .NET Code with the Analyzers](analyzers/check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, and raise enforced rules to build errors.
@@ -231,7 +231,7 @@ Readers who are new to LiteSpec start with the [Learn overview](learn/README.md)
 
 ### Example
 
-One product worked end to end, from its first record to a passing check.
+This group follows one product end to end, from its first record to a passing check.
 
 - [Example overview](example/README.md): the Claimwick product the example follows, and the reading order for its pages.
 - [The Claimwick Product](example/the-product.md): the Intent records: brief, goal, problem, feature, requirements, research, decision, constraint, and flow.
@@ -268,7 +268,7 @@ This group holds the `intent` folder: the research and decisions behind this rel
 
 ### Research and Decisions
 
-The reasoning behind the provisions, kept as consumer-shaped records. These records inform the provisions and settle nothing themselves.
+The reasoning behind the provisions is kept as consumer-shaped records. These records inform the provisions and settle nothing themselves.
 
 - [Research and Decisions overview](intent/README.md): the research and decisions behind this release, and how provisions cite them.
 

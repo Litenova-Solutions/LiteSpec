@@ -1,12 +1,16 @@
 # Overview
 
-Each extension is a conditional bundle of provisions a project adds only when a specific need appears, from caching and audit trails to multitenancy and delivery. A project carries no provision it does not need: each bundle stays inactive until a current need meets the criterion its page states, and the project records each choice with its criterion.
+LiteSpec's baseline provisions cover every project. An extension is a further bundle of provisions that applies only when a specific need appears, from caching and audit trails to multitenancy and delivery. Each bundle stays inactive until its criterion holds, so a project carries no provision it does not need.
 
-When the baseline provisions do not cover a need, read the candidate page and select only the extensions whose criteria hold today.
+When the baseline does not cover a need, read the candidate page and select only the extensions whose criteria hold today.
 
 ## How to Select an Extension
 
-Each extension below states its activation criterion and whether it applies to the whole project or to named records. Select every extension whose criteria hold, and none whose criteria do not, and list each selection in `selectedExtensions` in `.litespec/project.yaml` with the criterion it met. The manifest repeats each activation scope, replacement list, and switched-on record type where checks read it. Most extensions add provisions without replacing any; the audit and outbox pages each name the one baseline provision they replace.
+Each extension page states its activation criterion and whether it applies to the whole project or to named records. Select every extension whose criteria hold, and none whose criteria do not.
+
+List each selection in `selectedExtensions` in `.litespec/project.yaml`, with the criterion it met. The manifest repeats each activation scope, replacement list, and switched-on record type where checks read it.
+
+Most extensions add provisions without replacing any. The audit and outbox pages each name the one baseline provision they replace.
 
 ## Project Extensions
 

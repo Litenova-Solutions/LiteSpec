@@ -4,11 +4,7 @@
 
 **Concern:** application
 
-Some queries are answered through a model that picks tools to gather facts and composes the answer.
-
-This page states the closed tool set, the structure-only scenarios, the pinned stub, and the provenance those queries carry.
-
-A project selects it for each query a model mediates.
+Some queries are answered through a model that picks tools to gather facts and composes the answer. Because the model's tool calls and wording vary between runs, those queries name a closed tool set, prove structure instead of wording, and return provenance with each answer.
 
 ## Activation
 
@@ -16,7 +12,7 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`.
 
-Select `ai` for a query when a model mediates the answer by calling tools. A query answered by fixed code leaves it unselected, even when a model wrote that code.
+Select `ai` for a query when a model mediates the answer by calling tools. A query answered by fixed code does not select it, even when a model wrote that code.
 
 ## Baseline Relationship
 
@@ -34,7 +30,7 @@ This extension replaces no baseline provision and switches on no record type. It
 
 **Statement:** A model-mediated query MUST name the closed set of tools the model calls.
 
-**Rationale:** A model with an open tool set invents tools, reaches past its grant, and surprises every review. Naming exactly what the model touches gives the grant, the tests, and the audit one list to read.
+**Rationale:** Without a closed set, the model can call tools beyond its grant, including tools nobody declared. Naming exactly what the model may call gives the grant, the tests, and the audit one list to read.
 
 **Example:** The support answer query names `orders.lookup` and `docs.search` as its only tools.
 
@@ -50,7 +46,7 @@ This extension replaces no baseline provision and switches on no record type. It
 
 **Statement:** A model-mediated query MUST refuse a run that calls a tool outside its closed set.
 
-**Rationale:** Models drift: a prompt tweak or a version change can add a call nobody declared. Refusing the run at the first unknown tool keeps the closed set closed in production, not just on paper.
+**Rationale:** A prompt change or a model version change can add a call nobody declared. Refusing the run at the first unknown tool enforces the closed set in production as well as in the record.
 
 **Example:** A run that calls `billing.refund` outside its set is refused before the call leaves the product.
 
@@ -82,7 +78,7 @@ This extension replaces no baseline provision and switches on no record type. It
 
 **Statement:** Proof for a model-mediated query MUST run against a deterministic stub pinned by version.
 
-**Rationale:** A live model answers differently each run, so a test against it proves nothing twice. A deterministic stub pinned by version answers the same way every run, so Proof checks the product's handling instead of the model's varying output.
+**Rationale:** A live model answers differently each run, so a test against it cannot repeat its result. A deterministic stub pinned by version answers the same way every run, so Proof checks the product's handling instead of the model's varying output.
 
 **Example:** The support answer tests run against `stub-answers v4`, which returns one fixed tool trace per prompt.
 
@@ -98,7 +94,7 @@ This extension replaces no baseline provision and switches on no record type. It
 
 **Statement:** A model-mediated query MUST return provenance naming the model, the tools called, and the sources read.
 
-**Rationale:** An answer without provenance gives nobody a way to check it: nobody knows which model wrote it, which tools fed it, or which sources back it. Provenance names the three, so every answer carries its own audit trail.
+**Rationale:** Without provenance, a reader cannot check an answer: nobody knows which model wrote it, which tools fed it, or which sources back it. Naming the model, the tools called, and the sources read puts that audit trail on the answer itself.
 
 **Example:** The answer returns `model: support-7, tools: [orders.lookup], sources: [order-8841]`.
 
@@ -114,7 +110,7 @@ This extension replaces no baseline provision and switches on no record type. It
 
 **Statement:** A model-mediated query MUST bound how many tool calls one run makes.
 
-**Rationale:** A model in a loop calls tools until the budget or the patience runs out. A bound on calls per run caps the cost and the latency up front, so one looping run cannot spend the month's budget.
+**Rationale:** A model in a loop can call tools repeatedly without stopping. A bound on calls per run caps the cost and the latency up front, so one looping run cannot consume the whole budget.
 
 **Example:** The support answer query allows eight tool calls per run and refuses the ninth.
 
@@ -134,7 +130,7 @@ This extension replaces no baseline provision and switches on no record type. It
 
 **Replacement:** A project names its model-run evidence in its AI documentation.
 
-**Rationale:** Production answers need after-the-fact review: what was asked, what the model touched, and what came back. The run log holds the three without storing full prompts.
+**Rationale:** Production answers need review after the fact: what was asked, what the model touched, and what came back. The run log holds the prompt hash, the tools called, and the outcome, without storing full prompts.
 
 **Reviewed for:** Does every run log entry hold a prompt hash, the tools called, and an outcome, or does the AI documentation name other evidence? Read the run log.
 

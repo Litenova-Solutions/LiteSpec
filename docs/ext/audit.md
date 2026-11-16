@@ -4,7 +4,9 @@
 
 **Concern:** application
 
-An audit trail proves who attempted what inside data one party owns while another party acts in it, including attempts the system refused. This page states what the trail stores for each attempt, which attempts it covers, where the producer runs, how the store resists tampering, and how a reviewer reads the trail. A team whose system acts in another party's data selects this extension and keeps one trail that proves accountability instead of reconstructing the answer from logs and domain events (facts the system recorded as completed).
+An audit trail proves who attempted what inside data one party owns while another party acts in it. It covers attempts the system refused as well as attempts that completed, because refusals carry the signal a reviewer looks for.
+
+This extension states what each record stores, which attempts the trail covers, where the producer runs, how the store resists tampering, and how a reviewer reads the trail.
 
 ## Activation
 
@@ -22,7 +24,7 @@ This extension replaces `litespec/quality/security#record-security-audit-events`
 
 This extension switches on no optional record type.
 
-Diagnostic logs and domain events already exist in every system, but neither answers who is accountable. An audited system keeps three records with different producers, readers, and retention. Conflating them removes evidence.
+Diagnostic logs and domain events already exist in every system, but neither answers who is accountable. An audited system keeps three records with different producers, readers, and retention. Using one in place of another removes evidence.
 
 | Record | Holds | Read by |
 |:---|:---|:---|
@@ -58,7 +60,7 @@ A domain event cannot substitute for an audit record. It carries domain identity
 
 **Statement:** Every command use case MUST declare its audit position in its `audit` field, or declare an exemption with its justification.
 
-**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states a level of `required`, `optional`, or `none` with its target, or an exemption with its justification, so each omission becomes a visible statement. A level of `none` means the command is not audited. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of hunting for missing calls.
+**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states a level of `required`, `optional`, or `none` with its target, or an exemption with its justification, so each omission becomes a visible statement. A level of `none` means the command is not audited. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of searching for missing calls.
 
 **Example:** A Claimwick command that lists public help pages declares an exemption, because reading public text is not a sensitive action.
 
@@ -88,7 +90,7 @@ A domain event cannot substitute for an audit record. It carries domain identity
 
 **Statement:** An audit selection MUST include authentication, authorization denial, grant change, monetary action, tenant configuration, personal-data read, bulk export, and background-process change.
 
-**Rationale:** Each listed category answers a question a security review, a customer, or a supervisory authority asks after an incident: who signed in, who was refused, who changed a grant, who moved money, and the rest. A trail that omits a category has no answer when that question arrives. The list fixes the floor so no project discovers the gap during its first review.
+**Rationale:** Each listed category answers a question a security review, a customer, or a supervisory authority asks after an incident: who signed in, who was refused, who changed a grant, who moved money, and the rest. A trail that omits a category has no answer when that question arrives. The list sets the minimum so no project discovers the gap during its first review.
 
 **Reviewed for:** Does the declared selection cover all eight required categories? Check it against the eight categories this provision names.
 
@@ -102,7 +104,7 @@ A domain event cannot substitute for an audit record. It carries domain identity
 
 **Statement:** A project MUST NOT audit every Command without a recorded selection.
 
-**Rationale:** A trail that records every Command buries the sensitive action inside routine traffic, and the reviewer who has to read it stops reading. Volume then defeats the review the trail exists to support. A recorded selection keeps the trail small enough to read.
+**Rationale:** A trail that records every Command hides the sensitive action among routine traffic, and the reviewer who has to read it stops reading. Volume then defeats the review the trail exists to support. A recorded selection keeps the trail small enough to read.
 
 **Reviewed for:** Does every audited category carry a recorded selection reason? Check the declared selection.
 
@@ -132,7 +134,7 @@ A domain event cannot substitute for an audit record. It carries domain identity
 
 **Statement:** A handler MUST contribute only the audit values that the handler alone determines.
 
-**Rationale:** The declaration beside the message already fixes the audit target and the reason value the message carries, as `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message` requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest invites a second copy of each field that drifts from the first.
+**Rationale:** The declaration beside the message already fixes the audit target and the reason value the message carries, as `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message` requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest creates a second copy of each field that drifts from the first.
 
 **Example:** A Claimwick handler that creates an expense contributes the expense identity it generated, and nothing else: no actor, action code, timestamp, or value the message already carries.
 
@@ -336,7 +338,7 @@ A domain event cannot substitute for an audit record. It carries domain identity
 
 **Statement:** An audit record MUST NOT contain personal data other than the pseudonymous identifier of the actor and the target.
 
-**Rationale:** A record holding a name, an address, or a message body turns retention into an erasure conflict: the law asks for deletion and the trail asks for keeping. Pseudonymous identifiers keep the record meaningful while the mapping lives, and erasable once the mapping goes. The record then survives erasure instead of fighting it.
+**Rationale:** A record holding a name, an address, or a message body turns retention into an erasure conflict: the law asks for deletion and the trail asks for keeping. Pseudonymous identifiers keep the record meaningful while the mapping lives, and erasable once the mapping goes. The record then survives erasure instead of conflicting with it.
 
 A pseudonymous identifier is still personal data where the holder can reverse it, as [the EDPB states](https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-012020-processing-personal-data-context-art-6-1). The identifier is therefore safe inside the tenant that owns the mapping, and it becomes a disclosure when it leaves that tenant.
 
@@ -382,7 +384,7 @@ A pseudonymous identifier is still personal data where the holder can reverse it
 
 **Statement:** An audit record with a `denied` or `failed` outcome MUST be written on a connection that the failing transaction does not roll back.
 
-**Rationale:** A denied or failed attempt ends with its transaction rolling back. A record written inside that transaction would roll back with it and vanish. The record therefore travels on a connection the rollback does not touch, so the evidence of a refusal outlives the refusal itself.
+**Rationale:** A denied or failed attempt ends with its transaction rolling back. A record written inside that transaction would roll back with it and vanish. The record therefore travels on a connection the rollback does not touch, so the evidence of a refusal survives the rollback.
 
 **Reviewed for:** Does any denied or failed record roll back with its transaction? Check the unsuccessful write path.
 
@@ -396,7 +398,7 @@ A pseudonymous identifier is still personal data where the holder can reverse it
 
 **Statement:** An audit producer that stages a success record MUST run before the pipeline stage that commits the business transaction.
 
-**Rationale:** A success record staged after the commit reaches a transaction that is already closed, so the write has nowhere to land. The producer therefore runs before the pipeline stage that commits. Pipeline priority states that order outright instead of leaving it to registration order.
+**Rationale:** A success record staged after the commit reaches a transaction that is already closed, so the write cannot commit. The producer therefore runs before the pipeline stage that commits. Pipeline priority states that order outright instead of leaving it to registration order.
 
 **Reviewed for:** Does any audit stage run after the business commit stage? Check the pipeline stage order.
 
@@ -410,7 +412,7 @@ A pseudonymous identifier is still personal data where the holder can reverse it
 
 **Statement:** An audit deployment MUST publish the write failure count of its unsuccessful-outcome path.
 
-**Rationale:** The separate connection for unsuccessful records accepts a rare lost record when the process dies between the refusal and the write. Steady loss is a defect, not bad luck, and only a published count tells the two apart. The deployment publishes that count so monitoring tells rarity from breakage.
+**Rationale:** The separate connection for unsuccessful records can lose a record when the process dies between the refusal and the write. Steady loss is a defect, and only a published count distinguishes it from a rare loss. The deployment publishes that count so monitoring can tell the two apart.
 
 **Reviewed for:** Does the deployment publish a write failure count for the unsuccessful path? Check the published metrics.
 
@@ -618,7 +620,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An automated check MUST fail when a Command declares neither an audit position nor an exemption, with a composition refusal at startup satisfying this rule.
 
-**Rationale:** The next Command is written by someone who did not read this page. Only an automated gate catches it: the build or startup fails while the declaration is missing. A selection that depends on every author remembering is a selection with holes.
+**Rationale:** The next Command is written by someone who did not read this page. Only an automated gate catches it: the build or startup fails while the declaration is missing. A selection that depends on every author remembering has gaps.
 
 **Reviewed for:** Does any Command build or start without an audit position or exemption? Check the build or startup gate.
 

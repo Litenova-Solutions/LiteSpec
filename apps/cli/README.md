@@ -1,14 +1,18 @@
 # LiteSpec CLI
 
+Use this page when you maintain the `litespec` command line in `apps/cli/src/LiteSpec.Cli/`. It shows which file owns the behavior, how to change it, and how to cover the change with a fixture.
+
 ## Audience
 
-You maintain the `litespec` command line in `apps/cli/src/LiteSpec.Cli/`. You add a command, add a model finding, or change a validator message. Once you have read it, you know which file owns the behavior, how to change it, and how to cover the change with a fixture. The commands that maintain the standard itself live in the [maintainer tool](../maintain/README.md).
+You add a command, add a model finding, or change a validator message. The commands that maintain the standard itself live in the [maintainer tool](../maintain/README.md).
 
 ## What It Is
 
 The CLI is a .NET 10 console tool named `litespec`. It scaffolds and validates consumer repositories, builds and checks the consumer project model, and generates the project book.
 
-The project file is `apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj`. It sets `OutputType` to `Exe`, `AssemblyName` to `litespec`, `PackAsTool` to `true`, and `ToolCommandName` to `litespec`. The package id is `LiteSpec.Cli`. The tool references `Microsoft.CodeAnalysis.CSharp` for the code readers, `apps/model/src/LiteSpec.CommandLine/` for option parsing and JSON output and `apps/model/src/LiteSpec.Standards/` for the page reader, the provision index, and the pattern page parser, and it embeds `Book/Assets/book-shell.html` and the built book client as `LiteSpec.Book.Assets.*` for the generated book site.
+The project file is `apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj`. It sets `OutputType` to `Exe`, `AssemblyName` to `litespec`, `PackAsTool` to `true`, and `ToolCommandName` to `litespec`. The package id is `LiteSpec.Cli`.
+
+The tool references `Microsoft.CodeAnalysis.CSharp` for the code readers, `apps/model/src/LiteSpec.CommandLine/` for option parsing and JSON output and `apps/model/src/LiteSpec.Standards/` for the page reader, the provision index, and the pattern page parser. It embeds `Book/Assets/book-shell.html` and the built book client as `LiteSpec.Book.Assets.*` for the generated book site.
 
 Each command's user-facing contract lives in `docs/tools/`. Read the relevant pages before you change behavior:
 
@@ -31,11 +35,13 @@ Check this repository's authoring contract with the maintainer tool:
 dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 ```
 
-Run the whole test suite, or the CLI tests alone by naming their project:
+Run the CLI tests alone by naming their project:
 
 ```bash
 dotnet test --project apps/cli/tests/LiteSpec.Cli.Tests
 ```
+
+Run the whole test suite:
 
 ```bash
 dotnet test --solution LiteSpec.slnx
@@ -55,7 +61,9 @@ dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root apps/cli/te
 
 ## Layout
 
-The entry file sits at the top of `apps/cli/src/LiteSpec.Cli/`. Each command owns a folder holding its validator, its helpers, and its usage text. Two libraries carry the code both command lines share. `apps/model/src/LiteSpec.CommandLine/` handles command-line talk: `CliArgs.cs` parses `--name value` and `--name=value` options, flags, and positionals, and reports the first usage error; `CliJson.cs` serializes with two-space indentation, a `\n` line end on every operating system, and no escaping of quotes, apostrophes, or angle brackets. `apps/model/src/LiteSpec.Standards/` reads the standards material the release carries: `Release/LiteSpecHome.cs` locates the LiteSpec release the tool carries; `Pages/` holds the page reader, the stack selection, and the prose helpers; `Provisions/` holds the provision index builder and the scopes; `Patterns/` holds the pattern page and wireframe parsers; and `Schemas/` holds the JSON Schema evaluator every validator uses.
+The entry file sits at the top of `apps/cli/src/LiteSpec.Cli/`. Each command owns a folder holding its validator, its helpers, and its usage text. Two libraries carry the code both command lines share.
+
+`apps/model/src/LiteSpec.CommandLine/` handles command-line talk: `CliArgs.cs` parses `--name value` and `--name=value` options, flags, and positionals, and reports the first usage error; `CliJson.cs` serializes with two-space indentation, a `\n` line end on every operating system, and no escaping of quotes, apostrophes, or angle brackets. `apps/model/src/LiteSpec.Standards/` reads the standards material the release carries: `Release/LiteSpecHome.cs` locates the LiteSpec release the tool carries; `Pages/` holds the page reader, the stack selection, and the prose helpers; `Provisions/` holds the provision index builder and the scopes; `Patterns/` holds the pattern page and wireframe parsers; and `Schemas/` holds the JSON Schema evaluator every validator uses.
 
 | Path | What it owns |
 |:---|:---|
@@ -75,17 +83,25 @@ The solution file `LiteSpec.slnx` lists the CLI, the CLI tests, the maintainer t
 
 `CliEntry.Run` matches `args[0]` in a switch expression. `--help`, `-h`, and `help` print the top-level usage and exit 0. `--version` prints `LiteSpecHome.Version`, which is the `version` field of `litespec.manifest.yaml`, and exits 0. Each of `init`, `new`, `rename`, `model`, `book`, `context`, `rules`, and `skill` hands the remaining arguments to that command's static `Run`. Anything else prints `Unknown command '<name>'.` plus the usage to standard error and exits 2.
 
-Each command parses its own tail with the shared `CliArgs.Parse`, declaring the flag names and value-option names it accepts. Names carry their dashes, such as `--check` or `--root`. An option takes either `--name value` or `--name=value`, and a flag stands alone. `CliArgs` treats `--help` and `-h` as help wherever they appear. Anything the command did not declare becomes a usage error such as `Unknown option '--foo'.`, and an option without a value becomes `Option --root needs a value.`. A positional past `maxPositionals` becomes `Unexpected argument '<value>'.`. Every `Run` prints its own `Usage` constant after a usage error and exits 2.
+Each command parses its own tail with the shared `CliArgs.Parse`, declaring the flag names and value-option names it accepts. Names carry their dashes, such as `--check` or `--root`. An option takes either `--name value` or `--name=value`, and a flag stands alone. `CliArgs` treats `--help` and `-h` as help wherever they appear.
+
+Anything the command did not declare becomes a usage error such as `Unknown option '--foo'.`, and an option without a value becomes `Option --root needs a value.`. A positional past `maxPositionals` becomes `Unexpected argument '<value>'.`. Every `Run` prints its own `Usage` constant after a usage error and exits 2.
 
 Two helpers serve all commands. `Json` is true when `--format json` or `--format=json` was passed, and `FormatError` rejects any other `--format` value with `Unknown format '<value>'; use json or text.`. `Root` returns the full path of `--root` or the working directory. The `model` command parses its subcommand, and `book` parses its `--root`, `--out`, `--links`, and `--port` options, by hand before delegating the shared flags to `CliArgs`.
 
-Each command's `--help` text is the contract quoted in `docs/tools/`. Quote it when you document behavior, and change the `Usage` constant together with the docs page when you change options. Exit codes are stable: 0 means success, 1 means a finding or a failed check, and 2 means a usage error or an unreadable input. `init` exits 1 when the release's template, preset, or scaffold file is unreadable, and 2 when the project file exists or an option is invalid. `book` exits 1 for a model that does not build or an unwritable output, and 2 for a usage error, a root without a project file, a missing carried release, or a lexicon failure naming the carried file. `model query` exits 1 when no record holds the id.
+Each command's `--help` text is the contract quoted in `docs/tools/`. Quote it when you document behavior, and change the `Usage` constant together with the docs page when you change options.
+
+Exit codes are stable: 0 means success, 1 means a finding or a failed check, and 2 means a usage error or an unreadable input. `init` exits 1 when the release's template, preset, or scaffold file is unreadable, and 2 when the project file exists or an option is invalid. `book` exits 1 for a model that does not build or an unwritable output, and 2 for a usage error, a root without a project file, a missing carried release, or a lexicon failure naming the carried file. `model query` exits 1 when no record holds the id.
 
 ### Findings and Diagnostic Codes
 
 Model findings share one reporting shape with the authoring diagnostics the maintainer tool emits: a stable code, a one-sentence message, a file path, and a 1-based line. Human output prints one line per finding to standard error. JSON output prints one object to standard output, so no caller parses the human lines back apart.
 
-`FindingCodes.All` in `apps/model/src/LiteSpec.Model/Findings/FindingCodes.cs` lists every model finding code, and `litespec-maintain provisions` writes each code with its meaning to the [finding codes](../../docs/reference/finding-codes.md) page. `Finding` carries `Code`, `Message`, `Path` as an absolute path, `Line`, and `Subject` as the record id the finding concerns, or null. `Check` sorts findings by path, line, code, and message, so parallel checks print in identical order on every run. A waiver covers a finding when its `covers` names the finding code, its page, or its provision while its `subject` or `paths` match the finding; a covered finding reports outcome `covered` and exits 0 until the waiver passes its `expiresOn` date. `model check` prints `path:line [level] [code] message` per listed finding, then the counts by code, then `N findings, M blocking, K covered.`. Its JSON output writes `findings` and `covered` arrays, and the model command page lists each field. An open blocking finding exits 1, and a waiver past its date reports `waiver-expired`, which blocks the run.
+`FindingCodes.All` in `apps/model/src/LiteSpec.Model/Findings/FindingCodes.cs` lists every model finding code, and `litespec-maintain provisions` writes each code with its meaning to the [finding codes](../../docs/reference/finding-codes.md) page. `Finding` carries `Code`, `Message`, `Path` as an absolute path, `Line`, and `Subject` as the record id the finding concerns, or null. `Check` sorts findings by path, line, code, and message, so parallel checks print in identical order on every run.
+
+A waiver covers a finding when its `covers` names the finding code, its page, or its provision while its `subject` or `paths` match the finding; a covered finding reports outcome `covered` and exits 0 until the waiver passes its `expiresOn` date.
+
+`model check` prints `path:line [level] [code] message` per listed finding, then the counts by code, then `N findings, M blocking, K covered.`. Its JSON output writes `findings` and `covered` arrays, and the model command page lists each field. An open blocking finding exits 1, and a waiver past its date reports `waiver-expired`, which blocks the run.
 
 The consumer pass reports every finding with its code, message, path, and line in the same shape as model findings, so `model check` prints one line per finding and writes one JSON object no matter which pass produced it.
 
@@ -93,19 +109,36 @@ The consumer pass reports every finding with its code, message, path, and line i
 
 Two roots meet in most commands: the LiteSpec release the tool carries, and the repository under check.
 
-`LiteSpecHome` locates the release from the tool binary rather than from the working directory, so the tool finds the release it carries beside its binary wherever it runs. `LITESPEC_HOME` overrides the search; when set, the folder must hold `litespec.manifest.yaml`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` looking for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.yaml.` when no release resolves, and each command turns that into exit 2 with its usage text. `Version` reads the `version` field for `--version` and for the `reviewedLiteSpecVersion` stamp that `init` writes. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/TestCli.cs`, so every test runs against this repository.
+`LiteSpecHome` locates the release from the tool binary rather than from the working directory, so the tool finds the release it carries beside its binary wherever it runs. `LITESPEC_HOME` overrides the search; when set, the folder must hold `litespec.manifest.yaml`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` looking for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.yaml.` when no release resolves, and each command turns that into exit 2 with its usage text.
 
-The `model` command reads the consumer repository at `--root`, which defaults to the working directory, and rejects a root without `.litespec/project.yaml` with `Root '<root>' holds no .litespec/project.yaml.` and exit 2. It then loads `ConsumerConfig` from that file: record roots, application, domain, web API, and infrastructure roots, test roots, frontends, API client sources, test results directory, size, shape, and stacks. The builder reads shared provisions from the release docs the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`. `book` takes `--root` and `--out <folder>`, builds the model in memory from the consumer root, and reads its words from the carried release.
+`Version` reads the `version` field for `--version` and for the `reviewedLiteSpecVersion` stamp that `init` writes. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/TestCli.cs`, so every test runs against this repository.
+
+The `model` command reads the consumer repository at `--root`, which defaults to the working directory, and rejects a root without `.litespec/project.yaml` with `Root '<root>' holds no .litespec/project.yaml.` and exit 2. It then loads `ConsumerConfig` from that file: record roots, application, domain, web API, and infrastructure roots, test roots, frontends, API client sources, test results directory, size, shape, and stacks. The builder reads shared provisions from the release docs the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`.
+
+`book` takes `--root` and `--out <folder>`, builds the model in memory from the consumer root, and reads its words from the carried release.
 
 ### Test Harness and Fixtures
 
-The tests live in `apps/cli/tests/LiteSpec.Cli.Tests/`. The test project references the CLI binary as a project, uses `xunit.v3`, and excludes `Fixtures/**` from compilation so fixture files stay data. Each area owns a folder: `Authoring/` for the `new` and `rename` tests, `Consumer/` and `Ui/` for the two passes inside `model check`, `Model/`, `Book/`, and `Init/`. `Support/TestCli.cs` runs a command through the CLI's own dispatch inside the test process, with private output streams, working folder, and variables (`CliHost`), and asserts the exit code with both streams. A command costs no process start, and the release files the CLI reads are parsed once per process. With `LITESPEC_TEST_EXECUTABLE` set to a native `litespec` executable, the harness runs that executable as its own process instead, so the same suite proves a native build; CI sets it on every platform. `LITESPEC_TEST_PROCESS=1` runs the built `litespec.dll` with `dotnet` as one process per command, and a command that sets its own `LITESPEC_HOME` always runs as a process, because the release root is read once per process. The harness sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.yaml`, and offers `Fixture` for a path under `Fixtures/` plus `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set. `Support/InputErrorTests.cs` proves that ordinary user error reaches a message with a documented exit code instead of an unhandled exception: a malformed project file, a missing project file, and an equals-form book option.
+The tests live in `apps/cli/tests/LiteSpec.Cli.Tests/`. The test project references the CLI binary as a project, uses `xunit.v3`, and excludes `Fixtures/**` from compilation so fixture files stay data. Each area owns a folder: `Authoring/` for the `new` and `rename` tests, `Consumer/` and `Ui/` for the two passes inside `model check`, `Model/`, `Book/`, and `Init/`.
 
-Model tests build on `Model/ModelFixture.cs` and `Fixtures/Model/`. The `small/` fixture is a library loans system at size small with one module, three business records, eight use cases, and two waivers; seven use cases have handlers and the eighth is covered by its waiver. The `large/` fixture holds the same records plus problems, features, one flow, one scenario per use case, constraints, research, runbooks, and a frontend route that imports a generated client operation. Both fixtures exit 0 under `model check`. `Fixtures/Model/README.md` documents the contents, the finding codes, and the overlay mechanism. Each `broken/<code>/` folder holds one overlay per finding code with only the files that differ from `large/`; `Prepare` copies `large/` to a temp folder, layers the overlay over it, deletes the paths in `DELETES.txt` when present, and returns the folder. `ModelCheckTests.cs` runs one theory row per code and expects exit 1 with that code. The `junit/` and `trx/` folders hold sample test results the proof checks read.
+`Support/TestCli.cs` runs a command through the CLI's own dispatch inside the test process, with private output streams, working folder, and variables (`CliHost`), and asserts the exit code with both streams. A command costs no process start, and the release files the CLI reads are parsed once per process.
+
+With `LITESPEC_TEST_EXECUTABLE` set to a native `litespec` executable, the harness runs that executable as its own process instead, so the same suite proves a native build; CI sets it on every platform. `LITESPEC_TEST_PROCESS=1` runs the built `litespec.dll` with `dotnet` as one process per command, and a command that sets its own `LITESPEC_HOME` always runs as a process, because the release root is read once per process. The harness sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.yaml`, and offers `Fixture` for a path under `Fixtures/` plus `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set.
+
+`Support/InputErrorTests.cs` proves that ordinary user error reaches a message with a documented exit code instead of an unhandled exception: a malformed project file, a missing project file, and an equals-form book option.
+
+Model tests build on `Model/ModelFixture.cs` and `Fixtures/Model/`. The `small/` fixture is a library loans system at size small with one module, three business records, eight use cases, and two waivers; seven use cases have handlers and the eighth is covered by its waiver. The `large/` fixture holds the same records plus problems, features, one flow, one scenario per use case, constraints, research, runbooks, and a frontend route that imports a generated client operation. Both fixtures exit 0 under `model check`. `Fixtures/Model/README.md` documents the contents, the finding codes, and the overlay mechanism.
+
+Each `broken/<code>/` folder holds one overlay per finding code with only the files that differ from `large/`; `Prepare` copies `large/` to a temp folder, layers the overlay over it, deletes the paths in `DELETES.txt` when present, and returns the folder. `ModelCheckTests.cs` runs one theory row per code and expects exit 1 with that code. The `junit/` and `trx/` folders hold sample test results the proof checks read.
 
 Book command tests run `book --root` against a temp copy of the `small` model fixture. Content tests write the book in-process from the frozen `Fixtures/Book/model.json` and `Fixtures/Book/review.json` through `BookTestBooks`, then assert the generated shell and shards.
 
-To add a fixture repository for a new case, follow the harness its area already uses. For a new model finding, copy `large/` by hand into a new `broken/<code>/` overlay holding only the differing files, add `DELETES.txt` with one relative path per line when the case deletes files, and add the code to the theory list in `ModelCheckTests.cs`. For a new authoring rule, follow the maintainer test harness in the [maintainer tool](../maintain/README.md). For a new book shape, extend the frozen review model only when the shape needs a new record type, and otherwise keep the existing files byte-identical. For new command behavior, extend the command tests against the `small` fixture.
+To add a fixture repository for a new case, follow the harness its area already uses:
+
+- For a new model finding, copy `large/` by hand into a new `broken/<code>/` overlay holding only the differing files, add `DELETES.txt` with one relative path per line when the case deletes files, and add the code to the theory list in `ModelCheckTests.cs`.
+- For a new authoring rule, follow the maintainer test harness in the [maintainer tool](../maintain/README.md).
+- For a new book shape, extend the frozen review model only when the shape needs a new record type, and otherwise keep the existing files byte-identical.
+- For new command behavior, extend the command tests against the `small` fixture.
 
 ### Common Changes
 
@@ -133,7 +166,11 @@ To add a fixture repository for a new case, follow the harness its area already 
 
 ### Native Build
 
-The CLI compiles ahead of time with .NET Native AOT into one executable per platform that needs no .NET runtime. `LiteSpec.Cli.csproj` runs the trim, AOT, and single-file analyzers in every build, and `LiteSpec.CommandLine` and `LiteSpec.Standards` set `IsAotCompatible` for the same analyzers. `PublishAot` itself applies only to a pack or publish for a platform and to the top-level package, so a plain build restores no compiler. Any call needing runtime code, such as `JsonSerializer.Serialize` of an anonymous object, fails `dotnet build`. Every command therefore builds its JSON as a `JsonNode` tree and writes it with `CliJson`; `CliJson.Strings` and `CliJson.StringLists` build the common arrays. `JsonArray.Add` binds to its generic overload, which needs runtime code, for an argument typed as anything narrower than `JsonNode`, so cast the argument: `items.Add((JsonNode)new JsonObject { ... })`. `IL3000` is suppressed for one Roslyn method the CLI never calls, `CommonCompiler.GetAssemblyLocation`, and the CLI finds its own folder through `AppContext.BaseDirectory`. `InvariantGlobalization` leaves ICU out, because the CLI compares text ordinally and formats with the invariant culture. The CLI hashes with `Sha256`, its own SHA-256, because `System.Security.Cryptography` runs through OpenSSL on Linux, and a native executable would then start only where .NET loads an OpenSSL release.
+The CLI compiles ahead of time with .NET Native AOT into one executable per platform that needs no .NET runtime. `LiteSpec.Cli.csproj` runs the trim, AOT, and single-file analyzers in every build, and `LiteSpec.CommandLine` and `LiteSpec.Standards` set `IsAotCompatible` for the same analyzers. `PublishAot` itself applies only to a pack or publish for a platform and to the top-level package, so a plain build restores no compiler.
+
+Any call needing runtime code, such as `JsonSerializer.Serialize` of an anonymous object, fails `dotnet build`. Every command therefore builds its JSON as a `JsonNode` tree and writes it with `CliJson`; `CliJson.Strings` and `CliJson.StringLists` build the common arrays. `JsonArray.Add` binds to its generic overload, which needs runtime code, for an argument typed as anything narrower than `JsonNode`, so cast the argument: `items.Add((JsonNode)new JsonObject { ... })`.
+
+`IL3000` is suppressed for one Roslyn method the CLI never calls, `CommonCompiler.GetAssemblyLocation`, and the CLI finds its own folder through `AppContext.BaseDirectory`. `InvariantGlobalization` leaves ICU out, because the CLI compares text ordinally and formats with the invariant culture. The CLI hashes with `Sha256`, its own SHA-256, because `System.Security.Cryptography` runs through OpenSSL on Linux, and a native executable would then start only where .NET loads an OpenSSL release.
 
 Native AOT compiles only for the operating system it runs on, using the platform linker: the Visual Studio C++ build tools on Windows, Xcode on macOS, and `clang` with `zlib` on Linux. Build and test a native executable for this machine:
 
@@ -156,8 +193,12 @@ A pack or publish for a platform restores `Microsoft.DotNet.ILCompiler` at the r
 
 A consumer installs `LiteSpec.Cli`, and the SDK picks the package for the machine. `--add-source <folder>` installs from a local package folder holding all of them. Keep `PackageId`, `ToolCommandName`, and `Description` stable: install scripts and the consumer docs name them.
 
-`.github/scripts/build-native.sh <rid> <folder>` packs one platform and writes its release archive, `litespec-<version>-<rid>.tar.gz`, or `.zip` on Windows. The archive holds one folder with the executable, the release, and the licence. A Linux build runs in a container through `.github/scripts/build-native-container.sh`: AlmaLinux 8 links against glibc 2.28, the oldest glibc the binary supports, and Alpine against musl. `apps/cli/install/install.sh` and `install.ps1` install an archive from a GitHub release after checking it against `SHA256SUMS`. `.github/scripts/install-native.sh` runs them against a local copy of the release, and `.github/scripts/smoke.sh` runs one consumer scenario against any install: `--tool`, `--binary`, or `--dll`. The CI workflow builds every platform, tests each installed binary, and runs the standalone binary on stock Linux distributions. The release workflow attests and publishes what CI built, pushing the platform packages before `LiteSpec.Cli`.
+`.github/scripts/build-native.sh <rid> <folder>` packs one platform and writes its release archive, `litespec-<version>-<rid>.tar.gz`, or `.zip` on Windows. The archive holds one folder with the executable, the release, and the licence. A Linux build runs in a container through `.github/scripts/build-native-container.sh`: AlmaLinux 8 links against glibc 2.28, the oldest glibc the binary supports, and Alpine against musl.
+
+`apps/cli/install/install.sh` and `install.ps1` install an archive from a GitHub release after checking it against `SHA256SUMS`. `.github/scripts/install-native.sh` runs them against a local copy of the release, and `.github/scripts/smoke.sh` runs one consumer scenario against any install: `--tool`, `--binary`, or `--dll`. The CI workflow builds every platform, tests each installed binary, and runs the standalone binary on stock Linux distributions. The release workflow attests and publishes what CI built, pushing the platform packages before `LiteSpec.Cli`.
 
 ## Limits
 
-The CLI reads text and JSON and writes text, JSON, HTML, and SVG. It runs no server, migrates no data, and publishes no package for you. The consumer pass validates the declared contract and scans no route, environment, naming, secret, storage, or HTML sink outside the controlled UI boundary. The `model` command builds from the declared roots and the latest TRX or JUnit files; it never executes tests. The `book` command renders the model it builds in memory. Generated regions belong to their owning tool: `model render` rewrites only the text between `<!-- generated:<name> -->` fences for the region names the [model command page](../../docs/tools/model.md) lists, and authoring checks skip those regions.
+The CLI reads text and JSON and writes text, JSON, HTML, and SVG. It runs no server, migrates no data, and publishes no package for you. The consumer pass validates the declared contract and scans no route, environment, naming, secret, storage, or HTML sink outside the controlled UI boundary.
+
+The `model` command builds from the declared roots and the latest TRX or JUnit files; it never executes tests. The `book` command renders the model it builds in memory. Generated regions belong to their owning tool: `model render` rewrites only the text between `<!-- generated:<name> -->` fences for the region names the [model command page](../../docs/tools/model.md) lists, and authoring checks skip those regions.

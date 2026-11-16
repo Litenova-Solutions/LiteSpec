@@ -3,17 +3,21 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-Settings screens configure the company itself: the team and its roles, API keys and webhooks, data imports, the payout account, subscription invoices, and budget limits and advances. These screens carry powerful commands: granting access, rotating secrets, paying invoices. Each pattern below draws one settings screen as options with a named default to build, so those commands stay safe to operate and every settings area works the same way. When the team builds or revises a settings area, the product owner picks one option from the drawings, and the team records the choice in its pattern catalog.
+Settings screens configure the company itself: the team and its roles, API keys and webhooks, data imports, the payout account, subscription invoices, and budget limits and advances. They carry powerful commands, such as granting access, rotating secrets, and paying invoices. Each pattern below draws one settings screen as options with a named default to build, so those commands stay safe to operate and every settings area works the same way. When the team builds or revises a settings area, the product owner picks one option from the drawings, and the team records the choice in its pattern catalog.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-Each pattern below answers one recurring question about a settings screen, such as how the team page shows members and invitations. The pattern names the question it answers, the default option to build, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and sometimes a reference to the outside product it learns from. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI Patterns](../patterns.md) page states the catalog contract and the wireframe language these patterns share.
+Each pattern below answers one recurring question about a settings screen, such as how the team page shows members and invitations. The pattern names the question it answers, the default option to build, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and sometimes a reference to the outside product it learns from.
+
+A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI Patterns](../patterns.md) page states the catalog contract and the wireframe language these patterns share.
 
 ### The Running Example
 
-Every drawing below uses the same example: the Claimwick settings for Harbor and Pine. The team has Dana as Owner; the API key is the Accounting export key; the import file is staff-2026-01.csv; the payout account sits at Example Bank; the subscription invoice is INV-2026-09; the budget code is TRIP10; and the advance is AC-2026-0117. The reader is the staff member using the screen. Two rules hold on every option: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent. The Standards section below states both.
+Every drawing below uses the same example: the Claimwick settings for Harbor and Pine. The team has Dana as Owner; the API key is the Accounting export key; the import file is staff-2026-01.csv; the payout account sits at Example Bank; the subscription invoice is INV-2026-09; the budget code is TRIP10; and the advance is AC-2026-0117. The reader is the staff member using the screen.
+
+Two rules hold on every option: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent. The Standards section below states both.
 
 ## Standards
 

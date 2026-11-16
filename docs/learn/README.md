@@ -1,6 +1,8 @@
 # Overview
 
-LiteSpec is the standard for building one business application from written rules that tools check. Technical leads come here to decide whether it fits their team, developers come to learn how its parts work, and teams read these pages before they hand work to agents. Without one written shape, each agent invents its own design, and the reasons behind past designs leave with the people who made them.
+LiteSpec is the standard for building one business application from written rules that tools check. These pages explain what it is and how its parts work: technical leads read them to decide whether LiteSpec fits their team, developers read them to learn the parts, and teams read them before handing work to agents.
+
+Without one written shape, each agent invents its own design, and the reasons behind past designs leave with the people who made them.
 
 ## The Five-Minute Picture
 

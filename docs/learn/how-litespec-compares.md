@@ -1,6 +1,6 @@
 # How LiteSpec Compares
 
-LiteSpec is one of many ways to specify work for AI coding agents, beside per-feature workflows, standards systems, instruction files, and tests. This page compares LiteSpec with 14 other approaches on the same dimensions: what each one specifies, how its rules are checked, and how it fits beside LiteSpec. Technical leads read it while they evaluate options, so they can place LiteSpec correctly instead of treating every approach as a rival.
+LiteSpec is one of many ways to specify work for AI coding agents, beside per-feature workflows, standards systems, instruction files, and tests. Technical leads use this page while they evaluate options: it compares LiteSpec with 14 other approaches on the same dimensions, what each one specifies, how its rules are checked, and how it fits beside LiteSpec, so they can place LiteSpec correctly instead of treating every approach as a rival.
 
 ## The Short Answer
 
@@ -70,7 +70,7 @@ Behavior-driven development with Gherkin ([Cucumber](https://cucumber.io/docs/),
 
 Teams write `.feature` files of Given-When-Then scenarios, versioned with the software and wired to code through step definitions. Reqnroll is an open-source Cucumber-style framework that automates them for .NET as a SpecFlow reboot.
 
-BDD is about discovery, collaboration, and examples rather than testing alone. Cucumber reads executable specifications in plain text and validates the software against them, reporting pass or fail per scenario through step definitions that hard-wire each specification to its implementation.
+BDD is about discovery, collaboration, and examples rather than testing alone. Cucumber reads executable specifications in plain text and validates the software against them, reporting pass or fail per scenario.
 
 ### ADRs, arc42, and C4
 
@@ -110,7 +110,7 @@ Like LiteSpec, it stores each requirement as version-controlled text beside the 
 
 ## Side-by-Side Comparison
 
-The table summarizes each approach on the same dimensions, from the official pages linked in each section. Cells that read `None described` mean the pages read describe no such item.
+The table summarizes each approach on the same dimensions, from the official pages linked in each section. Cells that read `None described` mean those official pages describe no such item.
 
 | Approach | Unit of specification | Ships rules or process | Stable rule IDs | Verified by tools | Versioned rules | Intent linked to code | Stack coverage |
 |:---|:---|:---|:---|:---|:---|:---|:---|
@@ -140,7 +140,8 @@ Each property below names the page that states it. Together they answer when Lit
 
 - A standing product standard. LiteSpec ships the whole rulebook for one bounded-context application, while per-feature approaches ship a workflow the team fills in. [Supported Scope](../core/scope.md) states the boundary.
 - Citable rules. Every rule has a provision ID, so a review comment, an agent report, or a waiver cites exactly one rule. [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows the anatomy, and the [Authoring Standard](../core/authoring.md) defines the grammar.
-- Automated verification for a checked subset. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unraised refusals, undeclared edges, unresolved references, and expired waivers. Each finding has a check level: record checks always block, code checks block where the stack reader is qualified, and advisory checks never block. Most provisions carry a Reviewed for question a person judges; a checked subset carries a Checked by line a tool runs. The [provision index](../reference/provisions.md) lists each provision with its mark and states the checked share for each page. Code and tests point up to records through their marks, and the model computes completion from those marks on every run, so it cannot go stale. The [analyzer reference](../analyzers/README.md) documents every rule, and the [Model Builder](../tools/model.md) lists every finding code.
+- Automated verification for a checked subset. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unraised refusals, undeclared edges, unresolved references, and expired waivers. Each finding has a check level: record checks always block, code checks block where the stack reader is qualified, and advisory checks never block. Most provisions carry a Reviewed for question a person judges; a checked subset carries a Checked by line a tool runs. The [provision index](../reference/provisions.md) lists each provision with its mark and states the checked share for each page. The [analyzer reference](../analyzers/README.md) documents every rule, and the [Model Builder](../tools/model.md) lists every finding code.
+- Completion computed from marks. Code and tests point up to records through their marks, and the model computes completion from those marks on every run, so it cannot go stale.
 - Layer claims. A project claims each record layer it uses, and the tools report only the claimed part, as [Supported Scope](../core/scope.md#layer-claims) states.
 - A versioned contract. Each release states every active provision, a project pins one release, and adoption is recorded in `reviewedLiteSpecVersion`. The [Authoring Standard](../core/authoring.md) states the release model, and the [project file reference](../reference/project-file.md) lists the field.
 - Stack depth where it applies. The fixed application shape allows concrete rules such as the modules project ordered by module, aggregate, and use case, one way to model a lifecycle, and one way to report a refused command. [Supported Scope](../core/scope.md) states the selection, and the [.NET](../backend/dotnet/stack.md), [React](../frontend/web/react/stack.md), [Svelte](../frontend/web/svelte/stack.md), [Blazor](../frontend/blazor/stack.md), and [Android](../frontend/mobile/android/stack.md) stack pages carry the per-stack rules.

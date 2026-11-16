@@ -1,8 +1,10 @@
 # Write a Research Record
 
-A research record answers one question with the sources that bear on it. It states what those sources establish and what they leave open, so a reader can check each claim against its source, see the conditions the claim holds under, and tell a source's statement from the writer's inference.
+Write one research record as a YAML file `<name>.yaml` and an explanation file `<name>.md`, answering one question with the sources that bear on it.
 
-This guide writes one research record, `<name>.yaml`, and its explanation file `<name>.md`. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
+A research record states what those sources establish and what they leave open, so a reader can check each claim against its source, see the conditions the claim holds under, and tell a source's statement from the writer's inference.
+
+Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 
 ## Prerequisites
 
@@ -12,13 +14,15 @@ Start with:
 - A question that a choice depends on, such as how fast a sufferer's peers decide a claim.
 - The sources you plan to read, each with its URL and the date you read it.
 
-Read the [Intent](../core/intent.md) page and the [Writing](../core/writing.md) page first. They state the obligations, and this guide shows one compliant way to meet them. The [command index](../tools/README.md) states how `litespec` runs in a consumer.
+The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state the obligations behind these steps. Read them first; the guide shows one compliant way to meet them. The [command index](../tools/README.md) states how to spell `litespec` in a consumer.
 
 ## Procedure
 
 ### Scaffold the Research Record
 
-Run `litespec new research <name>` from the consumer root. The command writes the record file at `.litespec/intent/research/<name>/<name>.yaml`, reserves the identifier `research/<name>`, and writes the explanation file `<name>.md` from the research template with the title filled in. Research is an article type: the YAML file carries the question, the sources, and the conclusion, while the explanation file carries the findings in prose.
+Run `litespec new research <name>` from the consumer root. The command writes the record file at `.litespec/intent/research/<name>/<name>.yaml`, reserves the identifier `research/<name>`, and writes the explanation file `<name>.md` from the research template with the title filled in.
+
+Research is an article type: the YAML file carries the question, the sources, and the conclusion, while the explanation file carries the findings in prose.
 
 The template ships with example values. Replace every one of them, because `model check` reports any value you leave unchanged. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
@@ -136,7 +140,9 @@ The weak version adds a product promise the research cannot make. The strong ver
 
 ### Run Model Render
 
-Run `litespec model render` from the consumer root. It appends a generated `source-links` region to the end of the explanation file, with one Markdown link definition per source, such as `[example-expense-study]: https://example.com/expense-study "Read on 2026-02-10"`. With those definitions in place, each `[text][key]` citation resolves in a plain Markdown preview. The region is generated, so never edit inside it by hand: a hand edit is drift.
+Run `litespec model render` from the consumer root. It appends a generated `source-links` region to the end of the explanation file, with one Markdown link definition per source, such as `[example-expense-study]: https://example.com/expense-study "Read on 2026-02-10"`.
+
+With those definitions in place, each `[text][key]` citation resolves in a plain Markdown preview. The region is generated, so never edit inside it by hand: a hand edit is drift.
 
 The [Model](../tools/model.md) command page states what `render` writes. `model check` reports `source-links-missing` when the region is absent and `source-links-drift` when it differs from the sources.
 

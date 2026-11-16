@@ -4,15 +4,18 @@
 
 **Concern:** workspace
 
-A .NET backend pins its SDK, build settings, package versions, and local tools to fixed versions through files at fixed paths. This page defines the .NET form of the shared [Configuration](../../workspace/config.md) rules: what each file sets, so every machine builds the same output.
+A .NET backend pins its SDK, build settings, package versions, and local tools through files at fixed paths. This page defines how the shared [Configuration](../../workspace/config.md) rules apply to .NET: what each file sets, so every machine builds the same output.
 
 ## Concepts
 
 ### The Four Pinning Files
 
-Four files at fixed paths decide how the backend builds, wherever it builds.
+Four files at fixed paths decide how the backend builds, wherever it builds:
 
-The root `global.json` names the lowest SDK that can build the workspace. `apps/api/Directory.Build.props` sets the target framework and the build settings every project shares. `apps/api/Directory.Packages.props` pins every NuGet version in one place, so project files name packages without versions. The root `.config/dotnet-tools.json` pins the local tools that documented commands invoke.
+- The root `global.json` names the lowest SDK that can build the workspace.
+- `apps/api/Directory.Build.props` sets the target framework and the build settings every project shares.
+- `apps/api/Directory.Packages.props` pins every NuGet version in one place, so project files name packages without versions.
+- The root `.config/dotnet-tools.json` pins the local tools that documented commands invoke.
 
 ## Standards
 
@@ -24,7 +27,9 @@ The root `global.json` names the lowest SDK that can build the workspace. `apps/
 
 **Statement:** The root `global.json` MUST set the first feature band of the manifest .NET major release as its SDK version and roll forward with `latestFeature`.
 
-**Rationale:** The first feature band of the manifest's major release is the lowest SDK that builds the workspace, and `latestFeature` roll-forward lets a later feature band of the same major release build it too. A newer major release needs a workspace change, so a local machine and CI stay on one major line. The compiler and its analyzers ship with the SDK, so a different SDK can still build different output within that line; the floor sets the minimum, not identical output. The manifest names the major release; `Directory.Build.props` sets its target framework.
+**Rationale:** The first feature band of the manifest's major release is the lowest SDK that builds the workspace, and `latestFeature` roll-forward lets a later feature band of the same major release build it too. A newer major release needs a workspace change, so a local machine and CI stay on one major line.
+
+The compiler and its analyzers ship with the SDK, so a different SDK can still build different output within that line; the floor sets the minimum, not identical output. The manifest names the major release; `Directory.Build.props` sets its target framework.
 
 **Reviewed for:** Does the root `global.json` set the manifest major release's first feature band with `latestFeature` roll-forward? Look at the root `global.json`.
 
@@ -48,7 +53,7 @@ The root `global.json` names the lowest SDK that can build the workspace. `apps/
 
 **Statement:** `apps/api/Directory.Packages.props` MUST enable central package management and carry an exact version within each manifest pin.
 
-**Rationale:** A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. Central management leaves project files naming packages only, while one file carries the exact version within each manifest pin, so an upgrade touches one place.
+**Rationale:** A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. Central management leaves project files naming packages only, while one file carries the exact version within each manifest pin, so an upgrade changes one file.
 
 **Reviewed for:** Does `apps/api/Directory.Packages.props` enable central management with the manifest pins, with versions in no project file? Look at the central file beside the project files.
 

@@ -4,7 +4,7 @@
 
 **Concern:** records
 
-LiteSpec is a system for building software from written records: the records state the required behavior, and people and agents build, verify, and operate against them. This page states what that system is and which parts it combines. Read this page first when starting a project, so every later choice lands in one shared model joining intent to code. The intent, behavior, access, layers, and model pages state the records and the rules between them.
+LiteSpec is a system for building software from written records: the records state the required behavior, and people and agents build, verify, and operate against them. It covers one bounded-context business application, the parts the system combines, and the rules that join intent to code. Read this page first when starting a project, so every later choice lands in one shared model. The intent, behavior, access, layers, and model pages state the records and the rules between them.
 
 ## Concepts
 
@@ -16,7 +16,9 @@ Running the company that builds the application sits outside the standard. A pri
 
 LiteSpec names responsibilities instead of departments: product, domain, architecture, implementation, testing, release, and operations responsibilities. One person can hold all of them at the same time.
 
-Agents perform a substantial part of the engineering work. An agent can inspect repositories, propose designs, edit authorized artifacts, run tools, and collect evidence. An agent never decides unresolved product policy, legal judgment, or financial decisions; those stay with accountable people.
+Agents perform a substantial part of the engineering work: an agent can inspect repositories, propose designs, edit authorized artifacts, run tools, and collect evidence.
+
+An agent never decides unresolved product policy, legal judgment, or financial decisions; those stay with accountable people.
 
 Because agents do so much execution, the system defines its technical concepts exactly. An agent tells a module from an aggregate, a flow from a reaction or job, and a record from a claim the implementation makes about itself.
 
@@ -34,7 +36,7 @@ The name has two parts. `Lite` means a consumer adopts one bounded context, one 
 
 The system holds one delivery approach and one operating model:
 
-| Layer | Meaning | Concrete Example |
+| Part | Meaning | Concrete Example |
 |:---|:---|:---|
 | LiteSpec | The complete product specification: standards, records, implementation, verification, and the operating behavior the application performs. | The repository structure, provision IDs, templates, tests, runbooks, and release records. |
 | Record-Driven Delivery | Records select work and define completion. | `use-case/spending.submit-expense` defines behavior before its handler, endpoint, and tests are accepted. |
@@ -46,9 +48,15 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, flows, and roles. The [behavior page](behavior.md) states the bounded context, modules, the glossary, aggregates, rules, domain events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, permissions, entry points, and external systems.
+The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code:
 
-The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
+- The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, flows, and roles.
+- The [behavior page](behavior.md) states the bounded context, modules, the glossary, aggregates, rules, domain events, use cases, results, scenarios, reactions, jobs, notifications, and settings.
+- The [access page](access.md) states actors, permissions, entry points, and external systems.
+
+The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`.
+
+The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -108,7 +116,9 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an `implements` mark naming a Behavior record it serves, or a `follows` mark naming the LiteSpec provision, decision, waiver, or project convention that shapes it.
 
-**Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, a waiver allows it, or a project convention states it, and a `follows` mark names that reason by identifier. The named target is the reason for the shape the class carries, so review judges a `follows` mark by whether its target requires that shape. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a deleted decision. A class may carry both kinds when it serves a record in a chosen way.
+**Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, a waiver allows it, or a project convention states it, and a `follows` mark names that reason by identifier.
+
+The named target is the reason for the shape the class carries, so review judges a `follows` mark by whether its target requires that shape. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a deleted decision. A class may carry both kinds when it serves a record in a chosen way.
 
 **Example:** The Claimwick submit-expense validator carries `/// <implements>use-case/spending.submit-expense</implements>`. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`, and the command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`. The payout bank port carries `/// <follows>claimwick/conventions#confirm-large-payouts</follows>`.
 

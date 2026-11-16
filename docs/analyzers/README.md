@@ -4,15 +4,23 @@ The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec st
 
 ## How the Pages Fit Together
 
-Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): it installs the package once for every project, confirms that each file resolves to the right layer, walks through reading and fixing the first findings, and shows how to record a waiver when a finding is wrong for the project. When a build names a rule ID, open that rule's page from the [Analyzer rules overview](rules/README.md): the page states which provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link to its provision, so an error in the editor leads straight to the rule it broke.
+Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): it installs the package once for every project, confirms that each file resolves to the right layer, walks through reading and fixing the first findings, and shows how to record a waiver when a finding is wrong for the project. When a build names a rule ID, open that rule's page from the [Analyzer rules overview](rules/README.md): the page states which provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link of the form `https://litespec.dev/7.0.0/<page>/#<slug>`. An error in the editor therefore opens the provision the rule enforces.
 
 ## How a Rule Decides to Run
 
 Whether a rule runs on a file comes down to four facts.
 
-First, the record layers the project claims in `layers` in `.litespec/project.yaml` decide which rules run at all. The build props read that block into the `LiteSpecImplementation` and `LiteSpecProof` properties and make them visible to the compiler, and a project can also set either property itself to name another practice. A project that claims neither layer runs no rule, and the generator writes no source and reports no diagnostic. A claim of Implementation with either practice runs the traceability rules `LS5001` to `LS5012`, and `LiteSpecImplementation` set to `litespec` also runs every architecture rule. A claim of Proof runs `LS4001`. An absent property reads as `litespec`, which matches what a project with no `layers` block claims.
+### Claimed Record Layers
 
-Second, the analyzers work out each file's layer from its folder and, inside a use case folder, from its role suffix. A file under a `Domain/`, `Application/`, `Infrastructure/`, or `WebApi/` folder takes that layer. In a use case folder, a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` takes WebApi, and one whose name ends in `Command`, `Query`, `Result`, `Handler`, or `Validator` takes Application, as [the naming page](../workspace/naming.md) states. Test files take Test. When the project selects the `layer-projects` extension, the analyzers read the layer from the assembly name suffix instead, as the table below states, and an explicit `LiteSpecLayer` value wins when both exist.
+The record layers the project claims in `layers` in `.litespec/project.yaml` decide which rules run at all. The build props read that block into the `LiteSpecImplementation` and `LiteSpecProof` properties and make them visible to the compiler, and a project can also set either property itself to name another practice.
+
+A project that claims neither layer runs no rule, and the generator writes no source and reports no diagnostic. A claim of Implementation with either practice runs the traceability rules `LS5001` to `LS5012`, and `LiteSpecImplementation` set to `litespec` also runs every architecture rule. A claim of Proof runs `LS4001`. An absent property reads as `litespec`, which matches what a project with no `layers` block claims.
+
+### File Layers
+
+The analyzers work out each file's layer from its folder and, inside a use case folder, from its role suffix. A file under a `Domain/`, `Application/`, `Infrastructure/`, or `WebApi/` folder takes that layer. In a use case folder, a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` takes WebApi, and one whose name ends in `Command`, `Query`, `Result`, `Handler`, or `Validator` takes Application, as [the naming page](../workspace/naming.md) states. Test files take Test.
+
+When the project selects the `layer-projects` extension, the analyzers read the layer from the assembly name suffix instead, as the table below states, and an explicit `LiteSpecLayer` value wins when both exist.
 
 | Assembly name suffix | Layer |
 |:---|:---|
@@ -26,7 +34,9 @@ Second, the analyzers work out each file's layer from its folder and, inside a u
 
 Under `layer-projects`, an assembly name with no listed suffix opts the project out, as does an explicit `LiteSpecLayer` value of `None`. Opting out turns off the whole package: no analyzer rule runs, and the generator writes no source and reports no diagnostic in that project. A declared `LiteSpecLayer` value that names no known layer still reports `LS2017`. The package reads the layout from `selectedExtensions` in `.litespec/project.yaml`, so there is nothing else to wire.
 
-Third, each rule runs only in the layers its provision covers:
+### Rule Layers
+
+Each rule runs only in the layers its provision covers:
 
 - Domain rules run on Domain files.
 - `LS2001` runs on Application, Infrastructure, WebApi, and Worker files.
@@ -46,15 +56,17 @@ Third, each rule runs only in the layers its provision covers:
 
 The analyzers skip generated code.
 
-Fourth, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, `LS3004`, `LS5007`, and `LS5008` wait until the end of compilation, when every type is known.
+### Decision Time
 
-Each diagnostic carries a help link of the form `https://litespec.dev/7.0.0/<page>/#<slug>`, which opens the provision the rule enforces.
+Most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, `LS3004`, `LS5007`, and `LS5008` wait until the end of compilation, when every type is known.
 
 ## How a Rule Reads Records
 
 A traceability rule reads the records that the code marks name. The package adds `.litespec/project.yaml` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. When no project file is in reach, or a docs root cannot be resolved, every traceability rule and the generator stay silent; the CLI owns that configuration error.
 
-Severity follows the check level: a blocking finding is an error and an advisory finding is a warning. A finding covered by a live waiver stays silent: a waiver is live while it has no `expiresOn` date or its date has not passed. An `.editorconfig` entry for the rule id overrides the computed severity, and lowering a rule project-wide needs a waiver record behind it.
+Severity follows the check level: a blocking finding is an error and an advisory finding is a warning. A finding covered by a live waiver stays silent: a waiver is live while it has no `expiresOn` date or its date has not passed.
+
+An `.editorconfig` entry for the rule id overrides the computed severity, and lowering a rule project-wide needs a waiver record behind it.
 
 ## Severity and Compiler Support
 
@@ -116,7 +128,7 @@ The other name-based checks work the same way:
 - A session is any type named `IDocumentSession`, any type named `DbContext`, or any subclass of a type named `DbContext`.
 - A test is any method carrying an attribute named `Fact`, `Theory`, `Scenario`, `Test`, `TestCase`, `TestCaseSource`, `TestMethod`, or `DataTestMethod`. An assertion is any call to a member of a type named `Assert`, or to a method whose name starts with `Assert`.
 
-What each rule reports on a match lives on its rule page: see the [Analyzer rules overview](rules/README.md).
+What each rule reports on a match is stated on its rule page: see the [Analyzer rules overview](rules/README.md).
 
 The analyzer does not check that a `Guid` inside an identifier is a version 7 value. Create the value with `Guid.CreateVersion7` and pass it in; that also satisfies `LS1009`.
 

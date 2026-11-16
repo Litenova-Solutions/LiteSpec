@@ -5,7 +5,7 @@
 
 A dialog, drawer, popover, menu, toast, context menu, shortcut overlay, bottom sheet, or persistent bar floats above or beside the page to confirm, edit, preview, or announce without a full navigation.
 
-This page shows when each overlay fits and how it opens, holds focus, and closes, as drawn options with a named default to build. The product owner picks among the options when the team adds a confirmation, a side preview, or any floating layer. Right-sized overlays keep staff oriented: the page stays visible behind short tasks, and irreversible commands get the full attention they need.
+Each pattern states when its overlay fits and how the overlay opens, holds focus, and closes. Each pattern draws its options as wireframes and names the default to build, and the Standards section states the rules every option keeps. The product owner picks among the options in the pattern catalog when the team adds a confirmation, a side preview, or another floating layer.
 
 ## Concepts
 
@@ -13,7 +13,9 @@ This page shows when each overlay fits and how it opens, holds focus, and closes
 
 A pattern answers one recurring question about floating layers, such as when a short task belongs in a dialog.
 
-Each pattern offers possible overlays for the task as options, each drawn as a wireframe, a plain-text sketch of the layout with the copy the product would show. One option is the default, the overlay the project builds unless its catalog records another. Each pattern says how its default behaves on a narrow screen and why it is the default, and each option carries a rationale, what the option is good for, and a cost, what it gives up. Some options name an outside product they learn from as a reference.
+Each pattern offers its candidate overlays as options. Each option is drawn as a wireframe, a plain-text sketch of the layout with the copy the product would show. One option is the default: the project builds it unless its catalog records another.
+
+Each pattern states how its default behaves on a narrow screen and why it is the default. Each option states its rationale, what the option is good for, and its cost, what it gives up. Some options name an outside product they learn from as a reference.
 
 The project records its choice for each pattern in its pattern catalog and builds the chosen option with its own components. The [catalog contract and the wireframe language](../patterns.md) state what each catalog entry holds and how to read a drawing.
 
@@ -21,7 +23,7 @@ The project records its choice for each pattern in its pattern catalog and build
 
 The drawings use the Claimwick payout desk: the March payout run with 1,204 payouts, expenses such as EXP-1042 for Ava, and the reversal and note commands staff run on them. The reader of each screen is the staff member using it.
 
-Eight rules hold on every option, and the Standards section states them. A confirmation dialog labels its confirm action with the command it runs, an overlay returns focus to the control that opened it, a dialog or drawer keeps unsaved input through a dismissal, and an irreversible confirmation focuses its safe action. Tab leaves a menu or popover, a timed toast pauses while in use, a toast waits while a modal is open, and the page behind a modal keeps still.
+Eight rules hold on every option, and the Standards section states them. A confirmation dialog labels its confirm action with the command it runs, and an overlay returns focus to the control that opened it. A dialog or drawer keeps unsaved input through a dismissal, and a confirmation for a command that cannot be taken back opens with focus on its safe action. Tab leaves a menu or popover, a timed toast pauses while in use, a toast waits while a modal is open, and the page behind a modal keeps its scroll position and layout width.
 
 ## Standards
 
@@ -107,7 +109,7 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **Deviation:** A toast that reports the result of the command the open dialog just sent shows with the dialog.
 
-**Rationale:** The page behind a modal is inert, so a toast raised over it can be neither read nor used. Waiting until the dialog closes delivers the news when the reader can act on it: the toast still arrives, only late enough to be heard.
+**Rationale:** The page behind a modal is inert, so a toast raised over it can be neither read nor used. Waiting until the dialog closes delivers the message when the reader can read and act on it.
 
 **Reviewed for:** Does every built toast wait until an open modal dialog closes? Raise each toast while a modal dialog is open and watch where it lands.
 
@@ -139,7 +141,7 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **Compact:** On a narrow screen the dialog becomes a bottom sheet, with the title naming the object, the consequence in the body, and the actions stacked full width.
 
-**Rationale:** The default dialog names the object, states the consequence in numbers, and offers the alternative in the same surface. The runner-up shows the consequence as numbers, and it is the better choice wherever money moves, because the reader sees the number before confirming.
+**Rationale:** The default dialog names the object, states the consequence with numbers, and offers the alternative in the same surface. The runner-up shows the consequence as numbers, and it fits better wherever money moves, because the reader sees the amount before confirming.
 
 Never ship the undo toast for an irreversible cancellation: an undo there is a second command rather than a reversal.
 
@@ -183,7 +185,7 @@ page
 
 **Rationale:** The title asks the question, the body states what the object is and what happens, and the safe way out sits in the same dialog. The commit button repeats the verb, so the last thing the reader sees says what the click does.
 
-**Cost:** Three pieces of copy per destructive command, in two languages, all of which have to stay true as the domain changes. The words are a second copy of the domain rules.
+**Cost:** Three pieces of copy per destructive command, in two languages, all of which have to stay true as the domain changes. The wording duplicates the domain rules.
 
 **Reference:** MOJ, Carbon
 
@@ -231,7 +233,7 @@ page
 
 **Rationale:** The command runs at once, and a toast names what happened with an Undo that stays until it is dismissed. There is no question to answer first.
 
-**Cost:** On money this trains the reflex the confirmation exists to prevent: an Undo on a reversal is a second reversal command rather than a reversal of the first.
+**Cost:** For money movements this trains the reflex the confirmation exists to prevent: an Undo on a reversal runs a second reversal command rather than reversing the first.
 
 **Reference:** Carbon
 
@@ -354,7 +356,7 @@ page
 
 **Compact:** The default option reflows: at phone width there is no beside, so the drawer takes the screen and Back returns to the list at the same scroll position with its filters still applied.
 
-**Rationale:** Keep the read-only record beside the list. The list keeps its scroll position and its filters while the record reads beside it, and nothing in the drawer is editable, so the drawer cannot turn into a task.
+**Rationale:** Keep the read-only record beside the list. The list keeps its scroll position and its filters while the record shows beside it, and nothing in the drawer is editable, so the drawer cannot turn into a task.
 
 Prefer the tabbed drawer when support compares reversals across facts, history, and messages. Never ship the filter drawer: filters belong in the toolbar, and a drawer over the results hides the list those filters describe.
 
@@ -431,9 +433,9 @@ page
     action primary "Open the record"
 ```
 
-**Rationale:** The row stays selected behind while tabs divide facts from history and messages. Three views in one drawer beat three separate navigations when support compares reversals.
+**Rationale:** The row stays selected behind while tabs divide facts from history and messages. Three views in one drawer work better than three separate navigations when support compares reversals.
 
-**Cost:** Tabs inside a drawer run two navigations deep on one screen. Readers lose track of which tab held the fact they half-read, and the Back control has two jobs.
+**Cost:** Tabs inside a drawer run two navigations deep on one screen. Readers lose track of which tab held the fact they partly read, and the Back control serves two purposes.
 
 **Reference:** Linear
 
@@ -478,7 +480,7 @@ page
 
 **Compact:** The default option reflows: the toast spans the phone width above the home indicator, and carries one action at most.
 
-**Rationale:** Keep the self-closing confirmation for success, where the message leaves on its own and nothing goes with it. The runner-up is the toast that links to the result, which suits commands whose result lives elsewhere, because the link going away costs nothing.
+**Rationale:** Keep the self-closing confirmation for success, where the message leaves on its own and carries no action. The runner-up is the toast that links to the result, which suits commands whose result lives elsewhere, because the result stays on the page when the toast leaves.
 
 Never ship two actions on one toast: two buttons turn a transient message into a small panel with a timer. Never ship a toast as the only route to a result either.
 
@@ -500,7 +502,7 @@ page
   toast "Receipts resent to 3 spenders." positive
 ```
 
-**Rationale:** It carries no action, so it can leave on its own. The default timeout is 5,000 milliseconds, and nothing is lost by it going.
+**Rationale:** It carries no action, so it can leave on its own. The default timeout is 5,000 milliseconds, and nothing is lost when it leaves.
 
 **Cost:** A reader can miss an error that faded after five seconds and wait five minutes. That is fine for a success and wrong for anything else.
 
@@ -521,7 +523,7 @@ page
   toast "Your export is ready. expenses-2026-10-08.csv waits under Latest exports." positive
 ```
 
-**Rationale:** The message links to the result, and the result also waits on the page. The toast going away costs nothing because the file does not go with it.
+**Rationale:** The message links to the result, and the result also waits on the page. The toast leaving loses nothing because the file stays on the page.
 
 **Cost:** Two routes to one result need the same name in both places. Where the names drift, the reader stops trusting the link and opens the page instead.
 
@@ -560,7 +562,9 @@ page
 
 **Compact:** The default option reflows: the menu becomes a bottom sheet with thumb-sized rows, the title names the row, and one full-width dismissal closes it.
 
-**Rationale:** Keep the menu with groups and the destructive item last after a separator, with nothing disabled without a reason. The runner-up is the menu that states the reason beside a disabled item. It is the better choice where a command is often disabled, because the reason in place beats a hover. Arrow keys move between items, Tab leaves the menu, and Escape closes one level and returns focus to the opener.
+**Rationale:** Keep the menu with groups and the destructive item last after a separator, with nothing disabled without a reason. The runner-up is the menu that states the reason beside a disabled item. It fits better where a command is often disabled, because the reason in place works better than a hover.
+
+Arrow keys move between items, Tab leaves the menu, and Escape closes one level and returns focus to the opener.
 
 Never ship a confirmation inside a menu. A confirmation there is a dialog over a menu, which is the same nesting the project forbids for dialogs.
 
@@ -677,7 +681,7 @@ page
 
 **Rationale:** Keep the popover that explains what a term means. A defined term carries its glossary entry where it is read, and only for terms the application has defined. The runner-up is the row preview popover. It suits dense lists where a hover card saves a navigation, and it has to open on focus as well as hover.
 
-Never ship a menu and a popover for the same thing. The pair teaches that floating layers stack, and stacked layers leave readers unsure which one to dismiss.
+Never ship a menu and a popover for the same thing. The pair shows floating layers stacked, and stacked layers leave readers unsure which one to dismiss.
 
 **Reviewed for:** Does every built hover card or hint match the wireframe its catalog entry chose? Open the built popovers and previews beside the catalog entry recording the chosen option and its reason.
 
@@ -701,7 +705,7 @@ page
 
 **Rationale:** A word somebody may not know carries its glossary entry beside it, opened from a visible control on keyboard focus, tap, and hover. It answers the question where it is asked, and touch and screen-reader users reach it the same way.
 
-**Cost:** This is only for a term the application has defined. A hint on every unfamiliar word becomes noise, and the glossary has to stay in step with the hint.
+**Cost:** This is only for a term the application has defined. A hint on every unfamiliar word becomes noise, and the glossary has to stay consistent with the hint.
 
 #### `a-row-preview-popover-on-hover-and-focus`: A Row Preview Popover on Hover and Focus
 
@@ -722,7 +726,7 @@ page
     fact "Attached" "Not attached"
 ```
 
-**Rationale:** Hovering a receipt code shows the receipt's facts. It gives context without leaving the list and costs one read.
+**Rationale:** Hovering a receipt code shows the receipt's facts. It gives context without leaving the list and needs one read.
 
 **Cost:** A hover affordance is invisible on touch and hard to discover on desktop. It needs focus as well as hover, which means two ways to render every row.
 
@@ -746,7 +750,7 @@ page
     text "This payout route reverses only within 180 days."
 ```
 
-**Rationale:** The row menu holds commands and a popover holds context, side by side. A reviewer can see the two floating shapes next to each other.
+**Rationale:** The row menu holds commands and a popover holds context, side by side. A reviewer can see the two floating layers next to each other.
 
 **Cost:** A page with both holds three floating layers counting the dialog, and a reader has to learn which is which. That is why a page should show one overlay at a time.
 
@@ -764,7 +768,7 @@ page
 
 **Rationale:** Ship the neutral band stating a fact about the deployment, the same band on every page. The bar on the record page is the runner-up for facts true of one record only, drawn as a notice on that record.
 
-Never ship the bar naming a deadline: a full-width caution band paints the whole page, and its tone covers work the page is not about.
+Never ship the bar naming a deadline: a full-width caution band applies its tone to the whole page, including work the page is not about.
 
 **Reviewed for:** Does every built persistent band match the wireframe its catalog entry chose? Open the built deployment and deadline bands beside the catalog entry recording the chosen option and its reason.
 
@@ -783,9 +787,9 @@ page
       item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** A band across the back office holds on every page, such as which deployment this is. It stays neutral, never a tone, because it is about the page rather than about work.
+**Rationale:** A band across the back office appears on every page, such as which deployment this is. It stays neutral, never a tone, because it is about the page rather than about work.
 
-**Cost:** A band on every page is chrome the reader cannot remove, and it competes with the heading for the top of the screen. It has to earn the height it takes.
+**Cost:** A band on every page is chrome the reader cannot remove, and it competes with the heading for the top of the screen. It has to justify the height it takes.
 
 #### `a-bar-on-the-record-page-not-the-console`: A Bar on the Record Page, Not the Console
 
@@ -821,9 +825,9 @@ page
       item: text "D-0182" · text "EXP-1034" · text "EUR 45.00" · status "19 days" caution
 ```
 
-**Rationale:** A band naming the date the bank recalls, so the disputes work under it has a clock the band states.
+**Rationale:** A band naming the date the bank recalls, so the disputes work under it keeps that date in view.
 
-**Cost:** A full-width caution band on a page about disputes is exactly the case the tone rule forbids. The tone paints the whole page rather than the thing in that state.
+**Cost:** A full-width caution band on a page about disputes is exactly the case the tone rule forbids. The tone covers the whole page rather than the thing in that state.
 
 ### Dialog with a Long Body and a Sticky Footer
 
@@ -885,7 +889,7 @@ page
 
 **Rationale:** The body scrolls under a footer that never moves. The commit stays in reach, and the terms stay above it.
 
-**Cost:** A scrolling region inside a dialog is two scrolls on one screen. Keyboard readers have to land in the body rather than behind it, or the terms are decoration.
+**Cost:** A scrolling region inside a dialog is two scrolls on one screen. Keyboard readers have to land in the body rather than behind it, or the terms go unread.
 
 **Reference:** Stripe
 
@@ -910,9 +914,9 @@ page
       action destructive "Reverse EUR 125.00"
 ```
 
-**Rationale:** The total sits above the commit action: the number the click commits to stays visible while the terms scroll. The reader signs the number, not the scroll position.
+**Rationale:** The total sits above the commit action: the number the click commits to stays visible while the terms scroll. The reader confirms the number rather than the scroll position.
 
-**Cost:** The pinned summary duplicates the body. Where the two disagree the reader trusts the pin, and the body becomes decoration nobody checks.
+**Cost:** The pinned summary duplicates the body. Where the two disagree the reader trusts the pin, and nobody checks the body.
 
 **Reference:** Stripe
 
@@ -937,9 +941,9 @@ page
     action destructive "Reverse EUR 125.00"
 ```
 
-**Rationale:** Included to refuse it: without a scroll cap the dialog grows past the viewport and the footer sits below the fold. The reader agrees first and finds how after.
+**Rationale:** Included to refuse it: without a scroll cap the dialog grows past the viewport and the footer sits below the fold. The reader agrees first and finds how to confirm after.
 
-**Cost:** On a phone the footer is two screens down, past terms nobody scrolled to. This is the shape every other option in this pattern exists to replace.
+**Cost:** On a phone the footer sits two screens down, below terms nobody scrolled to. This is the shape every other option in this pattern exists to replace.
 
 ### Keyboard Shortcut Help Overlay
 
@@ -953,7 +957,7 @@ page
 
 **Compact:** The default option reflows: the shortcut dialog becomes a full-screen sheet with the groups stacked and Close pinned at its foot.
 
-**Rationale:** Ship the grouped grid of shortcuts: three groups, one grid, every key the application honors, all closed by the same key. The this-page-only list is the runner-up on dense pages, where it answers the only keys that work there.
+**Rationale:** Ship the grouped grid of shortcuts: three groups, one grid, every key the application honors, all in an overlay the same key closes. The this-page-only list is the runner-up on dense pages, where it answers the only keys that work there.
 
 Never ship tooltips alone: they hide the catalog from exactly the reader who would learn it fastest.
 
@@ -1015,7 +1019,7 @@ page
       action "Close"
 ```
 
-**Rationale:** The panel scopes to the tool at hand, showing only the keys that work here. The list stays short enough to learn. The global keys live one link away.
+**Rationale:** The panel scopes to the tool at hand, showing only the keys that work here. The list stays short enough to learn. A link leads to the global keys.
 
 **Cost:** Page-scoped lists repeat the global keys on every page or omit them. Either way the reader meets two lists where one catalog would do.
 
@@ -1039,7 +1043,7 @@ page
     text "E"
 ```
 
-**Rationale:** Included to refuse it: the catalog hides one hover at a time, and touch readers never meet it at all. A reader who would learn ten keys learns none.
+**Rationale:** Included to refuse it: the catalog stays hidden except for one hover at a time, and touch readers never meet it at all. A reader who would learn ten keys learns none.
 
 **Cost:** Each hint is accurate and each is undiscoverable. The tooltip teaches the key for a control already found, which is the one key that reader needed least.
 
@@ -1057,7 +1061,7 @@ page
 
 **Rationale:** Ship the right-click menu on the row: the row's own commands at the pointer, nothing added, nothing missing, and closed by clicking elsewhere. The bulk-selection menu is the runner-up for bulk work, where the menu rewrites itself for the selection count.
 
-Never ship silence: silence hands the gesture to the browser, whose commands act on the page rather than the record.
+Never ship no menu: without one the gesture goes to the browser, whose commands act on the page rather than the record.
 
 **Reviewed for:** Does every built right-click menu match the wireframe its catalog entry chose? Open the built row and bulk menus beside the catalog entry recording the chosen option and its reason.
 
@@ -1083,7 +1087,7 @@ page
 
 **Rationale:** The row's own commands appear at the pointer, nothing added, nothing missing. The menu is a shortcut to the row menu rather than a second set.
 
-**Cost:** Right click is invisible. Staff who never try it keep the row menu, and both menus have to hold the same commands, or one of them lies.
+**Cost:** Right click is invisible. Staff who never try it keep the row menu, and both menus have to hold the same commands, or one of them shows commands the other does not.
 
 **Reference:** Linear
 
@@ -1108,7 +1112,7 @@ page
 
 **Rationale:** The menu rewrites itself for a multi-selection: the count in every label, and the single-record commands are gone. The reader cannot ask three rows to open one record.
 
-**Cost:** The menu rewrites per count, so muscle memory for one row breaks at three. The count has to be exact at the moment of the click, not at the render.
+**Cost:** The menu rewrites per count, so positions learned for one row shift at three. The count has to be exact at the moment of the click, not at the render.
 
 **Reference:** Figma
 
@@ -1133,6 +1137,6 @@ page
       action quiet "Inspect element"
 ```
 
-**Rationale:** Included to refuse it: silence hands the gesture to the browser, whose commands act on the page rather than the record. Staff learn that right click does nothing for them and stop trying.
+**Rationale:** Included to refuse it: without a menu the gesture goes to the browser, whose commands act on the page rather than the record. Staff learn that right click does nothing for them and stop trying.
 
 **Cost:** It puts Inspect element beside Reload on a row about money. The absence is not neutral: it teaches that right click is not part of the application.

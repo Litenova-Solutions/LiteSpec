@@ -1,8 +1,10 @@
 # LiteSpec Maintain
 
+The `litespec-maintain` command line checks the LiteSpec repository against its own authoring contract and writes the generated provision index.
+
 ## Audience
 
-You maintain the `litespec-maintain` command line in `apps/maintain/src/LiteSpec.Maintain/`. You add an authoring check, change a validator message, or change how the provision index builds. Once you have read it, you know which file owns the behavior, how to change it, and how to cover the change with a fixture.
+You maintain the `litespec-maintain` command line in `apps/maintain/src/LiteSpec.Maintain/`. You add an authoring check, change a validator message, or change how the provision index builds. After reading this page, you know which file owns the behavior, how to change it, and how to cover the change with a fixture.
 
 ## What It Is
 
@@ -84,26 +86,26 @@ Authoring diagnostics share one reporting shape: a stable code, a one-sentence m
 
 ### Release and Repository Roots
 
-`LiteSpecHome` locates the release from the tool binary rather than from the working directory. `LITESPEC_HOME` overrides the search; when set, the folder must hold `litespec.manifest.yaml`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` looking for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.yaml.` when no release resolves, and each command turns that into exit 2 with its usage text. `Version` reads the `version` field for `--version`. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/Cli.cs`, so every test runs against this repository.
+`LiteSpecHome` locates the release from the tool binary rather than from the working directory. `LITESPEC_HOME` overrides the search. When set, the folder must hold `litespec.manifest.yaml`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` looking for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.yaml.` when no release resolves, and each command turns that into exit 2 with its usage text. `Version` reads the `version` field for `--version`. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/Cli.cs`, so every test runs against this repository.
 
 The `validate`, `provisions`, and `changelog` commands read the LiteSpec repository at `--root`, which defaults to the `LiteSpecHome` release root. `validate` rejects a root that is not a directory or is unreadable with `Repository root is not a directory: <path>` or `Repository root is unreadable: <path>: <reason>`. `provisions` and `changelog` reject a root without a `docs` folder with `Root '<path>' holds no docs folder.` The `changelog` command also needs `--from`, the git tag or commit to compare with, and reads the old index and manifest with `git show`.
 
 ### Test Harness and Fixtures
 
-The tests live in `apps/maintain/tests/LiteSpec.Maintain.Tests/`. The test project references the maintainer binary as a project, uses `xunit.v3`, and keeps no fixtures folder: every case builds its repository in a temp folder. `Support/Cli.cs` runs the built `litespec-maintain.dll` with `dotnet` as its own process, the way a maintainer runs the tool, and asserts the exit code with both streams. It sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.yaml`, and offers `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set. `Support/InputErrorTests.cs` proves that ordinary user error reaches a message with a documented exit code instead of an unhandled exception: a malformed percent escape in a link and a `provisions` root without docs.
+The tests live in `apps/maintain/tests/LiteSpec.Maintain.Tests/`. The test project references the maintainer binary as a project, uses `xunit.v3`, and keeps no fixtures folder: every case builds its repository in a temp folder. `Support/Cli.cs` runs the built `litespec-maintain.dll` with `dotnet` as its own process, the way a maintainer runs the tool, and asserts the exit code with both streams. It sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.yaml`, and offers `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set. `Support/InputErrorTests.cs` proves that ordinary user error produces a message with a documented exit code instead of an unhandled exception: a malformed percent escape in a link and a `provisions` root without docs.
 
 Authoring tests build on `Authoring/StandardsFixture.cs`. `Base` writes a minimal repository into a temp folder: a standard page, an extension page, a stack page, a pattern page, a guide page, a tutorial page, a reference page, a command page, a glossary, a docs index with routing, and a rebuilt provision index. Each test mutates one file and runs `validate` or `provisions`. The fixture carries checkable evidence naming `litespec-maintain validate`, so the tree needs no tools stub.
 
-To add a fixture repository for a new case, follow the harness its area already uses. For a new authoring rule, extend `StandardsFixture.Base` only when the rule needs a new page shape; otherwise mutate one page from `Base` inside the test. `Authoring/ProvisionDiffTests.cs` covers the comparison, the rendering, and the section rewrite in process, plus the command end to end in a temporary git repository.
+To add a fixture repository for a new case, follow the harness its area already uses. For a new authoring rule, extend `StandardsFixture.Base` only when the rule needs a new page shape. Otherwise mutate one page from `Base` inside the test. `Authoring/ProvisionDiffTests.cs` covers the comparison, the rendering, and the section rewrite in process, plus the command end to end in a temporary git repository.
 
 ### Common Changes
 
 #### Add an Authoring Diagnostic Code End to End
 
-1. Add the code to `MaintainerDiagnostics.Codes` and `MaintainerDiagnostics.All` in `Validate/MaintainerDiagnostics.cs`, in declaration order; `StandardsValidator.StableDiagnosticCodes` exposes that list.
+1. Add the code to `MaintainerDiagnostics.Codes` and `MaintainerDiagnostics.All` in `Validate/MaintainerDiagnostics.cs`, in declaration order. `StandardsValidator.StableDiagnosticCodes` exposes that list.
 2. Emit it through the `Add` callback inside `Validate` with the repository-relative file, the 1-based line, the code, and a message naming the file and the fix. Never construct a `StandardsDiagnostic` with a code the list does not hold.
 3. Add a test under the tests' `Authoring/` folder that starts from `StandardsFixture.Base`, mutates one file, and asserts the `file:line [CODE] message` line and the exit code. Add the mirror test showing the clean tree passes.
-4. Quote the code on the affected `docs/maintain/validate.md` behavior or the relevant standard page when the rule restates visible behavior.
+4. Quote the code in the affected behavior section of `docs/maintain/validate.md`, or on the relevant standard page when the rule restates visible behavior.
 
 #### Change a Message
 
@@ -117,4 +119,4 @@ The tool sets `IsPackable` to `false`, so packing the solution produces no maint
 
 ## Limits
 
-The tool reads text, YAML and JSON, and writes text and JSON. It runs no server, migrates no data, and publishes no package for you. `validate` reads the working tree only; it evaluates current standards material and skips `apps/`, `packages/`, `CHANGELOG.md`, and `LICENSE`. Generated regions belong to their owning tool: authoring checks skip the text between `<!-- generated:<name> -->` fences.
+The tool reads text, YAML and JSON, and writes text and JSON. It runs no server, migrates no data, and publishes no package for you. `validate` reads the working tree only. It evaluates current standards material and skips `apps/`, `packages/`, `CHANGELOG.md`, and `LICENSE`. Generated regions belong to their owning tool: authoring checks skip the text between `<!-- generated:<name> -->` fences.

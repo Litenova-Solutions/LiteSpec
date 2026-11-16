@@ -38,7 +38,9 @@ Three rules join the layers:
 - **Implement** turns Behavior into code. It adds no outcome, edge, or access that no record declares.
 - **Verify** turns code into Proof: one test proves each scenario through the public boundary.
 
-Records state software only. Company matters such as prices, markets, or hiring stay out, except as a constraint or as dated research, as [Record Layers](../core/layers.md) states. When a project cannot follow a rule, a waiver sets that provision, a page, or a finding code aside; [Read the Standard](reading-the-standard.md#waivers-from-the-rules) explains the waiver record.
+Records state software only. Company matters such as prices, markets, or hiring stay out, except as a constraint or as dated research, as [Record Layers](../core/layers.md) states.
+
+When a project cannot follow a rule, a waiver sets that provision, a page, or a finding code aside; [Read the Standard](reading-the-standard.md#waivers-from-the-rules) explains the waiver record.
 
 ## Record Types and Where They Live
 

@@ -1,8 +1,10 @@
 # Write a Feature
 
-A feature is one offering that solves problems and advances goals. It stands alone in its own folder at `.litespec/intent/features/<name>/<name>.yaml`, with the product as its parent: one record file states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder in the feature's `requirements/` folder.
+Write one feature as a record file, one requirement record per commitment, and an explanation file `<feature>.md`, so a developer can tell what to build and a tester can tell what passes.
 
-This guide writes those files and the feature's explanation file `<feature>.md`, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.
+A feature is one offering that solves problems and advances goals. It stands alone with the product as its parent: one record file at `.litespec/intent/features/<name>/<name>.yaml` states the offering and its links, and each commitment the feature makes is a requirement record in its own folder under the feature's `requirements/` folder.
+
+The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -17,7 +19,9 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 ### Scaffold the Feature File
 
-Scaffold the feature before you write any prose. Run `litespec new feature <name>`, with the name in kebab-case such as `expense-submission` and the title in plain words. You get `<name>/<name>.yaml` under `.litespec/intent/features/`, with the product as the parent and the identifier `feature/<name>` reserved. This satisfies `litespec/core/model#write-every-record-in-its-record-file`, `litespec/core/intent#keep-intent-in-its-homes`, and `litespec/core/intent#solve-problems-with-standalone-features`.
+Run `litespec new feature <name>` before writing any prose, with the name in kebab-case such as `expense-submission` and the title in plain words.
+
+The command writes `<name>/<name>.yaml` under `.litespec/intent/features/`, with the product as the parent and the identifier `feature/<name>` reserved. This satisfies `litespec/core/model#write-every-record-in-its-record-file`, `litespec/core/intent#keep-intent-in-its-homes`, and `litespec/core/intent#solve-problems-with-standalone-features`.
 
 ### State the Offering and Its Links
 
@@ -39,7 +43,9 @@ Write each link on the feature, the record that points. This satisfies `litespec
 
 Turn each commitment the feature makes into its own requirement record. Scaffold it with `litespec new requirement <feature>.<name>`, such as `litespec new requirement approval.above-threshold-receipt`. You get the requirement at `.litespec/intent/features/<feature>/requirements/<name>/<name>.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled, and no explanation file.
 
-Then fill the record fields: the kind, `functional`, `quality`, or `policy`; one testable sentence in `statement`; one line of reason in `rationale`; and the records behind it in `cites`. Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-requirement-with-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-every-constraint-that-binds-a-requirement`.
+Then fill the record fields: the kind, `functional`, `quality`, or `policy`; one testable sentence in `statement`; one line of reason in `rationale`; and the records behind it in `cites`.
+
+Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-requirement-with-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-every-constraint-that-binds-a-requirement`.
 
 A commitment that belongs to no feature is a product requirement instead. It lives at `.litespec/intent/requirements/<name>/<name>.yaml` with its identifier `requirement/<name>`, its parent the product, and its `cites` naming at least one constraint, goal, or problem.
 
@@ -95,7 +101,7 @@ This satisfies `litespec/core/intent#explain-each-requirement-in-one-line`, `lit
 
 ### State Each Quality Requirement as a Scenario
 
-Give each quality requirement the scenario that confirms it: the `stimulus` that triggers it, the `environment` it holds in, the `response` the product shows, the `measure` that names what is counted, the `target` that names the number aimed for, and the `check` that confirms it, with `conditions`, `runsOn`, and `evidence` where they apply. This satisfies `litespec/core/intent#state-each-quality-requirement-as-a-scenario`.
+Give each quality requirement the scenario that confirms it. State the `stimulus` that triggers it, the `environment` it holds in, the `response` the product shows, the `measure` that names what is counted, the `target` that names the number aimed for, and the `check` that confirms it, and add `conditions`, `runsOn`, and `evidence` where they apply. This satisfies `litespec/core/intent#state-each-quality-requirement-as-a-scenario`.
 
 ```yaml
 type: requirement
@@ -120,11 +126,15 @@ setBy: product
 
 ### State Each Exception with Its Fallback
 
-When a requirement bends in a named case, carry that case in `except` with its `condition` and the `fallback` requirement that holds instead, as the receipt requirement above shows. Give the fallback its own named record and its own folder, so every exception ends in a promise. Use `setBy` to name who sets the requirement values: `product`, `operator`, or `tenant`. This satisfies `litespec/core/intent#state-each-exception-with-its-fallback`.
+When a requirement bends in a named case, carry that case in `except` with its `condition` and the `fallback` requirement that holds instead, as the receipt requirement above shows. Give the fallback its own named record and its own folder, so every exception ends in a promise.
+
+Use `setBy` to name who sets the requirement values: `product`, `operator`, or `tenant`. This satisfies `litespec/core/intent#state-each-exception-with-its-fallback`.
 
 ### Open the Explanation with What the Feature Is For
 
-Write `<feature>.md` beside the feature file. Open it with one paragraph on what the feature is for and what it covers, then add Capabilities, Success Criteria, Boundaries, and an optional Example, in that order. Let each section do its own job, without repeating the opening or the summary. Keep checkable facts in the record files; the explanation helps a reader understand them. This satisfies `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, `litespec/core/model#split-record-fields-from-explanation`, and `litespec/core/model#explain-each-record-beside-its-record-file`.
+Write `<feature>.md` beside the feature file. Open it with one paragraph on what the feature is for and what it covers, then add Capabilities, Success Criteria, Boundaries, and an optional Example, in that order.
+
+Let each section do its own job, without repeating the opening or the summary. Keep checkable facts in the record files; the explanation helps a reader understand them. This satisfies `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, `litespec/core/model#split-record-fields-from-explanation`, and `litespec/core/model#explain-each-record-beside-its-record-file`.
 
 ### Group Capabilities by Task
 
@@ -173,7 +183,9 @@ This satisfies `litespec/core/writing#use-literal-words` and `litespec/core/writ
 
 ### Explain a Requirement Only When It Needs It
 
-When a statement needs context it cannot carry, such as the date a comparison uses or a term a reader may misread, add `<name>.md` beside `<name>.yaml` in the requirement folder. Open it with one paragraph and add an optional Example. Leave acceptance criteria out of it, because the Behavior scenarios that fulfill the requirement state them, and describe no behavior the statement does not hold. When the statement and its rationale say everything, leave the file out. This satisfies `litespec/core/intent#add-no-behavior-in-an-explanation-file`.
+When a statement needs context it cannot carry, such as the date a comparison uses or a term a reader may misread, add `<name>.md` beside `<name>.yaml` in the requirement folder. Open it with one paragraph and add an optional Example.
+
+Leave acceptance criteria out of it, because the Behavior scenarios that fulfill the requirement state them, and describe no behavior the statement does not hold. When the statement and its rationale say everything, leave the file out. This satisfies `litespec/core/intent#add-no-behavior-in-an-explanation-file`.
 
 ## Check
 

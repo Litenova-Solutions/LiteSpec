@@ -3,15 +3,17 @@
 **Stack:** any
 **Concern:** domain
 
-Inside the bounded context, the product speaks one business language about the things it keeps and the rules that hold. That language lives in Behavior records: the modules that group it, the glossary that defines it, the aggregates with their lifecycles, the rules that hold, and the domain events that announce change. Agents write these records from Intent, and code carries what they declare. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
+The Domain Model page states the Behavior records that hold the product's business language inside the bounded context: the modules that group it, the glossary that defines it, the aggregates with their lifecycles, the rules that hold, and the domain events that announce change. Agents write these records from Intent, and code carries what they declare. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
 
 ## Concepts
 
 ### Bounded Context and Module
 
-Inside one deployment boundary, the product speaks one business language, as the [scope page](scope.md) states. Modules organize that language into areas: they stay areas of one language and one deployment, never languages or deployments of their own.
+Inside one deployment boundary, the product speaks one business language, as the [scope page](scope.md) states. Modules organize that language into areas. A module stays an area of the one language and the one deployment, never a language or a deployment of its own.
 
-A module is one business area. Its page at `behavior/modules/<m>/module.yaml` carries a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. Intent holds no module: each module is declared only in Behavior, beside the aggregates it groups. Each child record sits in a typed folder inside its module, such as `aggregates/<aggregate>/`, `integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. Responsibilities, Boundaries, and Example live in the explanation file beside the record file.
+A module is one business area. Its record sits at `behavior/modules/<m>/module.yaml` and carries a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. Intent holds no module: each module is declared only in Behavior, beside the aggregates it groups.
+
+Each child record sits in a typed folder inside its module, such as `aggregates/<aggregate>/`, `integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. Responsibilities, Boundaries, and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -22,7 +24,9 @@ A module is one business area. Its page at `behavior/modules/<m>/module.yaml` ca
 
 The glossary holds the project's ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`, which says whose vocabulary the word belongs to: `intent` for business words, `behavior` for design words such as aggregate, refusal, reaction, and job, and `implementation` for design words that live in code, such as a read model.
 
-Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec's own words without learning a second vocabulary first: a refusal is a rejection or error, a reaction is a policy, and a compensation is an undo. The `rejected` list bars the synonyms the project refuses, as the [authoring page](authoring.md) states. A term that declares a project use-case verb carries `verbKind` with the kind it opens: `command`, `query`, or `either`. For example, Claimwick defines `receipt` as proof of payment accepted for an expense.
+Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec's own words without learning a second vocabulary first: a refusal is a rejection or error, a reaction is a policy, and a compensation is an undo. The `rejected` list bars the synonyms the project refuses, as the [authoring page](authoring.md) states.
+
+A term that declares a project use-case verb carries `verbKind` with the kind it opens: `command`, `query`, or `either`. For example, Claimwick defines `receipt` as proof of payment accepted for an expense.
 
 | Field | Meaning |
 |:---|:---|
@@ -65,7 +69,9 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 
 A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
 
-A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
+A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules.
+
+A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
 State one rule per condition: one rule states one condition and names its refusal code from the module's refusal set, and every use case that can break it lists the refusal result citing that code. For example, Claimwick's reimbursed-once rule states one condition with its refusal code, and every reimbursement lists the refusal result citing that code.
 
@@ -78,7 +84,7 @@ State one rule per condition: one rule states one condition and names its refusa
 | `reservation` | Holds a claim until a use case releases it, named in `releasedBy` as a use-case id, or `{ "mode": "never", "reason": "..." }` with its cost. |
 | `frozen-value` | Freezes a commercial value, with `frozenWhen` and `retainedIn`. |
 
-When a query shows a value and a command records it, both cite the same calculation rule in `computedBy`. Code carries a mark naming the rule, and never the reverse.
+When a query shows a value and a command records it, both cite the same calculation rule in `computedBy`. Code carries a mark naming the rule; the rule never names code.
 
 ### Domain Events
 
@@ -117,7 +123,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each glossary term MUST carry its record layer, intent, behavior, or implementation, with the established synonyms its readers know in `aliases`.
 
-**Rationale:** Each layer's words age on their own clock: a business term moves when the market moves, a design term moves when the model moves, and an implementation term moves when the code moves. The record layer tells each reader which clock the word follows, and the aliases let industry readers find LiteSpec's own words without learning a second vocabulary first.
+**Rationale:** Each layer's words change for their own reasons: a business term changes when the market changes, a design term when the model changes, and an implementation term when the code changes. The record layer tells each reader what kind of change moves the word, and the aliases let industry readers find LiteSpec's own words without learning a second vocabulary first.
 
 **Example:** The term `refusal` carries `layer: behavior` with `aliases: ["rejection", "error"]`, so readers who know rejections and errors find it.
 
@@ -133,7 +139,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each module MUST name every module it depends on in `dependsOn`.
 
-**Rationale:** A module relies on the language and behavior of others, and each reliance shapes change: editing a module ripples into everything depending on it. Naming every reliance in `dependsOn` shows that ripple as data, instead of leaving readers to reconstruct it from prose.
+**Rationale:** A module relies on the language and behavior of others, and each reliance shapes change: editing a module affects everything that depends on it. Naming every reliance in `dependsOn` records that effect as data, instead of leaving readers to reconstruct it from prose.
 
 **Reviewed for:** Does every module name each module it relies on in `dependsOn`? Check the module pages beside the modules they rely on.
 
@@ -163,7 +169,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each store MUST name its owning system or module in `owner`.
 
-**Rationale:** A store holds state no aggregate invariant guards, so nothing in the model says who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner puts one party behind it, and staff actions on it stay ordinary use cases instead of unwritten operations.
+**Rationale:** A store holds state no aggregate invariant guards, so nothing in the model says who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner states who answers for its shape, and staff actions on it stay ordinary use cases instead of unwritten operations.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a store aggregate page without `owner`.
 
@@ -177,7 +183,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each entity MUST declare its lifecycle as `states` entries with a name and a meaning.
 
-**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page and gives `transitions` states worth connecting. An entity tracks what the thing is, while a store carries no lifecycle and therefore no states.
+**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page and gives `transitions` states to connect. An entity tracks what the thing is, while a store carries no lifecycle and therefore no states.
 
 **Example:** The library's hold queue entity declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
 
@@ -193,7 +199,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** A store MUST carry no states.
 
-**Rationale:** A store holds state no aggregate invariant guards, so a lifecycle on it promises what nothing guards: its states would claim a reviewed path while any writer moves the rows. The store names its owner instead, as `litespec/core/domain-model#name-the-owner-of-every-store` states, and staff actions on it stay ordinary use cases.
+**Rationale:** A store holds state no aggregate invariant guards, so a lifecycle on it promises what nothing guards: its states would claim a reviewed path while any writer changes the rows. The store names its owner instead, as `litespec/core/domain-model#name-the-owner-of-every-store` states, and staff actions on it stay ordinary use cases.
 
 **Example:** Claimwick's suppression list declares `kind: store` with its owner, and no states.
 
@@ -209,7 +215,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each entity MUST list every allowed state change with the use case or job moving it in `transitions`, including the creation that enters its first state.
 
-**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case or job moving it in `movedBy` shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. A transition moved by time names the job in `movedBy` with the duration from entering its source state in `after`. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state, use case, or job.
+**Rationale:** States without transitions list names with no path between them: a reviewer sees where an aggregate can stand but never how it moves. Listing every allowed change with the use case or job moving it in `movedBy` shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. A transition moved by time names the job in `movedBy` with the duration from entering its source state in `after`. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state, use case, or job.
 
 **Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `transition-unknown` (level G) for a transition naming a missing state, or a `movedBy` naming no use case or job.
 
@@ -239,7 +245,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each rule MUST name what it constrains in `governs`.
 
-**Rationale:** A rule that names no governed record constrains nothing a reader can find, and the condition floats beside the records it should hold. Naming the constrained aggregates and use cases in `governs` pins each rule to its records. The governed records match the links that name the rule: input `rules`, consistency bindings, calculation links, scenario `exercises`, and result refusals. A rule governs records of its own module.
+**Rationale:** A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates and use cases in `governs` pins each rule to its records. The governed records match the links that name the rule: input `rules`, consistency bindings, calculation links, scenario `exercises`, and result refusals. A rule governs records of its own module.
 
 **Example:** The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results that cite its code.
 
@@ -317,7 +323,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each reservation rule MUST name the use case releasing it in `releasedBy`, or `{ "mode": "never", "reason": "..." }` with its cost.
 
-**Rationale:** A held claim with no release is a leak: places, funds, or names stay locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start. A hold that truly lasts is admitted with `{ "mode": "never", "reason": "..." }` and its cost, with the price on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/backend/persistence#claim-a-cross-record-key-at-commit`).
+**Rationale:** A held claim with no release keeps places, funds, or names locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start. A hold that truly lasts is admitted with `{ "mode": "never", "reason": "..." }` and its cost on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/backend/persistence#claim-a-cross-record-key-at-commit`).
 
 **Checked by:** `litespec model check` reports `reservation-release-missing` for a reservation rule whose `releasedBy` names neither a use case nor `{ "mode": "never", "reason": "..." }` with its cost.
 
@@ -345,7 +351,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** A value shown by a query and recorded by a command MUST cite the same calculation rule in `computedBy` on both use cases.
 
-**Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind both faces. Code carries a mark naming the rule, and never the reverse.
+**Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind the shown and the recorded value. Code carries a mark naming the rule; the rule never names code.
 
 **Reviewed for:** Do the query and the command behind one value cite the same calculation rule in `computedBy`? Check the use cases beside the calculation rule.
 
@@ -359,7 +365,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each calculation rule MUST be proven by a scenario carrying an `examples` table.
 
-**Rationale:** A calculation stated only as a sentence hides its edges, so reviewers agree on the words while each pictures other numbers. An `examples` table shows those edges, and the scenario proving the rule pins them as checked facts.
+**Rationale:** A calculation stated only as a sentence hides its edge cases, so reviewers agree on the words while each pictures other numbers. An `examples` table shows those edge cases, and the scenario proving the rule pins them as checked facts.
 
 **Checked by:** `litespec model check` reports `calculation-table-missing` for a calculation rule with no scenario examples table.
 

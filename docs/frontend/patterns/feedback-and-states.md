@@ -3,25 +3,25 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-This page holds the patterns for the states a screen shows around its work. Each decided state says what happened, what it means, and what to do next, so staff never guess what a screen is telling them.
+This page defines the patterns for the states a screen shows around its main work. Each pattern answers one recurring question about those states, from what an empty list shows to how a failed command reports itself, and every decided state says what happened, what it means, and what the reader can do next.
 
-The states are no records yet, no results, loading, a refused command, a command that worked, a notice before acting, a forbidden page, no connection, an expired sign-in, a conflict, work that runs in the background, a missing record, a server failure, maintenance, and a rate limit. An owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions.
+Each pattern names a default option: the shape the project builds unless the owner records another choice in the project's pattern catalog, the file that holds the project's interface decisions.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-A pattern answers one recurring question about screen states, such as what a list shows before its first records exist. It opens with that question, then names its default option: the shape the project builds unless the owner records another choice. It then says how the default behaves on a narrow screen, why the default won, which alternative fits which case, and which shape to leave out.
+A pattern answers one recurring question about screen states, such as what a list shows before its first records exist. It states that question, then names its default option: the shape the project builds unless the owner records another choice. It then states how the default behaves on a narrow screen, the reason it is the default, which alternative fits which case, and which shape to leave out.
 
-Each option is one `####` heading with a stable option ID, one wireframe drawing, and three short parts: its rationale, its cost, and sometimes a reference to the outside product it learns from. A wireframe states the structure of the option and the copy it shows, and nothing about color, font, or components: the team builds the chosen option in its own stack and design system. For example, the loading pattern draws skeleton rows at the real row height as the default, and an owner who needs a re-read indicator records the thin-bar option instead.
+Each option is one `####` heading with a stable option ID, one wireframe, and short parts after it: its rationale, its cost, and sometimes a reference naming the established product the option follows.
 
-Each choice lands in the project's pattern catalog, the file that holds the project's interface decisions. The [UI patterns page](../patterns.md) states the catalog contract and the wireframe language.
+A wireframe states the structure of the option and the copy it shows, and nothing about color, font, or components: the team builds the chosen option in its own stack and design system. For example, the loading pattern's default draws skeleton rows at the real row height, and an owner who needs a re-read indicator records the thin-bar option instead. The [UI patterns page](../patterns.md) states the catalog contract and the wireframe language.
 
 ### The Running Example
 
-The drawings use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them. On this page, the reader is the staff member using the screen.
+The reader is the staff member using the screen. The wireframes use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them.
 
-Every drawing keeps the six rules from the Standards section below. A refusal or error message states what failed and the next step. A failed save keeps the reader's input on screen. Each status is announced by its urgency. A loading region marks itself busy. Focus moves to a refusal, and unsent input survives a dropped connection.
+Every wireframe follows the six rules in Standards below: a refusal or error message states what failed and the next step; a failed save keeps the reader's input on screen; each status is announced by its urgency; a loading region marks itself busy; focus moves to a refusal; and unsent input survives a dropped connection.
 
 ## Standards
 
@@ -33,7 +33,7 @@ Every drawing keeps the six rules from the Standards section below. A refusal or
 
 **Statement:** A refusal or error message MUST state what failed and the next step the reader can take.
 
-**Rationale:** A message that only says something went wrong leaves the reader guessing whether to retry, fix input, or ask for help. Most readers retry blindly or give up. Naming what failed plus the one next step turns the dead end into a task the reader can complete.
+**Rationale:** A message that only says something went wrong leaves the reader guessing whether to retry, fix input, or ask for help; most readers retry blindly or give up. Naming what failed and the one next step gives the reader a task to complete instead of a message to guess at.
 
 **Reviewed for:** Does every built failure message name the cause and the way forward? Open the refused commands and failed reads on built screens.
 
@@ -57,7 +57,7 @@ Every drawing keeps the six rules from the Standards section below. A refusal or
 
 **Statement:** A page MUST announce each status through one of two live regions present when the page loads: a polite region for routine news and one assertive region for a session about to end, a lost connection holding unsent input, or a failed money command.
 
-**Rationale:** A live region added at the moment of the message is often not read, so both regions exist from the page load. Assertive messages interrupt whatever the reader hears, so only blocking news earns them: a session about to end, a lost connection holding unsent input, or a failed money command. This is WCAG 4.1.3 Status Messages, which asks that status changes be announced without moving focus.
+**Rationale:** A live region added at the moment of the message is often not read, so both regions exist from the page load. Assertive messages interrupt whatever the reader hears, so only blocking news uses the assertive region: a session about to end, a lost connection holding unsent input, or a failed money command. This is WCAG 4.1.3 Status Messages, which asks that status changes be announced without moving focus.
 
 **Reviewed for:** Does every built page announce routine news politely and add its live regions at load? Trigger each status with a screen reader and note which region speaks.
 
@@ -69,7 +69,7 @@ Every drawing keeps the six rules from the Standards section below. A refusal or
 
 **Statement:** A loading region MUST expose its state through markup, as busy on the region or as role and value on a progress bar, and not through a live region announcement.
 
-**Rationale:** A `Loading` announcement on every read buries the messages that matter. A region marked busy with `aria-busy="true"` stays silent while assistive technology reports its state on request, and a progress bar with its role and value says how far the read has come. Announcements stay for the news that matters.
+**Rationale:** A `Loading` announcement on every read hides the messages that matter. A region marked busy with `aria-busy="true"` stays silent while assistive technology reports its state on request, and a progress bar with its role and value says how far the read has come. Announcements stay for the news that matters.
 
 **Reviewed for:** Does every built loading region stay silent in live regions and expose its busy mark or progress role? Trigger each load with a screen reader and inspect the loading markup.
 
@@ -93,7 +93,7 @@ Every drawing keeps the six rules from the Standards section below. A refusal or
 
 **Statement:** A route that loses its connection MUST keep the user's unsent input and show the error state with a retry action.
 
-**Rationale:** A long expense form lost to a train tunnel is typed again or abandoned. Keeping the unsent input on screen with a retry action turns the dead connection into a wait: the reader retries the read instead of retyping the form.
+**Rationale:** A long expense form lost to a dropped connection is typed again or abandoned. Keeping the unsent input on screen with a retry action lets the reader retry the read instead of retyping the form.
 
 **Reviewed for:** Does every built route keep typed input when the connection drops and offer a retry? Drop the connection on each route holding unsent input and try the retry.
 
@@ -538,7 +538,7 @@ page
 
 **Compact:** Below the md breakpoint the default option reflows: the notice sits under the header and above the sections.
 
-**Rationale:** The default is one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the notice inside the section it is about; prefer it where the fact changes what the reader does in that section only. The side column is the other alternative for a record where the fact changes the next step. A full-width toned band for one record stays out: it paints other work with the same alarm.
+**Rationale:** The default is one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the notice inside the section it is about; prefer it where the fact changes what the reader does in that section only. The side column is the other alternative for a record where the fact changes the next step. A full-width toned band for one record stays out: it covers other work with an alarm meant for one record.
 
 **Reviewed for:** Does every built must-read notice match the wireframe its catalog entry chose? Open the built page notices, section notices, and side columns beside the catalog entry recording the chosen option and its reason.
 
@@ -713,7 +713,7 @@ page
 
 **Compact:** Below the md breakpoint the default option reflows: the band sits above the breadcrumb, and the table keeps its first two columns.
 
-**Rationale:** The default is one band saying what is stale, when it was read, and what still works. A stale page the reader can read beats a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed. Showing nothing is the other alternative for a page where acting on stale money would move the wrong money. Whatever the reader typed stays on the page while the connection is gone, and every failed read offers its retry. Queuing a command that moves money stays out: a reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
+**Rationale:** The default is one band saying what is stale, when it was read, and what still works. A stale page the reader can still read is better than a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed. Showing nothing is the other alternative for a page where acting on stale money would move the wrong money. Whatever the reader typed stays on the page while the connection is gone, and every failed read offers its retry. Queuing a command that moves money stays out: a reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
 
 **Reviewed for:** Does every built offline screen match the wireframe its catalog entry chose? Open the built stale banners, failed reads, and refused pages beside the catalog entry recording the chosen option and its reason.
 
@@ -955,7 +955,7 @@ page
 
 **Rationale:** On a conflict the dialog offers three buttons with no field surgery: keep mine, take hers, or look at both. It says whose version is whose.
 
-**Cost:** This is a whole-record choice. Ben's arrival time and his notes travel together, so he keeps both or takes both.
+**Cost:** This is a whole-record choice: Ben keeps both his arrival time and his notes, or takes both of hers.
 
 **Reference:** Dropbox, Office
 
@@ -1059,7 +1059,7 @@ page
 
 **Compact:** Below the md breakpoint the default option reflows: the title, the explanation, and the two ways back stack in one column.
 
-**Rationale:** The default is `Not found`, with the way back. It names the record, covers the three ways a record goes missing, and offers the list and the search. The runner-up is the section that says so while the page stays; prefer it for a child missing from a parent that exists. Naming who removed a record and when suits a record the reader saw yesterday. The bare code stays out: a code means nothing to a reader, and a dead end with a number on it is still a dead end.
+**Rationale:** The default is `Not found`, with the way back. It names the record, covers the three ways a record goes missing, and offers the list and the search. The runner-up is the section that says so while the page stays; prefer it for a child missing from a parent that exists. Naming who removed a record and when suits a record the reader saw yesterday. The bare code stays out: a code means nothing to a reader, and a page with no way back is no better for carrying a number.
 
 **Reviewed for:** Does every built missing-record screen match the wireframe its catalog entry chose? Open the built not-found pages, section notices, and removal notices beside the catalog entry recording the chosen option and its reason.
 
@@ -1076,7 +1076,7 @@ page
     action "Search expenses"
 ```
 
-**Rationale:** The page names the missing record, says what may have happened, and offers the list and the search. The reader typed one character wrong. The fix is one look away.
+**Rationale:** The page names the missing record, says what may have happened, and offers the list and the search. A reader who typed one character wrong finds the record there.
 
 **Cost:** The suggestions are guesses. Where the record belongs to another company, no suggestion helps, and the copy has to say so rather than keep guessing.
 
@@ -1361,6 +1361,6 @@ page
 
 **Rationale:** A hard stop gets a whole page: what happened, when to come back, and a reference to quote. There is deliberately no retry button, because retrying is what caused this state.
 
-**Cost:** The page offers nothing to do but wait, so it fits a stop measured in minutes. For a stop measured in seconds it would be an insult, and the default option handles those.
+**Cost:** The page offers nothing to do but wait, so it fits a stop measured in minutes. For a stop measured in seconds a whole page is too much, and the default option handles those.
 
 **Reference:** Cloudflare

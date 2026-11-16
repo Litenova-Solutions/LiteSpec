@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** operations
 
-Delivery holds the release, deployment, and operations rules a project adds when running the product for other people takes a formal regime. It covers release readiness gates, artifact promotion, deployment and rollback, backup and restore, alerts and runbooks, the supply-chain gate, container image build, rollout and runtime limits, and agent handoff. A project that only needs the core checks, contracts, and review flow in the baseline carries none of it. A team that operates the product in production selects it, so each release deploys, recovers, and answers alerts by a written procedure instead of improvisation, with container releases shipping the same image bytes they tested.
+Delivery states the release, deployment, and operations rules for running the product for other people under a formal regime. It covers release readiness gates, artifact promotion, deployment and rollback, backup and restore, alerts and runbooks, the supply-chain gate, container image build, rollout and runtime limits, and agent handoff. A project that needs only the baseline checks, contracts, and review flow selects nothing here. A team that operates the product in production selects this extension, so each release deploys, recovers, and responds to alerts by a written procedure, and each container release ships the image bytes it tested.
 
 ## Activation
 
@@ -37,7 +37,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A release MUST show green G checks, verified scenarios, and green S checks where the reader is qualified.
 
-**Rationale:** The three parts prove the three risks are closed: G checks prove the record graph holds, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
+**Rationale:** The three parts prove the three risks are closed: G checks prove the record graph holds, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unchecked. `litespec model check --release` makes the release-readiness findings block, so the gate runs as a command.
 
 **Example:** Claimwick's reimbursement release shows green G checks, every scenario verified, and green S checks on the .NET reader.
 
@@ -53,7 +53,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A release MUST provide repeatable schema creation or upgrade, backup instructions, and a tested restore.
 
-**Rationale:** A product that cannot recreate its schema, back up its data, and restore from backup holds customer data it cannot recover. Repeatable setup plus a tested restore turns recovery from a hope into a rehearsed procedure.
+**Rationale:** A product that cannot recreate its schema, back up its data, and restore from backup holds customer data it cannot recover. Repeatable setup plus a tested restore makes recovery a rehearsed procedure.
 
 **Example:** Claimwick's release ships its schema creation script, its backup instructions, and the log of its latest restore rehearsal.
 
@@ -69,7 +69,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A release MUST expose liveness, readiness, and trace-correlated diagnostics, and keep secrets outside source control.
 
-**Rationale:** Operators cannot keep a product they cannot see: liveness and readiness signals drive restarts and traffic, and trace-correlated diagnostics connect each failure to its cause. Secrets stay outside source control because a committed secret is a published one.
+**Rationale:** Operators cannot keep a product they cannot see: liveness and readiness signals drive restarts and traffic, and trace-correlated diagnostics connect each failure to its cause. Secrets stay outside source control because anything committed there is exposed to everyone who can read it.
 
 **Example:** Claimwick's release exposes liveness, readiness, and trace-correlated diagnostics, with its database password supplied outside source control.
 
@@ -85,7 +85,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A release MUST ship with tested deployment and rollback paths, current operating limits, and the runbooks those limits name.
 
-**Rationale:** Tested deployment and rollback paths, current limits, and the runbooks those limits name make every release repeatable and every failure recoverable. Without tested paths, each deployment is improvised; without current limits and their runbooks, each incident starts from scratch.
+**Rationale:** Tested deployment and rollback paths, current limits, and the runbooks those limits name make every release repeatable and every failure recoverable. Without tested paths, each deployment is improvised; without current limits and their runbooks, each incident is handled without a procedure.
 
 **Example:** Claimwick's release ships its deployment script, its rollback runbook, its current memory and CPU limits, and the runbooks those limits name.
 
@@ -101,7 +101,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A release record MUST list build, test, contract, security, flow, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results.
 
-**Rationale:** Build, test, contract, security, flow, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results together show the artifact works and can be operated. A missing kind is evidence nobody produced.
+**Rationale:** Build, test, contract, security, flow, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results together show the artifact works and can be operated. A missing kind means nobody produced that evidence.
 
 **Example:** Claimwick's release record lists a result for each kind, from build through rollback.
 
@@ -133,7 +133,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A consumer before its first production release MUST keep a readiness record with dated rehearsals, green gates, and a rehearsal owner.
 
-**Rationale:** A release record binds evidence to one artifact, so a product with no artifact yet has nothing to record in one. The readiness record instead states what proves the product may take data: dated rehearsals, green gates, and a rehearsal owner who owns the backup and restore rehearsal.
+**Rationale:** A release record binds evidence to one artifact, so a product with no artifact yet has nothing to record in one. The readiness record instead states the evidence that the product is ready to take data: dated rehearsals, green gates, and a rehearsal owner responsible for the backup and restore rehearsal.
 
 **Example:** Claimwick's readiness record names its rehearsal owner and dates its backup and restore rehearsal before the first customer data arrives.
 
@@ -165,7 +165,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** CI MUST enforce the supply-chain gate on every pull request.
 
-**Rationale:** When a new advisory names a component and a version range, the team needs one fast answer: does any running release contain it. Without a component inventory beside the artifact, finding that answer means rebuilding the dependency graph of a commit somebody must find first. [NIST SP 800-218](https://csrc.nist.gov/publications/detail/sp/800-218/final) states the practice, and the frozen lockfile the build resolved is what the inventory is generated from. OSV-Scanner matches dependencies against OSV.dev advisories, and Gitleaks scans for leaked secrets, so advisories and secrets each have one evidence tool.
+**Rationale:** When a new advisory names a component and a version range, the team needs one fast answer: does any running release contain it. Without a component inventory beside the artifact, finding that answer means rebuilding the dependency graph from a commit that somebody must first identify. [NIST SP 800-218](https://csrc.nist.gov/publications/detail/sp/800-218/final) states the practice, and the frozen lockfile the build resolved is what the inventory is generated from. OSV-Scanner matches dependencies against OSV.dev advisories, and Gitleaks scans for leaked secrets, so advisories and secrets each have one evidence tool.
 
 **Example:** Claimwick's build job generates its inventory from the same frozen lockfile it built from, and stores that inventory beside the artifact under the release version.
 
@@ -181,7 +181,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** CI MUST publish a preview of the book for every change.
 
-**Rationale:** The intent diff names what moved, while the preview shows it rendered, with the changed records readable beside their neighbors. The reader clicks from the comment into the preview for full context.
+**Rationale:** The intent diff names what changed, while the preview shows it rendered, with the changed records readable beside their neighbors. The reader clicks from the comment into the preview for full context.
 
 **Example:** Claimwick's pull request comment links to a preview where the changed requirement reads beside its feature.
 
@@ -227,7 +227,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A direct push or bypassed check on the default branch MUST produce a record naming the actor, the reason, and the change it admitted.
 
-**Rationale:** Gates can't run during some recoveries, so the bypass permission lets a recovery proceed. A recovery nobody wrote down is indistinguishable from a habit, so the next reviewer cannot tell which commits on the branch were reviewed. The record names the actor, the reason, and the admitted change, which is the attribution [NIST SP 800-218](https://csrc.nist.gov/publications/detail/sp/800-218/final) states for the same event.
+**Rationale:** Gates can't run during some recoveries, so the bypass permission lets a recovery proceed. An unrecorded recovery is indistinguishable from skipping the gates by habit, so the next reviewer cannot tell which commits on the branch were reviewed. The record names the actor, the reason, and the admitted change, which is the attribution [NIST SP 800-218](https://csrc.nist.gov/publications/detail/sp/800-218/final) states for the same event.
 
 **Example:** Where a recovery decision exists, it serves as the record. A bypass smaller than a decision takes a dated entry in the operations log at `.litespec/implementation/operations/log/`.
 
@@ -291,7 +291,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** Every alert rule MUST carry a `requirement` label naming the quality requirement it measures and a `runbook` label naming the runbook that answers it, both as record identifiers.
 
-**Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. When that link is a file path or missing entirely, no tool can follow it. An alert can then outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its window and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states.
+**Rationale:** An alert watches a quality requirement at runtime: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. When that link is a file path or missing entirely, no tool can follow it. An alert can then outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its window and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states.
 
 **Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/approval-reminders.month-end-submission` and `runbook: runbook/slow-submissions` in its labels.
 
@@ -323,7 +323,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, waiver, or provision it carries out.
 
-**Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reasons usually live in comments no tool reads, so when a decision retires, its configuration stays behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
+**Rationale:** Operations files hold choices as consequential as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reasons usually live in comments no tool reads, so when a decision retires, its configuration stays behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
 
 **Example:** Claimwick's `deploy/Caddyfile` opens with `# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>`.
 
@@ -371,7 +371,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A project MUST rehearse a restore on representative data before its first deployment holds production data.
 
-**Rationale:** Backups fail in ways only a restore reveals: a missing key, a wrong permission, a dump the new version can't read. A rehearsal on representative data finds those failures while they cost nothing, before production data arrives. The first restore attempt is the wrong time to learn the backup cannot restore.
+**Rationale:** Backups fail in ways only a restore reveals: a missing key, a wrong permission, a dump the new version can't read. A rehearsal on representative data finds those failures while they cost nothing, before production data arrives.
 
 **Reviewed for:** Does the operations log show a restore rehearsal on representative data before the first production data? Check the operations log entries.
 
@@ -413,7 +413,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** Every recurring job MUST report liveness that pages a person when the job goes silent.
 
-**Rationale:** A recurring job with nothing to do is quiet, and a recurring job that stopped is quiet too. Without a liveness signal that pages a person on silence, the two stay indistinguishable until somebody notices the missing output. Liveness turns a quiet job from an observation into an alarm.
+**Rationale:** A recurring job with nothing to do is quiet, and a recurring job that stopped is quiet too. Without a liveness signal that pages a person on silence, the two stay indistinguishable until somebody notices the missing output.
 
 **Reviewed for:** Does every recurring job report liveness that pages a person when the job goes silent? Check each job and its alert rules.
 
@@ -492,7 +492,7 @@ Declaring all five before the production release makes each alert answerable the
 
 **Statement:** A production release MUST state its availability and latency objectives as OpenSLO files compiled by Sloth.
 
-**Rationale:** OpenSLO files state objectives as code, and Sloth validates them in CI and compiles them into Prometheus recording rules and burn-rate alerts. OpenTelemetry supplies the signals the objectives read, as `litespec/quality/operations#emit-correlated-diagnostics` states. Sloth and OpenTelemetry are free and maintained under Apache-2.0. Availability stays evidenced in production only.
+**Rationale:** OpenSLO files state objectives as code, and Sloth validates them in CI and compiles them into Prometheus recording rules and burn-rate alerts. OpenTelemetry supplies the signals the objectives read, as `litespec/quality/operations#emit-correlated-diagnostics` states. Sloth and OpenTelemetry are free and maintained under Apache-2.0. Availability is evidenced in production only.
 
 **Reviewed for:** Does every OpenSLO file pass Sloth validation with its generated alerts loaded? Check the Sloth validation output.
 
@@ -536,7 +536,7 @@ Declaring all five before the production release makes each alert answerable the
 
 **Statement:** Every direct package in the project's generated bill of materials MUST carry a license the project accepts in `dependencies.licenses`, or one its `admits` entry names.
 
-**Rationale:** A copyleft or commercial license binds the product the day the package ships. When nobody accepted the license at the change that brought it, the surprise surfaces at an audit instead. Listing the accepted licenses once, and naming any other license on the admitting decision, keeps each license choice a decision with a person's name on it.
+**Rationale:** A copyleft or commercial license binds the product the day the package ships. When nobody accepted the license at the change that brought it, the license is discovered at an audit instead. Listing the accepted licenses once, and naming any other license on the admitting decision, keeps each license choice a decision that names the person who made it.
 
 **Example:** Claimwick accepts `MIT`, `Apache-2.0`, and `BSD-3-Clause` in `dependencies.licenses`, so a direct package under `AGPL-3.0-only` that no decision admits is reported.
 
@@ -617,7 +617,7 @@ Output: the files to change and the report to write.
 
 **Statement:** An agent handing off work MUST re-run the verification its brief names before accepting worker output.
 
-**Rationale:** The agent handing off the work owns the result. It re-runs the verification the brief named and watches it pass, because a done claim without that run is a claim, not evidence. Accepting on trust moves the worker's defect into the handing-off agent's change.
+**Rationale:** The agent handing off the work owns the result. It re-runs the verification the brief named and watches it pass, because a done claim without that run is unverified. Accepting on trust moves the worker's defect into the handing-off agent's change.
 
 **Reviewed for:** Does every accepted output show a watched verification run? Check the verification runs the agent handing off the work reports.
 
@@ -659,7 +659,7 @@ Output: the files to change and the report to write.
 
 **Statement:** A release image MUST run its application with a non-root runtime user.
 
-**Rationale:** A compromised application process inherits the rights of its runtime user. A non-root user confines the attacker to what that user can touch. Root would hand over the whole container.
+**Rationale:** A compromised application process inherits the rights of its runtime user. A non-root user confines the attacker to what that user can access. Root would expose the whole container.
 
 **Reviewed for:** Does every release image run its application with a non-root user? Check the Dockerfiles and image configuration.
 
@@ -673,7 +673,7 @@ Output: the files to change and the report to write.
 
 **Statement:** A runtime image MUST contain only files required to run the deployed application.
 
-**Rationale:** Every file in the runtime image ships to every replica, where it waits for an attacker to read it. Copying only the files the application needs keeps the image small, quick to transfer, and quick to inspect. Each extra file is cost with no runtime purpose.
+**Rationale:** Every file in the runtime image ships to every replica, where an attacker can read it. Copying only the files the application needs keeps the image small, quick to transfer, and quick to inspect. Each extra file adds cost with no runtime purpose.
 
 **Reviewed for:** Does every runtime image contain only the files the declared runtime manifest names? Check the image file listing beside the declared runtime manifest.
 
@@ -729,7 +729,7 @@ Output: the files to change and the report to write.
 
 **Statement:** A deployment controller MUST start new replicas and wait for readiness before shifting traffic.
 
-**Rationale:** New replicas need time to load before they serve, and a replica that receives traffic mid-startup fails its first requests. The controller starts the new replicas, waits for readiness, and only then shifts traffic, so the new version proves it serves before it becomes the version.
+**Rationale:** New replicas need time to load before they serve, and a replica that receives traffic mid-startup fails its first requests. The controller starts the new replicas, waits for readiness, and only then shifts traffic, so the new version proves it can serve before it takes traffic.
 
 **Reviewed for:** Does every deployment wait for new replicas to reach readiness before shifting traffic? Check the deployment controller behavior.
 
@@ -771,7 +771,7 @@ Output: the files to change and the report to write.
 
 **Statement:** A deployment MUST declare writable paths and record CPU and memory bounds as setting records.
 
-**Rationale:** Declared writable paths name the mutable storage the application needs. CPU and memory bounds as setting records cap what one deployment can consume, which protects the node's capacity from one hungry replica and tells the next reader what the application was sized for.
+**Rationale:** Declared writable paths name the mutable storage the application needs. CPU and memory bounds as setting records cap what one deployment can consume, which protects the node's capacity from one replica consuming more than its share, and tells the next reader what the application was sized for.
 
 **Reviewed for:** Does every deployment declare writable paths and record CPU and memory bounds as setting records? Check the deployment manifests beside the setting records.
 
@@ -813,7 +813,7 @@ Output: the files to change and the report to write.
 
 **Statement:** A containerized application MUST write logs to standard output or standard error.
 
-**Rationale:** A container filesystem vanishes with its replica, so a log file inside the container dies with the evidence it holds. Standard output and standard error hand each line to the platform's log collection, which keeps logs past the life of any one replica.
+**Rationale:** A container filesystem vanishes with its replica, so a log file inside the container is lost with it. Standard output and standard error hand each line to the platform's log collection, which keeps logs past the life of any one replica.
 
 **Reviewed for:** Does every containerized application write logs to standard output or standard error? Check the application logging configuration.
 
@@ -841,7 +841,7 @@ Output: the files to change and the report to write.
 
 **Statement:** A release image MUST include OCI source, revision, version, and created-time labels.
 
-**Rationale:** Labels in the OCI standard form connect each image to the commit and release that produced it: source, revision, version, and created time. An incident responder reads the running image's labels and opens the exact source. Images without labels force that join through guesswork.
+**Rationale:** Labels in the OCI standard form connect each image to the commit and release that produced it: source, revision, version, and created time. An incident responder reads the running image's labels and opens the exact source. Without labels, joining a running image to its source takes guesswork.
 
 **Reviewed for:** Does every release image carry OCI source, revision, version, and created-time labels? Check the built images.
 
@@ -869,7 +869,7 @@ Output: the files to change and the report to write.
 
 **Statement:** A published OpenAPI document or generated client MUST NOT contain a build timestamp.
 
-**Rationale:** A generated-at field or a build-time comment changes the OpenAPI document and generated clients on every build. The diff then reports change where no contract changed, and that noise buries real breaks. Contracts carry version identity instead of build time.
+**Rationale:** A generated-at field or a build-time comment changes the OpenAPI document and generated clients on every build. The diff then reports change where no contract changed, and that noise hides real breaking changes. Contracts carry version identity instead of build time.
 
 **Reviewed for:** Is every published OpenAPI document and generated client free of build timestamps? Check the generated contracts.
 

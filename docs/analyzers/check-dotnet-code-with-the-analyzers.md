@@ -1,6 +1,6 @@
 # Check .NET Code with the Analyzers
 
-The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate waiver where a finding is wrong for the project. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Install the analyzer package once for the backend projects and their tests, read and fix the first errors, and record a deliberate waiver where a finding is wrong for the project. The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -32,7 +32,13 @@ and drop `Version` from the `PackageReference`. Do not add a second copy in any 
 
 ### 2. Confirm the Layout
 
-A rule only runs in the layers its provision covers, so next confirm that every file resolves to the layer you mean. The analyzers read the layer from the file's folder and, inside a use case folder, from its role suffix, as the [Analyzers overview](README.md) describes; test files resolve as Test. When the project selects the `layer-projects` extension, the layer comes from the assembly name suffix instead: `Shop.Domain` resolves as Domain, and the same suffix rule maps Application, Infrastructure, WebApi, and Worker, with `Application.Abstractions` for the shared contracts project. An assembly whose name carries no layer suffix is not analyzed.
+A rule only runs in the layers its provision covers, so next confirm that every file resolves to the layer you mean.
+
+#### Resolve File Layers
+
+The analyzers read the layer from the file's folder and, inside a use case folder, from its role suffix, as the [Analyzers overview](README.md) describes; test files resolve as Test. When the project selects the `layer-projects` extension, the layer comes from the assembly name suffix instead: `Shop.Domain` resolves as Domain, and the same suffix rule maps Application, Infrastructure, WebApi, and Worker, with `Application.Abstractions` for the shared contracts project. An assembly whose name carries no layer suffix is not analyzed.
+
+#### Declare the Layer Explicitly
 
 Under `layer-projects`, a project whose name ends in no layer name declares its layer in its project file:
 
@@ -43,6 +49,8 @@ Under `layer-projects`, a project whose name ends in no layer name declares its 
 ```
 
 The accepted values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value that names no known layer reports `LS2017`. `None` opts a project out and turns off the whole package there: no analyzer rule runs, and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package takes the layout from `selectedExtensions` in `.litespec/project.yaml`, so there is nothing else to wire. This step puts in place the shared kernel and modules projects with their hosts from [the .NET architecture page](../backend/dotnet/architecture.md).
+
+#### Check the Record Layer Claims
 
 The package also follows the record layers the project claims. A project that claims the record model alone gets no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5001` to `LS5012`, so a project can mark its code in its own layout before taking on the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing `.litespec/project.yaml`, set the property in that project's file:
 
@@ -145,7 +153,7 @@ The caller in Application supplies `publishedAt` from its own clock, and tests p
 
 ### 5. Let the Build Fail on Findings in CI
 
-There is nothing more to set up: every rule is an error by default, so `dotnet build` already fails on a finding. The `build` job compiles the solution with `dotnet build <solution>`, which means a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. [The continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) lists the jobs each change selects. Lower a severity only where a waiver allows it, as the next step describes.
+No further setup is needed: every rule is an error by default, so `dotnet build` already fails on a finding. The `build` job compiles the solution with `dotnet build <solution>`, which means a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. [The continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) lists the jobs each change selects. Lower a severity only where a waiver allows it, as the next step describes.
 
 ### 6. Record a Deliberate Waiver
 
@@ -173,4 +181,6 @@ Confirm the setup with these checks:
 - `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or only ones a waiver covers.
 - Add a temporary enum to a Domain folder and rebuild: the build reports `LS1002` naming the enum.
 - Remove the enum and rebuild: the error is gone.
-- Claim only `intent` and `behavior` in `layers` in `.litespec/project.yaml` and rebuild: the build lists no `LS` diagnostics. Claim `implementation: own` and rebuild with the enum in place: the build still lists no `LS1002`. Set `implementation: litespec` and rebuild: `LS1002` returns.
+- Set `layers` in `.litespec/project.yaml` to `intent` and `behavior` only and rebuild: the build lists no `LS` diagnostics.
+- With the enum in place, claim `implementation: own` and rebuild: the build still lists no `LS1002`.
+- Set `implementation: litespec` and rebuild: `LS1002` returns.

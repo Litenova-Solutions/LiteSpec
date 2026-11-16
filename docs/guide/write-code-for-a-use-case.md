@@ -1,6 +1,8 @@
 # Write Code for a Use Case
 
-A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. This guide places each code element of a use case in its folder and gives it the mark its record needs, so a writer adds a use case without searching the stack pages for each placement rule.
+Place each code element of a use case in its folder and give it the mark its record needs, following the table below, so you can add a use case without searching the stack pages for each placement rule.
+
+A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer.
 
 ## Prerequisites
 
@@ -39,7 +41,7 @@ A use case folder holds an `Application/` folder, and a `WebApi/` folder when th
 
 The table lists no screens: whether a browser reaches a use case depends on the deployment.
 
-A row whose check names a review is read by a reviewer. Every other check is a finding that the [model command](../tools/model.md) reports.
+Where the Checked By cell names a review, a reviewer reads the row. Every other row is checked by a finding that the [model command](../tools/model.md) reports.
 
 Two code checks hold the marks to their records:
 

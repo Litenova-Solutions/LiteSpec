@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** workspace
 
-A stack binds the specification to one technology: a backend stack lives under `backend/`, and a frontend stack under `frontend/`. Selecting one applies exactly the provisions, version pins, and checks that technology needs. This page states what selecting a stack applies, where its versions come from, and how a replacement names every baseline provision it replaces.
+A stack binds the specification to one technology: a backend stack lives under `backend/`, and a frontend stack under `frontend/`. Selecting a stack applies exactly the pages, version pins, and checks that technology needs: the provisions in its folder and above it, the pins in the manifest, and replacements that name every baseline provision they replace.
 
 ## Concepts
 
@@ -17,9 +17,7 @@ Selecting a stack applies its folder and every folder above it, so a stack never
 
 ### Where Versions Come From
 
-Every SDK, framework, and package version resolves from `litespec.manifest.yaml`, which owns the pins. One source for every pin keeps each consumer on the same tested combination.
-
-Copy a version from anywhere else, prose, an example, a package search, or agent memory, and it drifts from the pin with the next edit.
+Every SDK, framework, and package version resolves from `litespec.manifest.yaml`, which owns the pins. One source for every pin keeps each consumer on the same tested combination. A version copied from anywhere else, prose, an example, a package search, or agent memory, drifts from the pin with the next edit.
 
 ### How a Replacement Names What It Changes
 
@@ -90,6 +88,6 @@ A selection can name a stack, shape, page, or extension that no page applies. Th
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Naming each selected stack in `.litespec/project.yaml` with the solution, applications, and commands in the root `AGENTS.md` lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.
+**Rationale:** When `.litespec/project.yaml` names each selected stack and the root `AGENTS.md` names the solution, applications, and commands, an agent resolves the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. A visible selection also tells a human reader what the project runs before opening any code.
 
 **Reviewed for:** Does `.litespec/project.yaml` name each selected stack, and does the root `AGENTS.md` name the solution, applications, and commands? Check both files against the project layout.

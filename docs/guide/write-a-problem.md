@@ -1,6 +1,8 @@
 # Write a Problem
 
-A problem states a pain that people outside the team have today, before any feature answers it. This guide writes one problem record, `<name>.yaml`, and its explanation file `<name>.md`, so a reader who has never met the author can understand the problem, judge its evidence, and propose a different solution.
+Write one problem as a record file `<name>.yaml` and an explanation file `<name>.md`, so a reader who has never met the author can understand the problem, judge its evidence, and propose a different solution.
+
+A problem states a pain that people outside the team have today, before any feature answers it.
 
 Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 
@@ -18,7 +20,7 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 ### Scaffold the Problem
 
-Scaffold the record before you write any prose. Run `litespec new problem <name>`, which writes `.litespec/intent/problems/<name>/<name>.yaml` and reserves the identifier `problem/<name>`. When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the problem template. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
+Run `litespec new problem <name>` before writing any prose. The command writes `.litespec/intent/problems/<name>/<name>.yaml` and reserves the identifier `problem/<name>`. When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the problem template. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
 ### Name the Failure in the Title
 
@@ -71,7 +73,7 @@ Under Failure Cases, give each failure that can happen on its own its own entry.
 - **The employee cannot see the decision.** Nothing tells the employee when the approver decides, so the employee learns the outcome only by asking.
 ```
 
-Two failures joined in one sentence read as one failure, so a solution that ends one of them looks finished. Direction matters when two records should agree: an entry missing from the first and an entry missing from the second are found by different checks. This satisfies `litespec/core/intent#state-each-failure-case-on-its-own`.
+Two failures joined in one sentence read as one failure, so a solution that ends one of them looks finished. Direction matters when two records should agree: an entry missing from the first and an entry missing from the second are found by different checks, so a solution checked one way only leaves the other failure in place. This satisfies `litespec/core/intent#state-each-failure-case-on-its-own`.
 
 ### Add an Example When the Failure Is Hard to Follow
 
@@ -79,7 +81,7 @@ Add the optional Example section when a concrete case helps the reader see the f
 
 ### Describe the Workaround and Its Burden
 
-Under Current Workaround, say what the sufferer does today and what that costs in effort: the time it takes, what they repeat or have to remember, and what it still misses. Work done by hand alone is no burden; its cost is.
+Under Current Workaround, say what the sufferer does today and what that costs in effort: the time it takes, what they repeat or have to remember, and what it still misses. The burden is what the manual work costs, not the fact that it is manual.
 
 | Instead of | Write |
 |:---|:---|

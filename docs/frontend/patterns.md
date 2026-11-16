@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-One pattern catalog decides each recurring interface question once, such as how an expense page lays out or what an empty list shows, instead of letting each screen invent its own answer. Each entry records the options considered, the option chosen and who chose it, the narrow-screen behavior, and the implementation status per platform. Product owners and frontend teams use the catalog when they choose and build interface behavior, so every screen answers the same question the same way.
+A pattern catalog decides each recurring interface question once, such as how an expense page lays out or what an empty list shows, instead of letting each screen invent its own answer. Each entry records the options considered, the option chosen and who chose it, the narrow-screen behavior, and the implementation status per platform. This page states the catalog contract, the pattern layout, and the wireframe language: product owners and frontend teams use the catalog when they choose and build interface behavior, so every screen answers the same question the same way.
 
 ## Concepts
 
@@ -38,9 +38,9 @@ The `breakpoints` map names viewport widths, and `groups` collect related patter
 
 ### Pattern Pages
 
-A pattern page holds one group of patterns, such as the record-detail group in `docs/frontend/patterns/record-detail.md`, and the [pattern pages index](patterns/README.md) lists every group. The patterns folder names no stack, so its pages apply to every frontend under `docs/frontend/`. Each `###` heading under `## Patterns` names one pattern, with the ID `litespec/frontend/patterns/<group>#<pattern-slug>`. The heading is a name rather than an action, so the ID survives a change of default.
+A pattern page holds one group of patterns, such as the record-detail group in `docs/frontend/patterns/record-detail.md`, and the [pattern pages index](patterns/README.md) lists every group. The patterns folder names no stack, so its pages apply to every frontend under `docs/frontend/`.
 
-A pattern carries four labeled fields, then its options.
+Each `###` heading under `## Patterns` names one pattern, with the ID `litespec/frontend/patterns/<group>#<pattern-slug>`. The heading is a name rather than an action, so the ID survives a change of default. A pattern carries four labeled fields, then its options.
 
 | Field | What it holds |
 |:---|:---|
@@ -49,7 +49,9 @@ A pattern carries four labeled fields, then its options.
 | `**Compact:**` | How the default behaves on a narrow screen |
 | `**Rationale:**` | Why the default, the runner-up and when to prefer it, and what to leave out |
 
-Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**`, and an optional `**Reference:**`. A `**Reference:**` names the outside product the option learns from; references are citations, not examples, and may name real products. A `**Rationale:**` or `**Cost:**` may name that product where it states what the option learns from it. An option ID is stable once published. The page's Standards hold the rules every option keeps.
+Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**`, and an optional `**Reference:**`. An option ID is stable once published, and the page's Standards hold the rules every option keeps.
+
+A `**Reference:**` names the outside product the option learns from. References are citations, not examples, and may name real products. A `**Rationale:**` or `**Cost:**` may name that product where it states what the option learns from it.
 
 ### The Wireframe Language
 
@@ -122,7 +124,9 @@ A screen's explanation file holds one fenced block with the info string `wirefra
 
 A catalog entry may set `library` to one pattern ID, such as `litespec/frontend/patterns/record-detail#record-header`, to start from that pattern. The entry keeps the pattern's option IDs and names, so a choice stays comparable across products, and it may add options of its own.
 
-The owner chooses among the combined options from the drawings on the pattern's page on the LiteSpec site, and records the source. The entry states the compact behavior and the implementation status per platform, and the platform team implements the chosen option in its own components. A choice differing from the pattern's default records its reason in the entry. An agent builds the pattern Default and records it with `source: recommended`; it waits for an owner only when the route departs from the Default or no Default exists.
+The owner chooses among the combined options from the drawings on the pattern's page on the LiteSpec site, and records the source. A choice differing from the pattern's default records its reason in the entry. The entry states the compact behavior and the implementation status per platform, and the platform team implements the chosen option in its own components.
+
+An agent builds the pattern Default and records it with `source: recommended`. It waits for an owner only when the route departs from the Default or no Default exists.
 
 The diagram shows the flow from a LiteSpec pattern through the catalog entry citing it to the built screen.
 
@@ -203,7 +207,7 @@ paths: {}
 
 **Statement:** Each pattern MUST record at least two options with rationale and cost, and name the chosen option.
 
-**Rationale:** Recording at least two options with their rationale and cost turns a preference into a decision the next team can revisit. When the chosen option stops fitting, the team reads the recorded cost of the alternative instead of repeating the research from nothing. An option recorded without its cost gives them no basis to compare. Settled by [decision/0028-one-default-and-two-pattern-options](decision/0028-one-default-and-two-pattern-options), which caps each pattern at its Default and two options.
+**Rationale:** Recording at least two options with their rationale and cost turns a preference into a decision the next team can revisit. When the chosen option stops fitting, the team reads the recorded cost of the alternative instead of researching it again from the start. An option recorded without its cost gives them no basis to compare. Settled by [decision/0028-one-default-and-two-pattern-options](decision/0028-one-default-and-two-pattern-options), which caps each pattern at its Default and two options.
 
 **Example:** An expense list considers two sort options: clickable headers and a menu listing sort fields. The entry records the rationale and cost of each, then names the chosen one.
 
@@ -332,7 +336,7 @@ The entry names the pattern's default option with `owner` as the source, so the 
 
 **Statement:** Each screen MUST carry one wireframe block in its explanation file, drawn in the wireframe language this page states.
 
-**Rationale:** The wireframe is the blueprint the screen is built from: the product owner settles the structure, the actions, and the words before any route exists, and the builder draws that drawing with the project's own components inside the page frame the screen names. Each action names a use case the screen offers, each state names a glossary term of the record shown, and each refusal names a result of an offered use case, so the drawing stays bound to the records. Proposed by decision 0089.
+**Rationale:** The wireframe is the blueprint the screen is built from: the product owner settles the structure, the actions, and the words before any route exists, and the builder renders that structure with the project's own components inside the page frame the screen names. Each action names a use case the screen offers, each state names a glossary term of the record shown, and each refusal names a result of an offered use case, so the drawing stays bound to the records. Proposed by decision 0089.
 
 **Example:** The Claimwick expense record carries this wireframe before its route exists.
 
@@ -409,6 +413,6 @@ page
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** An improvement learned in one product usually applies to every product, so keeping it local starves the shared patterns. Sending an accepted, product-neutral proposal to the LiteSpec pattern page, as a new option or a refined one, lets every later product start from it, while each product keeps its own choices. The proposal travels through `litespec/frontend/patterns#report-pattern-feedback-after-the-work` and reaches the pattern page after the owner accepts it.
+**Rationale:** An improvement learned in one product usually applies to every product, so keeping it local keeps it from every later product. Sending an accepted, product-neutral proposal to the LiteSpec pattern page, as a new option or a refined one, lets every later product start from it, while each product keeps its own choices. The proposal travels through `litespec/frontend/patterns#report-pattern-feedback-after-the-work` and reaches the pattern page after the owner accepts it.
 
 **Reviewed for:** Has every accepted product-neutral proposal reached the LiteSpec pattern page as a new or refined option? Look in the LiteSpec pattern pages and the accepted proposals.

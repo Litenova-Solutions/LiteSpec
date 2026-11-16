@@ -1,20 +1,31 @@
 # LiteSpec.Analyzers
 
+Use this page when you maintain the Roslyn analyzers in `apps/analyzers/`. It shows which file owns each behavior, how to add a rule from start to finish, how the tests prove a rule, and how to verify the package against a real project.
+
 ## Audience
 
-You maintain the Roslyn analyzers in `apps/analyzers/`: adding a rule, changing what a rule reports, changing how layers resolve, or shipping a release. This page shows which file owns each behavior, how to add a rule from start to finish, how the tests prove a rule, and how to verify the package against a real project.
+You maintain the Roslyn analyzers when you add a rule, change what a rule reports, change how layers resolve, or ship a release.
 
 ## What It Is
 
 `LiteSpec.Analyzers` is a Roslyn analyzer package that checks a .NET application against the LiteSpec standard while it compiles. It covers layer boundaries, Domain modeling, naming, and the traceability from code to records.
 
-The package reports 49 diagnostics in five categories. `LiteSpec.Domain` (`LS1001` to `LS1013`) covers Domain only. `LiteSpec.Layers` (`LS2001` and `LS2003` to `LS2022`) covers Application, Infrastructure, WebApi, and Worker as each rule states. `LiteSpec.Style` (`LS3001` to `LS3004`) covers production files, and `LiteSpec.Tests` (`LS4001`) covers test files only. `LiteSpec.Traceability` (`LS5001` to `LS5009`, `LS5011`, and `LS5012`) covers every layer as each rule states. Each diagnostic is an error by default, names the provision it enforces, and links to that provision on `litespec.dev` through its help link.
+The package reports 49 diagnostics in five categories:
 
-The package ships the analyzer assembly beside the assemblies it loads at analysis time. The project sets `DevelopmentDependency` to `true` and `IncludeBuildOutput` to `false`, then packs `LiteSpec.Analyzers.dll`, `LiteSpec.Model.dll`, `LiteSpec.Model.Roslyn.dll`, and `LiteSpec.Analyzers.CodeFixes.dll` under `analyzers/dotnet/cs` plus `build/LiteSpec.Analyzers.props` under `build`. Consumers reference the package with `PrivateAssets="all"`, so it never turns into a runtime dependency. Users read the rule list in the package README at `apps/analyzers/src/LiteSpec.Analyzers/README.md`, and the full per-rule reference, with breach and compliant examples, on one reference page per rule under the [Analyzer rules overview](../../docs/analyzers/rules/README.md). Read both before you change what any rule reports.
+- `LiteSpec.Domain` (`LS1001` to `LS1013`) covers Domain only.
+- `LiteSpec.Layers` (`LS2001` and `LS2003` to `LS2022`) covers Application, Infrastructure, WebApi, and Worker as each rule states.
+- `LiteSpec.Style` (`LS3001` to `LS3004`) covers production files, and `LiteSpec.Tests` (`LS4001`) covers test files only.
+- `LiteSpec.Traceability` (`LS5001` to `LS5009`, `LS5011`, and `LS5012`) covers every layer as each rule states.
+
+Each diagnostic is an error by default, names the provision it enforces, and links to that provision on `litespec.dev` through its help link.
+
+The package ships the analyzer assembly beside the assemblies it loads at analysis time. The project sets `DevelopmentDependency` to `true` and `IncludeBuildOutput` to `false`, then packs `LiteSpec.Analyzers.dll`, `LiteSpec.Model.dll`, `LiteSpec.Model.Roslyn.dll`, and `LiteSpec.Analyzers.CodeFixes.dll` under `analyzers/dotnet/cs` plus `build/LiteSpec.Analyzers.props` under `build`. Consumers reference the package with `PrivateAssets="all"`, so it never turns into a runtime dependency.
+
+Users read the rule list in the package README at `apps/analyzers/src/LiteSpec.Analyzers/README.md`, and the full per-rule reference, with breach and compliant examples, on one reference page per rule under the [Analyzer rules overview](../../docs/analyzers/rules/README.md). Read both before you change what any rule reports.
 
 ## Quick Start
 
-Run every command in this section from the repository root.
+Run every command in this section from the repository root. The package requires the .NET 9.0.300 SDK, Visual Studio 17.14, or later. That minimum comes from the Roslyn version below, not from the target framework.
 
 Build the solution, analyzers and tests included:
 
@@ -41,8 +52,6 @@ Add the package to a consumer project, or once in `Directory.Build.props`, follo
   <PackageReference Include="LiteSpec.Analyzers" Version="7.0.0" PrivateAssets="all" />
 </ItemGroup>
 ```
-
-The package requires the .NET 9.0.300 SDK, Visual Studio 17.14, or later. That minimum comes from the Roslyn version below, not from the target framework.
 
 ## Layout
 
@@ -77,9 +86,17 @@ Three files at the repository root shape how the analyzers build. `Directory.Bui
 
 ### How a Compilation Flows Through the Package
 
-Every layer-gated rule inherits `LayerAnalyzer`, and the traceability rules go through `TraceabilityAnalyzer`, so each rule follows the same path through a compilation. `Initialize` turns off analysis of generated code with `GeneratedCodeAnalysisFlags.None`, switches concurrent execution on, and registers a single compilation-start action. That action ignores the compilation when the declared `LiteSpecLayer` value is `None` or unknown, gates a declared or layer-projects compilation once through `AppliesTo`, and otherwise registers the rule for per-file gating, where each action builds a `FileScope` in `Register` and tests it against the file under analysis. A rule outside its layer registers nothing and costs nothing. `LS2017` breaks this pattern: `LayerNameAnalyzer` inherits `DiagnosticAnalyzer` directly, reads the declared value on its own, and reports an unknown value in any layer. The generator lives outside this flow. `LiteSpecGenerator` implements `IIncrementalGenerator` and writes its sources through `GeneratedSourceWriter.Execute`, which stays silent when the layer is `None` and writes the full surface for the module-layout application project otherwise.
+Every layer-gated rule inherits `LayerAnalyzer`, and the traceability rules go through `TraceabilityAnalyzer`, so each rule follows the same path through a compilation. `Initialize` turns off analysis of generated code with `GeneratedCodeAnalysisFlags.None`, switches concurrent execution on, and registers a single compilation-start action. That action ignores the compilation when the declared `LiteSpecLayer` value is `None` or unknown, gates a declared or layer-projects compilation once through `AppliesTo`, and otherwise registers the rule for per-file gating, where each action builds a `FileScope` in `Register` and tests it against the file under analysis.
 
-The declared layer wins in `ArchitectureLayerResolver`. When a project sets `<LiteSpecLayer>Domain</LiteSpecLayer>`, the build props expose the value as `build_property.LiteSpecLayer` and the resolver parses it while ignoring dots and case, so `Application.Abstractions` and `applicationabstractions` both match, and `Test` and `Tests` both name the test layer. One declared value covers every file in the project. An unknown value reports `LS2017` and opts the project out as `None`. With no declared property, the resolver uses the layout the build props derive from the selected extensions. Under `layer-projects` it reads the assembly name suffix, so `Shop.Domain` means Domain, `Shop.Application.Abstractions` means ApplicationAbstractions, and the chain continues down to `Shop.Worker`, while `Shop.Domain.Tests` means Test. The suffix check matches a full name or a dot segment, which leaves `Shop.DomainTests` resolving to `None` with no rule running there. Under `modules` the resolver reads each file instead: the nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`), or the file's role suffix inside a use case, reaction, or job folder. A host file with neither signal takes its layer from the assembly, and a file the rules cannot place stays silent. Setting `None` deliberately switches the whole package off for one project: no analyzer rule runs, and the generator emits neither source nor diagnostics.
+A rule outside its layer registers nothing and costs nothing. `LS2017` breaks this pattern: `LayerNameAnalyzer` inherits `DiagnosticAnalyzer` directly, reads the declared value on its own, and reports an unknown value in any layer.
+
+The generator lives outside this flow. `LiteSpecGenerator` implements `IIncrementalGenerator` and writes its sources through `GeneratedSourceWriter.Execute`, which stays silent when the layer is `None` and writes the full surface for the module-layout application project otherwise.
+
+The declared layer wins in `ArchitectureLayerResolver`. When a project sets `<LiteSpecLayer>Domain</LiteSpecLayer>`, the build props expose the value as `build_property.LiteSpecLayer` and the resolver parses it while ignoring dots and case, so `Application.Abstractions` and `applicationabstractions` both match, and `Test` and `Tests` both name the test layer. One declared value covers every file in the project. An unknown value reports `LS2017` and opts the project out as `None`.
+
+With no declared property, the resolver uses the layout the build props derive from the selected extensions. Under `layer-projects` it reads the assembly name suffix, so `Shop.Domain` means Domain, `Shop.Application.Abstractions` means ApplicationAbstractions, and the chain continues down to `Shop.Worker`, while `Shop.Domain.Tests` means Test. The suffix check matches a full name or a dot segment, which leaves `Shop.DomainTests` resolving to `None` with no rule running there. Under `modules` the resolver reads each file instead: the nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`), or the file's role suffix inside a use case, reaction, or job folder. A host file with neither signal takes its layer from the assembly, and a file the rules cannot place stays silent.
+
+Setting `None` deliberately switches the whole package off for one project: no analyzer rule runs, and the generator emits neither source nor diagnostics.
 
 | Rule | Analyzer class | Layer |
 |:---|:---|:---|
@@ -127,7 +144,9 @@ The declared layer wins in `ArchitectureLayerResolver`. When a project sets `<Li
 | `LS5011` | `LiteSpecGenerator` | Every layer |
 | `LS5012` | `LiteSpecGenerator` | Domain, Application, Infrastructure, WebApi |
 
-Each analyzer registers the narrowest action its rule can use. Declarations such as enums and exceptions get a symbol action, using directives and repository interfaces get a syntax-node action, throws and invocations get an operation action, and file names get a syntax-tree action. Rules that need the whole compilation wait until compilation end: `LS1003` and `LS1004` locate aggregates and their state bases across all types, and `LS3004` gathers every base type before flagging a leaf class with no derived type. Those three descriptors carry the `CompilationEnd` tag, while all other rules report as the compiler reads each declaration.
+Each analyzer registers the narrowest action its rule can use. Declarations such as enums and exceptions get a symbol action, using directives and repository interfaces get a syntax-node action, throws and invocations get an operation action, and file names get a syntax-tree action.
+
+Rules that need the whole compilation wait until compilation end: `LS1003` and `LS1004` locate aggregates and their state bases across all types, and `LS3004` gathers every base type before flagging a leaf class with no derived type. Those three descriptors carry the `CompilationEnd` tag, while all other rules report as the compiler reads each declaration.
 
 `Descriptors.Create` builds every descriptor identically: severity `Error`, enabled by default, the provision ID in the description as `Provision: litespec/<page>#<slug>` and in the custom tags, and the help link as `https://litespec.dev/7.0.0/<page>/#<slug>` from `Provision.HelpLink`. When you cite a rule, quote its descriptor line together with its `Provision.Of` line, since the pair names the category, the message, and the provision.
 
@@ -158,9 +177,16 @@ public Task AcceptsABaseWithADerivedClassInAnotherFile() =>
         ]);
 ```
 
-Four optional parameters shape the test compilation. `assemblyName` defaults to `Shop.Domain` and drives the layer through the suffix rules above, so a test proves layer gating by passing a different name such as `Shop.WebApi`. `layer` feeds `build_property.LiteSpecLayer` through a test options provider and wins over the assembly name, so a test proves the declared property with an assembly like `Shop.Core` plus `layer: "Domain"`. `layout` feeds `build_property.LiteSpecLayout` and defaults to `modules`, so a test proves five-project behavior with `layout: "layer-projects"`. `documentationFile` defaults to `true` and parses with `DocumentationMode.Parse`; passing `false` parses the way a build without a documentation file does, where `///` lines count as ordinary comments. That flag exists for `LS1011`: the documentation analyzer accepts `/// <summary>` text both as plain comments and as structured XML, and the test `ReadsCommentsWithoutADocumentationFile` proves both paths.
+Four optional parameters shape the test compilation:
 
-References come from the running .NET install through `TRUSTED_PLATFORM_ASSEMBLIES`, narrowed to the base class library: names starting with `System.`, plus `System.dll`, `netstandard.dll`, and `mscorlib.dll`. Test sources compile with nullable context enabled, and the harness fails fast with `The test source does not compile` when a source carries an error, so a red test means the rule is wrong, not the sample. Since only the base library is referenced, tests declare the framework types they need as inline stand-ins: an `AggregateRoot<TId>` base for aggregate tests, an `ICommandMediator` interface for pipeline tests, and an `IDocumentSession` interface inside a `Marten` namespace for session tests. When you cover a rule that names a framework type, copy the stand-in from the neighboring test.
+- `assemblyName` defaults to `Shop.Domain` and drives the layer through the suffix rules above, so a test proves layer gating by passing a different name such as `Shop.WebApi`.
+- `layer` feeds `build_property.LiteSpecLayer` through a test options provider and wins over the assembly name, so a test proves the declared property with an assembly like `Shop.Core` plus `layer: "Domain"`.
+- `layout` feeds `build_property.LiteSpecLayout` and defaults to `modules`, so a test proves five-project behavior with `layout: "layer-projects"`.
+- `documentationFile` defaults to `true` and parses with `DocumentationMode.Parse`; passing `false` parses the way a build without a documentation file does, where `///` lines count as ordinary comments. That flag exists for `LS1011`: the documentation analyzer accepts `/// <summary>` text both as plain comments and as structured XML, and the test `ReadsCommentsWithoutADocumentationFile` proves both paths.
+
+References come from the running .NET install through `TRUSTED_PLATFORM_ASSEMBLIES`, narrowed to the base class library: names starting with `System.`, plus `System.dll`, `netstandard.dll`, and `mscorlib.dll`. Test sources compile with nullable context enabled, and the harness fails fast with `The test source does not compile` when a source carries an error, so a red test means the rule is wrong, not the sample.
+
+Since only the base library is referenced, tests declare the framework types they need as inline stand-ins: an `AggregateRoot<TId>` base for aggregate tests, an `ICommandMediator` interface for pipeline tests, and an `IDocumentSession` interface inside a `Marten` namespace for session tests. When you cover a rule that names a framework type, copy the stand-in from the neighboring test.
 
 A new rule typically needs the four tests `DomainEnumAnalyzerTests` shows: one test where the breach reports with a marked span, one where the compliant shape passes with no markup, one where the rule stays quiet outside its layer, and one where the declared `LiteSpecLayer` property wins over the assembly name.
 
@@ -188,7 +214,15 @@ Work through these steps in order. Each step names the file it changes.
 
 ### Performance Rules
 
-The analyzers run on every keystroke in an IDE, so per-compilation work must stay small and shared. Build the `FileScope` and the `CodeMap` once in the compilation-start action and close over them instead of rebuilding them per symbol. Resolve well-known types once with `GetTypeByMetadataName` inside `Register` and close over the results instead of looking them up per node. In compilation-end actions, walk only `context.Compilation.Assembly.GlobalNamespace`, which is the source assembly under analysis, and skip symbols with no `DeclaringSyntaxReferences`, so referenced packages cost nothing. Never call `GetSemanticModel` yourself; use the symbol, operation, and syntax-node contexts the compiler hands you, since they already carry the right model. Register the narrowest action the rule allows, and keep `EnableConcurrentExecution` with `ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None)` from the base class. Before you write the test for a new rule, check its registration against this list.
+The analyzers run on every keystroke in an IDE, so per-compilation work must stay small and shared:
+
+- Build the `FileScope` and the `CodeMap` once in the compilation-start action and close over them instead of rebuilding them per symbol.
+- Resolve well-known types once with `GetTypeByMetadataName` inside `Register` and close over the results instead of looking them up per node.
+- In compilation-end actions, walk only `context.Compilation.Assembly.GlobalNamespace`, which is the source assembly under analysis, and skip symbols with no `DeclaringSyntaxReferences`, so referenced packages cost nothing.
+- Never call `GetSemanticModel` yourself; use the symbol, operation, and syntax-node contexts the compiler hands you, since they already carry the right model.
+- Register the narrowest action the rule allows, and keep `EnableConcurrentExecution` with `ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None)` from the base class.
+
+Before you write the test for a new rule, check its registration against this list.
 
 ### End-to-End Check Against a Scratch Project
 
@@ -203,7 +237,11 @@ The unit tests prove each rule alone. This check proves the packed package repor
 
 ## Limits
 
-The analyzers judge only the files in the layers the rule table names, plus test files such as `Shop.Domain.Tests` for the test rules. They stay silent everywhere else, including `Shop.DomainTests` and files that no layer folder or role suffix places. They skip generated code. They report the syntax and symbols the compiler sees: each rule recognizes handlers, repositories, aggregates, child entities, and controllers by the names and base types its code reads, so a type concealed behind an unfamiliar name or an indirect base can slip through, and each rule's reference page under the [Analyzer rules overview](../../docs/analyzers/rules/README.md) records what it ignores. Diagnostics default to errors; a project lowers severity per rule in `.editorconfig` with `dotnet_diagnostic.LS1011.severity`, and a project that sets a Standard aside records a waiver citing the provision. The package supports the Roslyn version it pins and newer compilers only.
+The analyzers judge only the files in the layers the rule table names, plus test files such as `Shop.Domain.Tests` for the test rules. They stay silent everywhere else, including `Shop.DomainTests` and files that no layer folder or role suffix places. They skip generated code.
+
+They report the syntax and symbols the compiler sees: each rule recognizes handlers, repositories, aggregates, child entities, and controllers by the names and base types its code reads, so a type concealed behind an unfamiliar name or an indirect base can slip through, and each rule's reference page under the [Analyzer rules overview](../../docs/analyzers/rules/README.md) records what it ignores.
+
+Diagnostics default to errors; a project lowers severity per rule in `.editorconfig` with `dotnet_diagnostic.LS1011.severity`, and a project that sets a Standard aside records a waiver citing the provision. The package supports the Roslyn version it pins and newer compilers only.
 
 ### Why netstandard2.0 and Roslyn 4.14
 

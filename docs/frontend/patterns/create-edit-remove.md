@@ -6,7 +6,7 @@
 
 Staff create records such as expenses, trips, and fares, change them, and remove one or several at a time.
 
-Each pattern below settles one such task on a single decided layout, drawn as options with a named default to build. The product owner picks among the options when the team builds or revises a screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they run it.
+Each pattern below covers one such task with a set of layout options and a named default to build. The product owner picks among the options when the team builds or revises a screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they run it.
 
 ## Concepts
 
@@ -14,7 +14,9 @@ Each pattern below settles one such task on a single decided layout, drawn as op
 
 A pattern answers one recurring question about working with records, such as how many inputs keep a create in a dialog.
 
-Each pattern offers possible layouts for the task as options, each drawn as a wireframe, a plain-text sketch of the layout with the copy the product would show. One option is the default, the layout the project builds unless its catalog records another. Each pattern says how its default behaves on a narrow screen and why it is the default, and each option carries a rationale, what the option is good for, and a cost, what it gives up. Some options name an outside product they learn from as a reference.
+Each pattern offers possible layouts for the task as options, each drawn as a wireframe, a plain-text sketch of the layout with the copy the product would show. One option is the default, the layout the project builds unless its catalog records another.
+
+Each pattern says how its default behaves on a narrow screen and why it is the default. Each option carries a rationale, what the option is good for, and a cost, what it gives up. Some options name an outside product they learn from as a reference.
 
 The project records its choice for each pattern in its pattern catalog and builds the chosen option with its own components. The [catalog contract and the wireframe language](../patterns.md) state what each catalog entry holds and how to read a drawing.
 
@@ -58,7 +60,7 @@ Three rules hold on every option, and the Standards section states them. Each re
 
 **Statement:** While a command is in flight, the control that sent it MUST show a pending state and refuse a second send until the first settles.
 
-**Rationale:** A double click on Submit creates two expenses or pays a payout twice. A pending state tells the reader the first send is still running, so there is no reason to press again, and refusing the second send keeps one press to one command.
+**Rationale:** A double click on Submit creates two expenses or pays a payout twice. A pending state tells the reader the first send is still running, so there is no reason to press again, and refusing the second send means one press sends one command.
 
 **Reviewed for:** Which built command controls show no pending state, or send twice when pressed twice in a row? Open the built submits and pays, press each twice quickly, and read what the API received.
 
@@ -76,7 +78,7 @@ Three rules hold on every option, and the Standards section states them. Each re
 
 **Compact:** On a narrow screen the dialog opens as a full-width sheet under the header, and its fields stack in one column.
 
-**Rationale:** One to four inputs belong in the dialog: the list stays visible behind it, and a single verb commits the create. Past four inputs, or when the form needs sections, the full page is the runner-up and the right choice. The file import is the other alternative, for the days when many records arrive at once and a dialog per record would take all day. Never ship a form inside a table row: it breaks the table structure and hides validation.
+**Rationale:** One to four inputs belong in the dialog: the list stays visible behind it, and a single verb commits the create. Past four inputs, or when the form needs sections, the full page is the runner-up and the right choice. The file import is the other alternative, for the days when many records arrive at once and a dialog per record would take too long. Never ship a form inside a table row: it breaks the table structure and hides validation.
 
 **Reviewed for:** Does every built creation form match the wireframe its catalog entry chose? Open the built dialog, page, and file-import starts beside the catalog entry recording the chosen option and its reason.
 
@@ -126,7 +128,7 @@ page
 
 **Rationale:** Forms with sections, steps, or more than four inputs get a page of their own, where the fields have room and the result gets its own link.
 
-**Cost:** Each creation costs two navigations, away from the list and back. That price is worth paying only when the form is long.
+**Cost:** Each creation costs two navigations, away from the list and back. That cost is acceptable only when the form is long.
 
 #### `create-many-at-once-from-a-file`: Create Many at Once from a File
 
@@ -146,7 +148,7 @@ page
     action primary "Check the file"
 ```
 
-**Rationale:** A bulk create runs in three steps: the file, a check of what it made, and a report. That fits a trip of expenses or a list of spenders, where a dialog per record would take all day.
+**Rationale:** A bulk create runs in three steps: the file, a check of what it made, and a report. That fits a trip of expenses or a list of spenders, where a dialog per record would take too long.
 
 **Cost:** One import writes across many records at once, so a partial failure has to stay reportable and undoable, while nothing is paid and nothing is sent.
 
@@ -184,7 +186,7 @@ page
     action primary "Save 2 changes"
 ```
 
-**Rationale:** The whole page is one form with one Save, so a reader who changed the name, the description, and the coding saves all three at once. Nothing on the page disagrees about what is pending.
+**Rationale:** The whole page is one form with one Save, so a reader who changed the name, the description, and the coding saves all three at once. Every part of the page shows the same pending changes.
 
 **Cost:** A partial failure loses every change on the page, and there is no way to save the name while leaving the dates alone. The page has to list what changed while edits are unsaved.
 
@@ -230,7 +232,7 @@ page
     field "Coding" radio = "Batch code"
 ```
 
-**Rationale:** There is no Save button: every keystroke lands, and the header always says when the last save happened. A description edited over an afternoon cannot be lost to a closed tab.
+**Rationale:** There is no Save button: every keystroke saves, and the header always says when the last save happened. A description edited over an afternoon cannot be lost to a closed tab.
 
 **Cost:** Two people typing at once overwrite each other without noticing, and every keystroke becomes an audit entry unless the audit trail groups them. Autosave fits free text, not ceilings or counts.
 
@@ -248,7 +250,7 @@ page
 
 **Compact:** On a narrow screen the scheduled and archived lists stack in one column, with the search above them and the row menu on each row.
 
-**Rationale:** Archive is the default: it is reversible, keeps the audit trail, and the Archived view is the way back. The thirty-day trash is the runner-up where readers reach for the word delete. The delete dialog is the other alternative for records that have to go, and it says what is kept. Never ship a bare delete for anything with history: the dialog must name what survives.
+**Rationale:** Archive is the default: it is reversible, keeps the audit trail, and the Archived view is the way back. The thirty-day trash is the runner-up where readers expect the word delete. The delete dialog is the other alternative for records that have to go, and it says what is kept. Never ship a bare delete for anything with history: the dialog must name what survives.
 
 **Reviewed for:** Does every built single removal match the wireframe its catalog entry chose? Open the built archive, delete, and trash flows beside the catalog entry recording the chosen option and its reason.
 
@@ -297,9 +299,9 @@ page
       item: text "Okafor Office visit" · text muted "Deletes 7 Nov 2026" · action "Restore" · action destructive "Delete now"
 ```
 
-**Rationale:** Delete moves the record to a trash that empties itself after thirty days. The verb stays delete, which is what readers reach for, and the removal stays reversible until the trash empties.
+**Rationale:** Delete moves the record to a trash that empties itself after thirty days. The verb stays delete, the word readers expect, and the removal stays reversible until the trash empties.
 
-**Cost:** There is still a day when the record goes for good. The trash needs its own view, its own emptying rule, and an answer for records that carry filed expenses.
+**Cost:** There is still a day when the record is removed permanently. The trash needs its own view, its own emptying rule, and an answer for records that carry filed expenses.
 
 **Reference:** Google Drive
 
@@ -324,9 +326,9 @@ page
     action destructive "Delete the record"
 ```
 
-**Rationale:** Some records have to go rather than be hidden, such as incident INC-0207. The dialog says the record is gone for good, and it names what survives: the payout log still holds the decision Eli made and the time it was made.
+**Rationale:** Some records have to go rather than be hidden, such as incident INC-0207. The dialog says the record is removed permanently, and it names what survives: the payout log still holds the decision Eli made and the time it was made.
 
-**Cost:** Everything the company holds has to stay reconstructable for an audit, so `delete` removes the operational record while keeping the evidence. Readers meet two different things under one verb, and the dialog has to explain which is which.
+**Cost:** Everything the company holds has to stay reconstructable for an audit, so `delete` removes the operational record while keeping the evidence. One verb covers two different things, and the dialog has to explain which is which.
 
 ### Removing Several at Once
 
@@ -340,7 +342,7 @@ page
 
 **Compact:** On a narrow screen the dialog opens as a full-width sheet, with the count and the money stacked above the commit.
 
-**Rationale:** Up to about twenty-five rows, the default is the dialog that names the count and the money, because those two figures are what the reader checks. Past that size the background job is the runner-up, and a report lands afterwards. The dry-run plan is the other alternative where rows can refuse, because a page shows every refusal before anything runs. Never ship a typed count for an ordinary bulk remove: typing 200 trains copy and paste, which is the reflex the pattern exists to break.
+**Rationale:** Up to about twenty-five rows, the default is the dialog that names the count and the money, because those two figures are what the reader checks. Past that size the background job is the runner-up, and a report arrives afterwards. The dry-run plan is the other alternative where rows can refuse, because a page shows every refusal before anything runs. Never ship a typed count for an ordinary bulk remove: typing 200 encourages copy and paste, which is the reflex the pattern exists to break.
 
 **Reviewed for:** Does every built bulk removal match the wireframe its catalog entry chose? Open the built count-and-money dialogs, background jobs, and dry-run plans beside the catalog entry recording the chosen option and its reason.
 
@@ -387,7 +389,7 @@ page
       item: text "Archive 200 completed trips" · text muted "Finished 8 Oct 2026, 11:04" · status "200 archived" positive · action "Read the report"
 ```
 
-**Rationale:** Past the size any dialog can carry, the selection runs as a background job and a report lands afterwards. Reversing 1,204 expenses cannot be checked on screen, so the report carries the check instead.
+**Rationale:** Past the size any dialog can carry, the selection runs as a background job and a report arrives afterwards. Reversing 1,204 expenses cannot be checked on screen, so the report carries the check instead.
 
 **Cost:** The reader walks away and comes back, so the job needs progress, a cancel, and a report naming every row it refused. A job that fails halfway also needs a rule for what already ran.
 
@@ -429,7 +431,7 @@ page
 
 **Compact:** On a narrow screen the notice and the missing-parts list stack in one column under the header.
 
-**Rationale:** The default is to create with a name and fill the rest later. The record exists as a draft, and every later addition is its own audited command. The home-page setup guide is the runner-up and the required companion, because a draft nobody finishes is a dead record. Everything required before the record exists is the other alternative, for a record that has to be whole before anyone sees it. Leave out a create that writes nothing until the final publish step: if the browser loses the page, the whole form goes with it.
+**Rationale:** The default is to create with a name and fill the rest later. The record exists as a draft, and every later addition is its own audited command. The home-page setup guide is the runner-up and the required companion, because a draft nobody finishes sits unfinished on a list. Everything required before the record exists is the other alternative, for a record that has to be whole before anyone sees it. Leave out a create that writes nothing until the final publish step: if the browser loses the page, the whole form goes with it.
 
 **Reviewed for:** Does every built draft-first flow match the wireframe its catalog entry chose? Open the built name-first creates, setup guides, and required-field creates beside the catalog entry recording the chosen option and its reason.
 
@@ -475,7 +477,7 @@ page
 
 **Rationale:** The home page carries the setup as a guide with a progress bar, not as one more list. Dana finished three of five steps, so she sees the two that are left every time she signs in.
 
-**Cost:** The guide sits at the top of the home page until it is done, and a guide nobody dismisses becomes a banner nobody reads. Its dismiss has to stay dismissed per company, not per person.
+**Cost:** The guide sits at the top of the home page until it is done, and a guide nobody dismisses becomes a banner nobody reads. Once dismissed, it stays dismissed for the company, not just the person.
 
 **Reference:** Stripe
 
@@ -583,7 +585,7 @@ page
 
 **Rationale:** Some edits cannot happen at all after the fact. The page does not disable the command silently: it says what cannot change, and names the command that does what the reader was trying to do.
 
-**Cost:** A reader who wants a ceiling change on a claimed line hears no and gets the replacement command instead. That is the correct answer, but refusals still generate support cases.
+**Cost:** A reader who wants a ceiling change on a claimed line is refused and offered the replacement command instead. That is the correct answer, but refusals still generate support cases.
 
 ### Duplicating a Record
 
@@ -672,7 +674,7 @@ page
   toast info "WELCOME10 copy was created as a draft."
 ```
 
-**Rationale:** One menu item with no questions. The copy lands as a draft, confirmed by a toast. A budget code carries no spenders, so there is nothing to check first.
+**Rationale:** One menu item with no questions. The copy is created as a draft, confirmed by a toast. A budget code carries no spenders, so there is nothing to check first.
 
 **Cost:** There is no moment to rename or choose what travels. The option fits records with no spenders and no money: a trip duplicated this way silently drops the ceilings it needs.
 
@@ -690,7 +692,7 @@ page
 
 **Compact:** On a narrow screen the rows stack in one column, with the grip and the row menu on each row.
 
-**Rationale:** Drag handles in the list are the default: direct, visible, and the order saves as it changes. Move up and Move down in the row menu are the runner-up and the required companion, because drag alone leaves keyboard and screen-reader users behind. Typed position numbers are the other alternative for a jump across a long list. Never ship typed position numbers alone: two rows both numbered 3 are a question the page cannot answer.
+**Rationale:** Drag handles in the list are the default: direct, visible, and the order saves as it changes. Move up and Move down in the row menu are the runner-up and the required companion, because drag alone leaves keyboard and screen-reader users behind. Typed position numbers are the other alternative for a jump across a long list. Never ship typed position numbers alone: two rows numbered 3 leave the order undecided.
 
 **Reviewed for:** Does every built manual ordering match the wireframe its catalog entry chose? Open the built drag handles, move commands, and typed numbers beside the catalog entry recording the chosen option and its reason.
 
@@ -761,7 +763,7 @@ page
 
 **Rationale:** A number on each row, and one save for the whole list. Jumping a row from 14 to 1 is one keystroke where dragging would cross the whole list.
 
-**Cost:** Two rows numbered 3 are a question the page cannot answer, so duplicates are refused and the reader renumbers by hand. Renumbering fourteen rows that way is slower than dragging one, so numbers suit a jump across a long list and nothing else.
+**Cost:** Two rows numbered 3 leave the order undecided, so duplicates are refused and the reader renumbers by hand. Renumbering fourteen rows that way is slower than dragging one, so numbers suit a jump across a long list and nothing else.
 
 **Reference:** WordPress
 
@@ -910,9 +912,9 @@ page
       text "An invitation expires 7 days after it is sent. lena.bakker@example.com expired 8 Oct and needs reissue."
 ```
 
-**Rationale:** Every waiting invitation shows its age, its expiry, and its way out: Noa's invitation shows sent 6 Oct, expires 13 Oct, with Resend and Revoke beside it. An invitation is read far more often than it is sent, so the list is where the pattern lives.
+**Rationale:** Every waiting invitation shows its age, its expiry, and its way out: Noa's invitation shows sent 6 Oct, expires 13 Oct, with Resend and Revoke beside it. An invitation is read far more often than it is sent, so the pending list is the part that matters.
 
-**Cost:** A list of the waiting is a list of the neglected: half of it expired quietly. Expired rows must say so and offer reissue, or the list fills with rows that can no longer be used.
+**Cost:** A list of the waiting becomes a list of the neglected: half of it expires unnoticed. Expired rows must say so and offer reissue, or the list fills with rows that can no longer be used.
 
 **Reference:** GitHub
 
@@ -1005,7 +1007,7 @@ page
 
 **Rationale:** Each channel holds its own state, so phone filing can run while the portal waits. The page shows one publish button per channel, each with its own readiness check.
 
-**Cost:** Three channels in three states are a matrix the reader must hold in mind. The policy page must show every channel at once, or one channel publishes what another promised not to.
+**Cost:** Three channels in three states are a matrix the reader must hold in mind. The policy page must show every channel at once, or one channel publishes what another keeps unpublished.
 
 **Reference:** Shopify
 
@@ -1032,7 +1034,7 @@ page
 
 **Rationale:** The dialog says what stops and what stays, because filed expenses outlive the policy. Unpublishing stops filing, and touches nothing claimed: the 412 expenses already filed stay valid and still pay.
 
-**Cost:** The dialog states two truths at once, and the second is the one spenders will ask about. The page behind it must keep answering for the claimed lines after the policy is gone.
+**Cost:** The dialog carries two messages at once, and the second is the one spenders will ask about. The page behind it must keep answering for the claimed lines after the policy is gone.
 
 **Reference:** Shopify
 
@@ -1072,7 +1074,7 @@ page
 
 **Rationale:** The coming change is one row with a date and a cancel. The late fee page shows now, EUR 5.00, and next, EUR 6.00 from 1 November, together.
 
-**Cost:** Two values on one record make a rule every read must honor: expenses filed before the date keep the old fee. Any page that prints the fee must print its date too.
+**Cost:** Two values on one record make a rule every read must apply: expenses filed before the date keep the old fee. Any page that prints the fee must print its date too.
 
 **Reference:** WordPress
 
@@ -1092,7 +1094,7 @@ page
     text "A line claimed keeps the ceiling it was claimed at. The timeline never rewrites a claim."
 ```
 
-**Rationale:** Each ceiling holds its own dates, and the timeline shows what applies when. Standard at three ceilings reads as three rows, the Spring rate that ended, the Standard that applies now, and the Last lines that are scheduled, not one ceiling edited twice.
+**Rationale:** Each ceiling holds its own dates, and the timeline shows what applies when. Standard at three ceilings appears as three rows, the Spring rate that ended, the Standard that applies now, and the Last lines that are scheduled, not one ceiling edited twice.
 
 **Cost:** Three rows for one policy mean three records to read on every expense and in every report. A spender who finds the old ceiling can ask for the difference back, and the page must not hide that.
 

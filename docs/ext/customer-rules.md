@@ -4,11 +4,7 @@
 
 **Concern:** application
 
-Some products let customers build their own rules from triggers, conditions, and actions, and call customer endpoints when those rules fire.
-
-This page states the catalog those rules draw from, the tenant instances as data, and the may and may-not contract on hooks.
-
-A project selects it when tenants compose customer rules or the product calls customer hooks.
+Some products let customers build their own rules from triggers, conditions, and actions, and call customer endpoints when those rules fire. This page states the catalog those rules draw from, how tenant instances stay data, and the two contracts each hook carries: what a customer endpoint may rely on, and what it never assumes. A project selects this extension when tenants compose their own rules or the product calls customer hooks.
 
 ## Activation
 
@@ -16,13 +12,13 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-A project selects `customer-rules` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned reactions and jobs do not select it; they stay Behavior records either way.
+A project selects `customer-rules` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned reactions and jobs never select it; they are Behavior records whether or not the project selects this extension.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. It switches on no record type: it divides customer rules into catalog records and tenant data.
+This extension replaces no baseline provision and switches on no record type. It divides customer rules into catalog records and tenant data: developers own the `catalog` of triggers, conditions, and actions as records, while each tenant `instance` stays tenant data.
 
-Developers own the `catalog` of triggers, conditions, and actions as records, while each tenant `instance` stays tenant data. Each hook carries two contracts: a may contract stating what the customer endpoint relies on, and a may-not contract stating the ordering, timing, and payload bounds the endpoint leaves unassumed.
+Each hook carries two contracts: a may contract stating what the customer endpoint relies on, and a may-not contract stating the ordering, timing, and payload bounds the endpoint never assumes.
 
 ## Standards
 
@@ -34,7 +30,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Statement:** Each trigger, condition, and action in the customer rules catalog MUST be a record.
 
-**Rationale:** Every tenant rule is built from the catalog, which makes it the product's promise surface. Recording each entry pins what it does, what it costs, and what it refuses, so tenant rules compose from parts the team stands behind.
+**Rationale:** Every tenant rule is built from the catalog, so the catalog is what the product promises its tenants. Recording each entry states what it does, what it costs, and what it refuses, so tenant rules compose from parts the team has specified.
 
 **Example:** The action `invoice.send-reminder` is a record stating its rate cap and its suppression rule.
 
@@ -48,7 +44,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Statement:** A tenant rule instance MUST live as tenant data, not as a record.
 
-**Rationale:** Tenants write thousands of rules the team never sees, and recording each one would halt both sides. The catalog carries the records instead. Instances compose only catalog entries, so the unrecorded part is the composition, never the parts.
+**Rationale:** Tenants write thousands of rules the team never sees, so recording each one is impractical. The catalog carries the records instead: instances compose only catalog entries, so the unrecorded part is the composition, never the parts.
 
 **Example:** A tenant's rule `remind overdue invoices every Monday` is stored data, while its trigger, condition, and action each point at catalog entries.
 
@@ -90,7 +86,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Statement:** Each hook MUST state its may contract: the payload, retries, timeout, and signature the customer endpoint relies on.
 
-**Rationale:** A customer endpoint is built by strangers against the hook's contract. The may contract states the payload shape, the retry count and spacing, the timeout, and the signature, so the endpoint is written against facts instead of guesses.
+**Rationale:** A customer endpoint is built by developers outside the product team, against the hook's contract. The may contract states the payload shape, the retry count and spacing, the timeout, and the signature, so the endpoint is written against stated behavior.
 
 **Example:** The hook `invoice.paid` states three retries spaced a minute apart, a ten-second timeout, and an HMAC signature header.
 
@@ -104,7 +100,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Statement:** Each hook MUST state its may-not contract: the ordering, timing, and payload bounds the customer endpoint never assumes.
 
-**Rationale:** What the contract omits, customers invent: they assume order, instant delivery, and payloads that never grow. The may-not contract closes those gaps up front, so a hook that fires twice or arrives late breaks no promise.
+**Rationale:** Customers assume what the contract omits: order, instant delivery, and payloads that never grow. The may-not contract states these limits in advance, so a hook that fires twice or arrives late stays within what the hook stated.
 
 **Example:** The hook `invoice.paid` states that deliveries may repeat, may arrive out of order, and carry no line-item detail.
 
@@ -118,7 +114,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Statement:** A hook MUST leave its trigger's outcome unchanged when the customer endpoint fails.
 
-**Rationale:** The trigger's work finishes before the hook fires: the invoice is paid, the expense is reimbursed. Failing the trigger because a customer endpoint timed out punishes the product for a stranger's outage. The hook records its own outcome and retries on its own schedule.
+**Rationale:** The trigger's work finishes before the hook fires: the invoice is paid, the expense is reimbursed. Failing the trigger because a customer endpoint timed out marks finished work as failed because of a customer-side outage. The hook records its own outcome and retries on its own schedule.
 
 **Example:** A hook call that times out is retried three times and then logged as failed, while the paid invoice stays paid.
 
@@ -136,7 +132,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Replacement:** A project names its run-cap scheme in its automation documentation.
 
-**Rationale:** One tenant's runaway rule can starve every other tenant's automation. A monthly cap from the catalog default bounds the damage, and the tenant raises it by asking instead of by accident.
+**Rationale:** One tenant's runaway rule can starve every other tenant's automation. A monthly cap from the catalog default bounds the damage, and the tenant raises the cap only by asking.
 
 **Reviewed for:** Does every stored instance carry a monthly run cap, or does the automation documentation name a cap scheme? Read the stored instances and that documentation.
 

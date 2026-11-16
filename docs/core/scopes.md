@@ -3,13 +3,15 @@
 **Stack:** any
 **Concern:** workspace
 
-Provisions are filed by concern: each page states the rules for one concern, but an agent changing one file needs every rule for that situation. A provision names its situation in a fixed vocabulary: the stack, the concern, the artifact, the record layer it governs, whether it traces that layer to the records, and how binding it is. You set these values when you write or grade a provision. The provision index carries them, so the CLI lists the provisions that apply to one path and shows which record layer each provision belongs to.
+Each provision carries scope fields that file it by situation: the stack, the concern, the artifact, the record layer it governs, whether it traces that layer to the records, and how binding it is. Each page states the rules for one concern, but an agent changing one file needs every rule for that situation. You set these values when you write or grade a provision. The provision index carries them, so the CLI lists the provisions that apply to one path and shows which record layer each provision belongs to.
 
 ## Concepts
 
 ### The Six Fields
 
-A provision is one rule in the standard. Each provision carries six scope fields that name the situation it governs. The page declares the stack and concern once for all its provisions. A single provision narrows the stack or names an artifact where it governs less than the whole page. The `layer` field names the record layer the provision governs, `trace` says whether the provision ties that layer back to the records, and `strength` grades how binding it is. The [project scope page](scope.md#layer-claims) states which layers a project claims.
+A provision is one rule in the standard, and each provision carries six scope fields that name the situation it governs. The page declares the stack and concern once for all its provisions. A single provision narrows the stack or names an artifact where it governs less than the whole page.
+
+The `layer` field names the record layer the provision governs, `trace` says whether the provision ties that layer back to the records, and `strength` grades how binding it is. The [project scope page](scope.md#layer-claims) states which layers a project claims.
 
 | Field | Answers | Values |
 |:---|:---|:---|
@@ -22,6 +24,8 @@ A provision is one rule in the standard. Each provision carries six scope fields
 
 ### Stack Values
 
+The `stack` field names the technology a provision governs:
+
 | Value | Meaning |
 |:---|:---|
 | `dotnet` | The .NET backend stack |
@@ -32,6 +36,8 @@ A provision is one rule in the standard. Each provision carries six scope fields
 | `any` | No technology; the provision applies to every stack |
 
 ### Concern Values
+
+The `concern` field names the part of the system a provision governs:
 
 | Value | Meaning |
 |:---|:---|
@@ -47,6 +53,8 @@ A provision is one rule in the standard. Each provision carries six scope fields
 | `operations` | Releases, deployment, and support |
 
 ### Artifact Values
+
+The `artifact` field names the kind of thing a provision governs:
 
 | Value | Meaning |
 |:---|:---|
@@ -81,6 +89,8 @@ Every code kind names files the CLI classifies from the path, so a kind with no 
 
 ### Layer Values
 
+The `layer` field names the record layer a provision governs:
+
 | Value | Meaning |
 |:---|:---|
 | `any` | Every record layer: a provision about the record model as a whole |
@@ -110,6 +120,8 @@ Every provision takes its trace from its page, which is `no`, unless it states o
 
 ### Strength Values
 
+The `strength` field grades how binding a provision is:
+
 | Value | Meaning |
 |:---|:---|
 | `required` | Follow it; set it aside only through a [waiver](waivers.md) whose `covers` names the provision, with a reason. |
@@ -124,7 +136,7 @@ A provision that restates an outside standard becomes a link to its source inste
 
 ### Where Scope Is Written
 
-Each page that owns provisions declares its `stack` and `concern` once. The two lines sit directly under its title: a `**Stack:**` line and a `**Concern:**` line. Together they form the Scope block. A page without provisions carries no Scope block, such as a tutorial, a how-to, an explanation, a reference, a command, or an index page. Each line names one or more values separated by commas:
+Each page that owns provisions declares its `stack` and `concern` once. The two lines sit directly under its title: a `**Stack:**` line and a `**Concern:**` line. Together they form the Scope block. Each line names one or more values separated by commas:
 
 ```markdown
 # Domain Layer
@@ -132,6 +144,8 @@ Each page that owns provisions declares its `stack` and `concern` once. The two 
 **Stack:** dotnet
 **Concern:** domain
 ```
+
+A page without provisions carries no Scope block, such as a tutorial, a how-to, an explanation, a reference, a command, or an index page.
 
 A provision adds an `**Applies to:**` line only when it is narrower than its page, or when its layer or trace differs from its page. The line names `stack`, `artifact`, `layer`, or `trace` in that order, separated by `; `. For example, `artifact: aggregate` narrows to aggregates, and `artifact: aggregate; layer: implementation; trace: yes` also moves the layer.
 

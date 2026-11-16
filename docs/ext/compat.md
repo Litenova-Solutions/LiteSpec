@@ -15,11 +15,9 @@ Enable `compat` when any consumer deploys on its own schedule: a public API, a p
 
 ## Baseline Relationship
 
-No baseline provision changes under this extension.
+This extension replaces no baseline provision. It adds no optional record type.
 
 A domain event never leaves the product: any fact an outside consumer reads travels as an integration event, as the [behavior rules](../core/behavior.md) state.
-
-The extension adds no optional record type.
 
 ## Standards
 
@@ -33,7 +31,7 @@ The extension adds no optional record type.
 
 **Statement:** An API change reviewer MUST classify each contract change that affects an independently deployed consumer.
 
-**Rationale:** A consumer the project does not deploy still receives every change it ships. Classifying each change decides whether consumers need a new version, a review, or nothing at all. Without a verdict, that decision reaches consumers as a surprise.
+**Rationale:** A consumer the project does not deploy still receives every change it ships. Classifying each change decides whether consumers need a new version, a review, or nothing at all. Without a verdict, that decision reaches consumers unannounced.
 
 **Reviewed for:** Does every contract change that reaches an independently deployed consumer carry a classification? Check the change reviews.
 
@@ -131,7 +129,7 @@ The extension adds no optional record type.
 
 **Statement:** After production, a breaking Behavior change MUST travel as a decision naming its consumer impact.
 
-**Rationale:** Once the product is live, consumers release against the promises published. A breaking change breaks those promises, so a developer review alone cannot accept it. The decision names the impact instead: which consumers break, what they must change, and when the old shape leaves.
+**Rationale:** Once the product is live, consumers release against the promises published. A breaking change breaks those promises, so a developer review alone cannot accept it. The decision names the impact instead: which consumers break, what they must change, and when the old shape is removed.
 
 **Reviewed for:** Does every breaking Behavior change past production travel as a decision naming its consumer impact? Check the decisions.
 
@@ -145,7 +143,7 @@ The extension adds no optional record type.
 
 **Statement:** An API owner MUST store each release OpenAPI document as a retained baseline artifact.
 
-**Rationale:** Each release stores its OpenAPI document as an immutable baseline. Later changes compare against it instead of against memory or a mutable file. Without a retained baseline, the project cannot prove what changed between two releases.
+**Rationale:** Each release stores its OpenAPI document as an immutable baseline. Later changes compare against it instead of relying on memory or a mutable file. Without a retained baseline, the project cannot prove what changed between two releases.
 
 **Reviewed for:** Does every release keep a retained OpenAPI baseline? Check the release artifacts.
 
@@ -259,7 +257,7 @@ The extension adds no optional record type.
 
 **Statement:** A versioning decision MUST name each affected consumer, the deadline, and the removal condition, with the decision recorded before any removal.
 
-**Rationale:** A removal touches consumers the project does not control, so the decision names each affected consumer, the deadline, and the removal condition. Recording happens before any removal, while the plan can still change. An unrecorded retirement removes first and notifies whoever complains.
+**Rationale:** A removal touches consumers the project does not control, so the decision names each affected consumer, the deadline, and the removal condition. Recording happens before any removal, while the plan can still change. An unrecorded retirement removes first and notifies consumers only after they complain.
 
 **Reviewed for:** Does every version retirement rest on a decision that names the affected consumers, the deadline, and the removal condition, recorded before any removal? Check the versioning decisions.
 
@@ -343,7 +341,7 @@ The extension adds no optional record type.
 
 **Statement:** An API owner MUST test each first-party generated client against the changed OpenAPI document, with each client compiling and exercising its changed operations.
 
-**Rationale:** A structural comparison never compiles a client. Compiling each first-party generated client against the changed document, and running its changed operations, lets the client compiler and its exhaustive switches catch breaks the comparison cannot see.
+**Rationale:** A structural comparison never compiles a client. Compiling each first-party generated client against the changed document, and running its changed operations, lets the client compiler and its exhaustive switches catch breaking changes the comparison cannot detect.
 
 **Reviewed for:** Did every first-party generated client compile and exercise its changed operations against the changed contract? Check the client test runs.
 
@@ -357,7 +355,7 @@ The extension adds no optional record type.
 
 **Statement:** An API change reviewer MUST classify each integration-event change as breaking, compatible, or needing consumer review under `litespec/ext/compat#classify-breaking-contract-changes`, `litespec/ext/compat#classify-compatible-additions`, and `litespec/ext/compat#review-new-enum-values-and-subtypes-with-consumers`.
 
-**Rationale:** Consumers you do not deploy read integration events as contracts, just as they read HTTP responses. They need the same three verdicts: breaking, compatible, or needs review. Using one shared classification keeps those words meaning the same thing on both surfaces. A separate event verdict would let one change read as compatible for events and breaking for HTTP.
+**Rationale:** Consumers the project does not deploy read integration events as contracts, just as they read HTTP responses. They need the same three verdicts: breaking, compatible, or needs review. Using one shared classification keeps those words meaning the same thing on both surfaces. A separate event verdict could classify one change as compatible for events and breaking for HTTP.
 
 **Reviewed for:** Does every integration-event change carry a breaking, compatible, or needs-review verdict? Check the event reviews.
 
@@ -371,7 +369,7 @@ The extension adds no optional record type.
 
 **Statement:** An API owner MUST carry a breaking integration-event change in a new event version beside the retained version.
 
-**Rationale:** Outside consumers move on their own release cadence. Shipping the breaking change in a new event version, beside the retained version, lets each consumer move on its own schedule. Without the retained version, one event has to serve two incompatible expectations.
+**Rationale:** Consumers the project does not deploy move on their own release cadence. Shipping the breaking change in a new event version, beside the retained version, lets each consumer move on its own schedule. Without the retained version, one event has to serve two incompatible expectations.
 
 **Reviewed for:** Does every breaking event change ship in a new version beside the retained one? Check the integration event versions.
 

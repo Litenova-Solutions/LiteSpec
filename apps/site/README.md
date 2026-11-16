@@ -1,8 +1,10 @@
 # litespec.dev
 
+The `litespec.dev` site publishes the LiteSpec standard as HTML for readers and plain text for agents, built from the standard at the repository root.
+
 ## Audience
 
-You maintain the `litespec.dev` site in `apps/site/`. You change its design, its agent endpoints, its routes, or its deployment. After reading, you can run the site, find the code behind each behavior, and make the common changes without breaking the build.
+You maintain the `litespec.dev` site in `apps/site/`. You change its design, its agent endpoints, its routes, or its deployment. After reading this page, you can run the site, find the code behind each behavior, and make the common changes without breaking the build.
 
 ## What It Is
 
@@ -84,11 +86,23 @@ No module except `src/lib/spec.ts` reads the standard. It locates the repository
 
 The loader parses each `.md` file under `docs/` a single time. A `Page` carries its repository-relative `file`, its `path` under `docs/` without `.md`, its `style`, its `area` (the first folder under `docs/`), its `title`, its `intent` (the opening paragraph of `Intent`, `Purpose`, or `Name`), its `sections`, its `provisions`, and its raw `markdown`. The `slug()` helper reproduces the CLI heading slug, keeping heading IDs and provision IDs in agreement with the validator. The `pages` array preserves page index order, while the sidebar and pager take their order from `src/lib/nav.ts` and never from this array. Provision data arrives from the generated `docs/reference/provisions.json` index written by `litespec-maintain provisions`, one entry per provision with `id`, `heading`, owning `page`, `anchor`, `kind`, `mark`, `evidence`, and `strength`, so the site reads a single file instead of parsing provisions out of every page. Selection and layer logic mirrors the CLI layout rules: the always-applied `docs/core`, `docs/workspace`, and `docs/quality` pages, the folder chain above each selected stack with its stack-free companion folders, the shape `backendPages`, and the selected extensions.
 
-The reading order shared by the sidebar and the pager belongs to `src/lib/nav.ts`. Inside a folder, pages appear in the order that folder's README lists them: each list-item link to a page of the folder counts at its first occurrence, the README comes first, and pages no README mentions follow by title. Folders order by their parent README the same way, or alphabetically; a folder with no README keeps path order. Ordering counts list items only, so a prose link cites a page without placing it. This file also owns the breadcrumb trail (`crumbTrail()`), the group home URLs (`groupHomeUrl()`, where the Standard group aims at the generated overview), the pager neighbors (`pageNeighbors()`, which stay within the group and step to the next group's overview at the end), and the reading time (`readingTime()`, minutes at 220 words a minute, minimum one).
+The reading order shared by the sidebar and the pager belongs to `src/lib/nav.ts`. Inside a folder, pages appear in the order that folder's README lists them: each list-item link to a page of the folder counts at its first occurrence, the README comes first, and pages no README mentions follow by title. Folders order by their parent README the same way, or alphabetically. A folder with no README keeps path order. Ordering counts list items only, so a prose link cites a page without placing it. This file also owns the breadcrumb trail (`crumbTrail()`), the group home URLs (`groupHomeUrl()`, where the Standard group aims at the generated overview), the pager neighbors (`pageNeighbors()`, which stay within the group and step to the next group's overview at the end), and the reading time (`readingTime()`, minutes at 220 words a minute, minimum one).
 
 #### Rendering
 
-One standard page becomes served HTML in `src/lib/render-markdown.ts`. The module creates its Markdown processor from `@astrojs/markdown-remark` with Shiki highlighting that skips `wireframe` blocks, the Shiki themes `github-light` and `github-dark` emitted as CSS variables, and `smartypants` off. HTML post-processing then runs in this order: heading IDs from the loader slug with the `H1` removed (the template renders the title), a `toc` of `H2` entries with provision `H3` entries nested inside (option `H4` entries on pattern pages, turning their right column into an option index), relative links between docs pages rewritten to site URLs, wireframe blocks swapped for option figures, option annotations folded into their cards, option `H4` IDs moved up onto their cards, tables wrapped in `table-wrap` (adding `table-provisions` when the first column holds provision IDs), code blocks decorated, and provisions wrapped in cards carrying kind, strength, and verification badges with an ID footer and a copy button. The card body omits the `Strength` line because the badge already shows it, while an `Applies to` line appears as a sub-line under the statement. The `Stack` and `Concern` scope lines under the title leave the body and surface as the `meta` pairs in the template's meta row.
+One standard page becomes served HTML in `src/lib/render-markdown.ts`. The module creates its Markdown processor from `@astrojs/markdown-remark` with Shiki highlighting that skips `wireframe` blocks, the Shiki themes `github-light` and `github-dark` emitted as CSS variables, and `smartypants` off. HTML post-processing then runs in this order:
+
+1. Heading IDs from the loader slug, with the `H1` removed (the template renders the title).
+2. A `toc` of `H2` entries with provision `H3` entries nested inside (option `H4` entries on pattern pages, turning their right column into an option index).
+3. Relative links between docs pages rewritten to site URLs.
+4. Wireframe blocks swapped for option figures.
+5. Option annotations folded into their cards.
+6. Option `H4` IDs moved up onto their cards.
+7. Tables wrapped in `table-wrap` (adding `table-provisions` when the first column holds provision IDs).
+8. Code blocks decorated.
+9. Provisions wrapped in cards carrying kind, strength, and verification badges with an ID footer and a copy button.
+
+The card body omits the `Strength` line because the badge already shows it, while an `Applies to` line appears as a sub-line under the statement. The `Stack` and `Concern` scope lines under the title leave the body and surface as the `meta` pairs in the template's meta row.
 
 `src/lib/code-blocks.ts` wraps each Shiki-highlighted block in a `code-block` figure with a header strip that shows the language name and a copy button. `languageLabel()` supplies the labels `Shell`, `PowerShell`, `JSON`, `TypeScript`, `YAML`, `Markdown`, and the rest of the supported set. Wireframe text blocks in plain form carry no `astro-code` class and pass through unchanged.
 
@@ -116,7 +130,7 @@ All plain-text endpoints are formatted in `src/lib/agent-text.ts` from the same 
 
 #### Design System
 
-Palette and semantic tokens live in `src/styles/site.css`, and every component reaches colors through tokens alone. The palette combines warm neutrals down to charcoal `#3e3643`, an amber ramp centered on `#f8c258`, and three muted support hues (sage, slate, clay) sharing one lightness at low chroma. Litenova Solutions colors belong to the logo only: navy `#0F1B33`, paper `#F6F7FA`, and saffron `#EFA73A`, with nothing but the mark using them. Each token names a role instead of a value: `--bg`, `--outside`, `--border`, `--muted`, `--fg`, `--primary`, `--accent`, `--rule-*`, `--conv-*`, `--pat-*`, `--warn-*`, `--code-bg`, `--mark-ink`, and `--mark-symbol`. Amber marks rules, sage marks conventions, and slate marks patterns, while elsewhere amber appears only on the current item, important text, and focus.
+Palette and semantic tokens live in `src/styles/site.css`, and every component takes its colors from tokens alone. The palette combines warm neutrals down to charcoal `#3e3643`, an amber ramp centered on `#f8c258`, and three muted support hues (sage, slate, clay) sharing one lightness at low chroma. Litenova Solutions colors belong to the logo only: navy `#0F1B33`, paper `#F6F7FA`, and saffron `#EFA73A`, with nothing but the mark using them. Each token names a role instead of a value: `--bg`, `--outside`, `--border`, `--muted`, `--fg`, `--primary`, `--accent`, `--rule-*`, `--conv-*`, `--pat-*`, `--warn-*`, `--code-bg`, `--mark-ink`, and `--mark-symbol`. Amber marks rules, sage marks conventions, and slate marks patterns, while elsewhere amber appears only on the current item, important text, and focus.
 
 Dark mode has two equivalent paths: the `prefers-color-scheme` media query applying to `:root` without `data-theme="light"`, and the explicit `:root[data-theme="dark"]` override setting the same values. `ThemeSwitcher.astro` steps through `auto`, `light`, and `dark`, persisting the pick in `localStorage` under `litespec-theme`. `Base.astro` consults that store before first paint, so the theme applies without a flash.
 
@@ -124,7 +138,7 @@ The page frame is a centered column flanked by visible side rails: `.frame` limi
 
 The fixed line icon set in `src/lib/icons.ts` follows the Lucide style on a 24px grid. Each named entry stores inner SVG markup: subject names such as `start`, `core`, `folder`, `server`, `monitor`, `shield`, `plug`, `book`, and `terminal`, and UI names such as `search`, `copy`, `check`, `eye`, `code`, and `expand`. `src/components/Icon.astro` renders one entry inline. An icon stays decorative unless given a `label`, and `github` keeps its own filled path.
 
-`src/lib/areas.ts` defines the five docs groups in display order with a label and icon per group: Learn (`learn`, `example`), Tutorial (`tutorial`), Guides (`guide`), Standard (`core`, `backend`, `frontend`, `quality`, `workspace`, `ext`), and Reference (`reference`, `tools`, `analyzers`, `maintain`). Grouping affects navigation only; the folders themselves never move. The same file maps each docs area to one display label through `areaLabel()`. The `intent` folder stands outside the groups behind a footer link, yet its pages still build at their URLs.
+`src/lib/areas.ts` defines the five docs groups in display order with a label and icon per group: Learn (`learn`, `example`), Tutorial (`tutorial`), Guides (`guide`), Standard (`core`, `backend`, `frontend`, `quality`, `workspace`, `ext`), and Reference (`reference`, `tools`, `analyzers`, `maintain`). Grouping affects navigation only. The folders themselves never move. The same file maps each docs area to one display label through `areaLabel()`. The `intent` folder stands outside the groups behind a footer link, yet its pages still build at their URLs.
 
 #### Components
 
@@ -142,7 +156,7 @@ The fixed line icon set in `src/lib/icons.ts` follows the Lucide style on a 24px
 
 #### Search
 
-Indexing happens in the build through `pagefind --site dist`, the second half of the `build` script. `Search.astro` fetches `/pagefind/pagefind.js` lazily on first use and queries through its `debouncedSearch()`. Results show at most 8 pages with excerpts and 3 sub results per page, the dialog answers `Ctrl K`, `/`, arrows, `Enter`, and `Esc`, and polite live text such as `Type to search pages and rules.` announces state. Against a dev server with no index, the dialog reads `Search is available on the built site.`
+Indexing happens in the build through `pagefind --site dist`, the second half of the `build` script. `Search.astro` fetches `/pagefind/pagefind.js` lazily on first use and queries through its `debouncedSearch()`. Results show at most 8 pages with excerpts and 3 sub results per page. The dialog answers `Ctrl K`, `/`, arrows, `Enter`, and `Esc`, and polite live text such as `Type to search pages and rules.` announces state. Against a dev server with no index, the dialog reads `Search is available on the built site.`
 
 Pagefind indexes the text under `data-pagefind-body` on the `.docs-body` div in `[...page].astro`, titled by `data-pagefind-meta="title"` on its `H1`. The `data-pagefind-ignore` marker excludes interface text: provision badges, tool buttons, code block headers, option tabs, and the `lbl` spans in provision bodies.
 
@@ -222,8 +236,8 @@ Diagrams are SVGs under `docs/assets/diagrams/`, referenced from their pages as 
 
 ### Testing
 
-Pure helpers are tested with `node --test`. `src/lib/nav.test.ts` pins the reading order, breadcrumb trail, pager, and reading time, while `spec.test.ts`, `seo.test.ts`, `trail.test.ts`, and `pins.test.ts` cover the loader, metadata, trail fence, and pinned versions. Broken pages, broken links, and a broken search index fail the build, and a browser pass over the built output verifies layout, wireframes, and theme in both light and dark mode. CI runs the build in its `web` job in `.github/workflows/ci.yml`, after a single `pnpm install --frozen-lockfile` at the repository root, using the Node and pnpm versions named once by `.node-version` and the root `package.json`.
+Pure helpers are tested with `node --test`. `src/lib/nav.test.ts` pins the reading order, breadcrumb trail, pager, and reading time, while `spec.test.ts`, `seo.test.ts`, `trail.test.ts`, and `pins.test.ts` cover the loader, metadata, trail fence, and pinned versions. Broken pages, broken links, and a broken search index fail the build. A browser pass over the built output verifies layout, wireframes, and theme in both light and dark mode. CI runs the build in its `web` job in `.github/workflows/ci.yml`, after a single `pnpm install --frozen-lockfile` at the repository root, using the Node and pnpm versions named once by `.node-version` and the root `package.json`.
 
 ## Limits
 
-The site renders only the release it builds from. It runs no server code of its own, migrates no data, and validates no consumer. Search exists solely on built output, since Pagefind writes its index during `build`. JavaScript only enhances the page: theme choice, copy buttons, search, the table of contents marker, the docs drawer with its filter, and the pattern viewer. Without it, every page remains complete. The `_redirects` file defines no alias besides `/latest`. Agent endpoints serve the checked-in standard as plain text; they compute no project model and draw no new wireframe.
+The site renders only the release it builds from. It runs no server code of its own, migrates no data, and validates no consumer. Search exists solely on built output, since Pagefind writes its index during `build`. JavaScript only enhances the page: theme choice, copy buttons, search, the table of contents marker, the docs drawer with its filter, and the pattern viewer. Without it, every page remains complete. The `_redirects` file defines no alias besides `/latest`. Agent endpoints serve the checked-in standard as plain text. They compute no project model and draw no new wireframe.

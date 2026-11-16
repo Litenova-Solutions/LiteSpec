@@ -1,6 +1,8 @@
 # Write a Flow
 
-A flow states the path one actor takes toward one goal or one problem, from the state in which it starts to the state in which it ends, one step at a time. This guide writes one flow record, `<name>.yaml`, and its explanation file `<name>.md`, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block.
+Write one flow as a record file `<name>.yaml` and an explanation file `<name>.md`, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block.
+
+A flow states the path one actor takes toward one goal or one problem, from the state in which it starts to the state in which it ends, one step at a time.
 
 Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 
@@ -18,7 +20,9 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 ### Scaffold the Flow
 
-Run `litespec new flow <name>`, which writes `.litespec/intent/flows/<name>/<name>.yaml` and reserves the identifier `flow/<name>`. When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the flow template, with its Example and Branches sections. The template values are examples, and `model check` reports a value left unchanged. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
+Run `litespec new flow <name>`, which writes `.litespec/intent/flows/<name>/<name>.yaml` and reserves the identifier `flow/<name>`.
+
+When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the flow template, with its Example and Branches sections. The template values are examples, and `model check` reports a value left unchanged. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
 ### Decide What One Flow Holds
 
@@ -30,7 +34,7 @@ This satisfies `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-
 
 ### Give the Flow Its One Reason
 
-Give the flow exactly one reason: `serves` or `answers`, each as a list holding one identifier, the shape every link field has. It serves the goal it moves, or it answers the problem or constraint it resolves:
+Give the flow exactly one reason: `serves` or `answers`. Each is a list holding one identifier, the shape every link field has. The flow serves the goal it moves, or it answers the problem or constraint it resolves:
 
 ```yaml
 serves:
@@ -78,7 +82,9 @@ The weak version names a decision, which no reader can observe. The strong versi
 
 ### Write the Steps in Order
 
-Write each step as one act of its performer, in a product sentence, actor first. A step can end with the product's observable response after the act, so a reader sees what the product does. Keep how the product computes that response in the cited requirement. A second act of a person is a second step.
+Write each step as one act of its performer, in a product sentence with the actor first: what the person experiences, not which handler runs. A step can end with the product's observable response after the act, so a reader sees what the product does. Keep how the product computes that response in the cited requirement.
+
+A second act of a person is a second step.
 
 | Instead of | Write |
 |:---|:---|
@@ -87,7 +93,7 @@ Write each step as one act of its performer, in a product sentence, actor first.
 
 The first weak version packs two acts into one step, so a reader cannot see where one act ends. The second states what the product does without the rule for how it computes the amount. This satisfies `litespec/core/intent#write-flow-steps-as-sentences-with-ids`.
 
-Give each step an `id` in order: `s1`, `s2`, and so on. Use an `actor` field only at a handoff, when a second person takes over a step. A step `system` names only an external system, because a job or a reaction never appears in a step.
+Give each step an `id` in order: `s1`, `s2`, and so on. Use an `actor` field only at a handoff, when a second person takes over a step. A step's `system` field names only an external system, because a job or a reaction never appears in a step.
 
 ### Give Each Blocker as the Step's Failure
 
@@ -103,7 +109,9 @@ A flow states no rule of its own. Keep a condition with a number, such as a thre
 
 ### Write Branches
 
-Use `branches` to list each path that leaves the order of the steps. Each entry names the `step` it leaves, the `condition` under which it leaves, and the `nextStep` it continues at, or `end`. Give a branch no action of its own, because an action on a branch is a step, placed in the order.
+Use `branches` to list each path that leaves the order of the steps. Each entry names the `step` it leaves, the `condition` under which it leaves, and the `nextStep` it continues at, or `end`.
+
+Give a branch no action of its own, because an action on a branch is a step, placed in the order.
 
 | Instead of | Write |
 |:---|:---|

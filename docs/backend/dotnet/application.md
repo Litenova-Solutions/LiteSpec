@@ -3,15 +3,17 @@
 **Stack:** dotnet
 **Concern:** application
 
-Application code in a .NET backend sends commands and queries through mediators from LiteBus, the pinned messaging library. Commands change business state, queries read without changing it, and validators report structural input problems as LiteBus validity values. This page binds that dispatch for .NET: the command-handler shape, the validity shape, the query-handler shape, the entry point for each declared effect, the use case folder layout, the pinned mediator methods, and the pinned pipeline bindings. The shared coordination rules live on the [Application Layer](../application.md) page; the provisions here hold only their .NET bindings.
+Application code in a .NET backend sends commands and queries through mediators from LiteBus, the pinned messaging library. Commands change business state, queries read without changing it, and validators report structural input problems as LiteBus validity values. This page defines how the shared coordination rules apply to .NET: the command-handler shape, the validity shape, the query-handler shape, the entry point for each declared effect, the use case folder layout, the pinned mediator methods, and the pinned pipeline bindings. The shared rules are stated on the [Application Layer](../application.md) page.
 
 ## Concepts
 
 ### Commands, Queries, and Mediators
 
-A command is a message that changes business state, and a query reads a read model without changing state. The boundary sends the message through a LiteBus mediator: commands travel through `ICommandMediator` and queries through `IQueryMediator`, so the write path and the read path stay visibly separate at every call site. The command pipeline around the handler runs validation, authorization, the handler itself, and then one commit.
+A command is a message that changes business state, and a query reads from a read model without changing state. The boundary sends the message through a LiteBus mediator: commands travel through `ICommandMediator` and queries through `IQueryMediator`, so the write path and the read path stay visibly separate at every call site. The command pipeline around the handler runs validation, authorization, the handler itself, and then one commit.
 
-A reaction answers a domain event or an integration event in one class that carries one mark naming its reaction record, and it sends at most one command. A scheduled or one-off job selects its items and sends its one command once per item. Only an endpoint, an event handler, and a job hold a mediator: a command handler, query handler, validator, step, or domain type sends nothing, and no type in the modules project publishes an event.
+A reaction answers a domain event or an integration event in one class that carries one mark naming its reaction record, and it sends at most one command. A scheduled or one-off job selects its items and sends its one command once per item.
+
+Only an endpoint, an event handler, and a job hold a mediator. A command handler, query handler, validator, step, or domain type sends nothing, and no type in the modules project publishes an event.
 
 In Claimwick, approving an expense sends `ApproveExpenseCommand` through `ICommandMediator`: validators check the input, the pipeline authorizes the approver, the handler records the approval, and one commit stores it.
 
@@ -31,7 +33,13 @@ A validator checks structural input, such as an empty title or a malformed ident
 
 **Statement:** A command handler MUST load or create one aggregate through its repository, call one domain method on it, stage it, and return the result.
 
-**Rationale:** The handler body has three steps, the load or creation, the one domain call, and the stage. A required load uses the throwing `GetByIdAsync`, and an optional lookup uses the nullable `FindBy...Async`, under `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`. The message carries the pipeline-stamped timestamp as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`), so the handler stamps decisions without reading a clock. Validation, authorization, idempotency, audit, holds, and the commit are pipeline stages, not handler code. Messages, provider calls, and writes to other aggregates run in event handlers after the commit, under `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`. The handler takes no `ICommandMediator`, `IQueryMediator`, or `IEventMediator`. A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `writes` names, one method each. This provision binds `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` and `litespec/backend/application#load-a-required-record-or-refuse-it` for .NET, where `GetByIdAsync` and `FindBy...Async` are the forms.
+**Rationale:** The handler body has three steps: the load or creation, the one domain call, and the stage. A required load uses the throwing `GetByIdAsync`, and an optional lookup uses the nullable `FindBy...Async`, under `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`.
+
+The message carries the pipeline-stamped timestamp as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`), so the handler stamps decisions without reading a clock. Validation, authorization, idempotency, audit, holds, and the commit are pipeline stages, not handler code.
+
+Messages, provider calls, and writes to other aggregates run in event handlers after the commit, under `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`. The handler takes no `ICommandMediator`, `IQueryMediator`, or `IEventMediator`.
+
+A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `writes` names, one method each. This provision binds `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` and `litespec/backend/application#load-a-required-record-or-refuse-it` for .NET, where `GetByIdAsync` and `FindBy...Async` are the forms.
 
 **Example:**
 
@@ -75,7 +83,9 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Statement:** A query handler MUST take no repository and stage, store, delete, or dispatch nothing.
 
-**Rationale:** A read path acts on no invariant, so a repository in a query handler loads an aggregate the query has no write to justify. The handler projects through the read session under `litespec/backend/dotnet/persistence#query-through-iquerysession`. A read that writes makes retries and caching unsafe: repeating the query would repeat the write. An audited read is the pipeline's work, not the handler's. `dotnet build` reports a repository in a query handler as `LS2011`. This provision binds `litespec/backend/application#project-queries-directly` and `litespec/backend/application#keep-query-handlers-free-of-writes` for .NET.
+**Rationale:** A read path acts on no invariant, so a repository in a query handler loads an aggregate the query has no write to justify. The handler projects through the read session under `litespec/backend/dotnet/persistence#query-through-iquerysession`.
+
+A read that writes makes retries and caching unsafe: repeating the query would repeat the write. An audited read is the pipeline's work, not the handler's. `dotnet build` reports a repository in a query handler as `LS2011`. This provision binds `litespec/backend/application#project-queries-directly` and `litespec/backend/application#keep-query-handlers-free-of-writes` for .NET.
 
 **Example:** The list-expenses query projects its rows through `IQuerySession`, taking no repository and staging nothing.
 
@@ -91,7 +101,9 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Statement:** An event handler or job MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and its one declared `runs` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the pipeline stages each raised domain event and each integration event translating it in the same commit.
 
-**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). The same commit stages each integration event whose record translates a raised domain event. The shared kernel collects it beside its domain event, built by the integration event's static `From` method from that domain event alone, so no module code publishes. After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs`, sending one command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#give-each-handler-its-own-delivery`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision binds `litespec/backend/application#dispatch-only-declared-effect-edges` for .NET.
+**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). The same commit stages each integration event whose record translates a raised domain event. The shared kernel collects the integration event beside its domain event. It is built by the integration event's static `From` method from that domain event alone, so no module code publishes.
+
+After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs`, sending one command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#give-each-handler-its-own-delivery`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision binds `litespec/backend/application#dispatch-only-declared-effect-edges` for .NET.
 
 **Example:**
 
@@ -119,7 +131,9 @@ public sealed record ExpenseReimbursed(ExpenseId ExpenseId, EmployeeId EmployeeI
 
 **Statement:** A reaction MUST run in one class carrying one mark naming its reaction record.
 
-**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy`, and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of what it only sends or calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. It never writes an aggregate directly: a reaction that needs a write sends one command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision binds `litespec/backend/application#answer-each-reaction-in-one-marked-class` for .NET.
+**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy`, and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It sits in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of the notification it only sends or the system it only calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
+
+It never writes an aggregate directly: a reaction that needs a write sends one command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision binds `litespec/backend/application#answer-each-reaction-in-one-marked-class` for .NET.
 
 **Example:**
 
@@ -160,7 +174,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 
 **Statement:** A scheduled or one-off job MUST run as one hosted operation carrying one mark naming its job record.
 
-**Rationale:** The hosted operation lives in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of what it only sends or calls, and registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, so a restart resumes where the last run stopped instead of reprocessing or skipping items. It sends its one command once per selected item, and records its evidence where the record states. This provision binds `litespec/backend/application#run-each-job-within-its-declared-selection` for .NET.
+**Rationale:** The hosted operation sits in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of the notification it only sends or the system it only calls. It registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, so a restart resumes where the last run stopped instead of reprocessing or skipping items. It sends its one command once per selected item, and records its evidence where the record states. This provision binds `litespec/backend/application#run-each-job-within-its-declared-selection` for .NET.
 
 **Example:**
 
@@ -185,7 +199,15 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **Statement:** An Application MUST compose its command pipeline through the LiteBus APIs this provision names for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp.
 
-**Rationale:** One pinned binding per position keeps every project's pipeline identical. The commit runs through `commands.UseMartenUnitOfWork()`, which registers the LiteBus `IUnitOfWork` at `HandlerPriorities.UnitOfWork`, so the pipeline commits once under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`. Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message definition under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`. Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in an `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`. Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`. Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately under `litespec/ext/outbox#give-each-handler-its-own-delivery`. Event staging runs through `outbox.StageCollectedEvents()`, staging the facts `IDomainEventCollector` collected in the same commit as the aggregate change. The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock`.
+**Rationale:** One pinned binding per position keeps every project's pipeline identical:
+
+- The commit runs through `commands.UseMartenUnitOfWork()`, which registers the LiteBus `IUnitOfWork` at `HandlerPriorities.UnitOfWork`, so the pipeline commits once under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`.
+- Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message definition under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
+- Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in an `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`.
+- Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
+- Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately under `litespec/ext/outbox#give-each-handler-its-own-delivery`.
+- Event staging runs through `outbox.StageCollectedEvents()`, staging the facts `IDomainEventCollector` collected in the same commit as the aggregate change.
+- The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock`.
 
 **Reviewed for:** Does every pipeline position use its pinned LiteBus API? Check the command pipeline composition.
 
@@ -203,7 +225,11 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **Replacement:** A project names its use case layout in its Application documentation.
 
-**Rationale:** The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`. Only a use case gets a folder below its `UseCases/` folder: its own models stay in it under `litespec/backend/architecture#give-each-use-case-its-own-models`, any other type sits flat in the layer folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, and the event handlers and job that run it sit in its `Application/` folder under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
+**Rationale:** The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`.
+
+Only a use case gets a folder below its `UseCases/` folder: its own models stay in it under `litespec/backend/architecture#give-each-use-case-its-own-models`, any other type sits flat in the layer folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, and the event handlers and job that run it sit in its `Application/` folder under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
+
+Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
 
 **Example:** The layout below shows a flat module, a two-aggregate module, and a reaction that only sends a notification:
 
@@ -374,4 +400,4 @@ internal sealed class MarkBookLentOnLoanBorrowedHandler(ICommandMediator command
 }
 ```
 
-The command handler stages only the loan. Borrowing raises `LoanBorrowedEvent`, and after the commit the event handler sends the one command of the mark-book-lent use case. That use case's own handler loads the book, records the lent state, and stages it in its own pipeline and commit, while the event handler sits in that use case's `Application/` folder and writes no aggregate itself.
+The command handler stages only the loan. Borrowing raises `LoanBorrowedEvent`, and after the commit the event handler sends the one command of the mark-book-lent use case. That use case's own handler loads the book, records the lent state, and stages it in its own pipeline and commit. The event handler sits in that use case's `Application/` folder and writes no aggregate itself.

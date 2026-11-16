@@ -1,5 +1,7 @@
 # Security Policy
 
+Only the 7.0.x release line receives security fixes. Report an undisclosed vulnerability privately; do not open a public issue, discussion, or pull request for it.
+
 ## Supported Versions
 
 | Version | Supported |
@@ -9,7 +11,7 @@
 
 ## Reporting a Vulnerability
 
-Do not open a public issue, discussion, or pull request for an undisclosed vulnerability. Report it privately through [GitHub security advisories](https://github.com/Litenova-Solutions/LiteSpec/security/advisories/new) for this repository.
+Report an undisclosed vulnerability privately through [GitHub security advisories](https://github.com/Litenova-Solutions/LiteSpec/security/advisories/new) for this repository. Do not open a public issue, discussion, or pull request for it.
 
 Include the affected package and version, a minimal reproduction, the impact you observed or expect, and any proposed mitigation. Do not include secrets, production payloads, or personal data.
 

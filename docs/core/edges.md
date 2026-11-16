@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** records
 
-Edges and Screens states how the product meets the outside: the integration events, notifications, entry points, screens, and external systems. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
+Edges and Screens states how the product meets the outside: its integration events, notifications, entry points, screens, and external systems. Agents write these records from Intent, and code carries them out. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
 
 ## Concepts
 
@@ -11,9 +11,13 @@ Edges and Screens states how the product meets the outside: the integration even
 
 An integration event is a published fact that crosses the bounded context in CloudEvents form. Its `direction` says which way the fact travels: `out` for facts the product emits, and `in` for facts it accepts from outside.
 
-Each event says how far readers trust it. With `trigger-only` trust, the event only wakes the reader, and the reader goes back to the source for the facts. With `payload` trust, the fields on the event are fit to act on directly. The event carries `summary` and `delivery`: what it announces and who acts on it, and how it reaches its readers.
+Each event states how far readers trust it. With `trigger-only` trust, the event only wakes the reader, and the reader goes back to the source for the facts. With `payload` trust, the fields on the event are fit to act on directly. The event carries `summary` and `delivery`: what it announces and who acts on it, and how it reaches its readers.
 
-An outbound event names exactly one domain event in `translates`: the inside fact it carries outward. The use cases whose `raises` holds that domain event publish it, so each outbound event has exactly one publishing module. No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each integration event that translates them, built from the domain event alone. A read model in another module may copy its payload fields, as the [Automation page](automation.md#read-models) states. Claimwick emits `integration-event/expense-submitted` when spending submits an expense, for example, and the reporting module copies its payload into its own read model.
+An outbound event names exactly one domain event in `translates`: the inside fact it carries outward. The use cases whose `raises` holds that domain event publish it, so each outbound event has exactly one publishing module.
+
+No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each integration event that translates them, built from the domain event alone.
+
+A read model in another module may copy its payload fields, as the [Automation page](automation.md#read-models) states. Claimwick emits `integration-event/expense-submitted` when spending submits an expense, for example, and the reporting module copies its payload into its own read model.
 
 Every integration event names the external system it travels through in `through`. An outbound event publishes only fields its translated domain event carries. Consumers, Compatibility, and Example live in the explanation file beside the record file.
 
@@ -34,7 +38,11 @@ Every integration event names the external system it travels through in `through
 
 A notification is one message to a person, with its template, audience, channel, and consent. A call to a system is not a notification: it is an outbound integration event or an external-system operation.
 
-Each notification names the external system that delivers it in `deliveredThrough`. Consent is recorded data, not a flag on the message: an aggregate holds it, use cases grant and withdraw it, and a rule requires it. Suppression lives on the notification in `suppressedWhen`, and the scenarios that show the message sending nothing count as full scenarios. Claimwick's `notification/spending.receipt-reminder` sends the `receipt-reminder-manager` template to the manager. The notification carries `summary`, and Content, Delivery, and Example live in the explanation file beside the record file.
+Each notification names the external system that delivers it in `deliveredThrough`. Consent is recorded data, not a flag on the message: an aggregate holds it, use cases grant and withdraw it, and a rule requires it.
+
+Suppression lives on the notification in `suppressedWhen`, and the scenarios that show the message sending nothing count as full scenarios.
+
+Claimwick's `notification/spending.receipt-reminder` sends the `receipt-reminder-manager` template to the manager. The notification carries `summary`, and Content, Delivery, and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -58,7 +66,9 @@ Served content is a static script or legal text with its path, content type, cac
 | `browser`, `api`, `webhook`, `device`, `cli`, `mcp` | A browser app, a public interface, an inbound hook, a device, a command line, or a model context channel. |
 | `served-content` | Static content with `path`, `contentType`, `cacheControl`, and `versioning`. |
 
-An entry point that people use states two things about its audience. Its `density` says how much each screen shows at once: `public-light` for pages that show little, `application-balanced` for screens that balance work and guidance, or `admin-dense` for screens that pack dense rows. Its `voice` says in a sentence or two how the product addresses that audience. One density and one voice per entry point keep every screen of one audience at the same weight and in the same tone. The Claimwick employee app states `application-balanced`, for example.
+An entry point that people use states two things about its audience. Its `density` says how much each screen shows at once: `public-light` for pages that show little, `application-balanced` for screens that balance work and guidance, or `admin-dense` for screens that pack dense rows. Its `voice` says in a sentence or two how the product addresses that audience.
+
+One density and one voice per entry point keep every screen of one audience at the same weight and in the same tone. The Claimwick employee app states `application-balanced`, for example.
 
 The optional `protocol` block belongs to the `devices` extension. The [access page](access.md) states actors, roles, and permissions.
 
@@ -66,21 +76,31 @@ The optional `protocol` block belongs to the `devices` extension. The [access pa
 
 A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `behavior/entry-points/<entry-point>/screens/<entry-point>.<name>/<entry-point>.<name>.yaml` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. The folder already states its entry point, so the record writes no up-link.
 
-It names its `address`, the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination. It names the use cases it `offers` and the flow steps it `serves`. An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen offers no use case and says so in its `summary`.
+It names its `address`, the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination. It names the use cases it `offers` and the flow steps it `serves`.
 
-A screen states what a person can do there, and what the person sees follows from it. The results it shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`. None of those are written on the screen. Intent never names a screen either: a flow step states what a person achieves, and the book adds the screen that carries the step as context.
+An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen offers no use case and says so in its `summary`.
 
-The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`. The builder computes `calls` from the route entry: it follows imports within the route's own folder and the modules folder, so a module the route imports and every module that module composes count. It collects generated-client operation calls (a query helper the client generator emits for an operation, such as its options, query key, or mutation, counts as a call to that operation), and maps each operation through the endpoint's mark to its use case.
+A screen states what a person can do there, and what the person sees follows from it. The results it shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is looked up by the refusal's `code`. None of those are written on the screen. Intent never names a screen either: a flow step states what a person achieves, and the book adds the screen that carries the step as context.
 
-It follows neither the frame nor shared packages. A call a shared component makes is not the screen's offer, while a call a composed use-case module makes is. An operation that resolves to two use cases is a reader diagnostic rather than a silent pick. The builder compares the computed `calls` with `offers`. A flow step is exercised when a passing test proved a scenario of a use case that serves the step.
+The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`.
+
+The builder computes `calls` from the route entry. It follows imports within the route's own folder and the modules folder, so a module the route imports and every module that module composes count. It collects generated-client operation calls: a query helper the client generator emits for an operation, such as its options, query key, or mutation, counts as a call to that operation. It maps each operation through the endpoint's mark to its use case.
+
+It follows neither the frame nor shared packages. A call a shared component makes is not the screen's offer, while a call a composed use-case module makes is. An operation that resolves to two use cases is reported as a reader diagnostic instead of being silently assigned to one. The builder compares the computed `calls` with `offers`.
+
+A flow step is exercised when a passing test proved a scenario of a use case that serves the step.
 
 ### External Systems
 
-An external system is one system outside the bounded context that the product exchanges messages with. It stands alone and names no actor. When the integration calls the product rather than the other way around, that is still an external system: one calling through an API entry point. Claimwick's payout bank is an external system whose charge operation the spending module calls.
+An external system is one system outside the bounded context that the product exchanges messages with. It stands alone and names no actor.
+
+When the integration calls the product rather than the other way around, that is still an external system: one calling through an API entry point. Claimwick's payout bank is an external system whose charge operation the spending module calls.
 
 Each operation declares its direction, timeout, response, and cache, and may state its retry behavior in `retries` prose. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
 
-Its erasure position states how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported", "reason": "..." }`, `manual`, or `not-applicable` with its acceptance. Its `summary` states what the system does for the product and who operates it. It names the aggregates and data classes it holds in `processes`, as `{ aggregate: aggregate/<m>.<a>, dataClass: <name> }` entries.
+Its erasure position states how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported", "reason": "..." }`, `manual`, or `not-applicable` with its acceptance.
+
+Its `summary` states what the system does for the product and who operates it. It names the aggregates and data classes it holds in `processes`, as `{ aggregate: aggregate/<m>.<a>, dataClass: <name> }` entries.
 
 | Field | Meaning |
 |:---|:---|
@@ -100,7 +120,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 **Statement:** Each integration event MUST declare its direction, its CloudEvents identity, its typed payload, the trust its readers place in it, and the external system it travels through in `through`.
 
-**Rationale:** Without a stated direction, a published fact is read both ways: an outbound notice is answered as an order, and an inbound claim is trusted as law. The direction, the CloudEvents identity, the typed payload, the trust level, and the external system in `through` state what the fact is, how far readers follow it, and what it travels through. Each payload field carries the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the `dataschema` URL its payload follows. An inbound event also declares its `correlation` and its `arrivesThrough`, while an outbound event declares its `translates` domain event and its optional `requires`.
+**Rationale:** Without a stated direction, a published fact is read both ways: an outbound notice is answered as an order, and an inbound claim is taken as authoritative. The direction, the CloudEvents identity, the typed payload, the trust level, and the external system in `through` state what the fact is, how far readers follow it, and what it travels through. Each payload field carries the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the `dataschema` URL its payload follows. An inbound event also declares its `correlation` and its `arrivesThrough`, while an outbound event declares its `translates` domain event and its optional `requires`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an integration event without direction, CloudEvents identity, typed payload, trust, or `through`.
 
@@ -148,7 +168,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 **Statement:** Each inbound integration event MUST name how it arrives in `arrivesThrough`.
 
-**Rationale:** An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, and trust scatters across the code. Naming the arrival gives each inbound fact one entry point with one auth, where trust and correlation hold. That is either the `webhook` entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).
+**Rationale:** An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, with its own trust decision. Naming the arrival gives each inbound fact one entry point with one auth, where trust and correlation hold. That is either the `webhook` entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).
 
 **Example:** Claimwick's receipt-scan-available event names the scanning provider webhook entry point in `arrivesThrough`, and the payout-settled event names the payout bank stream the spending module subscribes to.
 
@@ -164,7 +184,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 **Statement:** Each notification MUST declare its template, audience, channel, consent rule, frequency, dedup key, parameters, locale, and delivering system.
 
-**Rationale:** A message without a declared audience and consent is sent on hope: the wrong actors receive it, consent is ignored, and repeats annoy. Declaring the template with its parameters and locale, the audience, the channel of `email`, `sms`, or `push`, the consent rule in `requiresConsent`, the frequency of `once` or `per-attempt`, the dedup key, and the delivering system in `deliveredThrough` puts the message beside its promise. A notification is a message to a person; a webhook to a system is an outbound integration event. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios show the message sending nothing. A use case that needs consent names the same rule in its `requiresConsent`.
+**Rationale:** A message without a declared audience and consent reaches the wrong actors, ignores consent, and repeats without control. Declaring the template with its parameters and locale, the audience, the channel of `email`, `sms`, or `push`, the consent rule in `requiresConsent`, the frequency of `once` or `per-attempt`, the dedup key, and the delivering system in `deliveredThrough` puts the message beside its promise. A notification is a message to a person; a webhook to a system is an outbound integration event. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios show the message sending nothing. A use case that needs consent names the same rule in its `requiresConsent`.
 
 **Checked by:** `litespec model check` reports `notification-effect-missing` for a notification no use case, reaction, or job sends, and fails a notification without its declared fields.
 
@@ -302,7 +322,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 **Statement:** A screen's `offers` MUST equal the use cases its route reaches through the generated client.
 
-**Rationale:** `offers` is the recorded promise of what a person can start on the page, and the calls are what the page actually does. When the two differ, the page either grew a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.
+**Rationale:** `offers` is the recorded promise of what a person can start on the page, and the calls are what the page actually does. When the two differ, the page either gained a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.
 
 **Example:** Claimwick's expense list offers `use-case/spending.list-expenses`, and its route calls `ListExpenses` through the generated client.
 
@@ -380,7 +400,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 **Statement:** Each external system MUST describe its operations with direction, timeout, timeout handling, response, and cache.
 
-**Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, and responses fail to parse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`, while the retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
+**Rationale:** Without a declared shape, an outside call fails unpredictably: timeouts hang, retries double-charge, and responses fail to parse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`, while the retry count lives on the calling edge in `onFailure.retry.maxAttempts`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an external system operation without direction, timeout, timeout handling, response, or cache.
 

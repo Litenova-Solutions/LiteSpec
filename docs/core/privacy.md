@@ -3,19 +3,21 @@
 **Stack:** any
 **Concern:** records
 
-Privacy and Retention states how the product handles personal data. Each data class declares its erasure position and its retention, and the extended positions cover referenced rows, child rows, handed-over data, requested reach, export guards, conflicts, and restore sweeps. Agents write these records from Intent, and code carries them out. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
+Privacy and Retention states how the product handles personal data: each data class declares its erasure position and its retention. Agents write these records from Intent, and code carries them out. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
 
 ## Concepts
 
 ### Retention on the Data Class
 
-Each aggregate data class declares how long its fields are kept. The declaration holds the `period` with the date it counts from in `periodStartsAt`, the `basis` behind the keeping, the `purpose`, the `enforcedBy` carrying out the erasure, and the `exceptions` beside it, as the [Domain Model page](domain-model.md) states.
+Each aggregate data class declares how long its fields are kept. The declaration holds the `period` with the date it counts from in `periodStartsAt`, the `basis` for keeping the fields, the `purpose`, the `enforcedBy` naming what carries out the erasure, and any `exceptions`, as the [Domain Model page](domain-model.md) states.
 
-The book renders the retention schedule from the data classes: one row per class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. The schedule states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record, and the project's counsel confirms the wording. An external system names the aggregates and data classes it processes in `processes`, as the [Edges and Screens page](edges.md) states.
+The book renders the retention schedule from the data classes: one row per class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. The schedule states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record, and the project's counsel confirms the wording.
+
+An external system names the aggregates and data classes it processes in `processes`, as the [Edges and Screens page](edges.md) states.
 
 ### Extended Erasure Positions
 
-The `onErasure` field carries one of nine positions. The five common fates are `erase`, `pseudonymize`, `anonymize`, `retain`, and `exempt`. The four extended needs are `tombstone`, which keeps the row id and the erasure date where references outlive erasure; `discard`, which deletes the row where no marker duty exists; `cascade-only`, which erases only through a named parent; and `transferred`, which hands the data to a named receiver with its handover record.
+The `onErasure` field carries one of nine positions. The five common positions are `erase`, `pseudonymize`, `anonymize`, `retain`, and `exempt`. The four extended positions are `tombstone`, which keeps the row id and the erasure date where references outlive erasure; `discard`, which deletes the row where no marker duty exists; `cascade-only`, which erases only through a named parent; and `transferred`, which hands the data to a named receiver with its handover record.
 
 Erasure that answers a subject request uses the `requested` reach and touches only the data the request names. A class that must export before erasure carries `exportFirst`, and erasure under `unchangedSinceExport` waits for a fresh export when the data changed since the last export. A restore runbook names the sweep job that re-applies erasure after the restore.
 
@@ -45,7 +47,7 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Statement:** Each data class MUST declare its classification, its fields, its purpose, its erasure position, its basis, its retention period with the date it counts from, and the enforcement that carries it out.
 
-**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `anonymize`, `retain`, `exempt`, `tombstone`, `discard`, `cascade-only`, or `transferred`. The `basis` names the constraint, requirement, and decision identifiers behind the retention; the period is an ISO 8601 duration or `{ "mode": "none", "reason": "..." }` with its start in `periodStartsAt`; the enforcement names the `job/` or `use-case/` identifiers carrying out the erasure. A pseudonymized class stays personal with its basis, and an anonymized class can no longer identify anyone. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
+**Rationale:** Erasure declared per field drifts: one field keeps a new position while another field in the same class keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `anonymize`, `retain`, `exempt`, `tombstone`, `discard`, `cascade-only`, or `transferred`. The `basis` names the constraint, requirement, and decision identifiers behind the retention; the period is an ISO 8601 duration or `{ "mode": "none", "reason": "..." }` with its start in `periodStartsAt`; the enforcement names the `job/` or `use-case/` identifiers carrying out the erasure. A pseudonymized class stays personal with its basis, and an anonymized class can no longer identify anyone. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
 
 **Example:** In Claimwick, the submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its accepting requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years from the financial year end, and the finance expiry job.
 
@@ -75,7 +77,7 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Statement:** Each external system MUST declare its erasure as `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported", "reason": "..." }`, `{ "mode": "manual", "reason": "..." }`, or `{ "mode": "not-applicable", "reason": "..." }`, each with its acceptance.
 
-**Rationale:** Personal data forwarded to a processor without an erasure route stays there past erasure: the product forgets while the processor remembers. Declaring the call operation, the forwarding integration event, or one of the three reason modes with its reason and its Intent acceptance states the route beside the system.
+**Rationale:** Personal data forwarded to a processor without an erasure route stays there past erasure: the product erases its copy while the processor keeps its copy. Declaring the call operation, the forwarding integration event, or one of the three reason modes with its reason and its Intent acceptance states the route beside the system.
 
 **Reviewed for:** Does every external system declare its erasure call, forwarding event, or reason mode with acceptance? Check the external systems beside their erasure routes.
 
@@ -105,7 +107,7 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Statement:** A data class with no duty to keep a marker MUST use `onErasure: discard`.
 
-**Rationale:** A tombstone is still a row: it takes storage, appears in counts, and invites readers to treat a gone subject as present. Where no reference and no audit needs the marker, deleting the row outright keeps the store honest.
+**Rationale:** A tombstone is still a row: it takes storage, appears in counts, and invites readers to treat a gone subject as present. Where no reference and no audit needs the marker, deleting the row outright leaves nothing behind.
 
 **Example:** Lago discards a customer: the profile is hidden and its relations end, while finalized invoices and credit notes stay as the ledger.
 
@@ -217,7 +219,7 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Statement:** A restore runbook MUST name the sweep job that re-applies erasure after the restore.
 
-**Rationale:** A backup holds data as it was, including rows erased since. Restoring it resurrects subjects the product promised to forget. The sweep job re-applies every erasure decided before the restore, so the restore brings the system back without bringing the erased data back with it.
+**Rationale:** A backup holds data as it was, including rows erased since. Restoring it brings back rows the product promised to erase. The sweep job re-applies every erasure decided before the restore, so the restore brings the system back without bringing the erased data back with it.
 
 **Example:** The database restore runbook names `job/privacy.sweep-restored-erasure`, which runs before traffic returns and deletes every row erased since the backup.
 

@@ -4,7 +4,7 @@
 
 **Concern:** operations
 
-A product release is the verified behavior a team ships as one immutable artifact, a build output that never changes after it is made. It carries the checks each changed boundary selects, the completion the builder computes from proof, and a release record with its verification report. A team applies these rules at every release. A project that selects the [Delivery extension](../ext/delivery.md) adds that extension's deployment and rollback rules on top.
+A product release is the verified behavior a team ships as one immutable artifact, a build output that never changes after it is made. Each release runs the checks its changed boundaries select, reports the completion the builder computes from proof, and records a release record with its verification report. A team applies these rules at every release. A project that selects the [Delivery extension](../ext/delivery.md) adds that extension's deployment and rollback rules on top.
 
 ## Concepts
 
@@ -12,13 +12,13 @@ A product release is the verified behavior a team ships as one immutable artifac
 
 A record present in git is decided, and the pull request that changes it is its review.
 
-A record the product drops is deleted, and git keeps its history. A project that names who answers for an area names them in CODEOWNERS.
+A record the product drops is deleted, and git keeps its history.
+
+A project that names who answers for an area names them in CODEOWNERS.
 
 ### Completion Is Computed
 
-Completion is computed from proof: code exists, tests exist, scenarios pass. The builder computes it on every run, and the book leads with it.
-
-Nobody types it.
+Completion is computed from proof: code exists, tests exist, and scenarios pass. The builder computes it on every run, nobody types it, and the book leads with it.
 
 ### The Release Gate
 
@@ -26,7 +26,7 @@ The gate admits a release when its blocking checks are green, its scenarios are 
 
 Whether a finding blocks follows the strength of the provision it reports. A finding on a required provision blocks unless a waiver covers it, and a finding on an advisory provision never blocks. The level letter states what a finding rests on: G findings read records only, S findings read code through a stack reader and report without blocking where that reader is not qualified, and A findings report without blocking, except the release-readiness findings `--release` names.
 
-`litespec model check --release` makes the release-readiness findings block, so the gate is a command you run. Under `--release`, a claimed layer whose reader is missing or failing blocks, since the gate can't judge evidence it can't read. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment, and rollback rules on top of this gate.
+`litespec model check --release` makes the release-readiness findings block, so running that command applies the gate. Under `--release`, a claimed layer whose reader is missing or failing blocks, since the gate can't judge evidence it can't read. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment, and rollback rules on top of this gate.
 
 ### The Verification Report
 
@@ -36,7 +36,7 @@ Each change ships with a verification report beside it: the exact commands run, 
 
 A stack reader is qualified by fixtures: a known good tree it passes and a known bad tree where it reports each planted defect. The fixtures prove the reader sees what it claims before it blocks any change.
 
-Only a qualified reader gates its scope with S checks. Where the reader isn't qualified, the same checks report without blocking, so an unproven reader can't stop a release on noise or pass one on silence.
+Only a qualified reader gates its scope with S checks. Where the reader isn't qualified, the same checks report without blocking, so an unproven reader neither blocks a release on findings it cannot prove nor passes a release whose defects it cannot see.
 
 ### Verified Behavior and Flow Evidence
 
@@ -52,7 +52,7 @@ It stays non-authoritative: specifications own behavior and scenarios, so the re
 
 ### Boundaries Select Checks
 
-Each changed boundary adds the checks written for it. A change that touches several boundaries runs every check each one selects, since each boundary carries failures the others can't see.
+Each changed boundary selects the checks written for it. A change that touches several boundaries runs every check each one selects, since each boundary carries failures the others can't see.
 
 | Changed boundary | Checks the change runs |
 |:---|:---|
@@ -64,7 +64,9 @@ Each changed boundary adds the checks written for it. A change that touches seve
 
 ### Record Debt as a Waiver
 
-Accepted debt never sits as an untracked compromise: it lives as a gap waiver with an expiry date, an exit, and closing records. Its findings are covered until the date, and `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape. Governance is a group of records beside the four record layers, not a fifth layer.
+Accepted debt never sits as an untracked compromise: it lives as a gap waiver with an expiry date, an exit, and closing records. Its findings are covered until the date, and `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape.
+
+Governance is a group of records beside the four record layers, not a fifth layer.
 
 ### Readiness Before the First Release
 
@@ -244,7 +246,7 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 
 **Statement:** A release MUST create one release record for its immutable artifact.
 
-**Rationale:** Evidence scattered across builds and reports answers no single question: nobody can say what one artifact proved. One release record per immutable artifact binds every result to the exact output it proves, so each artifact carries its own evidence.
+**Rationale:** Evidence scattered across builds and reports leaves no one place that says what one artifact proved. One release record per immutable artifact binds every result to the exact output it proves, so each artifact carries its own evidence.
 
 **Reviewed for:** Does every release show one record naming its immutable artifact? Check the release records beside each artifact.
 
@@ -344,7 +346,7 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 
 **Statement:** A release record MUST state its complete behavior and evidence without depending on an earlier release record.
 
-**Rationale:** A release judged from fragments is judged by archaeology: the reader digs through other records to fill the gaps. A complete record lets one reader judge one release from one page, with no upgrade guide filling in.
+**Rationale:** A release judged from fragments forces the reader to dig through other records to fill the gaps. A complete record lets one reader judge one release from one page, with no upgrade guide filling in.
 
 **Reviewed for:** Does any release record depend on an earlier record to be judged? Read the record alone beside its links.
 

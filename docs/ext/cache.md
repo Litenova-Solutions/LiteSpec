@@ -4,11 +4,9 @@
 
 **Concern:** infrastructure
 
-A cache answers repeated expensive reads from stored results instead of recomputing them, trading lower latency and source load for stale reads and invalidation work.
+A cache answers repeated expensive reads from stored results instead of recomputing them, trading lower latency and source load for stale reads and invalidation work. It applies per use case, to a repeated expensive read that traces or load tests have named.
 
 This page states when that trade is justified, what each cache's staleness contract covers, how keys separate results, and how the system behaves when the cache fails.
-
-A team applies it once traces or load tests name a repeated expensive read, so each cache carries a staleness bound the team chose instead of one it discovers during an incident.
 
 ## Activation
 
@@ -16,7 +14,7 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`.
 
-Select `cache` for a use case after traces or load tests show a repeated expensive read whose use case states how stale its answer may be. Expected future traffic alone leaves the extension unselected.
+Select `cache` for a use case after traces or load tests show a repeated expensive read whose use case states how stale its answer may be. Expected future traffic alone does not select it.
 
 ## Baseline Relationship
 
@@ -142,7 +140,7 @@ It switches on the `setting` record type. Each cache expiry is a setting record,
 
 **Deviation:** A measured staleness and operating-cost decision permits a longer expiry.
 
-**Rationale:** Precise invalidation costs design and code, while a short expiry costs one recomputation per window. When recomputation is cheaper, a short expiry bounds staleness without the machinery. A longer expiry then needs a measured decision showing the extra staleness is worth what it saves.
+**Rationale:** Precise invalidation costs design and code, while a short expiry costs one recomputation per window. When recomputation is cheaper, a short expiry bounds staleness without precise invalidation. A longer expiry then needs a measured decision showing the extra staleness is worth what it saves.
 
 **Reviewed for:** Does every long expiry rest on a measured staleness and operating-cost decision? Compare the expiry with the invalidation cost.
 
