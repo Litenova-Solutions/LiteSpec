@@ -17,6 +17,29 @@ export interface CompletionReaders {
   scenariosOf(id: string): string[];
 }
 
+/** The stage line the completion block draws: the stage with its scope counts, and the parked count when any child is parked. */
+export function stageLine(completion: BookRecord["completion"]): string | null {
+  if (completion === null || completion === undefined) return null;
+  const stage = completion.stage;
+  const inScope = completion.inScope;
+  const total = completion.total;
+  const parked = completion.parked;
+  if (stage === undefined || inScope === undefined || total === undefined || parked === undefined) return null;
+  const parkedSuffix = parked > 0 ? "; " + parked + " parked" : "";
+  return stage + ", " + inScope + " of " + total + parkedSuffix;
+}
+
+/** A stale proof as the book shows it: when its run commit passed and how many commits behind it sits. */
+export function freshnessLine(proof: BookRecord["proof"]): string | null {
+  if (proof === null || proof === undefined) return null;
+  if (proof.status !== "stale") return null;
+  const at = proof.lastPassedAt ?? "";
+  const behind = proof.commitsBehind ?? 0;
+  if (at === "") return null;
+  const noun = behind === 1 ? "commit ago" : "commits ago";
+  return "last passed at " + at + ", " + behind + " " + noun;
+}
+
 /** The lines the completion block draws: code, tests and scenarios, each marked. */
 export function completionLines(completion: BookRecord["completion"]): CompletionLine[] {
   if (completion === null || completion === undefined) {

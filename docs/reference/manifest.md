@@ -142,11 +142,16 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | nuget | `LiteBus.Messaging.Abstractions` | `7.x` |
 | nuget | `LiteBus.Outbox` | `7.x` |
 | nuget | `LiteBus.Outbox.Abstractions` | `7.x` |
+| nuget | `LiteBus.Outbox.Dispatch.Amqp` | `7.x` |
 | nuget | `LiteBus.Outbox.Dispatch.InProcess` | `7.x` |
+| nuget | `LiteBus.Outbox.Dispatch.Kafka` | `7.x` |
+| nuget | `LiteBus.Outbox.Extensions.OpenTelemetry` | `7.x` |
+| nuget | `LiteBus.Outbox.Storage.EntityFrameworkCore` | `7.x` |
 | nuget | `LiteBus.Outbox.Storage.PostgreSql` | `7.x` |
 | nuget | `LiteBus.Queries` | `7.x` |
 | nuget | `LiteBus.Queries.Abstractions` | `7.x` |
 | nuget | `LiteBus.Storage.PostgreSql` | `7.x` |
+| nuget | `LiteBus.Testing.DurableMessaging` | `7.x` |
 | nuget | `LiteBus.Testing.Mediation` | `7.x` |
 | nuget | `LiteSpec.Analyzers` | `7.0.0` |
 | nuget | `Marten` | `9.x` |
@@ -265,6 +270,7 @@ What the pins drive:
 
 - Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/stacks#use-manifest-version-pins` requires the pins over prose, examples, and agent memory.
 - UI validation: `litespec model check` reads the pinned npm packages and the baselines below when it checks the shared package and the stylesheets.
+- Floor: the outbox provisions need LiteBus 7.2.0 or later within the `7.x` pins.
 
 ### UI Baselines
 

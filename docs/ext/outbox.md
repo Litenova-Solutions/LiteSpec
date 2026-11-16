@@ -4,7 +4,7 @@
 
 **Concern:** infrastructure
 
-Durable delivery carries committed changes to the outside world through the outbox: the product stages each after-commit effect in the same transaction as its changes, and a Worker delivers it later. These rules apply to delivery that must survive a process failure.
+Durable delivery carries committed changes to their readers through the outbox: the product stages each after-commit effect in the same transaction as its changes, and a Worker delivers it later. Facts between modules of one product travel in process through the outbox and need no broker, while facts for outside systems leave through a transport. These rules apply to delivery that must survive a process failure.
 
 ## Activation
 
@@ -12,13 +12,13 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`.
 
-Select this extension on a use case whose committed change needs delivery that survives a process failure. That delivery can carry an integration event to another system, a command that advances a flow step, or a side effect on an outside provider. Selecting it also activates `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request`, so the project declares the execution host that runs the dispatcher.
+Select this extension on a use case whose committed change needs delivery that survives a process failure. That delivery can carry a module event to another module, an integration event to another system, a command that advances a flow step, or a side effect on an outside provider. Selecting it also activates `litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request`, so the project declares the execution host that runs the dispatcher.
 
 ## Baseline Relationship
 
 This extension replaces `litespec/backend/persistence#collect-events-without-a-public-unit-of-work`.
 
-It switches on no optional record type: integration events, settings, and runbooks belong to the core. The project writes an integration-event record for each integration event it delivers, setting records for the delivery bounds, and runbook records for recovery and rollback.
+It switches on no optional record type: integration events, module events, settings, and runbooks belong to the core. The project writes an integration-event record for each integration event it delivers and a module-event record for each module event it delivers, setting records for the delivery bounds, and runbook records for recovery and rollback.
 
 ## Standards
 
@@ -30,11 +30,39 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Applies to:** artifact: command-handler
 
-**Statement:** A use case MUST stage each domain event its act raises, and each integration event translating one of them, in the outbox in the same transaction as its changes.
+**Statement:** A use case MUST stage each domain event its act raises, each module event translating one of them, and each integration event translating one of them, in the outbox in the same transaction as its changes.
 
-**Rationale:** A raised fact means what follows it runs: staged in the same transaction, the change and its message commit or roll back together. One global pipeline step stages each raised domain event for the reactions of its module and each integration event whose record translates it, built from the domain event alone, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. No user code stages or publishes, so this step is the only code that stages. A message sent from memory instead would be lost on a crash between the commit and the send, and every follow-on act runs from a reaction to a staged fact.
+**Rationale:** A raised fact means what follows it runs: staged in the same transaction, the change and its message commit or roll back together. One global pipeline step stages each raised domain event for the reactions of its module, each module event whose record translates it, and each integration event whose record translates it, each built from the domain event alone, as `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit` requires. No user code stages or publishes, so this step is the only code that stages. A message sent from memory instead would be lost on a crash between the commit and the send, and every follow-on act runs from a reaction to a staged fact.
 
-**Reviewed for:** Does every raised domain event and translated integration event stage in the transaction of its aggregate changes, through the one global step? Check the pipeline's staging step and the outbox writes beside it.
+**Reviewed for:** Does every raised domain event and translated module and integration event stage in the transaction of its aggregate changes, through the one global step? Check the pipeline's staging step and the outbox writes beside it.
+
+### Deliver Module Facts in Process Without a Broker
+
+**ID:** `litespec/ext/outbox#deliver-module-facts-in-process-without-a-broker`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Facts between modules of one product MUST travel in process through the outbox, with no broker.
+
+**Rationale:** A module event is a contract between modules of one product, delivered from the same database that holds the business work. A broker between modules adds transport, operations, and failure modes for a hop that never leaves the process. An integration event still crosses the bounded context through the transport its record names in `through`.
+
+**Reviewed for:** Does any delivery between modules of one product leave the process or name a broker? Check the dispatch transports beside the module events.
+
+### Dispatch Projections Immediately After Commit
+
+**ID:** `litespec/ext/outbox#dispatch-projections-immediately-after-commit`
+
+**Strength:** required
+
+**Applies to:** artifact: reaction
+
+**Statement:** A projection a caller reads when the command returns MUST dispatch in process after the commit, with the outbox processor retrying whatever the immediate dispatch misses.
+
+**Rationale:** A read-model projection the next screen reads is visible when the command returns, but a dispatch without retry loses the projection on a crash. An immediate in-process dispatch after the commit gives read-your-writes for projections, and the outbox processor stays the fallback, so retry is never given up. The command's outcome never changes on a failed immediate dispatch.
+
+**Reviewed for:** Is every projection the caller reads dispatched in process after the commit with the processor as fallback? Check each such projection beside the dispatch registration.
 
 ### Declare Published Facts as Integration Events
 
@@ -56,17 +84,17 @@ It switches on no optional record type: integration events, settings, and runboo
 
 **Strength:** required
 
-**Applies to:** artifact: record:read-model, record:integration-event
+**Applies to:** artifact: record:read-model, record:integration-event, record:module-event
 
-**Statement:** A project MUST keep every integration event a read model names in `from`, `erasedBy` or `removedBy` apart from the outbox's delivery records for as long as a read model may need rebuilding from it, with erased personal fields removed or the event key shredded.
+**Statement:** A project MUST keep every module or integration event a read model names in `from`, `erasedBy` or `removedBy` apart from the outbox's delivery records for as long as a read model may need rebuilding from it, with erased personal fields removed or the event key shredded.
 
 **Rationale:** A new read model, or a changed one, fills from the events the owner already published. An outbox that deletes delivered records after a few days leaves a new read model nothing to replay, and every new read model then needs a hand-written backfill from the owner's tables, which is the coupling the read model exists to remove. Keeping the published events in a log apart from delivery lets a projection replay history.
 
 The log holds personal fields, so the erasing event a read model names in `erasedBy` also erases the field in the log. A retained event keeps its shape with the erased personal fields removed, or with its key shredded, so no rebuild restores them. The read model keeps an erasure tombstone for the erased key and applies it on rebuild, under `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
-**Example:** In Claimwick, the reporting module rebuilds its reimbursed-expense read model by replaying the kept expense-reimbursed events, while the outbox deletes its delivery records after seven days. A retained event for an erased expense replays without the erased personal fields.
+**Example:** In Claimwick, the reporting module rebuilds its reimbursed-expense read model by replaying the kept expense-reimbursed module events, while the outbox deletes its delivery records after seven days. A retained event for an erased expense replays without the erased personal fields.
 
-**Reviewed for:** Is every integration event a read model names kept apart from delivery for as long as a rebuild may need it, with erased fields removed or the key shredded? Check the event log's retention beside the read models that read it.
+**Reviewed for:** Is every module or integration event a read model names kept apart from delivery for as long as a rebuild may need it, with erased fields removed or the key shredded? Check the event log's retention beside the read models that read it.
 
 ### Document Delivery Guarantees Before Sending
 
@@ -172,13 +200,13 @@ The log holds personal fields, so the erasing event a read model names in `erase
 
 **Strength:** required
 
-**Applies to:** artifact: record:integration-event
+**Applies to:** artifact: record:integration-event, record:module-event
 
-**Statement:** An outbox record MUST name its message kind as integration event, flow-step command, or provider side effect, with an integration event citing its integration-event record.
+**Statement:** An outbox record MUST name its message kind as module event, integration event, flow-step command, or provider side effect, with a module event citing its module-event record and an integration event citing its integration-event record.
 
-**Rationale:** An integration event, a flow-step command, and a provider side effect each dispatch through their own owners and transports, so the record names which one it holds. The integration event cites its integration-event record, so the staged message traces to the published fact it carries.
+**Rationale:** Each kind dispatches through its own owner: a module event in process to its subscribed handlers, an integration event through its transport, a flow-step command through the mediator, and a provider side effect through its integration, so the record names which one it holds. The module event cites its module-event record and the integration event cites its integration-event record, so the staged message traces to the published fact it carries.
 
-**Reviewed for:** Does every outbox record name its message kind, with each integration event citing its record? Check the record type and the messages staged.
+**Reviewed for:** Does every outbox record name its message kind, with each module and integration event citing its record? Check the record type and the messages staged.
 
 ### Reject Independent Outbox Commits
 

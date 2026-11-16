@@ -197,9 +197,6 @@ public sealed class ActCheckTests
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
                   "title": "Loan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "entity",
                   "states": [
                     {
                       "name": "Active",
@@ -213,17 +210,16 @@ public sealed class ActCheckTests
 
                 A loan lends one copy to one reader.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.yaml", """
                 {
-                  "type": "aggregate",
-                  "id": "aggregate/lending.outbox",
+                  "type": "store",
+                  "id": "store/lending.outbox",
                   "title": "Outbox",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "store"
+                  "summary": "The lending-owned table of scans awaiting dispatch.",
+                  "owner": "module/lending"
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.md", """
                 # Outbox
 
                 The lending-owned table of scans awaiting dispatch.
@@ -281,7 +277,7 @@ public sealed class ActCheckTests
 
                 A pass issues one borrow command per record.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/record-scan.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/use-cases/record-scan/record-scan.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.record-scan",
@@ -290,7 +286,7 @@ public sealed class ActCheckTests
                   "status": "reviewed",
                   "kind": "command",
                   "writes": [
-                    "aggregate/lending.outbox"
+                    "store/lending.outbox"
                   ],
                   "records": [
                     {
@@ -304,7 +300,7 @@ public sealed class ActCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/record-scan.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/use-cases/record-scan/record-scan.md", """
                 # Record scan
 
                 A kiosk records each scan attempt.
@@ -467,8 +463,6 @@ public sealed class ActCheckTests
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
                   "title": "Loan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
                   "states": [
                     {
                       "name": "Active",

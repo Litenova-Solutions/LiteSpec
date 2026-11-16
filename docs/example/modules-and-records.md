@@ -1,17 +1,16 @@
 # Modules and Records
 
-Intent says what Claimwick promises; Behavior says how the product keeps those promises. The Spending module holds the Behavior side: the aggregates that hold each expense, policy, and receipt, the rules that guard them, the use cases that change them, and the entry point, screen, reaction, job, notification, and setting around them. This page lists those records as written in `examples/claimwick/.litespec/behavior/modules/spending/`, with the counts and IDs you can check in the folder. For the Intent they answer, see [The Claimwick Product](the-product.md).
+Intent says what Claimwick promises; Behavior says how the product keeps those promises. The Spending module holds the Behavior side: the aggregates that hold each expense, policy, and receipt, the store that holds the suppression list, the rules that guard the aggregates, the use cases that change them, and the entry point, screen, reaction, job, notification, and setting around them. This page lists those records as written in `examples/claimwick/.litespec/behavior/modules/spending/`, with the counts and IDs you can check in the folder. For the Intent they answer, see [The Claimwick Product](the-product.md).
 
 ## The Aggregates
 
-An aggregate is one thing the module keeps true, and Spending has four of them, each in its own folder under `behavior/modules/spending/`:
+An aggregate is one thing the module keeps true, and Spending has three of them, each in its own folder under `behavior/modules/spending/`:
 
-| Aggregate | File | Kind | States |
-|:---|:---|:---|:---|
-| Expense | `expenses/aggregate.yaml` | entity | Submitted, Approved, Refused, Reimbursed, Erased |
-| Receipt | `receipts/aggregate.yaml` | entity | Attached |
-| Policy | `policies/aggregate.yaml` | entity | Active |
-| Suppression List | `suppression-lists/aggregate.yaml` | store | None; owned by `aggregate/spending.policy` |
+| Aggregate | File | States |
+|:---|:---|:---|
+| Expense | `expenses/aggregate.yaml` | Submitted, Approved, Refused, Reimbursed, Erased |
+| Receipt | `receipts/aggregate.yaml` | Attached |
+| Policy | `policies/aggregate.yaml` | Active |
 
 The Expense aggregate file shows the pattern every aggregate follows. It holds its states, its transitions with the use case that moves each one, its data with a classification, its data classes with their retention, and its domain events:
 
@@ -20,7 +19,6 @@ type: aggregate
 id: aggregate/spending.expense
 title: Expense
 summary: An expense is one work cost an employee submitted.
-kind: entity
 states:
 - name: Submitted
   meaning: The expense waits for a decision.
@@ -46,6 +44,18 @@ The `dataClasses` list of the same file gives each piece of data its retention. 
 The `expense-ledger` class holds the amount, receipt, and state, is kept for seven years from the same event under `constraint/tax-receipt-retention`, and is retained, so the bare business facts stay for the tax file.
 
 The aggregate raises five domain events: `domain-event/expense.submitted`, `domain-event/expense.approved`, `domain-event/expense.refused`, `domain-event/expense.reimbursed`, and `domain-event/expense.personal-data-erased`. The receipt aggregate raises `domain-event/receipt.attached`.
+
+## The Store
+
+A store holds state no invariant guards, and Spending has one of them, beside the aggregates under `behavior/modules/spending/`. The suppression list in `stores/suppression-list/suppression-list.yaml` names the managers who get no approval reminder, so the reminder reaction skips them. It names its owning module in `owner` and carries no states, because no invariant guards the stored rows:
+
+```yaml
+type: store
+id: store/spending.suppression-list
+title: Suppression List
+summary: The suppression list names the managers who get no approval reminder, so the reminder reaction skips them.
+owner: module/spending
+```
 
 ## The Rules
 
@@ -77,7 +87,7 @@ The first rule in the expense file shows the shape. It names its kind, the use c
 
 The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, that an export carries only approved expenses, and that personal data is erased after its retention.
 
-A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, so `rule/spending.receipt-filed-once` binds `aggregate/spending.expense` and `aggregate/spending.receipt`. Each rule names a refusal code from the module's refusal set in `behavior/modules/spending/refusals.yaml`, and each refusal result carries one of those codes.
+A rule whose `governs` names more than one aggregate or store names every governed aggregate and store in `binds`, so `rule/spending.receipt-filed-once` binds `aggregate/spending.expense` and `aggregate/spending.receipt`. Each rule names a refusal code from the module's refusal set in `behavior/modules/spending/refusals.yaml`, and each refusal result carries one of those codes.
 
 ## The Use Cases
 
@@ -157,7 +167,7 @@ dependsOn:
 - module/spending
 ```
 
-The module keeps one row for each reimbursed expense in `read-model/reporting.reimbursed-expense`, keyed by `aggregate/spending.expense`. Each of its four fields takes its value from one payload field of `integration-event/expense-reimbursed`, and the employee field is personal. The employee field names `integration-event/expense-personal-data-erased` as the event that erases it, so the row keeps the amount and the reimbursement time when the personal data is erased.
+The module keeps one row for each reimbursed expense in `read-model/reporting.reimbursed-expense`, keyed by `aggregate/spending.expense`. Each of its four fields takes its value from one payload field of `module-event/spending.expense-reimbursed`, and the employee field is personal. The employee field names `module-event/spending.expense-personal-data-erased` as the event that erases it, so the row keeps the amount and the reimbursement time when the personal data is erased. Each module event travels in process through the transactional outbox, with no external transport.
 
 The read model declares freshness `{mode: snapshot, within: PT5S, decidedBy: use-case/spending.reimburse-expense}`, so a reader sees a row at most five seconds old, and the reimburse command decides each figure it holds.
 
@@ -165,12 +175,12 @@ The query `use-case/reporting.list-reimbursed-expenses` reads the read model und
 
 ## The External Systems
 
-The module talks to three external systems in `behavior/modules/spending/external-systems/`: the event bus, which carries the module's integration events to the modules that read them; the mail relay, which delivers the approval emails to managers; and the payout bank in `payout-bank/payout-bank.yaml`, which moves reimbursed money to employees.
+The module talks to three external systems in `behavior/modules/spending/external-systems/`: the event bus, which carries the module's integration event out of the product; the mail relay, which delivers the approval emails to managers; and the payout bank in `payout-bank/payout-bank.yaml`, which moves reimbursed money to employees.
 
 Claimwick sends one bank file per payout batch and reads back a settlement report. When a reimbursement stays queued past one business day, the operator lists the queued reimbursements and retries each one, as the runbook `implementation/modules/spending/runbooks/clear-stuck-reimbursements/clear-stuck-reimbursements.yaml` describes.
 
 ## Counting the Records
 
-Every count on these pages comes from the folder, not from memory. The Spending module holds 4 aggregates, 12 rules, 9 use cases, 2 settings, 1 job, 1 reaction, 1 notification, and 3 integration events. The Reporting module holds 1 read model and 1 use case. The entry point holds 3 screens, and the module talks to 3 external systems. The product holds 3 actors, 3 roles, and 3 flows.
+Every count on these pages comes from the folder, not from memory. The Spending module holds 3 aggregates, 1 store, 12 rules, 9 use cases, 2 settings, 1 job, 1 reaction, 1 notification, 2 module events, and 1 integration event. The Reporting module holds 1 read model and 1 use case. The entry point holds 3 screens, and the module talks to 3 external systems. The product holds 3 actors, 3 roles, and 3 flows.
 
 Run `dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root examples/claimwick` to see the model's view of the same records; [The Model and Its Checks](model-and-checks.md) shows that output.

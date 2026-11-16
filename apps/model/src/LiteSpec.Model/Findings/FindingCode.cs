@@ -15,8 +15,12 @@ public sealed class FindingCode
     /// <param name="meaning">What the finding means, in one sentence.</param>
     /// <param name="fix">How to resolve it, in one sentence.</param>
     /// <param name="extension">The extension that adds the code, or null when the core holds it.</param>
-    public FindingCode(string code, string level, RecordLayer layer, bool trace, string meaning, string fix, string? extension = null)
+    /// <param name="size">The project size the check runs at, <c>large</c>, or null when it runs at every size.</param>
+    /// <param name="orExtension">The extension that also turns on a size-bound check, or null.</param>
+    public FindingCode(string code, string level, RecordLayer layer, bool trace, string meaning, string fix, string? extension = null, string? size = null, string? orExtension = null)
     {
+        Size = size;
+        OrExtension = orExtension;
         Code = code;
         Level = level;
         Layer = layer;
@@ -40,6 +44,12 @@ public sealed class FindingCode
 
     /// <summary>Gets the extension that adds the code, or null when the core holds it.</summary>
     public string? Extension { get; }
+
+    /// <summary>Gets the project size the check runs at, <c>large</c>, or null when it runs at every size.</summary>
+    public string? Size { get; }
+
+    /// <summary>Gets the extension that also turns on a size-bound check, such as <c>bdd</c>, or null.</summary>
+    public string? OrExtension { get; }
 
     /// <summary>Gets what the finding means, in one sentence.</summary>
     public string Meaning { get; }

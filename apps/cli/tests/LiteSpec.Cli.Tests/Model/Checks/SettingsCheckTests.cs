@@ -52,7 +52,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Keyed Setting Without Options Class Reports.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void KeyedSettingWithoutOptionsClassReports()
     {
@@ -68,7 +68,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Keyed Setting With Marked Options Class Passes.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void KeyedSettingWithMarkedOptionsClassPasses()
     {
@@ -85,7 +85,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Options Class With Wrong Section Reports.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void OptionsClassWithWrongSectionReports()
     {
@@ -103,7 +103,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Options Class With Missing Property Reports.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void OptionsClassWithMissingPropertyReports()
     {
@@ -121,7 +121,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Options Class Spelling Key Passes.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void OptionsClassSpellingKeyPasses()
     {
@@ -137,7 +137,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Nested Section Spelling Key Passes.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void NestedSectionSpellingKeyPasses()
     {

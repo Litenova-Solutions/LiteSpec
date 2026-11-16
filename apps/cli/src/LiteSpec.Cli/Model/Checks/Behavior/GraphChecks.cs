@@ -328,22 +328,23 @@ internal static class GraphChecks
                 findings.Add(new Finding("rule-governs-drift", $"Rule '{rule.Id}' governs '{string.Join("', '", governed.Order(StringComparer.Ordinal))}' but its links reach '{string.Join("', '", linked.Order(StringComparer.Ordinal))}'.", rule.File, rule.Line, SubjectOf(rule)));
             }
 
-            // An aggregate is reached when the rule binds it, or a use case reaching the rule writes it.
-            var reachedAggregates = rule.Ids(RecordFields.Binds).ToHashSet(StringComparer.Ordinal);
+            // An aggregate or store is reached when the rule binds it, or a use case reaching the rule writes it.
+            var reachedAggregatesAndStores = rule.Ids(RecordFields.Binds).ToHashSet(StringComparer.Ordinal);
 
             foreach (var useCaseId in linked)
             {
                 if (model.ById.TryGetValue(useCaseId, out var reachingUseCase))
                 {
-                    reachedAggregates.UnionWith(reachingUseCase.Ids(RecordFields.Writes));
+                    reachedAggregatesAndStores.UnionWith(reachingUseCase.Ids(RecordFields.Writes));
                 }
             }
 
-            var governedAggregates = GovernedOfType(model, rule, RecordTypes.Aggregate);
+            var governedAggregatesAndStores = GovernedOfType(model, rule, RecordTypes.Aggregate);
+            governedAggregatesAndStores.UnionWith(GovernedOfType(model, rule, RecordTypes.Store));
 
-            if (!governedAggregates.SetEquals(reachedAggregates))
+            if (!governedAggregatesAndStores.SetEquals(reachedAggregatesAndStores))
             {
-                findings.Add(new Finding("rule-governs-drift", $"Rule '{rule.Id}' governs aggregates '{string.Join("', '", governedAggregates.Order(StringComparer.Ordinal))}' but its links reach '{string.Join("', '", reachedAggregates.Order(StringComparer.Ordinal))}'.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("rule-governs-drift", $"Rule '{rule.Id}' governs aggregates and stores '{string.Join("', '", governedAggregatesAndStores.Order(StringComparer.Ordinal))}' but its links reach '{string.Join("', '", reachedAggregatesAndStores.Order(StringComparer.Ordinal))}'.", rule.File, rule.Line, SubjectOf(rule)));
             }
         }
     }

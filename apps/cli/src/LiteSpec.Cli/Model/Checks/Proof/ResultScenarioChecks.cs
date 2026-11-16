@@ -12,8 +12,8 @@ internal static class ResultScenarioChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        // Scenarios are a large-size type, so a small project shows its results through tests alone.
-        if (model.Config.Size != "large")
+        // Scenarios are a large-size type, so a small project shows its results through tests alone, unless it selects the bdd extension.
+        if (model.Config.Size != "large" && !model.Config.Extensions.Contains("bdd", StringComparer.Ordinal))
         {
             return;
         }

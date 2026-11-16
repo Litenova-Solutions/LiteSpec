@@ -15,7 +15,7 @@ namespace LiteSpec.Analyzers.Rules.Layers.Application;
 ///     shared kernel holds that pipeline and is exempt; every other type in the modules project is checked,
 ///     entry points included.
 /// </summary>
-/// <follows>litespec/backend/application#emit-declared-integration-events-after-commit</follows>
+/// <follows>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EventPublishedByUserCodeAnalyzer : LayerAnalyzer
 {

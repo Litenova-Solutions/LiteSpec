@@ -352,7 +352,7 @@ public sealed class BookViewsTests
         Assert.Equal(("fulfills", "is fulfilled by"), Phrases(links, "fulfills", "use-case"));
         Assert.Equal(("solves", "is solved by"), Phrases(links, "solves", "feature"));
         Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "flow"));
-        Assert.Equal(("triggers", "is triggered by"), Phrases(links, "triggeredBy", "reaction"));
+        Assert.Equal(("is triggered by", "triggers"), Phrases(links, "triggeredBy", "reaction"));
 
         // Each edge key below joins to its row by the field after the carrier prefix.
         // A nested key joins when a row names the key or its longest dotted prefix.

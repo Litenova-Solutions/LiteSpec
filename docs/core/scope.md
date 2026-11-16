@@ -41,8 +41,13 @@ Each layer is written from the one above it and points up to it. A project leave
 |:---|:---|:---|:---|
 | `intent` | `litespec` | The Intent records follow the record model | Not offered |
 | `behavior` | `litespec` | The Behavior records follow the record model | Not offered |
-| `implementation` | `litespec` or `own` | Code marks its records, and the stack, workspace and code layout pages and the analyzers' architecture rules apply | Code marks its records; the team keeps its own architecture |
+| `implementation` | `litespec` or `own` | Code marks its records, and the stack, workspace and code layout pages and the analyzers' architecture rules apply | Code marks its records; `own` drops LiteSpec's code layout, stack shapes, and analyzer architecture rules, and the code honors the Behavior units of work below |
 | `proof` | `litespec` or `own` | Tests prove scenarios, and the testing pages and LiteSpec's test projects apply | Tests prove scenarios; the team keeps its own test practice |
+
+With `implementation: own`, the project drops LiteSpec's code layout, stack shapes, and analyzer architecture rules. The Behavior model still describes the system in modules, aggregates, stores, use cases, reactions, and jobs, and the code honors those units of work:
+
+- One command commits once.
+- Follow-on work runs from a reaction or a job.
 
 Every provision and every finding code governs one record layer, or `any`. Each one either ties its layer to the records (`trace`) or states LiteSpec's practice for the layer.
 
@@ -52,9 +57,9 @@ Stacks are required when you claim Implementation or Proof, because the stack se
 
 ### One Folder for Every LiteSpec File
 
-Every file LiteSpec creates, reads, or governs in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. Nothing of LiteSpec lives anywhere else, and no LiteSpec material sits at the repository root. Application code, tests, and infrastructure keep the places their stack pages name.
+Every LiteSpec record, document, explanation file, and generated file in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. No record, document, explanation file, or generated file sits at the repository root. Application code, tests, contracts, and `AGENTS.md` keep their own homes: code, tests, and contracts keep the places their stack pages name, and `AGENTS.md` stays at the repository root.
 
-Inside `.litespec/`, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own. The files `project.yaml` and `glossary.yaml` and the example cast sit at its top level. Proof holds no authored records.
+Inside `.litespec/`, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own. The files `project.yaml` and `glossary.yaml` and the example cast sit at its top level. Proof holds no authored records. Structured LiteSpec data is YAML; explanation files are Markdown.
 
 The tool builds its model in memory, keeps its working files in `model/`, and writes its book to `book/` under `.litespec/`. A `.gitignore` there keeps those two generated folders out of source control, so a checkout never mixes committed records with built files.
 
@@ -268,13 +273,13 @@ paths:
 
 **Strength:** required
 
-**Statement:** A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, `.litespec/`, at the repository root.
+**Statement:** A consumer MUST hold every LiteSpec record, document, explanation file, and generated file under one folder, `.litespec/`, at the repository root.
 
-**Rationale:** When LiteSpec material scatters across the repository, readers and tools hunt the tree for it. One folder with one name in every consumer makes the material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting, and keeps it apart from the application's code, tests, and infrastructure. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.yaml` stays relative to the repository root, so moving the folder never rewrites the paths inside it. A command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.yaml`.
+**Rationale:** When LiteSpec material scatters across the repository, readers and tools hunt the tree for it. One folder with one name in every consumer makes the material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting, and keeps it apart from application code, tests, contracts, and `AGENTS.md`, which keep their own homes. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.yaml` stays relative to the repository root, so moving the folder never rewrites the paths inside it. A command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.yaml`.
 
-**Example:** Claimwick holds its project file, glossary, example cast, and its Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder, instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
+**Example:** Claimwick holds its project file, glossary, example cast, and its Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code, tests, contracts, and `AGENTS.md`, which keep their own homes. An agent asked to read the contract opens that one folder, instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
 
-**Reviewed for:** Does any file LiteSpec creates, reads, or governs sit outside `.litespec/` or at the repository root? Look at the repository tree beside the project's `.litespec/` folder.
+**Reviewed for:** Does any LiteSpec record, document, explanation file, or generated file sit outside `.litespec/` or at the repository root? Look at the repository tree beside the project's `.litespec/` folder.
 
 ### Write Every Hand-Written LiteSpec File in YAML
 
@@ -282,11 +287,11 @@ paths:
 
 **Strength:** required
 
-**Statement:** A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary, and the pattern catalog, in YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, while files that programs exchange, such as check results, the model, and `--format json` output, stay JSON.
+**Statement:** A consumer MUST write every structured LiteSpec file a person edits, the project file, the records, the glossary, and the pattern catalog, in YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment.
 
-**Rationale:** Without one syntax, readers learn a new format per file, and edits hide in brace noise. People write these files and review them in pull requests, so one syntax with comments keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and `schemaVersion` tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own. Settled by [decision/0023-every-handwritten-file-in-yaml](decision/0023-every-handwritten-file-in-yaml).
+**Rationale:** Without one syntax, readers learn a new format per file, and edits hide in brace noise. People write these files and review them in pull requests, so one syntax with comments keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and `schemaVersion` tells a tool which shape the file holds. Structured LiteSpec data is YAML; explanation files are Markdown, as the [model page](model.md) states. Files that programs exchange, such as check results, the model, and `--format json` output, stay JSON, which every tool reads without a parser of its own. Settled by [decision/0023-every-handwritten-file-in-yaml](decision/0023-every-handwritten-file-in-yaml).
 
-**Example:** Claimwick's `.litespec/project.yaml` starts with the comment naming `https://litespec.dev/<version>/schemas/litespec-project.schema.yaml`, then `schemaVersion: 1`, and lists its layers, size, shape, and stacks as YAML keys. Its check results under `.litespec/proof/checks/` stay JSON, written by its harness.
+**Example:** Claimwick's `.litespec/project.yaml` starts with the comment naming `https://litespec.dev/<version>/schemas/litespec-project.schema.yaml`, then `schemaVersion: 1`, and lists its layers, size, shape, and stacks as YAML keys. Its explanation files beside the records are Markdown. Its check results under `.litespec/proof/checks/` stay JSON, written by its harness.
 
 **Checked by:** `litespec model check` reports `project-invalid` for a project file that is not `.litespec/project.yaml` or lacks `schemaVersion`; scope: the project file.
 

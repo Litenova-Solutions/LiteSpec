@@ -61,7 +61,8 @@ export function parseTrail(text: string): { trail: Trail; errors: string[] } {
 const GROUPS: Record<string, string> = {
   product: "intent", goal: "intent", problem: "intent", feature: "intent", research: "intent",
   decision: "intent", constraint: "intent", requirement: "intent", flow: "intent",
-  module: "behavior", aggregate: "behavior", rule: "behavior", "domain-event": "behavior", "use-case": "behavior",
+  module: "behavior", aggregate: "behavior", store: "behavior", rule: "behavior", "domain-event": "behavior",
+  "module-event": "behavior", "use-case": "behavior",
   result: "outcome", scenario: "outcome",
 };
 

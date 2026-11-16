@@ -176,8 +176,8 @@ public sealed class BookLexiconTests
             {
                 "requirement", "product", "permission", "rule", "result", "scenario", "domain-event",
                 "entry-point", "setting", "goal", "vision", "constraint", "research", "decision",
-                "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
-                "reaction", "job", "notification", "external-system", "integration-event",
+                "problem", "feature", "actor", "role", "flow", "module", "aggregate", "store", "use-case",
+                "reaction", "job", "notification", "external-system", "module-event", "integration-event",
                 "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
                 "setting-set", "rule-set", "refusal-set", "index", "tutorial", "how-to", "reference",
                 "command", "configuration", "glossary", "example-cast",
@@ -333,6 +333,7 @@ public sealed class BookLexiconTests
         Assert.Equal("Classification", lexicon.Fields["classification"]);
         Assert.Equal("Effective from", lexicon.Fields["effectiveFrom"]);
         Assert.Equal("Restart", lexicon.Fields["restart"]);
+        Assert.Equal("Owner", lexicon.Fields["owner"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));
@@ -361,7 +362,6 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("provenance"));
         Assert.False(lexicon.Fields.ContainsKey("decider"));
         Assert.False(lexicon.Fields.ContainsKey("decideBy"));
-        Assert.False(lexicon.Fields.ContainsKey("owner"));
         Assert.False(lexicon.Fields.ContainsKey("approvedBy"));
         Assert.False(lexicon.Fields.ContainsKey("approvedOn"));
         Assert.False(lexicon.Fields.ContainsKey("approvedHash"));

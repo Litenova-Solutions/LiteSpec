@@ -814,6 +814,18 @@ public static class RecordFields
     /// <summary>Gets the name of the `boundBy` field.</summary>
     public const string BoundBy = "boundBy";
 
+    /// <summary>Gets the name of the `guards` field: the aggregates a command reads whose rule must hold at commit.</summary>
+    public const string Guards = "guards";
+
+    /// <summary>Gets the name of the `competesWith` field: the command a race scenario runs at the same moment.</summary>
+    public const string CompetesWith = "competesWith";
+
+    /// <summary>Gets the name of the `supersedes` field: the decisions a decision replaces.</summary>
+    public const string Supersedes = "supersedes";
+
+    /// <summary>Gets the name of the `owner` field: the module or external system that owns a store.</summary>
+    public const string Owner = "owner";
+
     /// <summary>Gets the name of the `widenedBy` field.</summary>
     public const string WidenedBy = "widenedBy";
 

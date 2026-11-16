@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The setting-key and template-store checks: every operator setting names its key, every keyed setting is bound by a marked options class spelling it, and the notification templates and the template store stay one set with every parameter used.</summary>
 /// <follows>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</follows>
-/// <follows>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</follows>
+/// <follows>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</follows>
 /// <follows>litespec/core/edges#match-notification-templates-to-the-template-store</follows>
 /// <follows>litespec/core/edges#use-every-declared-template-parameter</follows>
 internal static class SettingChecks

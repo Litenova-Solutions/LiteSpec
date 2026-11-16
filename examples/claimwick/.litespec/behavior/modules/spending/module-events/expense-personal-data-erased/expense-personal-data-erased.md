@@ -8,7 +8,7 @@ The reporting module clears the employee of the matching row in `read-model/repo
 
 ## Compatibility
 
-The payload may gain a new field. No field may be removed or renamed, and no meaning may change, until the event's `dataschema` moves to a new version.
+The payload may gain a new field. No field may be removed or renamed, and no meaning may change.
 
 ## Example
 

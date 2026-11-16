@@ -210,11 +210,11 @@ For example, a Claimwick use case with no endpoint yet stays on its branch until
 
 **Statement:** An edge between records MUST NOT share a transaction, so each use case commits only its own writes.
 
-**Rationale:** An edge that shares its caller's transaction makes two use cases one unit of work: the called use case depends on a commit it does not own, a failure in either rolls back both, and neither use-case record says what it commits anymore. Running every follow-on act from a reaction to the fact the first act raised gives each use case its own commit, its own failure handling, and its own record. The schema holds no field for transaction sharing, so the rule holds by construction. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
+**Rationale:** An edge that shares its caller's transaction makes two use cases one unit of work: the called use case depends on a commit it does not own, a failure in either rolls back both, and neither use-case record says what it commits anymore. Running every follow-on act from a reaction to the fact the first act raised gives each use case its own commit, its own failure handling, and its own record. The schema offers no field for transaction sharing, so a record cannot declare a shared transaction. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
 
 **Example:** Claimwick's reimbursement commits the expense and raises its reimbursed fact, and a reaction in the reporting module answers the published fact in its own transaction.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an effect entry that names `sharesTransaction` or a use case that `runs` another use case.
+**Checked by:** `litespec model check` reports `record-invalid` for an effect entry that names `sharesTransaction` or a use case that `runs` another use case; `dotnet build` reports `LS2021` for a mediator held outside an endpoint, event handler, or job, and `LS2022` for an event published by user code.
 
 ### Confine Atomic Consistency to One Use Case
 

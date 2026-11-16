@@ -17,7 +17,7 @@ The `State` property is backed by an abstract state record with one sealed recor
 
 In Claimwick, an expense moves from submitted to approved when `Approve` runs. The method accepts only a submitted expense, stores an approved state carrying the approver and the decided time, and raises the approval event.
 
-Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` aggregate is the exception. It has no root, state record, or repository in Domain, and reaches code through a port.
+Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` is the exception. It has no root, state record, or repository in Domain, and reaches code through a port.
 
 ### Closed Sets Without Enums
 
@@ -556,7 +556,7 @@ public Money ApplyRate(decimal rate) => Create(Amount * rate, Currency);
 
 **Rationale:** One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. `GetByIdAsync` throws `{Aggregate}NotFoundException` for a required load, which frees handlers from repeating null checks. A nullable `FindBy...Async` stays reserved for lookups where absence is normal. A flow that finds a record or creates it is two use cases, and the boundary owning the flow chooses between them, following `litespec/backend/application#implement-one-outcome-path-per-command`. `IQueryable`, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision binds `litespec/backend/domain#limit-each-repository-to-one-aggregate` for .NET.
 
-The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure. That path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A `store` aggregate owns no repository interface. Its port carries the state its owner holds.
+The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure. That path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A `store` owns no repository interface. Its port carries the state its owner holds.
 
 **Example:**
 

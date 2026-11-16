@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** application
 
-Automation is the work that runs without a request: reactions answering events, jobs running on schedule or once, and read models a module keeps current from another module's published events.
+Automation is the work that runs without a request: reactions answering events, jobs running on schedule or once, module events carrying facts between modules, and read models a module keeps current from the module events another module publishes.
 
 Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) places automation among the five Behavior pages, and the [record language](language.md) defines how each field, value, and record name is written.
 
@@ -11,7 +11,7 @@ Agents write these records from Intent, and code carries them. The [Behavior ove
 
 ### Reactions
 
-A reaction answers an event. When a domain event or an integration event arrives, the reaction runs. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`. It is filed with the module whose records the reaction changes, or with the module that owns the notification when the reaction only sends one.
+A reaction answers an event. When a domain event, a module event, or an integration event arrives, the reaction runs. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`. It is filed with the module whose records the reaction changes, or with the module that owns the notification when the reaction only sends one.
 
 A reaction changes nothing directly. When a change is needed, the reaction runs a small command that makes it.
 
@@ -19,7 +19,7 @@ The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md
 
 | Field | Meaning |
 |:---|:---|
-| `triggeredBy` | The `domain-event/...` or `integration-event/...` ids the reaction answers, as one id or a list, each a domain event of its own module or an integration event. |
+| `triggeredBy` | The `domain-event/...`, `module-event/...`, or `integration-event/...` ids the reaction answers, as one id or a list: a domain event of its own module, a module event of any module of the product, or an inbound integration event. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
 | `compensates` | The `use-case/...` id the reaction undoes, for a reaction answering a later step's failure, optional. |
 | `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A reaction may omit `timing`, which means `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
@@ -31,6 +31,22 @@ The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md
 Scenarios sit under the reaction as child records, and each one ends in a result of a use case the reaction runs or in one of the reaction's own outcomes. The event handler that carries it out marks itself with `implements reaction/<module>.<name>`.
 
 An event with several outcomes needs one reaction per outcome, because a reaction runs at most one use case, as [Run at Most One Use Case from a Reaction or Job](#run-at-most-one-use-case-from-a-reaction-or-job) states. In Claimwick, the expense decision ends approved or refused: `domain-event/expense.approved` triggers the reaction that runs `use-case/spending.reimburse-expense`, while `domain-event/expense.refused` triggers the reaction that sends the refusal notice. There is no shared decided event with one reaction choosing between the two.
+
+### Module Events
+
+A module event is a fact one module publishes for the other modules of the same product. It is a contract between modules: the publishing module states the fact once, and each consuming module answers it from a reaction or copies it into a read model. The event travels in process through the transactional outbox, with no external transport. A module event never crosses the bounded context; a fact for readers outside the product is an integration event, as the [Edges and Screens page](edges.md#integration-events) states.
+
+The event carries the identifier `module-event/<module>.<name>`, such as `module-event/spending.expense-approved`, and lives at `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml`, under its publishing module. The record carries `summary`, and the explanation file beside it holds Consumers and Compatibility.
+
+| Field | Meaning |
+|:---|:---|
+| `translates` | The domain event of its own module it carries, required; the event's publishers are the use cases raising it, so each module event has exactly one publishing module. |
+| `payload` | `{ name, meaning, type, of, many, required, classification }` entries, with the same field shape integration events use. |
+| `terms` | The glossary terms used, optional. |
+
+A module event carries no `direction`, no CloudEvents identity, no `trust`, and no `through`: it travels one way between known modules, and nothing outside the product reads it. It publishes only fields the domain event it translates carries. No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each module event that translates them, built from the domain event alone, in the same commit.
+
+In Claimwick, the spending module publishes `module-event/spending.expense-approved` when an expense is approved, and the payouts module answers it from a reaction that pays the reimbursement.
 
 ### Jobs
 
@@ -57,24 +73,24 @@ Scenarios sit under the job as child records, and each one ends in a result of a
 
 ### Read Models
 
-A read model is a module's own copy of facts it needs from another module's aggregate. The owning module publishes integration events, and the reading module keeps its copy current from them instead of calling the owning module. The record carries the identifier `read-model/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml`. It is filed with the module that reads it.
+A read model is a module's own copy of facts it needs from another module's aggregate. The owning module publishes module events, and the reading module keeps its copy current from them instead of calling the owning module. The record carries the identifier `read-model/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml`. It is filed with the module that reads it.
 
 The name is a singular noun phrase for the thing the model keeps one row per, such as `reimbursed-expense`. A use case lists the read model in `reads`, the same way it lists an aggregate, and reads its own copy. The record carries `summary`, and the explanation file beside it describes the sources under Sources and the staleness under Freshness, with an optional Example.
 
 | Field | Meaning |
 |:---|:---|
 | `keyedBy` | The `aggregate/...` of another module the read model keeps one row per. |
-| `fields` | `{ name, meaning, type, of, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `of`, `many` and `classification` have the same meaning as on use-case inputs. |
-| `erasedBy` | On a `personal` or `sensitive` field, the `integration-event/...` whose arrival erases the field, required. |
-| `removedBy` | The `integration-event/...` ids whose arrival removes the row, optional. |
+| `fields` | `{ name, meaning, type, of, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `module-event/<module>.<name>#<field>` or `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `of`, `many` and `classification` have the same meaning as on use-case inputs. |
+| `erasedBy` | On a `personal` or `sensitive` field, the `module-event/...` or `integration-event/...` whose arrival erases the field, required. |
+| `removedBy` | The `module-event/...` or `integration-event/...` ids whose arrival removes the row, optional. |
 | `freshness` | How stale a row may be when a reader sees it: `{ mode, within, decidedBy }` with `mode` of `immediate`, `snapshot`, or `eventual`, `within` an ISO 8601 duration, and `decidedBy` naming the command use case or aggregate that decides the row at write time, as on query output groups. |
 | `terms` | The glossary terms used, optional. |
 
-In code, a read model is a set of projections with one reader: one projection per source integration event, each writing only its own read model. The module's use cases read through the reader. Each projection and the reader mark themselves with `implements read-model/<module>.<name>`.
+In code, a read model is a set of projections with one reader: one projection per source event, each writing only its own read model. The module's use cases read through the reader. Each projection and the reader mark themselves with `implements read-model/<module>.<name>`.
 
 The copy stays sound under retry and rebuild. Every source event carries an identity, so a redelivery never counts twice. The `latest` accumulation compares source versions, not arrival order, and corrections arrive as events. A rebuild replays retained events from the start, and staleness is measured from the source event's time.
 
-An erased key keeps a tombstone that a rebuild applies, so no rebuild restores erased personal data. A decision that cannot accept the read model's `freshness` is decided in the owning module instead, as [Decide Current Truth in the Owning Module](#decide-current-truth-in-the-owning-module) states. With the outbox extension, each integration event a read model names is kept for as long as a read model may rebuild from it.
+An erased key keeps a tombstone that a rebuild applies, so no rebuild restores erased personal data. A decision that cannot accept the read model's `freshness` is decided in the owning module instead, as [Decide Current Truth in the Owning Module](#decide-current-truth-in-the-owning-module) states. With the outbox extension, each event a read model names is kept for as long as a read model may rebuild from it.
 
 ### Ways to Read Another Module
 
@@ -126,13 +142,29 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Applies to:** artifact: record:reaction
 
-**Statement:** Each reaction MUST declare in `triggeredBy` the domain events of its own module or the integration events it answers.
+**Statement:** Each reaction MUST declare in `triggeredBy` the domain events of its own module, the module events of any module of the product, or the inbound integration events it answers.
 
-**Rationale:** A reaction without a trigger has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module or integration events, never another module's domain event. Answering another module's domain event would couple it to state its module does not own; the owning module publishes an integration event instead. A `skippedWhen` clause states when the reaction skips.
+**Rationale:** A reaction without a trigger has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module, module events, or inbound integration events, never another module's domain event. Answering another module's domain event would couple it to state its module does not own; the owning module publishes a module event instead. A module event is itself the declared crossing between modules, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states, so a reaction may answer one from any module without a module dependency. A `skippedWhen` clause states when the reaction skips.
 
 **Example:** In the library product, `reaction/lending.send-due-notice-on-loan-borrowed` answers `domain-event/loan.loan-borrowed` and runs the send-due-notice command.
 
 **Checked by:** `litespec model check` reports `reaction-trigger-unknown` (level G) for a trigger naming an unknown event, `reaction-trigger-foreign` (level G) for a trigger naming another module's domain event, and fails a reaction without a `triggeredBy` list.
+
+### Publish Every Module Event from the Event It Translates
+
+**ID:** `litespec/core/automation#publish-every-module-event-from-the-event-it-translates`
+
+**Strength:** required
+
+**Applies to:** artifact: record:module-event, record:use-case
+
+**Statement:** Each module event MUST name in `translates` the domain event of its own module it carries, and is published only from that domain event, by the pipeline step that stages raised events.
+
+**Rationale:** When a handler builds a module event from whatever the aggregate holds after the act, it publishes state the act never announced, and a second handler can publish the same event with a different payload. Deriving the event from the one domain event it translates keeps every published field a field of the announced fact. The publishing use cases then follow from `raises`, with no second declaration to drift, and the domain event carries every field its module events publish, as typed fields. A publish call in user code is an edge no record can declare, so the stack reader reports it. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
+
+**Example:** Claimwick's `module-event/spending.expense-approved` translates `domain-event/expense.approved`, so `use-case/spending.approve-expense`, which raises that event, publishes it, and its handler publishes nothing. The payouts module answers the module event from a reaction.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a module event without `translates`, `event-field-uncarried` (level G) for a payload field its translated domain event does not carry, `event-publisher-invalid` for a module event with a second publishing module, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
 
 ### Run Every Job from Its Declared Kind
 
@@ -248,13 +280,13 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Applies to:** artifact: record:read-model
 
-**Statement:** Each read model MUST name in `keyedBy` an aggregate of another module and, on each field, name in `from` the outbound integration event and the payload field the field comes from.
+**Statement:** Each read model MUST name in `keyedBy` an aggregate of another module and, on each field, name in `from` the module event or integration event and the payload field the field comes from.
 
 **Rationale:** A read model is a copy, and a copy with no stated source drifts: nobody can tell which event fills a field, so a renamed payload field breaks the read model without a finding. Naming the event and its field makes every crossing of the module boundary a declared edge the check reads, the same way an effect names its target. A read model keyed by its own module's aggregate copies state the module already reads directly. A use case names the read model in `reads`, and a read model no use case reads is kept current for no reader. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model). Settled by [decision/0084-give-read-models-their-semantics](decision/0084-give-read-models-their-semantics).
 
-**Example:** `read-model/reporting.reimbursed-expense` is keyed by `aggregate/spending.expense`, and its `amount` field comes from `integration-event/expense-reimbursed#amount`.
+**Example:** `read-model/reporting.reimbursed-expense` is keyed by `aggregate/spending.expense`, and its `amount` field comes from `module-event/spending.expense-reimbursed#amount`.
 
-**Checked by:** `litespec model check` reports `read-model-source-unknown` (level G) for a `from`, `erasedBy` or `removedBy` naming no outbound integration event or a payload field the event does not carry, `read-model-key-invalid` (level G) for a `keyedBy` naming an aggregate of the read model's own module, and `read-model-unused` (level G) for a read model no use case reads.
+**Checked by:** `litespec model check` reports `read-model-source-unknown` (level G) for a `from`, `erasedBy` or `removedBy` naming no module event or integration event, or a payload field the event does not carry, `read-model-key-invalid` (level G) for a `keyedBy` naming an aggregate of the read model's own module, and `read-model-unused` (level G) for a read model no use case reads.
 
 ### Erase a Read Model Personal Field with Its Owner
 
@@ -264,11 +296,11 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Applies to:** artifact: record:read-model
 
-**Statement:** Each `personal` or `sensitive` read model field MUST name in `erasedBy` the integration event whose arrival erases it.
+**Statement:** Each `personal` or `sensitive` read model field MUST name in `erasedBy` the module event or integration event whose arrival erases it.
 
 **Rationale:** A read model copies data out of the module that owns its erasure. A copy without an erasure trigger outlives the owner's erasure and keeps personal data the product promised to remove. Naming the erasing event ties the copy to the owner's erasure position, and the projection for that event clears the field. The erased key keeps a tombstone that a rebuild applies, so no rebuild restores the erased field. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
-**Example:** The `employeeId` field of `read-model/reporting.reimbursed-expense` is personal, so it names `integration-event/expense-personal-data-erased` in `erasedBy`, and the projection for that event clears it.
+**Example:** The `employeeId` field of `read-model/reporting.reimbursed-expense` is personal, so it names `module-event/spending.expense-personal-data-erased` in `erasedBy`, and the projection for that event clears it.
 
 **Checked by:** `litespec model check` reports `read-model-erasure-missing` (level G) for a `personal` or `sensitive` read model field with no `erasedBy`.
 

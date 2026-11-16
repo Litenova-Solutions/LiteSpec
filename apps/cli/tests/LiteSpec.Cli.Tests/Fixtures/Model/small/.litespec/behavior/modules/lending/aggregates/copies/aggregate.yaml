@@ -1,7 +1,6 @@
 type: aggregate
 id: aggregate/lending.copy
 title: Copy
-kind: entity
 states:
 - name: Available
   meaning: The copy sits on its shelf.

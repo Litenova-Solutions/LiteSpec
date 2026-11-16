@@ -64,8 +64,8 @@ internal static class EffectEdges
 
     /// <summary>
     ///     Whether a declared edge of the same verb names the dispatch's target. An event publish
-    ///     is never declared: no record names it, because an outbound integration event is published
-    ///     by the use cases whose raised event it translates.
+    ///     is never declared: no record names it, because a module event and an outbound integration
+    ///     event are published by the use cases whose raised event they translate.
     /// </summary>
     /// <param name="model">The loaded project model that resolves dispatched messages and notifications.</param>
     /// <param name="edges">The edges the holder record declares.</param>
@@ -120,7 +120,7 @@ internal static class EffectEdges
     {
         var stem = message;
 
-        foreach (var suffix in new[] { "IntegrationEvent", "Notification", "Event", "Message" })
+        foreach (var suffix in new[] { "IntegrationEvent", "ModuleEvent", "Notification", "Event", "Message" })
         {
             if (stem.EndsWith(suffix, StringComparison.Ordinal) && stem.Length > suffix.Length)
             {

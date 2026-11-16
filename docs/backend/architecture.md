@@ -28,7 +28,7 @@ A [module](../reference/glossary.md) is one business area: it organizes the lang
 
 Every module organizes its code as the module tree: one folder per declared aggregate, one `UseCases/` folder per aggregate and module with one folder per declared use case inside it, and the layer folders each level allows. A use case folder holds the reactions and jobs that run it beside its handler.
 
-A module publishes its public surface in its `Contracts/` folder, sorted by kind into `Identifiers/`, `IntegrationEvents/`, and `Ports/`. Other modules reference nothing outside it.
+A module publishes its public surface in its `Contracts/` folder, sorted by kind into `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, and `Ports/`. Other modules reference nothing outside it.
 
 ### The Module Tree
 
@@ -43,7 +43,7 @@ Inside a layer folder, subfolders are free (`Application/Pipeline/`, `Infrastruc
   Domain/  Application/  Infrastructure/  WebApi/     shared kernel, pipeline positions, store setup and outbox
   Organizations/                                      module
     Contracts/
-      Identifiers/  IntegrationEvents/  Ports/
+      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
     Domain/  Application/  Infrastructure/            behavior used by two or more aggregates; module registration
     Teams/                                            aggregate
       Domain/          Team, TeamState, TeamRepository (contract), Events/, Exceptions/
@@ -69,7 +69,7 @@ Inside a layer folder, subfolders are free (`Application/Pipeline/`, `Infrastruc
 |:---|:---|
 | Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `UseCases/`, `Notifications/`, `ExternalSystems/`, `ReadModels/`, one per declared aggregate |
-| Module `Contracts/` | `Identifiers/`, `IntegrationEvents/`, `Ports/` |
+| Module `Contracts/` | `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, `Ports/` |
 | Module `UseCases/` | one per declared module use case |
 | Module `Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `ExternalSystems/` | one per external system a reaction or job of the module only calls |
@@ -81,7 +81,7 @@ Inside a layer folder, subfolders are free (`Application/Pipeline/`, `Infrastruc
 
 A module shares with other modules only through its `Contracts/` folder. A typed identifier another module references lives in its owner's `Contracts/Identifiers/` folder, so the one rule covers identifiers too.
 
-A module publishes no command and no refusal. To trigger an act on another module's aggregate, a module raises its own fact, and the owning module's reaction answers the published integration event; each module refuses with its own refusals.
+A module publishes no command and no refusal. To trigger an act on another module's aggregate, a module raises its own fact, and the owning module's reaction answers the published module event; each module refuses with its own refusals.
 
 Shared-kernel values stay in the product `Domain/`. Product-wide HTTP plumbing (Problem Details, authentication, OpenAPI, rate limiting) stays in the host, and the product `WebApi/` folder holds only what endpoints of two or more modules compile against, such as the endpoint contract and the current actor.
 
@@ -117,17 +117,17 @@ Publishing a post runs a `PublishPostCommand` through the handler and the domain
 
 Across modules, each read takes one of three paths:
 
-- A module that needs another module's state keeps its own read model of it, built from the owner's published integration events.
+- A module that needs another module's state keeps its own read model of it, built from the owner's published module events.
 - A command whose decision needs the owner's current value asks one question through a decision port in the owner's `Contracts/Ports/` folder.
 - A screen that only shows another module's data calls the owner's own query.
 
 A module loads the other module's aggregate or repository in no case.
 
-Writes stay inside the module too. A command changes only its own module's aggregates; an act on another module's aggregate is that module's use case, triggered by an integration event its reaction answers. A reaction to another module's fact subscribes to the published integration event, not to the domain event behind it.
+Writes stay inside the module too. A command changes only its own module's aggregates; an act on another module's aggregate is that module's use case, triggered by a module event its reaction answers. A reaction to another module's fact subscribes to the published module event, not to the domain event behind it.
 
 ### From Records to Code
 
-Behavior records map onto code in one direction: each code element carries a mark pointing to the record it serves, under `litespec/core/system#point-code-and-tests-up-to-records`, and the folders mirror the records so a reader finds the code from the record. Reactions, jobs, notifications, settings, and integration events map onto the code shapes the layer pages state.
+Behavior records map onto code in one direction: each code element carries a mark pointing to the record it serves, under `litespec/core/system#point-code-and-tests-up-to-records`, and the folders mirror the records so a reader finds the code from the record. Reactions, jobs, notifications, settings, module events, and integration events map onto the code shapes the layer pages state.
 
 Nothing above Implementation is computed from code: code points up to the record it serves, and an undeclared edge or outcome is the defect.
 
@@ -191,7 +191,7 @@ A folder named for a technical grouping rather than a module defeats the rule: t
 # single-aggregate module whose aggregate name matches the module: the aggregate stays flat
 Organizations/
   Contracts/
-    Identifiers/  IntegrationEvents/  Ports/
+    Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
   Domain/  Application/  Infrastructure/
   UseCases/
     CreateOrganization/
@@ -201,7 +201,7 @@ Organizations/
 # multi-aggregate module: module, then aggregate folder, then UseCases, then use case
 Spending/
   Contracts/
-    Identifiers/  IntegrationEvents/  Ports/
+    Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
   Expenses/
     Domain/  Application/  Infrastructure/
     UseCases/
@@ -341,13 +341,13 @@ Queries project read results without loading an aggregate and write nothing, fol
 
 **Applies to:** artifact: command-handler, port, query-handler
 
-**Statement:** A module needing another module's data MUST read it through its own read model built from the owner's integration events, through a decision port in the owner's `Contracts/Ports/` folder, or, on a screen, through the owner's own query.
+**Statement:** A module needing another module's data MUST read it through its own read model built from the owner's module events, through a decision port in the owner's `Contracts/Ports/` folder, or, on a screen, through the owner's own query.
 
 **Rationale:** A module that loaded another module's aggregate or repository would couple its reads to the owner's consistency boundary and storage. A general reader in the owner's `Contracts/` is the same coupling one step removed: it grows a method per caller, and no record says which fields cross.
 
 The three allowed paths each state what crosses. A read model states each field it copies from a published event, under `litespec/backend/application#read-another-modules-state-through-a-read-model`. A decision port answers one current-value question, under `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`. A screen joins each owner's query, under `litespec/frontend/data#compose-a-screen-from-each-owners-query`.
 
-**Example:** In the Claimwick product, the reporting module reads reimbursed expenses through its own `read-model/reporting.reimbursed-expense`, filled from the spending module's expense-reimbursed integration event. It loads no spending aggregate, no spending repository, and no spending reader.
+**Example:** In the Claimwick product, the reporting module reads reimbursed expenses through its own `read-model/reporting.reimbursed-expense`, filled from the spending module's expense-reimbursed module event. It loads no spending aggregate, no spending repository, and no spending reader.
 
 **Reviewed for:** Does any cross-module read load another module's aggregate or repository, or call a general reader instead of a read model, a decision port, or a screen joining owner queries? Look at the cross-module reads beside the `Contracts/Ports/` folders.
 
@@ -359,29 +359,29 @@ The three allowed paths each state what crosses. A read model states each field 
 
 **Applies to:** artifact: command-handler
 
-**Statement:** A command MUST change only the aggregates of its own module, so an act on another module's aggregate runs as that module's use case, triggered by an integration event its reaction answers.
+**Statement:** A command MUST change only the aggregates of its own module, so an act on another module's aggregate runs as that module's use case, triggered by a module event its reaction answers.
 
-**Rationale:** Each module guards its own consistency boundaries, so a command from another module that wrote its aggregates would bypass the owning module's rules. An act on another module's aggregate is that module's use case instead: the caller raises its own fact, the owning module's reaction answers the published integration event, and the owning module enforces its own invariants. A module publishes no command, so no caller can send one across the boundary.
+**Rationale:** Each module guards its own consistency boundaries, so a command from another module that wrote its aggregates would bypass the owning module's rules. An act on another module's aggregate is that module's use case instead: the caller raises its own fact, the owning module's reaction answers the published module event, and the owning module enforces its own invariants. A module publishes no command, so no caller can send one across the boundary.
 
-**Example:** In the Claimwick product, a command that needs a policy change raises its own fact, and the policy module's reaction to the published integration event runs the policy use case. The command writes no policy aggregate and sends no policy command.
+**Example:** In the Claimwick product, a command that needs a policy change raises its own fact, and the policy module's reaction to the published module event runs the policy use case. The command writes no policy aggregate and sends no policy command.
 
 **Reviewed for:** Is any command writing an aggregate outside its own module, or sending another module's command, instead of raising a fact that module's reaction answers? Look at each command handler beside its module.
 
-### Subscribe Across Modules Only to Integration Events
+### Subscribe Across Modules Only to Module Events
 
-**ID:** `litespec/backend/architecture#subscribe-across-modules-only-to-integration-events`
+**ID:** `litespec/backend/architecture#subscribe-across-modules-only-to-module-events`
 
 **Strength:** required
 
 **Applies to:** artifact: reaction
 
-**Statement:** A reaction to another module's fact MUST subscribe only to the published integration event.
+**Statement:** A reaction to another module's fact MUST subscribe only to the published module event.
 
-**Rationale:** A domain event stays inside the module that raised it, while the published integration event carries the fact outside. A reaction that subscribed to another module's domain event would couple to the owner's internals and break when they change. The integration event is the stable cross-module fact, so cross-module reactions answer it.
+**Rationale:** A domain event stays inside the module that raised it, while the published module event carries the fact to the other modules of the product. A reaction that subscribed to another module's domain event would couple to the owner's internals and break when they change. The module event is the stable cross-module fact, so cross-module reactions answer it. A fact from outside the product still arrives as an inbound integration event.
 
-**Example:** In the Claimwick product, a reaction in the reporting module answers the published expense reimbursed integration event, not the spending domain event behind it.
+**Example:** In the Claimwick product, a reaction in the reporting module answers the published expense reimbursed module event, not the spending domain event behind it.
 
-**Reviewed for:** Is any reaction triggered by another module's domain event instead of its published integration event? Look at each reaction trigger beside the integration events.
+**Reviewed for:** Is any reaction triggered by another module's domain event instead of its published module event? Look at each reaction trigger beside the module events.
 
 ### Name the Host for Work That Outlives a Request
 

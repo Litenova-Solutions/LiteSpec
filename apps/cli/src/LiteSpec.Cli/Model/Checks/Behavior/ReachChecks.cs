@@ -9,13 +9,12 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The reach checks: every use case sits in a flow, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held, every permission is allowed, and no two decisions decide one record.</summary>
+/// <summary>The reach checks: every use case sits in a flow, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held, and every permission is allowed.</summary>
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/layers#write-each-layer-from-the-layer-above-it</follows>
 /// <follows>litespec/core/intent#reach-every-intent-record-with-behavior</follows>
 /// <follows>litespec/core/access#record-every-role-an-actor-holds</follows>
 /// <follows>litespec/core/access#grant-permissions-through-roles</follows>
-/// <follows>litespec/core/model#follow-the-authority-order</follows>
 internal static class ReachChecks
 {
     /// <summary>Reports use-case-flow-missing.</summary>
@@ -263,36 +262,6 @@ internal static class ReachChecks
             if (!allowed.Contains(permission.Id))
             {
                 findings.Add(new Finding("permission-unused", $"Permission '{permission.Id}' is allowed by no role.", permission.File, permission.Line, SubjectOf(permission)));
-            }
-        }
-    }
-
-    /// <summary>Reports decision-decides-duplicate.</summary>
-    /// <param name="model">The loaded project model that holds every record.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunDecisionConflict(ProjectModel model, List<Finding> findings)
-    {
-        var deciders = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
-
-        foreach (var decision in model.Records.Where(record => record.Type == RecordTypes.Decision && !record.Derived))
-        {
-            foreach (var id in decision.Ids(RecordFields.Decides))
-            {
-                if (!deciders.TryGetValue(id, out var grouped))
-                {
-                    grouped = [];
-                    deciders[id] = grouped;
-                }
-
-                grouped.Add(decision);
-            }
-        }
-
-        foreach (var entry in deciders.Where(pair => pair.Value.Count > 1).OrderBy(pair => pair.Key, StringComparer.Ordinal))
-        {
-            foreach (var decision in entry.Value.OrderBy(record => record.Id, StringComparer.Ordinal))
-            {
-                findings.Add(new Finding("decision-decides-duplicate", $"Decision '{decision.Id}' decides '{entry.Key}', which another decision also decides.", decision.File, decision.Line, SubjectOf(decision)));
             }
         }
     }

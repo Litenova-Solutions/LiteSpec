@@ -321,37 +321,20 @@ public sealed class ReachCheckTests
         Assert.DoesNotContain("permission-unused", TestModel.Codes(model));
     }
 
-    /// <summary>Two Decisions Deciding One Record Report Decision Conflict.</summary>
-    /// <proves>litespec/core/model#follow-the-authority-order</proves>
+    /// <summary>Two decisions deciding one record pass.</summary>
+    /// <proves>litespec/core/model#name-what-every-decision-decides</proves>
     [Fact]
-    public void TwoDecisionsDecidingOneRecordReportDecisionConflict()
+    public void TwoDecisionsDecidingOneRecordPass()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
             TestModel.Record("decision", "decision/0002-ghost-weeks", Path.Combine(temp.Path, "ghost-weeks.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
-        var conflicts = Checker.Check(model).Findings.Where(finding => finding.Code == "decision-decides-duplicate").OrderBy(finding => finding.Subject, StringComparer.Ordinal).ToList();
-
-        Assert.Equal(2, conflicts.Count);
-        Assert.Equal("Decision 'decision/0001-ghost-days' decides 'requirement/borrowing.max-loans', which another decision also decides.", conflicts[0].Message);
-        Assert.Equal("Decision 'decision/0002-ghost-weeks' decides 'requirement/borrowing.max-loans', which another decision also decides.", conflicts[1].Message);
-    }
-
-    /// <summary>Single Decision Passes.</summary>
-    /// <proves>litespec/core/model#follow-the-authority-order</proves>
-    [Fact]
-    public void SingleDecisionPasses()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""));
-
-        Assert.DoesNotContain("decision-decides-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
     }
 
     /// <summary>Intent Unreached Message Names Record.</summary>

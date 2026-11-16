@@ -1,13 +1,13 @@
 using Claimwick.Spending.Expenses.Domain.Events;
 
-namespace Claimwick.Spending.Contracts.IntegrationEvents;
+namespace Claimwick.Spending.Contracts.ModuleEvents;
 
 /// <summary>The expense-personal-data-erased event announces that the personal data of a decided expense was erased.</summary>
-/// <implements>integration-event/expense-personal-data-erased</implements>
-/// <follows>litespec/backend/application#emit-declared-integration-events-after-commit</follows>
+/// <implements>module-event/spending.expense-personal-data-erased</implements>
+/// <follows>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</follows>
 public sealed record ExpensePersonalDataErased(Guid ExpenseId)
 {
-    /// <summary>Builds the integration event from the domain event the expense raised.</summary>
+    /// <summary>Builds the module event from the domain event the expense raised.</summary>
     public static ExpensePersonalDataErased From(ExpensePersonalDataErasedEvent domainEvent) =>
         new(domainEvent.ExpenseId);
 }

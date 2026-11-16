@@ -193,12 +193,14 @@ sealed class DotnetBackendReader : IBackendReader
     {
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
-        var readElements = MarkedElementReader.Read(tree, context, SourceRoots.ProjectOf(config, file), SourceRoots.LayerOf(config, file));
+        var project = SourceRoots.ProjectOf(config, file);
+        var layer = SourceRoots.LayerOf(config, file);
+        var readElements = MarkedElementReader.Read(tree, context, project, layer);
         var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
             .ToDictionary(type => type.Identifier.Span, type => type);
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
             .ToDictionary(method => method.Identifier.Span, method => method);
-        var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified);
+        var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified, project, layer);
 
         ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified);
         AggregateMethodReader.ReadAggregateMethods(file, tree, elements, types, model);

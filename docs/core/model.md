@@ -17,7 +17,7 @@ Each layer answers one question, each layer is written from the layer above it, 
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | people and agents | goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
+| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, store, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
@@ -25,9 +25,9 @@ Governance sits beside the four layers instead of forming a fifth: the `waiver` 
 
 Three translation rules join the layers:
 
-- **Specify** moves Intent to Behavior. It adds the states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope. It also states every price, fee, rate, term, market, payer, retention period for personal data, observable freshness, and default or figure that differs by tenant, market, or date.
+- **Specify** moves Intent to Behavior. It adds the states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope that the Intent record implies but leaves unstated. It sends every price, fee, rate, term, market, payer, retention period for personal data, observable freshness, and default or figure that differs by tenant, market, or date to the owner, as `send-commercial-and-observable-figures-to-the-owner` states.
 - **Implement** moves Behavior to Implementation. It adds the code shapes the stack pages fix, and nothing else: no observable outcome that no result declares, no edge that no record declares, no write outside `writes`, and no access wider than the grant.
-- **Verify** moves Implementation to Proof. One test proves each scenario through the public boundary. A proof goes stale when its scenario, its test body, or a file carrying the mark of the behavior it proves changed after the run. A run records its commit.
+- **Verify** moves Implementation to Proof. One test proves each scenario through the public boundary. A proof is fresh when its run commit is HEAD, or when every path that changed between the run commit and the working tree is a record or documentation path. Otherwise the proof is stale and reads "last passed at <short commit>, <N> commits ago". A run records its commit.
 
 ### Record Types and Page Styles
 
@@ -49,11 +49,13 @@ A record type is one kind of statement a project can write, and each type answer
 | `role` | intent | Which permission sets exist? |
 | `module` | behavior | Which product areas exist? |
 | `aggregate` | behavior | Which things stay consistent? |
+| `store` | behavior | Which stored state holds no invariant? |
 | `rule` | behavior | What holds? |
 | `use-case` | behavior | Which use cases does the product offer? |
 | `result` | behavior | How does a use case end? |
 | `scenario` | behavior | Which example proves the result? |
 | `domain-event` | behavior | What happened? |
+| `module-event` | behavior | Which facts pass between modules? |
 | `integration-event` | behavior | Which facts cross the boundary? |
 | `reaction` | behavior | Which work runs when an event arrives? |
 | `job` | behavior | Which work runs on a schedule, once, or by hand? |
@@ -89,7 +91,7 @@ Placement is the choice of where a record lives. Ten principles place every reco
 - **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, an aggregate, or an entry point. No record writes an up-link that its location already states.
 - **Four kinds of scope node, and only four.** Product, module, aggregate, and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
 - **The lowest scope node that holds every user.** A record sits under the lowest scope node that holds every record linking to it within its layer. The author places it, and the tool validates it.
-- **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency or through an integration event. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
+- **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency, through a module event, or through an integration event. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
 - **One identifier.** The identifier is short, unique in its record type, and what every link and citation uses. Placement shows as the folder path and the `module` field, never as a second name.
 - **One name per module in every layer and in code.** `behavior/modules/finance/`, the backend source trees, the test projects, and the frontend modules all use the declared module name.
 - **Code and tests follow the identifier.** The folder and namespace of code and tests that mark a record match that record's identifier and module.
@@ -128,6 +130,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `module` | Behavior | module | `behavior/modules/<m>/module.yaml` | product | `module/<name>` |
 | `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` |
 | `aggregate` | Behavior | module | `behavior/modules/<m>/aggregates/<aggregate>/aggregate.yaml` | module | `aggregate/<module>.<name>` |
+| `store` | Behavior | module | `behavior/modules/<m>/stores/<name>/<name>.yaml` | module | `store/<module>.<name>` |
 | `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
 | `result` | Behavior | entry | in its use case file | use case | `result/<use-case>.<name>` |
 | `scenario` | Behavior | entry | in the file of its use case, reaction or job | that record | `scenario/<parent>.<name>` |
@@ -138,6 +141,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `read-model` | Behavior | module | `behavior/modules/<m>/read-models/<name>/<name>.yaml` | module | `read-model/<module>.<name>` |
 | `notification` | Behavior | module | `behavior/modules/<m>/notifications/<name>/<name>.yaml` | module | `notification/<module>.<name>` |
 | `setting` | Behavior | module | setting-set pages under `behavior/modules/<m>/settings/` | module | `setting/<module>.<name>` |
+| `module-event` | Behavior | module | `behavior/modules/<m>/module-events/<name>/<name>.yaml` | module | `module-event/<module>.<name>` |
 | `integration-event` | Behavior | module | `behavior/modules/<m>/integration-events/<name>/<name>.yaml` | module | `integration-event/<name>` |
 | `permission` | Behavior | module | `behavior/modules/<m>/permissions.yaml` | module | `permission/<name>` |
 | `refusal-set` | Behavior | module | `behavior/modules/<m>/refusals.yaml` | module | `<module>.<name>` (code) |
@@ -147,7 +151,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `waiver` | Governance | product, module | `governance/waivers/<name>/<name>.yaml`, `governance/modules/<m>/waivers/<name>/<name>.yaml` | product or module | `waiver/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `stores/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Each store sits in `stores/<name>/`. Any other subfolder of a module is a `record-placement-invalid` finding.
 
 A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `module-undeclared` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
 
@@ -157,7 +161,7 @@ A rule home is an aggregate name or a module name. A rule identifier keeps its h
 
 Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in `behavior/modules/<m>/rules/` rule-set files; `module.yaml` holds no rules, and a rule in `module.yaml` is a `record-placement-invalid` finding.
 
-An integration event has exactly one publishing module: the module of the use cases raising the domain event it translates. A second publishing module is an `event-publisher-invalid` finding. An integration event sits with its publishing module, or with its receiving module when inbound.
+An integration event has exactly one publishing module: the module of the use cases raising the domain event it translates. A second publishing module is an `event-publisher-invalid` finding. An integration event sits with its publishing module, or with its receiving module when inbound. A module event has exactly one publishing module, its own module. A second publishing module is an `event-publisher-invalid` finding. A module event sits with its publishing module.
 
 List records (rule sets, setting sets, the permission set and the refusal set per module) are files whose entries take the file's scope node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
 
@@ -204,7 +208,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | Folder | Record layer | Holds |
 |:---|:---|:---|
 | `.litespec/intent/` | Intent | Goals, visions, problems, features with their requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
-| `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, integration events, permissions and refusal sets; entry points with their screens; external systems |
+| `.litespec/behavior/` | Behavior | Modules with their aggregates, stores, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, module events, integration events, permissions and refusal sets; entry points with their screens; external systems |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, test runs, and operating logs. No person writes a fact here that a tool can compute |
 | `.litespec/governance/` | Governance | Waivers at product level or under modules, and project conventions under `conventions/` |
@@ -301,11 +305,13 @@ An identifier is the one name every link and citation uses for a record. It name
 | `flow` | `flow/<name>` | `flow/submit-and-reimburse` |
 | `module` | `module/<name>` | `module/spending` |
 | `aggregate` | `aggregate/<module>.<name>` | `aggregate/spending.expense` |
+| `store` | `store/<module>.<name>` | `store/notifications.suppression-list` |
 | `rule` | `rule/<home>.<name>` | `rule/expense.approver-is-not-submitter` |
 | `use-case` | `use-case/<module>.<name>` | `use-case/spending.submit-expense` |
 | `result` | `result/<use-case-name>.<name>` | `result/submit-expense.receipt-missing` |
 | `scenario` | `scenario/<parent>.<name>` | `scenario/submit-expense.submitting-with-a-receipt-succeeds` |
 | `domain-event` | `domain-event/<aggregate-name>.<past-tense>` | `domain-event/expense.submitted` |
+| `module-event` | `module-event/<module>.<name>` | `module-event/spending.expense-approved` |
 | `integration-event` | `integration-event/<name>` | `integration-event/expense-submitted` |
 | `reaction` | `reaction/<module>.<name>` | `reaction/spending.send-approver-reminder-on-expense-submitted` |
 | `job` | `job/<module>.<name>` | `job/spending.expire-lapsed-holds` |
@@ -366,17 +372,19 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | Field | Written on | Points at | Reads as | Read back as |
 |:---|:---|:---|:---|:---|
 | `terms` | any record | term | uses | is used by |
-| `governs` | rule | aggregate, use case | governs | is governed by |
-| `binds` | rule | aggregate | binds | is bound by |
+| `governs` | rule | aggregate, store, use case | governs | is governed by |
+| `binds` | rule | aggregate, store | binds | is bound by |
 | `basedOn` | rule | constraint, research | is based on | is a basis for |
 | `fulfills` | rule, setting, use case, reaction, job, notification, entry point | requirement | fulfills | is fulfilled by |
 | `releasedBy` | rule | use case | is released by | releases |
 | `result` | scenario | result, derived result | ends in | is shown by |
 | `exercises` | scenario | rule | exercises | is exercised by |
+| `competesWith` | scenario | use case | competes with | is competed with by |
 | `addresses` | product | actor | addresses | is addressed by |
 | `basedOn` | constraint | research | is based on | is a basis for |
 | `decides` | decision | generic record | decides | is decided by |
 | `basedOn` | decision | constraint, research, vision, requirement | is based on | is a basis for |
+| `supersedes` | decision | decision | supersedes | is superseded by |
 | `affects` | problem | actor | affects | is affected by |
 | `solves` | feature | problem | solves | is solved by |
 | `advances` | feature | goal | advances | is advanced by |
@@ -391,25 +399,26 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `steps.system` | flow | external system | is performed by | performs |
 | `steps.cites` | flow | requirement | carries | is carried by |
 | `dependsOn` | module | module | depends on | is depended on by |
-| `owner` | aggregate | aggregate | is owned by | owns |
 | `transitions.movedBy` | aggregate | use case, job | is moved by | moves |
-| `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
-| `dataClasses.periodStartsAt` | aggregate | domain event | starts at | starts the period of |
-| `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
+| `dataClasses.basis` | aggregate, store | constraint, requirement, decision | rests on | is the basis for |
+| `dataClasses.periodStartsAt` | aggregate, store | domain event | starts at | starts the period of |
+| `dataClasses.enforcedBy` | aggregate, store | job, use case | is enforced by | enforces |
+| `owner` | store | module, external system | is owned by | owns |
 | `access.recentSignIn` | use case | setting | is limited by | limits |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
 | `computedBy` | use case | rule | is computed by | computes |
 | `reachedThrough` | use case | entry point | is reached through | reaches |
 | `raises` | use case | domain event | raises | is raised by |
-| `writes` | use case | aggregate | writes | is written by |
-| `reads` | use case, reaction, job | aggregate, setting, read model | reads | is read by |
+| `writes` | use case | aggregate, store | writes | is written by |
+| `reads` | use case, reaction, job | aggregate, store, setting, read model | reads | is read by |
 | `consistency.boundBy` | use case | rule | is kept by | keeps |
+| `consistency.guards` | use case | aggregate | holds the guard of | is guarded by |
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
 | `effects.calls` | use case, reaction, job | external operation | calls | is called by |
 | `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
 | `requiresConsent` | use case, notification | rule | needs consent under | sets consent for |
-| `triggeredBy` | reaction | domain event, integration event | triggers | is triggered by |
+| `triggeredBy` | reaction | domain event, module event, integration event | is triggered by | triggers |
 | `compensates` | reaction | use case | compensates | is compensated by |
 | `effects.runs` | reaction, job | use case | runs | is run by |
 | `onFailure.surfacesIn` | reaction, job | entry point | surfaces in | surfaces |
@@ -420,14 +429,14 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `claims.requirement` | notification | requirement | claims | is claimed by |
 | `processes.aggregate` | external system | aggregate | processes | is processed by |
 | `erasure.operation` | external system | external operation | is erased through | erases |
-| `erasure.event` | external system | integration event | is erased through | carries the erasure of |
+| `erasure.event` | external system | published event | is erased through | carries the erasure of |
 | `basedOn` | external system | decision, requirement | is based on | is a basis for |
 | `through` | integration event | external system | travels through | carries |
 | `arrivesThrough` | integration event | entry point, external system | arrives through | receives |
 | `requires` | integration event | permission | requires | is required by |
-| `translates` | integration event | domain event | translates | is translated by |
+| `translates` | integration event, module event | domain event | translates | is translated by |
 | `keyedBy` | read model | aggregate | is keyed by | keys |
-| `removedBy` | read model | integration event | is removed by | removes rows of |
+| `removedBy` | read model | published event | is removed by | removes rows of |
 | `freshness.decidedBy` | read model | use case, aggregate | is decided by | decides |
 | `covers` | waiver | standards provision, standards page | covers | is covered by |
 | `subject` | waiver | generic record, flow step | applies to | is applied to |
@@ -441,9 +450,9 @@ Links point up a layer by default, from the behavior to the promise it keeps. In
 
 Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources.
 
-The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds: a flow names no use case, and a requirement names no rule.
+The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, `holds`, which names the roles an actor holds, and `steps.system`, which names the external system that performs a flow step: a flow names no use case, and a requirement names no rule.
 
-A read model and an entry point carry no `fulfills`: the query that reads a read model fulfills the requirement.
+A read model carries no `fulfills`, and an entry point carries one only when it serves content: the query that reads a read model, or the use case an entry point reaches, fulfills the requirement.
 
 Containment needs no link field: it follows storage. The scope node holds the parent, so `serves` on a flow and `answers` on a flow remain connections that carry meaning without deciding placement.
 
@@ -497,6 +506,7 @@ This page is the one home of the mark rules: the marks table below states the ma
 | Application or Infrastructure | Job host | `job/<module>.<name>` |
 | Application | Port for an external system | `external-system/<name>` |
 | Infrastructure | Adapter implementing that port | `external-system/<name>` |
+| Infrastructure | Repository or table configuration implementing a store | `store/<module>.<name>` |
 | API | Endpoint | `use-case/<module>.<name>` |
 | Frontend | Use-case module | `use-case/<module>.<name>` |
 | Frontend | Route entry: a web route file, a Blazor `@page` component, or an Android destination activity or fragment class | `screen/<entry-point>.<name>`, exactly one |
@@ -543,7 +553,7 @@ One check owns this comparison, so each drift is reported once.
 
 Authority is the order that settles conflicts between records. Git is the decision record: a record in the repository is decided, and a record no longer wanted is deleted.
 
-Intent outranks Behavior. A lower record cannot override a higher one: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. A contradiction is reported and resolved by updating or removing the inconsistent records. Inside one record, a must beats a should. Two decisions deciding the same record are a `decision-decides-duplicate` finding, not a tie to resolve. Every other link is trace: it explains why a record exists and never decides a conflict.
+Intent outranks Behavior. A lower record cannot override a higher one: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. A contradiction is reported and resolved by updating or removing the inconsistent records. Inside one record, a must beats a should. Several decisions may decide one record: a retention decision and a rounding decision both decide `aggregate/spending.expense`. A decision that replaces another names it in `supersedes`; a superseded decision stays in the repository as context, and the book shows it as superseded, computed from the inverse link. Every other link is trace: it explains why a record exists and never decides a conflict.
 
 A decision explains a choice. Goals, problems, features, flows, actors, research, and prose carry no authority, so they never override another record.
 
@@ -559,7 +569,7 @@ Module order states dependencies and grants no authority.
 
 ### Authoring Order
 
-Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Each record lands with the Intent above it already written, so no Behavior record rests on a promise nobody stated yet. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A branch may be incomplete; what merges is complete.
+Records are authored top-down, each slice from Intent down: each slice writes its Intent before its Behavior, and its Behavior before its code. Each record lands with the Intent above it already written, so no Behavior record rests on a promise nobody stated yet. Independent slices may run at the same time. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A branch may be incomplete; what merges is complete.
 
 Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
 
@@ -582,7 +592,7 @@ A record that reaches no Behavior gets an `intent-unreached` finding: it is eith
 
 Intent that is written but not yet served is planned, and planned Intent is a gap the project records. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`.
 
-Each one blocks in every run, local or in the pull-request check, because a link from Intent to the Behavior that serves it is never advisory. A gap waiver with `expiresOn` and `closedBy` parks any of them for its subject or paths until it expires. The rule holds in every claim.
+Each one blocks in every run, local or in the pull-request check, whenever the project claims Behavior, because a link from Intent to the Behavior that serves it is never advisory. A gap waiver with `expiresOn` and `closedBy` parks any of them for its subject or paths until it expires. A project that claims Intent alone sees Intent coverage in the book and no planned-Intent finding.
 
 Intent coverage states, for each Intent requirement and each flow step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction, or job serves it.
 
@@ -590,9 +600,9 @@ The builder computes the share from the records alone, so the book shows Intent 
 
 ### Completion Stages
 
-Completion is how far a record has traveled from a promise to proven software. The builder computes one completion stage for every requirement, use case, flow, feature, and goal, and writes it as `completion` with `stage`, `proof`, `heldBy` and `counts`. The stages run from least to most complete: `unfulfilled`, `specified`, `coded` and `verified`. Nobody types a stage: the builder counts it from fulfillment, code, and proof on every run, so the figure never goes stale.
+Completion is how far a record has traveled from a promise to proven software. The builder computes one completion stage for every requirement, use case, flow, feature, and goal, and writes it as `completion` with `stage`, `proof`, `heldBy`, `parkedBy` and `counts`. The stages run from least to most complete: `unfulfilled`, `specified`, `coded` and `verified`. Nobody types a stage: the builder counts it from fulfillment, code, and proof on every run, so the figure never goes stale.
 
-A parent is only as far as its weakest in-scope child, and `heldBy` names the children at that weakest stage, at most ten, with a `held by` count in `counts` naming the full number when the list is capped. `counts` holds the labeled done and of pairs behind the stage.
+A parent is only as far as its weakest in-scope child, and `heldBy` names the in-scope children at that weakest stage, at most ten, with a `held by` count in `counts` naming the full number when the list is capped. `counts` holds the labeled done and of pairs behind the stage, with `inScope`, `parked` and `total`. `parkedBy` lists parked records with the waiver that parks each and its `expiresOn`.
 
 `proof` reads `known` when the model holds a test run and `unknown` when it holds none; with no test run, a coded record stays `coded` with proof `unknown`, and proof unknown never reads as a failure. The book leads with completion.
 
@@ -605,7 +615,7 @@ Each type takes its stage from its children:
 - A goal takes the stage of its weakest in-scope feature, flow, and requirement. Its in-scope flows are the flows serving it.
 - A goal's completion shows delivery only: its outcome reads `not measured` until the goal records `observations` with date, measured value, and source, and a goal is never shown as reached from delivery alone.
 
-A requirement a waiver parks stays out of a feature's stage and counts and names itself in the feature's `heldBy`, so deferred work stays visible without holding the stage back.
+A requirement a waiver parks stays out of the stage and counts as parked: the stage is computed over in-scope records, `heldBy` lists only in-scope records holding the stage back, and `parkedBy` lists parked records with the waiver that parks each and its `expiresOn`. The book shows "verified, 12 of 14; 2 parked", with a parked list naming each waiver and expiry.
 
 The builder derives the proof words from code, screens, tests, and test runs on every run:
 
@@ -614,7 +624,7 @@ The builder derives the proof words from code, screens, tests, and test runs on 
 | coded | use case, rule, domain-event, aggregate state | the stack builder finds code for it |
 | verified | use case, requirement | every scenario has a passing proof through the public boundary that is not stale; a requirement is verified when every fulfiller is verified and its measure's check passes |
 | tested | quality requirement, technical decision, external system, integration event | a passing test that asserts something links to it; tested never makes a use case verified |
-| stale | scenario proof | the scenario, the test body or a file carrying the mark of the behavior it proves changed after the run |
+| stale | scenario proof | the run commit is behind HEAD with a changed path outside the record and documentation paths, or the run commit is unknown |
 | flaky | scenario proof | the test both passed and failed within the runs read |
 | reachable | aggregate state | a transition leads into it |
 | exercised | flow step | a passing proof of a use case, reaction or job serving the step |
@@ -639,7 +649,7 @@ The `decision-index` region renders one table of the decisions beside it, groupe
 
 A finding that a live waiver covers is reported as covered and exits zero. A waiver is live when it has no `expiresOn` date or its date has not passed. [The waivers page](waivers.md) states how a waiver covers a finding, what no waiver covers, and when one expires. A waiver past its `expiresOn` date is reported as `waiver-expired`.
 
-Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the run's commit with the hash of the scenario and of its test body at the last passing run; a proof is stale when the scenario, the test body, or a file carrying the mark of the behavior it proves changed after the run.
+Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the run commit and the outcome at the last passing run. A proof is fresh when its run commit is HEAD, or when every path that changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: a path under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads "last passed at <short commit>, <N> commits ago". When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. CI writes `proofs.json` from the run on the pull request head, so a merged pull request carries fresh proofs.
 
 ### Check Levels
 
@@ -664,18 +674,20 @@ A missing or failing reader produces `reader-missing` (level S) for that fronten
 
 Each names the file or path, and the model is built from what could be read.
 
+`litespec model check` prints a last line when any reader was missing: `inspection incomplete: reader for <frontend> missing, <N> findings not blocking`, with one clause per frontend. It exits with code 3 when no finding blocks but the inspection was incomplete. Exit codes are 0 for pass, 1 for a blocking finding or a missing record, 2 for a usage error, and 3 for a pass with incomplete inspection.
+
 `litespec model check` prints the level beside each finding.
 
 `litespec model check` runs only the findings of the layers the project claims in `layers`, as the [scope page](scope.md#layer-claims) states. With only `intent` and `behavior` claimed, no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. Claiming `implementation` or `proof` adds the stack readers and the mark and proof findings. Claiming `implementation: litespec` adds the layout group, `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout, with the stack and analyzer findings.
 
 The [model command page](../tools/model.md) lists every finding code with its level, its layer, its trace, and its meaning.
 
-`litespec model check` blocks on the planned-Intent findings in every run, as the Reachability section states. A record that must stay unreached carries a gap waiver with `expiresOn` and `closedBy`, which then parks the finding for that record until it expires.
+`litespec model check` blocks on the planned-Intent findings in every run whenever the project claims Behavior, as the Reachability section states. A record that must stay unreached carries a gap waiver with `expiresOn` and `closedBy`, which then parks the finding for that record until it expires.
 
 Two flags tune blocking without changing the levels:
 
 - `litespec model check --release` makes the release-readiness findings block, and `reader-missing` for a claimed layer blocks unless a gap waiver with `expiresOn` and `closedBy` parks it.
-- `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
+- `litespec model check --since <ref>` checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`, so an adopting project clears new findings first. Findings match by code, subject identifier and message, never by line. When the base cannot be built or checked, every finding blocks and the output says why.
 
 ### The Book
 
@@ -1021,13 +1033,13 @@ Two findings cover the two gaps: `step-use-case-missing` names a step no use cas
 
 **Applies to:** artifact: any
 
-**Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency or through an integration event.
+**Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, or through an integration event.
 
-**Rationale:** A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency or the integration event names the tie, so the seam where a monolith would split stays visible. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.
+**Rationale:** A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.
 
-**Example:** A spending rule cited from the finance module with no `dependsOn` tie and no integration event between them is reported; the rule moves to product level or the modules declare the tie.
+**Example:** A spending rule cited from the finance module with no `dependsOn` tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie.
 
-**Checked by:** `litespec model check` reports `link-locality-invalid` for a record under a module that is linked from another module with no declared dependency or integration event.
+**Checked by:** `litespec model check` reports `link-locality-invalid` for a record under a module that is linked from another module with no declared dependency, module event, or integration event.
 
 ### Keep Module Dependencies Free of Cycles
 
@@ -1103,7 +1115,7 @@ Two findings cover the two gaps: `step-use-case-missing` names a step no use cas
 
 **Rationale:** A decision that names nothing governs nothing. Naming at least one settled record gives the decision something to govern. A technical decision governs the code that follows it instead.
 
-**Checked by:** `litespec model check` reports `decision-decides-missing` for a product decision with an empty `decides` field, and `decision-decides-duplicate` for two decisions deciding one record.
+**Checked by:** `litespec model check` reports `decision-decides-missing` for a product decision with an empty `decides` field.
 
 ### Record Each Technical Choice as a Decision
 
@@ -1191,17 +1203,19 @@ Kept in Intent, the rule and the target stand as the promises they are, the deci
 
 **Checked by:** `litespec model check` reports `size-type-missing` and `record-invalid` for a project missing its declaration or a required type.
 
-### Author One Slice at a Time
+### Write Each Slice from Intent Down
 
-**ID:** `litespec/core/model#author-one-slice-at-a-time`
+**ID:** `litespec/core/model#write-each-slice-from-intent-down`
 
 **Strength:** required
 
 **Applies to:** artifact: record:feature
 
-**Statement:** Authoring MUST complete one feature from problem to scenario before starting the next.
+**Statement:** Each slice MUST write its Intent before its Behavior, and its Behavior before its code.
 
-**Rationale:** A feature worked from problem to scenario stays complete at every level: each record lands with the Intent above it already written. Parallel slices leave Behavior records resting on Intent nobody wrote yet.
+**Rationale:** A slice worked from Intent down stays complete at every level: each record lands with the Intent above it already written. Independent slices may run at the same time.
+
+**Example:** Two agents write the approval and approval-reminder features at once, each from its requirement down.
 
 **Reviewed for:** Does every Behavior record show the Intent above it? Follow its `fulfills` and `decides` links.
 
@@ -1217,7 +1231,7 @@ Kept in Intent, the rule and the target stand as the promises they are, the deci
 
 **Rationale:** Handwritten state drifts: a record marked coded stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run.
 
-A use case reads coded when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario, the test body, or a file carrying the mark of the behavior it proves changed after the run, which records its commit. A requirement reads verified when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A flow step reads exercised when a passing proof of a use case, reaction, or job serves it. A proof reads flaky when its test both passed and failed within the runs read.
+A use case reads coded when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when its run commit is behind HEAD with a changed path outside the record and documentation paths, or when its run commit is unknown. A run records its commit. A requirement reads verified when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A flow step reads exercised when a passing proof of a use case, reaction, or job serves it. A proof reads flaky when its test both passed and failed within the runs read.
 
 Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
@@ -1249,9 +1263,9 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Applies to:** artifact: record:use-case, record:requirement, record:flow, record:feature, record:goal; layer: implementation; trace: yes
 
-**Statement:** The builder MUST compute one completion stage for every requirement, use case, flow, feature and goal, and write it as `completion` with `stage`, `proof`, `heldBy` and `counts`, with a parent only as far as its weakest in-scope child and `heldBy` naming at most ten children at that stage.
+**Statement:** The builder MUST compute one completion stage for every requirement, use case, flow, feature and goal, and write it as `completion` with `stage`, `proof`, `heldBy`, `parkedBy` and `counts`, with a parent only as far as its weakest in-scope child, `heldBy` naming at most ten in-scope children at that stage, and `counts` holding `inScope`, `parked` and `total`.
 
-**Rationale:** Completion is a fact the builder can count from fulfillment, code, and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: `unfulfilled` when no Behavior record fulfills a record, `specified` when it is fulfilled and no code is found, `coded` when code is found for every in-scope child, and `verified` when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays `coded` with proof `unknown`, so proof unknown never reads as a failure. A requirement a waiver parks stays out of the stage and the counts and names itself in `heldBy`, so deferred work stays visible. A goal's completion shows delivery only; its outcome reads `not measured` until the goal records `observations`.
+**Rationale:** Completion is a fact the builder can count from fulfillment, code, and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: `unfulfilled` when no Behavior record fulfills a record, `specified` when it is fulfilled and no code is found, `coded` when code is found for every in-scope child, and `verified` when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays `coded` with proof `unknown`, so proof unknown never reads as a failure. A requirement a waiver parks stays out of the stage and counts as parked: `heldBy` lists only in-scope records holding the stage back, and `parkedBy` lists parked records with the waiver that parks each and its `expiresOn`. The book shows "verified, 12 of 14; 2 parked", with a parked list naming each waiver and expiry. A goal's completion shows delivery only; its outcome reads `not measured` until the goal records `observations`.
 
 **Example:** In Claimwick, `feature/expense-submission` shows `coded` with proof `unknown` before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows `verified` with no held-by entries.
 
@@ -1285,7 +1299,7 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Rationale:** The level tells a reader what a finding rests on: G rests on records only, S rests on code read through a stack reader, and A rests on prose, names, or proof state. Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. `litespec model check` prints the level beside each finding, so a reader tells what each finding rests on at a glance. A missing required link is level G.
 
-**Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, prints the level beside each finding, and `litespec model check --release` blocks on `reader-missing` for a claimed layer.
+**Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, prints the level beside each finding, prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line when any reader was missing with one clause per frontend, and exits with code 3 when no finding blocks but the inspection was incomplete. `litespec model check --release` blocks on `reader-missing` for a claimed layer.
 
 ### Declare One Mark Style
 
@@ -1331,7 +1345,7 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Rationale:** A test outside the record tree is either proof of something the specification forgot to state or a test that verifies nothing anyone promised. Naming the lowest record it verifies places each test: a scenario or rule for behavior, a quality requirement for how well the product behaves, a technical decision for a technical choice, an external system or integration event for an agreement with the outside, a provision for a structural rule the code must keep, and a project convention for a standing rule the code must keep.
 
-A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test that verifies nothing a record should state is deleted. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test that asserts something links to a quality requirement, a technical decision, an external system, an integration event, or a provision marks that record tested, so "the adapter is right" never reads as "the promise is kept". A background use case is verified through the passing proofs of the use cases it serves. A browser success proof asserts the result sentence or the scenario Then text.
+A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test with no record above it is a finding to resolve by writing the missing record or reporting the gap. It is deleted only when a reviewer establishes that the behavior it protects is obsolete, redundant or wrong, and the pull request says so. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test that asserts something links to a quality requirement, a technical decision, an external system, an integration event, or a provision marks that record tested, so "the adapter is right" never reads as "the promise is kept". A background use case is verified through the passing proofs of the use cases it serves. A browser success proof asserts the result sentence or the scenario Then text.
 
 **Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/approval-reminders.month-end-submission`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
 

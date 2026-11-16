@@ -158,7 +158,7 @@ static class ConsumerFixture
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.yaml",
             """
-            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"-","to":"Draft"},{"from":"Draft","to":"Canceled","movedBy":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"domain-event","id":"domain-event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":[{"name":"orderId","type":"text"}]}]}
+            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"-","to":"Draft"},{"from":"Draft","to":"Canceled","movedBy":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"domain-event","id":"domain-event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":[{"name":"orderId","type":"text"}]}]}
             """,
             """
             # Order Claim

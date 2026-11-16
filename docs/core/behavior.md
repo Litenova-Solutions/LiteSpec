@@ -16,7 +16,7 @@ Five pages hold the Behavior records, each owning its records. This page holds t
 |:---|:---|
 | [Domain Model](domain-model.md) | Modules, glossary, aggregates, rules, and domain events. |
 | [Use Cases](use-cases.md) | Commands, queries, results, scenarios, and settings. |
-| [Automation](automation.md) | Reactions and jobs. |
+| [Automation](automation.md) | Reactions, jobs, module events, and read models. |
 | [Edges and Screens](edges.md) | Integration events, notifications, entry points, screens, and external systems. |
 | [Privacy and Retention](privacy.md) | Data classes with their erasure positions and retention. |
 
@@ -38,7 +38,7 @@ The module is also the seam where a monolith would later split into services. An
 
 A folder under `behavior/modules/` that names no declared module gets a blocking finding, so a stray folder cannot pose as an area.
 
-A record under a module is linked from another module only along a declared module dependency or through an integration event, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states. A product-level record may be linked from one module or many.
+A record under a module is linked from another module only along a declared module dependency, through a module event, or through an integration event, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states. A product-level record may be linked from one module or many.
 
 ### Spec to Design Mapping
 
@@ -57,12 +57,13 @@ Each record maps to one design pattern, and the stack pages state the code form 
 | rule, invariant | an invariant checked on every change |
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
-| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `boundBy`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
+| rule, precondition spanning aggregates | a read of the guarding aggregate named in `reads`, with `consistency: { mode: atomic, boundBy: <rule>, guards: [<aggregate>] }`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
 | rule, atomicity | one atomic write group across the aggregates it binds |
 | rule, reservation | a held claim with its release |
 | rule, frozen-value | a frozen commercial value with its history |
 | domain event | a domain event raised through the root |
 | integration event | a published fact in CloudEvents form |
+| module event | a fact one module publishes for the other modules of the same product |
 | use case, command | one handler behind the use case |
 | use case, query | one read behind the use case |
 | reaction | one reaction answering its events |

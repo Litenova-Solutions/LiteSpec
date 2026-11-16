@@ -39,6 +39,8 @@ Every record type has a short code, such as F for a feature and U for a use case
 
 The rail beside each record page holds the record's Trace, its Completion, and its On this page list. Trace lists only records in another record layer that the record serves, reaches, or is proven by, since a record in the same layer is one step away in the outline. Completion states whether the record has code, whether it has tests, and how many of its scenarios pass. Facts that stay the same on every page, such as the build time, the test run, and the record counts per type, sit on the About this book page.
 
+Completion carries three counts, `inScope`, `parked` and `total`: a product with 14 requirements, 2 parked by waivers, shows `verified, 12 of 14; 2 parked`, with a parked list naming each parked record with its waiver and expiry. A stale proof shows `last passed at <commit>, <N> commits ago`.
+
 The Intent layer of the outline offers two groupings: the outline order, and one group per product area. A switch under the Intent layer header changes the grouping.
 
 A product area is a Behavior module: each group lists the features whose requirements the module's use cases, reactions, jobs, or screens fulfill, and the flows whose steps they serve. A feature or flow that several modules reach appears under each of them, and anything no module reaches appears under Not yet fulfilled. The book computes the grouping from `fulfills`, `serves`, and `offers`, with a screen counting toward the modules of the use cases it offers; the grouping adds no record field.

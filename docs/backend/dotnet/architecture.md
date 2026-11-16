@@ -23,7 +23,7 @@ Every node of the tree may hold the same layer folders, and each level allows a 
 
 An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder. Each use case folder holds an `Application/` folder and, when it has an endpoint, a `WebApi/` folder.
 
-A reaction's event handler and a job class sit in the `Application/` folder of the use case they run. One that runs no use case sits in the module `Notifications/` folder of the notification it sends, or in the `ExternalSystems/` folder of the system it calls. A module keeps each read model in its `ReadModels/` folder, and its public surface sorted by kind in `Contracts/`: `Identifiers/`, `IntegrationEvents/`, and `Ports/`, so a reader sees at a glance what another module may reference.
+A reaction's event handler and a job class sit in the `Application/` folder of the use case they run. One that runs no use case sits in the module `Notifications/` folder of the notification it sends, or in the `ExternalSystems/` folder of the system it calls. A module keeps each read model in its `ReadModels/` folder, and its public surface sorted by kind in `Contracts/`: `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, and `Ports/`, so a reader sees at a glance what another module may reference.
 
 A use case file takes its layer from its layer folder: Endpoint, RequestModel, and ResponseModel sit in `WebApi/`, and every other file of the use case, its reactions, and its job sits in `Application/`. A typed identifier that another module references lives in its owner's `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder. The shared kernel `WebApi/` folder holds only what endpoints of two or more modules compile against, while product-wide HTTP plumbing stays in the host.
 
@@ -81,7 +81,7 @@ The handler in the tree above has namespace `Claimwick.Spending.Expenses.UseCase
 | Shared kernel project root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/` |
 | Modules project root | `Composition/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `UseCases/`, `Notifications/`, `ExternalSystems/`, `ReadModels/`, one per declared aggregate |
-| Module `Contracts/` | `Identifiers/`, `IntegrationEvents/`, `Ports/` |
+| Module `Contracts/` | `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, `Ports/` |
 | Module `UseCases/` | one per declared module use case |
 | Module `Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `ExternalSystems/` | one per external system a reaction or job of the module only calls |
@@ -98,7 +98,7 @@ The handler in the tree above has namespace `Claimwick.Spending.Expenses.UseCase
   Composition/
   Organizations/
     Contracts/
-      Identifiers/  IntegrationEvents/  Ports/
+      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
     Domain/  Application/  Infrastructure/
     Teams/
       Domain/          Team.cs  TeamState.cs  ITeamRepository.cs  Events/  Exceptions/
@@ -132,7 +132,7 @@ The handler in the tree above has namespace `Claimwick.Spending.Expenses.UseCase
 
 **Rationale:** One use case keeps its command, query, result, handler, validator, and triggers in its `Application/` folder, and its endpoint and transport models in its `WebApi/` folder. A use case's own models never move up: two use cases with one shape each declare it, under `litespec/backend/architecture#give-each-use-case-its-own-models`.
 
-Ports and rules used by two or more use cases of one aggregate sit in the aggregate Application folder, those used by two or more aggregates sit in the module Application folder, and product-wide plumbing sits in the shared kernel Application folder. A module publishes its typed identifiers in `Contracts/Identifiers/`, its integration events in `Contracts/IntegrationEvents/`, and its read-only cross-module ports in `Contracts/Ports/`, so the public surface of a module stays visible in its Contracts folder. It publishes no command and no refusal.
+Ports and rules used by two or more use cases of one aggregate sit in the aggregate Application folder, those used by two or more aggregates sit in the module Application folder, and product-wide plumbing sits in the shared kernel Application folder. A module publishes its typed identifiers in `Contracts/Identifiers/`, its integration events in `Contracts/IntegrationEvents/`, its module events in `Contracts/ModuleEvents/`, and its read-only cross-module ports in `Contracts/Ports/`, so the public surface of a module stays visible in its Contracts folder. It publishes no command and no refusal.
 
 **Reviewed for:** Does every message, result, handler, validator, and trigger sit in its own use case `Application/` folder, and every port in an Application folder or its Contracts kind folder? Check the Application and Contracts folders beside the use case folders.
 
@@ -144,9 +144,9 @@ Ports and rules used by two or more use cases of one aggregate sit in the aggreg
 
 **Applies to:** artifact: any
 
-**Statement:** Each read model MUST live in a folder named for the read model in the plural inside its module `ReadModels/` folder, holding the read-model document, one projection per source integration event named `{ReadModel}On{Fact}Projection`, the reader interface `I{ReadModel}ReadModel` and its implementation, each carrying the read model's mark.
+**Statement:** Each read model MUST live in a folder named for the read model in the plural inside its module `ReadModels/` folder, holding the read-model document, one projection per source event named `{ReadModel}On{Fact}Projection`, the reader interface `I{ReadModel}ReadModel` and its implementation, each carrying the read model's mark.
 
-**Rationale:** A read model's projections answer integration events like reactions, but they write only their read model and run no use case. Placed with a use case, they would look like reactions; placed with the read model, one folder shows every event that fills it and the one reader its module's use cases call.
+**Rationale:** A read model's projections answer module events and integration events like reactions, but they write only their read model and run no use case. Placed with a use case, they would look like reactions; placed with the read model, one folder shows every event that fills it and the one reader its module's use cases call.
 
 The mark links each class to the record that names its sources. A projection that wrote anything but its read model would be an unrecorded reaction. This provision binds `litespec/backend/application#read-another-modules-state-through-a-read-model` for .NET.
 
@@ -219,9 +219,9 @@ A shape two use cases need is declared in each, under `litespec/backend/architec
 
 **Statement:** A module MUST reach another module only through types its Contracts folder publishes.
 
-**Rationale:** The Contracts folder is the public surface of a module, sorted by kind: typed identifiers in `Identifiers/`, integration events in `IntegrationEvents/`, and read-only ports other modules call in `Ports/`. Domain may reference the typed identifiers; ports and integration events stay outside Domain.
+**Rationale:** The Contracts folder is the public surface of a module, sorted by kind: typed identifiers in `Identifiers/`, integration events in `IntegrationEvents/`, module events in `ModuleEvents/`, and read-only ports other modules call in `Ports/`. Domain may reference the typed identifiers; ports, module events, and integration events stay outside Domain.
 
-A module publishes no command and no refusal: another module triggers its acts through an integration event its reaction answers, and each module refuses with its own refusals. A module that needs another module's state keeps its own read model built from the owner's integration events, or asks one question through a decision port in the owner's `Contracts/Ports/` folder. It loads no foreign aggregate or repository. A reaction to another module's fact subscribes to the published integration event, never to the domain event.
+A module publishes no command and no refusal: another module triggers its acts through a module event its reaction answers, and each module refuses with its own refusals. A module that needs another module's state keeps its own read model built from the owner's module events, or asks one question through a decision port in the owner's `Contracts/Ports/` folder. It loads no foreign aggregate or repository. A reaction to another module's fact subscribes to the published module event, never to the domain event.
 
 **Checked by:** `dotnet build` reports `LS2020` for a module reference naming another module type outside its Contracts folder.
 

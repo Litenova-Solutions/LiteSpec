@@ -4,7 +4,7 @@
 
 **Concern:** records
 
-A project promises outcomes in Intent, keeps them with system behavior in Behavior, builds that behavior in code in Implementation, and shows evidence in Proof. Specify turns an Intent promise into Behavior, Implement turns Behavior into code, and Verify turns code into proof. Agents apply these rules at every record-layer boundary, and readers use them to judge whether each record layer says only what belongs to it.
+A project promises outcomes in Intent, keeps them with system behavior in Behavior, builds that behavior in code in Implementation, and shows evidence in Proof. Specify turns an Intent promise into Behavior, Implement turns Behavior into code, and Verify proves Behavior against the built code. Agents apply these rules at every record-layer boundary, and readers use them to judge whether each record layer says only what belongs to it.
 
 ## Concepts
 
@@ -29,11 +29,11 @@ For example, Claimwick promises that an expense without a receipt is refused abo
 
 ### Translation Rules
 
-Three rules join the layers, one per boundary. Specify turns an Intent promise into Behavior by adding the behavior detail the promise leaves unstated. Implement turns Behavior into Implementation using the code shapes the stack pages fix. Verify turns Implementation into Proof: one test proves each scenario through the public boundary.
+Three rules join the layers, one per boundary. Specify turns an Intent promise into Behavior by adding the behavior detail the promise implies but leaves unstated. Implement turns Behavior into Implementation using the code shapes the stack pages fix. Verify proves Behavior against the built code: one test proves each scenario through the public boundary. Each rule adds only what its layer owns: Specify adds no new promise, and Implement adds no new behavior.
 
-Each rule adds only what its layer owns: Specify adds no new promise, and Implement adds no new behavior. When a lower layer needs something the upper layer left out, that need goes up as a question or a backlog item instead of entering the lower layer as a guess.
+A detail is implied when every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise does not name. Specify adds implied detail, and a need the upper layer neither states nor implies goes up as a question to the owner or a backlog item instead of entering the lower layer as a guess.
 
-For example, specifying Claimwick's receipt promise adds the Approved and Reimbursed states with a refusal for a missing receipt. Implementing it writes the handler in the stack's shape. Verifying it runs a test that submits an expense without a receipt through the endpoint and checks for the refusal.
+For example, the Claimwick requirement "An expense without a receipt is refused above EUR 25" implies the Submitted and Approved states, the `spending.receipt-missing` refusal, and atomic consistency on the expense. A refusal for an expense with a future date is not implied, so it goes up as a question to the owner. Had the requirement not named the EUR 25 figure, that figure would go to the owner too. Implementing the specified behavior writes the handler in the stack's shape. Verifying it runs a test that submits an expense without a receipt through the endpoint and checks for the refusal.
 
 ### The Specification Is Closed
 
@@ -63,7 +63,7 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Rationale:** Without a parent above it, a lower record could carry a promise from above or invent a new one, and reviewers cannot tell which. Implementers then build from guesses, and two guesses about the same gap diverge. Writing each record from the layer above keeps one chain from promise to proof, so a gap shows as a missing parent instead of silent invention. Derivation between records follows the same direction: generic refusals derive from `access` and `input` without new records.
 
-**Example:** Claimwick's submit-expense handler holds a positivity guard with no rule above it. The agent writes the missing rule or reports the gap, and the guard stays until the record is written. Behavior with no parent is recorded or reported, never deleted for lacking one.
+**Example:** Claimwick's submit-expense handler holds a positivity guard with no rule above it. The agent writes the missing rule or reports the gap, and the guard stays until the record is written. Behavior with no parent is recorded or reported, never deleted for lacking one. A test with no record above it is a finding the team resolves by writing the missing record or reporting the gap. It is deleted only when a reviewer establishes that the behavior it protects is obsolete, redundant or wrong, and the pull request says so.
 
 **Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal or a screen that calls no endpoint, and reports `mark-missing` for a code element that carries no mark.
 
@@ -75,9 +75,9 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Applies to:** artifact: any
 
-**Statement:** Behavior that fulfills an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
+**Statement:** Behavior that fulfills an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that the Intent record implies but leaves unstated.
 
-**Rationale:** An Intent promise says what the product owes in product words, without saying how the system keeps it. Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfill a requirement, as `litespec/core/intent#restrict-requirement-fulfillment-to-behavior` states. Without that detail, each implementer fills the gap with a guess, and two guesses about the same promise diverge.
+**Rationale:** An Intent promise says what the product owes in product words, without saying how the system keeps it. Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. A detail counts as implied when every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise does not name. Only Behavior records fulfill a requirement, as `litespec/core/intent#restrict-requirement-fulfillment-to-behavior` states. Without that detail, each implementer fills the gap with a guess, and two guesses about the same promise diverge.
 
 **Example:** Claimwick's reimbursement promise gains an entity with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
@@ -139,13 +139,13 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Applies to:** artifact: any
 
-**Statement:** A need a lower record layer meets that the upper record layer leaves unstated MUST travel up as a question to the owner or a backlog item, never as code.
+**Statement:** A need that the upper record layer neither states nor implies, such as a refusal, eligibility condition, limit, or figure an actor meets, MUST travel up as a question to the owner or a backlog item, never as a record or code.
 
-**Rationale:** The lower layer does not decide what the upper layer left unstated, so the need travels up with its context instead of turning into a guess. A question carries product choices to the person who answers for them. A backlog item holds the rest where it stays visible until it is specified. The specification is closed: an agent builds what it states and nothing more.
+**Rationale:** The lower layer does not decide what the upper layer neither states nor implies, so the need travels up with its context instead of turning into a guess. A question carries product choices to the person who answers for them. A backlog item holds the rest where it stays visible until it is specified. The specification is closed: an agent builds what it states and nothing more.
 
-**Example:** Claimwick's missing reimbursement policy becomes a question to the owner, not a rule the agent writes.
+**Example:** Claimwick's agent meets a need for a refusal of expenses with a future date, which the receipt promise neither states nor implies, so the need becomes a question to the owner instead of a rule the agent writes.
 
-**Reviewed for:** Does every unstated need have a question to the owner or a backlog item? Check the added records from a lower record layer beside the owner questions and the backlog.
+**Reviewed for:** Does every need the upper layer neither states nor implies have a question to the owner or a backlog item? Check the added records from a lower record layer beside the owner questions and the backlog.
 
 ### Enter World Facts as Cited Research or Constraints
 

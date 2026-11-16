@@ -49,6 +49,12 @@ writes:
 reads:
 - aggregate/spending.policy
 - setting/spending.receipt-threshold
+consistency:
+  mode: atomic
+  boundBy:
+  - rule/expense.receipt-required-above-threshold
+  guards:
+  - aggregate/spending.policy
 idempotency:
   mode: key
   key: "{requestId}"
@@ -90,3 +96,13 @@ records:
   result: result/submit-expense.receipt-missing
   exercises:
   - rule/expense.receipt-required-above-threshold
+- type: scenario
+  id: scenario/submit-expense.lowered-threshold-refuses-waiting-expense
+  title: Lowered Threshold Refuses Waiting Expense
+  given: A manager lowers the receipt threshold from 50 EUR to 10 EUR, and the change is committing.
+  when: An employee submits a 30 EUR expense with no receipt while the change commits.
+  then: The submission reads the lowered threshold once the change commits and is refused, because the expense is above the receipt threshold and carries no receipt.
+  result: result/submit-expense.receipt-missing
+  exercises:
+  - rule/expense.receipt-required-above-threshold
+  competesWith: use-case/spending.change-receipt-threshold

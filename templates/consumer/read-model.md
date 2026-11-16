@@ -4,7 +4,7 @@ Say what this read model keeps and which question it answers. A reader who has r
 
 ## Sources
 
-Name the integration event each field takes its value from, and the event that erases each personal field.
+Name the event each field takes its value from, and the event that erases each personal field.
 
 ## Freshness
 

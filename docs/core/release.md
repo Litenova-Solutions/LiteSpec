@@ -162,7 +162,7 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 
 **Rationale:** G checks read records only: shape, references, links, reachability, coverage, and the Behavior rules the check list names. Without them, a renamed record or a moved file silently breaks the references other pages rely on, and the book renders a graph that no longer holds. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
-**Checked by:** `litespec model check` exits zero when it reports no G finding, such as `record-invalid`.
+**Checked by:** `litespec model check` exits zero when it reports no G finding, such as `record-invalid`, and the inspection was complete.
 
 ### Run Extension Checks
 

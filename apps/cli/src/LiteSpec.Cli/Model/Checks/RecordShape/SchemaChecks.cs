@@ -244,13 +244,12 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Aggregate:
-                // A store carries no lifecycle, so it carries no states.
-                if (record.Field(RecordFields.Kind) is not "store")
-                {
-                    RequireArray(record, RecordFields.States, 1, findings);
-                    RequireStateEntries(record, findings);
-                }
+                RequireArray(record, RecordFields.States, 1, findings);
+                RequireStateEntries(record, findings);
+                break;
 
+            case RecordTypes.Store:
+                RequireIds(record, RecordFields.Owner, 1, findings);
                 break;
 
             case RecordTypes.Rule:

@@ -22,7 +22,7 @@ One store stays the default, configured in the product-level `Infrastructure/` f
 
 ### Consistency Modes
 
-Each use-case record declares one consistency mode, and persistence commits exactly that way. Under `atomic`, everything the handler staged commits in one unit of work. Under `per-record`, a job runs one command per record. Each command commits alone, and the cursor resumes the rest after a failure. Every mode still commits once per command pipeline. The mode decides how work splits across commands, not how a command commits.
+Each use-case record declares one consistency mode, and persistence commits exactly that way. Under `atomic`, everything the handler staged commits in one unit of work. With `guards`, the guarded read holds each guard to commit by a lock, a version check, or serializable isolation, and the stack page fixes which. Under `per-record`, a job runs one command per record. Each command commits alone, and the cursor resumes the rest after a failure. Every mode still commits once per command pipeline. The mode decides how work splits across commands, not how a command commits.
 
 ### Provider-Neutral and Provider-Specific Rules
 
@@ -102,7 +102,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** Persistence MUST commit a command exactly as its use-case record's `consistency` mode states.
 
-**Rationale:** Under `atomic`, everything the handler staged commits in one unit of work, citing the rule in `boundBy` when `writes` names more than one aggregate. Under `per-record`, each record's command commits alone, and the job resumes from its cursor after a failure. A second commit inside one command splits one unit of work across two transactions. A failure between them leaves a partial write.
+**Rationale:** Under `atomic`, everything the handler staged commits in one unit of work, citing the rule in `boundBy` when `writes` names more than one aggregate. When `consistency` names `guards`, the guarded read holds each guard to commit by a lock, a version check, or serializable isolation, and the stack page fixes which. Under `per-record`, each record's command commits alone, and the job resumes from its cursor after a failure. A second commit inside one command splits one unit of work across two transactions. A failure between them leaves a partial write.
 
 **Example:** The erase-expired-data job commits each expense alone under `per-record`, while the submit-expense command commits its staged aggregates together under `atomic`.
 

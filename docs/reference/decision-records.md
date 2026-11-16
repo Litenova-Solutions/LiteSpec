@@ -40,7 +40,7 @@ The explanation file opens with one paragraph, then these sections in order:
 
 The record file holds the fields tools read. `options` carries one entry per weighed option (`name`, `pros`, `cons`), `choice` carries the selected option, `reopenedWhen` carries what would overturn the choice, and `consequences` carries the required work and the accepted cost.
 
-It also carries `decides`, naming the records this choice sets, and `basedOn`, naming the constraints and research behind it. A technical decision also carries `kind`, one of the six kinds the next section names; a product decision carries no `kind`. The field is optional, but a technical decision without one is reported as `decision-kind-missing`, because a choice of no kind is not a decision. A record present in git is decided.
+It also carries `decides`, naming the records this choice sets, and `basedOn`, naming the constraints and research behind it. It carries `supersedes`, naming the `decision/...` identifiers this decision replaces; the link reads `supersedes` and reads back `is superseded by`. A technical decision also carries `kind`, one of the six kinds the next section names; a product decision carries no `kind`. The field is optional, but a technical decision without one is reported as `decision-kind-missing`, because a choice of no kind is not a decision. A record present in git is decided.
 
 ### Decision Kinds
 
@@ -73,7 +73,7 @@ A convention lives under `.litespec/governance/conventions/`, where `rules` read
 
 ### Changed in Place
 
-A decision record changes in place: a new decision edits the record, and git keeps the earlier text. Two decisions deciding the same record produce a blocking finding, not a tie to resolve. Setting a shared standard aside calls for a waiver record rather than a decision.
+A decision record changes in place: a new decision edits the record, and git keeps the earlier text. Several decisions may decide one record: a retention decision and a rounding decision both decide `aggregate/spending.expense`. A decision that replaces another names it in `supersedes`; the superseded decision stays in the repository as context, and the book shows it as superseded, computed from the inverse link. Setting a shared standard aside calls for a waiver record rather than a decision.
 
 ## Notes
 

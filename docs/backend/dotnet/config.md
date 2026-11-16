@@ -69,6 +69,20 @@ The compiler and its analyzers ship with the SDK, so a different SDK can still b
 
 **Reviewed for:** Does the root `.config/dotnet-tools.json` pin every local tool a documented command invokes, including the Stryker.NET runner? Look at the tool manifest.
 
+### Bind Every Keyed Setting in One Options Class
+
+**ID:** `litespec/backend/dotnet/config#bind-every-keyed-setting-in-one-options-class`
+
+**Strength:** required
+
+**Statement:** An options class that binds a setting with a `key` MUST carry an `implements` mark naming the setting, with a `SectionName` constant and property that spell the setting's `key`.
+
+**Rationale:** The options class is where configuration becomes a typed value the code reads. It is the code element that implements the setting, so marking it names the promise the class holds. Comparing its section name and property with the record's key finds a renamed section or a typo before the product starts with a default. This provision binds `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element` for .NET.
+
+**Example:** Claimwick's `SpendingOptions` class declares `SectionName = "Spending"`, an `ApprovalReminderDelay` property, and `/// <implements>setting/spending.approval-reminder-delay</implements>`.
+
+**Checked by:** `litespec model check` reports `setting-unimplemented` (level S) for a keyed setting no options class marks, and `setting-key-drift` (level S) for a marked options class whose `SectionName` constant and property do not spell the setting's `key`.
+
 ## Conventions
 
 None.

@@ -118,7 +118,7 @@ export function downOf(book: Book, id: string): DownEntry[] {
     contained(book.resultsOf(id), "how it ends");
   }
   if (t === "result") contained(book.shownByOf(id), "shows this result");
-  if (t === "aggregate") linked(book.ins(id, "writes"), "writes");
+  if (t === "aggregate" || t === "store") linked(book.ins(id, "writes"), "writes");
   return out;
 }
 

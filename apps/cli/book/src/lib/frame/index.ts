@@ -20,7 +20,7 @@ export { duration, esc, inline, recordRefHtml, safeHref, sourceLinkHref, srcHref
 export { startLive } from "./live";
 export { proofLabel, proofRank, proofWord } from "./proof-order";
 export { layerStats } from "./relations";
-export { completionLines, coveragePercent } from "./completion";
+export { completionLines, coveragePercent, freshnessLine, stageLine } from "./completion";
 export { copyText } from "./clipboard";
 export { MODULE_MEMBER_TYPES, isScenarioType } from "./shard-types";
 export { UNFULFILLED_AREA, areaGroupKey, areaKeysOf } from "./product-areas";
@@ -31,6 +31,7 @@ export type {
   ImplKind,
   IntentGrouping,
   LayerKey,
+  ParkedChild,
   ProductArea,
   ProductAreas,
   ProofState,

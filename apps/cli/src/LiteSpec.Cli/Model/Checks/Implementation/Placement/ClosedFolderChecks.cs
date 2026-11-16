@@ -35,7 +35,7 @@ internal static class ClosedFolderChecks
     /// <summary>The kind folders a module Contracts folder holds: the sorted public surface.</summary>
     static readonly HashSet<string> ContractsKindFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Identifiers", "IntegrationEvents", "Ports",
+        "Identifiers", "IntegrationEvents", "ModuleEvents", "Ports",
     };
 
     /// <summary>Fixed folders at an aggregate, whatever its use cases declare.</summary>

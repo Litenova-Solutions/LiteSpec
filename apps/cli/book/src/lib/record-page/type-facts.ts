@@ -78,7 +78,7 @@ const facts: Record<string, FactFn> = {
   },
   aggregate: (f, r) => {
     const af = aggregateFields(f);
-    const out: Fact[] = [{ key: "Kind", text: capitalize(stringField(f, "kind") ?? "entity") }];
+    const out: Fact[] = [];
     if (af.states.length) {
       const reach = r.reachable ?? [];
       const starts = new Set(af.transitions.filter((t) => t.from === "-").map((t) => String(t.to)));
@@ -108,6 +108,23 @@ const facts: Record<string, FactFn> = {
   },
   reaction: () => [{ key: "Kind", text: "Reaction" }],
   job: (f) => [{ key: "Kind", text: capitalize(stringField(f, "kind") ?? "job") }],
+  store: (f) => {
+    const out: Fact[] = [];
+    const classes = objectList(f, "dataClasses").length;
+    const fields = objectList(f, "data").length;
+    if (classes) out.push({ key: "Data classes", text: pluralize(classes, "data class", "data classes") });
+    if (fields) out.push({ key: "Data", text: pluralize(fields, "field") });
+    return out;
+  },
+  "module-event": (_f, r) => {
+    const out: Fact[] = [];
+    // The use cases that publish it, computed from the domain event each raises and the domain event this translates.
+    const publishers = (r.in ?? []).filter((edge) => edge.key === "publishes").length;
+    if (publishers) out.push({ key: "Published by", text: pluralize(publishers, "use case") });
+    const t = testedFact(r);
+    if (t) out.push(t);
+    return out;
+  },
   "integration-event": (f, r) => {
     const out: Fact[] = [{ key: "Direction", text: f.direction === "in" ? "Arrives from outside" : "Leaves the system" }];
     // The use cases that publish it, computed from the domain event each raises and the domain event this translates.
@@ -231,6 +248,7 @@ export function fieldRowsFor(book: Book, r: BookRecord, env: FieldTableEnv): Fie
 
   if (f.advances) add("Advances", linkList(flat(f.advances)));
   if (f.serves) add("Serves", linkList(flat(f.serves).map((x) => String(x).split("#")[0])));
+  if (f.owner) add("Owner", inlineRefHtml(book, stripStep(String(f.owner))));
   if (env.parent) add("Parent", inlineRefHtml(book, env.parent));
   if (r.type === "permission") {
     const risk = stringList(f, "risk");

@@ -1,7 +1,6 @@
 type: aggregate
 id: aggregate/lending.loan
 title: Loan
-kind: entity
 states:
 - name: Active
   meaning: The loan is open.

@@ -33,7 +33,7 @@ A deeper page is one that sits further down the documentation tree, such as a st
 
 The [layers page](layers.md) states the closed specification: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests.
 
-The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
+The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Specify adds the detail the promise implies but leaves unstated: a detail is implied when every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise does not name. Something the upper layer neither states nor implies becomes a question to the owner or a backlog item, never code.
 
 ### Side Effects That Need an Explicit Task Instruction
 

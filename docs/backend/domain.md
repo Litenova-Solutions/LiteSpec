@@ -15,7 +15,7 @@ In code, the [aggregate root](../reference/glossary.md) is the single type throu
 
 One aggregate references another by typed identifier rather than by object reference. One domain repository per aggregate loads and stages it; the repository is a contract the Domain declares and Infrastructure implements.
 
-A `store` aggregate is the exception: it has no root in code and reaches code through a port, as `litespec/backend/application#expose-store-state-through-ports` states.
+A `store` is the exception: it has no root in code and reaches code through a port, as `litespec/backend/application#expose-store-state-through-ports` states.
 
 ### Lifecycles as State Types
 
@@ -41,7 +41,7 @@ A mark is the link from code to record: it says which record the code exists for
 
 When the act runs, it raises domain events: immutable facts about what happened, such as `domain-event/expense.approved`. A domain event carries the business data its reactions need and nothing else: no aggregate, no session, no service, no mutable collection, no thrown error.
 
-Reactions and integration events build on those facts, so each event carries every field the integration events publish from it.
+Reactions, module events, and integration events build on those facts, so each event carries every field the module and integration events publish from it.
 
 When the act rejects a business rule, it ends in a refusal: a dedicated outcome naming the failed rule and carrying a stable code that travels to the caller. One refusal per rule lets each boundary map the outcome without parsing messages.
 
@@ -225,7 +225,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Applies to:** artifact: command-handler
 
-**Statement:** A command handler changing an entity aggregate MUST change it by calling a root method marked with the handler's use case.
+**Statement:** A command handler changing an aggregate MUST change it by calling a root method marked with the handler's use case.
 
 **Rationale:** The use case declares an act, and the aggregate performs it. The mark on the root method says which act the method performs. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never declared, and a reader has no way to tell from the use case which method to open.
 
@@ -235,7 +235,7 @@ A command that changes only stores, or that only runs other commands and lists n
 
 **Example:** The handler for `use-case/spending.reimburse-expense` calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
-**Checked by:** `litespec model check` reports `use-case-act-missing` (level S) for a command handler changing an entity aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
+**Checked by:** `litespec model check` reports `use-case-act-missing` (level S) for a command handler changing an aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
 
 ### Give Each Use Case Its Own Act
 
@@ -267,7 +267,7 @@ One method per act keeps each path readable on its own; logic the acts share mov
 
 **Rationale:** The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep.
 
-Each raised event carries every field its integration events publish, because each integration event is built from its domain event alone under `litespec/backend/application#emit-declared-integration-events-after-commit`.
+Each raised event carries every field its module and integration events publish, because each module and integration event is built from its domain event alone under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`.
 
 **Example:** `use-case/spending.submit-expense` lists `domain-event/expense.submitted` in `raises`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
 

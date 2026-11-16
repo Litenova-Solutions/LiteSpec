@@ -85,8 +85,8 @@ internal static class Descriptors
     private static readonly Provision ScenarioProof = Provision.Of("quality/testing", "prove-each-scenario-through-the-public-boundary");
     /// <summary>The provision the related descriptors enforce: keep command handlers to load, call and stage (litespec/backend/application#keep-command-handlers-to-load-call-and-stage).</summary>
     private static readonly Provision CommandHandlerStages = Provision.Of("backend/application", "keep-command-handlers-to-load-call-and-stage");
-    /// <summary>The provision the related descriptors enforce: emit declared integration events after commit (litespec/backend/application#emit-declared-integration-events-after-commit).</summary>
-    private static readonly Provision EmitAfterCommit = Provision.Of("backend/application", "emit-declared-integration-events-after-commit");
+    /// <summary>The provision the related descriptors enforce: emit declared integration events after commit (litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit).</summary>
+    private static readonly Provision EmitAfterCommit = Provision.Of("backend/application", "stage-declared-module-and-integration-events-in-the-commit");
     /// <summary>The provision the related descriptors enforce: point code and tests up to records (litespec/core/system#point-code-and-tests-up-to-records).</summary>
     private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
     /// <summary>The provision the related descriptors enforce: write each mark in the declared style (litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style).</summary>

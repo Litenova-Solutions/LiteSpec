@@ -66,6 +66,7 @@ internal static class MaintainerDiagnostics
         Codes.ProseNonAscii,
         Codes.ProseNormativeLocation,
         Codes.ProvisionsStale,
+        Codes.ProvisionCheckScope,
         Codes.ProvisionRestatesHeading,
         Codes.RecordDecisionUncited,
         Codes.RecordExplanationMissing,
@@ -300,6 +301,9 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A generated provision artifact that differs from the active standards.</summary>
         public const string ProvisionsStale = "PROVISIONS_STALE";
+
+        /// <summary>A provision that does not state the conditions of the checks it cites.</summary>
+        public const string ProvisionCheckScope = "PROVISION_CHECK_SCOPE";
 
         /// <summary>A provision assertion that only restates its heading.</summary>
         public const string ProvisionRestatesHeading = "PROVISION_RESTATES_HEADING";

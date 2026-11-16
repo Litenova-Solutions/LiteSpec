@@ -616,18 +616,17 @@ internal static class MarkChecks
 
     /// <summary>
     ///     Whether the use case changes an entity aggregate: one
-    ///     <c>changes</c> entry naming an aggregate whose kind is not
-    ///     <c>store</c>. An aggregate with no declared kind is an entity; a
-    ///     pass running other commands lists nothing in <c>changes</c>.
+    ///     <c>writes</c> entry naming a record that is no store. A store
+    ///     holds no guarded act, so a use case changing only stores calls
+    ///     no marked aggregate method.
     /// </summary>
-    /// <param name="model">The loaded project model that resolves each changed aggregate.</param>
-    /// <param name="useCase">The use case record whose changes field is inspected.</param>
-    /// <returns>True when the use case changes an aggregate that is no store; otherwise false.</returns>
+    /// <param name="model">The loaded project model that resolves each changed record.</param>
+    /// <param name="useCase">The use case record whose writes field is inspected.</param>
+    /// <returns>True when the use case changes a record that is no store; otherwise false.</returns>
     private static bool ChangesGuardedAggregate(ProjectModel model, Record useCase) =>
         useCase.Ids(RecordFields.Writes).Any(id =>
             !model.ById.TryGetValue(id, out var changed)
-            || changed.Type != RecordTypes.Aggregate
-            || changed.Field(RecordFields.Kind) is not "store");
+            || changed.Type != RecordTypes.Store);
 
     /// <summary>
     ///     Whether an aggregate call reaches the use case's act: the called method name
@@ -740,11 +739,6 @@ internal static class MarkChecks
             };
 
             if (code is null)
-            {
-                continue;
-            }
-
-            if (record.Type == RecordTypes.Aggregate && record.Field(RecordFields.Kind) == "store")
             {
                 continue;
             }

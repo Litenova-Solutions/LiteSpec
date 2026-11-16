@@ -43,7 +43,6 @@ public sealed class ModelCheckTests
         "intent-unreached",
         "role-unused",
         "permission-unused",
-        "decision-decides-duplicate",
         "reference-unknown",
         "refusal-unimplemented",
         "requirement-fulfillment-missing",

@@ -1,0 +1,5 @@
+type: store
+id: store/spending.suppression-list
+title: Suppression List
+summary: The suppression list names the managers who get no approval reminder, so the reminder reaction skips them.
+owner: module/spending

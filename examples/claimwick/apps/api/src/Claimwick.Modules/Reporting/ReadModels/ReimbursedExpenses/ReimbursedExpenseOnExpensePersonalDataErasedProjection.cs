@@ -1,4 +1,4 @@
-using Claimwick.Spending.Contracts.IntegrationEvents;
+using Claimwick.Spending.Contracts.ModuleEvents;
 using Marten;
 
 namespace Claimwick.Reporting.ReadModels.ReimbursedExpenses;
@@ -9,9 +9,9 @@ namespace Claimwick.Reporting.ReadModels.ReimbursedExpenses;
 internal sealed class ReimbursedExpenseOnExpensePersonalDataErasedProjection(
     IDocumentSession session) : IEventHandler<ExpensePersonalDataErased>
 {
-    public async Task HandleAsync(ExpensePersonalDataErased integrationEvent, CancellationToken cancellationToken)
+    public async Task HandleAsync(ExpensePersonalDataErased moduleEvent, CancellationToken cancellationToken)
     {
-        var expense = await session.LoadAsync<ReimbursedExpense>(integrationEvent.ExpenseId, cancellationToken);
+        var expense = await session.LoadAsync<ReimbursedExpense>(moduleEvent.ExpenseId, cancellationToken);
         if (expense is null)
         {
             return;

@@ -50,17 +50,21 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `flow.md` | `.litespec/intent/flows/<name>/<name>.md` | Explains the flow beside its record file. |
 | `module.yaml` | `.litespec/behavior/modules/<module>/module.yaml` | Declares one product area; Behavior folders follow it. |
 | `module.md` | `.litespec/behavior/modules/<module>/module.md` | Explains the module beside its module file. |
-| `aggregate.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml` | Defines one aggregate, with its kind, states, data classes, and its rule and domain-event entries. |
+| `aggregate.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml` | Defines one aggregate, with its states, data classes, and its rule and domain-event entries. |
 | `aggregate.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.md` | Explains the aggregate beside its aggregate file. |
+| `store.yaml` | `.litespec/behavior/modules/<module>/stores/<name>/<name>.yaml` | Defines one store, with its owner, data and data classes. |
+| `store.md` | `.litespec/behavior/modules/<module>/stores/<name>/<name>.md` | Explains the store beside its record file. |
 | `use-case-command.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one command that changes data, with its input, writes, consistency, idempotency, result and scenario entries. |
 | `use-case-query.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one query that returns data, with its output, freshness, paging and scenario entries. |
 | `use-case.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.md` | Explains the use case beside its record file, a command or a query. |
-| `reaction.yaml` | `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml` | Defines one reaction a domain event or integration event triggers, with its outcomes, failure handling and idempotency. |
+| `reaction.yaml` | `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml` | Defines one reaction a domain event, module event, or integration event triggers, with its outcomes, failure handling and idempotency. |
 | `reaction.md` | `.litespec/behavior/modules/<module>/reactions/<name>/<name>.md` | Explains the reaction beside its record file. |
 | `job.yaml` | `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml` | Defines one scheduled or one-off job, with its outcomes, failure handling and idempotency. |
 | `job.md` | `.litespec/behavior/modules/<module>/jobs/<name>/<name>.md` | Explains the job beside its record file. |
 | `notification.yaml` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.yaml` | Defines one person-facing message, its audience, delivery, consent and claims. |
 | `notification.md` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.md` | Explains the notification beside its record file. |
+| `module-event.yaml` | `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml` | Defines one fact a module publishes for the other modules of the product, with the domain event it translates and its payload. |
+| `module-event.md` | `.litespec/behavior/modules/<module>/module-events/<name>/<name>.md` | Explains the module event beside its record file. |
 | `integration-event.yaml` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.yaml` | Defines one published or consumed integration event with the system it travels through and how an inbound one arrives. |
 | `integration-event.md` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.md` | Explains the integration event beside its record file. |
 | `read-model.yaml` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml` | Defines one read model a module keeps from the events another module publishes, with its key, fields and freshness. |
@@ -116,11 +120,13 @@ An explanation file lives in the record's folder beside its record file, sharing
 | requirement | Example (optional); the explanation file itself is optional |
 | flow | Example, Branches (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
+| store | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |
 | rule-set | Rationale, Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |
 | job | Invocation, Failure Handling, Example (optional) |
 | notification | Content, Delivery, Example |
+| module-event | Consumers, Compatibility |
 | integration-event | Consumers, Compatibility, Example |
 | read-model | Sources, Freshness, Example (optional) |
 | external-system | Use, Data Shared, Failure Handling |

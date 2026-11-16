@@ -1365,6 +1365,54 @@
           "aggregate/lending.loan"
         ]
       }
+    },
+    {
+      "type": "store",
+      "id": "store/lending.hold-notice-log",
+      "title": "Hold Notice Log",
+      "owner": "module/lending",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "line": 3,
+      "file": ".litespec/behavior/modules/lending/stores/hold-notice-log/hold-notice-log.yaml",
+      "fields": {
+        "type": "store",
+        "id": "store/lending.hold-notice-log",
+        "title": "Hold Notice Log",
+        "owner": "module/lending"
+      },
+      "links": {
+        "owner": [
+          "module/lending"
+        ]
+      }
+    },
+    {
+      "type": "module-event",
+      "id": "module-event/lending.loan-borrowed",
+      "title": "Loan Borrowed",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "line": 3,
+      "file": ".litespec/behavior/modules/lending/module-events/loan-borrowed/loan-borrowed.yaml",
+      "fields": {
+        "type": "module-event",
+        "id": "module-event/lending.loan-borrowed",
+        "title": "Loan Borrowed",
+        "translates": [
+          "domain-event/loan.loan-borrowed"
+        ]
+      },
+      "links": {
+        "translates": [
+          "domain-event/loan.loan-borrowed"
+        ]
+      }
     }
   ],
   "code": {

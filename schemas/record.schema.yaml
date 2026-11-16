@@ -17,12 +17,14 @@ oneOf:
 - $ref: '#/$defs/flowPage'
 - $ref: '#/$defs/modulePage'
 - $ref: '#/$defs/aggregatePage'
+- $ref: '#/$defs/storePage'
 - $ref: '#/$defs/useCasePage'
 - $ref: '#/$defs/reactionPage'
 - $ref: '#/$defs/jobPage'
 - $ref: '#/$defs/notificationPage'
 - $ref: '#/$defs/externalSystemPage'
 - $ref: '#/$defs/integrationEventPage'
+- $ref: '#/$defs/moduleEventPage'
 - $ref: '#/$defs/readModelPage'
 - $ref: '#/$defs/runbookPage'
 - $ref: '#/$defs/waiverPage'
@@ -139,6 +141,16 @@ $defs:
   integrationEventId:
     type: string
     pattern: '^integration-event/[a-z0-9][a-z0-9-]*$'
+  publishedEventId:
+    anyOf:
+    - $ref: '#/$defs/moduleEventId'
+    - $ref: '#/$defs/integrationEventId'
+  storeId:
+    type: string
+    pattern: '^store/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
+  moduleEventId:
+    type: string
+    pattern: '^module-event/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
   runbookId:
     type: string
     pattern: '^runbook/[a-z0-9][a-z0-9-]*$'
@@ -201,6 +213,18 @@ $defs:
     uniqueItems: true
     items:
       $ref: '#/$defs/aggregateId'
+  writesArray:
+    type: array
+    uniqueItems: true
+    items:
+      anyOf:
+      - $ref: '#/$defs/aggregateId'
+      - $ref: '#/$defs/storeId'
+  decisionIdArray:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/decisionId'
   ruleIdArray:
     type: array
     uniqueItems: true
@@ -309,6 +333,7 @@ $defs:
     items:
       anyOf:
       - $ref: '#/$defs/aggregateId'
+      - $ref: '#/$defs/storeId'
       - $ref: '#/$defs/useCaseId'
   readsArray:
     type: array
@@ -316,6 +341,7 @@ $defs:
     items:
       anyOf:
       - $ref: '#/$defs/aggregateId'
+      - $ref: '#/$defs/storeId'
       - $ref: '#/$defs/settingId'
       - $ref: '#/$defs/readModelId'
   scenarioResultValue:
@@ -763,6 +789,11 @@ $defs:
         $ref: '#/$defs/ruleIdArray'
         x-reads-as: is kept by
         x-read-back-as: keeps
+      guards:
+        description: The aggregates the command reads and does not write whose rule in boundBy must still hold when the command commits.
+        $ref: '#/$defs/aggregateIdArray'
+        x-reads-as: holds the guard of
+        x-read-back-as: is guarded by
   conflictsObject:
     description: How a command resolves a write that conflicts with another, under the concurrency extension.
     type: object
@@ -1202,6 +1233,7 @@ $defs:
   reactionTriggerEvent:
     anyOf:
     - $ref: '#/$defs/domainEventId'
+    - $ref: '#/$defs/moduleEventId'
     - $ref: '#/$defs/integrationEventId'
   reactionTriggeredBy:
     type: array
@@ -1418,7 +1450,7 @@ $defs:
         x-reads-as: is erased through
         x-read-back-as: erases
       event:
-        $ref: '#/$defs/integrationEventId'
+        $ref: '#/$defs/publishedEventId'
         x-reads-as: is erased through
         x-read-back-as: carries the erasure of
       reason:
@@ -1982,7 +2014,7 @@ $defs:
         x-reads-as: governs
         x-read-back-as: is governed by
       binds:
-        $ref: '#/$defs/aggregateIdArray'
+        $ref: '#/$defs/writesArray'
         x-reads-as: binds
         x-read-back-as: is bound by
       refusal:
@@ -2130,6 +2162,11 @@ $defs:
         $ref: '#/$defs/ruleIdArray'
         x-reads-as: exercises
         x-read-back-as: is exercised by
+      competesWith:
+        description: The command that runs at the same moment as this scenario's command, for a command whose consistency guards an aggregate.
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: competes with
+        x-read-back-as: is competed with by
       examples:
         type: array
         items:
@@ -2575,6 +2612,10 @@ $defs:
         $ref: '#/$defs/decisionBasedOnArray'
         x-reads-as: is based on
         x-read-back-as: is a basis for
+      supersedes:
+        $ref: '#/$defs/decisionIdArray'
+        x-reads-as: supersedes
+        x-read-back-as: is superseded by
   problemPage:
     type: object
     additionalProperties: false
@@ -2824,7 +2865,7 @@ $defs:
     - type
     - id
     - title
-    - kind
+    - states
     properties:
       type:
         const: aggregate
@@ -2840,14 +2881,6 @@ $defs:
         $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
-      kind:
-        enum:
-        - entity
-        - store
-      owner:
-        $ref: '#/$defs/aggregateId'
-        x-reads-as: is owned by
-        x-read-back-as: owns
       parts:
         description: The kebab-case names of the child entities and value objects inside the aggregate that use cases act on.
         type: array
@@ -2876,22 +2909,53 @@ $defs:
     allOf:
     - if:
         required:
-        - kind
-        properties:
-          kind:
-            const: store
+        - dataClasses
       then:
-        required:
-        - owner
-        not:
-          required:
-          - states
-      else:
-        required:
-        - states
-        not:
-          required:
-          - owner
+        properties:
+          data:
+            items:
+              required:
+              - dataClass
+  storePage:
+    description: A store holds state that no aggregate invariant guards, such as a library-owned table, a suppression list or a delivery log.
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - owner
+    properties:
+      type:
+        const: store
+      id:
+        $ref: '#/$defs/storeId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      terms:
+        $ref: '#/$defs/termIdArray'
+        x-reads-as: uses
+        x-read-back-as: is used by
+      records:
+        $ref: '#/$defs/recordsArray'
+      summary:
+        $ref: '#/$defs/nonEmptyString'
+      data:
+        type: array
+        items:
+          $ref: '#/$defs/aggregateData'
+      dataClasses:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/dataClassEntry'
+      owner:
+        anyOf:
+        - $ref: '#/$defs/moduleId'
+        - $ref: '#/$defs/externalSystemId'
+        x-reads-as: is owned by
+        x-read-back-as: owns
+    allOf:
     - if:
         required:
         - dataClasses
@@ -2964,7 +3028,7 @@ $defs:
       paging:
         $ref: '#/$defs/pagingValue'
       writes:
-        $ref: '#/$defs/aggregateIdArray'
+        $ref: '#/$defs/writesArray'
         x-reads-as: writes
         x-read-back-as: is written by
       reads:
@@ -3065,8 +3129,8 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       triggeredBy:
         $ref: '#/$defs/reactionTriggeredBy'
-        x-reads-as: triggers
-        x-read-back-as: is triggered by
+        x-reads-as: is triggered by
+        x-read-back-as: triggers
       skippedWhen:
         $ref: '#/$defs/nonEmptyString'
       compensates:
@@ -3318,6 +3382,39 @@ $defs:
       then:
         required:
         - basedOn
+  moduleEventPage:
+    description: A fact one module publishes for the other modules of the same product, delivered in process through the transactional outbox.
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - translates
+    - payload
+    properties:
+      type:
+        const: module-event
+      summary:
+        $ref: '#/$defs/nonEmptyString'
+      id:
+        $ref: '#/$defs/moduleEventId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      terms:
+        $ref: '#/$defs/termIdArray'
+        x-reads-as: uses
+        x-read-back-as: is used by
+      records:
+        $ref: '#/$defs/recordsArray'
+      payload:
+        type: array
+        items:
+          $ref: '#/$defs/integrationEventPayload'
+      translates:
+        $ref: '#/$defs/domainEventId'
+        x-reads-as: translates
+        x-read-back-as: is translated by
   integrationEventPage:
     type: object
     additionalProperties: false
@@ -3454,7 +3551,7 @@ $defs:
         minItems: 1
         uniqueItems: true
         items:
-          $ref: '#/$defs/integrationEventId'
+          $ref: '#/$defs/publishedEventId'
         x-reads-as: is removed by
         x-read-back-as: removes rows of
       freshness:
@@ -3488,9 +3585,9 @@ $defs:
       many:
         type: boolean
       from:
-        description: The outbound integration event and the payload field of it that the read model takes the value from.
+        description: The module event or outbound integration event and the payload field of it that the read model takes the value from.
         type: string
-        pattern: '^integration-event/[a-z0-9][a-z0-9-]*#[a-z][a-zA-Z0-9]*$'
+        pattern: '^(integration-event/[a-z0-9][a-z0-9-]*|module-event/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*)#[a-z][a-zA-Z0-9]*$'
         x-reads-as: is copied from
         x-read-back-as: is copied into
       accumulate:
@@ -3501,7 +3598,7 @@ $defs:
       classification:
         $ref: '#/$defs/classification'
       erasedBy:
-        $ref: '#/$defs/integrationEventId'
+        $ref: '#/$defs/publishedEventId'
         x-reads-as: is erased by
         x-read-back-as: erases
     allOf:

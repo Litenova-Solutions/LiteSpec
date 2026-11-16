@@ -33,7 +33,9 @@ static class BookRecordDetails
     ///     adds code and its expectation, and a claimed Proof layer adds tests,
     ///     proof status and scenario proof. The expectation, the completion and
     ///     the missing marks stop at the claimed layers, so an unclaimed layer
-    ///     never reads as missing. Every detail that is a requirement or a
+    ///     never reads as missing. The model completion stage, with its parked
+    ///     children and scope counts, is carried beside the code completion.
+    ///     Every detail that is a requirement or a
     ///     flow carries its Intent coverage. Every written type is a member
     ///     of <see cref="RecordTypes"/> and every written layer is a member of
     ///     the outline layer keys, root for the product, or null.
@@ -119,7 +121,19 @@ static class BookRecordDetails
             expect["proof"] = proven && BookRender.IsTrue(expect["proof"]);
             detail["expect"] = expect;
             detail["lacks"] = BookImplementationDetail.LacksFor(index, tests, impl, expect, id, type);
-            detail["completion"] = BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type);
+            var completion = BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type);
+            if (record["completion"] is JsonObject carried)
+            {
+                foreach (var name in new[] { "stage", "proof", "heldBy", "parkedBy", "inScope", "parked", "total", "counts" })
+                {
+                    if (carried.TryGetPropertyValue(name, out var value) && value is not null)
+                    {
+                        completion[name] = value.DeepClone();
+                    }
+                }
+            }
+
+            detail["completion"] = completion;
             detail["findings"] = FindingList(findings.TryGetValue(id, out var own) ? own : []);
             detail["sections"] = BookBodyDetail.Render(index, record);
             detail["fieldsHtml"] = BookProseFields.Render(index, record);
@@ -146,7 +160,7 @@ static class BookRecordDetails
         return details;
     }
 
-    /// <summary>The mockup record shape: identity, stripped fields and the source.</summary>
+    /// <summary>The mockup record shape: identity, stripped fields and the source. A store keeps its owner.</summary>
     /// <param name="record">The record.</param>
     /// <param name="type">The record type.</param>
     /// <returns>The mockup record shape.</returns>
@@ -155,6 +169,11 @@ static class BookRecordDetails
         var fields = (BookRender.Fields(record)?.DeepClone() as JsonObject) ?? new JsonObject();
         foreach (var key in StrippedKeys)
         {
+            if (string.Equals(key, "owner", StringComparison.Ordinal) && string.Equals(type, "store", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             fields.Remove(key);
         }
 

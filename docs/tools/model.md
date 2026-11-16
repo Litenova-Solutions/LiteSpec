@@ -28,9 +28,9 @@ In text, `check` lists every open blocking finding in full, then one line per fi
 
 With `--format json`, it writes one JSON object: the `findings` array holds every finding the run shows, and the `covered` array holds every finding a live waiver covers.
 
-With `--release`, the release-readiness findings block: `use-case-unverified` and `reader-missing`.
+With `--release`, the release-readiness findings block: `use-case-unverified` and, for a claimed layer, `reader-missing`.
 
-With `--since <ref>`, only the findings about records and code changed since `<ref>` block, and the rest report. The run also reports every client-breaking contract change since `<ref>` as a `contract-break` finding of level S, which always blocks at the level that runs it: a removed result, a removed refusal code, and a changed integration event. It also reports each scenario whose proving test method changed since `<ref>` while the scenario did not, as a `proof-hash-drift` finding of level A, which never blocks.
+With `--since <ref>`, the command checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`. Findings match by code, subject identifier and message, never by line. When the base tree cannot be built or checked, every finding blocks and the output says why. The run also reports every client-breaking contract change since `<ref>` as a `contract-break` finding of level S, which always blocks at the level that runs it: a removed result, a removed refusal code, and a changed integration event.
 
 With `--module <module>`, the command prints only the findings on the records and files of that module, and the exit code follows those findings alone.
 
@@ -40,7 +40,7 @@ With `--module <module>`, the command prints only the findings on the records an
 
 It also rewrites each marked project-scope skill copy that differs from what the carried release generates, writes `litespec-records.ts` into each React and Svelte frontend frame, and writes the UI source lock beside the shared package.
 
-`query` prints one record with its links in both directions, showing its identifier and its folder path; agents use it to load a record's context.
+`query` prints one record with its links in both directions, showing its identifier and its folder path; agents use it to load a record's context. Its completion block carries the stage with three counts, `inScope`, `parked` and `total`: `heldBy` lists only the in-scope records holding the stage back, and `parkedBy` lists each parked record with the waiver parking it and its `expiresOn`.
 
 With `--search <text>`, it lists the written records whose identifier, title, summary, or statement holds the text, case-insensitive, one line each with identifier, title, and path. An exact identifier match comes first, then other identifier matches, then title, summary, and statement matches, each group by identifier.
 
@@ -55,7 +55,7 @@ With `--format json`, `check` writes one JSON object with each finding carrying 
 | `code` | The finding code, such as `record-invalid`. |
 | `level` | The finding's level: G, S or A. |
 | `outcome` | What the run does with the finding: `blocking` when it fails the run, `reported` when it prints and the run passes, and `covered` when a live waiver covers it. |
-| `reason` | `unchanged` when `--since` demoted a blocking finding outside the changed scope, and `null` otherwise. |
+| `reason` | `unchanged` when `--since` reported a finding already present at `<ref>`, and `null` otherwise. |
 | `message` | What is wrong, in one sentence. |
 | `path` | The path of the finding, relative to the consumer root. |
 | `line` | The line number of the finding, counting from one. |
@@ -91,8 +91,8 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 |:---|:---|:---|
 | `--root <consumer>` | the working directory | Selects the consumer repository to read. |
 | `--format <name>` | human lines | Only `check` reads it. It accepts `json` and writes one JSON object holding the `findings` and `covered` arrays, each finding with the fields the Description lists. |
-| `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified` and `reader-missing`. |
-| `--since <ref>` | off | Only `check` reads it. Blocks only on findings about records and code changed since `<ref>`; older findings report. Also reports every removed result, removed refusal code and changed integration event since `<ref>` as a `contract-break` finding. Also reports each scenario whose proving test method changed since `<ref>` while the scenario did not, as an advisory `proof-hash-drift` finding. |
+| `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified` and, for a claimed layer, `reader-missing`. |
+| `--since <ref>` | off | Only `check` reads it. Checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`; findings match by code, subject identifier and message, never by line. When the base cannot be built or checked, every finding blocks. Also reports every removed result, removed refusal code and changed integration event since `<ref>` as a `contract-break` finding. |
 | `--all` | off | Only `check` reads it. In text, lists every level A finding one by one. Without it, the level A findings are summarized by code in the counts. In JSON every finding is always listed. |
 | `--check` | off | Only `format` reads it. Writes nothing, lists each file that would change, and exits 1 when any would. |
 | `--search <text>` | off | Only `query` reads it. Lists the written records whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path. An exact identifier match prints first, then other identifier matches, title, summary and statement matches; each group orders by identifier. Prints nothing and exits 0 when nothing matches. |
@@ -104,9 +104,10 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 
 | Code | Meaning |
 |:--|:--|
-| `0` | The command finished with no open blocking finding. |
+| `0` | The command finished with no open blocking finding and, for `check`, a complete inspection. |
 | `1` | `check` found an open blocking finding or an expired waiver, `query` found no record with the `id`, `format --check` found a file it would change, or the run failed. With `--search` or `--list`, no match prints nothing and exits 0. |
 | `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, the `--list` type or `--module` name is unknown, or `format` found a file that does not parse. |
+| `3` | `check` found no open blocking finding but the inspection was incomplete: a reader was missing, so some level S findings report without blocking. The run prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line, one clause per frontend. |
 
 ## Examples
 
@@ -170,7 +171,7 @@ Check for release, with the release-readiness findings blocking:
 litespec model check --root ../consumer --release
 ```
 
-Block only on the findings changed since the main branch, and report every breaking contract change since it:
+Block every finding the change introduced since the main branch, and report every breaking contract change since it:
 
 ```bash
 litespec model check --root ../consumer --since main
@@ -182,9 +183,7 @@ The model holds every record with its identifier, its folder path, and its resol
 
 Each screen lists its `operations`, its `useCases`, and its `calls`, with each call pairing one operation with the use case it reaches. The `calls` links carry one link per pair: a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 
-A proof goes stale when its scenario changes after the proof passed. The committed `.litespec/proof/proofs.json` holds, for each scenario, the scenario hash, its test body's hash, and the hash of its proving test methods at the last passing run. On every later build, a scenario whose hash or test body differs from the recorded one has a stale proof, which verifies nothing until a newer passing run is read. A test that both passed and failed within the runs read reports `proof-invalid`.
-
-`model check --since <ref>` compares each proving test method with the hash the base's ledger recorded, and a scenario whose own hash held still while its proving test method moved reports `proof-hash-drift`, an advisory finding. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
+A proof is fresh when its run commit is HEAD, or when every path changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads `last passed at <short commit>, <N> commits ago`. The committed `.litespec/proof/proofs.json` holds, for each scenario, the run commit and the outcome of the last passing run. The command computes the changed paths once per run with git (`git diff --name-only <commit>` plus untracked files), cached per distinct run commit. When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check after the test run, in the same job, so the run on the pull request head is recorded before the pull request merges.
 
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job host, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. The link is always the mark, never a folder or a type name. A marked refusal type declares the `code` of the refusal result its rule names.
 
@@ -206,7 +205,7 @@ The builder reads `paths`, `shape`, and `stacks` from the consumer's `.litespec/
 
 A JUnit `testcase` proves a Behavior scenario directly by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value: `<properties><property name="litespec.proves" value="scenario/borrow-copy.borrowing-an-available-copy-succeeds" /></properties>`. The case proves each id it names with the same rules as a `proves` mark on a test method, so a runner whose steps carry no mark, or a stack with no code reader, still proves its scenarios.
 
-A check `--since` base is read through an archive into a temporary folder, which is removed after the check. Nothing beneath it is separately runnable.
+A check `--since` base is read through an archive (`git archive`) into a temporary folder, which is removed after the check. The command checks that tree and the working tree and compares the two finding sets. Nothing beneath it is separately runnable.
 
 A search or list line holds the identifier, the title and the file path relative to the consumer root, as `<id> - <title> (<path>)`, for written records only.
 

@@ -82,9 +82,9 @@ layers:
 | Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/<version>/schemas/record.schema.yaml` |
 
-The schema holds no single property list. It carries a `oneOf` across page variants instead, one per record type and page style, so each record file and each document frontmatter matches exactly one variant, such as `productPage`, `useCasePage`, `screenPage`, `ruleSetPage`, or `howToPage`. Each variant requires `type` plus its own fields, such as `id` and `title`. A record present in git is decided, so no variant carries approval, status, or history fields.
+The schema holds no single property list. It carries a `oneOf` across page variants instead, one per record type and page style, so each record file and each document frontmatter matches exactly one variant, such as `productPage`, `useCasePage`, `storePage`, `moduleEventPage`, `screenPage`, `ruleSetPage`, or `howToPage`. Each variant requires `type` plus its own fields, such as `id` and `title`. A record present in git is decided, so no variant carries approval, status, or history fields.
 
-A list page carries its entries in `records`: permission, rule, result, scenario, domain-event, entry-point, and setting entries. The identifier patterns sit beside the variants in `$defs`, such as `useCaseId` for `use-case/<module>.<name>`, `reactionId` for `reaction/<module>.<name>`, `jobId` for `job/<module>.<name>`, `flowStepId` for `flow/<name>#s1`, and `derivedResultId` for the derived generic results. The shared shapes sit there too: the `access` object with `grant` and `tenant`, the query `output` groups, `paging`, `consistency`, `effectEntry` with exactly one verb of `sends` or `calls`, `triggeredEffectEntry` with exactly one verb of `runs`, `sends`, or `calls` for reactions and jobs, the reaction trigger, the job kind and schedule, `idempotency`, `audit`, the one `onFailure` shape, and `dataClassEntry`.
+A list page carries its entries in `records`: permission, rule, result, scenario, domain-event, entry-point, and setting entries. The identifier patterns sit beside the variants in `$defs`, such as `useCaseId` for `use-case/<module>.<name>`, `reactionId` for `reaction/<module>.<name>`, `jobId` for `job/<module>.<name>`, `storeId` for `store/<module>.<name>`, `moduleEventId` for `module-event/<module>.<name>`, `flowStepId` for `flow/<name>#s1`, and `derivedResultId` for the derived generic results. The shared shapes sit there too: the `access` object with `grant` and `tenant`, the query `output` groups, `paging`, `consistency`, `effectEntry` with exactly one verb of `sends` or `calls`, `triggeredEffectEntry` with exactly one verb of `runs`, `sends`, or `calls` for reactions and jobs, the reaction trigger, the job kind and schedule, `idempotency`, `audit`, the one `onFailure` shape, and `dataClassEntry`.
 
 A use case requires `kind`, which is `command` or `query`, and the `access` object. The entry point the use case is reached through states the caller `auth`, while the use case states only `grant` and `tenant`:
 
@@ -108,6 +108,8 @@ access:
 | Published URL | `https://litespec.dev/<version>/schemas/glossary.schema.yaml` |
 
 The top-level properties hold the closed vocabulary, with `schemaVersion` as the constant `2`. `terms` holds one entry per concept. Each entry carries its `id`, `term`, `meaning`, and `layer` of `intent` or `behavior`; a `verbKind` of `command`, `query`, or `either` where the term declares a use-case verb; `aliases` naming the established synonyms; `labels`; `rejected` synonyms; `broader` and `narrower` terms; and closed-set `values`. `mannered` holds the metaphor terms the project rejects everywhere, each with its `term` and its `instead`.
+
+A project may declare a retired synonym as its own verb term: the entry carries `verbKind`, and its `meaning` states how the verb differs from the baseline verb it was retired into. `litespec model check` accepts such a declared verb, and reports `verb-distinction-missing` for a declared verb whose `meaning` does not name the baseline verb.
 
 The consumer glossary template ships real mannered entries:
 

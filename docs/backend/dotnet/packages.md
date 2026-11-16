@@ -14,6 +14,10 @@ LiteBus ships as modules for commands, queries, and events rather than one bus p
 
 The LiteSpec analyzers report a breach of a .NET provision where it happens, with a link to the provision. Without them, a breach surfaces only in review, if at all. The analyzer package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time.
 
+### Outbox and Test Modules
+
+The outbox provisions need LiteBus 7.2.0 or later within the `7.x` pin. Module events and domain-event reactions travel through the LiteBus outbox in process, backed by `LiteBus.Outbox.Storage.PostgreSql` or `LiteBus.Outbox.Storage.EntityFrameworkCore`, with outbound integration events leaving through `LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`. Acceptance tests drain the outbox through `LiteBus.Testing.DurableMessaging`, as `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests` states, and outbox telemetry arrives through `LiteBus.Outbox.Extensions.OpenTelemetry`. Each resolves at its manifest pin.
+
 ## Standards
 
 None.

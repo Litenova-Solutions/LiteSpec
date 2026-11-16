@@ -71,6 +71,13 @@ export function isScenarioType(type: string): boolean {
 /** The record types that live under a module member: use cases, rules, reactions, jobs, notifications, settings and read models. */
 export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting", "read-model"];
 
+/** One parked child: a record a live waiver holds out of its parent's stage, with that waiver and its expiry. */
+export interface ParkedChild {
+  id: string;
+  waiver: string;
+  expiresOn?: string | null;
+}
+
 /** A record the Records packs carry, with every computed detail the book adds. */
 export interface BookRecord {
   type: string;
@@ -92,12 +99,31 @@ export interface BookRecord {
     hasCode?: boolean | null;
     hasTests?: boolean | null;
     scenarios?: { pass?: number; of?: number } | null;
+    /** The model completion stage: unfulfilled, specified, coded or verified, with its scope counts. */
+    stage?: string;
+    proof?: string;
+    heldBy?: string[];
+    parkedBy?: ParkedChild[];
+    inScope?: number;
+    parked?: number;
+    total?: number;
+    counts?: Record<string, { done?: number; of?: number }>;
   } | null;
   findings?: BookFinding[];
   proof?: {
     state?: ProofState | null;
     tests?: number;
     test?: { name?: string; path?: string | null; line?: number | null } | null;
+    /** The recorded run commit, empty when the run recorded none. */
+    commit?: string;
+    /** The short run commit the book shows after "last passed at", empty when the run recorded none. */
+    lastPassedAt?: string;
+    /** Whether the proof is fresh or stale against the working tree. */
+    status?: string;
+    /** How many commits HEAD sits ahead of the run commit when stale with changed code, else 0. */
+    commitsBehind?: number;
+    /** Why the proof is stale, only when stale. */
+    staleReason?: string;
   };
   machine?: {
     coded?: boolean;

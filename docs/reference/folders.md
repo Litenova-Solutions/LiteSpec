@@ -24,6 +24,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `module` | `behavior/modules/{name}` | `module.yaml` |
 | `term` | `` | `glossary.yaml` |
 | `aggregate` | `behavior/modules/{module}/aggregates/{aggregate}` | `aggregate.yaml` |
+| `store` | `behavior/modules/{module}/stores/{name}` | `{name}.yaml` |
 | `use-case` | `behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}` | `{name}.yaml` |
 | `use-case` | `behavior/modules/{module}/use-cases/{name}` | `{name}.yaml` |
 | `result` | `behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}` | `{name}.yaml` |
@@ -41,6 +42,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `job` | `behavior/modules/{module}/jobs/{name}` | `{name}.yaml` |
 | `notification` | `behavior/modules/{module}/notifications/{name}` | `{name}.yaml` |
 | `setting` | `behavior/modules/{module}/settings` | `*` |
+| `module-event` | `behavior/modules/{module}/module-events/{name}` | `{name}.yaml` |
 | `integration-event` | `behavior/modules/{module}/integration-events/{name}` | `{name}.yaml` |
 | `read-model` | `behavior/modules/{module}/read-models/{name}` | `{name}.yaml` |
 | `permission` | `behavior/modules/{module}` | `permissions.yaml` |

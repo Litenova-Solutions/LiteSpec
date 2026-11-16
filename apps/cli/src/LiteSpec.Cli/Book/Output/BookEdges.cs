@@ -70,9 +70,9 @@ static class BookEdges
     }
 
     /// <summary>
-    ///     Adds the publish edge from each use case to every outbound integration event
-    ///     that translates a domain event the use case raises. The edge is computed from
-    ///     <c>raises</c> and <c>translates</c>; no record writes it.
+    ///     Adds the publish edge from each use case to every module event and outbound
+    ///     integration event that translates a domain event the use case raises. The edge
+    ///     is computed from <c>raises</c> and <c>translates</c>; no record writes it.
     /// </summary>
     /// <param name="index">The model index.</param>
     /// <param name="outs">The outgoing edges per record id, extended in place.</param>
@@ -101,7 +101,7 @@ static class BookEdges
 
         foreach (var pair in index.ById)
         {
-            if (BookRender.StrProp(pair.Value, "type") != "integration-event" || BookRender.Fields(pair.Value)?["translates"] is not JsonArray translated)
+            if (BookRender.StrProp(pair.Value, "type") is not ("module-event" or "integration-event") || BookRender.Fields(pair.Value)?["translates"] is not JsonArray translated)
             {
                 continue;
             }

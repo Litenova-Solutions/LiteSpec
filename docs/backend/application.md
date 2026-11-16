@@ -17,7 +17,7 @@ One use case folder holds everything a reviewer needs to judge that use case: an
 
 The `Application/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/` folder holds the endpoint with its request and response models.
 
-Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder, grouped by kind into identifiers, integration events, and ports. The pipeline machinery itself lives in the product `Application/` folder.
+Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder, grouped by kind into identifiers, integration events, module events, and ports. The pipeline machinery itself lives in the product `Application/` folder.
 
 Each event handler class carries a mark naming the reaction it implements, and sits with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 
@@ -31,7 +31,7 @@ The handler loads or creates the one aggregate its use case changes, calls one d
 
 A query passes validation and the guard, then projects directly to its result without loading an aggregate. No handler sends a command, query, or event.
 
-One pipeline step stages each domain event the act raised, the fact the aggregate announced, together with each integration event that translates one of them for other modules, in the same commit.
+One pipeline step stages each domain event the act raised, the fact the aggregate announced, together with each module event and each outbound integration event translating one of them, in the same commit.
 
 An event handler answers its trigger outside the command pipeline: it sends the one command its reaction runs, or it runs the declared `sends` and `calls` effects after the commit. A scheduled or one-off job sends its one command once per item in its selection.
 
@@ -50,17 +50,17 @@ Four kinds of port belong in Application:
 - A rule calculation that another module calls keeps one home for the rule.
 - A decision port answers one current-value question that another module's command needs.
 
-A general reader that returns the owner's state to any caller is not one of them: a module keeps its own read model, its own stored copy of the fields it needs from another module, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, a messenger port carries the notifications `sends` effects name, and a store port carries state the owning system holds.
+A general reader that returns the owner's state to any caller is not one of them: a module keeps its own read model, its own stored copy of the fields it needs from another module, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, a messenger port carries the notifications `sends` effects name, and a store port carries state the owning module or external system holds.
 
 In Claimwick, the payout provider sits behind an external-system port: an event handler calls the port operation after the commit, and Infrastructure adapts the provider behind it. If the provider changes, only the adapter changes.
 
 ### Declared Effects
 
-Every edge between use cases, reactions, jobs, notifications, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`, where `sends` names a notification and `calls` names an external-system operation. A reaction or job also declares `runs`, naming the one use case it runs.
+Every edge between use cases, reactions, jobs, notifications, module events, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`, where `sends` names a notification and `calls` names an external-system operation. A reaction or job also declares `runs`, naming the one use case it runs.
 
 An edge the records do not declare is behavior the specification hides. The effect checks report it as `effect-undeclared`.
 
-Each entry carries its timing. `inline` runs inside a query's call, `after-commit` runs after the commit succeeds, and `async` runs outside the caller's transaction. An integration event is not an effect: it names the domain event it translates, and the pipeline stages it from that event.
+Each entry carries its timing. `inline` runs inside a query's call, `after-commit` runs after the commit succeeds, and `async` runs outside the caller's transaction. A module event or an integration event is not an effect: each names the domain event it translates, and the pipeline stages it from that event.
 
 In Claimwick, the submit-expense command declares a `sends` edge to the approver notice with `after-commit` timing. The notice leaves after the submit commits, and a send the record does not declare fails the check.
 
@@ -391,11 +391,11 @@ Where a port serves aggregates in one module but is called from another, the dec
 
 **Rationale:** A general reader in the owner's `Contracts/Ports/` folder couples every reading module to the owner's storage, uptime, and release cadence. It grows a method per caller until one interface returns one profile shape to every module.
 
-A read model is the reading module's own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner's integration events. Reads through the model lag by up to the read model's declared `freshness`, which most decisions accept.
+A read model is the reading module's own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner's module events. Reads through the model lag by up to the read model's declared `freshness`, which most decisions accept.
 
 This is the practice known as event-carried state transfer, declared as a record so a check can prove every field has a source. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
-**Example:** The reporting module's list-reimbursed-expenses query reads `read-model/reporting.reimbursed-expense`, which its projections fill from the expense-reimbursed integration event. It calls no spending reader.
+**Example:** The reporting module's list-reimbursed-expenses query reads `read-model/reporting.reimbursed-expense`, which its projections fill from the spending module's expense-reimbursed module event. It calls no spending reader.
 
 **Reviewed for:** Does any use case call another module's reader for state a read model could hold, and does every read model have a use case naming it in `reads`? Look at each cross-module port call beside the module's read models.
 
@@ -457,21 +457,21 @@ A reaction or job that only sends lives in the module `Notifications/` folder na
 
 **Reviewed for:** Does every `sends` effect run in an event handler through the messenger port, after the commit? Look at each send beside its record's `sends` entry.
 
-### Emit Declared Integration Events After Commit
+### Stage Declared Module and Integration Events in the Commit
 
-**ID:** `litespec/backend/application#emit-declared-integration-events-after-commit`
+**ID:** `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`
 
 **Strength:** required
 
 **Applies to:** artifact: aggregate
 
-**Statement:** Each outbound integration event MUST leave the commit only through the one pipeline step that stages raised domain events, built from the domain event its record `translates`, so no user code publishes an event.
+**Statement:** Each module event and each outbound integration event MUST leave the commit only through the one pipeline step that stages raised domain events, built from the domain event its record `translates`, so no user code publishes an event.
 
 **Rationale:** When user code publishes events, two handlers publish one fact with two payloads, and a publisher in a handler emits state the act never announced.
 
-One global step, running in the command pipeline before the commit, stages each raised domain event for the reactions of its own module, and each integration event whose record translates that domain event, built by the integration event's own mapping from the domain event alone. Both commit with the business work, and the outbox extension delivers them. A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so the aggregate raises its fact and the pipeline does the rest. The domain event therefore carries every field its integration events publish. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
+One global step, running in the command pipeline before the commit, stages each raised domain event for the reactions of its own module, each module event whose record translates that domain event, and each outbound integration event whose record translates it, built by each event's own mapping from the domain event alone. All three commit with the business work, and the outbox extension delivers them. A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so the aggregate raises its fact and the pipeline does the rest. The domain event therefore carries every field its module and integration events publish. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
 
-**Example:** The expense raises its reimbursed fact, and the staging step stages it and `integration-event/expense-reimbursed`, built from that fact, in the same commit. The reimburse handler publishes nothing.
+**Example:** The expense raises its reimbursed fact, and the staging step stages it, `module-event/spending.expense-reimbursed`, and the outbound `integration-event/expense-reimbursed`, each built from that fact, in the same commit. The reimburse handler publishes nothing.
 
 **Checked by:** `dotnet build` reports `LS2022` for an event published outside the shared kernel, and `litespec model check` reports `effect-undeclared` for an event a handler, event handler or job publishes itself.
 
@@ -483,13 +483,13 @@ One global step, running in the command pipeline before the commit, stages each 
 
 **Applies to:** artifact: port
 
-**Statement:** A `store` aggregate MUST reach code only through a port naming its owner, with no aggregate root.
+**Statement:** A `store` MUST reach code only through a port naming its owner, with no aggregate root.
 
-**Rationale:** A `store` aggregate is state no invariant guards: a library-owned table, a suppression list, or a delivery log. With no invariant, there is no root, no state record, and no domain repository; the port names the owning system and Infrastructure implements it. Staff actions on that state stay ordinary use cases calling the port.
+**Rationale:** A `store` is state no invariant guards: a library-owned table, a suppression list, or a delivery log. With no invariant, there is no root, no state record, and no domain repository; the port names the owning module or external system and Infrastructure implements it. Staff actions on that state stay ordinary use cases calling the port.
 
 **Example:** The suppression list reaches code through a suppression port owned by the communications module, with no aggregate root.
 
-**Reviewed for:** Does every `store` aggregate reach code only through its owner-naming port, with no aggregate root? Look at each store aggregate's code path.
+**Reviewed for:** Does every `store` reach code only through its owner-naming port, with no aggregate root? Look at each store's code path.
 
 ### Read Settings Through Typed Options
 
@@ -535,7 +535,7 @@ A setting record owns its type, its default, its range, its unit, and what happe
 
 **Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code.
 
-One event handler class per reaction record answers the trigger the record names in `triggeredBy`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries, sending at most one command. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows.
+One event handler class per reaction record answers the trigger the record names in `triggeredBy`, whether a domain event of its own module, a module event, or an inbound integration event, and dispatches only through the record's `effects` entries, sending at most one command. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows.
 
 A conflict refusal from the command it runs is transient, so the reaction retries it under its `onFailure`; a declared final refusal ends the reaction without a retry.
 
@@ -589,11 +589,11 @@ One execution host runs the job under `litespec/backend/architecture#name-the-ho
 
 **Statement:** A command handler MUST change only its aggregate, leaving every declared `runs`, `sends` and `calls` edge to an event handler or job after the commit.
 
-**Rationale:** An undeclared edge is the defect: an event handler or job reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides.
+**Rationale:** An undeclared edge is the defect: an event handler or job reaches a use case, notification, module event, integration event, or external system the records never named, so review sees behavior the specification hides.
 
 Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails `effect-undeclared` on any dispatch the record does not declare.
 
-An outbound integration event is no effect: the pipeline stages it from the domain event it translates under `litespec/backend/application#emit-declared-integration-events-after-commit`. `sends`, `calls`, and `runs` effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one.
+A module event or an outbound integration event is no effect: the pipeline stages each from the domain event it translates under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`. `sends`, `calls`, and `runs` effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one.
 
 A `sends` or `calls` effect on a command is `after-commit` or `async`, never `inline`, and `consistency: atomic` never reaches past the use case's own writes. The effect graph holds no cycles except through domain events with a stated end condition.
 
@@ -786,7 +786,7 @@ Two layer folders inside it state each file's layer in the path, keep a large us
   Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else
   Posts/                                  single aggregate whose name matches the module: use cases sit in the module UseCases folder
     Contracts/
-      Identifiers/  IntegrationEvents/  Ports/
+      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
     Application/                          a port several Posts use cases name sits here
     UseCases/
       CreateDraft/
@@ -808,7 +808,7 @@ Two layer folders inside it state each file's layer in the path, keep a large us
         NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification
   Customers/                              two aggregates: use cases nest under each aggregate UseCases folder
     Contracts/
-      Identifiers/  IntegrationEvents/  Ports/
+      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
     CustomerAccounts/
       Application/                        aggregate-owned behavior sits in the aggregate layer folder
       UseCases/

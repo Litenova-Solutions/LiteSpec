@@ -18,7 +18,7 @@ Each use case links back to the Intent it carries: the flow steps it serves in `
 | `access` | `{ grant, tenant }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. The entry point the call arrives through declares `auth`, as [Access](access.md) states. |
 | `input` | Entries of `{ name, meaning, type, of, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `of` field names the record an `id` refers to, or the row shape of a `list`. The `choices` field names the allowed values of a `choice`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `of` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
 | `writes`, `reads` | The ids of aggregates written, and the ids of aggregates, read models, and settings read, including `store` aggregates. A read model is the module's own copy of another module's state, as [Automation](automation.md) states. |
-| `consistency` | `{ mode, boundBy }`, on a command writing two or more aggregates only. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`. A query carries no `consistency`. |
+| `consistency` | `{ mode, boundBy, guards }`, on a command writing two or more aggregates or reading an aggregate whose rule guards its write. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`. The `guards` field lists the aggregates the command reads, and does not write, whose rule named in `boundBy` must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. A query carries no `consistency`. |
 | `effects` | Entries of `{ sends / calls, timing, onFailure, onExhausted, before, forEach }` with exactly one verb. The timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A use case runs no other use case and declares no integration event. A reaction runs the follow-on work, and an outbound integration event names the event it translates. |
 | `idempotency` | `{ mode, key, scope, reason, replay, recognizedBy }`, on a command only. The mode is `key`, `state`, or `none`. The `key` templates `{field}` placeholders over the input field names. The `scope` is `tenant`, `account`, `login`, or `global`. The `replay` is `returns-first-result`, `refuses`, or `acts-again`. Mode `state` also carries `recognizedBy` naming the state checked. A query carries no `idempotency`. |
 | `audit` | `{ level, target }` with level `required`, `optional`, or `none`, or `{ exemptBecause }` with its justification. A level of `none` is not audited. Async work audits at request time. |
@@ -31,7 +31,7 @@ Each consistency mode defines its promise for the writes of one use case:
 | `atomic` | Every write in `writes` commits as one group |
 | `per-record` | Each write commits on its own; a failure leaves earlier writes in place |
 
-No mode reaches past the use case. Every edge to another record runs after the commit. A command writing one aggregate is atomic by definition, so it carries no `consistency`.
+No mode reaches past the use case. Every follow-on state change runs after the commit, from a reaction or a job; reads and inline `calls` run inside the use case. A command writing one aggregate and reading no guarding aggregate is atomic by definition, so it carries no `consistency`.
 
 Each effect entry carries one `onFailure` shape: `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`. The `mode` is `retry`, `skip-and-log`, or `discard`. The `retry` and `ifExhausted` fields accompany `mode: retry`, while `deadLetter`, `surfacesIn`, and `runbook` are optional. The `onExhausted` field names the act when retries run out. The `before` field orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
@@ -88,9 +88,9 @@ A use-case name starts with a verb. Each verb keeps one meaning and one kind acr
 | `post`, `reverse` | command | A ledger transaction and its correction. |
 | `retry`, `verify` | command | Work run again, and a check run again. |
 
-The baseline vocabulary retires these synonyms: `get`, `fetch`, `lookup`, and `count` become `read`; `browse` becomes `list`; `find` becomes `search`; `update`, `edit`, `modify`, `revise`, `set`, `adjust`, `configure`, and `rename` become `change`; `define`, `compose`, `save`, and `new` become `create`; `delete` becomes `remove`; `notify`, `remind`, and `email` become `send`; `suggest` and `ask` become `answer`; `mark`, `note`, and `log` become `record`; `end` becomes `close`; `finish` becomes `complete`; `abandon` becomes `cancel`; `lapse` becomes `expire`; `clone` and `copy` become `duplicate`; `replay` becomes `retry`; `recheck` becomes `verify`; `archive` becomes `retire`; `reject` and `deny` become `refuse`; `unpublish` and `hide` become `withdraw`.
+The baseline vocabulary retires these synonyms: `get`, `fetch`, `lookup`, and `count` become `read`; `browse` becomes `list`; `find` becomes `search`; `update`, `edit`, `modify`, `revise`, `set`, `adjust`, `configure`, and `rename` become `change`; `define`, `compose`, `save`, and `new` become `create`; `delete` becomes `remove`; `notify`, `remind`, and `email` become `send`; `suggest` and `ask` become `answer`; `mark`, `note`, and `log` become `record`; `end` becomes `close`; `finish` becomes `complete`; `abandon` becomes `cancel`; `lapse` becomes `expire`; `clone` and `copy` become `duplicate`; `replay` becomes `retry`; `recheck` becomes `verify`; `archive` becomes `retire`; `reject` and `deny` become `refuse`; `unpublish` and `hide` become `withdraw`. A project may declare a retired synonym as its own glossary verb term when the term's definition states how it differs from the baseline verb it was retired into.
 
-A verb term names the verb in `term`, the kind it opens in `verbKind`, and the act in `meaning`, in one sentence, as any term does.
+A verb term names the verb in `term`, the kind it opens in `verbKind`, and the act in `meaning`, in one sentence, as any term does. A verb term retaking a retired synonym states in `meaning` how it differs from the baseline verb it was retired into, naming that verb.
 
 ```yaml
 - id: term/borrow
@@ -110,7 +110,7 @@ Each module declares its refusal codes once in `behavior/modules/<m>/refusals.ya
 
 Refusals stand in precedence order with the derived refusals first, as [Order Every Refusal List by Precedence](#order-every-refusal-list-by-precedence) states. A code in use is retired with its replacement named and never reused, as [Retire Refusal Codes with Their Replacements](#retire-refusal-codes-with-their-replacements) states.
 
-A refusal is a rejection or error in industry words; the record word stays refusal.
+A refusal is a rejection or error in industry words; the record word stays refusal. A refusal is a declared business outcome where the use case did not perform its act because a rule, access, or input said no. A technical failure (a timeout, a provider error, a crash) is not a result: retry, the outbox, and operations handle it, and no use case declares it.
 
 | Field | Meaning |
 |:---|:---|
@@ -124,7 +124,7 @@ The generic refusals are derived and never written as records. The `forbidden` r
 
 A scenario proves one ending of the behavior it exercises. It is an entry in the file of its use case, and that use case is its parent. A reaction or job scenario is an entry in the file of its reaction or job, as [Automation](automation.md) states.
 
-The scenario carries `given`, `when`, `then`, an optional `examples` table, and the `result` it ends in. One test proves each scenario through the public boundary.
+The scenario carries `given`, `when`, `then`, an optional `examples` table, and the `result` it ends in. A scenario proving a guard against a competing command also carries `competesWith`. One test proves each scenario through the public boundary.
 
 A proof goes stale when either of its proof hashes changes. The book groups a use case's scenarios under their result.
 
@@ -134,12 +134,13 @@ A proof goes stale when either of its proof hashes changes. The book groups a us
 | `examples` | The worked example rows, all with one shared set of keys. |
 | `result` | The written or derived result the scenario ends in. |
 | `exercises` | The optional rules the scenario shows. |
+| `competesWith` | The `use-case/...` identifier of the command running at the same moment, on a scenario proving a guarded command against a competing command. The scenario's `then` states the one refusal or the serialized outcome. |
 
 ### Settings
 
 A setting is one tunable value with its type, range, unit, setter, and bound behavior.
 
-A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement. A model invariant is a rule instead. A product-wide setting lives at product level.
+A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement. A model invariant is a rule instead. A setting several modules read is owned by one module, and the other modules read it across their declared dependency.
 
 The `setting-set` page style holds many settings. A setting set carries `summary`, and its explanation file holds Notes.
 
@@ -182,11 +183,11 @@ A use case, reaction, or job names the settings it reads in `reads`.
 
 **Statement:** Each use case MUST start with a verb from the baseline vocabulary or a verb term the project declares in its glossary.
 
-**Rationale:** Without one verb per meaning, `read` versus `get` and `change` versus `update` compete in every listing, and related behavior scatters. Starting from one closed baseline vocabulary and adding only declared verbs keeps use cases findable. A shared first word groups related behavior, and a retired synonym points at its replacement instead of spreading without notice. When the act verb is in neither list, the author first declares it as a glossary verb term in the same change, then scaffolds the use case. The `litespec new` command scaffolds a use-case page without checking its verb, so declaring the verb term first avoids scaffolding a use case that the verb check then reports. A project never redefines a baseline verb. Proposed by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).
+**Rationale:** Without one verb per meaning, `read` versus `get` and `change` versus `update` compete in every listing, and related behavior scatters. Starting from one closed baseline vocabulary and adding only declared verbs keeps use cases findable. A shared first word groups related behavior, and a retired synonym points at its replacement instead of spreading without notice. When the act verb is in neither list, the author first declares it as a glossary verb term in the same change, then scaffolds the use case. The `litespec new` command scaffolds a use-case page without checking its verb, so declaring the verb term first avoids scaffolding a use case that the verb check then reports. A project never redefines a baseline verb. A project may still declare a retired synonym as its own glossary verb term when the term's definition states how it differs from the baseline verb it was retired into, naming that verb. This adds a verb, it does not redefine one. Proposed by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).
 
-**Example:** The project declares `borrow` and `check-in` as glossary verb terms. The names `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
+**Example:** The project declares `borrow` and `check-in` as glossary verb terms. The names `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`. The library declares `archive` as its own verb for a copy kept readable and restorable, with a definition stating how it differs from `retire`.
 
-**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name opening with a verb neither list declares, and `term-verb-duplicate` for a glossary verb term restating a baseline verb.
+**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name opening with a verb neither list declares, `term-verb-duplicate` for a glossary verb term restating a baseline verb, and `verb-distinction-missing` (level A) for a declared verb retaking a retired synonym whose definition does not name the baseline verb it differs from.
 
 ### Keep One Kind per Verb
 
@@ -380,15 +381,47 @@ A type on each field lets the builder compare the records with the generated con
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each command writing two or more aggregates MUST declare its write consistency in `consistency`.
+**Statement:** Each command writing two or more aggregates, or reading an aggregate whose rule guards its write, MUST declare its write consistency in `consistency`.
 
-**Rationale:** Consistency left unsaid is read as atomic until a multi-aggregate write fails halfway. Declaring the mode states the promise: `atomic` commits every write in `writes` as one group, and `per-record` commits each write on its own.
+**Rationale:** Consistency left unsaid is read as atomic until a multi-aggregate write fails halfway. Declaring the mode states the promise: `atomic` commits every write in `writes` as one group, and `per-record` commits each write on its own. A command that writes one aggregate and reads an aggregate whose rule guards its write declares `atomic` with the guarding aggregates in `guards`, so the guard still holds when the command commits.
 
-An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `writes` holds exactly the aggregates the rule binds. A group above 4 aggregates is reported. Atomic consistency never spans an `async` edge. A command writing one aggregate is atomic by definition and carries no `consistency`, and a query carries none. [Domain Model](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` reports `writes` differing from the bound group, and `atomicity-invalid` reports a group above 4 aggregates. Settled by [decision/0076-remove-shapes-nothing-needs](decision/0076-remove-shapes-nothing-needs).
+An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `writes` holds exactly the aggregates the rule binds. A guarded command cites the guarding rule in `boundBy` and names in `guards` the aggregates it reads, and does not write. A group above 4 aggregates is reported. Atomic consistency never spans an `async` edge. A command writing one aggregate and reading no guarding aggregate is atomic by definition and carries no `consistency`, and a query carries none. [Domain Model](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` reports `writes` differing from the bound group, and `atomicity-invalid` reports a group above 4 aggregates. Settled by [decision/0076-remove-shapes-nothing-needs](decision/0076-remove-shapes-nothing-needs).
 
-**Example:** The reimburse-expense command declares atomic consistency citing the reimbursed-once rule. The self-checkout scan declares per-record consistency across its attempts.
+**Example:** The reimburse-expense command declares atomic consistency citing the reimbursed-once rule. The self-checkout scan declares per-record consistency across its attempts. The submit-expense command writes the expense and reads the report, so it declares atomic consistency citing the open-report rule with the report in `guards`.
 
 **Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` for `writes` differing from the bound group, `atomicity-invalid` (level A) for a group above 4 aggregates, and `atomicity-duplicate` (level A) for a command saving more than one atomic write group; `litespec model check` reports `record-invalid` for a query carrying `consistency`.
+
+### Hold Every Cross-Aggregate Guard Until Commit
+
+**ID:** `litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each command whose `boundBy` rule governs an aggregate the command reads but does not write MUST name that aggregate in `consistency.guards`.
+
+**Rationale:** A guard read at the start of a command can change before the command commits: submit-expense reads the report as open, close-report closes it and commits, and submit-expense then commits an expense on a closed report. Naming the guarding aggregate in `guards` states that the rule must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. The stack page states how the guarded read holds the guard, by a lock, a version check, or serializable isolation.
+
+**Example:** The submit-expense command reads the report and writes the expense, with the open-report rule in `boundBy`. It names the report in `guards`, so a racing close-report commit either waits or makes submit-expense refuse.
+
+**Checked by:** `litespec model check` reports `guard-undeclared` (level G) for a command whose `boundBy` rule governs an aggregate the command reads but does not write, and whose `consistency.guards` does not name that aggregate.
+
+### Prove Every Guard Against a Competing Command
+
+**ID:** `litespec/core/use-cases#prove-every-guard-against-a-competing-command`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** At large size, each command carrying `consistency.guards` MUST be shown by at least one scenario naming the competing command in `competesWith`.
+
+**Rationale:** Every scenario that runs alone passes while the race stays unproven: each command meets the guard in its own state and commits. Running the guarded command against its competitor shows what the race brings. The scenario names the competing command in `competesWith`, and its `then` states the one refusal or the serialized outcome.
+
+**Example:** A submit-expense scenario carries `competesWith: use-case/spending.close-report`. Its `then` states that the expense is refused because the report closed, or that one command commits first and the other meets the new state.
+
+**Checked by:** `litespec model check` reports `guard-race-scenario-missing` (level G) for a command with `consistency.guards` and no scenario carrying `competesWith`.
 
 ### Declare Every Effect with One Verb and Its Timing
 
@@ -718,7 +751,7 @@ The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `asyn
 
 **Applies to:** artifact: record:result
 
-**Statement:** Each written result MUST be shown by at least one scenario of its use case.
+**Statement:** At large size or with the `bdd` extension, each written result MUST be shown by at least one scenario of its use case.
 
 **Rationale:** A written result no scenario shows is an ending nobody proved: it reads on the page and is asserted in no test, so it drifts from the code with the next change. One scenario per result pins each ending as a checked fact, including the refusals a caller can meet.
 
@@ -884,21 +917,21 @@ The setter is product, operator, or tenant. The bound behavior is `refuse`, `tru
 
 **Checked by:** `litespec model check` reports `setting-key-missing` (level G) for a setting with `setBy: operator` and no `key`.
 
-### Bind Every Keyed Setting in One Marked Options Class
+### Bind Every Keyed Setting in One Marked Element
 
-**ID:** `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class`
+**ID:** `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element`
 
 **Strength:** required
 
-**Applies to:** artifact: record:setting
+**Applies to:** artifact: record:setting; layer: implementation; trace: yes
 
-**Statement:** A setting with a `key` MUST be bound by an options class that carries an `implements` mark naming the setting and whose section and property spell the key.
+**Statement:** A setting with a `key` MUST be bound in code by one element that carries an `implements` mark naming the setting and whose name spells the key.
 
-**Rationale:** The options class is where configuration becomes a typed value the code reads. It is the code element that implements the setting, so marking it names the promise the class holds. Comparing its section name and property with the record's key finds the renamed section or the typo before the product starts with a default.
+**Rationale:** A setting reaches the running product through configuration, and the code reads it as a typed value. The code element holding that value is where the record and the configuration meet, so marking it with the setting it implements names the promise the element holds. Comparing the element name with the record key finds a renamed section or a typo before the product starts on a default nobody chose. Each stack states the shape of the element.
 
-**Example:** Claimwick's `SpendingOptions` class declares `SectionName = "Spending"`, an `ApprovalReminderDelay` property, and `/// <implements>setting/spending.approval-reminder-delay</implements>`.
+**Example:** Claimwick's approval-reminder-delay setting carries `key` `Spending:ApprovalReminderDelay`. One element carries an `implements` mark naming `setting/spending.approval-reminder-delay`, and its name spells the key.
 
-**Checked by:** `litespec model check` reports `setting-unimplemented` (level S) for a keyed setting no options class marks, and `setting-key-drift` (level S) for a marked options class whose `SectionName` constant and property do not spell the setting's `key`.
+**Checked by:** `litespec model check` reports `setting-unimplemented` (level S) for a keyed setting no marked element implements, and `setting-key-drift` (level S) for a marked element whose name does not spell the setting's `key`.
 
 ### State the Unit of Every Quantity Setting
 

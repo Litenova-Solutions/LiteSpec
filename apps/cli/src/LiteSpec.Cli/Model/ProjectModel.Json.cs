@@ -16,6 +16,9 @@ namespace LiteSpec.Cli.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed partial class ProjectModel
 {
+    /// <summary>Gets the computed proof status per scenario id, from each recorded run commit against HEAD.</summary>
+    public Dictionary<string, ProofStatus> ProofStatuses { get; } = new(StringComparer.Ordinal);
+
     /// <summary>Writes the model as JSON.</summary>
     /// <returns>The model serialized as indented JSON.</returns>
     public string ToJson()
@@ -97,6 +100,21 @@ sealed partial class ProjectModel
                     }
 
                     writer.WriteEndArray();
+                    writer.WriteStartArray("parkedBy");
+
+                    foreach (var parked in completion.ParkedBy)
+                    {
+                        writer.WriteStartObject();
+                        writer.WriteString("id", parked.Id);
+                        writer.WriteString("waiver", parked.Waiver);
+                        WriteNullable(writer, "expiresOn", parked.ExpiresOn);
+                        writer.WriteEndObject();
+                    }
+
+                    writer.WriteEndArray();
+                    writer.WriteNumber("inScope", completion.InScope);
+                    writer.WriteNumber("parked", completion.Parked);
+                    writer.WriteNumber("total", completion.Total);
                     writer.WriteStartObject("counts");
 
                     foreach (var count in completion.Counts.OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -108,6 +126,22 @@ sealed partial class ProjectModel
                     }
 
                     writer.WriteEndObject();
+                    writer.WriteEndObject();
+                }
+
+                if (record.Type == RecordTypes.Scenario && ProofStatuses.TryGetValue(record.Id, out var proof))
+                {
+                    writer.WriteStartObject("proof");
+                    writer.WriteString("commit", proof.Commit);
+                    writer.WriteString("lastPassedAt", proof.LastPassedAt);
+                    writer.WriteString("status", proof.Status);
+                    writer.WriteNumber("commitsBehind", proof.CommitsBehind);
+
+                    if (proof.StaleReason is not null)
+                    {
+                        writer.WriteString("staleReason", proof.StaleReason);
+                    }
+
                     writer.WriteEndObject();
                 }
 

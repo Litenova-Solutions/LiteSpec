@@ -14,7 +14,7 @@ internal sealed class SubmitExpenseCommandHandler(
         SubmitExpenseCommand command,
         CancellationToken cancellationToken)
     {
-        var policy = await policies.GetActiveAsync(cancellationToken);
+        var policy = await policies.GetForGuardAsync(cancellationToken);
         var expense = Expense.Submit(
             command.ExpenseId,
             command.EmployeeId,

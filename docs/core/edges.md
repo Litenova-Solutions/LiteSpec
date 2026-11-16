@@ -9,15 +9,15 @@ Edges and Screens states how the product meets the outside: its integration even
 
 ### Integration Events
 
-An integration event is a published fact that crosses the bounded context in CloudEvents form. Its `direction` says which way the fact travels: `out` for facts the product emits, and `in` for facts it accepts from outside.
+An integration event is a published fact that crosses the bounded context in CloudEvents form. Its `direction` says which way the fact travels: `out` for facts the product emits, and `in` for facts it accepts from outside. A fact for the other modules of the same product is a module event instead, which never crosses the bounded context, as the [Automation page](automation.md#module-events) states.
 
 Each event states how far readers trust it. With `trigger-only` trust, the event only wakes the reader, and the reader goes back to the source for the facts. With `payload` trust, the fields on the event are fit to act on directly. The event carries `summary` and `delivery`: what it announces and who acts on it, and how it reaches its readers.
 
 An outbound event names exactly one domain event in `translates`: the inside fact it carries outward. The use cases whose `raises` holds that domain event publish it, so each outbound event has exactly one publishing module.
 
-No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each integration event that translates them, built from the domain event alone.
+No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each module event and each integration event that translates them, built from the domain event alone.
 
-A read model in another module may copy its payload fields, as the [Automation page](automation.md#read-models) states. Claimwick emits `integration-event/expense-submitted` when spending submits an expense, for example, and the reporting module copies its payload into its own read model.
+A read model in another module copies module events or integration events, as the [Automation page](automation.md#read-models) states. Claimwick emits `integration-event/reimbursement-requested` when spending approves an expense, for example, and the payout bank settles the reimbursement from it.
 
 Every integration event names the external system it travels through in `through`. An outbound event publishes only fields its translated domain event carries. Consumers, Compatibility, and Example live in the explanation file beside the record file.
 
@@ -138,7 +138,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Example:** Claimwick's `integration-event/expense-submitted` translates `domain-event/expense.submitted`, so `use-case/spending.submit-expense`, which raises that event, publishes it, and its handler publishes nothing.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an outbound integration event without `translates`, `integration-event-field-uncarried` (level G) for a payload field its translated domain event does not carry, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
+**Checked by:** `litespec model check` reports `record-invalid` for an outbound integration event without `translates`, `event-field-uncarried` (level G) for a payload field its translated domain event does not carry, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
 
 ### Name Published Events in the Domain's Words
 

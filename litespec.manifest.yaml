@@ -207,13 +207,19 @@ packages:
     LiteBus.Extensions.Microsoft.DependencyInjection: 7.x
     LiteBus.Messaging: 7.x
     LiteBus.Messaging.Abstractions: 7.x
+    # The outbox provisions need LiteBus 7.2.0 or later within the 7.x pins below, including the dispatch, storage, extensions, and durable-messaging test pins.
     LiteBus.Outbox: 7.x
     LiteBus.Outbox.Abstractions: 7.x
+    LiteBus.Outbox.Dispatch.Amqp: 7.x
     LiteBus.Outbox.Dispatch.InProcess: 7.x
+    LiteBus.Outbox.Dispatch.Kafka: 7.x
+    LiteBus.Outbox.Extensions.OpenTelemetry: 7.x
+    LiteBus.Outbox.Storage.EntityFrameworkCore: 7.x
     LiteBus.Outbox.Storage.PostgreSql: 7.x
     LiteBus.Queries: 7.x
     LiteBus.Queries.Abstractions: 7.x
     LiteBus.Storage.PostgreSql: 7.x
+    LiteBus.Testing.DurableMessaging: 7.x
     LiteBus.Testing.Mediation: 7.x
     LiteSpec.Analyzers: 7.0.0
     Marten: 9.x

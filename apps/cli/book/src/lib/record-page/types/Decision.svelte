@@ -3,11 +3,13 @@
   import type { BookRecord } from "$lib/frame";
   import { RenderedProse, SourceLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
+  import RecordList from "../blocks/RecordList.svelte";
   import Note from "../blocks/Note.svelte";
   import { proseOf } from "../page-prose";
   import { objectList, stringField } from "../page-values";
 
-  // A decision: the choice, the options weighed, the code following it by module, and when it reopens.
+  // A decision: the choice, what it supersedes and what supersedes it, the options
+  // weighed, the code following it by module, and when it reopens.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f = $derived(r.fields ?? {});
@@ -15,6 +17,8 @@
   const opts = $derived(objectList(f, "options"));
   const consequences = $derived(proseOf(r, "consequences"));
   const reopenedWhen = $derived(stringField(f, "reopenedWhen"));
+  const supersedes = $derived(dedupe(book.outs(id, "supersedes")).sort());
+  const supersededBy = $derived(dedupe(book.ins(id, "supersedes")).sort());
   const followers = $derived(
     dedupe(book.ins(id, "follows").map((target) => (target.startsWith("code/") ? target.slice("code/".length) : target))).sort(),
   );
@@ -78,6 +82,16 @@
         </div>
       {/each}
     </div>
+  </PageSection>
+{/if}
+{#if supersedes.length}
+  <PageSection blockKey="sup" heading="supersedes" count={supersedes.length}>
+    <RecordList ids={supersedes} />
+  </PageSection>
+{/if}
+{#if supersededBy.length}
+  <PageSection blockKey="supby" heading="Superseded by" count={supersededBy.length}>
+    <RecordList ids={supersededBy} />
   </PageSection>
 {/if}
 {#if followers.length}

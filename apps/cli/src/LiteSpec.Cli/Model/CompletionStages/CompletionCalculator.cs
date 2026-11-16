@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.CompletionStages;
 ///     Computes the completion stage of every requirement, use case, flow,
 ///     feature and goal from proof only: the code found, the tests read, and
 ///     the scenarios with passing, current proof. A parent is only as far as
-///     its weakest child.
+///     its weakest in-scope child.
 /// </summary>
 /// <follows>litespec/core/model#compute-completion-in-the-builder</follows>
 static class CompletionCalculator
@@ -22,6 +22,7 @@ static class CompletionCalculator
     public static void Compute(ProjectModel model)
     {
         model.Completion.Clear();
+        model.ProofStatuses.Clear();
 
         var facts = new CompletionLookups(model);
         var coded = CodedUseCases(model);
@@ -64,12 +65,39 @@ static class CompletionCalculator
     /// <returns>0 for unfulfilled, 1 for specified, 2 for coded and 3 for verified.</returns>
     static int Rank(string stage) => Array.IndexOf(Stages, stage);
 
+    /// <summary>The children no live waiver parks.</summary>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
+    /// <param name="children">The child records.</param>
+    /// <returns>The in-scope children, in the order given.</returns>
+    static List<Record> InScope(CompletionLookups facts, IReadOnlyList<Record> children) =>
+        children.Where(child => !facts.ParkedBy.ContainsKey(child.Id)).ToList();
+
+    /// <summary>The parked children of the records, with the waiver parking each and its expiry.</summary>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
+    /// <param name="children">The child records in id order.</param>
+    /// <returns>The parked entries in id order.</returns>
+    static List<ParkedEntry> ParkedEntries(CompletionLookups facts, IReadOnlyList<Record> children)
+    {
+        var parked = new List<ParkedEntry>();
+
+        foreach (var child in children)
+        {
+            if (facts.ParkedBy.TryGetValue(child.Id, out var waiver))
+            {
+                parked.Add(new ParkedEntry(child.Id, waiver.Waiver, waiver.ExpiresOn));
+            }
+        }
+
+        return parked;
+    }
+
     /// <summary>
     ///     One requirement's completion. Its children are the Behavior records
     ///     fulfilling it and, for a quality requirement, a technical decision
-    ///     naming it. No child is unfulfilled, a child with no code is specified,
-    ///     every child with code and not every child verified is coded, and
-    ///     every child verified with its measure passing is verified.
+    ///     naming it. The stage is computed over in-scope children: no child is
+    ///     unfulfilled, a child with no code is specified, every child with code
+    ///     and not every child verified is coded, and every child verified with
+    ///     its measure passing is verified.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="requirement">The requirement whose completion is wanted.</param>
@@ -82,43 +110,45 @@ static class CompletionCalculator
     {
         var model = facts.Model;
         var fulfillers = facts.FulfillersOf(requirement);
-        var done = fulfillers.Count(child => FulfillerCoded(facts, child, coded, stale));
-        var verified = fulfillers.Count(child => FulfillerVerified(facts, child, stale));
+        var inScope = InScope(facts, fulfillers);
+        var parkedBy = ParkedEntries(facts, fulfillers);
+        var done = inScope.Count(child => FulfillerCoded(facts, child, coded, stale));
+        var verified = inScope.Count(child => FulfillerVerified(facts, child, stale));
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal)
         {
-            ["fulfillers coded"] = new CompletionCount(done, fulfillers.Count),
-            ["fulfillers verified"] = new CompletionCount(verified, fulfillers.Count),
+            ["fulfillers coded"] = new CompletionCount(done, inScope.Count),
+            ["fulfillers verified"] = new CompletionCount(verified, inScope.Count),
         };
 
-        if (fulfillers.Count == 0)
+        if (fulfillers.Count == 0 || inScope.Count == 0)
         {
-            return new Completion("unfulfilled", ProofOf(model), [requirement.Id], counts);
+            return new Completion("unfulfilled", ProofOf(model), [requirement.Id], counts, parkedBy, inScope.Count, parkedBy.Count, fulfillers.Count);
         }
 
-        if (verified == fulfillers.Count && MeasurePassed(model, requirement))
+        if (verified == inScope.Count && MeasurePassed(model, requirement))
         {
-            return new Completion("verified", ProofOf(model), [], counts);
+            return new Completion("verified", ProofOf(model), [], counts, parkedBy, inScope.Count, parkedBy.Count, fulfillers.Count);
         }
 
-        if (done == fulfillers.Count)
+        if (done == inScope.Count)
         {
             return new Completion(
                 "coded", ProofOf(model),
-                Cap(fulfillers.Where(child => !FulfillerVerified(facts, child, stale)).Select(child => child.Id), counts),
-                counts);
+                Cap(inScope.Where(child => !FulfillerVerified(facts, child, stale)).Select(child => child.Id), counts),
+                counts, parkedBy, inScope.Count, parkedBy.Count, fulfillers.Count);
         }
 
         return new Completion(
             "specified", ProofOf(model),
-            Cap(fulfillers.Where(child => !FulfillerCoded(facts, child, coded, stale)).Select(child => child.Id), counts),
-            counts);
+            Cap(inScope.Where(child => !FulfillerCoded(facts, child, coded, stale)).Select(child => child.Id), counts),
+            counts, parkedBy, inScope.Count, parkedBy.Count, fulfillers.Count);
     }
 
     /// <summary>
-    ///     One use case's completion. Its children are its scenarios. No scenario
-    ///     is unfulfilled, a scenario with no code behind the use case is
-    ///     specified, code with not every scenario verified is coded, and
-    ///     every scenario verified fresh is verified.
+    ///     One use case's completion. Its children are its in-scope scenarios. Code
+    ///     found without every in-scope scenario verified is coded, a scenario
+    ///     with no code behind the use case is specified, neither is unfulfilled,
+    ///     and every scenario verified fresh is verified.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="useCase">The use case whose completion is wanted.</param>
@@ -131,40 +161,43 @@ static class CompletionCalculator
     {
         var model = facts.Model;
         var scenarios = facts.ScenariosOf(useCase);
+        var inScope = InScope(facts, scenarios);
+        var parkedBy = ParkedEntries(facts, scenarios);
         var hasCode = coded.Contains(useCase.Id);
-        var verifiedScenarios = scenarios.Count(scenario => ScenarioVerified(facts, scenario, stale));
+        var verifiedScenarios = inScope.Count(scenario => ScenarioVerified(facts, scenario, stale));
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal)
         {
             ["code found"] = new CompletionCount(hasCode ? 1 : 0, 1),
-            ["scenarios verified"] = new CompletionCount(verifiedScenarios, scenarios.Count),
+            ["scenarios verified"] = new CompletionCount(verifiedScenarios, inScope.Count),
         };
 
-        if (UseCaseVerified(facts, useCase, stale))
+        if (inScope.Count > 0 && UseCaseVerified(facts, useCase, stale))
         {
-            return new Completion("verified", ProofOf(model), [], counts);
+            return new Completion("verified", ProofOf(model), [], counts, parkedBy, inScope.Count, parkedBy.Count, scenarios.Count);
         }
 
         if (hasCode)
         {
             return new Completion(
                 "coded", ProofOf(model),
-                Cap(scenarios.Where(scenario => !ScenarioVerified(facts, scenario, stale)).Select(scenario => scenario.Id), counts),
-                counts);
+                Cap(inScope.Where(scenario => !ScenarioVerified(facts, scenario, stale)).Select(scenario => scenario.Id), counts),
+                counts, parkedBy, inScope.Count, parkedBy.Count, scenarios.Count);
         }
 
         if (scenarios.Count > 0)
         {
-            return new Completion("specified", ProofOf(model), [useCase.Id], counts);
+            return new Completion("specified", ProofOf(model), [useCase.Id], counts, parkedBy, inScope.Count, parkedBy.Count, scenarios.Count);
         }
 
-        return new Completion("unfulfilled", ProofOf(model), [useCase.Id], counts);
+        return new Completion("unfulfilled", ProofOf(model), [useCase.Id], counts, parkedBy, inScope.Count, parkedBy.Count, scenarios.Count);
     }
 
     /// <summary>
     ///     One flow's completion. Its children are its steps. An unserved step
     ///     is unfulfilled, a served step with no code is specified, a step whose
     ///     serving code is found and that no passing proof exercises is
-    ///     coded, and an exercised step is verified.
+    ///     coded, and an exercised step is verified. Steps are not records, so no
+    ///     waiver parks them and every step is in scope.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="flow">The flow whose completion is wanted.</param>
@@ -213,7 +246,7 @@ static class CompletionCalculator
 
         if (steps.Count == 0)
         {
-            return new Completion("unfulfilled", ProofOf(model), [flow.Id], counts);
+            return new Completion("unfulfilled", ProofOf(model), [flow.Id], counts, [], 0, 0, 0);
         }
 
         var weakest = stepStages.Min(entry => Rank(entry.Stage));
@@ -221,13 +254,13 @@ static class CompletionCalculator
         return new Completion(
             Stages[weakest], ProofOf(model),
             Cap(stepStages.Where(entry => Rank(entry.Stage) == weakest).Select(entry => entry.Step), counts),
-            counts);
+            counts, [], steps.Count, 0, steps.Count);
     }
 
     /// <summary>
-    ///     One feature's completion from the requirements citing it and the
-    ///     flows citing those requirements. The feature is only as far as
-    ///     its weakest child.
+    ///     One feature's completion from the in-scope requirements citing it and
+    ///     the in-scope flows citing those requirements. The feature is only as
+    ///     far as its weakest in-scope child.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="feature">The feature whose completion is wanted.</param>
@@ -243,10 +276,15 @@ static class CompletionCalculator
             .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(feature.Id, StringComparer.Ordinal))
             .ToList();
         var flows = FlowsCiting(facts, citing);
-        var steps = flows.SelectMany(flow => flow.StepIds()).Distinct(StringComparer.Ordinal).ToList();
+        var inScopeRequirements = InScope(facts, citing);
+        var inScopeFlows = InScope(facts, flows);
+        var parkedBy = ParkedEntries(facts, citing).Concat(ParkedEntries(facts, flows))
+            .OrderBy(parked => parked.Id, StringComparer.Ordinal)
+            .ToList();
+        var steps = inScopeFlows.SelectMany(flow => flow.StepIds()).Distinct(StringComparer.Ordinal).ToList();
 
-        var fulfilled = citing.Count(requirement => facts.FulfillersOf(requirement).Count > 0);
-        var verified = citing.Count(requirement =>
+        var fulfilled = inScopeRequirements.Count(requirement => facts.FulfillersOf(requirement).Count > 0);
+        var verified = inScopeRequirements.Count(requirement =>
             model.Completion.TryGetValue(requirement.Id, out var child) && child.Stage == "verified");
         var servedSteps = steps.Count(step => Rank(StepStage(facts, step, coded, stale)) >= Rank("specified"));
         var doneSteps = steps.Count(step => Rank(StepStage(facts, step, coded, stale)) >= Rank("coded"));
@@ -254,8 +292,8 @@ static class CompletionCalculator
 
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal)
         {
-            ["requirements fulfilled"] = new CompletionCount(fulfilled, citing.Count),
-            ["requirements verified"] = new CompletionCount(verified, citing.Count),
+            ["requirements fulfilled"] = new CompletionCount(fulfilled, inScopeRequirements.Count),
+            ["requirements verified"] = new CompletionCount(verified, inScopeRequirements.Count),
             ["flow steps served"] = new CompletionCount(servedSteps, steps.Count),
             ["steps coded"] = new CompletionCount(doneSteps, steps.Count),
             ["steps exercised"] = new CompletionCount(exercisedSteps, steps.Count),
@@ -263,7 +301,7 @@ static class CompletionCalculator
 
         var childStages = new List<(string Id, string Stage)>();
 
-        foreach (var requirement in citing)
+        foreach (var requirement in inScopeRequirements)
         {
             if (model.Completion.TryGetValue(requirement.Id, out var child))
             {
@@ -271,7 +309,7 @@ static class CompletionCalculator
             }
         }
 
-        foreach (var flow in flows)
+        foreach (var flow in inScopeFlows)
         {
             if (model.Completion.TryGetValue(flow.Id, out var child))
             {
@@ -279,11 +317,14 @@ static class CompletionCalculator
             }
         }
 
+        var inScope = inScopeRequirements.Count + inScopeFlows.Count;
+        var total = citing.Count + flows.Count;
+
         if (childStages.Count == 0)
         {
             return new Completion(
                 "unfulfilled", ProofOf(model),
-                Cap([feature.Id], counts), counts);
+                Cap([feature.Id], counts), counts, parkedBy, inScope, parkedBy.Count, total);
         }
 
         var weakest = childStages.Min(entry => Rank(entry.Stage));
@@ -291,13 +332,13 @@ static class CompletionCalculator
             .Where(entry => Rank(entry.Stage) == weakest)
             .Select(entry => entry.Id);
 
-        return new Completion(Stages[weakest], ProofOf(model), Cap(held, counts), counts);
+        return new Completion(Stages[weakest], ProofOf(model), Cap(held, counts), counts, parkedBy, inScope, parkedBy.Count, total);
     }
 
     /// <summary>
-    ///     One goal's completion from the features advancing it, the flows
-    ///     serving it and the requirements citing it. The goal is only as far
-    ///     as its weakest child.
+    ///     One goal's completion from the in-scope features advancing it, the
+    ///     in-scope flows serving it and the in-scope requirements citing it.
+    ///     The goal is only as far as its weakest in-scope child.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="goal">The goal whose completion is wanted.</param>
@@ -314,6 +355,12 @@ static class CompletionCalculator
         var requirements = facts.OfType(RecordTypes.Requirement)
             .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
+        var inScopeFeatures = InScope(facts, features);
+        var inScopeFlows = InScope(facts, flows);
+        var inScopeRequirements = InScope(facts, requirements);
+        var parkedBy = ParkedEntries(facts, features).Concat(ParkedEntries(facts, flows)).Concat(ParkedEntries(facts, requirements))
+            .OrderBy(parked => parked.Id, StringComparer.Ordinal)
+            .ToList();
 
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal);
 
@@ -329,13 +376,13 @@ static class CompletionCalculator
             }
         }
 
-        AddCount("features verified", features);
-        AddCount("flows verified", flows);
-        AddCount("requirements verified", requirements);
+        AddCount("features verified", inScopeFeatures);
+        AddCount("flows verified", inScopeFlows);
+        AddCount("requirements verified", inScopeRequirements);
 
         var childStages = new List<(string Id, string Stage)>();
 
-        foreach (var child in features.Concat(flows).Concat(requirements))
+        foreach (var child in inScopeFeatures.Concat(inScopeFlows).Concat(inScopeRequirements))
         {
             if (model.Completion.TryGetValue(child.Id, out var completion))
             {
@@ -343,13 +390,16 @@ static class CompletionCalculator
             }
         }
 
+        var inScope = inScopeFeatures.Count + inScopeFlows.Count + inScopeRequirements.Count;
+        var total = features.Count + flows.Count + requirements.Count;
+
         if (childStages.Count == 0)
         {
             counts["children verified"] = new CompletionCount(0, 0);
 
             return new Completion(
                 "unfulfilled", ProofOf(model),
-                Cap([goal.Id], counts), counts, GoalOutcome(goal));
+                Cap([goal.Id], counts), counts, parkedBy, inScope, parkedBy.Count, total, GoalOutcome(goal));
         }
 
         var weakest = childStages.Min(entry => Rank(entry.Stage));
@@ -357,7 +407,7 @@ static class CompletionCalculator
             .Where(entry => Rank(entry.Stage) == weakest)
             .Select(entry => entry.Id);
 
-        return new Completion(Stages[weakest], ProofOf(model), Cap(held, counts), counts, GoalOutcome(goal));
+        return new Completion(Stages[weakest], ProofOf(model), Cap(held, counts), counts, parkedBy, inScope, parkedBy.Count, total, GoalOutcome(goal));
     }
 
     /// <summary>The outcome of a goal: "measured" once it holds observations, else "not measured". Delivery never shows as an outcome.</summary>
@@ -419,14 +469,14 @@ static class CompletionCalculator
         _ => facts.ProvenPassing.Contains(fulfiller.Id),
     };
 
-    /// <summary>Whether a use case is verified: it holds a scenario, and every scenario has a passing proof that is not stale.</summary>
+    /// <summary>Whether a use case is verified: it holds an in-scope scenario, and every in-scope scenario has a passing proof that is not stale.</summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="useCase">The use case to test.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
-    /// <returns>True when every scenario of the use case has a confirmed passing proof that is not stale.</returns>
+    /// <returns>True when every in-scope scenario of the use case has a confirmed passing proof that is not stale.</returns>
     static bool UseCaseVerified(CompletionLookups facts, Record useCase, IReadOnlySet<string> stale)
     {
-        var scenarios = facts.ScenariosOf(useCase);
+        var scenarios = InScope(facts, facts.ScenariosOf(useCase));
 
         if (scenarios.Count == 0)
         {
@@ -522,9 +572,9 @@ static class CompletionCalculator
 
     /// <summary>
     ///     The scenarios with stale proof: a scenario whose confirmed proof passes in the read run is
-    ///     stale when its semantic hash or its tests' hash differs from the hashes the ledger
-    ///     recorded for that run. A run passing the proof for the first time records the
-    ///     current hashes instead. Empty when no test run was read.
+    ///     stale unless its run commit is HEAD or only record paths changed since it. A run passing
+    ///     the proof for the first time records its commit instead. Empty when no test run was read.
+    ///     The computed proof status of every recorded scenario is kept for the model JSON.
     /// </summary>
     /// <param name="model">The built project model.</param>
     /// <returns>The ids of the scenarios whose passing proof went stale.</returns>
@@ -539,25 +589,33 @@ static class CompletionCalculator
 
         var run = ProofLedger.RunOf(model.Config, model.TestRun);
         var commit = ProofLedger.CommitOf(model.Config);
+        var freshness = new ProofFreshness(model.Config);
         var passing = model.Proves
             .Where(link => link.Confirmed && link.Passing == true)
             .Select(link => link.Claim)
             .ToHashSet(StringComparer.Ordinal);
+        var recorded = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var scenario in model.Records.Where(scenario =>
             scenario.Type == RecordTypes.Scenario && passing.Contains(scenario.Id)))
         {
-            if (model.Ledger.Stale(
-                scenario.Id,
-                Checker.SemanticHash(scenario),
-                ProofLedger.TestHashOf(model, scenario.Id),
-                ProofLedger.MethodHashOf(model, scenario.Id),
-                ProofLedger.MarksHashOf(model, scenario),
-                run,
-                commit))
+            var isNew = !model.Ledger.Entries.TryGetValue(scenario.Id, out var before) || before.Run != run;
+
+            if (model.Ledger.Stale(scenario.Id, run, commit, freshness))
             {
                 stale.Add(scenario.Id);
             }
+            else if (isNew)
+            {
+                recorded.Add(scenario.Id);
+            }
+        }
+
+        foreach (var (id, entry) in model.Ledger.Entries)
+        {
+            model.ProofStatuses[id] = recorded.Contains(id)
+                ? new ProofStatus(entry.Commit, ProofFreshness.ShortOf(entry.Commit), "fresh", 0, null)
+                : freshness.StatusOf(entry.Commit);
         }
 
         return stale;

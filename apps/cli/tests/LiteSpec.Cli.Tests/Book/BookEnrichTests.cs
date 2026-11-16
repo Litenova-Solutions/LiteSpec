@@ -608,13 +608,13 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details[readModel], "in"), "use-case/lending.return-copy", "use-case.reads"));
     }
 
-    /// <summary>A record detail carries the captures and evidence strength the model states beside the record, and computes completion from proof.</summary>
+    /// <summary>A record detail carries the captures, evidence strength and model completion the model states beside the record, and computes code completion from proof.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DetailsCarryCapturesAndEvidenceStrengthWithComputedCompletion()
     {
         var screen = Record("screen", "screen/home", "Home", fieldsJson: """{"address":"/home"}""");
-        screen["completion"] = JsonNode.Parse("""{"stage":"coded","proof":"unknown","heldBy":[],"counts":{}}""");
+        screen["completion"] = JsonNode.Parse("""{"stage":"coded","proof":"unknown","heldBy":[],"parkedBy":[],"inScope":1,"parked":0,"total":1,"counts":{}}""");
         screen["approval"] = JsonNode.Parse("""{"by":"Ada","rule":"product owner"}""");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";
@@ -627,7 +627,17 @@ public sealed class BookEnrichTests
         Assert.Null(screenDetail["approval"]);
         var completion = Obj(screenDetail, "completion");
         Assert.False(BoolOf(completion["hasCode"]));
-        Assert.Null(completion["stage"]);
+        Assert.Equal("coded", Str(completion, "stage"));
+        Assert.Equal("unknown", Str(completion, "proof"));
+        Assert.NotNull(completion["heldBy"]);
+        Assert.Empty(Arr(completion, "heldBy"));
+        Assert.NotNull(completion["parkedBy"]);
+        Assert.Empty(Arr(completion, "parkedBy"));
+        Assert.Equal(1, completion["inScope"]?.GetValue<int>());
+        Assert.Equal(0, completion["parked"]?.GetValue<int>());
+        Assert.Equal(1, completion["total"]?.GetValue<int>());
+        Assert.NotNull(completion["counts"]);
+        Assert.Empty(Obj(completion, "counts"));
         Assert.Single(Arr(screenDetail, "captures"));
         Assert.Equal("captured", Str(screenDetail, "captureState"));
         Assert.Equal("observed", Str(details["problem/slow-desk"], "evidenceStrength"));

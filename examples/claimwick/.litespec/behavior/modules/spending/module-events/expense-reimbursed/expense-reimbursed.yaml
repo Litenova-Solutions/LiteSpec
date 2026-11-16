@@ -1,11 +1,7 @@
-type: integration-event
-id: integration-event/expense-reimbursed
+type: module-event
+id: module-event/spending.expense-reimbursed
 title: Expense Reimbursed
 summary: The expense-reimbursed event announces a reimbursed expense and the employee it was paid to.
-direction: out
-eventType: com.claimwick.expense.reimbursed
-source: /spending/expenses
-subject: aggregate/spending.expense
 payload:
 - name: expenseId
   meaning: The reimbursed expense.
@@ -34,11 +30,6 @@ payload:
   type: date-time
   required: true
   classification: internal
-through: external-system/event-bus
-delivery: The broker delivers each event at least once, in reimbursement order.
-requires: permission/post-reimbursement
-trust: payload
 translates: domain-event/expense.reimbursed
-dataschema: https://schemas.claimwick.dev/expense-reimbursed/v1
 terms:
 - term/expense

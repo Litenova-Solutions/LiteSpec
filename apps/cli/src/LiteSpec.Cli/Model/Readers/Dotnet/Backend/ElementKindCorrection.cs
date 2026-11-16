@@ -10,27 +10,39 @@ namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 
 /// <summary>
 ///     Corrects the kinds the shared kind reader assigned from simple names, using
-///     the namespace-qualified names of one read.
+///     the namespace-qualified names of one read, and names a module-event contract
+///     technical by its mark.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 static class ElementKindCorrection
 {
+    /// <summary>The record id prefix a module event mark names.</summary>
+    private const string ModuleEventPrefix = "module-event/";
+
+    /// <summary>The short project names of the outer layers that hold technical classes.</summary>
+    static readonly string[] OuterLayerProjects = ["Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"];
+
     /// <summary>
     ///     Corrects the kinds the shared kind reader assigned from simple names, using the
     ///     namespace-qualified names of this read: a kind that only a same-named type in
-    ///     another namespace would give this type is dropped, and an aggregate method of
-    ///     a type that is no aggregate root loses its kind.
+    ///     another namespace would give this type is dropped, an aggregate method of
+    ///     a type that is no aggregate root loses its kind, and a module-event contract
+    ///     with no kind reads technical.
     /// </summary>
     /// <param name="elements">The elements the shared kind reader read.</param>
     /// <param name="types">The type declarations by identifier span.</param>
     /// <param name="methods">The method declarations by identifier span.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="containingProject">The short project name holding the file, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the file, or null when unknown.</param>
     /// <returns>The elements with their kinds corrected.</returns>
     public static IReadOnlyList<MarkableElement> CorrectElements(
         IReadOnlyList<MarkableElement> elements,
         IReadOnlyDictionary<TextSpan, TypeDeclarationSyntax> types,
         IReadOnlyDictionary<TextSpan, MethodDeclarationSyntax> methods,
-        QualifiedKinds qualified)
+        QualifiedKinds qualified,
+        string? containingProject = null,
+        string? containingLayer = null)
     {
         var corrected = new List<MarkableElement>(elements.Count);
 
@@ -40,13 +52,13 @@ static class ElementKindCorrection
 
             if (element.IsType && types.TryGetValue(element.Span, out var declared))
             {
-                kind = CorrectKind(declared, element.Kind, qualified);
+                kind = CorrectKind(declared, element.Kind, qualified, containingProject, containingLayer);
             }
             else if (!element.IsType
                 && element.Kind == CodeKind.AggregateMethod
                 && methods.TryGetValue(element.Span, out var method)
                 && method.Parent is TypeDeclarationSyntax parent
-                && CorrectKind(parent, CodeKind.AggregateRoot, qualified) != CodeKind.AggregateRoot)
+                && CorrectKind(parent, CodeKind.AggregateRoot, qualified, containingProject, containingLayer) != CodeKind.AggregateRoot)
             {
                 kind = null;
             }
@@ -54,7 +66,7 @@ static class ElementKindCorrection
                 && element.Kind is null
                 && methods.TryGetValue(element.Span, out var markedMethod)
                 && markedMethod.Parent is TypeDeclarationSyntax markedParent
-                && CorrectKind(markedParent, CodeKind.AggregateRoot, qualified) == CodeKind.AggregateRoot
+                && CorrectKind(markedParent, CodeKind.AggregateRoot, qualified, containingProject, containingLayer) == CodeKind.AggregateRoot
                 && markedMethod.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PublicKeyword)))
             {
                 kind = CodeKind.AggregateMethod;
@@ -71,13 +83,16 @@ static class ElementKindCorrection
     /// <summary>
     ///     The kind of one type from its namespace-qualified bases, following the shared
     ///     kind reader's order for the kinds a cross-file name can carry. Kinds that no
-    ///     cross-file name carries keep the kind the shared reader assigned.
+    ///     cross-file name carries keep the kind the shared reader assigned, except a
+    ///     module-event contract with no kind, which reads technical by its mark.
     /// </summary>
     /// <param name="declared">The type declaration.</param>
     /// <param name="kind">The kind the shared reader assigned.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>The kind of the type from its namespace-qualified bases.</returns>
-    public static CodeKind? CorrectKind(TypeDeclarationSyntax declared, CodeKind? kind, QualifiedKinds qualified)
+    public static CodeKind? CorrectKind(TypeDeclarationSyntax declared, CodeKind? kind, QualifiedKinds qualified, string? containingProject = null, string? containingLayer = null)
     {
         var qualifiedName = DotnetNames.QualifiedNameOf(declared);
         var resolved = qualified.ResolvedBases(declared);
@@ -179,12 +194,55 @@ static class ElementKindCorrection
             && !qualified.TechnicalClasses.Contains(qualifiedName)
             && !declared.Members.OfType<MethodDeclarationSyntax>().Any()
             && !MarkReader.Read(declared).Any(mark =>
-                mark.RecordId.StartsWith("setting/", StringComparison.Ordinal)))
+                mark.RecordId.StartsWith("setting/", StringComparison.Ordinal)
+                || mark.RecordId.StartsWith(ModuleEventPrefix, StringComparison.Ordinal)))
         {
             return null;
         }
 
+        // A module-event contract is technical by its mark, as an integration-event
+        // contract is in the shared reader: a record, an interface or a class with
+        // no method carries it, as the mark names the type's role.
+        if (kind is null
+            && declared.Parent is not TypeDeclarationSyntax
+            && IsOuterLayer(containingProject, containingLayer)
+            && MarkReader.Read(declared).Any(mark => mark.RecordId.StartsWith(ModuleEventPrefix, StringComparison.Ordinal)))
+        {
+            return CodeKind.Technical;
+        }
+
         return kind;
+    }
+
+    /// <summary>Whether the containing project or layer is an outer layer that holds technical classes.</summary>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
+    /// <returns>True when the project or the layer is an outer layer; a null project matches.</returns>
+    private static bool IsOuterLayer(string? containingProject, string? containingLayer)
+    {
+        if (containingProject is null)
+        {
+            return true;
+        }
+
+        foreach (var shortName in OuterLayerProjects)
+        {
+            if (containingProject.Equals(shortName, StringComparison.Ordinal)
+                || containingProject.EndsWith("." + shortName, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (containingLayer is not null
+                && (shortName is "Application" or "Application.Abstractions"
+                    ? containingLayer is "Application" or "ApplicationAbstractions"
+                    : containingLayer == shortName))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>

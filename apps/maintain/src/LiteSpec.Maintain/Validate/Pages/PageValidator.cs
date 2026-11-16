@@ -785,6 +785,7 @@ internal sealed partial class PageValidator
         Context.Provisions.CheckInlineVerification(relative, reader, provisions);
         CheckScopeBlock(relative, reader, provisions);
         Context.Provisions.CheckProvisionScopes(relative, reader, provisions);
+        Context.CheckScopes.CheckProvisionCheckScopes(relative, reader, provisions);
 
         if (kind == "pattern")
         {

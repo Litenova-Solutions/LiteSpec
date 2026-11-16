@@ -90,10 +90,10 @@ public sealed class RecordTypesTests
         Assert.Contains("read-model", RecordTypes.WithHome);
         Assert.Equal("behavior", RecordTypes.LayerByType["read-model"]);
         Assert.True(RecordTypes.LinkTargets["keyedBy"].SetEquals(["aggregate"]));
-        Assert.True(RecordTypes.LinkTargets["from"].SetEquals(["integration-event"]));
-        Assert.True(RecordTypes.LinkTargets["erasedBy"].SetEquals(["integration-event"]));
-        Assert.True(RecordTypes.LinkTargets["removedBy"].SetEquals(["integration-event"]));
-        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "setting", "read-model"]));
+        Assert.True(RecordTypes.LinkTargets["from"].SetEquals(["module-event", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["erasedBy"].SetEquals(["module-event", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["removedBy"].SetEquals(["module-event", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "store", "setting", "read-model"]));
     }
 
     /// <summary>A read model is a technical type that code implements, and its record home is its module's read-models folder.</summary>
@@ -112,7 +112,7 @@ public sealed class RecordTypesTests
     public void TriggeredByLinksEvents()
     {
         Assert.True(RecordTypes.LinkTargets["triggeredBy"].SetEquals(
-            ["domain-event", "integration-event"]));
+            ["domain-event", "module-event", "integration-event"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("on"));
     }
 
@@ -123,7 +123,7 @@ public sealed class RecordTypesTests
     {
         Assert.Empty(RecordTypes.LinkTargets["freshness"]);
         Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
-            ["external-system", "integration-event"]));
+            ["external-system", "module-event", "integration-event"]));
         Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["job", "use-case"]));
         Assert.True(RecordTypes.LinkTargets["dataClasses"].SetEquals(
             ["job", "use-case", "decision", "requirement"]));

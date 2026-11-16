@@ -1,4 +1,4 @@
-using Claimwick.Spending.Contracts.IntegrationEvents;
+using Claimwick.Spending.Contracts.ModuleEvents;
 using Marten;
 
 namespace Claimwick.Reporting.ReadModels.ReimbursedExpenses;
@@ -9,14 +9,14 @@ namespace Claimwick.Reporting.ReadModels.ReimbursedExpenses;
 internal sealed class ReimbursedExpenseOnExpenseReimbursedProjection(
     IDocumentSession session) : IEventHandler<ExpenseReimbursed>
 {
-    public async Task HandleAsync(ExpenseReimbursed integrationEvent, CancellationToken cancellationToken)
+    public async Task HandleAsync(ExpenseReimbursed moduleEvent, CancellationToken cancellationToken)
     {
         session.Store(new ReimbursedExpense(
-            integrationEvent.ExpenseId,
-            integrationEvent.EmployeeId,
-            integrationEvent.Amount,
-            integrationEvent.Currency,
-            integrationEvent.ReimbursedAt));
+            moduleEvent.ExpenseId,
+            moduleEvent.EmployeeId,
+            moduleEvent.Amount,
+            moduleEvent.Currency,
+            moduleEvent.ReimbursedAt));
         await session.SaveChangesAsync(cancellationToken);
     }
 }

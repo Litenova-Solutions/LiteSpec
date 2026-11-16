@@ -38,9 +38,9 @@ records:
   kind: precondition
   statement: A manager the suppression list names gets no approval reminder.
   governs:
-  - aggregate/spending.suppression-list
+  - store/spending.suppression-list
   binds:
-  - aggregate/spending.suppression-list
+  - store/spending.suppression-list
   basedOn: []
   fulfills:
   - requirement/approval-reminders.remind-approver-after-three-days

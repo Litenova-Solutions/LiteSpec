@@ -124,7 +124,7 @@ The product record carries the brand in `brand`, because the brand is a product 
 - `isNot`: what the product is not, exactly three single words.
 - `do` and `doNot`: the rules every screen keeps, plain sentences a reviewer checks on any screen.
 
-The words a screen avoids come from the glossary: each term's aliases are the words not to use, and its labels give the word per language.
+The words a screen avoids come from the glossary: each term's `rejected` words are the words not to use, and its `aliases` help readers find it. Its `labels` give the word per language.
 
 ### Requirements with Except and Fallback
 
@@ -244,7 +244,7 @@ Plan entitlements the software enforces stay, as settings and permissions; the p
 
 **Strength:** required
 
-**Applies to:** artifact: any
+**Applies to:** artifact: any; layer: behavior
 
 **Statement:** Each Intent record other than a vision MUST reach Behavior through its stated path.
 
@@ -976,9 +976,9 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** A requirement MUST be fulfilled only from Behavior records.
+**Statement:** A functional or policy requirement MUST be fulfilled only from Behavior records.
 
-**Rationale:** Only Behavior keeps promises. The records that fulfill are rule, use case, reaction, job, notification, and setting. A flow names the requirements it shows in its steps' `cites`, but it never fulfills: a flow alone never clears an unfulfilled requirement. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.
+**Rationale:** Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, and a served-content entry point. A flow names the requirements it shows in its steps' `cites`, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in `basedOn`, by its `check`, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.
 
 **Checked by:** `litespec model check` reports `requirement-fulfillment-missing` for a requirement no Behavior record fulfills.
 
@@ -994,7 +994,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Rationale:** A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in `cites` the requirements it carries, and the use cases, reactions, and jobs serving each step point up with `serves`. `branches` holds the paths leaving the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).
 
-**Example:** The largest consumer held a 21-step flow with five actors, from creating the organizer to closing the books. Split by reason, it is four flows: set up and sell an event; buy a ticket; admit the crowd; close the night.
+**Example:** Claimwick held a 21-step flow with five actors, from filing an expense to closing the month. Split by reason, it is four flows: file an expense; approve an expense; reimburse the employee; close the month.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a flow record file missing its `actor`, `summary`, `startedWhen`, `finishedWhen`, or `steps`, for a flow with neither `serves` nor `answers`, and for a flow with both.
 

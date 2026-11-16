@@ -879,6 +879,19 @@
       ]
     },
     {
+      "file": "docs/backend/dotnet/testing.md",
+      "path": "backend/dotnet/testing",
+      "style": "standard",
+      "area": "backend",
+      "title": ".NET Testing",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/backend/dotnet/workspace.md",
       "path": "backend/dotnet/workspace",
       "style": "standard",
@@ -1268,6 +1281,7 @@
       "intent": "",
       "sections": [
         "The Aggregates",
+        "The Store",
         "The Rules",
         "The Use Cases",
         "The Entry Point and the Screen",
@@ -3648,6 +3662,22 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0092-store-and-module-event-records/0092-store-and-module-event-records.md",
+      "path": "intent/decisions/0092-store-and-module-event-records/0092-store-and-module-event-records",
+      "style": "decision",
+      "area": "intent",
+      "title": "Store and Module Event Records with Proof Freshness from the Run Commit",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -4736,6 +4766,7 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
+        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md"
       ]
     },
@@ -5023,6 +5054,7 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
+        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
@@ -5084,6 +5116,7 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
+        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
@@ -5173,6 +5206,7 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
+        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
@@ -5262,6 +5296,7 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
+        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
@@ -5343,6 +5378,7 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
+        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",

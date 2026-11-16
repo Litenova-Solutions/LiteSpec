@@ -71,6 +71,12 @@ public static class RecordTypes
     /// <summary>Gets the `integration-event` record type name.</summary>
     public const string IntegrationEvent = "integration-event";
 
+    /// <summary>Gets the `module-event` record type name.</summary>
+    public const string ModuleEvent = "module-event";
+
+    /// <summary>Gets the `store` record type name.</summary>
+    public const string Store = "store";
+
     /// <summary>Gets the `job` record type name.</summary>
     public const string Job = "job";
 
@@ -148,7 +154,7 @@ public static class RecordTypes
     {
         "product", "goal", "vision", "constraint", "research", "decision", "requirement", "problem",
         "feature", "actor", "role", "permission", "flow", "module",
-        "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "integration-event",
+        "aggregate", "store", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
         "reaction", "job", "notification", "setting", "read-model",
         "entry-point", "screen", "external-system", "runbook", "waiver", "term",
     };
@@ -166,9 +172,9 @@ public static class RecordTypes
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
             ["actor"] = "intent", ["flow"] = "intent", ["term"] = "intent",
-            ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
+            ["module"] = "behavior", ["aggregate"] = "behavior", ["store"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
-            ["domain-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
+            ["domain-event"] = "behavior", ["module-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
             ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
@@ -192,8 +198,8 @@ public static class RecordTypes
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
-        "requirement", "aggregate", "rule", "use-case", "result",
-        "scenario", "domain-event", "reaction", "job", "notification", "setting", "screen", "read-model",
+        "requirement", "aggregate", "store", "rule", "use-case", "result",
+        "scenario", "domain-event", "module-event", "reaction", "job", "notification", "setting", "screen", "read-model",
     };
 
     /// <summary>Types the small size requires.</summary>
@@ -231,21 +237,25 @@ public static class RecordTypes
             ["answers"] = new HashSet<string> { "problem", "constraint" },
             ["solves"] = new HashSet<string> { "problem" },
             ["fulfills"] = new HashSet<string> { "requirement" },
-            ["governs"] = new HashSet<string> { "aggregate", "use-case" },
+            ["governs"] = new HashSet<string> { "aggregate", "store", "use-case" },
             ["raises"] = new HashSet<string> { "domain-event" },
             ["runs"] = new HashSet<string> { "use-case" },
             ["sends"] = new HashSet<string> { "notification" },
             ["calls"] = new HashSet<string> { "external-system" },
-            ["triggeredBy"] = new HashSet<string> { "domain-event", "integration-event" },
+            ["triggeredBy"] = new HashSet<string> { "domain-event", "module-event", "integration-event" },
             ["compensates"] = new HashSet<string> { "use-case" },
             ["decidedBy"] = new HashSet<string> { "use-case", "aggregate" },
             ["closedBy"] = new HashSet<string>(),
-            ["writes"] = new HashSet<string> { "aggregate" },
+            ["writes"] = new HashSet<string> { "aggregate", "store" },
             ["keyedBy"] = new HashSet<string> { "aggregate" },
-            ["from"] = new HashSet<string> { "integration-event" },
-            ["erasedBy"] = new HashSet<string> { "integration-event" },
-            ["removedBy"] = new HashSet<string> { "integration-event" },
-            ["reads"] = new HashSet<string> { "aggregate", "setting", "read-model" },
+            ["from"] = new HashSet<string> { "module-event", "integration-event" },
+            ["erasedBy"] = new HashSet<string> { "module-event", "integration-event" },
+            ["removedBy"] = new HashSet<string> { "module-event", "integration-event" },
+            ["reads"] = new HashSet<string> { "aggregate", "store", "setting", "read-model" },
+            ["guards"] = new HashSet<string> { "aggregate" },
+            ["competesWith"] = new HashSet<string> { "use-case" },
+            ["supersedes"] = new HashSet<string> { "decision" },
+            ["owner"] = new HashSet<string> { "module", "external-system" },
             ["translates"] = new HashSet<string> { "domain-event" },
             ["through"] = new HashSet<string> { "external-system" },
             ["arrivesThrough"] = new HashSet<string> { "entry-point", "external-system" },
@@ -261,7 +271,7 @@ public static class RecordTypes
             ["except"] = new HashSet<string> { "requirement" },
             ["dataClasses"] = new HashSet<string> { "job", "use-case", "decision", "requirement" },
             ["freshness"] = new HashSet<string>(),
-            ["erasure"] = new HashSet<string> { "external-system", "integration-event" },
+            ["erasure"] = new HashSet<string> { "external-system", "module-event", "integration-event" },
             ["allows"] = new HashSet<string> { "permission" },
             ["reachedThrough"] = new HashSet<string> { "entry-point" },
             ["dependsOn"] = new HashSet<string> { "module" },

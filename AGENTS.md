@@ -8,7 +8,7 @@ LiteSpec 7.0.0 is the contract for one bounded-context business application. A p
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
-`litespec.manifest.yaml` lists the stacks, shapes, extensions and pinned versions. Every hand-written LiteSpec file is YAML, and so is every record file a consumer writes. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
+`litespec.manifest.yaml` lists the stacks, shapes, extensions and pinned versions. Structured LiteSpec data is YAML, and so is every record file a consumer writes; explanation files are Markdown. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
 
 Sources: `litespec/core/scope#keep-one-bounded-context`, `litespec/core/scope#select-a-size-a-shape-and-stacks`, `litespec/core/stacks#apply-the-complete-stack`, `litespec/core/scope#select-conditional-extensions-explicitly`, `litespec/core/scope#claim-the-record-layers-the-project-uses`, `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml`, `litespec/core/authoring#use-the-declared-identifier-grammar`.
 
@@ -130,7 +130,7 @@ Read the full provision before you apply any of these:
 - Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`)
 - Organize code by module, aggregate and use case, with `Application/` and `WebApi/` inside each use case, and place each reaction and job with the use case it runs. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#place-each-trigger-with-what-it-runs`)
 - Write commands through repositories, send no message from a handler, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
-- Publish integration events only from the domain events they translate, never from user code. (`litespec/backend/application#emit-declared-integration-events-after-commit`)
+- Publish integration events only from the domain events they translate, never from user code. (`litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`)
 - Read another module's state through the module's own read model, or ask one question through a decision port. (`litespec/backend/application#read-another-modules-state-through-a-read-model`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`)
 - Derive the actor from verified claims, and authorize each target from declared permissions. (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`)
 - Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#record-one-shared-ui-package`, `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`)

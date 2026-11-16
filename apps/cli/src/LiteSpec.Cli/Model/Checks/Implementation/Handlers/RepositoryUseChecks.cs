@@ -152,8 +152,9 @@ internal static class RepositoryUseChecks
     ///     interface no Infrastructure class implements. The check reads the
     ///     Infrastructure layer through the backend reader, so a consumer with
     ///     no Infrastructure folder carries no persistence layer for it to
-    ///     judge, and an aggregate with no domain repository interface (a store,
-    ///     or one whose Domain declares none) names nothing to implement.
+    ///     judge, and only writes entries naming an aggregate are read: a store
+    ///     and an aggregate whose Domain declares no repository name nothing
+    ///     to implement.
     /// </summary>
     /// <param name="model">The loaded project model that holds every use case and the scanned repository implementations.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -173,11 +174,6 @@ internal static class RepositoryUseChecks
             foreach (var aggregateId in useCase.Ids(RecordFields.Writes))
             {
                 if (!model.ById.TryGetValue(aggregateId, out var aggregate) || aggregate.Type != RecordTypes.Aggregate)
-                {
-                    continue;
-                }
-
-                if (aggregate.Field(RecordFields.Kind) == "store")
                 {
                     continue;
                 }

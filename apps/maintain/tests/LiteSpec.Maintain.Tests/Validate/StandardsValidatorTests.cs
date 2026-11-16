@@ -350,6 +350,7 @@ public sealed partial class StandardsValidatorTests
         {
             MaintainerDiagnostics.Codes.AnchorBroken,
             MaintainerDiagnostics.Codes.CheckedByUnknown,
+            MaintainerDiagnostics.Codes.ProvisionCheckScope,
             MaintainerDiagnostics.Codes.ConventionDefaultSentence,
             MaintainerDiagnostics.Codes.ConventionMissingDefault,
             MaintainerDiagnostics.Codes.ConventionMissingReplacement,

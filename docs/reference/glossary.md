@@ -168,7 +168,7 @@ Source: CQRS.
 
 ### Read Model
 
-One record holding a module's own copy of another module's state. It is filled from published integration events and shaped for a query.
+One record holding a module's own copy of another module's state. It is filled from published module or integration events and shaped for a query.
 
 Home: docs/core/automation.md
 
@@ -232,7 +232,7 @@ Source: RBAC.
 
 ### Aggregate
 
-One unit of business state that stays consistent and changes in one step. Its kind is `entity` or `store`.
+One unit of business state that stays consistent and changes in one step, with states and invariants.
 
 Layer: Behavior.
 
@@ -640,7 +640,7 @@ Source: LiteSpec.
 
 ### Integration Event
 
-One published fact crossing the bounded context. It carries its direction, payload, and trust, and names the external system it travels through.
+One published fact crossing the bounded context. It carries its direction, payload, and trust, and names the external system it travels through. A fact for another module of the same product is a module event instead.
 
 Layer: Behavior.
 
@@ -715,6 +715,16 @@ Layer: Behavior.
 Home: docs/core/behavior.md
 
 Source: DDD.
+
+### Module Event
+
+One fact one module publishes for the other modules of the same product, delivered in process through the transactional outbox. It translates one domain event of its own module and carries a payload.
+
+Layer: Behavior.
+
+Home: docs/core/automation.md
+
+Source: LiteSpec.
 
 ### Money
 
@@ -918,7 +928,7 @@ Source: CQRS.
 
 ### Reaction
 
-One record stating work that runs when a domain or integration event arrives. It declares the outcomes each run ends in.
+One record stating work that runs when a domain, module, or integration event arrives. It declares the outcomes each run ends in.
 
 Layer: Behavior.
 
@@ -936,7 +946,7 @@ Source: LiteSpec.
 
 ### Refusal
 
-One named way a use case ends without its effect. Refusals read in precedence order, with the first match winning.
+One named way a use case ends without its effect. Refusals read in precedence order, with the first match winning. A refusal is a declared business outcome where the use case did not perform its act because a rule, access or input said no; a technical failure (a timeout, a provider error, a crash) is not a result and is handled by retry, the outbox and operations, not declared on the use case.
 
 Layer: Behavior.
 
@@ -1112,7 +1122,7 @@ Source: LiteSpec.
 
 ### Store
 
-One aggregate kind. It holds state no invariant guards.
+One record holding state that no aggregate invariant guards, such as a suppression list or a delivery log. It names its owning module or external system and carries no states.
 
 Layer: Behavior.
 
@@ -1178,7 +1188,7 @@ Source: LiteSpec.
 
 ### Trigger
 
-The domain or integration event starting a reaction, or the schedule starting a job.
+The domain, module, or integration event starting a reaction, or the schedule starting a job.
 
 Layer: Behavior.
 
@@ -1668,14 +1678,6 @@ Home: docs/core/scope.md
 
 Source: LiteSpec.
 
-### Proof Hash
-
-The hash of a scenario, or of its test body, recorded in `.litespec/proof/proofs.json` at the last passing run.
-
-Home: docs/core/model.md
-
-Source: LiteSpec.
-
 ### Provision
 
 One rule, convention, or pattern on a standards page. It carries an identifier, a strength, and a verification line.
@@ -1824,7 +1826,7 @@ Source: LiteSpec.
 
 ### Stale
 
-The computed state of a proof whose scenario, test body, or marked file changed after the recorded run.
+The computed state of a proof whose run commit is behind HEAD with a code change since: a path changed between the run commit and the working tree that is neither under the LiteSpec folder nor a Markdown file. It reads `last passed at <short commit>, <N> commits ago`.
 
 Home: docs/core/model.md
 

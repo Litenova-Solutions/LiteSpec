@@ -32,13 +32,13 @@ public static class MarkRules
     private static readonly string[] TestTypes =
     [
         "scenario", "rule", "requirement", "decision",
-        "external-system", "integration-event", "litespec",
+        "external-system", "module-event", "integration-event", "litespec",
     ];
     /// <summary>The record types a technical class implements mark names.</summary>
     private static readonly string[] TechnicalImplementsTypes =
     [
-        "aggregate", "use-case", "reaction", "job", "external-system",
-        "domain-event", "rule", "notification", "setting", "integration-event", "read-model",
+        "aggregate", "store", "use-case", "reaction", "job", "external-system",
+        "domain-event", "rule", "notification", "setting", "module-event", "integration-event", "read-model",
     ];
     /// <summary>The record types a follows mark names.</summary>
     private static readonly string[] FollowsTypes = ["litespec", "decision", "waiver"];

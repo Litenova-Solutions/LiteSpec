@@ -17,7 +17,7 @@ product        Claimwick: submit, approve, reimburse
   decision     Receipt threshold of 25 EUR
   constraint   Tax receipt retention
   flow         Submit and reimburse, in steps s1 to s5
-Behavior        Modules Spending and Reporting: aggregates, rules, use cases, entry point, screen, reaction, job, read model
+Behavior        Modules Spending and Reporting: aggregates, stores, rules, use cases, entry point, screen, reaction, job, read model, module events
 Implementation  Expense code, handlers, endpoints, screen and tests, each marked with its record
 Proof           Acceptance tests, the waivers that cover the gaps, the model check
 ```
@@ -25,7 +25,7 @@ Proof           Acceptance tests, the waivers that cover the gaps, the model che
 ## Reading Order
 
 - [The Claimwick Product](the-product.md): the product brief, module, goal, problem, features, research, decision, constraint and flow records.
-- [Modules and Records](modules-and-records.md): the Spending aggregates, rules, use cases, entry point and screen, the reaction, job, notification and settings around them, and the Reporting read model and query.
+- [Modules and Records](modules-and-records.md): the Spending aggregates, store, rules, use cases, entry point and screen, the reaction, job, notification and settings around them, and the Reporting read model and query.
 - [A Use Case in Code](a-use-case-in-code.md): Submit expense, from its record into the .NET code and the acceptance tests that prove it.
 - [The Claimwick Screen](the-screen.md): the expenses screen, the generated client it reads, the shared UI package it composes, and the pattern catalog, with the model check over the screen.
 - [The Model and Its Checks](model-and-checks.md): the full model check, the findings that waivers cover, a waiver record, and a query of one record.

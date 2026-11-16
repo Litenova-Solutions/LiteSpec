@@ -1,7 +1,6 @@
 type: aggregate
 id: aggregate/lending.hold
 title: Hold
-kind: entity
 states:
 - name: Waiting
   meaning: The hold waits for its copy.

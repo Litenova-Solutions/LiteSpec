@@ -17,6 +17,8 @@ import Generic from "./Generic.svelte";
 import Goal from "./Goal.svelte";
 import GroupingPage from "./GroupingPage.svelte";
 import IntegrationEvent from "./IntegrationEvent.svelte";
+import ModuleEvent from "./ModuleEvent.svelte";
+import Store from "./Store.svelte";
 import Job from "./Job.svelte";
 import Flow from "./Flow.svelte";
 import Layer from "./Layer.svelte";
@@ -58,8 +60,10 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   actor: Actor,
   module: Module,
   aggregate: Aggregate,
+  store: Store,
   rule: Rule,
   "domain-event": DomainEvent,
+  "module-event": ModuleEvent,
   "use-case": UseCase,
   scenario: Scenario,
   result: Result,

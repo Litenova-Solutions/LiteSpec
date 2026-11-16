@@ -800,7 +800,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A reaction implementation MUST answer the trigger its reaction record names, in one class carrying one mark naming that record.",
-      "rationale": "A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in \u0060triggeredBy\u0060, whether a domain event or an integration event, and dispatches only through the record\u0027s \u0060effects\u0060 entries, sending at most one command. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record\u0027s \u0060reads\u0060, its idempotency, and its \u0060onFailure\u0060, and the mark is the link the stack reader follows. A conflict refusal from the command it runs is transient, so the reaction retries it under its \u0060onFailure\u0060; a declared final refusal ends the reaction without a retry. The class lives in the \u0060Application/\u0060 folder of the use case it runs, or with the notification it sends or the system it calls, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060. The [automation page](../core/automation.md) states the trigger fields. An entry with \u0060after-commit\u0060 timing uses durable delivery through the outbox extension.",
+      "rationale": "A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in \u0060triggeredBy\u0060, whether a domain event of its own module, a module event, or an inbound integration event, and dispatches only through the record\u0027s \u0060effects\u0060 entries, sending at most one command. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record\u0027s \u0060reads\u0060, its idempotency, and its \u0060onFailure\u0060, and the mark is the link the stack reader follows. A conflict refusal from the command it runs is transient, so the reaction retries it under its \u0060onFailure\u0060; a declared final refusal ends the reaction without a retry. The class lives in the \u0060Application/\u0060 folder of the use case it runs, or with the notification it sends or the system it calls, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060. The [automation page](../core/automation.md) states the trigger fields. An entry with \u0060after-commit\u0060 timing uses durable delivery through the outbox extension.",
       "example": "The class \u0060SendDueNoticeOnLoanBorrowedHandler\u0060 in \u0060Lending/Notifications/LoanDue/\u0060 carries one mark naming \u0060reaction/lending.send-due-notice-on-loan-borrowed\u0060, answers \u0060domain-event/loan.loan-borrowed\u0060, and sends \u0060notification/lending.loan-due\u0060."
     },
     {
@@ -982,26 +982,8 @@
       "trace": false,
       "strength": "required",
       "statement": "A command handler MUST change only its aggregate, leaving every declared \u0060runs\u0060, \u0060sends\u0060 and \u0060calls\u0060 edge to an event handler or job after the commit.",
-      "rationale": "An undeclared edge is the defect: an event handler or job reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails \u0060effect-undeclared\u0060 on any dispatch the record does not declare. An outbound integration event is no effect: the pipeline stages it from the domain event it translates under \u0060litespec/backend/application#emit-declared-integration-events-after-commit\u0060. \u0060sends\u0060, \u0060calls\u0060, and \u0060runs\u0060 effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one. A \u0060sends\u0060 or \u0060calls\u0060 effect on a command is \u0060after-commit\u0060 or \u0060async\u0060, never \u0060inline\u0060, and \u0060consistency: atomic\u0060 never reaches past the use case\u0027s own writes. The effect graph holds no cycles except through domain events with a stated end condition.",
+      "rationale": "An undeclared edge is the defect: an event handler or job reaches a use case, notification, module event, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails \u0060effect-undeclared\u0060 on any dispatch the record does not declare. A module event or an outbound integration event is no effect: the pipeline stages each from the domain event it translates under \u0060litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit\u0060. \u0060sends\u0060, \u0060calls\u0060, and \u0060runs\u0060 effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one. A \u0060sends\u0060 or \u0060calls\u0060 effect on a command is \u0060after-commit\u0060 or \u0060async\u0060, never \u0060inline\u0060, and \u0060consistency: atomic\u0060 never reaches past the use case\u0027s own writes. The effect graph holds no cycles except through domain events with a stated end condition.",
       "example": "The send-approver-reminders reaction sends the approval reminder through the messenger port after the submit commit. A send its record does not declare fails the check."
-    },
-    {
-      "id": "litespec/backend/application#emit-declared-integration-events-after-commit",
-      "heading": "Emit Declared Integration Events After Commit",
-      "page": "docs/backend/application.md",
-      "anchor": "emit-declared-integration-events-after-commit",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060dotnet build\u0060 reports \u0060LS2022\u0060 for an event published outside the shared kernel, and \u0060litespec model check\u0060 reports \u0060effect-undeclared\u0060 for an event a handler, event handler or job publishes itself.",
-      "stack": "any",
-      "concern": "application",
-      "artifact": "aggregate",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "Each outbound integration event MUST leave the commit only through the one pipeline step that stages raised domain events, built from the domain event its record \u0060translates\u0060, so no user code publishes an event.",
-      "rationale": "When user code publishes events, two handlers publish one fact with two payloads, and a publisher in a handler emits state the act never announced. One global step, running in the command pipeline before the commit, stages each raised domain event for the reactions of its own module, and each integration event whose record translates that domain event, built by the integration event\u0027s own mapping from the domain event alone. Both commit with the business work, and the outbox extension delivers them. A command handler changes only its aggregate under \u0060litespec/backend/application#dispatch-only-declared-effect-edges\u0060, so the aggregate raises its fact and the pipeline does the rest. The domain event therefore carries every field its integration events publish. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
-      "example": "The expense raises its reimbursed fact, and the staging step stages it and \u0060integration-event/expense-reimbursed\u0060, built from that fact, in the same commit. The reimburse handler publishes nothing."
     },
     {
       "id": "litespec/backend/application#enforce-target-authorization-in-the-pipeline",
@@ -1028,15 +1010,15 @@
       "anchor": "expose-store-state-through-ports",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every \u0060store\u0060 aggregate reach code only through its owner-naming port, with no aggregate root? Look at each store aggregate\u0027s code path.",
+      "evidence": "Does every \u0060store\u0060 reach code only through its owner-naming port, with no aggregate root? Look at each store\u0027s code path.",
       "stack": "any",
       "concern": "application",
       "artifact": "port",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A \u0060store\u0060 aggregate MUST reach code only through a port naming its owner, with no aggregate root.",
-      "rationale": "A \u0060store\u0060 aggregate is state no invariant guards: a library-owned table, a suppression list, or a delivery log. With no invariant, there is no root, no state record, and no domain repository; the port names the owning system and Infrastructure implements it. Staff actions on that state stay ordinary use cases calling the port.",
+      "statement": "A \u0060store\u0060 MUST reach code only through a port naming its owner, with no aggregate root.",
+      "rationale": "A \u0060store\u0060 is state no invariant guards: a library-owned table, a suppression list, or a delivery log. With no invariant, there is no root, no state record, and no domain repository; the port names the owning module or external system and Infrastructure implements it. Staff actions on that state stay ordinary use cases calling the port.",
       "example": "The suppression list reaches code through a suppression port owned by the communications module, with no aggregate root."
     },
     {
@@ -1288,8 +1270,8 @@
       "trace": false,
       "strength": "required",
       "statement": "A use case MUST read another module\u0027s state through a read model its own module keeps, named in its \u0060reads\u0060, unless its decision needs the owner\u0027s current value and asks for it through a decision port.",
-      "rationale": "A general reader in the owner\u0027s \u0060Contracts/Ports/\u0060 folder couples every reading module to the owner\u0027s storage, uptime, and release cadence. It grows a method per caller until one interface returns one profile shape to every module. A read model is the reading module\u0027s own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner\u0027s integration events. Reads through the model lag by up to the read model\u0027s declared \u0060freshness\u0060, which most decisions accept. This is the practice known as event-carried state transfer, declared as a record so a check can prove every field has a source. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).",
-      "example": "The reporting module\u0027s list-reimbursed-expenses query reads \u0060read-model/reporting.reimbursed-expense\u0060, which its projections fill from the expense-reimbursed integration event. It calls no spending reader."
+      "rationale": "A general reader in the owner\u0027s \u0060Contracts/Ports/\u0060 folder couples every reading module to the owner\u0027s storage, uptime, and release cadence. It grows a method per caller until one interface returns one profile shape to every module. A read model is the reading module\u0027s own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner\u0027s module events. Reads through the model lag by up to the read model\u0027s declared \u0060freshness\u0060, which most decisions accept. This is the practice known as event-carried state transfer, declared as a record so a check can prove every field has a source. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).",
+      "example": "The reporting module\u0027s list-reimbursed-expenses query reads \u0060read-model/reporting.reimbursed-expense\u0060, which its projections fill from the spending module\u0027s expense-reimbursed module event. It calls no spending reader."
     },
     {
       "id": "litespec/backend/application#read-settings-through-typed-options",
@@ -1526,6 +1508,24 @@
       "example": "The expense-list result carries its \u0060rows\u0060 group with the declared fields, freshness, and visibility."
     },
     {
+      "id": "litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit",
+      "heading": "Stage Declared Module and Integration Events in the Commit",
+      "page": "docs/backend/application.md",
+      "anchor": "stage-declared-module-and-integration-events-in-the-commit",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060dotnet build\u0060 reports \u0060LS2022\u0060 for an event published outside the shared kernel, and \u0060litespec model check\u0060 reports \u0060effect-undeclared\u0060 for an event a handler, event handler or job publishes itself.",
+      "stack": "any",
+      "concern": "application",
+      "artifact": "aggregate",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each module event and each outbound integration event MUST leave the commit only through the one pipeline step that stages raised domain events, built from the domain event its record \u0060translates\u0060, so no user code publishes an event.",
+      "rationale": "When user code publishes events, two handlers publish one fact with two payloads, and a publisher in a handler emits state the act never announced. One global step, running in the command pipeline before the commit, stages each raised domain event for the reactions of its own module, each module event whose record translates that domain event, and each outbound integration event whose record translates it, built by each event\u0027s own mapping from the domain event alone. All three commit with the business work, and the outbox extension delivers them. A command handler changes only its aggregate under \u0060litespec/backend/application#dispatch-only-declared-effect-edges\u0060, so the aggregate raises its fact and the pipeline does the rest. The domain event therefore carries every field its module and integration events publish. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
+      "example": "The expense raises its reimbursed fact, and the staging step stages it, \u0060module-event/spending.expense-reimbursed\u0060, and the outbound \u0060integration-event/expense-reimbursed\u0060, each built from that fact, in the same commit. The reimburse handler publishes nothing."
+    },
+    {
       "id": "litespec/backend/application#use-this-use-case-layout",
       "heading": "Use This Use-Case Layout",
       "page": "docs/backend/application.md",
@@ -1541,7 +1541,7 @@
       "strength": "default",
       "statement": "Place each use case in a folder named for it inside the \u0060UseCases/\u0060 folder of its module and aggregate, holding an \u0060Application/\u0060 folder with its message, result, handler, validator, pipeline definitions, own steps and triggers, and a \u0060WebApi/\u0060 folder with its endpoint and transport models when it has an endpoint.",
       "rationale": "One folder per use case inside its \u0060UseCases/\u0060 folder holds everything a reviewer needs to judge it in one place, and the module tree lets a reader move from a handler to its endpoint without a map. Two layer folders inside it state each file\u0027s layer in the path, keep a large use case\u0027s listing readable, and show by their presence whether the use case has an endpoint. The reactions and job that run the use case sit in its \u0060Application/\u0060 folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).",
-      "example": "The layout reads as follows:\n\n\u0060\u0060\u0060text\n{Product}/\n  Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else\n  Posts/                                  single aggregate whose name matches the module: use cases sit in the module UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  Ports/\n    Application/                          a port several Posts use cases name sits here\n    UseCases/\n      CreateDraft/\n        Application/                      Command, Result, Handler, Validator, mapping\n        WebApi/                           Endpoint, RequestModel, ResponseModel\n      GetPost/\n        Application/\n        WebApi/\n      ListPosts/\n        Application/\n          ListPostsQueryResultItem        a result part named after its result\n        WebApi/\n      ArchiveStalePost/\n        Application/                      no WebApi folder: no endpoint reaches this use case\n          ArchiveStalePostsJob            the job that runs this use case once per stale post\n          ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case\n    Notifications/\n      NewPost/\n        NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification\n  Customers/                              two aggregates: use cases nest under each aggregate UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  Ports/\n    CustomerAccounts/\n      Application/                        aggregate-owned behavior sits in the aggregate layer folder\n      UseCases/\n        RestrictAccount/\n          Application/  WebApi/\n    Consents/\n      UseCases/\n        GrantConsent/\n          Application/  WebApi/\n    UseCases/                             use cases no single aggregate owns\n    ReadModels/\n      OrderHistories/                     a read model of another module\u0027s published facts\n\u0060\u0060\u0060\n\nModule, aggregate, and use case order, including the single-aggregate flat form, follow \u0060litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case\u0060.\n\nOnly a use case gets a folder below its \u0060UseCases/\u0060 folder, so every folder name there names one use case.\n\nA use case\u0027s own models stay in its folder under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060, and any other type sits in the node layer folder that owns it, chosen by \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. An event handler or job lives with what it runs, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060, with its mark under \u0060litespec/backend/application#answer-each-reaction-in-one-marked-class\u0060. A folder named for a fact, a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention."
+      "example": "The layout reads as follows:\n\n\u0060\u0060\u0060text\n{Product}/\n  Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else\n  Posts/                                  single aggregate whose name matches the module: use cases sit in the module UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/\n    Application/                          a port several Posts use cases name sits here\n    UseCases/\n      CreateDraft/\n        Application/                      Command, Result, Handler, Validator, mapping\n        WebApi/                           Endpoint, RequestModel, ResponseModel\n      GetPost/\n        Application/\n        WebApi/\n      ListPosts/\n        Application/\n          ListPostsQueryResultItem        a result part named after its result\n        WebApi/\n      ArchiveStalePost/\n        Application/                      no WebApi folder: no endpoint reaches this use case\n          ArchiveStalePostsJob            the job that runs this use case once per stale post\n          ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case\n    Notifications/\n      NewPost/\n        NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification\n  Customers/                              two aggregates: use cases nest under each aggregate UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/\n    CustomerAccounts/\n      Application/                        aggregate-owned behavior sits in the aggregate layer folder\n      UseCases/\n        RestrictAccount/\n          Application/  WebApi/\n    Consents/\n      UseCases/\n        GrantConsent/\n          Application/  WebApi/\n    UseCases/                             use cases no single aggregate owns\n    ReadModels/\n      OrderHistories/                     a read model of another module\u0027s published facts\n\u0060\u0060\u0060\n\nModule, aggregate, and use case order, including the single-aggregate flat form, follow \u0060litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case\u0060.\n\nOnly a use case gets a folder below its \u0060UseCases/\u0060 folder, so every folder name there names one use case.\n\nA use case\u0027s own models stay in its folder under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060, and any other type sits in the node layer folder that owns it, chosen by \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. An event handler or job lives with what it runs, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060, with its mark under \u0060litespec/backend/application#answer-each-reaction-in-one-marked-class\u0060. A folder named for a fact, a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention."
     },
     {
       "id": "litespec/backend/application#validate-query-input",
@@ -1722,7 +1722,7 @@
       "strength": "required",
       "statement": "Every module MUST organize its code as the module tree with one folder per declared aggregate, one \u0060UseCases/\u0060 folder per aggregate and module, and one folder per declared use case inside its \u0060UseCases/\u0060 folder holding its layer folders, using only the folder names its level allows.",
       "rationale": "One folder per declared aggregate and one folder per declared use case inside its \u0060UseCases/\u0060 folder fix every type\u0027s address: a reader moves from a Domain aggregate to its handler, its repository, and its endpoint without a map. The closed folder names at each level keep that reading exact, because a folder outside the allowed set is refused and no second organization grows beside the tree. A module publishes what other modules may reference in its \u0060Contracts/\u0060 folder sorted by kind, the use cases no single aggregate owns sit in the module \u0060UseCases/\u0060 folder, and each reaction and job sits in the folder of the use case it runs. A folder named for a fact would reference the commands of other use cases and pull them out of their folders, and a fact\u0027s reactions span modules, so no fact folder could ever show them all. An aggregate stays flat only when its plural name equals the single module name. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs). A folder named for a technical grouping rather than a module defeats the rule: the next unrelated type fits it too. \u0060Shared\u0060, \u0060Common\u0060, \u0060Util\u0060, \u0060Helpers\u0060, \u0060Core\u0060, and \u0060Misc\u0060 inside a layer are the names that do this.",
-      "example": "\u0060\u0060\u0060text\n# single-aggregate module whose aggregate name matches the module: the aggregate stays flat\nOrganizations/\n  Contracts/\n    Identifiers/  IntegrationEvents/  Ports/\n  Domain/  Application/  Infrastructure/\n  UseCases/\n    CreateOrganization/\n      Application/           Command, Result, Handler, Validator\n      WebApi/                Endpoint, RequestModel, ResponseModel\n\n# multi-aggregate module: module, then aggregate folder, then UseCases, then use case\nSpending/\n  Contracts/\n    Identifiers/  IntegrationEvents/  Ports/\n  Expenses/\n    Domain/  Application/  Infrastructure/\n    UseCases/\n      SubmitExpense/\n        Application/  WebApi/\n      ErasePersonalData/\n        Application/          the erase command, its handler, and the job that runs it\n  Policies/\n    Domain/  Application/  Infrastructure/\n    UseCases/\n      DefinePolicy/\n        Application/  WebApi/\n\n# module-level work beside the aggregates\nSpending/\n  UseCases/\n    ReadExpenseDirectory/     a use case no single aggregate owns\n  Notifications/\n    ApprovalReminder/         the reaction that only sends the approval reminder\n\u0060\u0060\u0060\n\nThe placement check asserts these folder names directly: a rule that only a reviewer checks stops holding at the first missed file.\n\n\u0060\u0060\u0060text\nfail when a type path contains Shared, Common, Util, Helpers, Core, or Misc\n\u0060\u0060\u0060"
+      "example": "\u0060\u0060\u0060text\n# single-aggregate module whose aggregate name matches the module: the aggregate stays flat\nOrganizations/\n  Contracts/\n    Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/\n  Domain/  Application/  Infrastructure/\n  UseCases/\n    CreateOrganization/\n      Application/           Command, Result, Handler, Validator\n      WebApi/                Endpoint, RequestModel, ResponseModel\n\n# multi-aggregate module: module, then aggregate folder, then UseCases, then use case\nSpending/\n  Contracts/\n    Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/\n  Expenses/\n    Domain/  Application/  Infrastructure/\n    UseCases/\n      SubmitExpense/\n        Application/  WebApi/\n      ErasePersonalData/\n        Application/          the erase command, its handler, and the job that runs it\n  Policies/\n    Domain/  Application/  Infrastructure/\n    UseCases/\n      DefinePolicy/\n        Application/  WebApi/\n\n# module-level work beside the aggregates\nSpending/\n  UseCases/\n    ReadExpenseDirectory/     a use case no single aggregate owns\n  Notifications/\n    ApprovalReminder/         the reaction that only sends the approval reminder\n\u0060\u0060\u0060\n\nThe placement check asserts these folder names directly: a rule that only a reviewer checks stops holding at the first missed file.\n\n\u0060\u0060\u0060text\nfail when a type path contains Shared, Common, Util, Helpers, Core, or Misc\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/backend/architecture#own-each-layers-contract-types",
@@ -1792,9 +1792,9 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A module needing another module\u0027s data MUST read it through its own read model built from the owner\u0027s integration events, through a decision port in the owner\u0027s \u0060Contracts/Ports/\u0060 folder, or, on a screen, through the owner\u0027s own query.",
+      "statement": "A module needing another module\u0027s data MUST read it through its own read model built from the owner\u0027s module events, through a decision port in the owner\u0027s \u0060Contracts/Ports/\u0060 folder, or, on a screen, through the owner\u0027s own query.",
       "rationale": "A module that loaded another module\u0027s aggregate or repository would couple its reads to the owner\u0027s consistency boundary and storage. A general reader in the owner\u0027s \u0060Contracts/\u0060 is the same coupling one step removed: it grows a method per caller, and no record says which fields cross. The three allowed paths each state what crosses. A read model states each field it copies from a published event, under \u0060litespec/backend/application#read-another-modules-state-through-a-read-model\u0060. A decision port answers one current-value question, under \u0060litespec/backend/application#ask-another-module-one-question-through-a-decision-port\u0060. A screen joins each owner\u0027s query, under \u0060litespec/frontend/data#compose-a-screen-from-each-owners-query\u0060.",
-      "example": "In the Claimwick product, the reporting module reads reimbursed expenses through its own \u0060read-model/reporting.reimbursed-expense\u0060, filled from the spending module\u0027s expense-reimbursed integration event. It loads no spending aggregate, no spending repository, and no spending reader."
+      "example": "In the Claimwick product, the reporting module reads reimbursed expenses through its own \u0060read-model/reporting.reimbursed-expense\u0060, filled from the spending module\u0027s expense-reimbursed module event. It loads no spending aggregate, no spending repository, and no spending reader."
     },
     {
       "id": "litespec/backend/architecture#repeat-coordination-never-a-rule",
@@ -1828,9 +1828,9 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A command MUST change only the aggregates of its own module, so an act on another module\u0027s aggregate runs as that module\u0027s use case, triggered by an integration event its reaction answers.",
-      "rationale": "Each module guards its own consistency boundaries, so a command from another module that wrote its aggregates would bypass the owning module\u0027s rules. An act on another module\u0027s aggregate is that module\u0027s use case instead: the caller raises its own fact, the owning module\u0027s reaction answers the published integration event, and the owning module enforces its own invariants. A module publishes no command, so no caller can send one across the boundary.",
-      "example": "In the Claimwick product, a command that needs a policy change raises its own fact, and the policy module\u0027s reaction to the published integration event runs the policy use case. The command writes no policy aggregate and sends no policy command."
+      "statement": "A command MUST change only the aggregates of its own module, so an act on another module\u0027s aggregate runs as that module\u0027s use case, triggered by a module event its reaction answers.",
+      "rationale": "Each module guards its own consistency boundaries, so a command from another module that wrote its aggregates would bypass the owning module\u0027s rules. An act on another module\u0027s aggregate is that module\u0027s use case instead: the caller raises its own fact, the owning module\u0027s reaction answers the published module event, and the owning module enforces its own invariants. A module publishes no command, so no caller can send one across the boundary.",
+      "example": "In the Claimwick product, a command that needs a policy change raises its own fact, and the policy module\u0027s reaction to the published module event runs the policy use case. The command writes no policy aggregate and sends no policy command."
     },
     {
       "id": "litespec/backend/architecture#separate-command-and-query-behavior",
@@ -1851,22 +1851,22 @@
       "example": ""
     },
     {
-      "id": "litespec/backend/architecture#subscribe-across-modules-only-to-integration-events",
-      "heading": "Subscribe Across Modules Only to Integration Events",
+      "id": "litespec/backend/architecture#subscribe-across-modules-only-to-module-events",
+      "heading": "Subscribe Across Modules Only to Module Events",
       "page": "docs/backend/architecture.md",
-      "anchor": "subscribe-across-modules-only-to-integration-events",
+      "anchor": "subscribe-across-modules-only-to-module-events",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Is any reaction triggered by another module\u0027s domain event instead of its published integration event? Look at each reaction trigger beside the integration events.",
+      "evidence": "Is any reaction triggered by another module\u0027s domain event instead of its published module event? Look at each reaction trigger beside the module events.",
       "stack": "any",
       "concern": "application",
       "artifact": "reaction",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A reaction to another module\u0027s fact MUST subscribe only to the published integration event.",
-      "rationale": "A domain event stays inside the module that raised it, while the published integration event carries the fact outside. A reaction that subscribed to another module\u0027s domain event would couple to the owner\u0027s internals and break when they change. The integration event is the stable cross-module fact, so cross-module reactions answer it.",
-      "example": "In the Claimwick product, a reaction in the reporting module answers the published expense reimbursed integration event, not the spending domain event behind it."
+      "statement": "A reaction to another module\u0027s fact MUST subscribe only to the published module event.",
+      "rationale": "A domain event stays inside the module that raised it, while the published module event carries the fact to the other modules of the product. A reaction that subscribed to another module\u0027s domain event would couple to the owner\u0027s internals and break when they change. The module event is the stable cross-module fact, so cross-module reactions answer it. A fact from outside the product still arrives as an inbound integration event.",
+      "example": "In the Claimwick product, a reaction in the reporting module answers the published expense reimbursed module event, not the spending domain event behind it."
     },
     {
       "id": "litespec/backend/architecture#test-structural-boundaries",
@@ -1911,14 +1911,14 @@
       "anchor": "change-each-aggregate-through-its-marked-act",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-act-missing\u0060 (level S) for a command handler changing an entity aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-act-missing\u0060 (level S) for a command handler changing an aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.",
       "stack": "any",
       "concern": "domain",
       "artifact": "command-handler",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A command handler changing an entity aggregate MUST change it by calling a root method marked with the handler\u0027s use case.",
+      "statement": "A command handler changing an aggregate MUST change it by calling a root method marked with the handler\u0027s use case.",
       "rationale": "The use case declares an act, and the aggregate performs it. The mark on the root method says which act the method performs. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never declared, and a reader has no way to tell from the use case which method to open. The use-case verb, the method name, and the raised event\u0027s tense agree under \u0060litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb\u0060. This provision states the marked form of \u0060litespec/backend/application#keep-command-handlers-to-load-call-and-stage\u0060. A command that changes only stores, or that only runs other commands and lists nothing in \u0060writes\u0060, performs no act on a root, so it needs no marked call.",
       "example": "The handler for \u0060use-case/spending.reimburse-expense\u0060 calls \u0060Reimburse\u0060 on the expense root, and \u0060Reimburse\u0060 carries the mark \u0060use-case/spending.reimburse-expense\u0060."
     },
@@ -2279,7 +2279,7 @@
       "trace": false,
       "strength": "required",
       "statement": "The root methods marked with a use case MUST together raise exactly the events that use case lists in \u0060raises\u0060.",
-      "rationale": "The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep. Each raised event carries every field its integration events publish, because each integration event is built from its domain event alone under \u0060litespec/backend/application#emit-declared-integration-events-after-commit\u0060.",
+      "rationale": "The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep. Each raised event carries every field its module and integration events publish, because each module and integration event is built from its domain event alone under \u0060litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit\u0060.",
       "example": "\u0060use-case/spending.submit-expense\u0060 lists \u0060domain-event/expense.submitted\u0060 in \u0060raises\u0060, and the \u0060Submit\u0060 method marked with it raises \u0060ExpenseSubmittedEvent\u0060 and nothing else."
     },
     {
@@ -2603,7 +2603,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An Application MUST compose its command pipeline through the LiteBus APIs this provision names for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp.",
-      "rationale": "One pinned binding per position keeps every project\u0027s pipeline identical: - The commit runs through \u0060commands.UseMartenUnitOfWork()\u0060, which registers the LiteBus \u0060IUnitOfWork\u0060 at \u0060HandlerPriorities.UnitOfWork\u0060, so the pipeline commits once under \u0060litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline\u0060. - Authorization runs through a guard derived from \u0060LiteBus.Messaging.Abstractions.DeclarationGuard\u003CTMessage, TValue\u003E\u0060, reading the declaration from the message definition under \u0060litespec/backend/application#enforce-target-authorization-in-the-pipeline\u0060. - Audit runs through \u0060AuditDeclaration.Audited(...).WithTargetFrom\u003CTCommand\u003E(...).WithReasonFrom\u003CTCommand\u003E(...)\u0060 in an \u0060IAuditDefinition\u003CTCommand\u003E\u0060, declaring the target and reason beside the message under \u0060litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message\u0060. - Fault classification runs through \u0060UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))\u0060, mapping each store fault to its refusal under \u0060litespec/backend/persistence#map-a-constraint-violation-to-its-refusal\u0060. - Delivery runs through \u0060outbox.EnablePerHandlerDelivery()\u0060, reaching each handler separately under \u0060litespec/ext/outbox#give-each-handler-its-own-delivery\u0060. - Event staging runs through \u0060outbox.StageCollectedEvents()\u0060, staging the facts \u0060IDomainEventCollector\u0060 collected in the same commit as the aggregate change. - The timestamp runs through \u0060IExecutionContext.HandledAt\u0060, stamping each message once for the handler to read as \u0060HandledAt\u0060 under \u0060litespec/backend/application#read-time-from-the-scoped-clock\u0060.",
+      "rationale": "One pinned binding per position keeps every project\u0027s pipeline identical: - The commit runs through \u0060commands.UseMartenUnitOfWork()\u0060, which registers the LiteBus \u0060IUnitOfWork\u0060 at \u0060HandlerPriorities.UnitOfWork\u0060, so the pipeline commits once under \u0060litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline\u0060. - Authorization runs through a guard derived from \u0060LiteBus.Messaging.Abstractions.DeclarationGuard\u003CTMessage, TValue\u003E\u0060, reading the declaration from the message definition under \u0060litespec/backend/application#enforce-target-authorization-in-the-pipeline\u0060. - Audit runs through \u0060AuditDeclaration.Audited(...).WithTargetFrom\u003CTCommand\u003E(...).WithReasonFrom\u003CTCommand\u003E(...)\u0060 in an \u0060IAuditDefinition\u003CTCommand\u003E\u0060, declaring the target and reason beside the message under \u0060litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message\u0060. - Fault classification runs through \u0060UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))\u0060, mapping each store fault to its refusal under \u0060litespec/backend/persistence#map-a-constraint-violation-to-its-refusal\u0060. - Delivery runs through \u0060outbox.EnablePerHandlerDelivery()\u0060, reaching each handler separately, one envelope per subscribed handler so one failing handler retries alone, under \u0060litespec/ext/outbox#give-each-handler-its-own-delivery\u0060. - Event staging runs through \u0060outbox.StageCollectedEvents()\u0060, staging the facts \u0060IDomainEventCollector\u0060 collected in the same commit as the aggregate change. - In-process dispatch runs through \u0060outbox.UseInProcessDispatch()\u0060 with \u0060outbox.EnableOutboxProcessor()\u0060, delivering module events and domain-event reactions inside the process against the product\u0027s PostgreSQL database (\u0060LiteBus.Outbox.Storage.PostgreSql\u0060, or \u0060LiteBus.Outbox.Storage.EntityFrameworkCore\u0060 when the project uses that). Envelopes commit with the business work; the processor retries a failed handler with the configured backoff and dead-letters at the bound. No broker is needed for anything inside the bounded context. An outbound integration event uses a transport dispatcher (\u0060LiteBus.Outbox.Dispatch.Amqp\u0060 or \u0060LiteBus.Outbox.Dispatch.Kafka\u0060) toward the external system its record names in \u0060through\u0060. - The timestamp runs through \u0060IExecutionContext.HandledAt\u0060, stamping each message once for the handler to read as \u0060HandledAt\u0060 under \u0060litespec/backend/application#read-time-from-the-scoped-clock\u0060.",
       "example": ""
     },
     {
@@ -2620,9 +2620,27 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "An event handler or job MUST dispatch each declared \u0060sends\u0060 effect through the messenger port, each declared \u0060calls\u0060 effect through its external-system port, and its one declared \u0060runs\u0060 effect through \u0060ICommandMediator\u0060, after the commit that stored the fact it answers, while the pipeline stages each raised domain event and each integration event translating it in the same commit.",
-      "rationale": "A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through \u0060outbox.StageCollectedEvents()\u0060 (see \u0060litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis\u0060). The same commit stages each integration event whose record translates a raised domain event. The shared kernel collects the integration event beside its domain event. It is built by the integration event\u0027s static \u0060From\u0060 method from that domain event alone, so no module code publishes. After that commit, an event handler answers each fact through its entry point: the messenger port for \u0060sends\u0060, its external-system port for \u0060calls\u0060, and \u0060ICommandMediator\u0060 for \u0060runs\u0060, sending one command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under \u0060litespec/ext/outbox#give-each-handler-its-own-delivery\u0060, so one failing handler retries alone. An undeclared dispatch fails \u0060effect-undeclared\u0060, whatever its entry point. This provision binds \u0060litespec/backend/application#dispatch-only-declared-effect-edges\u0060 for .NET.",
+      "statement": "An event handler or job MUST dispatch each declared \u0060sends\u0060 effect through the messenger port, each declared \u0060calls\u0060 effect through its external-system port, and its one declared \u0060runs\u0060 effect through \u0060ICommandMediator\u0060, after the commit that stored the fact it answers, while the pipeline stages each raised domain event, each module event translating it, and each outbound integration event translating it in the same commit.",
+      "rationale": "A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through \u0060outbox.StageCollectedEvents()\u0060 (see \u0060litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis\u0060). The same commit stages each module event and each outbound integration event whose record translates a raised domain event. The shared kernel collects each one beside its domain event. Each is built by its static \u0060From\u0060 method from that domain event alone, so no module code publishes. After that commit, an event handler answers each fact through its entry point: the messenger port for \u0060sends\u0060, its external-system port for \u0060calls\u0060, and \u0060ICommandMediator\u0060 for \u0060runs\u0060, sending one command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under \u0060litespec/ext/outbox#give-each-handler-its-own-delivery\u0060, so one failing handler retries alone. An undeclared dispatch fails \u0060effect-undeclared\u0060, whatever its entry point. This provision binds \u0060litespec/backend/application#dispatch-only-declared-effect-edges\u0060 for .NET.",
       "example": "\u0060\u0060\u0060csharp\n// The commit step stores the changed aggregate and stages the facts it raised in one transaction.\noutbox.StageCollectedEvents();\n\n// Spending/Contracts/IntegrationEvents/ExpenseReimbursed.cs: built from its domain event alone.\npublic sealed record ExpenseReimbursed(ExpenseId ExpenseId, EmployeeId EmployeeId, Money Amount, DateTimeOffset ReimbursedAt)\n{\n    public static ExpenseReimbursed From(ExpenseReimbursedEvent fact) =\u003E\n        new(fact.ExpenseId, fact.EmployeeId, fact.Amount, fact.ReimbursedAt);\n}\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "litespec/backend/dotnet/application#dispatch-read-model-projections-immediately",
+      "heading": "Dispatch Read-Model Projections Immediately",
+      "page": "docs/backend/dotnet/application.md",
+      "anchor": "dispatch-read-model-projections-immediately",
+      "kind": "convention",
+      "mark": "guidance",
+      "evidence": "Does every handler the caller reads when the command returns carry \u0060[DispatchImmediately]\u0060 with immediate dispatch registered, and does every other handler leave it off? Check each event handler beside the outbox registration.",
+      "stack": "dotnet",
+      "concern": "application",
+      "artifact": "reaction",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "default",
+      "statement": "A handler whose effect the caller reads when the command returns, such as a read-model projection the next screen reads, carries \u0060[DispatchImmediately]\u0060, and the outbox registers immediate dispatch with a ten-second timeout and a thirty-second fallback delay.",
+      "rationale": "LiteBus dispatches those envelopes in process after the unit of work commits and before \u0060SendAsync\u0060 returns, so the caller reads its own write. A failed or timed-out dispatch is left to the outbox processor\u0027s retry, and the command\u0027s outcome never changes. Immediate dispatch needs a registered unit of work (\u0060commands.UseUnitOfWork\u003C...\u003E()\u0060), an outbox dispatcher, and a store implementing \u0060IOutboxTargetedLeaseStore\u0060, which the shipped PostgreSQL, Entity Framework Core, and in-memory stores do. The fallback delay stays greater than the timeout.",
+      "example": "\u0060\u0060\u0060csharp\noutbox.EnableImmediateDispatch(dispatch =\u003E\n{\n    dispatch.Timeout = TimeSpan.FromSeconds(10);\n    dispatch.FallbackDelay = TimeSpan.FromSeconds(30);\n});\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories-and-writes",
@@ -2641,6 +2659,42 @@
       "statement": "A query handler MUST take no repository and stage, store, delete, or dispatch nothing.",
       "rationale": "A read path acts on no invariant, so a repository in a query handler loads an aggregate the query has no write to justify. The handler projects through the read session under \u0060litespec/backend/dotnet/persistence#query-through-iquerysession\u0060. A read that writes makes retries and caching unsafe: repeating the query would repeat the write. An audited read is the pipeline\u0027s work, not the handler\u0027s. \u0060dotnet build\u0060 reports a repository in a query handler as \u0060LS2011\u0060. This provision binds \u0060litespec/backend/application#project-queries-directly\u0060 and \u0060litespec/backend/application#keep-query-handlers-free-of-writes\u0060 for .NET.",
       "example": "The list-expenses query projects its rows through \u0060IQuerySession\u0060, taking no repository and staging nothing."
+    },
+    {
+      "id": "litespec/backend/dotnet/application#name-every-outbox-subscriber",
+      "heading": "Name Every Outbox Subscriber",
+      "page": "docs/backend/dotnet/application.md",
+      "anchor": "name-every-outbox-subscriber",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does every event handler of a module event or domain event carry its subscriber name? Check each event handler.",
+      "stack": "dotnet",
+      "concern": "application",
+      "artifact": "reaction",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every event handler of a module event or domain event MUST carry \u0060[SubscriberName(\u0022\u003Cmodule\u003E.\u003Chandler-name\u003E\u0022)]\u0060.",
+      "rationale": "Under per-handler delivery, each handler gets its own envelope, so one failing handler retries alone. The subscriber name keeps envelopes reaching the handler after the class is renamed. LiteBus validates the names at composition when per-handler delivery is on.",
+      "example": "The handler that schedules a payout when spending approves an expense carries \u0060[SubscriberName(\u0022payouts.schedule-payout\u0022)]\u0060."
+    },
+    {
+      "id": "litespec/backend/dotnet/application#report-immediate-dispatch-beside-the-backlog",
+      "heading": "Report Immediate Dispatch Beside the Backlog",
+      "page": "docs/backend/dotnet/application.md",
+      "anchor": "report-immediate-dispatch-beside-the-backlog",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does the deployment report the immediate dispatch count with its outcome tag and the immediate dispatch duration beside the backlog indicators? Check the exported metrics beside the outbox dashboard.",
+      "stack": "dotnet",
+      "concern": "application",
+      "artifact": "any",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "A deployment that dispatches projections immediately MUST report the immediate dispatch count with its outcome and the immediate dispatch duration beside the outbox backlog indicators.",
+      "rationale": "The backlog indicators of \u0060litespec/ext/outbox#publish-backlog-indicators\u0060 show whether the outbox processor keeps up. Immediate dispatch adds a path in front of the processor, so its own instruments show how often it runs and how long it takes, and a slow immediate dispatch reads as duration rather than as a backlog. \u0060AddLiteBusOutboxMetrics()\u0060 from \u0060LiteBus.Outbox.Extensions.OpenTelemetry\u0060 reports the counter \u0060litebus.outbox.immediate_dispatch.count\u0060, tagged \u0060litebus.outbox.immediate_dispatch.outcome\u0060 with \u0060published\u0060, \u0060failed\u0060, \u0060skipped\u0060 or \u0060timed_out\u0060, and the histogram \u0060litebus.outbox.immediate_dispatch.duration\u0060.",
+      "example": "Claimwick\u0027s reporting projection dispatches immediately. Its dashboard shows the immediate dispatch count by outcome and its duration beside the pending count and oldest pending age, so a run of \u0060timed_out\u0060 outcomes explains a rising backlog."
     },
     {
       "id": "litespec/backend/dotnet/application#report-input-problems-as-validity",
@@ -2801,7 +2855,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An application MUST place each use case\u0027s messages, results, handlers, validators, and triggers in the use case\u0027s \u0060Application/\u0060 folder, module ports in Application folders, and cross-module contracts in the sorted kind folders of its Contracts folder.",
-      "rationale": "One use case keeps its command, query, result, handler, validator, and triggers in its \u0060Application/\u0060 folder, and its endpoint and transport models in its \u0060WebApi/\u0060 folder. A use case\u0027s own models never move up: two use cases with one shape each declare it, under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060. Ports and rules used by two or more use cases of one aggregate sit in the aggregate Application folder, those used by two or more aggregates sit in the module Application folder, and product-wide plumbing sits in the shared kernel Application folder. A module publishes its typed identifiers in \u0060Contracts/Identifiers/\u0060, its integration events in \u0060Contracts/IntegrationEvents/\u0060, and its read-only cross-module ports in \u0060Contracts/Ports/\u0060, so the public surface of a module stays visible in its Contracts folder. It publishes no command and no refusal.",
+      "rationale": "One use case keeps its command, query, result, handler, validator, and triggers in its \u0060Application/\u0060 folder, and its endpoint and transport models in its \u0060WebApi/\u0060 folder. A use case\u0027s own models never move up: two use cases with one shape each declare it, under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060. Ports and rules used by two or more use cases of one aggregate sit in the aggregate Application folder, those used by two or more aggregates sit in the module Application folder, and product-wide plumbing sits in the shared kernel Application folder. A module publishes its typed identifiers in \u0060Contracts/Identifiers/\u0060, its integration events in \u0060Contracts/IntegrationEvents/\u0060, its module events in \u0060Contracts/ModuleEvents/\u0060, and its read-only cross-module ports in \u0060Contracts/Ports/\u0060, so the public surface of a module stays visible in its Contracts folder. It publishes no command and no refusal.",
       "example": ""
     },
     {
@@ -2820,7 +2874,7 @@
       "strength": "required",
       "statement": "Each level of the shared kernel and modules projects MUST hold only the folders the closed set table in this section allows.",
       "rationale": "Only the folders the table lists are allowed, so a catch-all folder has no home and review refuses it. Product-wide plumbing sits in the product layer folders, and cross-module contracts sit in each module Contracts folder. \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060 decides between a use case folder and the aggregate, module, and product layer folders. Module folders mirror record homes: use cases sit in \u0060UseCases/\u0060 folders with their layer folders, each reaction and job sits with the use case, notification, or external system it runs, sends, or calls, and each read model sits in the module \u0060ReadModels/\u0060 folder. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).",
-      "example": "| Level | Allowed folders |\n|:---|:---|\n| Shared kernel project root | \u0060Domain/\u0060, \u0060Application/\u0060, \u0060Infrastructure/\u0060, \u0060WebApi/\u0060 |\n| Modules project root | \u0060Composition/\u0060, one per declared module |\n| Module | \u0060Contracts/\u0060, \u0060Domain/\u0060, \u0060Application/\u0060, \u0060Infrastructure/\u0060, \u0060UseCases/\u0060, \u0060Notifications/\u0060, \u0060ExternalSystems/\u0060, \u0060ReadModels/\u0060, one per declared aggregate |\n| Module \u0060Contracts/\u0060 | \u0060Identifiers/\u0060, \u0060IntegrationEvents/\u0060, \u0060Ports/\u0060 |\n| Module \u0060UseCases/\u0060 | one per declared module use case |\n| Module \u0060Notifications/\u0060 | one per notification a reaction or job of the module only sends |\n| Module \u0060ExternalSystems/\u0060 | one per external system a reaction or job of the module only calls |\n| Module \u0060ReadModels/\u0060 | one per declared read model of the module, in the plural |\n| Aggregate | \u0060Domain/\u0060, \u0060Application/\u0060, \u0060Infrastructure/\u0060, \u0060UseCases/\u0060 |\n| Aggregate \u0060UseCases/\u0060 | one per declared use case |\n| Use case | \u0060Application/\u0060, and \u0060WebApi/\u0060 when the use case has an endpoint |\n| Use case \u0060Application/\u0060 and \u0060WebApi/\u0060, and each folder under \u0060Notifications/\u0060, \u0060ExternalSystems/\u0060 and \u0060ReadModels/\u0060 | Files only |\n\n\u0060\u0060\u0060text\n{Product}.SharedKernel/\n  Domain/  Application/  Infrastructure/  WebApi/\n{Product}.Modules/\n  Composition/\n  Organizations/\n    Contracts/\n      Identifiers/  IntegrationEvents/  Ports/\n    Domain/  Application/  Infrastructure/\n    Teams/\n      Domain/          Team.cs  TeamState.cs  ITeamRepository.cs  Events/  Exceptions/\n      Application/     ports and rules used by two or more Team use cases\n      Infrastructure/  TeamRepository.cs\n      UseCases/\n        CreateTeam/\n          Application/ CreateTeamCommand.cs  CreateTeamCommandResult.cs  CreateTeamCommandHandler.cs  CreateTeamCommandValidator.cs\n          WebApi/      CreateTeamEndpoint.cs  CreateTeamRequestModel.cs  CreateTeamResponseModel.cs\n        RemoveMember/\n          Application/ RemoveMemberCommand.cs  RemoveMemberCommandHandler.cs  RemoveMemberOnAccountClosedHandler.cs\n    UseCases/\n      ReadTeamDirectory/        a use case no single aggregate owns\n    Notifications/\n      MemberRemoved/            a reaction that only sends this notification\n    ReadModels/\n      MemberAccounts/           a read model of another module\u0027s published facts\n\u0060\u0060\u0060"
+      "example": "| Level | Allowed folders |\n|:---|:---|\n| Shared kernel project root | \u0060Domain/\u0060, \u0060Application/\u0060, \u0060Infrastructure/\u0060, \u0060WebApi/\u0060 |\n| Modules project root | \u0060Composition/\u0060, one per declared module |\n| Module | \u0060Contracts/\u0060, \u0060Domain/\u0060, \u0060Application/\u0060, \u0060Infrastructure/\u0060, \u0060UseCases/\u0060, \u0060Notifications/\u0060, \u0060ExternalSystems/\u0060, \u0060ReadModels/\u0060, one per declared aggregate |\n| Module \u0060Contracts/\u0060 | \u0060Identifiers/\u0060, \u0060IntegrationEvents/\u0060, \u0060ModuleEvents/\u0060, \u0060Ports/\u0060 |\n| Module \u0060UseCases/\u0060 | one per declared module use case |\n| Module \u0060Notifications/\u0060 | one per notification a reaction or job of the module only sends |\n| Module \u0060ExternalSystems/\u0060 | one per external system a reaction or job of the module only calls |\n| Module \u0060ReadModels/\u0060 | one per declared read model of the module, in the plural |\n| Aggregate | \u0060Domain/\u0060, \u0060Application/\u0060, \u0060Infrastructure/\u0060, \u0060UseCases/\u0060 |\n| Aggregate \u0060UseCases/\u0060 | one per declared use case |\n| Use case | \u0060Application/\u0060, and \u0060WebApi/\u0060 when the use case has an endpoint |\n| Use case \u0060Application/\u0060 and \u0060WebApi/\u0060, and each folder under \u0060Notifications/\u0060, \u0060ExternalSystems/\u0060 and \u0060ReadModels/\u0060 | Files only |\n\n\u0060\u0060\u0060text\n{Product}.SharedKernel/\n  Domain/  Application/  Infrastructure/  WebApi/\n{Product}.Modules/\n  Composition/\n  Organizations/\n    Contracts/\n      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/\n    Domain/  Application/  Infrastructure/\n    Teams/\n      Domain/          Team.cs  TeamState.cs  ITeamRepository.cs  Events/  Exceptions/\n      Application/     ports and rules used by two or more Team use cases\n      Infrastructure/  TeamRepository.cs\n      UseCases/\n        CreateTeam/\n          Application/ CreateTeamCommand.cs  CreateTeamCommandResult.cs  CreateTeamCommandHandler.cs  CreateTeamCommandValidator.cs\n          WebApi/      CreateTeamEndpoint.cs  CreateTeamRequestModel.cs  CreateTeamResponseModel.cs\n        RemoveMember/\n          Application/ RemoveMemberCommand.cs  RemoveMemberCommandHandler.cs  RemoveMemberOnAccountClosedHandler.cs\n    UseCases/\n      ReadTeamDirectory/        a use case no single aggregate owns\n    Notifications/\n      MemberRemoved/            a reaction that only sends this notification\n    ReadModels/\n      MemberAccounts/           a read model of another module\u0027s published facts\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/backend/dotnet/architecture#keep-composition-in-hosts",
@@ -2926,8 +2980,8 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Each read model MUST live in a folder named for the read model in the plural inside its module \u0060ReadModels/\u0060 folder, holding the read-model document, one projection per source integration event named \u0060{ReadModel}On{Fact}Projection\u0060, the reader interface \u0060I{ReadModel}ReadModel\u0060 and its implementation, each carrying the read model\u0027s mark.",
-      "rationale": "A read model\u0027s projections answer integration events like reactions, but they write only their read model and run no use case. Placed with a use case, they would look like reactions; placed with the read model, one folder shows every event that fills it and the one reader its module\u0027s use cases call. The mark links each class to the record that names its sources. A projection that wrote anything but its read model would be an unrecorded reaction. This provision binds \u0060litespec/backend/application#read-another-modules-state-through-a-read-model\u0060 for .NET.",
+      "statement": "Each read model MUST live in a folder named for the read model in the plural inside its module \u0060ReadModels/\u0060 folder, holding the read-model document, one projection per source event named \u0060{ReadModel}On{Fact}Projection\u0060, the reader interface \u0060I{ReadModel}ReadModel\u0060 and its implementation, each carrying the read model\u0027s mark.",
+      "rationale": "A read model\u0027s projections answer module events and integration events like reactions, but they write only their read model and run no use case. Placed with a use case, they would look like reactions; placed with the read model, one folder shows every event that fills it and the one reader its module\u0027s use cases call. The mark links each class to the record that names its sources. A projection that wrote anything but its read model would be an unrecorded reaction. This provision binds \u0060litespec/backend/application#read-another-modules-state-through-a-read-model\u0060 for .NET.",
       "example": "\u0060\u0060\u0060text\nClaimwick.Modules/Reporting/ReadModels/ReimbursedExpenses/\n  ReimbursedExpense.cs                                        the read-model document, keyed by ExpenseId\n  ReimbursedExpenseOnExpenseReimbursedProjection.cs           one projection per source event\n  ReimbursedExpenseOnExpensePersonalDataErasedProjection.cs\n  IReimbursedExpenseReadModel.cs                              what Reporting use cases read\n  ReimbursedExpenseReadModel.cs                               its store implementation\n\u0060\u0060\u0060"
     },
     {
@@ -2945,7 +2999,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A module MUST reach another module only through types its Contracts folder publishes.",
-      "rationale": "The Contracts folder is the public surface of a module, sorted by kind: typed identifiers in \u0060Identifiers/\u0060, integration events in \u0060IntegrationEvents/\u0060, and read-only ports other modules call in \u0060Ports/\u0060. Domain may reference the typed identifiers; ports and integration events stay outside Domain. A module publishes no command and no refusal: another module triggers its acts through an integration event its reaction answers, and each module refuses with its own refusals. A module that needs another module\u0027s state keeps its own read model built from the owner\u0027s integration events, or asks one question through a decision port in the owner\u0027s \u0060Contracts/Ports/\u0060 folder. It loads no foreign aggregate or repository. A reaction to another module\u0027s fact subscribes to the published integration event, never to the domain event.",
+      "rationale": "The Contracts folder is the public surface of a module, sorted by kind: typed identifiers in \u0060Identifiers/\u0060, integration events in \u0060IntegrationEvents/\u0060, module events in \u0060ModuleEvents/\u0060, and read-only ports other modules call in \u0060Ports/\u0060. Domain may reference the typed identifiers; ports, module events, and integration events stay outside Domain. A module publishes no command and no refusal: another module triggers its acts through a module event its reaction answers, and each module refuses with its own refusals. A module that needs another module\u0027s state keeps its own read model built from the owner\u0027s module events, or asks one question through a decision port in the owner\u0027s \u0060Contracts/Ports/\u0060 folder. It loads no foreign aggregate or repository. A reaction to another module\u0027s fact subscribes to the published module event, never to the domain event.",
       "example": ""
     },
     {
@@ -2983,6 +3037,24 @@
       "statement": "Expose one public static assembly marker in the modules project for host endpoint discovery and scanning.",
       "rationale": "Scanners and the host need an assembly reference, and without a marker developers make handlers public to supply one, widening visibility for tooling convenience. One public static marker in the modules project gives the host and the scanners their reference while every handler stays internal.",
       "example": ""
+    },
+    {
+      "id": "litespec/backend/dotnet/config#bind-every-keyed-setting-in-one-options-class",
+      "heading": "Bind Every Keyed Setting in One Options Class",
+      "page": "docs/backend/dotnet/config.md",
+      "anchor": "bind-every-keyed-setting-in-one-options-class",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060setting-unimplemented\u0060 (level S) for a keyed setting no options class marks, and \u0060setting-key-drift\u0060 (level S) for a marked options class whose \u0060SectionName\u0060 constant and property do not spell the setting\u0027s \u0060key\u0060.",
+      "stack": "dotnet",
+      "concern": "workspace",
+      "artifact": "",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "An options class that binds a setting with a \u0060key\u0060 MUST carry an \u0060implements\u0060 mark naming the setting, with a \u0060SectionName\u0060 constant and property that spell the setting\u0027s \u0060key\u0060.",
+      "rationale": "The options class is where configuration becomes a typed value the code reads. It is the code element that implements the setting, so marking it names the promise the class holds. Comparing its section name and property with the record\u0027s key finds a renamed section or a typo before the product starts with a default. This provision binds \u0060litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element\u0060 for .NET.",
+      "example": "Claimwick\u0027s \u0060SpendingOptions\u0060 class declares \u0060SectionName = \u0022Spending\u0022\u0060, an \u0060ApprovalReminderDelay\u0060 property, and \u0060/// \u003Cimplements\u003Esetting/spending.approval-reminder-delay\u003C/implements\u003E\u0060."
     },
     {
       "id": "litespec/backend/dotnet/config#centralize-net-build-settings",
@@ -3215,7 +3287,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A repository interface MUST expose only aggregate and Domain types for exactly one aggregate root, without \u0060IQueryable\u0060, a session, or a generic CRUD surface.",
-      "rationale": "One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. \u0060GetByIdAsync\u0060 throws \u0060{Aggregate}NotFoundException\u0060 for a required load, which frees handlers from repeating null checks. A nullable \u0060FindBy...Async\u0060 stays reserved for lookups where absence is normal. A flow that finds a record or creates it is two use cases, and the boundary owning the flow chooses between them, following \u0060litespec/backend/application#implement-one-outcome-path-per-command\u0060. \u0060IQueryable\u0060, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision binds \u0060litespec/backend/domain#limit-each-repository-to-one-aggregate\u0060 for .NET. The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure. That path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A \u0060store\u0060 aggregate owns no repository interface. Its port carries the state its owner holds.",
+      "rationale": "One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. \u0060GetByIdAsync\u0060 throws \u0060{Aggregate}NotFoundException\u0060 for a required load, which frees handlers from repeating null checks. A nullable \u0060FindBy...Async\u0060 stays reserved for lookups where absence is normal. A flow that finds a record or creates it is two use cases, and the boundary owning the flow chooses between them, following \u0060litespec/backend/application#implement-one-outcome-path-per-command\u0060. \u0060IQueryable\u0060, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision binds \u0060litespec/backend/domain#limit-each-repository-to-one-aggregate\u0060 for .NET. The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure. That path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A \u0060store\u0060 owns no repository interface. Its port carries the state its owner holds.",
       "example": "\u0060\u0060\u0060csharp\npublic interface IPostRepository\n{\n    Task\u003CPost\u003E GetByIdAsync(\n        PostId id,\n        CancellationToken cancellationToken);\n\n    void Store(Post post);\n}\n\u0060\u0060\u0060\n\nIn the example, \u0060GetByIdAsync\u0060 returns the loaded \u0060Post\u0060 and throws \u0060PostNotFoundException\u0060 when the identity has no aggregate. The Infrastructure implementation throws that exception. The command pipeline owns the commit. \u0060Store\u0060 stages the aggregate through the selected provider implementation.\n\n\u0060\u0060\u0060csharp\n// Infrastructure implementation throws the aggregate\u0027s own not-found exception.\npublic async Task\u003CPost\u003E GetByIdAsync(PostId id, CancellationToken cancellationToken)\n{\n    var post = await session.LoadAsync\u003CPost\u003E(id, cancellationToken);\n    return post ?? throw new PostNotFoundException();\n}\n\u0060\u0060\u0060"
     },
     {
@@ -3845,7 +3917,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Use Domain, Application.Abstractions, Application, Infrastructure, and WebApi as the five baseline projects at every size, with a small project merging Application.Abstractions into Application and hosts and a Worker project as allowed extras.",
-      "rationale": "\u0060Application.Abstractions\u0060 holds the contracts that more than one module names: the pipeline\u0027s own positions, the cross-module ports, the transport-neutral failures, and the published integration events. It references Domain and the required LiteBus module abstractions, and nothing else. No type in it can name a use case, a handler, or a module. That restriction is why shared contracts get a project rather than a folder. A folder inside Application cannot decline what a developer puts in it, so the folder meant for shared contracts collects every unplaced type. A small project with few cross-module contracts may merge them into Application, trading that compiler-enforced separation for one less project. The project name states the admission test. Anything that is not a shared abstraction fails it. An implementation never belongs there. A type that cannot pass the test belongs to a module under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. Hosts support local hosting and diagnostics. They are hosts rather than layer projects. A Worker project hosts background work under \u0060litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process\u0060.",
+      "rationale": "\u0060Application.Abstractions\u0060 holds the contracts that more than one module names: the pipeline\u0027s own positions, the cross-module ports, the transport-neutral failures, and the published module and integration events. It references Domain and the required LiteBus module abstractions, and nothing else. No type in it can name a use case, a handler, or a module. That restriction is why shared contracts get a project rather than a folder. A folder inside Application cannot decline what a developer puts in it, so the folder meant for shared contracts collects every unplaced type. A small project with few cross-module contracts may merge them into Application, trading that compiler-enforced separation for one less project. The project name states the admission test. Anything that is not a shared abstraction fails it. An implementation never belongs there. A type that cannot pass the test belongs to a module under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. Hosts support local hosting and diagnostics. They are hosts rather than layer projects. A Worker project hosts background work under \u0060litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process\u0060.",
       "example": "\u0060\u0060\u0060text\napps/api/src/{ProjectName}.Domain/\napps/api/src/{ProjectName}.Application.Abstractions/\napps/api/src/{ProjectName}.Application/\napps/api/src/{ProjectName}.Infrastructure/\napps/api/src/{ProjectName}.WebApi/\n\u0060\u0060\u0060"
     },
     {
@@ -4191,6 +4263,24 @@
       "example": "The payout number is unique per spending owner:\n\n\u0060\u0060\u0060csharp\noptions.Schema.For\u003CPayoutDocument\u003E().UniqueIndex(\n    UniqueIndexType.Computed,\n    \u0022uq_payout_owner_number\u0022,\n    x =\u003E x.PayoutNumber);\n\u0060\u0060\u0060\n\nA payout exists at most once per expense, so its document id is the expense id:\n\n\u0060\u0060\u0060csharp\n// The payout document id equals the expense id: one payout per expense.\nsession.Store(new PayoutDocument(expense.Id, payoutNumber));\n\u0060\u0060\u0060"
     },
     {
+      "id": "litespec/backend/dotnet/persistence#implement-the-unit-of-work-boundary",
+      "heading": "Implement the Unit of Work Boundary",
+      "page": "docs/backend/dotnet/persistence.md",
+      "anchor": "implement-the-unit-of-work-boundary",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does the project\u0027s unit of work implement \u0060IUnitOfWorkBoundary\u0060 with \u0060BeginAsync\u0060 and \u0060RollbackAsync\u0060? Look at the unit-of-work type beside the pipeline composition.",
+      "stack": "dotnet",
+      "concern": "infrastructure",
+      "artifact": "any",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "The project\u0027s unit of work MUST implement \u0060IUnitOfWorkBoundary\u0060.",
+      "rationale": "LiteBus calls \u0060BeginAsync\u0060 after guards, validators, and shortcuts and before the first pre-handler, commits on success, and rolls back otherwise. The one commit per command pipeline under \u0060litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline\u0060 and the guard read lock under \u0060litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock\u0060 then run inside one transaction that LiteBus opens.",
+      "example": ""
+    },
+    {
       "id": "litespec/backend/dotnet/persistence#keep-pipeline-owned-collaborators-out-of-handlers",
       "heading": "Keep Pipeline-Owned Collaborators Out of Handlers",
       "page": "docs/backend/dotnet/persistence.md",
@@ -4261,6 +4351,24 @@
       "statement": "A query handler MUST project through \u0060IQuerySession\u0060, applying filter, scope, ordering, and limit before materialization.",
       "rationale": "The read session already filters, orders, pages, and projects. A read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that repeats it. Ordering and paging follow \u0060litespec/backend/api#bound-collection-queries\u0060. This provision binds \u0060litespec/backend/persistence#query-through-the-read-session\u0060 for .NET. Under the Marten baseline the query surface is \u0060IQuerySession\u0060, and the obligation to project with filter, scope, ordering, and limit holds. A table the project keeps beside its documents, such as a counter or an append-only ledger written through plain SQL, is read through the same session. Under Marten, \u0060AdvancedSql.QueryAsync\u003CTRow\u003E\u0060 returns any JSON-serializable type. The SQL selects one JSON object per row, keyed in the casing the store\u0027s serializer uses, with the filter, ordering, and limit in its \u0060WHERE\u0060, \u0060ORDER BY\u0060, and \u0060LIMIT\u0060. The handler keeps no repository for such a table, and the project adds no read interface for it.",
       "example": "In the Claimwick product, each spending owner\u0027s running totals live in a \u0060spending_totals\u0060 table that a command updates in place. The read-spending-totals query reads it through the session:\n\n\u0060\u0060\u0060csharp\ninternal sealed record SpendingTotalRow(Guid OwnerId, string Currency, decimal Submitted, decimal Approved);\n\nvar rows = await session.AdvancedSql.QueryAsync\u003CSpendingTotalRow\u003E(\n    \u0022\u0022\u0022\n    select jsonb_build_object(\n        \u0027ownerId\u0027, owner_id, \u0027currency\u0027, currency, \u0027submitted\u0027, submitted, \u0027approved\u0027, approved)\n    from spending_totals\n    where owner_id = ?\n    order by currency\n    limit 100\n    \u0022\u0022\u0022,\n    cancellationToken,\n    query.OwnerId.Value);\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock",
+      "heading": "Read Each Guarding Aggregate Under a Shared Lock",
+      "page": "docs/backend/dotnet/persistence.md",
+      "anchor": "read-each-guarding-aggregate-under-a-shared-lock",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does every guarding-aggregate read go through \u0060GetForGuardAsync\u0060 with a shared row lock in the command\u0027s transaction? Look at each repository guard read.",
+      "stack": "dotnet",
+      "concern": "infrastructure",
+      "artifact": "repository",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "A repository MUST read a guarding aggregate through \u0060GetForGuardAsync\u0060, which takes a shared row lock in the command\u0027s transaction.",
+      "rationale": "A read followed by a write does not keep the guard true: a competing command can change the guarding row between the two. The guard read takes a shared row lock (\u0060SELECT ... FOR SHARE\u0060 on PostgreSQL, through Entity Framework Core \u0060FromSql\u0060), so a competing command that changes the guarding row waits until the guarded command commits, and a guarded command that starts after the change reads the new state and refuses. This provision binds \u0060litespec/backend/persistence#honor-the-declared-consistency-mode\u0060 for .NET.",
+      "example": "Claimwick\u0027s submit-expense command guards on the expense report staying open. Its repository reads the report through \u0060GetForGuardAsync\u0060, so a close-report command that lands first makes submit-expense read the closed report and refuse, while a close-report that lands during the submit waits on its lock until the submit commits."
     },
     {
       "id": "litespec/backend/dotnet/persistence#register-one-scoped-session",
@@ -4457,7 +4565,7 @@
       "trace": false,
       "strength": "required",
       "statement": "The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.",
-      "rationale": "Each level S check reads one of those shapes. The mark links a code element to its record: a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove \u0060writes\u0060: a repository serves the aggregate its implementing class names in an \u0060implements\u0060 mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects. The reader reports \u0060behavior-unrecorded\u0060, \u0060use-case-unimplemented\u0060, \u0060write-undeclared\u0060, \u0060result-undeclared\u0060, \u0060effect-undeclared\u0060, and \u0060refusal-unimplemented\u0060 from code. Test marks with the latest test run prove each scenario. The reader reports \u0060proves-unreached\u0060 and \u0060use-case-scenario-missing\u0060 from tests. The reader also reads the options classes that bind keyed settings, through each class\u0027s \u0060SectionName\u0060 constant and properties. It also reads the template store \u0060stackConfig.dotnet.templateStore\u0060 names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as \u0060{{PascalCaseName}}\u0060. Level S checks block where this reader is qualified and report elsewhere.",
+      "rationale": "Each level S check reads one of those shapes. The mark links a code element to its record: a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove \u0060writes\u0060: a repository serves the aggregate its implementing class names in an \u0060implements\u0060 mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects. The reader reports \u0060behavior-unrecorded\u0060, \u0060use-case-unimplemented\u0060, \u0060write-undeclared\u0060, \u0060result-undeclared\u0060, \u0060effect-undeclared\u0060, and \u0060refusal-unimplemented\u0060 from code. Test marks with the latest test run prove each scenario. The reader reports \u0060proves-unreached\u0060 and \u0060use-case-scenario-missing\u0060 from tests. The reader also reads the options classes that bind keyed settings, through each class\u0027s \u0060SectionName\u0060 constant and properties, under \u0060litespec/backend/dotnet/config#bind-every-keyed-setting-in-one-options-class\u0060. It also reads the template store \u0060stackConfig.dotnet.templateStore\u0060 names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as \u0060{{PascalCaseName}}\u0060. Level S checks block where this reader is qualified and report elsewhere.",
       "example": "Claimwick\u0027s reimburse-expense handler carries \u0060/// \u003Cimplements\u003Euse-case/spending.reimburse-expense\u003C/implements\u003E\u0060, and its approver-reminder event handler carries \u0060/// \u003Cimplements\u003Ereaction/spending.send-approver-reminder-on-expense-submitted\u003C/implements\u003E\u0060."
     },
     {
@@ -4567,6 +4675,24 @@
       "statement": "A .NET test run MUST write its results as TRX or JUnit XML under \u0060paths.testResults\u0060.",
       "rationale": "The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside \u0060paths.testResults\u0060, proves no scenario even when every test passes, so passing tests would show as unproven. A JUnit \u0060testcase\u0060 proves a Behavior scenario without a \u0060proves\u0060 mark by carrying the scenario id in a \u0060litespec.proves\u0060 property, one property per scenario or several ids separated by commas in one value. The case proves each id it names with the same rules as a \u0060proves\u0060 mark on a test method.",
       "example": ""
+    },
+    {
+      "id": "litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests",
+      "heading": "Drain the Outbox in Acceptance Tests",
+      "page": "docs/backend/dotnet/testing.md",
+      "anchor": "drain-the-outbox-in-acceptance-tests",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does every acceptance test that asserts a reaction\u0027s effect drain the outbox before asserting it? Look at each acceptance test beside the outbox test package.",
+      "stack": "dotnet",
+      "concern": "tests",
+      "artifact": "test",
+      "layer": "proof",
+      "trace": false,
+      "strength": "required",
+      "statement": "An acceptance test that asserts a reaction\u0027s effect MUST drain the outbox through the durable-messaging test package before asserting it.",
+      "rationale": "The test hosts a transactional outbox through \u0060AddTestTransactionalOutbox\u0060 and drains it through \u0060ProcessorPassHelpers.DrainOutboxAsync\u0060, both from \u0060LiteBus.Testing.DurableMessaging\u0060 at its manifest pin. Draining runs each subscribed handler in process, so the scenario observes the reaction\u0027s effect without the processor\u0027s polling delay. The suite still runs through the real application host under \u0060litespec/backend/testing#share-one-production-faithful-integration-harness\u0060.",
+      "example": "In Claimwick, the expense-approval acceptance test sends the approve command, drains the outbox, and then asserts the payout the schedule-payout reaction wrote. Without the drain, the test would assert before the processor delivers the approval."
     },
     {
       "id": "litespec/backend/dotnet/workspace#list-every-deployable-unit-in-the-root-solution",
@@ -4764,7 +4890,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Persistence MUST commit a command exactly as its use-case record\u0027s \u0060consistency\u0060 mode states.",
-      "rationale": "Under \u0060atomic\u0060, everything the handler staged commits in one unit of work, citing the rule in \u0060boundBy\u0060 when \u0060writes\u0060 names more than one aggregate. Under \u0060per-record\u0060, each record\u0027s command commits alone, and the job resumes from its cursor after a failure. A second commit inside one command splits one unit of work across two transactions. A failure between them leaves a partial write.",
+      "rationale": "Under \u0060atomic\u0060, everything the handler staged commits in one unit of work, citing the rule in \u0060boundBy\u0060 when \u0060writes\u0060 names more than one aggregate. When \u0060consistency\u0060 names \u0060guards\u0060, the guarded read holds each guard to commit by a lock, a version check, or serializable isolation, and the stack page fixes which. Under \u0060per-record\u0060, each record\u0027s command commits alone, and the job resumes from its cursor after a failure. A second commit inside one command splits one unit of work across two transactions. A failure between them leaves a partial write.",
       "example": "The erase-expired-data job commits each expense alone under \u0060per-record\u0060, while the submit-expense command commits its staged aggregates together under \u0060atomic\u0060."
     },
     {
@@ -6970,16 +7096,16 @@
       "anchor": "declare-each-read-model-field-from-a-published-field",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060read-model-source-unknown\u0060 (level G) for a \u0060from\u0060, \u0060erasedBy\u0060 or \u0060removedBy\u0060 naming no outbound integration event or a payload field the event does not carry, \u0060read-model-key-invalid\u0060 (level G) for a \u0060keyedBy\u0060 naming an aggregate of the read model\u0027s own module, and \u0060read-model-unused\u0060 (level G) for a read model no use case reads.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060read-model-source-unknown\u0060 (level G) for a \u0060from\u0060, \u0060erasedBy\u0060 or \u0060removedBy\u0060 naming no module event or integration event, or a payload field the event does not carry, \u0060read-model-key-invalid\u0060 (level G) for a \u0060keyedBy\u0060 naming an aggregate of the read model\u0027s own module, and \u0060read-model-unused\u0060 (level G) for a read model no use case reads.",
       "stack": "any",
       "concern": "application",
       "artifact": "record:read-model",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each read model MUST name in \u0060keyedBy\u0060 an aggregate of another module and, on each field, name in \u0060from\u0060 the outbound integration event and the payload field the field comes from.",
+      "statement": "Each read model MUST name in \u0060keyedBy\u0060 an aggregate of another module and, on each field, name in \u0060from\u0060 the module event or integration event and the payload field the field comes from.",
       "rationale": "A read model is a copy, and a copy with no stated source drifts: nobody can tell which event fills a field, so a renamed payload field breaks the read model without a finding. Naming the event and its field makes every crossing of the module boundary a declared edge the check reads, the same way an effect names its target. A read model keyed by its own module\u0027s aggregate copies state the module already reads directly. A use case names the read model in \u0060reads\u0060, and a read model no use case reads is kept current for no reader. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model). Settled by [decision/0084-give-read-models-their-semantics](decision/0084-give-read-models-their-semantics).",
-      "example": "\u0060read-model/reporting.reimbursed-expense\u0060 is keyed by \u0060aggregate/spending.expense\u0060, and its \u0060amount\u0060 field comes from \u0060integration-event/expense-reimbursed#amount\u0060."
+      "example": "\u0060read-model/reporting.reimbursed-expense\u0060 is keyed by \u0060aggregate/spending.expense\u0060, and its \u0060amount\u0060 field comes from \u0060module-event/spending.expense-reimbursed#amount\u0060."
     },
     {
       "id": "litespec/core/automation#declare-every-reaction-and-job-edge-in-effects",
@@ -7049,9 +7175,9 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each \u0060personal\u0060 or \u0060sensitive\u0060 read model field MUST name in \u0060erasedBy\u0060 the integration event whose arrival erases it.",
+      "statement": "Each \u0060personal\u0060 or \u0060sensitive\u0060 read model field MUST name in \u0060erasedBy\u0060 the module event or integration event whose arrival erases it.",
       "rationale": "A read model copies data out of the module that owns its erasure. A copy without an erasure trigger outlives the owner\u0027s erasure and keeps personal data the product promised to remove. Naming the erasing event ties the copy to the owner\u0027s erasure position, and the projection for that event clears the field. The erased key keeps a tombstone that a rebuild applies, so no rebuild restores the erased field. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).",
-      "example": "The \u0060employeeId\u0060 field of \u0060read-model/reporting.reimbursed-expense\u0060 is personal, so it names \u0060integration-event/expense-personal-data-erased\u0060 in \u0060erasedBy\u0060, and the projection for that event clears it."
+      "example": "The \u0060employeeId\u0060 field of \u0060read-model/reporting.reimbursed-expense\u0060 is personal, so it names \u0060module-event/spending.expense-personal-data-erased\u0060 in \u0060erasedBy\u0060, and the projection for that event clears it."
     },
     {
       "id": "litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes",
@@ -7180,6 +7306,24 @@
       "example": "The library reserves a copy with \u0060use-case/lending.reserve-copy\u0060, which commits the reservation. When the later charge fails, \u0060use-case/lending.record-charge-failure\u0060 raises \u0060domain-event/charge.charge-failed\u0060. The reaction \u0060reaction/lending.release-copy-on-charge-failed\u0060 answers that event, runs \u0060use-case/lending.release-copy\u0060, and carries \u0060compensates: use-case/lending.reserve-copy\u0060, so a reader sees which committed step the release undoes."
     },
     {
+      "id": "litespec/core/automation#publish-every-module-event-from-the-event-it-translates",
+      "heading": "Publish Every Module Event from the Event It Translates",
+      "page": "docs/core/automation.md",
+      "anchor": "publish-every-module-event-from-the-event-it-translates",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a module event without \u0060translates\u0060, \u0060event-field-uncarried\u0060 (level G) for a payload field its translated domain event does not carry, \u0060event-publisher-invalid\u0060 for a module event with a second publishing module, and \u0060effect-undeclared\u0060 for an event a handler, event handler or job publishes itself; \u0060dotnet build\u0060 reports \u0060LS2022\u0060 for an event published by user code.",
+      "stack": "any",
+      "concern": "application",
+      "artifact": "record:module-event, record:use-case",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each module event MUST name in \u0060translates\u0060 the domain event of its own module it carries, and is published only from that domain event, by the pipeline step that stages raised events.",
+      "rationale": "When a handler builds a module event from whatever the aggregate holds after the act, it publishes state the act never announced, and a second handler can publish the same event with a different payload. Deriving the event from the one domain event it translates keeps every published field a field of the announced fact. The publishing use cases then follow from \u0060raises\u0060, with no second declaration to drift, and the domain event carries every field its module events publish, as typed fields. A publish call in user code is an edge no record can declare, so the stack reader reports it. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
+      "example": "Claimwick\u0027s \u0060module-event/spending.expense-approved\u0060 translates \u0060domain-event/expense.approved\u0060, so \u0060use-case/spending.approve-expense\u0060, which raises that event, publishes it, and its handler publishes nothing. The payouts module answers the module event from a reaction."
+    },
+    {
       "id": "litespec/core/automation#raise-completion-only-when-every-module-is-done",
       "heading": "Raise Completion Only When Every Module Is Done",
       "page": "docs/core/automation.md",
@@ -7283,8 +7427,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each reaction MUST declare in \u0060triggeredBy\u0060 the domain events of its own module or the integration events it answers.",
-      "rationale": "A reaction without a trigger has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module or integration events, never another module\u0027s domain event. Answering another module\u0027s domain event would couple it to state its module does not own; the owning module publishes an integration event instead. A \u0060skippedWhen\u0060 clause states when the reaction skips.",
+      "statement": "Each reaction MUST declare in \u0060triggeredBy\u0060 the domain events of its own module, the module events of any module of the product, or the inbound integration events it answers.",
+      "rationale": "A reaction without a trigger has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module, module events, or inbound integration events, never another module\u0027s domain event. Answering another module\u0027s domain event would couple it to state its module does not own; the owning module publishes a module event instead. A module event is itself the declared crossing between modules, as \u0060litespec/core/model#connect-across-modules-only-through-declared-dependencies\u0060 states, so a reaction may answer one from any module without a module dependency. A \u0060skippedWhen\u0060 clause states when the reaction skips.",
       "example": "In the library product, \u0060reaction/lending.send-due-notice-on-loan-borrowed\u0060 answers \u0060domain-event/loan.loan-borrowed\u0060 and runs the send-due-notice command."
     },
     {
@@ -7402,15 +7546,15 @@
       "anchor": "bind-every-atomic-write-group-in-its-rule",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060atomicity-drift\u0060 (level G) for an atomic use case whose \u0060writes\u0060 differs from its rule\u0027s \u0060binds\u0060, and \u0060atomicity-invalid\u0060 (level A) for a group binding more than 4 aggregates.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060atomicity-drift\u0060 (level G) for an atomic use case whose \u0060writes\u0060 differs from its rule\u0027s \u0060binds\u0060, and \u0060atomicity-invalid\u0060 (level A) for a group binding more than 4 aggregates or stores.",
       "stack": "any",
       "concern": "domain",
       "artifact": "record:rule",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each atomicity rule MUST name the aggregates it binds in \u0060binds\u0060.",
-      "rationale": "An atomic write across aggregates stays allowed only through its rule. The rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, and the check reports it at level A.",
+      "statement": "Each atomicity rule MUST name the aggregates or stores it binds in \u0060binds\u0060.",
+      "rationale": "An atomic write across aggregates or stores stays allowed only through its rule. The rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates or stores is a coordination candidate, and the check reports it at level A.",
       "example": "The library\u0027s hold rule binds the hold and the copy aggregates, so a hold without its copy never stands."
     },
     {
@@ -7445,27 +7589,9 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each entity MUST list every allowed state change with the use case or job moving it in \u0060transitions\u0060, including the creation that enters its first state.",
+      "statement": "Each aggregate MUST list every allowed state change with the use case or job moving it in \u0060transitions\u0060, including the creation that enters its first state.",
       "rationale": "States without transitions list names with no path between them: a reviewer sees where an aggregate can stand but never how it moves. Listing every allowed change with the use case or job moving it in \u0060movedBy\u0060 shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. A transition moved by time names the job in \u0060movedBy\u0060 with the duration from entering its source state in \u0060after\u0060. The \u0060state-unreached\u0060 and \u0060transition-unknown\u0060 checks report a state no transition reaches and a transition naming a missing state, use case, or job.",
       "example": ""
-    },
-    {
-      "id": "litespec/core/domain-model#declare-the-kind-of-every-aggregate",
-      "heading": "Declare the Kind of Every Aggregate",
-      "page": "docs/core/domain-model.md",
-      "anchor": "declare-the-kind-of-every-aggregate",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an aggregate page without \u0060kind\u0060 or with an unknown kind.",
-      "stack": "any",
-      "concern": "domain",
-      "artifact": "aggregate",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Each aggregate MUST declare its kind: entity or store.",
-      "rationale": "The kind decides what the page carries: an entity carries a lifecycle, and a store carries an owner with no guarded invariant. Without the kind, a thing kept consistent reads the same as a table the product only holds.",
-      "example": "Claimwick\u0027s expense declares \u0060kind: entity\u0060, and the suppression list declares \u0060kind: store\u0060."
     },
     {
       "id": "litespec/core/domain-model#define-every-behavior-term-in-the-glossary",
@@ -7522,24 +7648,6 @@
       "example": "The rule is named \u0060rule/order.cancel-never-after-shipment\u0060."
     },
     {
-      "id": "litespec/core/domain-model#leave-states-off-every-store",
-      "heading": "Leave States off Every Store",
-      "page": "docs/core/domain-model.md",
-      "anchor": "leave-states-off-every-store",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a store aggregate carrying \u0060states\u0060.",
-      "stack": "any",
-      "concern": "domain",
-      "artifact": "aggregate",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A store MUST carry no states.",
-      "rationale": "A store holds state no aggregate invariant guards, so a lifecycle on it promises what nothing guards: its states would claim a reviewed path while any writer changes the rows. The store names its owner instead, as \u0060litespec/core/domain-model#name-the-owner-of-every-store\u0060 states, and staff actions on it stay ordinary use cases.",
-      "example": "Claimwick\u0027s suppression list declares \u0060kind: store\u0060 with its owner, and no states."
-    },
-    {
       "id": "litespec/core/domain-model#mark-each-term-with-its-layer",
       "heading": "Mark Each Term with Its Layer",
       "page": "docs/core/domain-model.md",
@@ -7564,16 +7672,16 @@
       "anchor": "model-each-aggregate-lifecycle-with-states",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an entity page without \u0060states\u0060 entries carrying a name and a meaning.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an aggregate page without \u0060states\u0060 entries carrying a name and a meaning.",
       "stack": "any",
       "concern": "domain",
       "artifact": "aggregate",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each entity MUST declare its lifecycle as \u0060states\u0060 entries with a name and a meaning.",
-      "rationale": "A bare state name tells a reviewer nothing: \u0060rejected\u0060 without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page and gives \u0060transitions\u0060 states to connect. An entity tracks what the thing is, while a store carries no lifecycle and therefore no states.",
-      "example": "The library\u0027s hold queue entity declares \u0060Requested\u0060, \u0060Ready\u0060, \u0060Collected\u0060, \u0060Cancelled\u0060, and \u0060Lapsed\u0060, each with one sentence saying what the hold awaits or has received."
+      "statement": "Each aggregate MUST declare its lifecycle as \u0060states\u0060 entries with a name and a meaning.",
+      "rationale": "A bare state name tells a reviewer nothing: \u0060rejected\u0060 without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page and gives \u0060transitions\u0060 states to connect. An aggregate tracks what the thing is, while a store carries no lifecycle and therefore no states.",
+      "example": "The library\u0027s hold queue aggregate declares \u0060Requested\u0060, \u0060Ready\u0060, \u0060Collected\u0060, \u0060Cancelled\u0060, and \u0060Lapsed\u0060, each with one sentence saying what the hold awaits or has received."
     },
     {
       "id": "litespec/core/domain-model#name-each-module-after-its-capability",
@@ -7618,15 +7726,15 @@
       "anchor": "name-every-spanned-aggregate-in-binds",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060rule-binds-missing\u0060 (level G) for a rule whose \u0060governs\u0060 names more than one aggregate while \u0060binds\u0060 names none or not all of them.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060rule-binds-missing\u0060 (level G) for a rule whose \u0060governs\u0060 names more than one aggregate or store while \u0060binds\u0060 names none or not all of them.",
       "stack": "any",
       "concern": "domain",
       "artifact": "record:rule",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each rule whose \u0060governs\u0060 names more than one aggregate MUST name every governed aggregate in \u0060binds\u0060.",
-      "rationale": "No rule across aggregates is held by one aggregate alone: a state guard or an atomicity rule holds it. Naming every reached aggregate in \u0060binds\u0060 shows the rule\u0027s reach beside the rule, so a reader sees which aggregates change together.",
+      "statement": "Each rule whose \u0060governs\u0060 names more than one aggregate or store MUST name every governed aggregate or store in \u0060binds\u0060.",
+      "rationale": "No rule across aggregates or stores is held by one aggregate or store alone: a state guard or an atomicity rule holds it. Naming every reached aggregate or store in \u0060binds\u0060 shows the rule\u0027s reach beside the rule, so a reader sees which aggregates or stores change together.",
       "example": "\u0060rule/spending.receipt-filed-once\u0060 states that a receipt file supports one expense across spending, and names \u0060aggregate/spending.expense\u0060 and \u0060aggregate/spending.receipt\u0060 in \u0060binds\u0060."
     },
     {
@@ -7636,15 +7744,15 @@
       "anchor": "name-the-owner-of-every-store",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a store aggregate page without \u0060owner\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a store page without \u0060owner\u0060.",
       "stack": "any",
       "concern": "domain",
-      "artifact": "aggregate",
+      "artifact": "record:store",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each store MUST name its owning system or module in \u0060owner\u0060.",
-      "rationale": "A store holds state no aggregate invariant guards, so nothing in the model says who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner states who answers for its shape, and staff actions on it stay ordinary use cases instead of unwritten operations.",
+      "statement": "Each store MUST name its owning module or external system in \u0060owner\u0060.",
+      "rationale": "A store holds state no aggregate invariant guards, so nothing in the model says who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner states who answers for its shape, and staff actions on it stay ordinary use cases instead of unwritten operations. Settled by [decision/0092-store-and-module-event-records](decision/0092-store-and-module-event-records).",
       "example": ""
     },
     {
@@ -7726,7 +7834,7 @@
       "anchor": "state-each-event-with-meaning-and-carries",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an event entry without \u0060meaning\u0060 or \u0060carries\u0060, and \u0060integration-event-field-uncarried\u0060 for an integration-event payload field its translated domain event does not carry.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an event entry without \u0060meaning\u0060 or \u0060carries\u0060, and \u0060event-field-uncarried\u0060 for an integration-event payload field its translated domain event does not carry.",
       "stack": "any",
       "concern": "domain",
       "artifact": "domain-event",
@@ -7788,7 +7896,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each rule MUST name what it constrains in \u0060governs\u0060.",
-      "rationale": "A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates and use cases in \u0060governs\u0060 pins each rule to its records. The governed records match the links that name the rule: input \u0060rules\u0060, consistency bindings, calculation links, scenario \u0060exercises\u0060, and result refusals. A rule governs records of its own module.",
+      "rationale": "A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates, stores, and use cases in \u0060governs\u0060 pins each rule to its records. The governed records match the links that name the rule: input \u0060rules\u0060, consistency bindings, calculation links, scenario \u0060exercises\u0060, and result refusals. A module rule governs records of its own module; a product-level rule governs records in any module and names each aggregate or store it governs.",
       "example": "The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results that cite its code."
     },
     {
@@ -8068,7 +8176,7 @@
       "anchor": "publish-every-outbound-integration-event-from-the-event-it-translates",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an outbound integration event without \u0060translates\u0060, \u0060integration-event-field-uncarried\u0060 (level G) for a payload field its translated domain event does not carry, and \u0060effect-undeclared\u0060 for an event a handler, event handler or job publishes itself; \u0060dotnet build\u0060 reports \u0060LS2022\u0060 for an event published by user code.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an outbound integration event without \u0060translates\u0060, \u0060event-field-uncarried\u0060 (level G) for a payload field its translated domain event does not carry, and \u0060effect-undeclared\u0060 for an event a handler, event handler or job publishes itself; \u0060dotnet build\u0060 reports \u0060LS2022\u0060 for an event published by user code.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:integration-event, record:use-case",
@@ -8581,7 +8689,7 @@
       "strength": "required",
       "statement": "A flow MUST lead one actor toward the record it exists for through ordered steps, naming exactly one reason, one goal in \u0060serves\u0060 or one problem or constraint in \u0060answers\u0060, and stating each path off that order in \u0060branches\u0060.",
       "rationale": "A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in \u0060cites\u0060 the requirements it carries, and the use cases, reactions, and jobs serving each step point up with \u0060serves\u0060. \u0060branches\u0060 holds the paths leaving the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).",
-      "example": "The largest consumer held a 21-step flow with five actors, from creating the organizer to closing the books. Split by reason, it is four flows: set up and sell an event; buy a ticket; admit the crowd; close the night."
+      "example": "Claimwick held a 21-step flow with five actors, from filing an expense to closing the month. Split by reason, it is four flows: file an expense; approve an expense; reimburse the employee; close the month."
     },
     {
       "id": "litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement",
@@ -8738,7 +8846,7 @@
       "stack": "any",
       "concern": "records",
       "artifact": "any",
-      "layer": "intent",
+      "layer": "behavior",
       "trace": false,
       "strength": "required",
       "statement": "Each Intent record other than a vision MUST reach Behavior through its stated path.",
@@ -8831,8 +8939,8 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A requirement MUST be fulfilled only from Behavior records.",
-      "rationale": "Only Behavior keeps promises. The records that fulfill are rule, use case, reaction, job, notification, and setting. A flow names the requirements it shows in its steps\u0027 \u0060cites\u0060, but it never fulfills: a flow alone never clears an unfulfilled requirement. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.",
+      "statement": "A functional or policy requirement MUST be fulfilled only from Behavior records.",
+      "rationale": "Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, and a served-content entry point. A flow names the requirements it shows in its steps\u0027 \u0060cites\u0060, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in \u0060basedOn\u0060, by its \u0060check\u0060, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.",
       "example": ""
     },
     {
@@ -9732,7 +9840,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every project text MUST use the form the text-kind table gives its kind.",
-      "rationale": "Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice show what the text does from its form alone. Record values stay in the third person, Intent chapter prose says \u0060we\u0060 for the business, and nothing says \u0060you\u0060.",
+      "rationale": "Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice show what the text does from its form alone. Record values stay in the third person, Intent chapter prose says \u0060we\u0060 for the business, and no record says \u0060you\u0060; tutorial and how-to pages may.",
       "example": "A Claimwick requirement states \u0022An expense above the threshold waits for its approver.\u0022"
     },
     {
@@ -9803,8 +9911,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Behavior that fulfills an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.",
-      "rationale": "An Intent promise says what the product owes in product words, without saying how the system keeps it. Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfill a requirement, as \u0060litespec/core/intent#restrict-requirement-fulfillment-to-behavior\u0060 states. Without that detail, each implementer fills the gap with a guess, and two guesses about the same promise diverge.",
+      "statement": "Behavior that fulfills an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that the Intent record implies but leaves unstated.",
+      "rationale": "An Intent promise says what the product owes in product words, without saying how the system keeps it. Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. A detail counts as implied when every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise does not name. Only Behavior records fulfill a requirement, as \u0060litespec/core/intent#restrict-requirement-fulfillment-to-behavior\u0060 states. Without that detail, each implementer fills the gap with a guess, and two guesses about the same promise diverge.",
       "example": "Claimwick\u0027s reimbursement promise gains an entity with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate."
     },
     {
@@ -9886,16 +9994,16 @@
       "anchor": "raise-open-needs-as-owner-questions-or-backlog-items",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every unstated need have a question to the owner or a backlog item? Check the added records from a lower record layer beside the owner questions and the backlog.",
+      "evidence": "Does every need the upper layer neither states nor implies have a question to the owner or a backlog item? Check the added records from a lower record layer beside the owner questions and the backlog.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A need a lower record layer meets that the upper record layer leaves unstated MUST travel up as a question to the owner or a backlog item, never as code.",
-      "rationale": "The lower layer does not decide what the upper layer left unstated, so the need travels up with its context instead of turning into a guess. A question carries product choices to the person who answers for them. A backlog item holds the rest where it stays visible until it is specified. The specification is closed: an agent builds what it states and nothing more.",
-      "example": "Claimwick\u0027s missing reimbursement policy becomes a question to the owner, not a rule the agent writes."
+      "statement": "A need that the upper record layer neither states nor implies, such as a refusal, eligibility condition, limit, or figure an actor meets, MUST travel up as a question to the owner or a backlog item, never as a record or code.",
+      "rationale": "The lower layer does not decide what the upper layer neither states nor implies, so the need travels up with its context instead of turning into a guess. A question carries product choices to the person who answers for them. A backlog item holds the rest where it stays visible until it is specified. The specification is closed: an agent builds what it states and nothing more.",
+      "example": "Claimwick\u0027s agent meets a need for a refusal of expenses with a future date, which the receipt promise neither states nor implies, so the need becomes a question to the owner instead of a rule the agent writes."
     },
     {
       "id": "litespec/core/layers#record-changed-provider-behavior-as-observed-research",
@@ -9949,7 +10057,7 @@
       "strength": "required",
       "statement": "Each record below Intent MUST be written from a record in the record layer above it.",
       "rationale": "Without a parent above it, a lower record could carry a promise from above or invent a new one, and reviewers cannot tell which. Implementers then build from guesses, and two guesses about the same gap diverge. Writing each record from the layer above keeps one chain from promise to proof, so a gap shows as a missing parent instead of silent invention. Derivation between records follows the same direction: generic refusals derive from \u0060access\u0060 and \u0060input\u0060 without new records.",
-      "example": "Claimwick\u0027s submit-expense handler holds a positivity guard with no rule above it. The agent writes the missing rule or reports the gap, and the guard stays until the record is written. Behavior with no parent is recorded or reported, never deleted for lacking one."
+      "example": "Claimwick\u0027s submit-expense handler holds a positivity guard with no rule above it. The agent writes the missing rule or reports the gap, and the guard stays until the record is written. Behavior with no parent is recorded or reported, never deleted for lacking one. A test with no record above it is a finding the team resolves by writing the missing record or reporting the gap. It is deleted only when a reviewer establishes that the behavior it protects is obsolete, redundant or wrong, and the pull request says so."
     },
     {
       "id": "litespec/core/maintaining#keep-provision-identifiers-stable-within-a-major-version",
@@ -10114,24 +10222,6 @@
       "example": "The book needs to say that a refusal has no scenario, so LiteSpec gains a check for it, and the book shows that check\u0027s findings."
     },
     {
-      "id": "litespec/core/model#author-one-slice-at-a-time",
-      "heading": "Author One Slice at a Time",
-      "page": "docs/core/model.md",
-      "anchor": "author-one-slice-at-a-time",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Does every Behavior record show the Intent above it? Follow its \u0060fulfills\u0060 and \u0060decides\u0060 links.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:feature",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Authoring MUST complete one feature from problem to scenario before starting the next.",
-      "rationale": "A feature worked from problem to scenario stays complete at every level: each record lands with the Intent above it already written. Parallel slices leave Behavior records resting on Intent nobody wrote yet.",
-      "example": ""
-    },
-    {
       "id": "litespec/core/model#classify-every-specification-file",
       "heading": "Classify Every Specification File",
       "page": "docs/core/model.md",
@@ -10163,8 +10253,8 @@
       "layer": "implementation",
       "trace": true,
       "strength": "required",
-      "statement": "The builder MUST compute one completion stage for every requirement, use case, flow, feature and goal, and write it as \u0060completion\u0060 with \u0060stage\u0060, \u0060proof\u0060, \u0060heldBy\u0060 and \u0060counts\u0060, with a parent only as far as its weakest in-scope child and \u0060heldBy\u0060 naming at most ten children at that stage.",
-      "rationale": "Completion is a fact the builder can count from fulfillment, code, and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: \u0060unfulfilled\u0060 when no Behavior record fulfills a record, \u0060specified\u0060 when it is fulfilled and no code is found, \u0060coded\u0060 when code is found for every in-scope child, and \u0060verified\u0060 when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays \u0060coded\u0060 with proof \u0060unknown\u0060, so proof unknown never reads as a failure. A requirement a waiver parks stays out of the stage and the counts and names itself in \u0060heldBy\u0060, so deferred work stays visible. A goal\u0027s completion shows delivery only; its outcome reads \u0060not measured\u0060 until the goal records \u0060observations\u0060.",
+      "statement": "The builder MUST compute one completion stage for every requirement, use case, flow, feature and goal, and write it as \u0060completion\u0060 with \u0060stage\u0060, \u0060proof\u0060, \u0060heldBy\u0060, \u0060parkedBy\u0060 and \u0060counts\u0060, with a parent only as far as its weakest in-scope child, \u0060heldBy\u0060 naming at most ten in-scope children at that stage, and \u0060counts\u0060 holding \u0060inScope\u0060, \u0060parked\u0060 and \u0060total\u0060.",
+      "rationale": "Completion is a fact the builder can count from fulfillment, code, and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: \u0060unfulfilled\u0060 when no Behavior record fulfills a record, \u0060specified\u0060 when it is fulfilled and no code is found, \u0060coded\u0060 when code is found for every in-scope child, and \u0060verified\u0060 when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays \u0060coded\u0060 with proof \u0060unknown\u0060, so proof unknown never reads as a failure. A requirement a waiver parks stays out of the stage and counts as parked: \u0060heldBy\u0060 lists only in-scope records holding the stage back, and \u0060parkedBy\u0060 lists parked records with the waiver that parks each and its \u0060expiresOn\u0060. The book shows \u0022verified, 12 of 14; 2 parked\u0022, with a parked list naming each waiver and expiry. A goal\u0027s completion shows delivery only; its outcome reads \u0060not measured\u0060 until the goal records \u0060observations\u0060.",
       "example": "In Claimwick, \u0060feature/expense-submission\u0060 shows \u0060coded\u0060 with proof \u0060unknown\u0060 before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows \u0060verified\u0060 with no held-by entries."
     },
     {
@@ -10182,7 +10272,7 @@
       "trace": true,
       "strength": "required",
       "statement": "Coded, verified, tested, exercised, stale, flaky, and reachable MUST come from the builder, never from handwriting.",
-      "rationale": "Handwritten state drifts: a record marked coded stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads coded when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario, the test body, or a file carrying the mark of the behavior it proves changed after the run, which records its commit. A requirement reads verified when everything fulfilling it is verified and its measure\u0027s check passes. A record reads tested when a passing test that asserts something links to it. A flow step reads exercised when a passing proof of a use case, reaction, or job serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "rationale": "Handwritten state drifts: a record marked coded stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads coded when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when its run commit is behind HEAD with a changed path outside the record and documentation paths, or when its run commit is unknown. A run records its commit. A requirement reads verified when everything fulfilling it is verified and its measure\u0027s check passes. A record reads tested when a passing test that asserts something links to it. A flow step reads exercised when a passing proof of a use case, reaction, or job serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
       "example": "A use case reads coded when its handler exists."
     },
     {
@@ -10192,16 +10282,16 @@
       "anchor": "connect-across-modules-only-through-declared-dependencies",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060link-locality-invalid\u0060 for a record under a module that is linked from another module with no declared dependency or integration event.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060link-locality-invalid\u0060 for a record under a module that is linked from another module with no declared dependency, module event, or integration event.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Within one layer, a record under a module MUST be linked from another module only along a declared module dependency or through an integration event.",
-      "rationale": "A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency or the integration event names the tie, so the seam where a monolith would split stays visible. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.",
-      "example": "A spending rule cited from the finance module with no \u0060dependsOn\u0060 tie and no integration event between them is reported; the rule moves to product level or the modules declare the tie."
+      "statement": "Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, or through an integration event.",
+      "rationale": "A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.",
+      "example": "A spending rule cited from the finance module with no \u0060dependsOn\u0060 tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie."
     },
     {
       "id": "litespec/core/model#connect-every-behavior-record-to-intent",
@@ -10516,7 +10606,7 @@
       "anchor": "mark-every-check-with-its-level",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060reader-missing\u0060 (level S) for a frontend whose reader is missing or failing, prints the level beside each finding, and \u0060litespec model check --release\u0060 blocks on \u0060reader-missing\u0060 for a claimed layer.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060reader-missing\u0060 (level S) for a frontend whose reader is missing or failing, prints the level beside each finding, prints \u0060inspection incomplete: reader for \u003Cfrontend\u003E missing, \u003CN\u003E findings not blocking\u0060 as its last line when any reader was missing with one clause per frontend, and exits with code 3 when no finding blocks but the inspection was incomplete. \u0060litespec model check --release\u0060 blocks on \u0060reader-missing\u0060 for a claimed layer.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
@@ -10632,7 +10722,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every test MUST name in a \u0060proves\u0060 mark the lowest record it verifies, from the kinds the marks table on this page lists for a test.",
-      "rationale": "A test outside the record tree is either proof of something the specification forgot to state or a test that verifies nothing anyone promised. Naming the lowest record it verifies places each test: a scenario or rule for behavior, a quality requirement for how well the product behaves, a technical decision for a technical choice, an external system or integration event for an agreement with the outside, a provision for a structural rule the code must keep, and a project convention for a standing rule the code must keep. A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test that verifies nothing a record should state is deleted. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test that asserts something links to a quality requirement, a technical decision, an external system, an integration event, or a provision marks that record tested, so \u0022the adapter is right\u0022 never reads as \u0022the promise is kept\u0022. A background use case is verified through the passing proofs of the use cases it serves. A browser success proof asserts the result sentence or the scenario Then text.",
+      "rationale": "A test outside the record tree is either proof of something the specification forgot to state or a test that verifies nothing anyone promised. Naming the lowest record it verifies places each test: a scenario or rule for behavior, a quality requirement for how well the product behaves, a technical decision for a technical choice, an external system or integration event for an agreement with the outside, a provision for a structural rule the code must keep, and a project convention for a standing rule the code must keep. A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test with no record above it is a finding to resolve by writing the missing record or reporting the gap. It is deleted only when a reviewer establishes that the behavior it protects is obsolete, redundant or wrong, and the pull request says so. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test that asserts something links to a quality requirement, a technical decision, an external system, an integration event, or a provision marks that record tested, so \u0022the adapter is right\u0022 never reads as \u0022the promise is kept\u0022. A background use case is verified through the passing proofs of the use cases it serves. A browser success proof asserts the result sentence or the scenario Then text.",
       "example": "In Claimwick, the submit-expense acceptance test proves \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060; a load test of month-end submissions proves \u0060requirement/approval-reminders.month-end-submission\u0060; a receipt-rendering test proves \u0060decision/0005-render-receipts-as-pdf\u0060; and the layering test that Domain references no persistence package proves \u0060litespec/backend/architecture#point-dependencies-inward\u0060."
     },
     {
@@ -10642,7 +10732,7 @@
       "anchor": "name-what-every-decision-decides",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060decision-decides-missing\u0060 for a product decision with an empty \u0060decides\u0060 field, and \u0060decision-decides-duplicate\u0060 for two decisions deciding one record.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060decision-decides-missing\u0060 for a product decision with an empty \u0060decides\u0060 field.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:decision",
@@ -11068,6 +11158,24 @@
       "example": "The author validates the touched page, fixes the reported diagnostics, and commits only when the page passes."
     },
     {
+      "id": "litespec/core/model#write-each-slice-from-intent-down",
+      "heading": "Write Each Slice from Intent Down",
+      "page": "docs/core/model.md",
+      "anchor": "write-each-slice-from-intent-down",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does every Behavior record show the Intent above it? Follow its \u0060fulfills\u0060 and \u0060decides\u0060 links.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:feature",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each slice MUST write its Intent before its Behavior, and its Behavior before its code.",
+      "rationale": "A slice worked from Intent down stays complete at every level: each record lands with the Intent above it already written. Independent slices may run at the same time.",
+      "example": "Two agents write the approval and approval-reminder features at once, each from its requirement down."
+    },
+    {
       "id": "litespec/core/model#write-every-record-file-in-canonical-form",
       "heading": "Write Every Record File in Canonical Form",
       "page": "docs/core/model.md",
@@ -11488,7 +11596,7 @@
       "anchor": "share-no-transaction-across-an-edge",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an effect entry that names \u0060sharesTransaction\u0060 or a use case that \u0060runs\u0060 another use case.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an effect entry that names \u0060sharesTransaction\u0060 or a use case that \u0060runs\u0060 another use case; \u0060dotnet build\u0060 reports \u0060LS2021\u0060 for a mediator held outside an endpoint, event handler, or job, and \u0060LS2022\u0060 for an event published by user code.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
@@ -11496,7 +11604,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An edge between records MUST NOT share a transaction, so each use case commits only its own writes.",
-      "rationale": "An edge that shares its caller\u0027s transaction makes two use cases one unit of work: the called use case depends on a commit it does not own, a failure in either rolls back both, and neither use-case record says what it commits anymore. Running every follow-on act from a reaction to the fact the first act raised gives each use case its own commit, its own failure handling, and its own record. The schema holds no field for transaction sharing, so the rule holds by construction. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
+      "rationale": "An edge that shares its caller\u0027s transaction makes two use cases one unit of work: the called use case depends on a commit it does not own, a failure in either rolls back both, and neither use-case record says what it commits anymore. Running every follow-on act from a reaction to the fact the first act raised gives each use case its own commit, its own failure handling, and its own record. The schema offers no field for transaction sharing, so a record cannot declare a shared transaction. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
       "example": "Claimwick\u0027s reimbursement commits the expense and raises its reimbursed fact, and a reaction in the reporting module answers the published fact in its own transaction."
     },
     {
@@ -11886,7 +11994,7 @@
       "anchor": "check-intent-and-behavior-changes-with-the-book",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 exits zero when it reports no G finding, such as \u0060record-invalid\u0060.",
+      "evidence": "\u0060litespec model check\u0060 exits zero when it reports no G finding, such as \u0060record-invalid\u0060, and the inspection was complete.",
       "stack": "any",
       "concern": "operations",
       "artifact": "any",
@@ -12300,16 +12408,16 @@
       "anchor": "keep-every-litespec-file-under-one-folder",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any file LiteSpec creates, reads, or governs sit outside \u0060.litespec/\u0060 or at the repository root? Look at the repository tree beside the project\u0027s \u0060.litespec/\u0060 folder.",
+      "evidence": "Does any LiteSpec record, document, explanation file, or generated file sit outside \u0060.litespec/\u0060 or at the repository root? Look at the repository tree beside the project\u0027s \u0060.litespec/\u0060 folder.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, \u0060.litespec/\u0060, at the repository root.",
-      "rationale": "When LiteSpec material scatters across the repository, readers and tools hunt the tree for it. One folder with one name in every consumer makes the material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting, and keeps it apart from the application\u0027s code, tests, and infrastructure. Generated output inside it stays covered by its \u0060.gitignore\u0060, so a checkout never mixes committed records with built files. Every path in \u0060.litespec/project.yaml\u0060 stays relative to the repository root, so moving the folder never rewrites the paths inside it. A command finds the consumer by walking up from the working folder to the first folder that holds \u0060.litespec/project.yaml\u0060.",
-      "example": "Claimwick holds its project file, glossary, example cast, and its Intent, Behavior, Implementation, Proof, and Governance folders under \u0060examples/claimwick/.litespec/\u0060 (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder, instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places."
+      "statement": "A consumer MUST hold every LiteSpec record, document, explanation file, and generated file under one folder, \u0060.litespec/\u0060, at the repository root.",
+      "rationale": "When LiteSpec material scatters across the repository, readers and tools hunt the tree for it. One folder with one name in every consumer makes the material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting, and keeps it apart from application code, tests, contracts, and \u0060AGENTS.md\u0060, which keep their own homes. Generated output inside it stays covered by its \u0060.gitignore\u0060, so a checkout never mixes committed records with built files. Every path in \u0060.litespec/project.yaml\u0060 stays relative to the repository root, so moving the folder never rewrites the paths inside it. A command finds the consumer by walking up from the working folder to the first folder that holds \u0060.litespec/project.yaml\u0060.",
+      "example": "Claimwick holds its project file, glossary, example cast, and its Intent, Behavior, Implementation, Proof, and Governance folders under \u0060examples/claimwick/.litespec/\u0060 (in a real consumer, at its repository root), beside its application code, tests, contracts, and \u0060AGENTS.md\u0060, which keep their own homes. An agent asked to read the contract opens that one folder, instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places."
     },
     {
       "id": "litespec/core/scope#keep-one-bounded-context",
@@ -12469,9 +12577,9 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary, and the pattern catalog, in YAML that states its \u0060schemaVersion\u0060 and names its schema in a first-line \u0060# yaml-language-server: $schema=\u003Curl\u003E\u0060 comment, while files that programs exchange, such as check results, the model, and \u0060--format json\u0060 output, stay JSON.",
-      "rationale": "Without one syntax, readers learn a new format per file, and edits hide in brace noise. People write these files and review them in pull requests, so one syntax with comments keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and \u0060schemaVersion\u0060 tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own. Settled by [decision/0023-every-handwritten-file-in-yaml](decision/0023-every-handwritten-file-in-yaml).",
-      "example": "Claimwick\u0027s \u0060.litespec/project.yaml\u0060 starts with the comment naming \u0060https://litespec.dev/\u003Cversion\u003E/schemas/litespec-project.schema.yaml\u0060, then \u0060schemaVersion: 1\u0060, and lists its layers, size, shape, and stacks as YAML keys. Its check results under \u0060.litespec/proof/checks/\u0060 stay JSON, written by its harness."
+      "statement": "A consumer MUST write every structured LiteSpec file a person edits, the project file, the records, the glossary, and the pattern catalog, in YAML that states its \u0060schemaVersion\u0060 and names its schema in a first-line \u0060# yaml-language-server: $schema=\u003Curl\u003E\u0060 comment.",
+      "rationale": "Without one syntax, readers learn a new format per file, and edits hide in brace noise. People write these files and review them in pull requests, so one syntax with comments keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and \u0060schemaVersion\u0060 tells a tool which shape the file holds. Structured LiteSpec data is YAML; explanation files are Markdown, as the [model page](model.md) states. Files that programs exchange, such as check results, the model, and \u0060--format json\u0060 output, stay JSON, which every tool reads without a parser of its own. Settled by [decision/0023-every-handwritten-file-in-yaml](decision/0023-every-handwritten-file-in-yaml).",
+      "example": "Claimwick\u0027s \u0060.litespec/project.yaml\u0060 starts with the comment naming \u0060https://litespec.dev/\u003Cversion\u003E/schemas/litespec-project.schema.yaml\u0060, then \u0060schemaVersion: 1\u0060, and lists its layers, size, shape, and stacks as YAML keys. Its explanation files beside the records are Markdown. Its check results under \u0060.litespec/proof/checks/\u0060 stay JSON, written by its harness."
     },
     {
       "id": "litespec/core/scopes#declare-the-page-scope",
@@ -12888,22 +12996,22 @@
       "example": ""
     },
     {
-      "id": "litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class",
-      "heading": "Bind Every Keyed Setting in One Marked Options Class",
+      "id": "litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element",
+      "heading": "Bind Every Keyed Setting in One Marked Element",
       "page": "docs/core/use-cases.md",
-      "anchor": "bind-every-keyed-setting-in-one-marked-options-class",
+      "anchor": "bind-every-keyed-setting-in-one-marked-element",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060setting-unimplemented\u0060 (level S) for a keyed setting no options class marks, and \u0060setting-key-drift\u0060 (level S) for a marked options class whose \u0060SectionName\u0060 constant and property do not spell the setting\u0027s \u0060key\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060setting-unimplemented\u0060 (level S) for a keyed setting no marked element implements, and \u0060setting-key-drift\u0060 (level S) for a marked element whose name does not spell the setting\u0027s \u0060key\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:setting",
-      "layer": "behavior",
-      "trace": false,
+      "layer": "implementation",
+      "trace": true,
       "strength": "required",
-      "statement": "A setting with a \u0060key\u0060 MUST be bound by an options class that carries an \u0060implements\u0060 mark naming the setting and whose section and property spell the key.",
-      "rationale": "The options class is where configuration becomes a typed value the code reads. It is the code element that implements the setting, so marking it names the promise the class holds. Comparing its section name and property with the record\u0027s key finds the renamed section or the typo before the product starts with a default.",
-      "example": "Claimwick\u0027s \u0060SpendingOptions\u0060 class declares \u0060SectionName = \u0022Spending\u0022\u0060, an \u0060ApprovalReminderDelay\u0060 property, and \u0060/// \u003Cimplements\u003Esetting/spending.approval-reminder-delay\u003C/implements\u003E\u0060."
+      "statement": "A setting with a \u0060key\u0060 MUST be bound in code by one element that carries an \u0060implements\u0060 mark naming the setting and whose name spells the key.",
+      "rationale": "A setting reaches the running product through configuration, and the code reads it as a typed value. The code element holding that value is where the record and the configuration meet, so marking it with the setting it implements names the promise the element holds. Comparing the element name with the record key finds a renamed section or a typo before the product starts on a default nobody chose. Each stack states the shape of the element.",
+      "example": "Claimwick\u0027s approval-reminder-delay setting carries \u0060key\u0060 \u0060Spending:ApprovalReminderDelay\u0060. One element carries an \u0060implements\u0060 mark naming \u0060setting/spending.approval-reminder-delay\u0060, and its name spells the key."
     },
     {
       "id": "litespec/core/use-cases#bound-every-caller-supplied-input-value",
@@ -12955,9 +13063,9 @@
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "Each command writing two or more aggregates MUST declare its write consistency in \u0060consistency\u0060.",
-      "rationale": "Consistency left unsaid is read as atomic until a multi-aggregate write fails halfway. Declaring the mode states the promise: \u0060atomic\u0060 commits every write in \u0060writes\u0060 as one group, and \u0060per-record\u0060 commits each write on its own. An atomic write across aggregates cites its \u0060atomicity\u0060 rule in \u0060boundBy\u0060, and \u0060writes\u0060 holds exactly the aggregates the rule binds. A group above 4 aggregates is reported. Atomic consistency never spans an \u0060async\u0060 edge. A command writing one aggregate is atomic by definition and carries no \u0060consistency\u0060, and a query carries none. [Domain Model](domain-model.md) states the \u0060atomicity\u0060 rule. The \u0060consistency-cites-missing\u0060 check reports an atomic multi-aggregate write with no \u0060boundBy\u0060, \u0060atomicity-drift\u0060 reports \u0060writes\u0060 differing from the bound group, and \u0060atomicity-invalid\u0060 reports a group above 4 aggregates. Settled by [decision/0076-remove-shapes-nothing-needs](decision/0076-remove-shapes-nothing-needs).",
-      "example": "The reimburse-expense command declares atomic consistency citing the reimbursed-once rule. The self-checkout scan declares per-record consistency across its attempts."
+      "statement": "Each command writing two or more aggregates, or reading an aggregate whose rule guards its write, MUST declare its write consistency in \u0060consistency\u0060.",
+      "rationale": "Consistency left unsaid is read as atomic until a multi-aggregate write fails halfway. Declaring the mode states the promise: \u0060atomic\u0060 commits every write in \u0060writes\u0060 as one group, and \u0060per-record\u0060 commits each write on its own. A command that writes one aggregate and reads an aggregate whose rule guards its write declares \u0060atomic\u0060 with the guarding aggregates in \u0060guards\u0060, so the guard still holds when the command commits. An atomic write across aggregates cites its \u0060atomicity\u0060 rule in \u0060boundBy\u0060, and \u0060writes\u0060 holds exactly the aggregates the rule binds. A guarded command cites the guarding rule in \u0060boundBy\u0060 and names in \u0060guards\u0060 the aggregates it reads, and does not write. A group above 4 aggregates is reported. Atomic consistency never spans an \u0060async\u0060 edge. A command writing one aggregate and reading no guarding aggregate is atomic by definition and carries no \u0060consistency\u0060, and a query carries none. [Domain Model](domain-model.md) states the \u0060atomicity\u0060 rule. The \u0060consistency-cites-missing\u0060 check reports an atomic multi-aggregate write with no \u0060boundBy\u0060, \u0060atomicity-drift\u0060 reports \u0060writes\u0060 differing from the bound group, and \u0060atomicity-invalid\u0060 reports a group above 4 aggregates. Settled by [decision/0076-remove-shapes-nothing-needs](decision/0076-remove-shapes-nothing-needs).",
+      "example": "The reimburse-expense command declares atomic consistency citing the reimbursed-once rule. The self-checkout scan declares per-record consistency across its attempts. The submit-expense command writes the expense and reads the report, so it declares atomic consistency citing the open-report rule with the report in \u0060guards\u0060."
     },
     {
       "id": "litespec/core/use-cases#declare-each-modules-refusals-once",
@@ -13158,6 +13266,24 @@
       "statement": "Each use case MUST declare its grant and its tenant scope in \u0060access\u0060.",
       "rationale": "Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the grant beside the behavior states who may act and how far the call reaches. The grant is \u0060permission/\u003Cname\u003E\u0060, \u0060self(permission/\u003Cname\u003E)\u0060, \u0060signed-in\u0060, \u0060anonymous\u0060, or \u0060system\u0060, with the tenant scope \u0060own\u0060, \u0060cross\u0060, \u0060public\u0060, or \u0060none\u0060. [Access](access.md) states the grant forms and the tenant meanings, and the entry point the call arrives through states how the caller proved identity. The authorization guard enforces the grant (\u0060litespec/backend/application#enforce-target-authorization-in-the-pipeline\u0060), and \u0060LS2012\u0060 reports a handler that authorizes itself.",
       "example": "The reimburse-expense command declares the reimburse-expense permission with own tenant scope, reached through a session entry point. The self-checkout scan declares a system grant through a device entry point."
+    },
+    {
+      "id": "litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit",
+      "heading": "Hold Every Cross-Aggregate Guard Until Commit",
+      "page": "docs/core/use-cases.md",
+      "anchor": "hold-every-cross-aggregate-guard-until-commit",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060guard-undeclared\u0060 (level G) for a command whose \u0060boundBy\u0060 rule governs an aggregate the command reads but does not write, and whose \u0060consistency.guards\u0060 does not name that aggregate.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:use-case",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each command whose \u0060boundBy\u0060 rule governs an aggregate the command reads but does not write MUST name that aggregate in \u0060consistency.guards\u0060.",
+      "rationale": "A guard read at the start of a command can change before the command commits: submit-expense reads the report as open, close-report closes it and commits, and submit-expense then commits an expense on a closed report. Naming the guarding aggregate in \u0060guards\u0060 states that the rule must still hold when the command commits. Mode \u0060atomic\u0060 with \u0060guards\u0060 means the guard holds at commit. The stack page states how the guarded read holds the guard, by a lock, a version check, or serializable isolation.",
+      "example": "The submit-expense command reads the report and writes the expense, with the open-report rule in \u0060boundBy\u0060. It names the report in \u0060guards\u0060, so a racing close-report commit either waits or makes submit-expense refuse."
     },
     {
       "id": "litespec/core/use-cases#justify-every-wider-visibility",
@@ -13487,6 +13613,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/use-cases#prove-every-guard-against-a-competing-command",
+      "heading": "Prove Every Guard Against a Competing Command",
+      "page": "docs/core/use-cases.md",
+      "anchor": "prove-every-guard-against-a-competing-command",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060guard-race-scenario-missing\u0060 (level G) for a command with \u0060consistency.guards\u0060 and no scenario carrying \u0060competesWith\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:use-case",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "At large size, each command carrying \u0060consistency.guards\u0060 MUST be shown by at least one scenario naming the competing command in \u0060competesWith\u0060.",
+      "rationale": "Every scenario that runs alone passes while the race stays unproven: each command meets the guard in its own state and commits. Running the guarded command against its competitor shows what the race brings. The scenario names the competing command in \u0060competesWith\u0060, and its \u0060then\u0060 states the one refusal or the serialized outcome.",
+      "example": "A submit-expense scenario carries \u0060competesWith: use-case/spending.close-report\u0060. Its \u0060then\u0060 states that the expense is refused because the report closed, or that one command commits first and the other meets the new state."
+    },
+    {
       "id": "litespec/core/use-cases#prove-every-written-result-with-a-scenario",
       "heading": "Prove Every Written Result with a Scenario",
       "page": "docs/core/use-cases.md",
@@ -13500,7 +13644,7 @@
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "Each written result MUST be shown by at least one scenario of its use case.",
+      "statement": "At large size or with the \u0060bdd\u0060 extension, each written result MUST be shown by at least one scenario of its use case.",
       "rationale": "A written result no scenario shows is an ending nobody proved: it reads on the page and is asserted in no test, so it drifts from the code with the next change. One scenario per result pins each ending as a checked fact, including the refusals a caller can meet.",
       "example": "The reimburse-expense command declares the \u0060already-reimbursed\u0060 refusal. A scenario walks an approved expense claimed twice to that refusal."
     },
@@ -13583,7 +13727,7 @@
       "anchor": "start-every-use-case-with-a-declared-verb",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-verb-unknown\u0060 for a use-case name opening with a verb neither list declares, and \u0060term-verb-duplicate\u0060 for a glossary verb term restating a baseline verb.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-verb-unknown\u0060 for a use-case name opening with a verb neither list declares, \u0060term-verb-duplicate\u0060 for a glossary verb term restating a baseline verb, and \u0060verb-distinction-missing\u0060 (level A) for a declared verb retaking a retired synonym whose definition does not name the baseline verb it differs from.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:use-case",
@@ -13591,8 +13735,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each use case MUST start with a verb from the baseline vocabulary or a verb term the project declares in its glossary.",
-      "rationale": "Without one verb per meaning, \u0060read\u0060 versus \u0060get\u0060 and \u0060change\u0060 versus \u0060update\u0060 compete in every listing, and related behavior scatters. Starting from one closed baseline vocabulary and adding only declared verbs keeps use cases findable. A shared first word groups related behavior, and a retired synonym points at its replacement instead of spreading without notice. When the act verb is in neither list, the author first declares it as a glossary verb term in the same change, then scaffolds the use case. The \u0060litespec new\u0060 command scaffolds a use-case page without checking its verb, so declaring the verb term first avoids scaffolding a use case that the verb check then reports. A project never redefines a baseline verb. Proposed by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).",
-      "example": "The project declares \u0060borrow\u0060 and \u0060check-in\u0060 as glossary verb terms. The names \u0060use-case/lending.borrow-copy\u0060 and \u0060use-case/lending.check-in-copy\u0060 pass, \u0060use-case/lending.list-loans\u0060 passes on the baseline vocabulary, and \u0060use-case/lending.update-copy\u0060 is told to use \u0060change\u0060."
+      "rationale": "Without one verb per meaning, \u0060read\u0060 versus \u0060get\u0060 and \u0060change\u0060 versus \u0060update\u0060 compete in every listing, and related behavior scatters. Starting from one closed baseline vocabulary and adding only declared verbs keeps use cases findable. A shared first word groups related behavior, and a retired synonym points at its replacement instead of spreading without notice. When the act verb is in neither list, the author first declares it as a glossary verb term in the same change, then scaffolds the use case. The \u0060litespec new\u0060 command scaffolds a use-case page without checking its verb, so declaring the verb term first avoids scaffolding a use case that the verb check then reports. A project never redefines a baseline verb. A project may still declare a retired synonym as its own glossary verb term when the term\u0027s definition states how it differs from the baseline verb it was retired into, naming that verb. This adds a verb, it does not redefine one. Proposed by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).",
+      "example": "The project declares \u0060borrow\u0060 and \u0060check-in\u0060 as glossary verb terms. The names \u0060use-case/lending.borrow-copy\u0060 and \u0060use-case/lending.check-in-copy\u0060 pass, \u0060use-case/lending.list-loans\u0060 passes on the baseline vocabulary, and \u0060use-case/lending.update-copy\u0060 is told to use \u0060change\u0060. The library declares \u0060archive\u0060 as its own verb for a copy kept readable and restorable, with a definition stating how it differs from \u0060retire\u0060."
     },
     {
       "id": "litespec/core/use-cases#state-the-audit-position-of-every-command",
@@ -20318,15 +20462,15 @@
       "anchor": "classify-message-kinds",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every outbox record name its message kind, with each integration event citing its record? Check the record type and the messages staged.",
+      "evidence": "Does every outbox record name its message kind, with each module and integration event citing its record? Check the record type and the messages staged.",
       "stack": "any",
       "concern": "infrastructure",
-      "artifact": "record:integration-event",
+      "artifact": "record:integration-event, record:module-event",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "An outbox record MUST name its message kind as integration event, flow-step command, or provider side effect, with an integration event citing its integration-event record.",
-      "rationale": "An integration event, a flow-step command, and a provider side effect each dispatch through their own owners and transports, so the record names which one it holds. The integration event cites its integration-event record, so the staged message traces to the published fact it carries.",
+      "statement": "An outbox record MUST name its message kind as module event, integration event, flow-step command, or provider side effect, with a module event citing its module-event record and an integration event citing its integration-event record.",
+      "rationale": "Each kind dispatches through its own owner: a module event in process to its subscribed handlers, an integration event through its transport, a flow-step command through the mediator, and a provider side effect through its integration, so the record names which one it holds. The module event cites its module-event record and the integration event cites its integration-event record, so the staged message traces to the published fact it carries.",
       "example": ""
     },
     {
@@ -20384,6 +20528,24 @@
       "example": ""
     },
     {
+      "id": "litespec/ext/outbox#deliver-module-facts-in-process-without-a-broker",
+      "heading": "Deliver Module Facts in Process Without a Broker",
+      "page": "docs/ext/outbox.md",
+      "anchor": "deliver-module-facts-in-process-without-a-broker",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does any delivery between modules of one product leave the process or name a broker? Check the dispatch transports beside the module events.",
+      "stack": "any",
+      "concern": "infrastructure",
+      "artifact": "any",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Facts between modules of one product MUST travel in process through the outbox, with no broker.",
+      "rationale": "A module event is a contract between modules of one product, delivered from the same database that holds the business work. A broker between modules adds transport, operations, and failure modes for a hop that never leaves the process. An integration event still crosses the bounded context through the transport its record names in \u0060through\u0060.",
+      "example": ""
+    },
+    {
       "id": "litespec/ext/outbox#deploy-readers-before-writers",
       "heading": "Deploy Readers Before Writers",
       "page": "docs/ext/outbox.md",
@@ -20435,6 +20597,24 @@
       "strength": "default",
       "statement": "Dispatch a flow-step command through \u0060ICommandMediator\u0060 in a fresh Worker scope.",
       "rationale": "A flow-step command is a full command with validation, authorization, and its own transaction, not a subroutine of the dispatcher. Sending it through \u0060ICommandMediator\u0060 in a fresh Worker scope runs the whole application pipeline for it.",
+      "example": ""
+    },
+    {
+      "id": "litespec/ext/outbox#dispatch-projections-immediately-after-commit",
+      "heading": "Dispatch Projections Immediately After Commit",
+      "page": "docs/ext/outbox.md",
+      "anchor": "dispatch-projections-immediately-after-commit",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Is every projection the caller reads dispatched in process after the commit with the processor as fallback? Check each such projection beside the dispatch registration.",
+      "stack": "any",
+      "concern": "infrastructure",
+      "artifact": "reaction",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "A projection a caller reads when the command returns MUST dispatch in process after the commit, with the outbox processor retrying whatever the immediate dispatch misses.",
+      "rationale": "A read-model projection the next screen reads is visible when the command returns, but a dispatch without retry loses the projection on a crash. An immediate in-process dispatch after the commit gives read-your-writes for projections, and the outbox processor stays the fallback, so retry is never given up. The command\u0027s outcome never changes on a failed immediate dispatch.",
       "example": ""
     },
     {
@@ -20588,16 +20768,16 @@
       "anchor": "keep-published-events-available-for-read-model-rebuilds",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Is every integration event a read model names kept apart from delivery for as long as a rebuild may need it, with erased fields removed or the key shredded? Check the event log\u0027s retention beside the read models that read it.",
+      "evidence": "Is every module or integration event a read model names kept apart from delivery for as long as a rebuild may need it, with erased fields removed or the key shredded? Check the event log\u0027s retention beside the read models that read it.",
       "stack": "any",
       "concern": "infrastructure",
-      "artifact": "record:read-model, record:integration-event",
+      "artifact": "record:read-model, record:integration-event, record:module-event",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A project MUST keep every integration event a read model names in \u0060from\u0060, \u0060erasedBy\u0060 or \u0060removedBy\u0060 apart from the outbox\u0027s delivery records for as long as a read model may need rebuilding from it, with erased personal fields removed or the event key shredded.",
+      "statement": "A project MUST keep every module or integration event a read model names in \u0060from\u0060, \u0060erasedBy\u0060 or \u0060removedBy\u0060 apart from the outbox\u0027s delivery records for as long as a read model may need rebuilding from it, with erased personal fields removed or the event key shredded.",
       "rationale": "A new read model, or a changed one, fills from the events the owner already published. An outbox that deletes delivered records after a few days leaves a new read model nothing to replay, and every new read model then needs a hand-written backfill from the owner\u0027s tables, which is the coupling the read model exists to remove. Keeping the published events in a log apart from delivery lets a projection replay history. The log holds personal fields, so the erasing event a read model names in \u0060erasedBy\u0060 also erases the field in the log. A retained event keeps its shape with the erased personal fields removed, or with its key shredded, so no rebuild restores them. The read model keeps an erasure tombstone for the erased key and applies it on rebuild, under \u0060litespec/core/automation#erase-a-read-model-personal-field-with-its-owner\u0060. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).",
-      "example": "In Claimwick, the reporting module rebuilds its reimbursed-expense read model by replaying the kept expense-reimbursed events, while the outbox deletes its delivery records after seven days. A retained event for an erased expense replays without the erased personal fields."
+      "example": "In Claimwick, the reporting module rebuilds its reimbursed-expense read model by replaying the kept expense-reimbursed module events, while the outbox deletes its delivery records after seven days. A retained event for an erased expense replays without the erased personal fields."
     },
     {
       "id": "litespec/ext/outbox#model-outbox-lifecycle-states",
@@ -20894,15 +21074,15 @@
       "anchor": "stage-after-commit-effects-in-the-outbox",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every raised domain event and translated integration event stage in the transaction of its aggregate changes, through the one global step? Check the pipeline\u0027s staging step and the outbox writes beside it.",
+      "evidence": "Does every raised domain event and translated module and integration event stage in the transaction of its aggregate changes, through the one global step? Check the pipeline\u0027s staging step and the outbox writes beside it.",
       "stack": "any",
       "concern": "infrastructure",
       "artifact": "command-handler",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A use case MUST stage each domain event its act raises, and each integration event translating one of them, in the outbox in the same transaction as its changes.",
-      "rationale": "A raised fact means what follows it runs: staged in the same transaction, the change and its message commit or roll back together. One global pipeline step stages each raised domain event for the reactions of its module and each integration event whose record translates it, built from the domain event alone, as \u0060litespec/backend/application#emit-declared-integration-events-after-commit\u0060 requires. No user code stages or publishes, so this step is the only code that stages. A message sent from memory instead would be lost on a crash between the commit and the send, and every follow-on act runs from a reaction to a staged fact.",
+      "statement": "A use case MUST stage each domain event its act raises, each module event translating one of them, and each integration event translating one of them, in the outbox in the same transaction as its changes.",
+      "rationale": "A raised fact means what follows it runs: staged in the same transaction, the change and its message commit or roll back together. One global pipeline step stages each raised domain event for the reactions of its module, each module event whose record translates it, and each integration event whose record translates it, each built from the domain event alone, as \u0060litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit\u0060 requires. No user code stages or publishes, so this step is the only code that stages. A message sent from memory instead would be lost on a crash between the commit and the send, and every follow-on act runs from a reaction to a staged fact.",
       "example": ""
     },
     {
@@ -30372,7 +30552,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A rule claim MUST confirm only through a scenario the same test proves.",
-      "rationale": "Every rule holds at the point its kind names: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, and a rule whose \u0060binds\u0060 names the aggregates it spans at the state guard or the atomic use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that \u0060litespec/core/domain-model#tabulate-every-calculation-with-examples\u0060 requires.",
+      "rationale": "Every rule holds at the point its kind names: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, and a rule whose \u0060binds\u0060 names the aggregates or stores it spans, at the state guard or the atomic use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that \u0060litespec/core/domain-model#tabulate-every-calculation-with-examples\u0060 requires.",
       "example": "A test proves the scenario for an expense above the threshold with no receipt, and claims the receipt rule alongside it. The scenario sends the command and asserts the \u0060spending.receipt-missing\u0060 refusal, and the rule claim confirms because the same test proves the scenario. No separate mark names the validator or the store."
     },
     {
@@ -31255,7 +31435,7 @@
       "strength": "required",
       "statement": "A consumer workspace MUST use the canonical root tree declared in this section.",
       "rationale": "",
-      "example": "A consumer workspace uses this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      features/\n        {feature}/\n          {feature}.yaml\n          requirements/\n            {requirement}/\n              {requirement}.yaml    one requirement, in its own folder\n      requirements/                 product requirements\n        {requirement}/\n          {requirement}.yaml\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/\n          aggregates/\n            {aggregate}/\n              aggregate.yaml\n              use-cases/\n                {use-case}/\n                  {use-case}.yaml   results and scenarios as entries\n              domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files for the entries in angle brackets.\n\nNeither the backend application nor a frontend application sits at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder as \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.\n\nAn entry lives in its home file: permissions in the permissions file of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
+      "example": "A consumer workspace uses this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ visions/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      features/\n        {feature}/\n          {feature}.yaml\n          requirements/\n            {requirement}/\n              {requirement}.yaml    one requirement, in its own folder\n      requirements/                 product requirements\n        {requirement}/\n          {requirement}.yaml\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ module-events/ integration-events/ external-systems/\n          aggregates/\n            {aggregate}/\n              aggregate.yaml\n              use-cases/\n                {use-case}/\n                  {use-case}.yaml   results and scenarios as entries\n              domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files for the entries in angle brackets.\n\nNeither the backend application nor a frontend application sits at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder as \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.\n\nAn entry lives in its home file: permissions in the permissions file of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
     }
   ]
 }

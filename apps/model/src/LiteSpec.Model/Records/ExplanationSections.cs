@@ -38,11 +38,13 @@ public static class ExplanationSections
             // Behavior
             [RecordTypes.Module] = Of(("Responsibilities", false), ("Boundaries", false), ("Example", true)),
             [RecordTypes.Aggregate] = Of(("Lifecycle", false), ("Data and Retention", false), ("Example", true), ("Limits", true)),
+            [RecordTypes.Store] = Of(("Data and Retention", false), ("Example", true)),
             [RecordTypes.UseCase] = Of(("Flow", false), ("Example", true), ("Edge Cases", true)),
             [RecordTypes.RuleSet] = Of(("Rationale", false), ("Example", true)),
             [RecordTypes.Reaction] = Of(("Trigger and Effect", false), ("Failure Handling", false), ("Example", true)),
             [RecordTypes.Job] = Of(("Invocation", false), ("Failure Handling", false), ("Example", true)),
             [RecordTypes.Notification] = Of(("Content", false), ("Delivery", false), ("Example", false)),
+            [RecordTypes.ModuleEvent] = Of(("Consumers", false), ("Compatibility", false), ("Example", true)),
             [RecordTypes.IntegrationEvent] = Of(("Consumers", false), ("Compatibility", false), ("Example", false)),
             [RecordTypes.ReadModel] = Of(("Sources", false), ("Freshness", false), ("Example", true)),
             [RecordTypes.ExternalSystem] = Of(("Use", false), ("Data Shared", false), ("Failure Handling", false)),

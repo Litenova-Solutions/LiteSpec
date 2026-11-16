@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Checks;
 using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
@@ -51,6 +52,9 @@ sealed class CompletionLookups
     /// <summary>Gets the ids a follows link reaches.</summary>
     public HashSet<string> Followed { get; }
 
+    /// <summary>Gets the live waiver parking each record, by record id: the waiver id with its expiry date, or null for a lasting waiver.</summary>
+    public Dictionary<string, (string Waiver, string? ExpiresOn)> ParkedBy { get; }
+
     /// <summary>Gets the stage of each flow step worked out so far.</summary>
     public Dictionary<string, string> StepStages { get; } = new(StringComparer.Ordinal);
 
@@ -78,6 +82,7 @@ sealed class CompletionLookups
             .ToHashSet(StringComparer.Ordinal);
         Implemented = model.Implements.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
         Followed = model.Follows.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
+        ParkedBy = ParkingWaivers(model);
     }
 
     /// <summary>The records of one type, in id order.</summary>
@@ -219,6 +224,42 @@ sealed class CompletionLookups
 
         return asserting;
     }
+
+    /// <summary>The live waiver parking each record, by record id: the first live waiver in id order naming it in subject, with its expiry date or null for a lasting waiver.</summary>
+    /// <param name="model">The built project model.</param>
+    /// <returns>The parking waiver per parked record id.</returns>
+    static Dictionary<string, (string Waiver, string? ExpiresOn)> ParkingWaivers(ProjectModel model)
+    {
+        var parked = new Dictionary<string, (string Waiver, string? ExpiresOn)>(StringComparer.Ordinal);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        foreach (var waiver in model.Records
+            .Where(record => record.Type == RecordTypes.Waiver)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (!Live(waiver, today))
+            {
+                continue;
+            }
+
+            var expiresOn = waiver.Field(RecordFields.ExpiresOn);
+
+            foreach (var subject in waiver.Ids(RecordFields.Subject))
+            {
+                parked.TryAdd(subject, (waiver.Id, expiresOn));
+            }
+        }
+
+        return parked;
+    }
+
+    /// <summary>Whether the waiver holds today: it has no expiry date, or its expiry date has not passed.</summary>
+    /// <param name="waiver">The waiver record.</param>
+    /// <param name="today">Today's date.</param>
+    /// <returns>True when the waiver parks its subjects today.</returns>
+    static bool Live(Record waiver, DateOnly today) =>
+        waiver.Field(RecordFields.ExpiresOn) is not { } expiresOn
+        || (ProseText.IsoDate(expiresOn, out var expires) && today <= expires);
 
     /// <summary>Adds a record to the list a key holds, starting the list when the key is new.</summary>
     /// <param name="index">The index to add to.</param>

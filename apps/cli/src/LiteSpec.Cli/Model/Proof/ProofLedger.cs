@@ -1,10 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using LiteSpec.Cli.Model.Configuration;
-using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
-using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Model.Proof;
 
@@ -14,10 +12,11 @@ namespace LiteSpec.Cli.Model.Proof;
 
 
 
+
 /// <summary>
-///     The hashes each scenario had when the builder last read a passing run of
-///     its proof, kept in the committed <c>.litespec/proof/proofs.json</c>. A proof is
-///     stale when the scenario's hash or its tests' hash has moved since.
+///     The run commit each scenario's proof last passed at, kept in the committed
+///     <c>.litespec/proof/proofs.json</c>. A proof is fresh when its run commit is
+///     HEAD or only record paths changed since it.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class ProofLedger
@@ -81,27 +80,18 @@ sealed class ProofLedger
                     continue;
                 }
 
-                var scenario = property.Value.TryGetProperty("scenario", out var scenarioHash)
-                    ? scenarioHash.GetString() ?? ""
+                var commit = property.Value.TryGetProperty("commit", out var commitId)
+                    ? commitId.GetString() ?? ""
                     : "";
-                var test = property.Value.TryGetProperty("test", out var testHash)
-                    ? testHash.GetString() ?? ""
+                var outcome = property.Value.TryGetProperty("outcome", out var result)
+                    ? result.GetString() ?? ""
                     : "";
                 var run = property.Value.TryGetProperty("run", out var runId)
                     ? runId.GetString() ?? ""
                     : "";
-                var method = property.Value.TryGetProperty("method", out var methodHash)
-                    ? methodHash.GetString() ?? ""
-                    : "";
 
-                var marks = property.Value.TryGetProperty("marks", out var marksHash)
-                    ? marksHash.GetString() ?? ""
-                    : "";
-                var commit = property.Value.TryGetProperty("commit", out var commitId)
-                    ? commitId.GetString() ?? ""
-                    : "";
-
-                entries[property.Name] = new ProofEntry(scenario, test, run, method, marks, commit);
+                // A ledger written before outcomes carries the commit and the run without one; its proofs passed.
+                entries[property.Name] = new ProofEntry(commit, outcome.Length > 0 ? outcome : "Passed", run);
             }
         }
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException or InvalidOperationException)
@@ -141,124 +131,23 @@ sealed class ProofLedger
     }
 
     /// <summary>
-    ///     The hash of the proving test files: each file's path relative to the
-    ///     project root with <c>/</c> separators and its text with line endings
-    ///     normalised to <c>\n</c>, in path order, so a test change stales the
-    ///     proof until a newer passing run is read and a checkout on another
-    ///     machine hashes the same. A missing file hashes as empty.
-    /// </summary>
-    /// <param name="model">The built project model holding the proves links and tests.</param>
-    /// <param name="scenario">The scenario id whose proving test files are hashed.</param>
-    /// <returns>The sixteen-hex-character hash of the proving test files.</returns>
-    public static string TestHashOf(ProjectModel model, string scenario)
-    {
-        var files = new SortedSet<string>(StringComparer.Ordinal);
-
-        foreach (var link in model.Proves)
-        {
-            if (link.Claim != scenario || !link.Confirmed)
-            {
-                continue;
-            }
-
-            foreach (var test in model.Tests)
-            {
-                if (test.Name == link.Scenario)
-                {
-                    files.Add(test.File);
-                }
-            }
-
-            foreach (var browser in model.BrowserTests)
-            {
-                if (browser.Title == link.Scenario)
-                {
-                    files.Add(browser.File);
-                }
-            }
-        }
-
-        var hasher = new Sha256();
-
-        foreach (var file in files)
-        {
-            var full = Path.IsPathRooted(file) ? file : Path.Combine(model.Config.Root, file);
-            var relative = PathText.Relative(model.Config.Root, full)
-                .Replace(Path.DirectorySeparatorChar, '/')
-                .Replace(Path.AltDirectorySeparatorChar, '/');
-
-            hasher.Append(Encoding.UTF8.GetBytes(relative + "\n"));
-
-            if (File.Exists(full))
-            {
-                var text = File.ReadAllText(full)
-                    .Replace("\r\n", "\n", StringComparison.Ordinal)
-                    .Replace("\r", "\n", StringComparison.Ordinal);
-
-                hasher.Append(Encoding.UTF8.GetBytes(text));
-            }
-        }
-
-        return Convert.ToHexString(hasher.Finish()).ToLowerInvariant()[..16];
-    }
-
-    /// <summary>
-    ///     The hash of the proving test methods: each method's hash from its scenario read, in test name order,
-    ///     so an edit to a proving method moves it and an edit elsewhere in its file does not. A scenario with
-    ///     no proving .NET test method hashes as empty.
-    /// </summary>
-    /// <param name="model">The built project model holding the proves links and tests.</param>
-    /// <param name="scenario">The scenario id whose proving test methods are hashed.</param>
-    /// <returns>The sixteen-hex-character hash of the proving test methods.</returns>
-    public static string MethodHashOf(ProjectModel model, string scenario)
-    {
-        var methods = new SortedDictionary<string, string>(StringComparer.Ordinal);
-
-        foreach (var link in model.Proves)
-        {
-            if (link.Claim != scenario || !link.Confirmed)
-            {
-                continue;
-            }
-
-            foreach (var test in model.Tests.Where(test => test.Name == link.Scenario))
-            {
-                methods[test.Name] = test.MethodHash;
-            }
-        }
-
-        var hasher = new Sha256();
-
-        foreach (var (name, hash) in methods)
-        {
-            hasher.Append(Encoding.UTF8.GetBytes(name + "\n" + hash + "\n"));
-        }
-
-        return Convert.ToHexString(hasher.Finish()).ToLowerInvariant()[..16];
-    }
-
-    /// <summary>
-    ///     Whether the scenario's passing proof in this run is stale: the first time a run
-    ///     passes the proof, both hashes are recorded and the proof is current. On every
-    ///     later build against the same run, the proof is stale when either hash moved.
-    ///     A newer passing run records the current hashes instead.
+    ///     Whether the scenario's passing proof in this run is stale: a run passing the proof for the first time
+    ///     records its commit and reads fresh. On every later build against the same run, the proof is stale
+    ///     unless its run commit is HEAD or only record paths changed since it.
     /// </summary>
     /// <param name="scenario">The scenario id to test.</param>
-    /// <param name="scenarioHash">The scenario semantic hash in this build.</param>
-    /// <param name="testHash">The proving test files hash in this build.</param>
-    /// <param name="methodHash">The proving test methods hash in this build.</param>
-    /// <param name="marksHash">The proving code marks hash in this build.</param>
     /// <param name="run">The identity of the passing run in this build.</param>
-    /// <param name="commit">The commit the passing run was made on.</param>
-    /// <returns>True when the recorded proof for the same run carries a moved hash.</returns>
-    public bool Stale(string scenario, string scenarioHash, string testHash, string methodHash, string marksHash, string run, string commit)
+    /// <param name="commit">The commit the passing run was read at.</param>
+    /// <param name="freshness">The proof freshness against HEAD, cached per run commit.</param>
+    /// <returns>True when the recorded proof for the same run is stale.</returns>
+    public bool Stale(string scenario, string run, string commit, ProofFreshness freshness)
     {
         if (entries.TryGetValue(scenario, out var entry) && entry.Run == run)
         {
-            return entry.Scenario != scenarioHash || entry.Test != testHash || entry.Marks != marksHash;
+            return freshness.StatusOf(entry.Commit).Status == "stale";
         }
 
-        entries[scenario] = new ProofEntry(scenarioHash, testHash, run, methodHash, marksHash, commit);
+        entries[scenario] = new ProofEntry(commit, "Passed", run);
         Changed = true;
 
         return false;
@@ -275,67 +164,6 @@ sealed class ProofLedger
         var result = ProcessRunner.Git(config.Root, "rev-parse", "HEAD");
 
         return result.Status == 0 ? result.Stdout.Trim() : "";
-    }
-
-    /// <summary>
-    ///     The hash of the files carrying a mark of the behavior a scenario proves: the scenario itself, the
-    ///     use case, reaction or job whose file holds it, and the records its result, outcome and exercises name.
-    ///     Each file's path and text are hashed in path order, as the test files are, so an edit to any marked
-    ///     file after the run stales the proof. A file that is missing hashes as empty.
-    /// </summary>
-    /// <param name="model">The built project model holding the records and the code elements.</param>
-    /// <param name="scenario">The scenario record whose proved behavior is hashed.</param>
-    /// <returns>The sixteen-hex-character hash of the marked files.</returns>
-    public static string MarksHashOf(ProjectModel model, Record scenario)
-    {
-        var owners = new HashSet<string>(StringComparer.Ordinal) { scenario.Id };
-
-        foreach (var field in new[] { RecordFields.Result, RecordFields.Outcome, RecordFields.Exercises })
-        {
-            foreach (var id in scenario.Ids(field))
-            {
-                owners.Add(id);
-            }
-        }
-
-        foreach (var owner in model.Records.Where(record =>
-            !record.Derived
-            && record.File == scenario.File
-            && record.Id != scenario.Id
-            && (record.Type == RecordTypes.UseCase || record.Type == RecordTypes.Reaction || record.Type == RecordTypes.Job)))
-        {
-            owners.Add(owner.Id);
-        }
-
-        var files = new SortedSet<string>(StringComparer.Ordinal);
-
-        foreach (var element in model.Code.Elements.Where(element => element.Marks.Any(mark => owners.Contains(mark.RecordId))))
-        {
-            files.Add(element.File);
-        }
-
-        var hasher = new Sha256();
-
-        foreach (var file in files)
-        {
-            var full = Path.IsPathRooted(file) ? file : Path.Combine(model.Config.Root, file);
-            var relative = PathText.Relative(model.Config.Root, full)
-                .Replace(Path.DirectorySeparatorChar, '/')
-                .Replace(Path.AltDirectorySeparatorChar, '/');
-
-            hasher.Append(Encoding.UTF8.GetBytes(relative + "\n"));
-
-            if (File.Exists(full))
-            {
-                var text = File.ReadAllText(full)
-                    .Replace("\r\n", "\n", StringComparison.Ordinal)
-                    .Replace("\r", "\n", StringComparison.Ordinal);
-
-                hasher.Append(Encoding.UTF8.GetBytes(text));
-            }
-        }
-
-        return Convert.ToHexString(hasher.Finish()).ToLowerInvariant()[..16];
     }
 
     /// <summary>Writes the ledger when a build recorded a new proof.</summary>
@@ -360,12 +188,9 @@ sealed class ProofLedger
             foreach (var entry in entries.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 writer.WriteStartObject(entry.Key);
-                writer.WriteString("scenario", entry.Value.Scenario);
-                writer.WriteString("test", entry.Value.Test);
-                writer.WriteString("run", entry.Value.Run);
-                writer.WriteString("method", entry.Value.Method);
-                writer.WriteString("marks", entry.Value.Marks);
                 writer.WriteString("commit", entry.Value.Commit);
+                writer.WriteString("outcome", entry.Value.Outcome);
+                writer.WriteString("run", entry.Value.Run);
                 writer.WriteEndObject();
             }
 

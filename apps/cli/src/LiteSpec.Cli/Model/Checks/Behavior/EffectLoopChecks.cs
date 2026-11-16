@@ -28,9 +28,9 @@ internal static class EffectLoopChecks
     }
 
     /// <summary>
-    ///     The effect edges: use-case effects and raises, each raised event into the integration
-    ///     events that translate it, reaction triggers reversed into event edges with the reaction
-    ///     effects, and job effects.
+    ///     The effect edges: use-case effects and raises, each raised event into the module
+    ///     events and integration events that translate it, reaction triggers reversed into
+    ///     event edges with the reaction effects, and job effects.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and its effect edges.</param>
     /// <returns>The effect graph by source identifier, with each target list in ordinal order.</returns>
@@ -83,7 +83,7 @@ internal static class EffectLoopChecks
                     var baseId = Identifiers.BaseId(trigger);
 
                     if (model.ById.TryGetValue(baseId, out var resolved)
-                        && resolved.Type is RecordTypes.DomainEvent or RecordTypes.IntegrationEvent)
+                        && resolved.Type is RecordTypes.DomainEvent or RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent)
                     {
                         Edge(baseId, record.Id);
                     }
@@ -109,12 +109,12 @@ internal static class EffectLoopChecks
             }
         }
 
-        // A raised domain event reaches each outbound integration event that translates it.
-        foreach (var integration in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent))
+        // A raised domain event reaches each module event and each outbound integration event that translates it.
+        foreach (var published in model.Records.Where(record => record.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent))
         {
-            foreach (var translated in integration.Ids(RecordFields.Translates))
+            foreach (var translated in published.Ids(RecordFields.Translates))
             {
-                Edge(Identifiers.BaseId(translated), integration.Id);
+                Edge(Identifiers.BaseId(translated), published.Id);
             }
         }
 

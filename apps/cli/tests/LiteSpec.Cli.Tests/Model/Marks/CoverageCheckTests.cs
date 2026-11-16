@@ -25,7 +25,7 @@ public sealed class CoverageCheckTests
         using var temp = WriteKindConsumer();
         var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "aggregate-unimplemented");
 
-        Assert.DoesNotContain(findings, finding => finding.Subject == "aggregate/lending.outbox");
+        Assert.DoesNotContain(findings, finding => finding.Subject == "store/lending.outbox");
     }
 
     /// <summary>Entity Aggregate Without A Root Still Reports.</summary>
@@ -115,7 +115,7 @@ public sealed class CoverageCheckTests
         Assert.Contains("sends notification/lending.loan-due", finding.Message);
     }
 
-    /// <summary>Writes a consumer where an entity and a store aggregate each have no root in code.</summary>
+    /// <summary>Writes a consumer where an aggregate and a store each have no root in code.</summary>
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteKindConsumer()
     {
@@ -167,9 +167,6 @@ public sealed class CoverageCheckTests
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
                   "title": "Loan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "entity",
                   "states": [
                     {
                       "name": "Active",
@@ -183,17 +180,16 @@ public sealed class CoverageCheckTests
 
                 A loan lends one copy to one reader.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.yaml", """
                 {
-                  "type": "aggregate",
-                  "id": "aggregate/lending.outbox",
+                  "type": "store",
+                  "id": "store/lending.outbox",
                   "title": "Outbox",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "store"
+                  "summary": "The lending-owned table of scans awaiting dispatch.",
+                  "owner": "module/lending"
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.md", """
                 # Outbox
 
                 The lending-owned table of scans awaiting dispatch.

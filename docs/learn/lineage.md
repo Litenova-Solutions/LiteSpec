@@ -10,7 +10,7 @@ Developers use domain-driven design to keep code aligned with the business: one 
 
 **Words:** aggregate, module, glossary, domain event.
 
-**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, and the builder checks each declaration. A store holds state that no invariant guards: it names its owner instead of carrying a lifecycle.
+**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, and the builder checks each declaration. A store holds state that no invariant guards: it names its owner instead of carrying a lifecycle.
 
 ## Event Storming
 
@@ -20,7 +20,7 @@ Event storming finds behavior with one question: whenever something happens, wha
 
 **Words:** reaction, with `triggeredBy`, `runs`, `sends` or `calls` in `effects`, and `onFailure`; job, with `kind`, `schedule`, and `runs`, `sends` or `calls` in `effects`.
 
-**Differs:** A reaction is its own record rather than a use case kind: it names the domain events it answers in `triggeredBy`, runs at most one use case through `effects`, and never writes an aggregate directly. A job carries scheduled work the same way, with its `kind` and `schedule`. Both are proven by scenarios like any other record, and the builder reads the fields that name their triggers.
+**Differs:** A reaction is its own record rather than a use case kind: it names the domain events, module events, and integration events it answers in `triggeredBy`, runs at most one use case through `effects`, and never writes an aggregate directly. A job carries scheduled work the same way, with its `kind` and `schedule`. Both are proven by scenarios like any other record, and the builder reads the fields that name their triggers.
 
 ## CQRS
 
@@ -70,7 +70,7 @@ Architecture decision records keep one record per significant decision: the cont
 
 **Words:** decision, with options, choice, and consequences.
 
-**Differs:** Options are entries with `pros` and `cons`, which keeps the choice structured instead of prose. A decision links the records it decides and names what would change it. A later decision edits the record in place, and git keeps the earlier text.
+**Differs:** Options are entries with `pros` and `cons`, which keeps the choice structured instead of prose. A decision links the records it decides and names what would change it. A later decision names the earlier one in `supersedes`, and the earlier record stays as context.
 
 ## Role-Based Access Control
 

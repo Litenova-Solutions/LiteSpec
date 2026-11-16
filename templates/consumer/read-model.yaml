@@ -8,23 +8,23 @@ fields:
   meaning: The employee the expense was reimbursed to.
   type: id
   of: actor/employee
-  from: integration-event/expense-reimbursed#employeeId
+  from: module-event/spending.expense-reimbursed#employeeId
   classification: personal
-  erasedBy: integration-event/expense-personal-data-erased
+  erasedBy: module-event/spending.expense-personal-data-erased
 - name: amount
   meaning: The exact amount paid.
   type: decimal
-  from: integration-event/expense-reimbursed#amount
+  from: module-event/spending.expense-reimbursed#amount
   classification: internal
 - name: currency
   meaning: The ISO 4217 currency code of the amount.
   type: text
-  from: integration-event/expense-reimbursed#currency
+  from: module-event/spending.expense-reimbursed#currency
   classification: internal
 - name: reimbursedAt
   meaning: The time the payment was posted.
   type: date-time
-  from: integration-event/expense-reimbursed#reimbursedAt
+  from: module-event/spending.expense-reimbursed#reimbursedAt
   classification: internal
 freshness:
   mode: snapshot

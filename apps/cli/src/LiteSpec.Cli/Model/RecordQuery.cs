@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Links;
+using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
@@ -84,6 +85,14 @@ static class RecordQuery
                     ["proves"] = ProvesJson(model.Proves.Where(link => link.Claim == key)),
                 };
             }
+        }
+        else if (record.Type == RecordTypes.Scenario && model.ProofStatuses.TryGetValue(key, out var proof))
+        {
+            computed = new JsonObject
+            {
+                ["proof"] = ProofJson(proof),
+                ["proves"] = ProvesJson(model.Proves.Where(link => link.Claim == key)),
+            };
         }
 
         var query = new JsonObject
@@ -188,13 +197,50 @@ static class RecordQuery
             counts[label] = new JsonObject { ["done"] = count.Done, ["of"] = count.Of };
         }
 
+        var parkedBy = new JsonArray();
+
+        foreach (var parked in completion.ParkedBy)
+        {
+            parkedBy.Add((JsonNode)new JsonObject
+            {
+                ["id"] = parked.Id,
+                ["waiver"] = parked.Waiver,
+                ["expiresOn"] = parked.ExpiresOn,
+            });
+        }
+
         return new JsonObject
         {
             ["stage"] = completion.Stage,
             ["proof"] = completion.Proof,
             ["heldBy"] = CliJson.Strings(completion.HeldBy),
+            ["parkedBy"] = parkedBy,
+            ["inScope"] = completion.InScope,
+            ["parked"] = completion.Parked,
+            ["total"] = completion.Total,
             ["counts"] = counts,
         };
+    }
+
+    /// <summary>One scenario's computed proof status as its JSON object.</summary>
+    /// <param name="proof">The proof status to project.</param>
+    /// <returns>The JSON object for the proof status.</returns>
+    static JsonObject ProofJson(ProofStatus proof)
+    {
+        var json = new JsonObject
+        {
+            ["commit"] = proof.Commit,
+            ["lastPassedAt"] = proof.LastPassedAt,
+            ["status"] = proof.Status,
+            ["commitsBehind"] = proof.CommitsBehind,
+        };
+
+        if (proof.StaleReason is not null)
+        {
+            json["staleReason"] = proof.StaleReason;
+        }
+
+        return json;
     }
 
     /// <summary>The proof links of a record as a JSON array, in model order.</summary>

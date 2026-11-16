@@ -28,12 +28,12 @@ static class ModelCommand
           litespec model edges --root <consumer> [--module <module>]
           litespec model --help
 
-        Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, or a file that would change with format --check, 2 usage error or a record file that does not parse.
+        Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, or a file that would change with format --check, 2 usage error or a record file that does not parse, 3 no open blocking finding but the inspection is incomplete.
         """;
 
     /// <summary>Runs the model command: check, format, render, query or edges.</summary>
     /// <param name="args">The command arguments, the subcommand first.</param>
-    /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error.</returns>
+    /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error, 3 for success with an incomplete inspection.</returns>
     public static int Run(string[] args)
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
@@ -111,44 +111,55 @@ static class ModelCommand
                 var release = parsed.Has("--release");
                 var all = parsed.Has("--all");
                 var sinceRef = parsed.Value("--since");
-                StagedScope.Scope? since = null;
+                HashSet<(string Code, string Subject, string Message)>? baseline = null;
+                string? baseError = null;
+                var newFindings = 0;
                 IReadOnlyList<Finding> breaks = [];
                 IReadOnlyList<Finding> proofDrift = [];
 
                 if (sinceRef is not null)
                 {
-                    var (scope, sinceError) = StagedScope.Since(model, sinceRef);
-
-                    if (scope is null)
+                    if (sinceRef.Length == 0)
                     {
-                        return CommandFailure.Fail(sinceError, json, 2);
+                        return CommandFailure.UsageError("Option --since needs a value.", Usage, json);
                     }
 
-                    since = scope;
-
+                    // The base is checked like the working tree, so every finding the change
+                    // introduced is one the base lacks, however far its subject sits from the
+                    // changed files. When the base cannot be built or checked, every finding
+                    // blocks and the output says why.
                     try
                     {
                         using var checkout = DiffBase.Load(config, sinceRef);
+                        var (baseStanding, _) = Collect(checkout.Model, checkout.Model.Config.Root);
+                        baseline = baseStanding.Select(SinceKey).ToHashSet();
+                        newFindings = findings.Count(finding => !baseline.Contains(SinceKey(finding)));
                         breaks = ContractBreaks.Find(checkout.Model, model);
                         proofDrift = ProofChanges.Find(checkout.Model, model);
                     }
                     catch (InvalidOperationException exception)
                     {
-                        return CommandFailure.Fail(exception.Message, json, 2);
+                        baseError = exception.Message;
+                    }
+                    catch (FailFast fail)
+                    {
+                        baseError = fail.Message;
                     }
                 }
 
+                // A finding the base already holds is existing debt: it reports with the
+                // unchanged mark instead of blocking. Without a base every finding blocks.
                 var shown = findings
                     .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, release)))
-                    .Select(entry => since is not null
+                    .Select(entry => baseline is not null
                         && entry.Severity.Outcome == Outcome.Blocking
-                        && !StagedScope.InScope(since, entry.Finding)
+                        && baseline.Contains(SinceKey(entry.Finding))
                             ? (entry.Finding, Severity: new Severity(Outcome.Reported), Demoted: true)
                             : (entry.Finding, entry.Severity, Demoted: false))
                     .ToList();
 
                 // A breaking contract change is the point of --since, so it
-                // always stands: the scope never demotes it to reported. It
+                // always stands: the base comparison never demotes it to reported. It
                 // runs only when the layer claims cover its code, like every finding.
                 foreach (var breaking in breaks.Where(finding => config.Layers.Covers(finding.Code, config.Extensions)))
                 {
@@ -181,16 +192,25 @@ static class ModelCommand
                     covered = covered.Where(finding => InModule(model, config, finding, onlyModule)).ToList();
                 }
 
+                var incomplete = IncompleteLine(MissingReaders(config, shown), NotBlocking(shown));
+
                 if (json)
                 {
                     var payload = new JsonObject();
 
-                    if (since is not null)
+                    if (sinceRef is not null)
                     {
                         payload["scope"] = "since";
                         payload["since"] = sinceRef;
-                        payload["changedFiles"] = since.ChangedFiles;
-                        payload["changedRecords"] = since.RecordIds.Count;
+
+                        if (baseError is not null)
+                        {
+                            payload["baseError"] = baseError;
+                        }
+                        else
+                        {
+                            payload["newFindings"] = newFindings;
+                        }
                     }
 
                     payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
@@ -200,9 +220,11 @@ static class ModelCommand
                 }
                 else
                 {
-                    if (since is not null)
+                    if (sinceRef is not null)
                     {
-                        CliHost.Out.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
+                        CliHost.Out.WriteLine(baseError is not null
+                            ? $"Since {sinceRef}: {Stopped(baseError)} Every finding blocks."
+                            : $"Since {sinceRef}: {newFindings} new findings.");
                     }
 
                     // Each listed finding prints once. The open blocking findings come first, so the lines
@@ -248,9 +270,19 @@ static class ModelCommand
                     }
 
                     CliHost.Out.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
+
+                    if (incomplete is not null)
+                    {
+                        CliHost.Out.WriteLine(incomplete);
+                    }
                 }
 
-                return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
+                if (shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking))
+                {
+                    return 1;
+                }
+
+                return incomplete is not null ? 3 : 0;
             }
 
             case "format":
@@ -550,6 +582,63 @@ static class ModelCommand
     /// <returns>True when the finding gates a release.</returns>
     static bool IsReleaseReadiness(Finding finding) =>
         finding.Code is "use-case-unverified" or "reader-missing";
+
+    /// <summary>The identity a <c>--since</c> run matches a finding on: its code, subject and message, never its line.</summary>
+    /// <param name="finding">The finding whose identity is wanted.</param>
+    /// <returns>The code, subject and message the base comparison matches.</returns>
+    internal static (string Code, string Subject, string Message) SinceKey(Finding finding) =>
+        (finding.Code, finding.Subject ?? "", finding.Message);
+
+    /// <summary>The frontends the run could not read: each distinct frontend a <c>reader-missing</c> finding names by path, in name order.</summary>
+    /// <param name="config">The consumer configuration holding the declared frontends.</param>
+    /// <param name="shown">The findings the run shows, with their decided severities.</param>
+    /// <returns>The distinct unread frontend names in name order.</returns>
+    static IReadOnlyList<string> MissingReaders(ConsumerConfig config, IReadOnlyList<(Finding Finding, Severity Severity, bool Demoted)> shown)
+    {
+        var missing = shown
+            .Select(entry => entry.Finding)
+            .Where(finding => finding.Code == "reader-missing")
+            .Select(finding => finding.Path)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return [.. config.Frontends
+            .Where(frontend => missing.Contains(frontend.Path))
+            .Select(frontend => frontend.Name)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(name => name, StringComparer.Ordinal)];
+    }
+
+    /// <summary>How many shown level S findings report instead of blocking, setting the <c>--since</c> unchanged findings aside.</summary>
+    /// <param name="shown">The findings the run shows, with their decided severities.</param>
+    /// <returns>The level S reported findings the missing readers held back.</returns>
+    static int NotBlocking(IReadOnlyList<(Finding Finding, Severity Severity, bool Demoted)> shown) =>
+        shown.Count(entry => entry.Finding.Tier == "S"
+            && entry.Severity.Outcome == Outcome.Reported
+            && !entry.Demoted);
+
+    /// <summary>The last line a check prints when a frontend reader was missing, or null when every reader ran.</summary>
+    /// <param name="frontends">The unread frontend names in name order.</param>
+    /// <param name="waiting">How many level S findings report instead of blocking.</param>
+    /// <returns>The incomplete line with one clause per frontend, or null when no frontend is unread.</returns>
+    internal static string? IncompleteLine(IReadOnlyList<string> frontends, int waiting) =>
+        frontends.Count == 0
+            ? null
+            : "inspection incomplete: " + string.Join("; ", frontends.Select(name => $"reader for {name} missing, {waiting} findings not blocking"));
+
+    /// <summary>The reason as one trimmed sentence ending with a stop.</summary>
+    /// <param name="reason">The base failure reason.</param>
+    /// <returns>The trimmed reason ending with a stop.</returns>
+    static string Stopped(string reason)
+    {
+        var trimmed = reason.Trim();
+
+        if (trimmed.Length == 0)
+        {
+            return "The base could not be checked.";
+        }
+
+        return trimmed.EndsWith('.') || trimmed.EndsWith('!') || trimmed.EndsWith('?') ? trimmed : trimmed + ".";
+    }
 
     /// <summary>One finding's printed line: its path, line, level, code and message.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>

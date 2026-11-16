@@ -185,7 +185,7 @@ public sealed class FreshnessDeciderCheckTests
         "aggregate",
         "aggregate/spending.expense",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "aggregate.yaml"),
-        """{"summary": "An expense.", "kind": "entity"}""");
+        """{"summary": "An expense."}""");
 
     /// <summary>The spending command that decides each reimbursement.</summary>
     /// <param name="root">The consumer folder.</param>

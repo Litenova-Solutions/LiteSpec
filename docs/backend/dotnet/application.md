@@ -11,7 +11,7 @@ Application code in a .NET backend sends commands and queries through mediators 
 
 A command is a message that changes business state, and a query reads from a read model without changing state. The boundary sends the message through a LiteBus mediator: commands travel through `ICommandMediator` and queries through `IQueryMediator`, so the write path and the read path stay visibly separate at every call site. The command pipeline around the handler runs validation, authorization, the handler itself, and then one commit.
 
-A reaction answers a domain event or an integration event in one class that carries one mark naming its reaction record, and it sends at most one command. A scheduled or one-off job selects its items and sends its one command once per item.
+A reaction answers a domain event of its own module, a module event, or an inbound integration event in one class that carries one mark naming its reaction record, and it sends at most one command. A scheduled or one-off job selects its items and sends its one command once per item.
 
 Only an endpoint, an event handler, and a job hold a mediator. A command handler, query handler, validator, step, or domain type sends nothing, and no type in the modules project publishes an event.
 
@@ -99,9 +99,9 @@ A read that writes makes retries and caching unsafe: repeating the query would r
 
 **Applies to:** artifact: reaction, job
 
-**Statement:** An event handler or job MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and its one declared `runs` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the pipeline stages each raised domain event and each integration event translating it in the same commit.
+**Statement:** An event handler or job MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and its one declared `runs` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the pipeline stages each raised domain event, each module event translating it, and each outbound integration event translating it in the same commit.
 
-**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). The same commit stages each integration event whose record translates a raised domain event. The shared kernel collects the integration event beside its domain event. It is built by the integration event's static `From` method from that domain event alone, so no module code publishes.
+**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). The same commit stages each module event and each outbound integration event whose record translates a raised domain event. The shared kernel collects each one beside its domain event. Each is built by its static `From` method from that domain event alone, so no module code publishes.
 
 After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs`, sending one command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#give-each-handler-its-own-delivery`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision binds `litespec/backend/application#dispatch-only-declared-effect-edges` for .NET.
 
@@ -164,6 +164,38 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 
 **Checked by:** `litespec model check` reports `reaction-subscription-drift` (level S) for a marked handler subscribed to an event outside its reaction's `triggeredBy`, and `reaction-trigger-unhandled` (level S) for a declared trigger with no marked handler subscribed to it.
 
+### Name Every Outbox Subscriber
+
+**ID:** `litespec/backend/dotnet/application#name-every-outbox-subscriber`
+
+**Strength:** required
+
+**Applies to:** artifact: reaction
+
+**Statement:** Every event handler of a module event or domain event MUST carry `[SubscriberName("<module>.<handler-name>")]`.
+
+**Rationale:** Under per-handler delivery, each handler gets its own envelope, so one failing handler retries alone. The subscriber name keeps envelopes reaching the handler after the class is renamed. LiteBus validates the names at composition when per-handler delivery is on.
+
+**Example:** The handler that schedules a payout when spending approves an expense carries `[SubscriberName("payouts.schedule-payout")]`.
+
+**Reviewed for:** Does every event handler of a module event or domain event carry its subscriber name? Check each event handler.
+
+### Report Immediate Dispatch Beside the Backlog
+
+**ID:** `litespec/backend/dotnet/application#report-immediate-dispatch-beside-the-backlog`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A deployment that dispatches projections immediately MUST report the immediate dispatch count with its outcome and the immediate dispatch duration beside the outbox backlog indicators.
+
+**Rationale:** The backlog indicators of `litespec/ext/outbox#publish-backlog-indicators` show whether the outbox processor keeps up. Immediate dispatch adds a path in front of the processor, so its own instruments show how often it runs and how long it takes, and a slow immediate dispatch reads as duration rather than as a backlog. `AddLiteBusOutboxMetrics()` from `LiteBus.Outbox.Extensions.OpenTelemetry` reports the counter `litebus.outbox.immediate_dispatch.count`, tagged `litebus.outbox.immediate_dispatch.outcome` with `published`, `failed`, `skipped` or `timed_out`, and the histogram `litebus.outbox.immediate_dispatch.duration`.
+
+**Example:** Claimwick's reporting projection dispatches immediately. Its dashboard shows the immediate dispatch count by outcome and its duration beside the pending count and oldest pending age, so a run of `timed_out` outcomes explains a rising backlog.
+
+**Reviewed for:** Does the deployment report the immediate dispatch count with its outcome tag and the immediate dispatch duration beside the backlog indicators? Check the exported metrics beside the outbox dashboard.
+
 ### Run Scheduled Jobs as Hosted Operations
 
 **ID:** `litespec/backend/dotnet/application#run-scheduled-jobs-as-hosted-operations`
@@ -205,8 +237,9 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 - Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message definition under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
 - Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in an `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`.
 - Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
-- Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately under `litespec/ext/outbox#give-each-handler-its-own-delivery`.
+- Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately, one envelope per subscribed handler so one failing handler retries alone, under `litespec/ext/outbox#give-each-handler-its-own-delivery`.
 - Event staging runs through `outbox.StageCollectedEvents()`, staging the facts `IDomainEventCollector` collected in the same commit as the aggregate change.
+- In-process dispatch runs through `outbox.UseInProcessDispatch()` with `outbox.EnableOutboxProcessor()`, delivering module events and domain-event reactions inside the process against the product's PostgreSQL database (`LiteBus.Outbox.Storage.PostgreSql`, or `LiteBus.Outbox.Storage.EntityFrameworkCore` when the project uses that). Envelopes commit with the business work; the processor retries a failed handler with the configured backoff and dead-letters at the bound. No broker is needed for anything inside the bounded context. An outbound integration event uses a transport dispatcher (`LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`) toward the external system its record names in `through`.
 - The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock`.
 
 **Reviewed for:** Does every pipeline position use its pinned LiteBus API? Check the command pipeline composition.
@@ -324,6 +357,32 @@ Module and aggregate order, including the single-aggregate flat form, follow `li
 **Rationale:** With one pinned library, every dispatch site in every project reads the same way, and an agent finds all callers of a message with one search. A project that replaces the default still keeps commands and queries on separate entry points: that separation is required by `litespec/backend/application#dispatch-commands-and-queries-through-separate-entry-points`, and no replacement removes it.
 
 **Reviewed for:** Does every dispatch site use `ICommandMediator.SendAsync` or `IQueryMediator.QueryAsync` from the pinned LiteBus version? Check each dispatch site.
+
+### Dispatch Read-Model Projections Immediately
+
+**ID:** `litespec/backend/dotnet/application#dispatch-read-model-projections-immediately`
+
+**Strength:** default
+
+**Applies to:** artifact: reaction
+
+**Default:** A handler whose effect the caller reads when the command returns, such as a read-model projection the next screen reads, carries `[DispatchImmediately]`, and the outbox registers immediate dispatch with a ten-second timeout and a thirty-second fallback delay.
+
+**Replacement:** A project whose readers tolerate the processor's polling delay leaves immediate dispatch off.
+
+**Rationale:** LiteBus dispatches those envelopes in process after the unit of work commits and before `SendAsync` returns, so the caller reads its own write. A failed or timed-out dispatch is left to the outbox processor's retry, and the command's outcome never changes. Immediate dispatch needs a registered unit of work (`commands.UseUnitOfWork<...>()`), an outbox dispatcher, and a store implementing `IOutboxTargetedLeaseStore`, which the shipped PostgreSQL, Entity Framework Core, and in-memory stores do. The fallback delay stays greater than the timeout.
+
+**Example:**
+
+```csharp
+outbox.EnableImmediateDispatch(dispatch =>
+{
+    dispatch.Timeout = TimeSpan.FromSeconds(10);
+    dispatch.FallbackDelay = TimeSpan.FromSeconds(30);
+});
+```
+
+**Reviewed for:** Does every handler the caller reads when the command returns carry `[DispatchImmediately]` with immediate dispatch registered, and does every other handler leave it off? Check each event handler beside the outbox registration.
 
 ## Reference Example
 

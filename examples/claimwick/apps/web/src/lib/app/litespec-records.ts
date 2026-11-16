@@ -21,8 +21,6 @@ export type ProofTargetId =
   | "external-system/event-bus"
   | "external-system/mail-relay"
   | "external-system/payout-bank"
-  | "integration-event/expense-personal-data-erased"
-  | "integration-event/expense-reimbursed"
   | "integration-event/expense-submitted"
   | "litespec/frontend/blazor/stack#bind-blazor-routes-to-their-address"
   | "litespec/frontend/blazor/stack#build-blazor-forms-on-the-shared-form-entry-point"
@@ -498,6 +496,7 @@ export type ProofTargetId =
   | "scenario/send-approver-reminders-on-expense-submitted.decided-expense-is-skipped"
   | "scenario/send-approver-reminders-on-expense-submitted.suppressed-manager-gets-nothing"
   | "scenario/send-approver-reminders-on-expense-submitted.waiting-expense-earns-a-reminder"
+  | "scenario/submit-expense.lowered-threshold-refuses-waiting-expense"
   | "scenario/submit-expense.submitting-with-a-receipt-succeeds"
   | "scenario/submit-expense.submitting-without-a-receipt-is-refused";
 export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }

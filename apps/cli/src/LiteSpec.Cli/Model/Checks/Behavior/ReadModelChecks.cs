@@ -7,9 +7,9 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>
-///     The read model checks: each read model field is taken from a payload field of an outbound integration event,
-///     each personal or sensitive field names the event that erases it, each read model is read by a use case,
-///     and each read model is keyed by an aggregate of another module.
+///     The read model checks: each read model field is taken from a payload field of a module event or an outbound
+///     integration event, each personal or sensitive field names the event that erases it, each read model is read
+///     by a use case, and each read model is keyed by an aggregate of another module.
 /// </summary>
 /// <follows>litespec/core/automation#declare-each-read-model-field-from-a-published-field</follows>
 /// <follows>litespec/core/automation#erase-a-read-model-personal-field-with-its-owner</follows>
@@ -17,7 +17,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 internal static class ReadModelChecks
 {
     /// <summary>Runs the read model checks on every read model record.</summary>
-    /// <param name="model">The loaded project model that holds every read model, use case and integration event.</param>
+    /// <param name="model">The loaded project model that holds every read model, use case, module event and integration event.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
@@ -63,10 +63,10 @@ internal static class ReadModelChecks
     }
 
     /// <summary>
-    ///     Reports each field whose source is not a payload field of an outbound integration event, and each
-    ///     erasedBy or removedBy entry that names no outbound integration event.
+    ///     Reports each field whose source is not a payload field of a module event or an outbound integration event,
+    ///     and each erasedBy or removedBy entry that names no module event or outbound integration event.
     /// </summary>
-    /// <param name="model">The loaded project model that resolves each integration event.</param>
+    /// <param name="model">The loaded project model that resolves each module event and integration event.</param>
     /// <param name="readModel">The read model record whose fields and removal events are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSources(ProjectModel model, Record readModel, List<Finding> findings)
@@ -81,9 +81,9 @@ internal static class ReadModelChecks
                 var eventId = hash < 0 ? from : from[..hash];
                 var payloadField = hash < 0 ? "" : from[(hash + 1)..];
 
-                if (!IsOutbound(model, eventId, out var source))
+                if (!IsReadableSource(model, eventId, out var source))
                 {
-                    findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' field '{name}' takes from '{from}', which is no outbound integration event."));
+                    findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' field '{name}' takes from '{from}', which is no module event or outbound integration event."));
                 }
                 else if (payloadField.Length == 0 || !PayloadNames(source!).Contains(payloadField, StringComparer.Ordinal))
                 {
@@ -91,9 +91,9 @@ internal static class ReadModelChecks
                 }
             }
 
-            if (Str(field, RecordFields.ErasedBy) is { Length: > 0 } erasedBy && !IsOutbound(model, erasedBy, out _))
+            if (Str(field, RecordFields.ErasedBy) is { Length: > 0 } erasedBy && !IsReadableSource(model, erasedBy, out _))
             {
-                findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' field '{name}' is erased by '{erasedBy}', which is no outbound integration event."));
+                findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' field '{name}' is erased by '{erasedBy}', which is no module event or outbound integration event."));
             }
         }
 
@@ -106,14 +106,14 @@ internal static class ReadModelChecks
         {
             if (entry.ValueKind == JsonValueKind.String
                 && entry.GetString() is { Length: > 0 } removedBy
-                && !IsOutbound(model, removedBy, out _))
+                && !IsReadableSource(model, removedBy, out _))
             {
-                findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' is removed by '{removedBy}', which is no outbound integration event."));
+                findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' is removed by '{removedBy}', which is no module event or outbound integration event."));
             }
         }
     }
 
-    /// <summary>Reports each personal or sensitive field that names no erasedBy integration event.</summary>
+    /// <summary>Reports each personal or sensitive field that names no erasedBy module event or integration event.</summary>
     /// <param name="readModel">The read model record whose fields are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckErasure(Record readModel, List<Finding> findings)
@@ -129,7 +129,7 @@ internal static class ReadModelChecks
 
             findings.Add(new Finding(
                 "read-model-erasure-missing",
-                $"ReadModel '{readModel.Id}' field '{Str(field, RecordFields.Name)}' is {classification} and names no erasedBy integration event.",
+                $"ReadModel '{readModel.Id}' field '{Str(field, RecordFields.Name)}' is {classification} and names no erasedBy module event or integration event.",
                 readModel.File,
                 readModel.Line,
                 SubjectOf(readModel)));
@@ -175,15 +175,15 @@ internal static class ReadModelChecks
         return fields;
     }
 
-    /// <summary>The payload field names an integration event carries.</summary>
-    /// <param name="integration">The integration event record whose payload is read.</param>
+    /// <summary>The payload field names a module event or integration event carries.</summary>
+    /// <param name="published">The module event or integration event record whose payload is read.</param>
     /// <returns>Each payload field name in declared order.</returns>
-    private static List<string> PayloadNames(Record integration)
+    private static List<string> PayloadNames(Record published)
     {
         var names = new List<string>();
 
-        if (integration.Raw.ValueKind == JsonValueKind.Object
-            && integration.Raw.TryGetProperty(RecordFields.Payload, out var payload)
+        if (published.Raw.ValueKind == JsonValueKind.Object
+            && published.Raw.TryGetProperty(RecordFields.Payload, out var payload)
             && payload.ValueKind == JsonValueKind.Array)
         {
             foreach (var entry in payload.EnumerateArray())
@@ -198,22 +198,23 @@ internal static class ReadModelChecks
         return names;
     }
 
-    /// <summary>Whether an identifier names an outbound integration event, and the record it names.</summary>
+    /// <summary>Whether an identifier names a module event or an outbound integration event, and the record it names.</summary>
     /// <param name="model">The loaded project model that resolves the identifier.</param>
     /// <param name="id">The identifier, with an optional fragment, that the reference names.</param>
-    /// <param name="integration">The integration event record when the identifier names one that is outbound; otherwise null.</param>
-    /// <returns>True when the identifier names an outbound integration event; otherwise false.</returns>
-    private static bool IsOutbound(ProjectModel model, string id, out Record? integration)
+    /// <param name="source">The module event or integration event record when the identifier names one that is readable; otherwise null.</param>
+    /// <returns>True when the identifier names a module event or an outbound integration event; otherwise false.</returns>
+    private static bool IsReadableSource(ProjectModel model, string id, out Record? source)
     {
         if (model.ById.TryGetValue(Identifiers.BaseId(id), out var record)
-            && record.Type == RecordTypes.IntegrationEvent
-            && record.Field(RecordFields.Direction) == "out")
+            && (record.Type == RecordTypes.ModuleEvent
+                || (record.Type == RecordTypes.IntegrationEvent
+                    && record.Field(RecordFields.Direction) == "out")))
         {
-            integration = record;
+            source = record;
             return true;
         }
 
-        integration = null;
+        source = null;
         return false;
     }
 

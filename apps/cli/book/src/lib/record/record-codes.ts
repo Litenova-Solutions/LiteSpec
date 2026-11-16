@@ -4,8 +4,8 @@
 const CODES: Record<string, string> = {
   product: "P", vision: "V", goal: "G", problem: "Pb", feature: "F", requirement: "R", flow: "Fl",
   actor: "A", role: "Ro", constraint: "C", decision: "D", research: "Rs", waiver: "Dp", term: "T",
-  module: "M", aggregate: "Ag", "use-case": "U", result: "Rt", scenario: "S", rule: "Ru",
-  "domain-event": "E", "integration-event": "IE", "read-model": "RM", reaction: "Re", job: "J",
+  module: "M", aggregate: "Ag", store: "So", "use-case": "U", result: "Rt", scenario: "S", rule: "Ru",
+  "domain-event": "E", "module-event": "ME", "integration-event": "IE", "read-model": "RM", reaction: "Re", job: "J",
   notification: "N", setting: "St", permission: "Pm", "entry-point": "EP", screen: "Sc",
   "external-system": "X", limit: "L", runbook: "Rb", code: "Cd", test: "Ts", route: "Pa",
 };

@@ -20,6 +20,8 @@ Exactly one command post-handler commits the session with `SaveChangesAsync`. On
 
 The declared consistency mode decides how work splits across commands, but each command still commits once. Under `consistency: atomic` the one commit covers everything the handler staged, and other modes split work across commands that each commit once.
 
+Events leave through the LiteBus outbox in process: the staging step commits each envelope with the business work, and the outbox processor delivers module events and domain-event reactions from the product's PostgreSQL database, retrying a failed handler with the configured backoff and dead-lettering at the bound. No broker is needed for anything inside the bounded context.
+
 ### How a Query Reads
 
 A query handler never loads aggregates. It projects through the read session, `IQuerySession`, which filters, orders, pages, and shapes records. The handler applies filter, scope, ordering, and limit before materialization.
@@ -223,6 +225,36 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 **Example:** Two approvers race on one submitted expense; the loser throws `ConcurrencyException` at commit, and the classifier returns the approve conflict refusal so the caller re-reads the expense before deciding again.
 
 **Reviewed for:** Does every `ConcurrencyException` path at commit reach the use case conflict refusal? Look at the registered classifier.
+
+### Read Each Guarding Aggregate Under a Shared Lock
+
+**ID:** `litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock`
+
+**Strength:** required
+
+**Applies to:** artifact: repository
+
+**Statement:** A repository MUST read a guarding aggregate through `GetForGuardAsync`, which takes a shared row lock in the command's transaction.
+
+**Rationale:** A read followed by a write does not keep the guard true: a competing command can change the guarding row between the two. The guard read takes a shared row lock (`SELECT ... FOR SHARE` on PostgreSQL, through Entity Framework Core `FromSql`), so a competing command that changes the guarding row waits until the guarded command commits, and a guarded command that starts after the change reads the new state and refuses. This provision binds `litespec/backend/persistence#honor-the-declared-consistency-mode` for .NET.
+
+**Example:** Claimwick's submit-expense command guards on the expense report staying open. Its repository reads the report through `GetForGuardAsync`, so a close-report command that lands first makes submit-expense read the closed report and refuse, while a close-report that lands during the submit waits on its lock until the submit commits.
+
+**Reviewed for:** Does every guarding-aggregate read go through `GetForGuardAsync` with a shared row lock in the command's transaction? Look at each repository guard read.
+
+### Implement the Unit of Work Boundary
+
+**ID:** `litespec/backend/dotnet/persistence#implement-the-unit-of-work-boundary`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** The project's unit of work MUST implement `IUnitOfWorkBoundary`.
+
+**Rationale:** LiteBus calls `BeginAsync` after guards, validators, and shortcuts and before the first pre-handler, commits on success, and rolls back otherwise. The one commit per command pipeline under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline` and the guard read lock under `litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock` then run inside one transaction that LiteBus opens.
+
+**Reviewed for:** Does the project's unit of work implement `IUnitOfWorkBoundary` with `BeginAsync` and `RollbackAsync`? Look at the unit-of-work type beside the pipeline composition.
 
 ## Conventions
 

@@ -196,7 +196,7 @@ Worker is conditional on the extension that runs background work. Acceptance.Tes
 
 **Replacement:** A project records its own project layout in its host documentation.
 
-**Rationale:** `Application.Abstractions` holds the contracts that more than one module names: the pipeline's own positions, the cross-module ports, the transport-neutral failures, and the published integration events. It references Domain and the required LiteBus module abstractions, and nothing else. No type in it can name a use case, a handler, or a module.
+**Rationale:** `Application.Abstractions` holds the contracts that more than one module names: the pipeline's own positions, the cross-module ports, the transport-neutral failures, and the published module and integration events. It references Domain and the required LiteBus module abstractions, and nothing else. No type in it can name a use case, a handler, or a module.
 
 That restriction is why shared contracts get a project rather than a folder. A folder inside Application cannot decline what a developer puts in it, so the folder meant for shared contracts collects every unplaced type. A small project with few cross-module contracts may merge them into Application, trading that compiler-enforced separation for one less project.
 

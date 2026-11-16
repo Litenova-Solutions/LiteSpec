@@ -28,6 +28,10 @@ public sealed class CompletionTests
         Assert.Equal("unknown", completion.Proof);
         Assert.Equal(["requirement/borrowing.max-loans"], completion.HeldBy);
         Assert.Equal(0, completion.Counts["fulfillers coded"].Of);
+        Assert.Empty(completion.ParkedBy);
+        Assert.Equal(0, completion.InScope);
+        Assert.Equal(0, completion.Parked);
+        Assert.Equal(0, completion.Total);
     }
 
     /// <summary>A requirement whose fulfiller has no code is specified.</summary>
@@ -49,6 +53,10 @@ public sealed class CompletionTests
         Assert.Equal(["use-case/lending.borrow-copy"], completion.HeldBy);
         Assert.Equal(0, completion.Counts["fulfillers coded"].Done);
         Assert.Equal(1, completion.Counts["fulfillers coded"].Of);
+        Assert.Empty(completion.ParkedBy);
+        Assert.Equal(1, completion.InScope);
+        Assert.Equal(0, completion.Parked);
+        Assert.Equal(1, completion.Total);
     }
 
     /// <summary>A requirement with code for every fulfiller and no test run is coded with proof unknown.</summary>
@@ -72,6 +80,10 @@ public sealed class CompletionTests
         Assert.Equal(["use-case/lending.borrow-copy"], completion.HeldBy);
         Assert.Equal(1, completion.Counts["fulfillers coded"].Done);
         Assert.Equal(0, completion.Counts["fulfillers verified"].Done);
+        Assert.Empty(completion.ParkedBy);
+        Assert.Equal(1, completion.InScope);
+        Assert.Equal(0, completion.Parked);
+        Assert.Equal(1, completion.Total);
     }
 
     /// <summary>A requirement verified with fresh proof is verified with proof known.</summary>
@@ -96,6 +108,10 @@ public sealed class CompletionTests
         Assert.Equal("known", completion.Proof);
         Assert.Empty(completion.HeldBy);
         Assert.Equal(1, completion.Counts["fulfillers verified"].Done);
+        Assert.Empty(completion.ParkedBy);
+        Assert.Equal(1, completion.InScope);
+        Assert.Equal(0, completion.Parked);
+        Assert.Equal(1, completion.Total);
     }
 
     /// <summary>A flow is as far as its weakest step, and the unserved step holds it.</summary>
@@ -120,12 +136,16 @@ public sealed class CompletionTests
         Assert.Equal(2, completion.Counts["flow steps served"].Of);
         Assert.Equal(1, completion.Counts["steps coded"].Done);
         Assert.Equal(0, completion.Counts["steps exercised"].Done);
+        Assert.Empty(completion.ParkedBy);
+        Assert.Equal(2, completion.InScope);
+        Assert.Equal(0, completion.Parked);
+        Assert.Equal(2, completion.Total);
     }
 
-    /// <summary>A feature with an unfulfilled requirement is unfulfilled even when a gap waiver names it: completion follows proof alone.</summary>
+    /// <summary>A feature holds a parked requirement out of its stage and names it with its waiver and expiry.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void FeatureWithUnfulfilledRequirementIgnoresItsGapWaiver()
+    public void FeatureWithParkedRequirementExcludesItFromStage()
     {
         using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
@@ -141,11 +161,20 @@ public sealed class CompletionTests
 
         var completion = model.Completion["feature/borrowing"];
 
-        Assert.Equal("unfulfilled", completion.Stage);
-        Assert.Equal(["requirement/borrowing.no-card"], completion.HeldBy);
+        Assert.Equal("coded", completion.Stage);
+        Assert.Equal(["requirement/borrowing.max-loans"], completion.HeldBy);
         Assert.Equal(1, completion.Counts["requirements fulfilled"].Done);
-        Assert.Equal(2, completion.Counts["requirements fulfilled"].Of);
+        Assert.Equal(1, completion.Counts["requirements fulfilled"].Of);
         Assert.Equal(0, completion.Counts["requirements verified"].Done);
+        Assert.Equal(1, completion.InScope);
+        Assert.Equal(1, completion.Parked);
+        Assert.Equal(2, completion.Total);
+
+        var parked = Assert.Single(completion.ParkedBy);
+
+        Assert.Equal("requirement/borrowing.no-card", parked.Id);
+        Assert.Equal("waiver/borrowing.no-card-gap", parked.Waiver);
+        Assert.Equal("2099-01-01", parked.ExpiresOn);
     }
 
     /// <summary>A feature with an unfulfilled requirement and no gap is unfulfilled, held by that requirement.</summary>
@@ -165,6 +194,10 @@ public sealed class CompletionTests
 
         Assert.Equal("unfulfilled", completion.Stage);
         Assert.Equal(["requirement/borrowing.max-loans"], completion.HeldBy);
+        Assert.Empty(completion.ParkedBy);
+        Assert.Equal(1, completion.InScope);
+        Assert.Equal(0, completion.Parked);
+        Assert.Equal(1, completion.Total);
     }
 
     /// <summary>A goal is as far as its weakest feature.</summary>
@@ -187,6 +220,10 @@ public sealed class CompletionTests
         Assert.Contains("feature/borrowing", completion.HeldBy);
         Assert.Equal(0, completion.Counts["features verified"].Done);
         Assert.Equal(1, completion.Counts["features verified"].Of);
+        Assert.Empty(completion.ParkedBy);
+        Assert.Equal(1, completion.InScope);
+        Assert.Equal(0, completion.Parked);
+        Assert.Equal(1, completion.Total);
     }
 
     static LiteSpec.Cli.Model.Records.Record Requirement(string root, string id, string fields) =>

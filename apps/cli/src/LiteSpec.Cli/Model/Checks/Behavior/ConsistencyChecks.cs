@@ -6,8 +6,9 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The consistency checks: each use case states a known consistency mode, a command writing several aggregates states its consistency, an atomic command writes the group its rule binds, a command states its replay and any conflict, and each reservation names its release.</summary>
+/// <summary>The consistency checks: each use case states a known consistency mode, a command writing several aggregates states its consistency, an atomic command writes the group its rule binds, a command states its replay and any conflict, each reservation names its release, and a command bound by a rule over an aggregate it only reads names that aggregate in its guards.</summary>
 /// <follows>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</follows>
+/// <follows>litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit</follows>
 /// <follows>litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule</follows>
 /// <follows>litespec/core/domain-model#release-every-reservation-by-a-named-use-case</follows>
 /// <follows>litespec/core/use-cases#state-what-a-replay-does</follows>
@@ -205,12 +206,23 @@ internal static class ConsistencyChecks
     /// <summary>The rule identifiers a use case's consistency boundBy names.</summary>
     /// <param name="useCase">The use case record whose consistency boundBy is read.</param>
     /// <returns>The bound rule identifiers as a single value or an array, or an empty list when it binds none.</returns>
-    private static IReadOnlyList<string> BoundByOf(Record useCase)
+    private static IReadOnlyList<string> BoundByOf(Record useCase) => ConsistencyListOf(useCase, RecordFields.BoundBy);
+
+    /// <summary>The aggregate identifiers a use case's consistency guards names.</summary>
+    /// <param name="useCase">The use case record whose consistency guards is read.</param>
+    /// <returns>The guarded aggregate identifiers as a single value or an array, or an empty list when it guards none.</returns>
+    internal static IReadOnlyList<string> GuardsOf(Record useCase) => ConsistencyListOf(useCase, RecordFields.Guards);
+
+    /// <summary>The identifiers a use case's consistency entry names under one member.</summary>
+    /// <param name="useCase">The use case record whose consistency entry is read.</param>
+    /// <param name="member">The consistency member to read.</param>
+    /// <returns>The member identifiers as a single value or an array, or an empty list when it names none.</returns>
+    private static IReadOnlyList<string> ConsistencyListOf(Record useCase, string member)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
             || !useCase.Raw.TryGetProperty(RecordFields.Consistency, out var consistency)
             || consistency.ValueKind != JsonValueKind.Object
-            || !consistency.TryGetProperty(RecordFields.BoundBy, out var bound))
+            || !consistency.TryGetProperty(member, out var bound))
         {
             return [];
         }
@@ -313,6 +325,58 @@ internal static class ConsistencyChecks
             if (ConsistencyMode(useCase) == "atomic" && BoundByOf(useCase).Count > 1)
             {
                 findings.Add(new Finding("atomicity-duplicate", $"Use case '{useCase.Id}' saves more than one atomic write group.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            }
+        }
+    }
+
+    /// <summary>Reports a command bound by a rule over an aggregate it reads but does not write, and whose guards name no such aggregate.</summary>
+    /// <param name="model">The loaded project model that holds every use case and rule record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunGuard(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records.Where(record =>
+            record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "command"))
+        {
+            var bound = BoundByOf(useCase);
+
+            if (bound.Count == 0)
+            {
+                continue;
+            }
+
+            var reads = useCase.Ids(RecordFields.Reads).ToHashSet(StringComparer.Ordinal);
+            var writes = useCase.Ids(RecordFields.Writes).ToHashSet(StringComparer.Ordinal);
+            var guards = GuardsOf(useCase).ToHashSet(StringComparer.Ordinal);
+
+            // One finding per unguarded aggregate: the guard is named per aggregate,
+            // so a second rule over the same aggregate adds no second finding.
+            var missing = new SortedDictionary<string, string>(StringComparer.Ordinal);
+
+            foreach (var cited in bound.Order(StringComparer.Ordinal))
+            {
+                if (!model.ById.TryGetValue(cited, out var rule) || rule.Type != RecordTypes.Rule)
+                {
+                    continue;
+                }
+
+                // Governs names aggregates, stores and use cases; only an aggregate id takes a guard.
+                foreach (var governed in rule.Ids(RecordFields.Governs))
+                {
+                    if (!Identifiers.TrySplit(governed, out var prefix, out _, out _) || prefix != RecordTypes.Aggregate)
+                    {
+                        continue;
+                    }
+
+                    if (reads.Contains(governed) && !writes.Contains(governed) && !guards.Contains(governed))
+                    {
+                        missing.TryAdd(governed, cited);
+                    }
+                }
+            }
+
+            foreach (var (aggregate, ruleId) in missing)
+            {
+                findings.Add(new Finding("guard-undeclared", $"Command '{useCase.Id}' is bound by rule '{ruleId}' over '{aggregate}' and names no guard on '{aggregate}'.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }

@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The contract checks: each use-case input and integration-event payload field holds a known type and its required flag, a claim-shaped input is not taken from a caller of an authenticated entry point, an integration event payload field is carried by its translated domain event, and each entry point states a known auth kind.</summary>
+/// <summary>The contract checks: each use-case input and each module-event and integration-event payload field holds a known type and its required flag, a claim-shaped input is not taken from a caller of an authenticated entry point, a module-event or integration-event payload field is carried by its translated domain event, and each entry point states a known auth kind.</summary>
 /// <follows>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</follows>
 /// <follows>litespec/core/use-cases#mark-every-provider-verified-input</follows>
 /// <follows>litespec/core/use-cases#type-every-output-field</follows>
@@ -23,8 +23,8 @@ internal static class ContractChecks
     /// <summary>The input names that carry a claim a provider verifies, never a caller.</summary>
     private static readonly string[] ClaimNames = ["subject", "tenant", "verified"];
 
-    /// <summary>Reports a use-case input or integration-event payload field outside its typed shape, a claim-shaped input a caller supplies, and a payload field its translated domain event does not carry.</summary>
-    /// <param name="model">The loaded project model that holds every use case and integration event record.</param>
+    /// <summary>Reports a use-case input or a module-event or integration-event payload field outside its typed shape, a claim-shaped input a caller supplies, and a payload field its translated domain event does not carry.</summary>
+    /// <param name="model">The loaded project model that holds every use case, module event and integration event record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunTypedInputs(ProjectModel model, List<Finding> findings)
     {
@@ -37,6 +37,12 @@ internal static class ContractChecks
         foreach (var system in model.Records.Where(record => record.Type == RecordTypes.ExternalSystem))
         {
             CheckProcesses(model, system, findings);
+        }
+
+        foreach (var moduleEvent in model.Records.Where(record => record.Type == RecordTypes.ModuleEvent))
+        {
+            CheckContractFields(model, moduleEvent, "payload", "Module event", findings);
+            CheckPayloadCarried(model, moduleEvent, findings);
         }
 
         foreach (var integration in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent))
@@ -153,20 +159,22 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>Reports an integration event payload field that its translated domain event does not carry.</summary>
+    /// <summary>Reports a module-event or integration-event payload field that its translated domain event does not carry.</summary>
     /// <param name="model">The loaded project model that resolves each translated domain event.</param>
-    /// <param name="integration">The integration event record whose payload is compared with the domain events it translates.</param>
+    /// <param name="published">The module event or integration event record whose payload is compared with the domain events it translates.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckPayloadCarried(ProjectModel model, Record integration, List<Finding> findings)
+    private static void CheckPayloadCarried(ProjectModel model, Record published, List<Finding> findings)
     {
-        if (integration.Raw.ValueKind != JsonValueKind.Object
-            || !integration.Raw.TryGetProperty(RecordFields.Payload, out var payload)
+        if (published.Raw.ValueKind != JsonValueKind.Object
+            || !published.Raw.TryGetProperty(RecordFields.Payload, out var payload)
             || payload.ValueKind != JsonValueKind.Array)
         {
             return;
         }
 
-        foreach (var domainId in integration.Ids(RecordFields.Translates))
+        var label = published.Type == RecordTypes.ModuleEvent ? "Module event" : "Integration event";
+
+        foreach (var domainId in published.Ids(RecordFields.Translates))
         {
             if (!model.ById.TryGetValue(Identifiers.BaseId(domainId), out var domain)
                 || domain.Type != RecordTypes.DomainEvent
@@ -186,7 +194,7 @@ internal static class ContractChecks
             {
                 if (Str(entry, RecordFields.Name) is { Length: > 0 } field && !carried.Contains(field))
                 {
-                    findings.Add(new Finding("integration-event-field-uncarried", $"Integration event '{integration.Id}' publishes field '{field}' that its translated domain event '{domain.Id}' does not carry.", integration.File, integration.Line, SubjectOf(integration)));
+                    findings.Add(new Finding("event-field-uncarried", $"{label} '{published.Id}' publishes field '{field}' that its translated domain event '{domain.Id}' does not carry.", published.File, published.Line, SubjectOf(published)));
                 }
             }
         }
@@ -194,7 +202,7 @@ internal static class ContractChecks
 
     /// <summary>Reports one contract field holding no type, no required, or a dangling of.</summary>
     /// <param name="model">The loaded project model that resolves each id field target.</param>
-    /// <param name="record">The use case or integration event record whose contract fields are judged.</param>
+    /// <param name="record">The use case, module event or integration event record whose contract fields are judged.</param>
     /// <param name="array">The contract array field name, input or payload.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>

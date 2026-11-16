@@ -14,7 +14,7 @@ static class BookImplementationDetail
     /// <summary>Gets the record types that expect code.</summary>
     static HashSet<string> ImplExpected { get; } = new(StringComparer.Ordinal)
     {
-        "aggregate", "reaction", "job", "external-system", "use-case", "screen", "read-model",
+        "aggregate", "store", "reaction", "job", "external-system", "use-case", "screen", "read-model",
     };
 
     /// <summary>Gets the record types that expect proof.</summary>

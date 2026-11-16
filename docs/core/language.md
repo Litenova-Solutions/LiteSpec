@@ -47,7 +47,7 @@ Gherkin fields follow the forms Gherkin sets: `given` is the starting state (pre
 
 A result's `meaning` says what is now true (success) or what the caller is told (refusal).
 
-Record values use the third person. Intent chapter prose (The Situation, What We Do) may say "we" for the business, and nothing says "you". Capitalized modal words belong only to LiteSpec's own provisions; a project record states a fact or a commitment as a fact. Voice, tense and person beyond this table follow the [Writing Standard](writing.md).
+Record values use the third person. Intent chapter prose (The Situation, What We Do) may say "we" for the business, and no record says "you"; tutorial and how-to pages may. Capitalized modal words belong only to LiteSpec's own provisions; a project record states a fact or a commitment as a fact. Voice, tense and person beyond this table follow the [Writing Standard](writing.md).
 
 Quantities use standard units: dates are ISO 8601 dates, durations are ISO 8601 durations (`P7Y`, `PT10M`), and money is `{ amount, currency }` with an ISO 4217 code. How prose writes a number with its unit follows the [Writing Standard](writing.md).
 
@@ -166,7 +166,7 @@ A finding code has the form `<subject>-<problem>`: the subject is a record type,
 | `unchanged` | a value still holds what its template wrote | `template-value-unchanged` |
 | `break` | a contract the base published no longer holds | `contract-break` |
 | `foreign` | a link reaches into another module where only its own module may be named | `reaction-trigger-foreign` |
-| `uncarried` | a published field is carried by no field of its source | `integration-event-field-uncarried` |
+| `uncarried` | a published field is carried by no field of its source | `event-field-uncarried` |
 | `unexercised` | a rule is shown by no scenario that should show it | `scenario-rule-unexercised` |
 | `unhandled` | a declared trigger is answered by no handler | `reaction-trigger-unhandled` |
 | `vague` | a statement uses a word that names no act | `statement-word-vague` |
@@ -234,7 +234,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every project text MUST use the form the text-kind table gives its kind.
 
-**Rationale:** Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice show what the text does from its form alone. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
+**Rationale:** Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice show what the text does from its form alone. Record values stay in the third person, Intent chapter prose says `we` for the business, and no record says `you`; tutorial and how-to pages may.
 
 **Example:** A Claimwick requirement states "An expense above the threshold waits for its approver."
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book, esc, pluralize, stripStep } from "$lib/frame";
+  import { book, esc, freshnessLine, pluralize, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { RecordLink, SourceFileLink, ProofMark } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
@@ -22,6 +22,7 @@
   const proofTest = $derived(r.proof?.test ?? null);
   const proofTests = $derived(r.proof?.tests);
   const proofState = $derived(r.proof?.state ?? null);
+  const stale = $derived(freshnessLine(r.proof));
   const testPath = $derived(proofTest?.path ?? null);
   const testLine = $derived(proofTest?.line ?? null);
   const testName = $derived(proofTest?.name ?? undefined);
@@ -61,6 +62,7 @@
   <FactGrid>
     <FactCell k="Proof" hint={testPath ? "" : proofText}>
       <ProofMark state={proofState} />
+      {#if stale}<div class="mt-1 text-xs tracking-[0.32px] text-text-helper">{stale}</div>{/if}
       {#if testPath}<div class="mt-1"><SourceFileLink path={testPath} line={testLine} label={testName} /></div>{/if}
     </FactCell>
     <FactCell k="Test run" hint={testRun?.date ? book.dateHint(String(testRun.date)) : "the model holds no test run"}>

@@ -19,8 +19,8 @@ public static class RecordFolders
     /// <summary>The typed folders a behavior module holds: aggregates, its module-level use cases, rules and automation, and its edges. Any other subfolder of a module is a placement finding.</summary>
     public static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
     {
-        "aggregates", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
-        "integration-events", "external-systems", "read-models",
+        "aggregates", "stores", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
+        "module-events", "integration-events", "external-systems", "read-models",
     };
 
     /// <summary>The typed folders an aggregate holds beside its aggregate record: its use cases, its events and its rules.</summary>
@@ -60,6 +60,7 @@ public static class RecordFolders
         Scaffold("module", "behavior/modules/{name}", "module.yaml"),
         At("term", "", "glossary.yaml"),
         Scaffold("aggregate", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
+        Scaffold("store", "behavior/modules/{module}/stores/{name}", "{name}.yaml"),
         At("use-case", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         Scaffold("use-case", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
         At("result", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
@@ -77,6 +78,7 @@ public static class RecordFolders
         Scaffold("job", "behavior/modules/{module}/jobs/{name}", "{name}.yaml"),
         Scaffold("notification", "behavior/modules/{module}/notifications/{name}", "{name}.yaml"),
         At("setting", "behavior/modules/{module}/settings", "*"),
+        Scaffold("module-event", "behavior/modules/{module}/module-events/{name}", "{name}.yaml"),
         Scaffold("integration-event", "behavior/modules/{module}/integration-events/{name}", "{name}.yaml"),
         Scaffold("read-model", "behavior/modules/{module}/read-models/{name}", "{name}.yaml"),
         At("permission", "behavior/modules/{module}", "permissions.yaml"),

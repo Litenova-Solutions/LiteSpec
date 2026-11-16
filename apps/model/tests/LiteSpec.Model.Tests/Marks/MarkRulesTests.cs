@@ -22,8 +22,8 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Adapter, "external-system")]
     [InlineData(CodeKind.Endpoint, "use-case")]
     [InlineData(CodeKind.FrontendModule, "use-case")]
-    [InlineData(CodeKind.Test, "scenario,rule,requirement,decision,external-system,integration-event,litespec")]
-    [InlineData(CodeKind.Technical, "aggregate,use-case,reaction,job,external-system,domain-event,rule,notification,setting,integration-event,read-model")]
+    [InlineData(CodeKind.Test, "scenario,rule,requirement,decision,external-system,module-event,integration-event,litespec")]
+    [InlineData(CodeKind.Technical, "aggregate,store,use-case,reaction,job,external-system,domain-event,rule,notification,setting,module-event,integration-event,read-model")]
     public void RecordTypesNamesExpectedTypes(CodeKind kind, string expected)
     {
         var types = MarkRules.RecordTypes(kind);

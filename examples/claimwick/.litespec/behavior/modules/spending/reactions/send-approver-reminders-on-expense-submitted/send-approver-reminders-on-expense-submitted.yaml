@@ -39,7 +39,7 @@ idempotency:
   scope: global
 reads:
 - aggregate/spending.expense
-- aggregate/spending.suppression-list
+- store/spending.suppression-list
 - setting/spending.approval-reminder-delay
 records:
 - type: scenario

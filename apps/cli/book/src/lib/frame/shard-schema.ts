@@ -24,6 +24,7 @@ import type {
   Manifest,
   OutlineKind,
   OutlineNode,
+  ParkedChild,
   ProductArea,
   ProductAreas,
   ProofState,
@@ -295,6 +296,11 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
       state,
       tests: optNumber(proofValue, "tests", what),
       test,
+      commit: optString(proofValue, "commit", what),
+      lastPassedAt: optString(proofValue, "lastPassedAt", what),
+      status: optString(proofValue, "status", what),
+      commitsBehind: optNumber(proofValue, "commitsBehind", what),
+      staleReason: optString(proofValue, "staleReason", what),
     };
   }
 
@@ -319,6 +325,14 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
       hasCode: optNullableBoolean(completionValue, "hasCode", what),
       hasTests: optNullableBoolean(completionValue, "hasTests", what),
       scenarios,
+      stage: optString(completionValue, "stage", what),
+      proof: optString(completionValue, "proof", what),
+      heldBy: optStringArray(completionValue, "heldBy", what),
+      parkedBy: parseParkedChildren(completionValue["parkedBy"], what),
+      inScope: optNumber(completionValue, "inScope", what),
+      parked: optNumber(completionValue, "parked", what),
+      total: optNumber(completionValue, "total", what),
+      counts: parseCompletionCounts(completionValue["counts"], what),
     };
   }
 
@@ -901,6 +915,33 @@ function parseReachClaims(raw: unknown, what: string): ReachClaim[] | undefined 
     if (state !== "verified" && state !== "claimed") fail(what + " needs a claim state of verified or claimed");
     return { id: reqString(item, "id", what + " claim"), state };
   });
+}
+
+function parseParkedChildren(raw: unknown, what: string): ParkedChild[] | undefined {
+  if (raw === undefined) return undefined;
+  if (Array.isArray(raw) === false) fail(what + " needs a parkedBy list");
+  return raw.map((item) => {
+    if (isRecord(item) === false) fail(what + " needs parkedBy objects");
+    return {
+      id: reqString(item, "id", what + " parkedBy"),
+      waiver: reqString(item, "waiver", what + " parkedBy"),
+      expiresOn: optNullableString(item, "expiresOn", what + " parkedBy"),
+    };
+  });
+}
+
+function parseCompletionCounts(raw: unknown, what: string): Record<string, { done?: number; of?: number }> | undefined {
+  if (raw === undefined) return undefined;
+  if (isRecord(raw) === false) fail(what + " needs a counts object");
+  const out: Record<string, { done?: number; of?: number }> = {};
+  for (const [key, item] of Object.entries(raw)) {
+    if (isRecord(item) === false) fail(what + " needs count objects");
+    out[key] = {
+      done: optNumber(item, "done", what),
+      of: optNumber(item, "of", what),
+    };
+  }
+  return out;
 }
 
 function parseGoalOutcome(raw: unknown, what: string): GoalOutcome | undefined {

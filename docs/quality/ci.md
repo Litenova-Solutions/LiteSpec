@@ -25,6 +25,10 @@ Projects that select the [Delivery extension](../ext/delivery.md) add its mutati
 
 The model job runs `litespec model check`. That command blocks on the planned-Intent findings and every link finding in every run, on a developer machine and in the pull-request check alike, as [Check Levels](../core/model.md#check-levels) states.
 
+The check writes `proofs.json` from the run on the pull request head, so a merged pull request carries fresh proofs: the check runs after the test run in the same job.
+
+The model job treats exit 3 as failure unless the job allows incomplete inspection. Exit 3 means no finding blocks but a reader was missing, so some findings report without blocking.
+
 ### Measured Checks by Kind
 
 Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for each kind the change touches.

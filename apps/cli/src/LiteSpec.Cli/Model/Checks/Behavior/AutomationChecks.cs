@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The automation checks: each reaction is triggered by its own module's domain events or by integration events, each reaction and job declares the outcomes it can reach, and each job carries a schedule a tool can read.</summary>
+/// <summary>The automation checks: each reaction is triggered by its own module's domain events, by module events of modules it depends on, or by inbound integration events, each reaction and job declares the outcomes it can reach, and each job carries a schedule a tool can read.</summary>
 /// <follows>litespec/core/automation#trigger-every-reaction-from-its-declared-events</follows>
 /// <follows>litespec/core/automation#declare-the-outcomes-of-each-reaction-and-job</follows>
 /// <follows>litespec/core/automation#run-every-job-from-its-declared-kind</follows>
@@ -85,7 +85,7 @@ internal static class AutomationChecks
         && schedule.ValueKind == JsonValueKind.Object
         && (Str(schedule, RecordFields.Every) is { Length: > 0 } || Str(schedule, RecordFields.Cron) is { Length: > 0 } || Str(schedule, RecordFields.At) == "startup");
 
-    /// <summary>Reports each reaction with no trigger, a trigger no event holds or that is no event, and a domain-event trigger from another module than the reaction's own.</summary>
+    /// <summary>Reports each reaction with no trigger, a trigger no event holds or that is no event, a domain-event trigger from another module than the reaction's own, and an outbound integration-event trigger. A module event is the declared crossing between modules, so a reaction may answer one from any module.</summary>
     /// <param name="model">The loaded project model that holds every reaction record and event.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunReactionTrigger(ProjectModel model, List<Finding> findings)
@@ -108,15 +108,20 @@ internal static class AutomationChecks
                 {
                     findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which no event holds.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
-                else if (resolved.Type is not (RecordTypes.DomainEvent or RecordTypes.IntegrationEvent))
+                else if (resolved.Type is not (RecordTypes.DomainEvent or RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent))
                 {
                     findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
                 else if (resolved.Type == RecordTypes.DomainEvent && resolved.Module is { } eventModule && reaction.Module is { } reactionModule && eventModule != reactionModule)
                 {
-                    findings.Add(new Finding("reaction-trigger-foreign", $"Reaction '{reaction.Id}' in module '{reactionModule}' triggers on domain event '{trigger}' of module '{eventModule}'; it answers an integration event instead.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                    findings.Add(new Finding("reaction-trigger-foreign", $"Reaction '{reaction.Id}' in module '{reactionModule}' triggers on domain event '{trigger}' of module '{eventModule}'; it answers a module event or an inbound integration event instead.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                }
+                else if (resolved.Type == RecordTypes.IntegrationEvent && resolved.Field(RecordFields.Direction) == "out")
+                {
+                    findings.Add(new Finding("reaction-trigger-foreign", $"Reaction '{reaction.Id}' triggers on outbound integration event '{trigger}'; it answers an inbound integration event instead.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
             }
         }
     }
+
 }

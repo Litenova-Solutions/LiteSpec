@@ -12,7 +12,7 @@ import {
 const ICONS: Record<string, Component> = {
   product: Package, problem: TriangleAlert, goal: Target, vision: Compass, feature: Boxes, requirement: FileCheck, decision: Scale,
   constraint: Fence, research: Microscope, flow: Route, actor: User, module: Folder,
-  aggregate: Table2, rule: Shield, "domain-event": Activity, "integration-event": Radio, "read-model": Eye, "use-case": Zap, scenario: ListChecks,
+  aggregate: Table2, store: Server, rule: Shield, "domain-event": Activity, "module-event": Network, "integration-event": Radio, "read-model": Eye, "use-case": Zap, scenario: ListChecks,
   result: CircleDot, reaction: Workflow, job: Timer, notification: Bell, setting: Settings, screen: Monitor,
   role: IdCard, permission: KeyRound, "entry-point": DoorOpen, "external-system": Plug, limit: Gauge, runbook: BookOpen,
   waiver: ShieldOff, term: BookA, code: Code, test: FlaskConical, route: Signpost, layer: Layers,

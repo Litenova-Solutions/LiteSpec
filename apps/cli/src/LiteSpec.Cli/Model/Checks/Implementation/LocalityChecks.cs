@@ -70,7 +70,7 @@ internal static class LocalityChecks
         }
     }
 
-    /// <summary>Reports a same-layer link across modules with no declared dependency and no integration event between them.</summary>
+    /// <summary>Reports a same-layer link across modules with no declared dependency and no module event or integration event between them.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckLinks(ProjectModel model, List<Finding> findings)
@@ -133,8 +133,8 @@ internal static class LocalityChecks
                         continue;
                     }
 
-                    if (source.Type == RecordTypes.IntegrationEvent
-                        || target.Type == RecordTypes.IntegrationEvent)
+                    if (source.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent
+                        || target.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent)
                     {
                         continue;
                     }
@@ -264,11 +264,12 @@ internal static class LocalityChecks
     }
 
     /// <summary>
-    ///     Reports an integration event published from more than one module. A use case publishes each
-    ///     outbound integration event that translates an event the use case raises, so the publishing
-    ///     modules are the modules of those use cases.
+    ///     Reports a module event or integration event published from more than one module, and a module event
+    ///     published from a module other than its own. A use case publishes each module event and each outbound
+    ///     integration event that translates an event the use case raises, so the publishing modules are the
+    ///     modules of those use cases.
     /// </summary>
-    /// <param name="model">The loaded project model that holds every integration event and use case.</param>
+    /// <param name="model">The loaded project model that holds every module event, integration event and use case.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</follows>
     private static void CheckPublishers(ProjectModel model, List<Finding> findings)
@@ -276,19 +277,19 @@ internal static class LocalityChecks
         var publishers = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var translators = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
-        foreach (var integration in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent))
+        foreach (var published in model.Records.Where(record => record.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent))
         {
-            foreach (var translated in integration.Ids(RecordFields.Translates))
+            foreach (var translated in published.Ids(RecordFields.Translates))
             {
                 var eventId = Identifiers.BaseId(translated);
 
-                if (!translators.TryGetValue(eventId, out var integrations))
+                if (!translators.TryGetValue(eventId, out var events))
                 {
-                    integrations = [];
-                    translators[eventId] = integrations;
+                    events = [];
+                    translators[eventId] = events;
                 }
 
-                integrations.Add(integration.Id);
+                events.Add(published.Id);
             }
         }
 
@@ -303,17 +304,17 @@ internal static class LocalityChecks
 
             foreach (var raised in useCase.Ids(RecordFields.Raises))
             {
-                if (!translators.TryGetValue(Identifiers.BaseId(raised), out var integrations))
+                if (!translators.TryGetValue(Identifiers.BaseId(raised), out var events))
                 {
                     continue;
                 }
 
-                foreach (var integrationId in integrations)
+                foreach (var publishedId in events)
                 {
-                    if (!publishers.TryGetValue(integrationId, out var set))
+                    if (!publishers.TryGetValue(publishedId, out var set))
                     {
                         set = new HashSet<string>(StringComparer.Ordinal);
-                        publishers[integrationId] = set;
+                        publishers[publishedId] = set;
                     }
 
                     set.Add(module);
@@ -324,21 +325,35 @@ internal static class LocalityChecks
         foreach (var eventId in publishers.Keys.Order(StringComparer.Ordinal))
         {
             var modules = publishers[eventId].Order(StringComparer.Ordinal).ToList();
+            var holder = model.ById[eventId];
+            var label = holder.Type == RecordTypes.ModuleEvent ? "Module event" : "Integration event";
 
-            if (modules.Count <= 1)
+            if (modules.Count > 1)
             {
+                var listed = string.Join(", ", modules.Select(module => $"'module/{module}'"));
+
+                findings.Add(new Finding(
+                    "event-publisher-invalid",
+                    $"{label} '{holder.Id}' is published from {modules.Count} modules: {listed}.",
+                    holder.File,
+                    holder.Line,
+                    SubjectOf(holder)));
+
                 continue;
             }
 
-            var holder = model.ById[eventId];
-            var listed = string.Join(", ", modules.Select(module => $"'module/{module}'"));
-
-            findings.Add(new Finding(
-                "event-publisher-invalid",
-                $"Integration event '{holder.Id}' is published from {modules.Count} modules: {listed}.",
-                holder.File,
-                holder.Line,
-                SubjectOf(holder)));
+            if (holder.Type == RecordTypes.ModuleEvent && modules.Count == 1
+                && Identifiers.TrySplit(holder.Id, out _, out var home, out _)
+                && home is { Length: > 0 }
+                && modules[0] != home)
+            {
+                findings.Add(new Finding(
+                    "event-publisher-invalid",
+                    $"Module event '{holder.Id}' is published from module '{modules[0]}' instead of its own module '{home}'.",
+                    holder.File,
+                    holder.Line,
+                    SubjectOf(holder)));
+            }
         }
     }
 

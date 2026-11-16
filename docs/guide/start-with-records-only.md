@@ -48,7 +48,7 @@ Keep the `agent-protocol` region in the project `AGENTS.md` current, so every ag
 
 ### Write the First Records
 
-Write `.litespec/product.yaml` first. It states what the product is, who it is for, and what it never does. Then scaffold each further record with `dotnet litespec new <type> <id>`, which writes the record in its legal folder and reserves its identifier before any prose exists. Work one slice at a time, from the problem to the Behavior scenario that proves it, as the [model page](../core/model.md) describes.
+Write `.litespec/product.yaml` first. It states what the product is, who it is for, and what it never does. Then scaffold each further record with `dotnet litespec new <type> <id>`, which writes the record in its legal folder and reserves its identifier before any prose exists. Write the Intent of each slice before its Behavior, from the problem to the Behavior scenario that proves it, as the [model page](../core/model.md) describes. Independent slices may run at the same time.
 
 When the team cannot meet a rule yet, give it a gap waiver in `.litespec/governance/waivers/`, with `kind: gap`, an `expiresOn` date, an `exit`, and `closedBy` naming the records whose change closes it, as the [waiver page](../core/waivers.md) states.
 

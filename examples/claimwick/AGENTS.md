@@ -24,7 +24,7 @@ Build only what the specification states, and take anything missing to the owner
 
 Never delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; report a test you believe is wrong instead of editing it. (litespec/core/agent#protect-proofs-from-implementation-edits)
 
-Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect. (litespec/core/system#declare-every-edge-between-records)
+Declare every edge between use cases, reactions, jobs, notifications, module events, integration events, and external systems. An undeclared edge is the defect. (litespec/core/system#declare-every-edge-between-records)
 
 Every finding about a missing, unknown or unused link blocks, and planned Intent blocks in every run; only a live waiver covers one. (litespec/core/model#mark-every-check-with-its-level)
 

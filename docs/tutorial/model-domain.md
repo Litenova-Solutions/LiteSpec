@@ -1,6 +1,6 @@
 # Model a Behavior Module
 
-Specify one behavior module from Intent, working through one kind of record at a time. A behavior module gathers one business area's glossary terms, aggregates, rules, use cases, reactions, jobs, read models, notifications, settings, domain events, and permissions into record files. The worked example is the spending module of the Claimwick product.
+Specify one behavior module from Intent, working through one kind of record at a time. A behavior module gathers one business area's glossary terms, aggregates, stores, rules, use cases, reactions, jobs, read models, notifications, settings, domain events, module events, and permissions into record files. The worked example is the spending module of the Claimwick product.
 
 Intent records say what the product promises; Behavior records say how the product keeps those promises. The model builder, the tool that checks the project, reads these record files. Each step names the standard it satisfies, and the tutorial adds no rule of its own.
 
@@ -9,7 +9,7 @@ Intent records say what the product promises; Behavior records say how the produ
 - Finish [Start a Consumer Repository](getting-started.md) through its configuration steps.
 - Read the product brief and the requirements this module fulfills.
 - Read the decisions that constrain identity, persistence, security, or external behavior.
-- Copy the `module.yaml`, `aggregate.yaml`, `use-case-command.yaml`, and `use-case-query.yaml` templates from the [template index](../../templates/consumer/README.md), and open `.litespec/glossary.yaml` for the module terms.
+- Copy the `module.yaml`, `aggregate.yaml`, `store.yaml`, `use-case-command.yaml`, `use-case-query.yaml`, and `module-event.yaml` templates from the [template index](../../templates/consumer/README.md), and open `.litespec/glossary.yaml` for the module terms.
 
 ## Lesson
 
@@ -29,16 +29,16 @@ Intent records say what the product promises; Behavior records say how the produ
     Month end brings every team's expenses at once: employees paid work costs from their own pockets and wait weeks for a decision, chasing managers by email. Without an expense record, finance reconstructs who spent what from forwarded receipts and memory.
 
 3. Write the module record file with its summary, and give the module a person-chosen identifier such as `module/spending`. List each module it depends on, or leave the dependency field empty when the module stands alone. Spending depends on no other module, so its list stays empty. This satisfies `litespec/core/domain-model#state-every-module-dependency`.
-4. Draw aggregate boundaries from invariants. An aggregate is a consistency boundary, the state that must stay valid together in one command, and an invariant is a condition that holds before and after every successful change. Declare the kind of every aggregate: `entity` for guarded state, `store` for state no invariant guards. The record schema accepts only those two values for `kind`. This satisfies `litespec/backend/domain#treat-aggregates-as-consistency-boundaries`, `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary`, and `litespec/core/domain-model#declare-the-kind-of-every-aggregate`.
+4. Draw aggregate boundaries from invariants. An aggregate is a consistency boundary, the state that must stay valid together in one command, and an invariant is a condition that holds before and after every successful change. State no invariant guards is a store instead: it names its owning module or external system and carries no lifecycle. This satisfies `litespec/backend/domain#treat-aggregates-as-consistency-boundaries` and `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary`.
 
-    | Aggregate | Kind | Owns | References by typed ID |
-    |:---|:---|:---|:---|
-    | `aggregate/spending.expense` | entity | Expense lifecycle, total, reimbursement facts | `ReceiptId`, `EmployeeId` |
-    | `aggregate/spending.receipt` | entity | Receipt attachment and removal | `ExpenseId` |
-    | `aggregate/spending.policy` | entity | The company spending policy and its receipt threshold | None |
-    | `aggregate/spending.suppression-list` | store | The managers who get no approval reminder | None |
+    | Record | Owns | References by typed ID |
+    |:---|:---|:---|
+    | `aggregate/spending.expense` | Expense lifecycle, total, reimbursement facts | `ReceiptId`, `EmployeeId` |
+    | `aggregate/spending.receipt` | Receipt attachment and removal | `ExpenseId` |
+    | `aggregate/spending.policy` | The company spending policy and its receipt threshold | None |
+    | `store/spending.suppression-list` | The managers who get no approval reminder | None |
 
-    The suppression-list store names its owner, `aggregate/spending.policy`, and carries no states, because no invariant guards the stored value. This satisfies `litespec/core/domain-model#name-the-owner-of-every-store`. An aggregate owns a child when the child has no independent boundary and changes only through the aggregate. Reference another aggregate by typed ID when it changes on its own. Do not place `Employee` inside `Expense` for convenient navigation. This satisfies `litespec/backend/domain#reference-other-aggregates-by-id`.
+    The suppression list is a store, `store/spending.suppression-list`, owned by `module/spending`, and carries no states, because no invariant guards the stored value. This satisfies `litespec/core/domain-model#name-the-owner-of-every-store`. An aggregate owns a child when the child has no independent boundary and changes only through the aggregate. Reference another aggregate by typed ID when it changes on its own. Do not place `Employee` inside `Expense` for convenient navigation. This satisfies `litespec/backend/domain#reference-other-aggregates-by-id`.
 
 5. Define every state before writing transitions. A state is a business-valid condition with its required data and permitted behavior. This satisfies `litespec/backend/domain#model-every-aggregate-lifecycle-with-state-types` and `litespec/core/domain-model#model-each-aggregate-lifecycle-with-states`.
 
@@ -91,7 +91,7 @@ Intent records say what the product promises; Behavior records say how the produ
 
     An `invariant` holds after every change to its aggregate, while a `precondition` guards the behavior before it runs and refuses caller-correctable input. A `calculation` derives a value and is proven by a scenario with `examples`. The remaining kinds cover atomicity, held reservations, and frozen values.
 
-    Each rule that refuses names its refusal code from the module's refusal set. This satisfies `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`. A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, or the check reports `rule-binds-missing`: `rule/spending.receipt-filed-once`, a receipt file supports one expense across spending, binds `aggregate/spending.expense` and `aggregate/spending.receipt`. This satisfies `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`.
+    Each rule that refuses names its refusal code from the module's refusal set. This satisfies `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`. A rule whose `governs` names more than one aggregate or store names every governed aggregate and store in `binds`, or the check reports `rule-binds-missing`: `rule/spending.receipt-filed-once`, a receipt file supports one expense across spending, binds `aggregate/spending.expense` and `aggregate/spending.receipt`. This satisfies `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`.
 
     A tunable bound such as the threshold is a setting, not a rule. Input shape stays in the validator, and current aggregate state stays in the aggregate. This satisfies `litespec/backend/application#separate-input-validation-from-invariants`.
 9. Name the people and what each may do. Write one actor record file per party, and one role record file per grantable set of permissions. Roles grant permissions, and each use case later declares its access against one grant. This satisfies `litespec/core/access#grant-permissions-through-roles` and `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
@@ -102,7 +102,7 @@ Intent records say what the product promises; Behavior records say how the produ
     | `actor/manager` | `role/approver`, whose scope is team | `permission/approve-expense` |
     | `actor/finance` | `role/finance`, whose scope is platform | `permission/post-reimbursement` |
 
-10. Write the use cases. Give each use case a name that is unique across the project, so its results and scenarios resolve. Name the kind, `command` or `query`, the goal, what happens, the flow steps it serves, the requirements it fulfills, the access it declares, the entry points, the aggregates it writes and reads, its effects, and the domain events it raises. This satisfies `litespec/backend/application#use-this-use-case-layout`, `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, and `litespec/core/access#declare-access-on-every-use-case`.
+10. Write the use cases. Give each use case a name that is unique across the project, so its results and scenarios resolve. Name the kind, `command` or `query`, the goal, what happens, the flow steps it serves, the requirements it fulfills, the access it declares, the entry points, the aggregates and stores it writes and reads, its effects, and the domain events it raises. This satisfies `litespec/backend/application#use-this-use-case-layout`, `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, and `litespec/core/access#declare-access-on-every-use-case`.
 
     | Use case | Kind | Serves | Access grant | Writes |
     |:---|:---|:---|:---|:---|
@@ -111,7 +111,7 @@ Intent records say what the product promises; Behavior records say how the produ
     | `use-case/spending.reimburse-expense` | `command` | `flow/submit-and-reimburse#s4` | `permission/post-reimbursement` | `aggregate/spending.expense` |
     | `use-case/spending.list-expenses` | `query` | `flow/submit-and-reimburse#s5` | `permission/list-expenses` | None |
 
-    Every use case carries at least one of `serves` and `fulfills`. Access declares one grant and the tenant scope, and a tenant of `own` limits the permission to the caller's own records. `writes` names every aggregate the use case writes, and `reads` names every aggregate and read model it reads. None of these commands writes several aggregates, so none declares `consistency`. This satisfies `litespec/core/use-cases#grant-each-use-case-scoped-access`, `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`, `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`, and `litespec/backend/application#read-another-modules-state-through-a-read-model`.
+    Every use case carries at least one of `serves` and `fulfills`. Access declares one grant and the tenant scope, and a tenant of `own` limits the permission to the caller's own records. `writes` names every aggregate and store the use case writes, and `reads` names every aggregate, store, setting, and read model it reads. None of these commands writes several aggregates, so none declares `consistency`. This satisfies `litespec/core/use-cases#grant-each-use-case-scoped-access`, `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`, `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`, and `litespec/backend/application#read-another-modules-state-through-a-read-model`.
 
     Every edge the use case causes goes in `effects` with one verb and its timing: `sends` or `calls`. This satisfies `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`. Every input field names its origin and classification, and caller-supplied values on money or access paths carry bounding rules. This satisfies `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`. Every use case names its idempotency, and every command its audit position. This satisfies `litespec/core/use-cases#name-the-idempotency-of-every-command` and `litespec/core/use-cases#state-the-audit-position-of-every-command`.
 
@@ -141,8 +141,8 @@ Intent records say what the product promises; Behavior records say how the produ
     | `domain-event/expense.submitted` | An expense was submitted. | `expenseId`, `amount`, `currency`, `employeeId` |
     | `domain-event/expense.reimbursed` | An expense was reimbursed. | `expenseId`, `employeeId`, `amount`, `currency`, `reimbursedAt` |
 
-    A fact that leaves the product is an integration event with a direction, a CloudEvents type and source, and a payload. Reimbursing publishes `integration-event/expense-reimbursed`, which translates `domain-event/expense.reimbursed` for the reporting module. The use case declares nothing for it: it raises `domain-event/expense.reimbursed`, and the integration event names that domain event in `translates`. This satisfies `litespec/core/edges#describe-every-integration-event-for-its-direction` and `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`.
-14. Write the reactions, jobs, read models, notifications, and settings as their own records. Work that answers a domain event is a reaction: it names the domain events in `triggeredBy`, runs at most one use case through `effects`, and never writes an aggregate directly. A reaction that undoes a committed step of a multi-step process names the step's use case in `compensates`, runs another use case, and answers the event that reports the later failure; Claimwick's reminder reaction carries no `compensates`, because it undoes nothing. This satisfies `litespec/core/automation#name-the-step-a-compensating-reaction-undoes`.
+    A fact that leaves the product is an integration event with a direction, a CloudEvents type and source, and a payload. A fact one module publishes for the other modules of the same product is a module event instead: it names the domain event it translates in `translates` and carries a payload, with no direction and no external transport. Reimbursing publishes `module-event/spending.expense-reimbursed`, which translates `domain-event/expense.reimbursed` for the reporting module. The use case declares nothing for it: it raises `domain-event/expense.reimbursed`, and the module event names that domain event in `translates`. This satisfies `litespec/core/edges#describe-every-integration-event-for-its-direction` and `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`.
+14. Write the reactions, jobs, read models, notifications, and settings as their own records. Work that answers a domain event, a module event, or an integration event is a reaction: it names the events it answers in `triggeredBy`, runs at most one use case through `effects`, and never writes an aggregate directly. A reaction that undoes a committed step of a multi-step process names the step's use case in `compensates`, runs another use case, and answers the event that reports the later failure; Claimwick's reminder reaction carries no `compensates`, because it undoes nothing. This satisfies `litespec/core/automation#name-the-step-a-compensating-reaction-undoes`.
 
     Work that runs on a schedule is a job: it names its `kind` with its `schedule`, `selection`, and `guard`, and it never writes an aggregate directly either.
 
@@ -154,7 +154,7 @@ Intent records say what the product promises; Behavior records say how the produ
     |:---|:---|
     | `reaction/spending.send-approver-reminders-on-expense-submitted` | On `domain-event/expense.submitted`, sends `notification/spending.approval-reminder`. |
     | `job/spending.erase-expired-personal-data` | Scheduled daily; runs `use-case/spending.erase-personal-data` per expired expense. |
-    | `read-model/reporting.reimbursed-expense` | One row per reimbursed expense, each field from `integration-event/expense-reimbursed`. |
+    | `read-model/reporting.reimbursed-expense` | One row per reimbursed expense, each field from `module-event/spending.expense-reimbursed`. |
     | `notification/spending.approval-reminder` | Email to the manager with the expense and its waiting time. |
     | `setting/spending.receipt-threshold` | Money, default EUR 25, set by the product, refuses at the bound. |
 
@@ -172,7 +172,7 @@ Intent records say what the product promises; Behavior records say how the produ
 
 ## What You Built
 
-- One module with its terms, aggregates, data classes, rules, use cases, results, scenarios, domain events, reactions, jobs, read models, notifications, settings, and permissions.
+- One module with its terms, aggregates, stores, data classes, rules, use cases, results, scenarios, domain events, module events, reactions, jobs, read models, notifications, settings, and permissions.
 - Person-chosen identifiers throughout, with every citation resolved and every edge between records declared.
 - Every scenario proved by a passing test, or covered by a gap waiver with `kind`, `expiresOn`, `exit` and `closedBy`.
 - Next, follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to place each specified element in code. When you entered this tutorial from [Start a Consumer Repository](getting-started.md) step 16, return there instead and continue with step 17.

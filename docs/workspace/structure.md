@@ -61,7 +61,7 @@ While it builds the model from records, code, routes, tests, and test runs, the 
       modules/
         {module}/
           permissions.yaml
-          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/
+          stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ module-events/ integration-events/ external-systems/
           aggregates/
             {aggregate}/
               aggregate.yaml
