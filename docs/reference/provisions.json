@@ -2567,7 +2567,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A WebApi endpoint MUST implement \u0060IEndpoint\u0060, map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.",
-      "rationale": "When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route can affect another, and a second routing pattern can grow beside the first unnoticed. This provision binds \u0060litespec/backend/api#map-one-operation-per-endpoint\u0060 for .NET.",
+      "rationale": "When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route silently affects another, and a second routing pattern grows beside the first unnoticed. This provision binds \u0060litespec/backend/api#map-one-operation-per-endpoint\u0060 for .NET.",
       "example": "The WebApi project owns this contract:\n\n\u0060\u0060\u0060csharp\ninternal interface IEndpoint\n{\n    void MapEndpoint(IEndpointRouteBuilder endpoints);\n}\n\u0060\u0060\u0060\n\nAt startup, the host scans the modules assembly through its one public marker for non-abstract \u0060IEndpoint\u0060 implementations, registers each one once as a singleton, and calls \u0060MapEndpoint\u0060 in type-name order. The scan uses framework reflection and dependency injection, so no extra scanning package is needed."
     },
     {
@@ -7356,7 +7356,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no case adds to the records.",
-      "rationale": "Fields state rules, states, and mappings, but none says when the behavior happens or who is affected while it runs. An occasion drawn from the one shared cast lets a reviewer judge the behavior against the world it serves, and lets readers carry the same people and figures from page to page.",
+      "rationale": "Fields state rules, states, and mappings, but none says when the behavior happens or who is under pressure while it runs. An occasion drawn from the one shared cast lets a reviewer judge the behavior against the world it serves, and lets readers carry the same people and figures from page to page.",
       "example": ""
     },
     {
@@ -7374,7 +7374,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Child entities and value objects MUST appear only in code and the glossary, never as records.",
-      "rationale": "The design inside an aggregate changes without changing its business meaning, so a record for every child entity and value object would add pages without adding decisions a reviewer judges. Keeping those choices in code and the glossary puts them where builders and readers meet them, and leaves records for what carries business meaning.",
+      "rationale": "The design inside an aggregate changes without changing its business meaning, so a record for every child entity and value object would triple the tree in size without adding one decision a reviewer judges. Keeping those choices in code and the glossary puts them where builders and readers meet them, and leaves records for what carries business meaning.",
       "example": "Order lines live as a child of the order aggregate, and money as a value with its glossary entry; neither is a record."
     },
     {
@@ -7392,7 +7392,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A module MUST state its \u0060summary\u0060 and its \u0060dependsOn\u0060 in fields.",
-      "rationale": "The module names one product area of the bounded context, so Intent, Behavior, and code share one name for one area. \u0060summary\u0060 states what the area covers, and \u0060dependsOn\u0060 names the modules it builds on, so a reader learns where each area sits and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
+      "rationale": "The module names one product area of the bounded context, so Intent, Behavior, and code share one name for one area. \u0060summary\u0060 states what the area covers in one place, and \u0060dependsOn\u0060 names the modules it builds on, so a reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
       "example": "The spending module covers expenses, receipts, and the policy, with an empty \u0060dependsOn\u0060 where it stands alone."
     },
     {
@@ -14980,7 +14980,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A handler MUST contribute only the audit values that the handler alone determines.",
-      "rationale": "The declaration beside the message already fixes the audit target and the reason value the message carries, as \u0060litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message\u0060 requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest creates a second copy of each field that drifts from the first.",
+      "rationale": "The declaration beside the message already fixes the audit target and the reason value the message carries, as \u0060litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message\u0060 requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest invites a second copy of each field that drifts from the first.",
       "example": "A Claimwick handler that creates an expense contributes the expense identity it generated, and nothing else: no actor, action code, timestamp, or value the message already carries."
     },
     {
@@ -21551,7 +21551,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A multi-tenant decision MUST define shared-table, schema, or database isolation and state its guarantee and operating trade-off.",
-      "rationale": "Shared tables, separate schemas, and separate databases isolate data differently, and each choice moves work between queries, migrations, backups, and scaling. Naming the model with its guarantee and its operating trade-off tells every later choice which isolation it can rely on.",
+      "rationale": "Shared tables, separate schemas, and separate databases isolate differently and operate differently, and each choice moves work between queries, migrations, backups, and scaling. Naming the model with its guarantee and its operating trade-off tells every later choice which isolation it can rely on.",
       "example": ""
     },
     {
@@ -22397,7 +22397,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A data component MUST render loading, empty, error, forbidden, and ready.",
-      "rationale": "A component rendering only its ready state leaves the user with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test covering it. Naming every state up front gives each one a designed drawing. A route adds \u0060not-found\u0060 under \u0060litespec/frontend/rendering#define-every-route-state\u0060, because a missing target resolves at the route rather than inside a component. Each state name is a term in the project glossary.",
+      "rationale": "A component rendering only its ready state leaves the user with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test covering it. Naming every arrival state up front gives each one a designed drawing. A route adds \u0060not-found\u0060 under \u0060litespec/frontend/rendering#define-every-route-state\u0060, because a missing target resolves at the route rather than inside a component. Each state name is a term in the project glossary.",
       "example": ""
     },
     {
@@ -23153,7 +23153,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A screen class under \u0060Screens/\u0060 MUST carry the \u0060\u003Cimplements\u003E\u0060 mark of the screen it renders, in the form the .NET stack states.",
-      "rationale": "The mark links the screen to its record the way a .NET handler carries its use-case mark, so the builder and the check read the same link shape.",
+      "rationale": "The mark links the screen to its record the way a .NET handler carries its use-case mark, so the builder and the check read one link.",
       "example": "The Claimwick \u0060ExpenseListScreen\u0060 carries \u0060/// \u003Cimplements\u003Escreen/claimwick-app.expense-list\u003C/implements\u003E\u0060."
     },
     {
@@ -24953,7 +24953,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A route that loses its connection MUST keep the user\u0027s unsent input and show the error state with a retry action.",
-      "rationale": "A long expense form lost to a dropped connection is typed again or abandoned. Keeping the unsent input on screen with a retry action lets the reader retry the read instead of retyping the form.",
+      "rationale": "A long expense form lost to a train tunnel is typed again or abandoned. Keeping the unsent input on screen with a retry action lets the reader retry the read instead of retyping the form.",
       "example": ""
     },
     {
@@ -26087,7 +26087,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An amount, count, or quantity shown in a column MUST use tabular figures, so digits of equal place sit under each other.",
-      "rationale": "Proportional figures give each digit its own width, so digits in equal places stop lining up down a column. A misaligned reversal column is easy to misread at a glance, and the wrong row gets paid. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.",
+      "rationale": "Proportional figures give each digit its own width, so digits in equal places stop lining up down a column. A misaligned reversal column is misread at a glance, and the wrong row gets paid. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.",
       "example": ""
     },
     {
@@ -26321,7 +26321,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060groups-subtotals-and-a-grand-total\u0060",
-      "rationale": "Keep groups, subtotals, and a grand total, with a count under each line. The count is the only completeness check. The runner-up ends in the payouts the statement became, which fits finance checking the statement against bank lines. Links on every line can be added later, to whichever option the project picks. Never ship the one-figure option as the statement: it hides how the figure was reached.",
+      "rationale": "Keep groups, subtotals, and a grand total, with a count under each line. The count is the only completeness check. The runner-up ends in the payouts the statement became, which fits finance checking the statement against bank lines. Add links on every line later, to whichever option the project picks. Never ship the one-figure option as the statement: it hides how the figure was reached.",
       "example": ""
     },
     {
@@ -27546,7 +27546,7 @@
       "strength": "required",
       "statement": "A use-case folder MUST sit under the modules root at \u0060{module}/{aggregate}/{use-case}/\u0060 in kebab case, or at \u0060{module}/use-cases/{use-case}/\u0060 for a query describing no one aggregate, resolving to the one backend use case folder of the same names inside its \u0060UseCases/\u0060 folder.",
       "rationale": "A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one folder per use case, so the mirror names one folder. The frontend structure test checks the mirror on every build, under \u0060litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test\u0060.",
-      "example": "One backend folder and its frontend counterpart are the same path in two spellings:\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Orders/Orders/UseCases/SearchMerchantOrders/\n\u003Cfrontend\u003E/modules/orders/orders/search-merchant-orders/\n\u0060\u0060\u0060\n\nIn Claimwick, \u0060use-case/spending.list-expenses\u0060 lists expenses. The backend implements it under \u0060Spending/Expenses/UseCases/ListExpenses\u0060, and the web frontend serves it from the same path in kebab case, \u0060lib/modules/spending/expenses/list-expenses\u0060, beside the screen record \u0060screen/claimwick-app.expense-list\u0060.\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Spending/Expenses/UseCases/ListExpenses/\n\u003Cfrontend\u003E/modules/spending/expenses/list-expenses/\n\u0060\u0060\u0060\n\nThe three backend names become three lowercase folder names, while the \u0060UseCases/\u0060 segment has no counterpart in the frontend path.\n\nA query that describes no one aggregate keeps its record location under \u0060use-cases/\u0060 beside its module, so its folder mirrors that location with two names instead of three. A query named \u0060use-case/spending.read-spending-summary\u0060 would live at \u0060\u003Cfrontend\u003E/modules/spending/use-cases/read-spending-summary/\u0060 and \u0060\u003Cbackend\u003E/Spending/UseCases/ReadSpendingSummary/\u0060. The running Claimwick example holds no such module-level query.\n\nThe diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.\n\n![The backend folder Spending, Expenses, ListExpenses beside the frontend folders spending, expenses, list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)"
+      "example": "One backend folder and its frontend counterpart are the same path in two spellings:\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Orders/Orders/UseCases/SearchMerchantOrders/\n\u003Cfrontend\u003E/modules/orders/orders/search-merchant-orders/\n\u0060\u0060\u0060\n\nIn Claimwick, \u0060use-case/spending.list-expenses\u0060 lists expenses. The backend implements it under \u0060Spending/Expenses/UseCases/ListExpenses\u0060, and the web frontend serves it from the same path in kebab case, \u0060lib/modules/spending/expenses/list-expenses\u0060, beside the screen record \u0060screen/claimwick-app.expense-list\u0060.\n\n\u0060\u0060\u0060text\n\u003Cbackend\u003E/Spending/Expenses/UseCases/ListExpenses/\n\u003Cfrontend\u003E/modules/spending/expenses/list-expenses/\n\u0060\u0060\u0060\n\nThe three backend names become three lowercase folder names, while the \u0060UseCases/\u0060 segment has no counterpart in the frontend path.\n\nA query that describes no one aggregate keeps its record home under \u0060use-cases/\u0060 beside its module, so its folder mirrors that home with two names instead of three. A query named \u0060use-case/spending.read-spending-summary\u0060 would live at \u0060\u003Cfrontend\u003E/modules/spending/use-cases/read-spending-summary/\u0060 and \u0060\u003Cbackend\u003E/Spending/UseCases/ReadSpendingSummary/\u0060. The running Claimwick example holds no such module-level query.\n\nThe diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.\n\n![The backend folder Spending, Expenses, ListExpenses beside the frontend folders spending, expenses, list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)"
     },
     {
       "id": "litespec/frontend/structure#order-imports-from-routes-to-shared-packages",
@@ -27797,7 +27797,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser test that drives several screens MUST carry a \u0060flow\u0060 annotation naming the flow and a \u0060proves\u0060 mark for each scenario it drives and asserts.",
-      "rationale": "A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The \u0060flow\u0060 annotation tells a reader which flow the test covers without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
+      "rationale": "A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The \u0060flow\u0060 annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "The submit-and-reimburse flow test carries \u0060flow: flow/submit-and-reimburse\u0060 and a \u0060proves\u0060 mark for each scenario it drives and asserts on each screen it reaches."
     },
     {
@@ -29417,7 +29417,7 @@
       "trace": false,
       "strength": "required",
       "statement": "The route suite and every visual golden MUST carry a \u0060proves\u0060 annotation for each UI provision, pattern provision, or quality requirement they enforce.",
-      "rationale": "The route suite is where accessibility is enforced for every page, and a visual golden is where a pattern\u0027s look is held. Until each names what it enforces, no tool can read that evidence from it. The marks turn the suite into the evidence for the UI provisions it checks and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in \u0060routeSuite\u0060 and its goldens in \u0060visualGoldens\u0060 in its \u0060frontends[]\u0060 entry, so the check reads a named subject instead of a convention.",
+      "rationale": "The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern\u0027s look is held. Until each names what it enforces, no tool can read that evidence from it. The marks turn the suite into the evidence for the UI provisions it checks and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in \u0060routeSuite\u0060 and its goldens in \u0060visualGoldens\u0060 in its \u0060frontends[]\u0060 entry, so the check reads a named subject instead of a convention.",
       "example": "Claimwick\u0027s route suite, named in its web frontend\u0027s \u0060routeSuite\u0060, carries \u0060proves(\u0022litespec/frontend/ui#pass-every-route-suite-check\u0022)\u0060."
     },
     {
