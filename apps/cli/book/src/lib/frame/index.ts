@@ -22,6 +22,7 @@ export { proofLabel, proofRank, proofWord } from "./proof-order";
 export { layerStats } from "./relations";
 export { completionLines, coveragePercent, freshnessLine, stageLine } from "./completion";
 export { copyText } from "./clipboard";
+export { applyTheme, currentTheme, initTheme, type BookTheme } from "./theme";
 export { MODULE_MEMBER_TYPES, isScenarioType } from "./shard-types";
 export { UNFULFILLED_AREA, areaGroupKey, areaKeysOf } from "./product-areas";
 export type {

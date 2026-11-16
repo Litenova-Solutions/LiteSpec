@@ -137,7 +137,7 @@ public sealed class ResultScenarioCheckTests
             TestModel.Record("result", "result/approve-expense.approved", Path.Combine(temp.Path, "approve.yaml"), """{"outcome": "success", "meaning": "The expense is approved."}"""),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-with-a-receipt-succeeds", Path.Combine(temp.Path, "submit.yaml"), """{"given": "An employee paid for a train ticket and kept the receipt.", "when": "The employee submits the expense with the receipt.", "then": "The expense is approved.", "result": "result/approve-expense.approved"}"""));
 
-        Assert.Contains("scenario-result-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Scenario Ending In Own Use Case Derived Forbidden Passes.</summary>
@@ -152,7 +152,7 @@ public sealed class ResultScenarioCheckTests
             Entry("result", "result/submit-expense.forbidden", Path.Combine(temp.Path, "submit.md"), """{"outcome": "refusal", "code": "spending.forbidden", "meaning": "The caller lacks the grant the use case requires."}""", "use-case/spending.submit-expense", true),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-without-a-grant-is-refused", Path.Combine(temp.Path, "submit.yaml"), """{"given": "An employee holds no grant to submit expenses.", "when": "The employee submits the expense.", "then": "The expense is refused.", "result": "result/submit-expense.forbidden"}"""));
 
-        Assert.DoesNotContain("scenario-result-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>An entry of the type and id on the page, with the JSON fields.</summary>

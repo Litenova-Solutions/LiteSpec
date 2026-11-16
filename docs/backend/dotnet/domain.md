@@ -17,7 +17,7 @@ The `State` property is backed by an abstract state record with one sealed recor
 
 In Claimwick, an expense moves from submitted to approved when `Approve` runs. The method accepts only a submitted expense, stores an approved state carrying the approver and the decided time, and raises the approval event.
 
-Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` is the exception. It has no root, state record, or repository in Domain, and reaches code through a port.
+Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records.
 
 ### Closed Sets Without Enums
 
@@ -556,7 +556,7 @@ public Money ApplyRate(decimal rate) => Create(Amount * rate, Currency);
 
 **Rationale:** One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. `GetByIdAsync` throws `{Aggregate}NotFoundException` for a required load, which frees handlers from repeating null checks. A nullable `FindBy...Async` stays reserved for lookups where absence is normal. A flow that finds a record or creates it is two use cases, and the boundary owning the flow chooses between them, following `litespec/backend/application#implement-one-outcome-path-per-command`. `IQueryable`, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision binds `litespec/backend/domain#limit-each-repository-to-one-aggregate` for .NET.
 
-The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure. That path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A `store` owns no repository interface. Its port carries the state its owner holds.
+The repository is the write side only. A query reads through a read model owned by Application and shaped by Infrastructure. That path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent.
 
 **Example:**
 
@@ -673,20 +673,6 @@ public sealed partial class ExpenseReceiptMissingException()
 From the refusal result the rule names, the generator writes `public override string Code => "spending.receipt-missing";`. A receipt exception in the reporting module carrying `spending.receipt-missing`, or a second spending exception carrying the same code, breaks this rule.
 
 **Checked by:** `litespec model check` reports `refusal-module-foreign` (level S) for a refusal code carried from another module's code, and `refusal-code-duplicate` (level S) for a refusal code two exception types carry.
-
-### Document Every Public Domain Contract
-
-**ID:** `litespec/backend/dotnet/domain#document-every-public-domain-contract`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** Every public Domain type and member MUST carry XML documentation stating the business constraint, result, or failure it represents.
-
-**Rationale:** A public Domain member is a business promise. Without documentation stating the constraint, result, or failure it represents, callers infer the contract from the implementation and miss the rule. A summary that restates the member name adds nothing. A mutation method names its source states, resulting state, protected invariant, and recorded event. This provision binds `litespec/backend/domain#document-every-public-domain-contract` for .NET.
-
-**Checked by:** `dotnet build` reports `LS1011` for a public Domain type or member without XML documentation.
 
 ## Conventions
 
@@ -816,93 +802,6 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 ```
 
 **Reviewed for:** Does every identifier keep the same UUID text form across Domain, persistence, transport, and client boundaries? Trace one identifier through each boundary form.
-
-### Use the Domain Layer Folder Layout
-
-**ID:** `litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Give each aggregate Domain folder its states, events, exceptions, and concepts in the files this provision names.
-
-**Replacement:** A project names its Domain folder layout in its Domain documentation.
-
-**Rationale:** Each aggregate Domain folder holds everything one aggregate owns in the files the layout names, so a reader finds the full aggregate in one place. Namespaces follow the folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`. Each file sits at the lowest folder holding its consumers under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. A typed identifier that another module names lives in its owner's `Contracts/Identifiers/` folder. Shared values live in the shared kernel `Domain/` folder with the exceptions of the rules they enforce. Those exceptions take the product as their home, such as `rule/claimwick.amount-is-never-negative`. This provision binds `litespec/backend/domain#organize-a-module-by-aggregate-and-concept` for .NET.
-
-**Example:** The layout below shows the Domain folders for a flat module, a module with a concept folder, and a module with two aggregates:
-
-```text
-{Product}.SharedKernel/
-  Domain/                         shared kernel: AggregateRoot, Entity, IAggregateRoot, IDomainEvent, IStronglyTypedId, DomainException
-{Product}.Modules/
-  Posts/                          one aggregate whose name matches the module: kept flat in the module folder
-    Domain/
-      Post.cs
-      PostTitle.cs
-      IPostRepository.cs
-      States/
-        PostState.cs
-        PostDraftState.cs
-        PostPublishedState.cs
-        PostArchivedState.cs
-      Events/
-        PostCreatedEvent.cs
-        PostPublishedEvent.cs
-      Exceptions/
-        PostIdentityRequiredException.cs
-        PostAlreadyPublishedException.cs
-    Contracts/
-      Identifiers/
-        PostId.cs                 only when another module names it; else beside Post.cs
-  Shipping/                       one aggregate whose name differs from the module, with a domain union in a concept folder
-    Shipments/
-      Domain/
-        Shipment.cs
-        ShipmentId.cs
-        IShipmentRepository.cs
-        Parcels/                  the parcel.* part: a child entity and the values only it holds
-          Parcel.cs
-          ParcelWeight.cs
-        Outcomes/
-          ShipmentOutcome.cs
-          ShipmentDeliveredOutcome.cs
-          ShipmentReturnedOutcome.cs
-          ShipmentLostOutcome.cs
-        States/
-          ShipmentState.cs
-          ShipmentPendingState.cs
-          ShipmentDispatchedState.cs
-          ShipmentDeliveredState.cs
-        Events/
-          ShipmentOutcomeRecordedEvent.cs
-  Customers/                      more than one aggregate: one plural folder per aggregate
-    CustomerAccounts/
-      Domain/                     namespace Shop.Customers.CustomerAccounts.Domain
-        CustomerAccount.cs
-        CustomerAccountId.cs
-        ICustomerAccountRepository.cs
-        States/
-          CustomerAccountState.cs
-          CustomerAccountClaimedState.cs
-        Events/
-          CustomerAccountRestrictedEvent.cs
-    Consents/
-      Domain/                     namespace Shop.Customers.Consents.Domain
-        Consent.cs
-        ConsentId.cs
-        IConsentRepository.cs
-        States/
-          ConsentState.cs
-          ConsentGrantedState.cs
-        Events/
-          ConsentGrantedEvent.cs
-```
-
-Each aggregate repository interface stays with the aggregate it loads. Module and aggregate folders keep the same names at every layer, per `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
-
-**Reviewed for:** Does every aggregate Domain folder follow the states, events, exceptions, and concepts layout, with no named-by-another-module identifier inside? Check each Domain folder beside its Contracts folder.
 
 ## Reference Example
 

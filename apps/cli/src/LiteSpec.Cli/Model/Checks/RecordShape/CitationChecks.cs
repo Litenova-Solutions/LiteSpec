@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields, explanations and documents, and code and test comments.</summary>
+/// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields, explanations and documents, and code and test comments. Backticked identifiers in record fields, explanations and documents belong to the prose check, and link targets there belong to the link check.</summary>
 /// <follows>litespec/core/language#resolve-every-identifier-citation</follows>
 internal static class CitationChecks
 {
@@ -33,12 +33,16 @@ internal static class CitationChecks
 
                 foreach (var text in StringsOf(property.Value))
                 {
-                    foreach (Match match in Identifiers.Citation.Matches(text))
+                    // Backticked identifiers belong to the prose check; blanking them
+                    // keeps their offsets while only bare citations are collected here.
+                    var prose = WithoutInlineCode(text);
+
+                    foreach (Match match in Identifiers.Citation.Matches(prose))
                     {
                         cited.Add(Identifiers.TrimCitation(match.Value));
                     }
 
-                    foreach (Match match in Identifiers.SharedCitation().Matches(text))
+                    foreach (Match match in Identifiers.SharedCitation().Matches(prose))
                     {
                         cited.Add(match.Value);
                     }
@@ -54,26 +58,26 @@ internal static class CitationChecks
             }
         }
 
-        var texts = new List<(string File, string Text, int StartLine, string? Subject)>(model.Bodies.Count);
+        var texts = new List<(string File, string Text, int StartLine, string? Subject, bool IsComment)>(model.Bodies.Count);
 
         foreach (var body in model.Bodies)
         {
-            texts.Add((body.File, body.Body, body.BodyStartLine, body.PageId));
+            texts.Add((body.File, body.Body, body.BodyStartLine, body.PageId, false));
         }
 
         foreach (var comment in model.Code.Comments)
         {
-            texts.Add((comment.File, comment.Text, comment.Line, null));
+            texts.Add((comment.File, comment.Text, comment.Line, null, true));
         }
 
         foreach (var comment in model.ScreenComments)
         {
-            texts.Add((comment.File, comment.Text, comment.Line, null));
+            texts.Add((comment.File, comment.Text, comment.Line, null, true));
         }
 
         foreach (var comment in model.TestComments)
         {
-            texts.Add((comment.File, comment.Text, comment.Line, null));
+            texts.Add((comment.File, comment.Text, comment.Line, null, true));
         }
 
         var found = new List<Finding>();
@@ -83,7 +87,7 @@ internal static class CitationChecks
             () => new List<Finding>(),
             (text, _, local) =>
             {
-                CheckTextCitations(model, text.File, text.Text, text.StartLine, text.Subject, local);
+                CheckTextCitations(model, text.File, text.Text, text.StartLine, text.Subject, text.IsComment, local);
 
                 return local;
             },
@@ -104,6 +108,7 @@ internal static class CitationChecks
     /// <param name="text">The explanation, document or comment text whose citations are checked.</param>
     /// <param name="startLine">The one-based line of the first line of the text in its file.</param>
     /// <param name="subject">The record the text belongs to, or null for code and test comments.</param>
+    /// <param name="isComment">Whether the text is a code or test comment, which only this check reads.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTextCitations(
         ProjectModel model,
@@ -111,6 +116,7 @@ internal static class CitationChecks
         string text,
         int startLine,
         string? subject,
+        bool isComment,
         List<Finding> findings)
     {
         var cited = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -124,24 +130,31 @@ internal static class CitationChecks
             }
         }
 
-        // A link target naming a record cites it, so each one is collected before
-        // every target is blanked. Any other target is a file path: a path that
-        // starts with a record type's name, such as product/brief.md, is not a
-        // citation. Blanking the targets keeps every offset in place.
-        foreach (Match match in LinkTarget.Matches(text))
+        if (isComment)
         {
-            var target = match.Value[2..^1].Trim('<', '>');
+            // A comment is read only here, so every link target and citation in
+            // it is collected as written.
+            CollectLinkTargets(text, starts, startLine, cited);
 
-            if (LinkChecks.IsRecordTarget(target))
-            {
-                cited.TryAdd(Identifiers.TrimCitation(Identifiers.BaseId(target)), startLine + LineOf(starts, match.Index) - 1);
-            }
+            var commentProse = LinkTarget.Replace(text, match => "](" + new string(' ', match.Length - 3) + ")");
+
+            Collect(Identifiers.Citation.Matches(commentProse), Identifiers.TrimCitation);
+            Collect(Identifiers.SharedCitation().Matches(commentProse), value => value);
         }
+        else
+        {
+            // An explanation or document is read by the link and prose checks as
+            // well: fenced examples and generated regions are skipped, link
+            // targets belong to the link check, and backticked identifiers belong
+            // to the prose check, so only bare citations are collected here.
+            // Each blanking keeps every offset in place.
+            var prose = ProseReferenceChecks.WithoutFencesAndRegions(text);
+            prose = LinkTarget.Replace(prose, match => "](" + new string(' ', match.Length - 3) + ")");
+            prose = WithoutInlineCode(prose);
 
-        var prose = LinkTarget.Replace(text, match => "](" + new string(' ', match.Length - 3) + ")");
-
-        Collect(Identifiers.Citation.Matches(prose), Identifiers.TrimCitation);
-        Collect(Identifiers.SharedCitation().Matches(prose), value => value);
+            Collect(Identifiers.Citation.Matches(prose), Identifiers.TrimCitation);
+            Collect(Identifiers.SharedCitation().Matches(prose), value => value);
+        }
 
         foreach (var entry in cited.OrderBy(left => left.Value).ThenBy(left => left.Key, StringComparer.Ordinal))
         {
@@ -151,6 +164,33 @@ internal static class CitationChecks
             }
         }
     }
+
+    /// <summary>Collects each link target naming a record as a citation of its base identifier.</summary>
+    /// <param name="text">The comment text whose link targets are collected.</param>
+    /// <param name="starts">The offset of each line start in the text.</param>
+    /// <param name="startLine">The one-based line of the first line of the text in its file.</param>
+    /// <param name="cited">The cited identifiers with their lines, appended in place.</param>
+    private static void CollectLinkTargets(string text, int[] starts, int startLine, Dictionary<string, int> cited)
+    {
+        // A link target naming a record cites it. Any other target is a file
+        // path: a path that starts with a record type's name, such as
+        // product/brief.md, is not a citation.
+        foreach (Match match in LinkTarget.Matches(text))
+        {
+            var target = match.Value[2..^1].Trim('<', '>');
+
+            if (LinkChecks.IsRecordTarget(target))
+            {
+                cited.TryAdd(Identifiers.TrimCitation(Identifiers.BaseId(target)), startLine + LineOf(starts, match.Index) - 1);
+            }
+        }
+    }
+
+    /// <summary>Blanks inline code spans, keeping offsets and line breaks, so backticked identifiers are read only by the prose check.</summary>
+    /// <param name="text">The text whose code spans are blanked.</param>
+    /// <returns>The text with inline code replaced by spaces, keeping every offset and line break.</returns>
+    private static string WithoutInlineCode(string text) =>
+        InlineCode.Replace(text, match => Regex.Replace(match.Value, @"[^\r\n]", " "));
 
     /// <summary>Decides whether a cited identifier names a record or an admitted shared provision.</summary>
     /// <param name="model">The loaded project model that holds every record and the admitted provision identifiers.</param>
@@ -204,4 +244,7 @@ internal static class CitationChecks
 
     /// <summary>Matches one Markdown link target, so file paths are blanked before citations are read.</summary>
     private static readonly Regex LinkTarget = new(@"\]\([^)\s]*\)", RegexOptions.Compiled);
+
+    /// <summary>Matches one inline code span delimited by single backticks.</summary>
+    private static readonly Regex InlineCode = new(@"`[^`\r\n]*`", RegexOptions.Compiled);
 }

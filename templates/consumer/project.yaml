@@ -13,6 +13,8 @@ layers:
   implementation: litespec
   proof: litespec
 reviewedLiteSpecVersion: 7.0.0
+# problemTypeBase names the URI prefix of every problem type, with a trailing slash. Without it, a code's problem type is the code's part after its module.
+# problemTypeBase: https://example.com/problems/
 screenshots:
   galleries:
   - apps/web/test-results/gallery

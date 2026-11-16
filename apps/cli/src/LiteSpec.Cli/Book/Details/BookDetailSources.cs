@@ -97,7 +97,7 @@ static partial class BookDetailSources
         return id;
     }
 
-    /// <summary>Counts, per fulfilled requirement, how many records of each type fulfill it.</summary>
+    /// <summary>Counts, per fulfilled requirement, how many records of each type fulfill it, served content included.</summary>
     /// <param name="index">The model index.</param>
     /// <returns>The fulfilling counts per requirement id and record type.</returns>
     public static Dictionary<string, Dictionary<string, int>> KeptBy(BookIndex index)
@@ -106,7 +106,7 @@ static partial class BookDetailSources
         foreach (var record in index.Records.OfType<JsonObject>())
         {
             var type = BookRender.StrProp(record, "type") ?? "";
-            foreach (var target in BookDetailValues.StringsOf(BookRender.Fields(record)?["fulfills"]))
+            foreach (var target in FulfilledBy(record))
             {
                 if (!kept.TryGetValue(target, out var counts))
                 {
@@ -119,6 +119,42 @@ static partial class BookDetailSources
         }
 
         return kept;
+    }
+
+    /// <summary>The requirements one record fulfills: its fulfills links, and for a browser entry point each served content entry's fulfills.</summary>
+    /// <param name="record">The record object.</param>
+    /// <returns>The fulfilled requirement ids, each once.</returns>
+    public static IEnumerable<string> FulfilledBy(JsonObject record)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var target in BookDetailValues.StringsOf(BookRender.Fields(record)?["fulfills"]))
+        {
+            if (seen.Add(target))
+            {
+                yield return target;
+            }
+        }
+
+        if (!string.Equals(BookRender.StrProp(record, "type"), "entry-point", StringComparison.Ordinal))
+        {
+            yield break;
+        }
+
+        foreach (var entry in BookRender.Fields(record)?["servedContent"] as JsonArray ?? [])
+        {
+            if (entry is not JsonObject content)
+            {
+                continue;
+            }
+
+            foreach (var target in BookDetailValues.StringsOf(content["fulfills"]))
+            {
+                if (seen.Add(target))
+                {
+                    yield return target;
+                }
+            }
+        }
     }
 
     /// <summary>The records serving each flow step id, such as flow/name#s1.</summary>

@@ -268,7 +268,7 @@ The `stack` object pins the toolchain this release builds with, and the `package
 
 What the pins drive:
 
-- Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/stacks#use-manifest-version-pins` requires the pins over prose, examples, and agent memory.
+- Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/principles#locate-package-versions-in-the-manifest` requires the pins over prose, examples, and agent memory.
 - UI validation: `litespec model check` reads the pinned npm packages and the baselines below when it checks the shared package and the stylesheets.
 - Floor: the outbox provisions need LiteBus 7.2.0 or later within the `7.x` pins.
 

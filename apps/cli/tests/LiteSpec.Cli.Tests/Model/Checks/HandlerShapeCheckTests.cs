@@ -189,7 +189,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Effects After Commit Pass.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void EffectsAfterCommitPass()
     {
@@ -202,7 +202,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Inline Send Reports.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void InlineSendReports()
     {
@@ -219,7 +219,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Waiver Holds An Inline Call On Its Subject.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void WaiverHoldsAnInlineCallOnItsSubject()
@@ -237,7 +237,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Inline Call Reports.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void InlineCallReports()
     {
@@ -254,7 +254,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Query Inline Send Is Not Reported.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void QueryInlineSendIsNotReported()
     {

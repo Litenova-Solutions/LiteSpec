@@ -36,9 +36,6 @@ idempotency:
   reason: the first refusal moves the expense out of the submitted state, so the aggregate refuses a second refusal
   replay: refuses
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
 records:
 - type: result
   id: result/refuse-expense.rejected
@@ -50,7 +47,6 @@ records:
   title: Not Submitted
   outcome: refusal
   code: spending.not-submitted
-  meaning: The expense is already decided.
   sentence: This expense is already decided, so there is nothing to refuse.
   sentences:
     nl: Over deze uitgave is al beslist, dus er valt niets meer af te keuren.

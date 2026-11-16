@@ -146,9 +146,9 @@ public sealed partial class StandardsValidatorTests
 
         ## Standards
 
-        ### Record Delivery Alerts
+        ### Cover Every Quality Requirement with an Alert or a Check
 
-        **ID:** `litespec/ext/delivery#record-delivery-alerts`
+        **ID:** `litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check`
 
         **Strength:** required
 

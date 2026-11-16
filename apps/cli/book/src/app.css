@@ -8,14 +8,15 @@
 @font-face { font-family: "IBM Plex Mono"; font-style: normal; font-display: swap; font-weight: 600; src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2") format("woff2"); }
 
 /* The IBM Carbon v11 palette: the White theme in light, the G100 theme in dark,
-   chosen by the reader's color scheme through light-dark(). The record page is
-   the background, the outline and containers are one layer down, and the top
-   bar is G100 in both schemes. The shadcn names below map onto these roles, so
-   the vendored components follow the palette. Kinds take one color per record
-   layer: purple for Intent, blue for Behavior, warm gray for governance, teal
-   for Proof and cyan for Implementation. */
+   light by default and dark when the reader chooses it through the theme
+   control, through light-dark() following the document color scheme. The
+   record page is the background, the outline and containers are one layer
+   down, and the top bar is G100 in both schemes. The shadcn names below map
+   onto these roles, so the vendored components follow the palette. Kinds take
+   one color per record layer: purple for Intent, blue for Behavior, warm gray
+   for governance, teal for Proof and cyan for Implementation. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --radius: 0;
 
   /* Surfaces */
@@ -68,6 +69,10 @@
   --tag-green-foreground: light-dark(#0e6027, #a7f0ba);
   --tag-red: light-dark(#ffd7d9, #a2191f);
   --tag-red-foreground: light-dark(#a2191f, #ffd7d9);
+  --tag-magenta: light-dark(#ffd6e8, #9f1853);
+  --tag-magenta-foreground: light-dark(#9f1853, #ffd6e8);
+  --tag-yellow: light-dark(#fcf4d6, #684e00);
+  --tag-yellow-foreground: light-dark(#684e00, #fcf4d6);
 
   /* The G100 top bar, the same in both schemes */
   --shell: #161616;
@@ -101,6 +106,11 @@
   --ring: var(--focus);
   --mark-ink: light-dark(#0F1B33, #f4f4f4);
   --mark-symbol: #EFA73A;
+}
+
+/* Dark mode is a reader choice: the theme control keeps it on the document theme. */
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -152,6 +162,10 @@
   --color-tag-green-foreground: var(--tag-green-foreground);
   --color-tag-red: var(--tag-red);
   --color-tag-red-foreground: var(--tag-red-foreground);
+  --color-tag-magenta: var(--tag-magenta);
+  --color-tag-magenta-foreground: var(--tag-magenta-foreground);
+  --color-tag-yellow: var(--tag-yellow);
+  --color-tag-yellow-foreground: var(--tag-yellow-foreground);
   --color-shell: var(--shell);
   --color-shell-foreground: var(--shell-foreground);
   --color-shell-secondary: var(--shell-secondary);

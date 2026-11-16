@@ -1,0 +1,75 @@
+type: use-case
+id: use-case/spending.change-reminder-preference
+title: Change Reminder Preference
+summary: A manager sets whether they get an approval reminder for a waiting expense.
+exposure: A signed-in manager reaches this command through the expenses app under the manage-reminder-preference permission. Silencing the wrong manager's reminders leaves expenses unseen, so only the manager the preference belongs to, or finance, changes it.
+kind: command
+access:
+  grant: permission/manage-reminder-preference
+  tenant: own
+serves:
+- flow/submit-and-reimburse#s6
+fulfills:
+- requirement/approval-reminders.remind-approver-after-three-days
+reachedThrough:
+- entry-point/claimwick-app
+raises: []
+input:
+- name: manager
+  meaning: The manager the preference belongs to.
+  type: id
+  of: actor/manager
+  required: true
+  origin: caller
+  classification: personal
+- name: receivesReminders
+  meaning: Whether the manager gets an approval reminder for a waiting expense.
+  type: boolean
+  required: true
+  origin: caller
+  classification: internal
+- name: reason
+  meaning: Why the manager skips reminders, kept with the preference.
+  type: text
+  required: false
+  origin: caller
+  classification: internal
+writes:
+- aggregate/spending.reminder-preference
+idempotency:
+  mode: state
+  reason: a repeat sets the same choice for the same manager, leaving the same preference in place
+  replay: acts-again
+  recognizedBy: the aggregate state already holds the outcome this command sets
+records:
+- type: result
+  id: result/change-reminder-preference.preference-set
+  title: Preference Set
+  outcome: success
+  meaning: The reminder preference is set.
+- type: result
+  id: result/change-reminder-preference.not-preference-owner
+  title: Not Preference Owner
+  outcome: refusal
+  code: spending.not-preference-owner
+  sentence: Only the manager this preference belongs to, or finance, may change it.
+  sentences:
+    nl: Alleen de manager van wie deze voorkeur is, of finance, mag deze wijzigen.
+- type: scenario
+  id: scenario/change-reminder-preference.setting-a-preference-succeeds
+  title: Setting a Preference Succeeds
+  given: A manager covers two teams and wants no approval reminders.
+  when: The manager asks for no reminders with a reason.
+  then: The manager's preference is set and waiting expenses earn no reminder for them.
+  result: result/change-reminder-preference.preference-set
+  exercises:
+  - rule/reminder-preference.changed-by-owner-or-finance
+- type: scenario
+  id: scenario/change-reminder-preference.changing-another-managers-preference-is-refused
+  title: Changing Another Manager's Preference Is Refused
+  given: A manager with no finance duties names another manager's preference.
+  when: The manager changes the other manager's preference.
+  then: The change is refused because the changer is neither the manager the preference belongs to nor finance.
+  result: result/change-reminder-preference.not-preference-owner
+  exercises:
+  - rule/reminder-preference.changed-by-owner-or-finance

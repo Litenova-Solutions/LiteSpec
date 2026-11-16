@@ -151,7 +151,7 @@ internal static class IntentChecks
                 if (hasActor && hasSystem)
                 {
                     findings.Add(new Finding(
-                        "field-invalid",
+                        "record-invalid",
                         $"Flow '{flow.Id}' holds a step naming both an actor and a system.",
                         flow.File, flow.Line, SubjectOf(flow)));
                     continue;
@@ -163,7 +163,7 @@ internal static class IntentChecks
                     && target.Type is not (RecordTypes.ExternalSystem or RecordTypes.Job or RecordTypes.Reaction))
                 {
                     findings.Add(new Finding(
-                        "field-invalid",
+                        "record-invalid",
                         $"Flow '{flow.Id}' names system '{systemId}', which is a {target.Type}.",
                         flow.File, flow.Line, SubjectOf(flow)));
                 }
@@ -229,10 +229,7 @@ internal static class IntentChecks
                 findings.Add(new Finding(
                     "actor-unused",
                     $"Actor '{actor.Id}' is named by no flow, problem or access position.",
-                    actor.File, actor.Line, SubjectOf(actor))
-                {
-                    TierOverride = "A",
-                });
+                    actor.File, actor.Line, SubjectOf(actor)));
             }
         }
     }
@@ -269,10 +266,7 @@ internal static class IntentChecks
                 findings.Add(new Finding(
                     "goal-mover-missing",
                     $"Goal '{goal.Id}' is moved by no flow and no quality requirement.",
-                    goal.File, goal.Line, SubjectOf(goal))
-                {
-                    TierOverride = "G",
-                });
+                    goal.File, goal.Line, SubjectOf(goal)));
             }
         }
     }
@@ -362,10 +356,7 @@ internal static class IntentChecks
             findings.Add(new Finding(
                 "term-missing",
                 $"Record '{record.Id}' names '{entry.Key}' in {entry.Value.Count} records, and no glossary term defines it.",
-                record.File, record.Line, SubjectOf(record))
-            {
-                TierOverride = "A",
-            });
+                record.File, record.Line, SubjectOf(record)));
         }
     }
 

@@ -21,9 +21,8 @@ static class ProvisionsCommand
         LiteSpec checkout this tool belongs to. Each provision carries its record layer, trace,
         and applicability condition, and the index states the checked share of rules for each page.
         It also writes the finding code table docs/reference/finding-codes.md, the record folder
-        table docs/reference/folders.md, the pin table inside docs/reference/manifest.md, the
-        Links table between the generated markers of docs/core/model.md, and the concept table
-        docs/reference/concepts.md from the Home line of each glossary entry.
+        table docs/reference/folders.md, the pin table inside docs/reference/manifest.md, and the
+        Links table between the generated markers of docs/core/model.md.
 
           --root    The repository root. Defaults to the LiteSpec checkout.
           --check   Compare the tracked files with the generated ones and write nothing.
@@ -186,7 +185,6 @@ static class ProvisionsCommand
             files.Add(links);
         }
 
-        files.Add(Concepts.Output(root));
         return files;
     }
 }

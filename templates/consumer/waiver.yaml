@@ -1,16 +1,20 @@
 type: waiver
-id: waiver/export-review-bypass
-title: Export Review Bypass
-summary: The weekend export runs with no reviewer on shift.
-kind: gap
-# A lasting waiver states kind: lasting with consequences and no expiresOn, exit or closedBy.
+id: waiver/<name>
+title: <Title in Title Case>
+summary: <what is set aside and why, or remove this line>
+kind: <gap|lasting>
+terms:
+- <term id, or remove this line>
 covers:
-- litespec/backend/application#enforce-target-authorization-in-the-pipeline
+- <provision id, page id or finding code>
 subject:
-- use-case/spending.export-expenses
-reason: The weekend export runs with no reviewer on shift.
-exit: A reviewer covers the weekend export shift, and the bypass is removed.
-consequences: The weekend export skips the daily review. Finance runs the export alone, and a Monday review covers each weekend batch after the fact. The bypass ends when a reviewer covers weekends.
-expiresOn: 2027-01-01
+- <record id>
+paths:
+- <path the waiver applies to, or remove this line>
+reason: <why the project sets it aside>
+# A lasting waiver carries consequences and no expiresOn, exit or closedBy.
+exit: <how the gap closes, or remove this line>
+consequences: <what the project accepts>
+expiresOn: <expiry date, such as 2027-01-01, or remove this line>
 closedBy:
-- use-case/spending.export-expenses
+- <record id whose change closes the gap, or remove this line>

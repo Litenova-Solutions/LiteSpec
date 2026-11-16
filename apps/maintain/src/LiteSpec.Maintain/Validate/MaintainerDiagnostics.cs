@@ -32,8 +32,6 @@ internal static class MaintainerDiagnostics
         Codes.StackReference,
         Codes.GlossaryDefinition,
         Codes.GlossaryOrder,
-        Codes.GlossaryHomeMissing,
-        Codes.GlossaryHomeUnknown,
         Codes.HeadingAction,
         Codes.HeadingEmptyBody,
         Codes.IdDuplicate,
@@ -106,8 +104,6 @@ internal static class MaintainerDiagnostics
         Codes.ValueStyle,
         Codes.TemplateIndexPath,
         Codes.TemplateSchema,
-        Codes.TemplateSourceMissing,
-        Codes.TemplateSourceDiffers,
         Codes.IndexMissingRouting,
         Codes.LayerUnlisted,
         Codes.GeneratedStale,
@@ -127,6 +123,35 @@ internal static class MaintainerDiagnostics
         Codes.TemplateCitationUnknown,
         Codes.StandardStrengthModal,
     ];
+
+    /// <summary>Gets the diagnostic codes reported as warnings, in declaration order: the sentence, modal, casing, and wording findings that print but do not fail validation.</summary>
+    public static IReadOnlyList<string> Warnings { get; } =
+    [
+        Codes.ConventionDefaultSentence,
+        Codes.ConventionReplacementWaiver,
+        Codes.ConventionReplacementSentence,
+        Codes.GlossaryDefinition,
+        Codes.HeadingAction,
+        Codes.PageHeadingCase,
+        Codes.PageTitleCase,
+        Codes.ProseNormativeLocation,
+        Codes.ProvisionRestatesHeading,
+        Codes.StandardDeviationNormative,
+        Codes.StandardDeviationSentence,
+        Codes.StandardInformativeNormative,
+        Codes.StandardModalCount,
+        Codes.StandardModalVocabulary,
+        Codes.StandardSentenceCount,
+        Codes.VerifyDuplicateEvidence,
+        Codes.VerifyGenericEvidence,
+        Codes.VerifyTemplatedEvidence,
+        Codes.ValueStyle,
+    ];
+
+    /// <summary>Reports whether a diagnostic code is a warning rather than an error.</summary>
+    /// <param name="code">The diagnostic code.</param>
+    /// <returns>True when the code is a warning.</returns>
+    public static bool IsWarning(string code) => Warnings.Contains(code);
 
     /// <summary>The diagnostic code constants.</summary>
     internal static class Codes
@@ -199,12 +224,6 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A glossary order problem.</summary>
         public const string GlossaryOrder = "GLOSSARY_ORDER";
-
-        /// <summary>A glossary entry with no Home line.</summary>
-        public const string GlossaryHomeMissing = "GLOSSARY_HOME_MISSING";
-
-        /// <summary>A glossary entry whose Home line names no page.</summary>
-        public const string GlossaryHomeUnknown = "GLOSSARY_HOME_UNKNOWN";
 
         /// <summary>A heading that does not start with an action.</summary>
         public const string HeadingAction = "HEADING_ACTION";
@@ -421,12 +440,6 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A template that does not satisfy its schema.</summary>
         public const string TemplateSchema = "TEMPLATE_SCHEMA";
-
-        /// <summary>A record template whose identifier names no record in the Claimwick example.</summary>
-        public const string TemplateSourceMissing = "TEMPLATE_SOURCE_MISSING";
-
-        /// <summary>A record template that is not a copy of the Claimwick example record it names.</summary>
-        public const string TemplateSourceDiffers = "TEMPLATE_SOURCE_DIFFERS";
 
         /// <summary>An index missing a routing block.</summary>
         public const string IndexMissingRouting = "INDEX_MISSING_ROUTING";

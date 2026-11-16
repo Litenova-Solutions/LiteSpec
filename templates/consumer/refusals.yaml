@@ -1,30 +1,9 @@
 type: refusal-set
-summary: The refusals the spending module returns, each with the problem type it maps to.
+summary: <what refusals this module declares and why they are split this way>
+id: <page id, or remove this line>
+title: <Title in Title Case, or remove this line>
+terms:
+- <term id, or remove this line>
 records:
-- code: spending.own-expense
-  meaning: The approver submitted the expense.
-  problemType: https://claimwick.dev/problems/own-expense
-- code: spending.not-submitted
-  meaning: The expense is already decided.
-  problemType: https://claimwick.dev/problems/not-submitted
-- code: spending.not-approved
-  meaning: The expense is not approved.
-  problemType: https://claimwick.dev/problems/not-approved
-- code: spending.already-reimbursed
-  meaning: The expense is already reimbursed.
-  problemType: https://claimwick.dev/problems/already-reimbursed
-- code: spending.receipt-missing
-  meaning: The expense is above the receipt threshold and carries no receipt.
-  problemType: https://claimwick.dev/problems/receipt-missing
-- code: spending.nothing-approved
-  meaning: No approved expense awaits the export.
-  problemType: https://claimwick.dev/problems/nothing-approved
-- code: spending.negative-threshold
-  meaning: The threshold is negative.
-  problemType: https://claimwick.dev/problems/negative-threshold
-- code: spending.expense-decided
-  meaning: The expense is already decided.
-  problemType: https://claimwick.dev/problems/expense-decided
-- code: spending.retention-not-ended
-  meaning: The retention of the expense has not ended.
-  problemType: https://claimwick.dev/problems/retention-not-ended
+- code: <module>.<reason>
+  meaning: <what happened, in one sentence>

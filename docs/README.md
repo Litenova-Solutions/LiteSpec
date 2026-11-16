@@ -160,7 +160,6 @@ This folder holds extensions any stack can select. An extension for one stack si
 - [Live Delivery](ext/realtime.md): server-sent events and interactive messaging where measured polling cannot meet the update target.
 - [Durable Delivery](ext/outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure.
 - [Jobs and Queues](ext/jobs.md): recurring, delayed, and heavy work, and human-cleared queues, with leases that survive restarts.
-- [Release Stage](ext/stage.md): the pre-customer-data stage, what it defers, and the promotion that ends it.
 - [Connected Devices](ext/devices.md): the entry-point protocol block: messages, version rule, client rules, nonce, and offline uploads.
 - [Customer Rules and Hooks](ext/customer-rules.md): customer-composed rules and hooks with a may and may-not contract.
 - [Model Assistance](ext/ai.md): model-mediated queries with a closed tools set, structure-only scenarios, and a pinned stub.
@@ -202,7 +201,6 @@ The Roslyn analyzers report LiteSpec rule breaks as compiler errors on .NET code
 - [Glossary](reference/glossary.md): the one term for each LiteSpec concept.
 - [Provisions](reference/provisions.md): every provision ID resolved to its heading, page, and mark.
 - [Finding Codes](reference/finding-codes.md): every finding code the tools emit, with its level, layer, trace, meaning, and fix.
-- [Concepts](reference/concepts.md): the one page that owns each glossary concept, with the provisions that page holds.
 - [Audit Obligations](reference/audit-obligations.md): the external obligations the audit extension satisfies.
 - [Decision Records](reference/decision-records.md): where a decision record lives, what it holds, and how it ends.
 - [Project File](reference/project-file.md): every field of `.litespec/project.yaml` and what reads it.
@@ -242,7 +240,7 @@ This group follows one product end to end, from its first record to a passing ch
 
 ### Guides
 
-Tutorials take a reader to a first working result; how-to guides solve one stated problem in a running project.
+Tutorials take a reader to a first working result; how-to guides solve one stated problem in a running project. The [Guides overview](guide/README.md) states the order to follow them in.
 
 - [Guides overview](guide/README.md): tutorials for a first result, how-to guides for one goal in a running project.
 - [Start a Consumer Repository](tutorial/getting-started.md): start a small consumer repository through one coded use case.

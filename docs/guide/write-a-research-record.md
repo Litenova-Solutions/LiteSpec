@@ -24,7 +24,7 @@ Run `litespec new research <name>` from the consumer root. The command writes th
 
 Research is an article type: the YAML file carries the question, the sources, and the conclusion, while the explanation file carries the findings in prose.
 
-The template ships with example values. Replace every one of them, because `model check` reports any value you leave unchanged. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
+The template ships with placeholders. Replace every one of them, because `model check` reports any placeholder you leave unchanged. This satisfies `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
 ### Ask One Question
 
@@ -148,6 +148,6 @@ The [Model](../tools/model.md) command page states what `render` writes. `model 
 
 ## Check
 
-- `litespec model check` exits `0` from the consumer root with no finding on the research record or its explanation file. It reports `source-key-unknown` for a key the record does not declare, `source-link-bare` for a bare URL, and `source-unused` for a source no paragraph cites.
+- `litespec model check` exits `0` from the consumer root with no finding on the research record or its explanation file. It reports `reference-unknown` for a key the record does not declare, `source-link-bare` for a bare URL, and `source-unused` for a source no paragraph cites.
 - `litespec rules <path to the research record>` lists the judgment provisions above, and you have answered each one.
 - A reader who has never met you can say which claims the sources state, which are your inferences, what the sources leave open, and what each source covers.

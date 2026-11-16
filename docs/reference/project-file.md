@@ -13,252 +13,61 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | Path | `.litespec/project.yaml` at the consumer root |
 | Schema | `schemas/litespec-project.schema.yaml` in the pinned release |
 | Template | `templates/consumer/project.yaml` in the release the tool carries |
-| Presets | `templates/presets/android-client.yaml`, `templates/presets/blazor-client.yaml`, `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml` |
+| Presets | `templates/presets/android-client.yaml`, `templates/presets/blazor-client.yaml`, `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/records.yaml` |
 
 `litespec init` merges the template with one preset, and fills the size, name, and reviewed release. `litespec model check` validates the written file against the schema, then runs the selection checks below. The model builder reads the paths, `stackConfig`, size, shape, and stacks from the same file.
 
 ### Top-Level Fields
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `schemaVersion` | integer | yes | none |
-| `project` | object | yes | none |
-| `size` | string | yes | none |
-| `layers` | object | yes | none |
-| `explanations` | object | no | none |
-| `shape` | string | no | `"server"` |
-| `stacks` | array of string | when `implementation` or `proof` is claimed | none |
-| `proof` | object | no | none |
-| `marks` | string | no | `"xml"` |
-| `dependencies` | object | no | none |
-| `screenshots` | object | no | none |
-| `refusals` | object | no | the default codes |
-| `reviewedLiteSpecVersion` | string | yes | none |
-| `paths` | object | yes | none |
-| `selectedExtensions` | array of object | yes | none |
-| `stackConfig` | object | no | none |
-| `frontends` | array of object | for a `client-only` project | none |
-| `ui` | object | no | none |
-
-What each field means and which reader uses it:
-
-- `schemaVersion` is the shape of this file, `1` in this release. The editor finds the schema from the first-line comment `# yaml-language-server: $schema=<url>`, which `litespec init` writes. No data key names the schema; the comment is the only place.
-- `project` names the project, and `litespec model check` checks it against the schema. See the `project` object below.
-- `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects; large adds goals, problems, features, flows, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
-- `layers` names the record layers the project claims, and the practice each follows. See the `layers` object below.
-- `explanations` names the record layers whose every record page carries an explanation file; see the `explanations` object below.
-- `shape` is `server` or `client-only`. A server names exactly one backend stack, while a client-only project names no backend stack. `litespec init` writes the value from the preset, `litespec model check` checks the backend count, and the model builder applies the shape.
-- `stacks` lists the selected stack ids: `dotnet` for the backend, and one id per frontend, taken from the frontend's platform. The list is required when the project claims `implementation` or `proof`; otherwise a stack entry is informational. `litespec model check` refuses an id the pinned release does not ship.
-- `proof` tunes how the model builder confirms proof claims for the project; see the `proof` object below.
-- `marks` is the mark style: `xml` for documentation tags, or `attribute` for generated attributes. The model builder, the analyzers, and the source generator read it, and each reports a mark in the other style as `mark-style-invalid`.
-- `dependencies` names the dependency gate: the licenses every shipped package may carry without an admitting decision; see the `dependencies` object below.
-- `screenshots` names the screenshot galleries the model builder reads for screen captures; see the `screenshots` object below.
-- `refusals` names the codes the derived generic results carry; see the `refusals` object below.
-- `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"7.0.0"`. `litespec model check` compares it with the release of the installed `litespec` tool, and fails the run when the two differ.
-- `paths` declares every location the tools read; see the `paths` object below.
-- `selectedExtensions` lists the extensions the project selected, each with its criterion; see the extension entry below.
-- `stackConfig` holds per-stack configuration, keyed by a stack id the manifest ships. See the `stackConfig.dotnet` object below.
-- `frontends` lists every frontend the project ships; see the frontend entry below.
-- `ui` holds `package`, the one shared UI package of the workspace; see the `ui.package` object below.
+The schema states every top-level field, its type, and whether it is required; read it at [litespec-project.schema.yaml](../../schemas/litespec-project.schema.yaml). `litespec model check` checks the selection, and the model builder reads the size, shape, stacks, layers, and paths from the same file.
 
 ### The `layers` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `intent` | `litespec` | yes | none |
-| `behavior` | `litespec` | no | not claimed |
-| `implementation` | `litespec` or `own` | no | not claimed |
-| `proof` | `litespec` or `own` | no | not claimed |
-
-What each field means and which reader uses it:
-
-- A key that is present claims its record layer. A key left out is not claimed, and no check reads that layer.
-- `litespec` follows LiteSpec's practice for the layer. `own` keeps the project's own practice for `implementation` or `proof`, claiming only that code and tests mark the records they serve.
-- A lower layer needs the one above it: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. The schema refuses a file that breaks this rule.
-- `litespec model check`, the book, `litespec rules`, and the analyzers report only the claimed layers.
+The schema states the layers a project claims and the practice each follows; the [supported scope](../core/scope.md#layer-claims) states what each claim covers. `litespec model check`, the book, `litespec rules`, and the analyzers report only the claimed layers.
 
 ### The `explanations` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `layers` | array of string | yes | none |
-
-What each field means and which reader uses it:
-
-- `layers` lists the record layers whose every record page carries an explanation file: `intent`, `behavior`, or both, each once. These are the layers that hold record pages, with each record type on the layer the [Project Model](../core/model.md) gives it. A page on a listed layer without its `<name>.md` beside its record file, or with a required H2 section missing, is an `explanation-missing` finding. A listed layer the project does not claim in `layers` is a `project-invalid` finding.
-- When the object is omitted, explanation files stay optional, except for the article types, which always require one. `litespec model check` reads the list from the project file.
+The schema states the layers whose record pages carry explanation files. A page on a listed layer without its explanation file, or with a required section missing, is an `explanation-missing` finding, and a listed layer the project does not claim is a `project-invalid` finding.
 
 ### The `project` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `name` | string | yes | none |
-
-What each field means and which reader uses it:
-
-- `name` is the project name, such as `"shop"`. `litespec init` sets it from `--name`, or from the root folder name when `--name` is omitted.
+The schema states the project name. `litespec init` sets it from `--name`, or from the root folder name when `--name` is omitted.
 
 ### The `proof` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `jobTriggerSteps` | array of string | no | none |
-| `outcomeOnlySteps` | array of string | no | none |
-
-What each field means and which reader uses it:
-
-- `jobTriggerSteps` names the steps classes whose `when` steps run a job, such as a class that moves a simulated clock. Each entry matches `^[A-Z][A-Za-z0-9]*$`.
-- `outcomeOnlySteps` names the steps classes whose `then` steps state only whether a request succeeded or was refused. Each entry matches `^[A-Z][A-Za-z0-9]*$`.
-- The model builder reads both lists when it confirms the project's proof claims.
+The schema states the step classes that tune how the model builder confirms proof claims. The model builder reads both lists when it confirms the project's proof claims.
 
 ### The `dependencies` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `licenses` | array of strings | no | none |
-
-- `licenses` lists the SPDX license identifiers the project accepts, such as `MIT` and `Apache-2.0`. A shipped package under any other license needs an admitting decision naming it.
+The schema states the licenses the project accepts. A shipped package under any other license needs an admitting decision naming it.
 
 ### The `screenshots` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `galleries` | array of string | no | none |
-| `pattern` | string | no | `"{route}--{theme}--{width}.png"` |
-
-What each field means and which reader uses it:
-
-- `galleries` lists the gallery folders holding screenshot captures, one per frontend that photographs its routes, such as `"apps/web/test-results/gallery"`. The model builder reads the captures from those folders.
-- `pattern` is the capture file-name pattern: `{route}` for the route slug, `{theme}` for the theme, and `{width}` for the width in pixels. When omitted, the default pattern applies.
+The schema states the gallery folders and the capture file-name pattern. The model builder reads the captures from those folders.
 
 ### The `refusals` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `forbidden` | string | no | `"authorization.forbidden"` |
-| `invalidInput` | string | no | `"request.validation-failed"` |
-| `statuses` | object | no | none |
-| `aliases` | object | no | none |
-| `composed` | string array | no | none |
-
-What each field means and which reader uses it:
-
-- `forbidden` is the code carried by the derived `result/<use-case>.forbidden`, which is derived for a use case whose `access.grant` is a permission.
-- `invalidInput` is the code carried by the derived `result/<use-case>.invalid-input`, which is derived for a use case with any `input` field carrying `rules`.
-- `statuses` holds, by refusal code, the HTTP status each declared refusal code answers with, such as `"spending.expense-not-found": 404`. Each value is an integer from 100 to 599. A test asserting the status confirms the refusal.
-- `aliases` holds, by client code, the client refusal vocabulary translated to declared codes, such as `"NOT_FOUND": "spending.expense-not-found"`. A test asserting the client code confirms the declared refusal.
-- `composed` lists the refusal codes the project builds at run time from a key. Each entry is a template with one `{key}` placeholder after a prefix and a dot, such as `"uniqueness.{key}-taken"` for the conflict a commit answers when an aggregate loses a uniqueness key. The `refusal-unimplemented` check counts a code matching a template as raised when its key is a kebab-case literal in the code, such as the key scope `copy-barcode` on the book aggregate for `uniqueness.copy-barcode-taken`.
-- The model builder reads `forbidden` and `invalidInput` when it derives the generic results, and reads `statuses` and `aliases` when proof confirmation matches a test's asserted status or client code to a declared refusal. When the object is omitted, the two defaults apply.
+The schema states the codes the derived generic results carry and the statuses, aliases, and composed templates the project declares. The model builder reads them when it derives the generic results and when proof confirmation matches a test's asserted status or client code to a declared refusal.
 
 ### The `paths` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `docs` | string | no | `.litespec` |
-| `glossary` | string | no | `.litespec/glossary.yaml` |
-| `behaviorDocs` | string | yes | none |
-| `testRoots` | array of string | no | none |
-| `testResults` | string | no | `TestResults` |
-| `contract` | string | no | none |
-| `alerts` | array of strings | no | none |
-| `operations` | array of strings | no | none |
-| `checkResults` | string | no | `.litespec/proof/checks` |
-| `sbom` | array of strings | no | none |
-| `apiClient` | string | no | `packages/api` |
-| `uiPatterns` | string | no | `.litespec/implementation/patterns/catalog.yaml` |
-
-What each field means and which reader uses it:
-
-- `docs` is the root of the specification tree: every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document. When omitted, the tools use `.litespec`.
-- `glossary` names the project glossary. `litespec model check` validates it, and scans the pages against its rejected words and mannered terms.
-- `behaviorDocs` names the behavior documentation root.
-- `testRoots` lists the directories holding automated test source. The model builder reads scenarios from these roots.
-- `testResults` names where the latest test run results live, so passing and failing proof is read from them.
-- `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
-- `alerts` names the alert rule files or folders, in the YAML shape Prometheus rule files and Grafana alert provisioning share, so each rule's `requirement` and `runbook` labels are checked and the alert inventory is rendered from them.
-- `operations` names the deployment, proxy, host, and CI workflow files or folders carrying `follows` marks in their `#` comments. Below a named folder, every file counts except Markdown documentation.
-- `checkResults` names where drill and harness check results live. They are read beside the measured-check results under `testResults`.
-- `sbom` names the bill of materials files or folders, SPDX or CycloneDX JSON. They are checked against the manifest pins, the admissions, and `dependencies.licenses`.
-- `apiClient` names the generated API client the frontends import, so route calls resolve to the use cases they reach. The model builder appends `src` to the configured path. The reader takes operations only from the files the client generator writes (`*.gen.ts`), so a hand-written helper beside them is not an operation.
-- `uiPatterns` names the workspace UI pattern catalog, when it is not at the default path.
+The schema states every location the tools read, with its default. The model builder reads the records, tests, contracts, and operations files from these paths.
 
 ### The `stackConfig.dotnet` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `modules` | string | no | `apps/api/src/*.Modules` |
-| `sharedKernel` | string | no | `apps/api/src/*.SharedKernel` |
-| `domain` | string | no | `apps/api/src/*.Domain` under `layer-projects`, none otherwise |
-| `infrastructure` | string | no | `apps/api/src/*.Infrastructure` under `layer-projects`, none otherwise |
-| `webapi` | array of string | no | `apps/api/src/*.WebApi` |
-| `worker` | array of string | no | `apps/api/src/*.Worker` |
-| `templateStore` | string | no | none |
-
-What each field means and which reader uses it:
-
-- `modules` is the code root the model builder reads: the modules project holding every module. A `*` in one segment expands to the first folder matching it.
-- `sharedKernel` names the shared kernel project holding what every module builds on, where reasonless names are allowed. When omitted, the default applies, and `litespec model check` reports `name-reason-missing` for every reasonless folder or type outside it.
-- `domain` and `infrastructure` name the Domain and Infrastructure projects the model builder reads, under `layer-projects` only. Without that extension, both default to none.
-- `webapi` and `worker` name the web and worker host projects the model builder reads, as a list with one path per host.
-- `templateStore` names the one C# file holding the notification template store. Its top-level dictionary keys are the template keys, and its texts write parameters as `{{PascalCaseName}}`. When omitted, the template checks stay silent.
+The schema states the .NET projects the model builder reads, with their defaults. A `*` in one segment expands to the first folder matching it.
 
 ### The `ui.package` Object
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `name` | string | yes | none |
-| `path` | string | yes | none |
-| `componentsJson` | string | yes | none |
-| `primitives` | string | yes | none |
-| `tokens` | string | yes | none |
-| `sourceLock` | string | yes | none |
-| `designContract` | string | yes | none |
-| `publicExports` | array of string | yes | none |
-
-What each field means and which reader uses it:
-
-- `name` is the package name, such as `"@shop/ui"`, and `path` is the package root, such as `"packages/ui"`.
-- `componentsJson` is the registry configuration, `primitives` is the directory holding the registry source the pinned CLI copied in, `tokens` is the token stylesheet, `sourceLock` is the source lock, and `designContract` is the design contract.
-- `publicExports` lists the entry points applications import, with at least one entry. A primitive the composites are built from is not one of them.
-- `litespec model check` reports a missing `ui.package` when a controlled frontend is declared without one, and validates every listed file. A frontend is controlled when its platform is `react` or `svelte`.
+The schema states the files of the workspace's one shared UI package. `litespec model check` reports a missing `ui.package` when a controlled frontend is declared without one, and validates every listed file.
 
 ### A `frontends` Entry
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `name` | string | yes | none |
-| `path` | string | yes | none |
-| `platform` | string | yes | none |
-| `entryPoint` | string | no | the entry points of its screens |
-| `routeSuite` | string | no | none |
-| `visualGoldens` | string | no | none |
-| `ui` | object | no | none |
-
-What each field means and which reader uses it:
-
-- `name` is the frontend name, such as `"web"`, and matches `^[a-z][a-z0-9-]*$`.
-- `path` is the frontend directory, such as `"apps/web"`. `litespec model check` reports a frontend whose directory is missing.
-- `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it: a frontend outside the controlled UI contract states `blazor` or `android` instead of omitting the field. A `react` or `svelte` frontend is controlled, and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
-- `entryPoint` names the browser or device entry point the frontend serves, such as `"entry-point/claimwick-app"`. The model builder reads the frontend's screens, use cases, and records file through it. Without it, the entry points its screens name decide; before any screen exists, every browser entry point does.
-- `routeSuite` names the file or folder holding that frontend's route suite. The model builder reads it for the route-suite `proves` check, giving the suite a named subject instead of a convention.
-- `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.
-- `ui` holds `profile`, which is required, and `globalCss`, which is optional. The profile is one of `public-light`, `application-balanced`, or `admin-dense`. The `globalCss` value is the one stylesheet the frontend declares, and it imports the shared package tokens. `litespec model check` checks both the profile value and the stylesheet path.
+The schema states every field of a frontend entry. The model builder reads each frontend's directory, route suite, and visual goldens from it, and `litespec model check` checks the platform value, the shared package a controlled frontend needs, and the stylesheet path.
 
 ### A `selectedExtensions` Entry
 
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `id` | string | yes | none |
-| `criterion` | string | yes | none |
-| `releaseStage` | string | for `stage` | none |
-| `decision` | string | no, only on `audit` | none |
-
-What each field means and which reader uses it:
-
-- `id` is the extension id in the pinned manifest, such as `"locale"`. `litespec model check` refuses an id the pinned release does not ship, and lists the known ids.
-- `criterion` states the criterion that was met, such as `"The product ships in English and Dutch."`. `litespec/core/scope#record-selected-extensions` requires the entry, while `litespec/core/scope#select-conditional-extensions-explicitly` requires selecting an extension only when its criteria apply.
-- `releaseStage` is `pre-production` or `production`. Only the `stage` extension carries it, which the schema enforces.
-- Only the `audit` extension carries `decision`, which names the audit adoption decision by its identifier. `litespec rules` returns `litespec/ext/audit#record-the-audit-adoption-decision` for that decision alone.
+The schema states the extension id, the criterion that was met, and the `releaseStage` and `decision` a selection carries. `litespec model check` refuses an id the pinned release does not ship, and lists the known ids.
 
 ### Placeholders and the Init Fill
 
@@ -345,4 +154,4 @@ The last row stands for every configured path: the message names the field, the 
 
 ## Notes
 
-The field lists follow `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs` and `apps/cli/src/LiteSpec.Cli/Model/Consumer/GlossaryChecks.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/Configuration/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/blazor-client.yaml`, and `templates/presets/android-client.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words, and the project file carries no setting for that bound.
+The fields are stated in `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs` and `apps/cli/src/LiteSpec.Cli/Model/Consumer/GlossaryChecks.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/Configuration/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/blazor-client.yaml`, `templates/presets/android-client.yaml`, and `templates/presets/records.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words, and the project file carries no setting for that bound.

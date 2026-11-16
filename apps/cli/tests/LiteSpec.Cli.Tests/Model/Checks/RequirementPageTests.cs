@@ -39,7 +39,7 @@ public sealed class RequirementPageTests
     }
 
     /// <summary>A requirement whose identifier names a feature other than its folder's is reported as identifier-invalid.</summary>
-    /// <proves>litespec/core/language#follow-the-identifier-form-of-each-record-type</proves>
+    /// <proves>litespec/core/language#use-the-declared-record-identifier-grammar</proves>
     [Fact(DisplayName = "requirement naming another feature reports identifier-invalid")]
     public void RequirementFeatureSegmentMustNameItsFolder()
     {

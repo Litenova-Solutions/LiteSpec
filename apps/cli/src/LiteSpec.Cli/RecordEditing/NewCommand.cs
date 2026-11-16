@@ -320,6 +320,19 @@ static class NewCommand
             node["title"] = title;
         }
 
+        // A product decision states no kind: only a technical decision under
+        // implementation/decisions does, so the template's kind placeholder leaves.
+        if (isDecision)
+        {
+            node.Remove("kind");
+        }
+
+        // A use case is a command or a query, and the scaffold carries the chosen kind.
+        if (type == RecordTypes.UseCase)
+        {
+            node["kind"] = parsed.Value("--kind") == "query" ? "query" : "command";
+        }
+
         var filled = RecordScaffold.LineFor(templateFile) + "\n" + RecordFile.Write(node);
         string? explanation = null;
 

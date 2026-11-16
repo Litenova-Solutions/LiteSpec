@@ -17,9 +17,6 @@ raises:
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.
-audit:
-  level: none
-  target: No audit trail; the loan record shows each extension.
 records:
 - type: result
   id: result/extend-loan.extended
@@ -31,7 +28,6 @@ records:
   title: Extension refused
   outcome: refusal
   code: lending.extension-refused
-  meaning: The extension is refused.
 - type: scenario
   id: scenario/extend-loan.extending-an-active-loan-succeeds
   title: Extending an active loan succeeds

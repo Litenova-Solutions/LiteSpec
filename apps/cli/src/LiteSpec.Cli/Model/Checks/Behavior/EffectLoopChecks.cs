@@ -6,7 +6,6 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The effect-loop check: the effect graph that use cases, reactions, jobs and events declare holds no loop without a stated end.</summary>
-/// <follows>litespec/core/use-cases#keep-the-effect-graph-free-of-cycles</follows>
 /// <follows>litespec/core/principles#end-every-effect-cycle-in-a-domain-event</follows>
 internal static class EffectLoopChecks
 {

@@ -7,7 +7,7 @@
 ## Synopsis
 
 ```bash
-litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--all] [--module <module>]
+litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof]
 litespec model format [--root <consumer>] [--check]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
@@ -33,6 +33,8 @@ With `--release`, the release-readiness findings block: `use-case-unverified` an
 With `--since <ref>`, the command checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`. Findings match by code, subject identifier and message, never by line. When the base tree cannot be built or checked, every finding blocks and the output says why. The run also reports every client-breaking contract change since `<ref>` as a `contract-break` finding of level S, which always blocks at the level that runs it: a removed result, a removed refusal code, and a changed integration event.
 
 With `--module <module>`, the command prints only the findings on the records and files of that module, and the exit code follows those findings alone.
+
+`check` writes nothing to the repository, except with `--record-proof`, which writes `.litespec/proof/proofs.json` from the run. Continuous integration runs the check with `--record-proof` on the pull request head, after the test run in the same job, so a merged pull request carries fresh proofs.
 
 `format` rewrites every record file under the record roots, and the glossary file, into canonical form. With `--check` it writes nothing and lists each file that would change.
 
@@ -98,6 +100,7 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 | `--search <text>` | off | Only `query` reads it. Lists the written records whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path. An exact identifier match prints first, then other identifier matches, title, summary and statement matches; each group orders by identifier. Prints nothing and exits 0 when nothing matches. |
 | `--list <type>` | off | Only `query` reads it. Lists every written record of the type, one line each with identifier, title and path, ordered by identifier. With `--module` it lists only the records of that module. An unknown type is a usage error. |
 | `--module <module>` | off | Only `check`, `query --list` and `edges` read it. `check` prints only the findings on the records and files of the module, and the exit code follows those findings alone. `edges` prints only that module with the mutual pairs it belongs to. An unknown module is a usage error. |
+| `--record-proof` | off | Only `check` reads it. Writes `.litespec/proof/proofs.json` from the run, holding for each scenario the run commit and the outcome of the last passing run. Without it, `check` writes nothing. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes
@@ -177,13 +180,19 @@ Block every finding the change introduced since the main branch, and report ever
 litespec model check --root ../consumer --since main
 ```
 
+Check the model and record the proof for the merge:
+
+```bash
+litespec model check --root ../consumer --record-proof
+```
+
 ## Underneath
 
 The model holds every record with its identifier, its folder path, and its resolved links, and names the code, screens, tests, and test runs it read. On top of the written records it adds the computed `implements`, `calls`, and `proves` links and each record's computed `coded`, `verified`, `stale`, and `reachable` state. Computed states are never written on a record; the book shows them. The model also lists each unmarked Domain part in `parts`, under the aggregate whose folder holds it, or under `kernel`.
 
 Each screen lists its `operations`, its `useCases`, and its `calls`, with each call pairing one operation with the use case it reaches. The `calls` links carry one link per pair: a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 
-A proof is fresh when its run commit is HEAD, or when every path changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads `last passed at <short commit>, <N> commits ago`. The committed `.litespec/proof/proofs.json` holds, for each scenario, the run commit and the outcome of the last passing run. The command computes the changed paths once per run with git (`git diff --name-only <commit>` plus untracked files), cached per distinct run commit. When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check after the test run, in the same job, so the run on the pull request head is recorded before the pull request merges.
+A proof is fresh when its run commit is HEAD, or when every path changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads `last passed at <short commit>, <N> commits ago`. The committed `.litespec/proof/proofs.json` holds, for each scenario, the run commit and the outcome of the last passing run. Only `check --record-proof` writes it; a check without the flag reads it. The command computes the changed paths once per run with git (`git diff --name-only <commit>` plus untracked files), cached per distinct run commit. When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check with `--record-proof` after the test run, in the same job, so the run on the pull request head is recorded before the pull request merges.
 
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job host, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. The link is always the mark, never a folder or a type name. A marked refusal type declares the `code` of the refusal result its rule names.
 

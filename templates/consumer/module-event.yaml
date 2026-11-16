@@ -1,35 +1,9 @@
 type: module-event
-id: module-event/spending.expense-reimbursed
-title: Expense Reimbursed
-summary: The expense-reimbursed event announces a reimbursed expense and the employee it was paid to.
-translates: domain-event/expense.reimbursed
-payload:
-- name: expenseId
-  meaning: The reimbursed expense.
-  type: id
-  of: aggregate/spending.expense
-  required: true
-  classification: internal
-- name: employeeId
-  meaning: The employee the expense was reimbursed to.
-  type: id
-  of: actor/employee
-  required: true
-  classification: personal
-- name: amount
-  meaning: The exact amount paid.
-  type: decimal
-  required: true
-  classification: internal
-- name: currency
-  meaning: The ISO 4217 currency code of the amount.
-  type: text
-  required: true
-  classification: internal
-- name: reimbursedAt
-  meaning: The time the payment was posted.
-  type: date-time
-  required: true
-  classification: internal
+summary: <what this event tells the other modules, or remove this line>
+id: module-event/module.name
+title: <Title in Title Case>
 terms:
-- term/expense
+- <term id, or remove this line>
+fields:
+- <field name of the translated domain event>
+translates: domain-event/<aggregate>.<name>

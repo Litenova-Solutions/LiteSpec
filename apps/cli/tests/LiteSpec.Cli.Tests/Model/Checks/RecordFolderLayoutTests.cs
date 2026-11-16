@@ -24,7 +24,7 @@ public sealed class RecordFolderLayoutTests
 
         var findings = Run(model);
 
-        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-folder-drift" or "folder-invalid");
+        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-placement-invalid" or "record-placement-invalid");
     }
 
     /// <summary>A named goal written flat in its type's folder is misplaced: the folder layout is the only layout.</summary>
@@ -42,7 +42,7 @@ public sealed class RecordFolderLayoutTests
         Assert.Contains("intent/goals/<name>/<name>.yaml", finding.Message);
     }
 
-    /// <summary>A record folder whose name differs from its file stem is a record-folder-drift finding.</summary>
+    /// <summary>A record folder whose name differs from its file stem is a record-placement-invalid finding.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact(DisplayName = "a record folder whose name differs from its file stem is a mismatch finding")]
     public void FolderNameMismatchReports()
@@ -52,7 +52,7 @@ public sealed class RecordFolderLayoutTests
         File.WriteAllText(file, "type: goal\nid: goal/minutes\ntitle: Minutes\n");
         var model = TestModel.Model(TestModel.Config(temp.Path), TestModel.Record("goal", "goal/minutes", file, "{}"));
 
-        var finding = Assert.Single(Run(model), found => found.Code == "record-folder-drift");
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
         Assert.Equal(
             "Goal 'goal/minutes' sits in folder 'return-in-minutes', but its file is 'minutes.yaml'; the folder must carry the file's name.",
@@ -79,7 +79,7 @@ public sealed class RecordFolderLayoutTests
 
         var findings = Run(model);
 
-        Assert.DoesNotContain(findings, found => found.Code is "folder-invalid" or "record-placement-invalid" or "record-folder-drift");
+        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-placement-invalid" or "record-placement-invalid");
     }
 
     /// <summary>A use case folder directly under a module, outside any aggregate folder, is an invalid folder.</summary>
@@ -111,7 +111,7 @@ public sealed class RecordFolderLayoutTests
 
         var findings = Run(model);
 
-        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-folder-drift" or "folder-invalid");
+        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-placement-invalid" or "record-placement-invalid");
     }
 
     /// <summary>The new command writes a named goal into its own folder, with its explanation beside it.</summary>

@@ -38,6 +38,11 @@ steps:
   actor: actor/employee
   cites:
   - requirement/approval.decided-within-five-days
+- id: s6
+  statement: The manager sets whether they get an approval reminder for a waiting expense.
+  actor: actor/manager
+  cites:
+  - requirement/approval-reminders.remind-approver-after-three-days
 branches:
 - step: s3
   condition: the manager rejects the expense

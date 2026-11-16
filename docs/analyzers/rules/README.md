@@ -1,6 +1,6 @@
 # Overview
 
-When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 49 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
+When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 45 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
 
 ## Domain Rules
 
@@ -62,16 +62,12 @@ Rule `LS4001` runs in test projects only.
 
 ## Traceability Rules
 
-Rules `LS5001` to `LS5009`, `LS5011`, and `LS5012` run across layers, as each page states.
+Rules `LS5003` to `LS5006`, `LS5009`, `LS5011`, and `LS5012` run across layers, as each page states.
 
-- [LS5001: Code Element Carries No Mark](ls5001.md): reports a recognized code element carrying no mark.
-- [LS5002: Mark Names No Usable Record](ls5002.md): reports a mark pointing at no record, a wrong record type, or an element taking no mark.
 - [LS5003: Code Element Carries the Wrong Number of Marks](ls5003.md): reports an element whose mark count differs from what its kind takes.
 - [LS5004: Mark Uses the Undeclared Style](ls5004.md): reports a mark in the style the project did not declare.
 - [LS5005: Runtime Value Differs from Its Record](ls5005.md): reports a hand-written event `Classification` or exception `Code` differing from its record.
 - [LS5006: Marked Event or Exception Is Not Partial](ls5006.md): reports a marked event or exception not declared `partial`.
-- [LS5007: Marked Act Raises an Undeclared Event](ls5007.md): reports a marked act raising an event its use case does not list.
-- [LS5008: Declared Event Is Raised by No Marked Act](ls5008.md): reports a listed event no marked act raises.
 - [LS5009: Two Permissions Generate One Constant Name](ls5009.md): reports two permissions generating one constant name.
 - [LS5011: One Message Maps to Two Use Cases](ls5011.md): reports one message mapped to two use cases.
 - [LS5012: Role Allows an Undeclared Permission](ls5012.md): reports a role allowing a permission no record declares.

@@ -73,11 +73,11 @@ public sealed class AnalyzerSuppressionCheckTests
     public void DirectoryBuildPropsNoWarnReports()
     {
         using var temp = TestCli.Temp("checks");
-        Write(temp.Path, "Directory.Build.props", "<Project>\n    <PropertyGroup>\n        <NoWarn>$(NoWarn);LS5001</NoWarn>\n    </PropertyGroup>\n</Project>\n");
+        Write(temp.Path, "Directory.Build.props", "<Project>\n    <PropertyGroup>\n        <NoWarn>$(NoWarn);LS5003</NoWarn>\n    </PropertyGroup>\n</Project>\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
 
-        Assert.Contains("LS5001", finding.Message);
+        Assert.Contains("LS5003", finding.Message);
         Assert.Contains("NoWarn", finding.Message);
         Assert.Contains("litespec/core/system#point-code-and-tests-up-to-records", finding.Message);
         Assert.Equal(3, finding.Line);
@@ -112,13 +112,13 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Equal(1, finding.Line);
     }
 
-    /// <summary>Two analyzer rules named by one pragma warning disable report one finding each.</summary>
+    /// <summary>Two analyzer rules named by separate pragma warning disables report one finding each.</summary>
     /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void PragmaWarningDisableWithTwoRulesReportsBoth()
     {
         using var temp = TestCli.Temp("checks");
-        Write(temp.Path, "src/Widget.cs", "#pragma warning disable LS1001, LS1002\n");
+        Write(temp.Path, "src/Widget.cs", "#pragma warning disable LS1001\n#pragma warning disable LS1002\n");
 
         var findings = Lowerings(TestModel.Model(TestModel.Config(temp.Path)));
 
@@ -229,7 +229,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Contains("keep-domain-free-of-outer-layer-concerns", finding.Message);
     }
 
-    /// <summary>Every suppression in the analyzer-lowering-unrecorded fixture reports, one per rule and place.</summary>
+    /// <summary>Every suppression of a known rule in the analyzer-lowering-unrecorded fixture reports, one per rule and place, while the fixture's LS5001 suppression reports nothing because the carried release ships no LS5001 rule.</summary>
     /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void FixtureSuppressionsReportEachRule()
@@ -239,12 +239,14 @@ public sealed class AnalyzerSuppressionCheckTests
 
         var findings = Lowerings(TestModel.Model(TestModel.Config(temp.Path)));
 
-        Assert.Equal(6, findings.Count);
+        Assert.Equal(5, findings.Count);
 
-        foreach (var rule in new[] { "LS1001", "LS2004", "LS5001", "LS3001", "LS1002", "LS2012" })
+        foreach (var rule in new[] { "LS1001", "LS2004", "LS3001", "LS1002", "LS2012" })
         {
             Assert.Contains(findings, finding => finding.Message.Contains(rule, StringComparison.Ordinal));
         }
+
+        Assert.DoesNotContain(findings, finding => finding.Message.Contains("LS5001", StringComparison.Ordinal));
     }
 
     /// <summary>A model check over a project lowering LS1001 with no waiver reports analyzer-lowering-unrecorded as a blocking S finding.</summary>

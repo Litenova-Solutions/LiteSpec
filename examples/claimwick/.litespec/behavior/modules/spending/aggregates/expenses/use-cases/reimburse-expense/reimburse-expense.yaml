@@ -30,9 +30,6 @@ idempotency:
   reason: the first payment moves the expense to reimbursed, so the aggregate refuses a second payment
   replay: refuses
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
 records:
 - type: result
   id: result/reimburse-expense.reimbursed
@@ -44,7 +41,6 @@ records:
   title: Not Approved
   outcome: refusal
   code: spending.not-approved
-  meaning: The expense is not approved.
   sentence: This expense is not approved yet, so it cannot be reimbursed.
   sentences:
     nl: Deze uitgave is nog niet goedgekeurd, dus deze kan nog niet worden vergoed.
@@ -53,7 +49,6 @@ records:
   title: Already Reimbursed
   outcome: refusal
   code: spending.already-reimbursed
-  meaning: The expense is already reimbursed.
   sentence: This expense is already reimbursed.
   sentences:
     nl: Deze uitgave is al vergoed.

@@ -39,6 +39,29 @@ The rendering rules for loaders, suspense reads, search schemas, chunk splits, i
 
 **Reviewed for:** Does every public route define its title, description, canonical address, and indexing policy, with every private route carrying a `noindex` marker? Check the route metadata.
 
+### Show Route Failure on the Error Surface
+
+**ID:** `litespec/frontend/web/rendering#show-route-failure-on-the-error-surface`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A route failure MUST render on the error surface its stack states, which draws the shared problem state.
+
+**Rationale:** One error surface per stack gives every route failure the same problem state and the same recovery. The table names the surface, so each route has one place for failure.
+
+**Example:**
+
+| Stack | Error surface |
+|:---|:---|
+| React | The route error component |
+| Svelte | `+error.svelte` |
+
+When the library loan list fails to load, the route error component shows the shared problem state with its trace identifier, and when the Claimwick expense list fails, `+error.svelte` shows the same.
+
+**Reviewed for:** Does every route failure render on the error surface its stack states? Check the error handling of each route.
+
 ## Conventions
 
 None.

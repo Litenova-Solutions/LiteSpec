@@ -203,7 +203,7 @@ public sealed class NewDecisionTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "- litespec/ext/jobs#show-a-preview-before-bulk-money-actions:",
+            "- litespec/ext/queues#show-a-preview-before-bulk-money-actions:",
             result.Stdout,
             StringComparison.Ordinal);
     }

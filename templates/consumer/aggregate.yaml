@@ -1,143 +1,53 @@
 type: aggregate
-id: aggregate/spending.expense
-title: Expense
-summary: An expense is one work cost an employee submitted.
+id: aggregate/<module>.<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what this aggregate keeps true, or remove this line>
+parts:
+- <child entity or value object name, or remove this line>
 states:
-- name: Submitted
-  meaning: The expense waits for a decision.
-- name: Approved
-  meaning: A manager approved the expense.
-- name: Refused
-  meaning: A manager refused the expense.
-- name: Reimbursed
-  meaning: The reimbursed state of an expense whose payout reached the submitter.
-- name: Erased
-  meaning: The personal data of the expense was erased after its retention.
+- name: <State>
+  meaning: <what makes it true>
 transitions:
-- from: "-"
-  to: Submitted
-  movedBy: use-case/spending.submit-expense
-- from: Submitted
-  to: Approved
-  movedBy: use-case/spending.approve-expense
-- from: Submitted
-  to: Refused
-  movedBy: use-case/spending.refuse-expense
-- from: Approved
-  to: Reimbursed
-  movedBy: use-case/spending.reimburse-expense
-- from: Reimbursed
-  to: Erased
-  after: P7Y
-  movedBy: job/spending.erase-expired-personal-data
+- from: <state, or - for creation>
+  to: <state>
+  movedBy: <use-case/<module>.<name>, or remove this line>
+  after: <delay before a timed move, such as P7Y, or remove this line>
 data:
-- name: employee
-  meaning: The employee who submitted the expense.
-  classification: personal
-  dataClass: submitter-contact
-- name: amount
-  meaning: The exact amount with its currency.
-  classification: internal
-  dataClass: expense-ledger
-- name: receipt
-  meaning: The proof of payment, when one is attached.
-  classification: internal
-  dataClass: expense-ledger
-- name: state
-  meaning: The lifecycle state of the expense.
-  classification: internal
-  dataClass: expense-ledger
+- name: <field name>
+  meaning: <what the field holds>
+  classification: <public|internal|personal|sensitive>
+  dataClass: <data class name>
 dataClasses:
-- name: submitter-contact
-  classification: personal
+- name: <data class name>
+  classification: <public|internal|personal|sensitive>
   fields:
-  - employee
-  onErasure: pseudonymize
+  - <field name>
+  onErasure: <erase|pseudonymize|anonymize|retain|exempt>
   basis:
-  - requirement/approval.erased-after-retention
-  period: P7Y
-  periodStartsAt: domain-event/expense.reimbursed
+  - <constraint, requirement or decision id>
+  period: <how long the class is kept, such as P7Y>
+  periodStartsAt: <domain event starting the period, or a range such as creation to erasure>
   enforcedBy:
-  - job/spending.erase-expired-personal-data
-  purpose: Link each expense to the employee who submitted it.
-- name: expense-ledger
-  classification: internal
-  fields:
-  - amount
-  - receipt
-  - state
-  onErasure: retain
-  basis:
-  - constraint/tax-receipt-retention
-  period: P7Y
-  periodStartsAt: domain-event/expense.reimbursed
-  enforcedBy:
-  - job/spending.erase-expired-personal-data
-  purpose: Keep the tax file defensible.
+  - <job/<module>.<name> or use-case/<module>.<name>>
+  purpose: <why the data is kept>
+  reason: <why this class is exempt, or remove this line>
+  reach: <own-tenant|subject-wide|platform-wide, or remove this line>
+  exceptions:
+  - field: <field name>
+    onErasure: <erase|pseudonymize|anonymize|retain|exempt>
 records:
 - type: domain-event
-  id: domain-event/expense.submitted
-  title: Expense Submitted
-  meaning: An expense was submitted.
+  id: domain-event/<aggregate>.<name>
+  title: <Title in Title Case>
+  terms:
+  - <term id, or remove this line>
+  meaning: <the completed fact, in one sentence>
   carries:
-  - name: expenseId
+  - name: <field name>
     type: id
-    of: aggregate/spending.expense
-  - name: amount
-    type: decimal
-  - name: currency
-    type: text
-  - name: employeeId
-    type: id
-    of: actor/employee
-- type: domain-event
-  id: domain-event/expense.approved
-  title: Expense Approved
-  meaning: An expense was approved.
-  carries:
-  - name: expenseId
-    type: id
-    of: aggregate/spending.expense
-  - name: approvedBy
-    type: id
-    of: actor/manager
-  - name: decidedAt
-    type: date-time
-- type: domain-event
-  id: domain-event/expense.refused
-  title: Expense Refused
-  meaning: An expense was refused.
-  carries:
-  - name: expenseId
-    type: id
-    of: aggregate/spending.expense
-  - name: refusedBy
-    type: id
-    of: actor/manager
-  - name: decidedAt
-    type: date-time
-- type: domain-event
-  id: domain-event/expense.reimbursed
-  title: Expense Reimbursed
-  meaning: An expense was reimbursed.
-  carries:
-  - name: expenseId
-    type: id
-    of: aggregate/spending.expense
-  - name: employeeId
-    type: id
-    of: actor/employee
-  - name: amount
-    type: decimal
-  - name: currency
-    type: text
-  - name: reimbursedAt
-    type: date-time
-- type: domain-event
-  id: domain-event/expense.personal-data-erased
-  title: Expense Personal Data Erased
-  meaning: The personal data of a decided expense was erased.
-  carries:
-  - name: expenseId
-    type: id
-    of: aggregate/spending.expense
+    of: <identified record id>
+  - name: <field name>
+    type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+  # A choice field carries choices, and a file field carries contentTypes and maxSize.

@@ -8,23 +8,24 @@ namespace LiteSpec.Cli.Model.Checks.Intent;
 /// <summary>The fulfilment checks: every requirement is fulfilled or decided and cites a reason, and every applying constraint is cited.</summary>
 /// <follows>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</follows>
 /// <follows>litespec/core/intent#cite-the-reasons-of-every-requirement</follows>
-/// <follows>litespec/core/intent#cite-every-constraint-that-binds-a-requirement</follows>
 internal static class FulfilmentChecks
 {
-    /// <summary>Requirement kinds that code makes true, so some rule, use case, reaction, job, notification or setting fulfills them.</summary>
+    /// <summary>Requirement kinds that code makes true, so some rule, use case, reaction, job, notification, setting or screen fulfills them.</summary>
     private static readonly HashSet<string> FulfilledKinds = new(StringComparer.Ordinal)
     {
         "functional", "quality", "policy",
     };
 
-    /// <summary>Reports a requirement fulfilled by no rule, use case, reaction, job, notification or setting.</summary>
+    /// <summary>Reports a requirement fulfilled by no rule, use case, reaction, job, notification, setting or screen.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
+        // A served-content entry fulfills the requirements it names for its entry point.
         var fulfilled = model.Records
             .Where(record => RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal))
             .SelectMany(record => record.Ids(RecordFields.Fulfills))
+            .Concat(model.Records.SelectMany(record => record.ServedFulfills()))
             .ToHashSet(StringComparer.Ordinal);
 
         var served = model.Records
@@ -69,10 +70,7 @@ internal static class FulfilmentChecks
                 findings.Add(new Finding(
                     "requirement-cites-missing",
                     $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.",
-                    requirement.File, requirement.Line, SubjectOf(requirement))
-                {
-                    TierOverride = "A",
-                });
+                    requirement.File, requirement.Line, SubjectOf(requirement)));
             }
         }
     }

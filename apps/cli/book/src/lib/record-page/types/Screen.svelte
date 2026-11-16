@@ -12,7 +12,8 @@
   import { objectField, routeFileOf, screenFields, stringField, stringList } from "../page-values";
 
   // A screen: where it lives, its wireframe, each use case it offers with
-  // whether its page calls it, and the screens a person reaches next.
+  // whether its page calls it, the requirements it fulfills, and the screens
+  // a person reaches next.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
@@ -25,6 +26,7 @@
   const option = $derived(stringField(frame, "option"));
   const wire = $derived(stringField(f, "wireframe"));
   const leads = $derived(stringList(f, "leadsTo").map((x) => stripStep(x)));
+  const fulfills = $derived(stringList(f, "fulfills").map((x) => stripStep(x)));
   const address = $derived(sf.address ?? sf.host ?? "");
   const pageFrameHtml = $derived(
     pattern ? codeOf(pattern) + (option ? " / " + esc(option) : "") : esc(option ?? ""),
@@ -82,6 +84,11 @@
       caption={`Use cases the ${r.title} screen offers`}
       rows={off.map((u) => [thRow(refLink(book, u)), callsCell(u), codedCell(u), scenariosCell(u)])}
     />
+  </PageSection>
+{/if}
+{#if fulfills.length}
+  <PageSection blockKey="reqs" heading="Requirements" count={fulfills.length}>
+    <RecordList ids={fulfills} />
   </PageSection>
 {/if}
 {#if leads.length}

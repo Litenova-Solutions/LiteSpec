@@ -234,9 +234,9 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **Applies to:** artifact: repository
 
-**Statement:** A repository MUST read a guarding aggregate through `GetForGuardAsync`, which takes a shared row lock in the command's transaction.
+**Statement:** A repository MUST read a guarding aggregate through `GetForGuardAsync`, which runs a `FOR SHARE` query through the Marten session in the command's transaction.
 
-**Rationale:** A read followed by a write does not keep the guard true: a competing command can change the guarding row between the two. The guard read takes a shared row lock (`SELECT ... FOR SHARE` on PostgreSQL, through Entity Framework Core `FromSql`), so a competing command that changes the guarding row waits until the guarded command commits, and a guarded command that starts after the change reads the new state and refuses. This provision binds `litespec/backend/persistence#honor-the-declared-consistency-mode` for .NET.
+**Rationale:** A read followed by a write does not keep the guard true: a competing command can change the guarding row between the two. The guard read runs `SELECT ... FOR SHARE` on PostgreSQL through the Marten session, with `session.QueryAsync<T>` carrying the SQL or with `AdvancedSql.QueryAsync`, inside the transaction LiteBus opens through `IUnitOfWorkBoundary`, so a competing command that changes the guarding row waits until the guarded command commits, and a guarded command that starts after the change reads the new state and refuses. This provision binds `litespec/backend/persistence#honor-the-declared-consistency-mode` for .NET.
 
 **Example:** Claimwick's submit-expense command guards on the expense report staying open. Its repository reads the report through `GetForGuardAsync`, so a close-report command that lands first makes submit-expense read the closed report and refuse, while a close-report that lands during the submit waits on its lock until the submit commits.
 
@@ -257,54 +257,6 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 **Reviewed for:** Does the project's unit of work implement `IUnitOfWorkBoundary` with `BeginAsync` and `RollbackAsync`? Look at the unit-of-work type beside the pipeline composition.
 
 ## Conventions
-
-### Use the Persistence Layer Folder Layout
-
-**ID:** `litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Place Marten configuration, repositories, commit behavior, and serialization in the shared kernel and module Infrastructure folders this provision names.
-
-**Replacement:** A project names the folders holding its persistence types in its project documentation.
-
-**Rationale:** One store stays the default, configured in the shared kernel Infrastructure folder, while each module's mappings and repositories live in its own Infrastructure folders. Every persistence type then has one discoverable home. Scattered configuration hides the provider setup across the product. This provision binds `litespec/backend/persistence#use-one-persistence-folder` for .NET.
-
-**Example:**
-
-```text
-{Product}.SharedKernel/
-  Infrastructure/
-    Marten/
-      MartenServiceRegistration.cs
-      MartenStoreConfiguration.cs
-      Commit/
-        SaveChangesCommandPostHandler.cs
-      Events/
-        DomainEventBuffer.cs
-{Product}.Modules/
-  Posts/                            single aggregate whose name matches the module: files directly under the module
-    Infrastructure/
-      PostRepository.cs
-      PostMartenConfiguration.cs
-  Customers/                        two aggregates: one folder per aggregate
-    CustomerAccounts/
-      Infrastructure/
-        CustomerAccountRepository.cs
-        CustomerAccountMartenConfiguration.cs
-    Consents/
-      Infrastructure/
-        ConsentRepository.cs
-        ConsentMartenConfiguration.cs
-```
-
-The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. A single-aggregate module stays flat when its aggregate root plural name equals the module name. For example, `Post` stays flat under `Posts`. Otherwise, each aggregate takes its own folder.
-
-Aggregate-specific configuration stays beside its aggregate, while session and commit plumbing stay in the shared kernel Infrastructure folder.
-
-**Reviewed for:** Does every Marten configuration, repository, commit, and serialization file sit in its shared kernel or module Infrastructure folder? Look at the persistence files.
 
 ### Register One Scoped Session
 

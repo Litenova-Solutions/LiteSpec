@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model;
 /// <summary>Proves <c>model render</c> rewrites marked skill copies, <c>model check</c> reports drift and an unread CLAUDE.md, and the carried skill frontmatter parses as YAML.</summary>
 public sealed class AgentProtocolSkillTests
 {
-    /// <summary>Check reports skill-drift after a hand edit, and render rewrites the copy.</summary>
+    /// <summary>Check reports skill-drift as advisory after a hand edit, and render rewrites the copy.</summary>
     /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
     [Fact(DisplayName = "check reports skill-drift and render rewrites the copy")]
     public void CheckReportsSkillDriftAndRenderRewritesIt()
@@ -18,10 +18,16 @@ public sealed class AgentProtocolSkillTests
         var entry = Join(fixture.Path, ".agents/skills/litespec/SKILL.md");
         File.WriteAllText(entry, File.ReadAllText(entry) + "drift\n");
 
-        var drifted = TestCli.Run("model", "check", "--root", fixture.Path);
+        var drifted = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
 
-        Assert.Equal(1, drifted.Status);
+        Assert.Equal(0, drifted.Status);
         Assert.Contains("[skill-drift]", drifted.Output, StringComparison.Ordinal);
+
+        var summarized = TestCli.Run("model", "check", "--root", fixture.Path);
+
+        Assert.Equal(0, summarized.Status);
+        Assert.DoesNotContain("[skill-drift]", summarized.Output, StringComparison.Ordinal);
+        Assert.Contains("skill-drift (level A)", summarized.Output, StringComparison.Ordinal);
 
         var rewritten = TestCli.Run("model", "render", "--root", fixture.Path);
 
@@ -104,7 +110,7 @@ public sealed class AgentProtocolSkillTests
         Assert.DoesNotContain("skills/litespec", second.Stdout, StringComparison.Ordinal);
     }
 
-    /// <summary>Check reports an extra file in a marked copy as drift, and render removes it.</summary>
+    /// <summary>Check reports an extra file in a marked copy as advisory skill-drift, and render removes it.</summary>
     /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
     [Fact(DisplayName = "check reports an extra file as skill-drift")]
     public void CheckReportsAnExtraFileAsDrift()
@@ -114,10 +120,16 @@ public sealed class AgentProtocolSkillTests
         var folder = Join(fixture.Path, ".claude/skills/litespec");
         File.WriteAllText(Path.Combine(folder, "stale.md"), "stale\n");
 
-        var drifted = TestCli.Run("model", "check", "--root", fixture.Path);
+        var drifted = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
 
-        Assert.Equal(1, drifted.Status);
+        Assert.Equal(0, drifted.Status);
         Assert.Contains("[skill-drift]", drifted.Output, StringComparison.Ordinal);
+
+        var summarized = TestCli.Run("model", "check", "--root", fixture.Path);
+
+        Assert.Equal(0, summarized.Status);
+        Assert.DoesNotContain("[skill-drift]", summarized.Output, StringComparison.Ordinal);
+        Assert.Contains("skill-drift (level A)", summarized.Output, StringComparison.Ordinal);
 
         Assert.Equal(0, TestCli.Run("model", "render", "--root", fixture.Path).Status);
         Assert.False(File.Exists(Path.Combine(folder, "stale.md")));

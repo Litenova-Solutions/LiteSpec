@@ -24,7 +24,7 @@ Three other answers cover what a read model does not. A screen that only shows a
 
 ## Consequences
 
-`model check` reports `read-model-source-unknown`, `read-model-erasure-missing`, `read-model-unused`, and `read-model-key-invalid`.
+`model check` reports `reference-unknown`, `read-model-erasure-missing`, `read-model-unused`, and `read-model-key-invalid`.
 
 Code sits in a module `ReadModels/` folder, one folder per read model. Each folder holds the read-model document, one projection per source event, and the read model's reader.
 

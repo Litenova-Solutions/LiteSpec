@@ -849,6 +849,10 @@ export function parseManifest(raw: unknown): Manifest {
     });
   }
 
+  const completeValue = raw["complete"];
+  if (completeValue !== undefined && typeof completeValue !== "number") fail("the manifest complete count needs a number");
+  const complete = typeof completeValue === "number" ? completeValue : undefined;
+
   const totals: Record<string, number> = {};
   for (const [key, item] of Object.entries(totalsValue)) {
     if (typeof item !== "number") fail("manifest total " + key + " needs a number");
@@ -898,6 +902,7 @@ export function parseManifest(raw: unknown): Manifest {
     intentCoverage,
     testRun,
     totals,
+    complete,
     layers,
     shardOf,
     search: reqStringArray(raw["search"], "the manifest search"),

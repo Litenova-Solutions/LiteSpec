@@ -7,52 +7,6 @@ namespace LiteSpec.Cli.Tests.Book;
 /// <summary>Proves the book carries the new record types, completion stages and proof freshness.</summary>
 public sealed class BookTypesCompletionTests
 {
-    /// <summary>A store parents its module by identifier home and file, sorts beside its aggregate, and stays unplaced without a module.</summary>
-    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
-    [Fact]
-    public void StoreParentsItsModuleBesideItsAggregate()
-    {
-        var model = Model(
-            Record("product", "product/library", "Library", "approved"),
-            Record("module", "module/lending", "Lending", "reviewed"),
-            Record("aggregate", "aggregate/lending.loan", "Loan", "reviewed"),
-            Record("store", "store/lending.suppression-list", "Suppression List", "reviewed"));
-
-        Assert.Equal("module/lending", BookParents.ParentOf(model, "store/lending.suppression-list"));
-
-        var outline = BookOutline.Build(model);
-        Assert.DoesNotContain("store/lending.suppression-list", outline.Unplaced);
-        var module = Find(outline.Layers, "module/lending");
-        Assert.NotNull(module);
-        Assert.Equal(
-            new[] { "aggregate", "store" },
-            module!.Children
-                .Where(child => string.Equals(child.Kind, "record", StringComparison.Ordinal))
-                .Select(child => child.Type)
-                .ToList());
-
-        var filed = Model(
-            Record("product", "product/library", "Library", "approved"),
-            Record("module", "module/lending", "Lending", "reviewed"),
-            Record("module", "module/copies", "Copies", "reviewed"),
-            Record(
-                "store",
-                "store/copies.suppression-list",
-                "Suppression List",
-                "reviewed",
-                file: ".litespec/behavior/modules/lending/stores/suppression-list/suppression-list.yaml"));
-
-        Assert.Equal("module/lending", BookParents.ParentOf(filed, "store/copies.suppression-list"));
-        Assert.DoesNotContain("store/copies.suppression-list", BookOutline.Build(filed).Unplaced);
-
-        var missing = Model(
-            Record("product", "product/library", "Library", "approved"),
-            Record("store", "store/lending.suppression-list", "Suppression List", "reviewed"));
-
-        Assert.Null(BookParents.ParentOf(missing, "store/lending.suppression-list"));
-        Assert.Contains("store/lending.suppression-list", BookOutline.Build(missing).Unplaced);
-    }
-
     /// <summary>A module event parents its module by identifier home and file, sorts before its integration events, and stays unplaced without a module.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
@@ -106,39 +60,6 @@ public sealed class BookTypesCompletionTests
 
         Assert.Null(BookParents.ParentOf(missing, "module-event/lending.loan-borrowed"));
         Assert.Contains("module-event/lending.loan-borrowed", BookOutline.Build(missing).Unplaced);
-    }
-
-    /// <summary>A store detail keeps its owner link while every other type strips it, and a store without one carries no owner.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
-    [Fact]
-    public void StoreDetailKeepsItsOwner()
-    {
-        var model = Model(
-            Record("product", "product/library", "Library", "approved"),
-            Record("module", "module/lending", "Lending", "reviewed"),
-            Record(
-                "store",
-                "store/lending.suppression-list",
-                "Suppression List",
-                "reviewed",
-                fields: new JsonObject { ["owner"] = "module/lending" }),
-            Record(
-                "aggregate",
-                "aggregate/lending.loan",
-                "Loan",
-                "reviewed",
-                fields: new JsonObject { ["owner"] = "module/lending" }),
-            Record("store", "store/lending.ownerless", "Ownerless", "reviewed"));
-
-        var details = BookRecordDetails.Build(model, BookOutline.Build(model));
-
-        Assert.Equal("module/lending", Str(Obj(details["store/lending.suppression-list"], "fields"), "owner"));
-        Assert.Null(Obj(details["aggregate/lending.loan"], "fields")["owner"]);
-        Assert.Null(Obj(details["store/lending.ownerless"], "fields")["owner"]);
-        Assert.True(HasEdge(
-            Arr(details["store/lending.suppression-list"], "out"),
-            "module/lending",
-            "store.owner"));
     }
 
     /// <summary>A detail carries the model completion stage with its parked children and scope counts beside the code completion.</summary>

@@ -24,6 +24,10 @@ records:
   title: Manage Policy
   meaning: The right to set the receipt threshold.
 - type: permission
+  id: permission/manage-reminder-preference
+  title: Manage Reminder Preference
+  meaning: The right to change a manager's approval reminder preference.
+- type: permission
   id: permission/export-expenses
   title: Export Expenses
   meaning: The right to export approved expenses for finance.

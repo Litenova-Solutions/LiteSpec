@@ -50,7 +50,7 @@ Four kinds of port belong in Application:
 - A rule calculation that another module calls keeps one home for the rule.
 - A decision port answers one current-value question that another module's command needs.
 
-A general reader that returns the owner's state to any caller is not one of them: a module keeps its own read model, its own stored copy of the fields it needs from another module, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, a messenger port carries the notifications `sends` effects name, and a store port carries state the owning module or external system holds.
+A general reader that returns the owner's state to any caller is not one of them: a module keeps its own read model, its own stored copy of the fields it needs from another module, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, and a messenger port carries the notifications `sends` effects name.
 
 In Claimwick, the payout provider sits behind an external-system port: an event handler calls the port operation after the commit, and Infrastructure adapts the provider behind it. If the provider changes, only the adapter changes.
 
@@ -475,22 +475,6 @@ One global step, running in the command pipeline before the commit, stages each 
 
 **Checked by:** `dotnet build` reports `LS2022` for an event published outside the shared kernel, and `litespec model check` reports `effect-undeclared` for an event a handler, event handler or job publishes itself.
 
-### Expose Store State Through Ports
-
-**ID:** `litespec/backend/application#expose-store-state-through-ports`
-
-**Strength:** required
-
-**Applies to:** artifact: port
-
-**Statement:** A `store` MUST reach code only through a port naming its owner, with no aggregate root.
-
-**Rationale:** A `store` is state no invariant guards: a library-owned table, a suppression list, or a delivery log. With no invariant, there is no root, no state record, and no domain repository; the port names the owning module or external system and Infrastructure implements it. Staff actions on that state stay ordinary use cases calling the port.
-
-**Example:** The suppression list reaches code through a suppression port owned by the communications module, with no aggregate root.
-
-**Reviewed for:** Does every `store` reach code only through its owner-naming port, with no aggregate root? Look at each store's code path.
-
 ### Read Settings Through Typed Options
 
 **ID:** `litespec/backend/application#read-settings-through-typed-options`
@@ -597,9 +581,11 @@ A module event or an outbound integration event is no effect: the pipeline stage
 
 A `sends` or `calls` effect on a command is `after-commit` or `async`, never `inline`, and `consistency: atomic` never reaches past the use case's own writes. The effect graph holds no cycles except through domain events with a stated end condition.
 
+A message that leaves before its transaction commits promises work even when the transaction then fails. The aggregate raises its fact, and an event handler for that fact sends, so no message leaves for a write that never landed.
+
 **Example:** The send-approver-reminders reaction sends the approval reminder through the messenger port after the submit commit. A send its record does not declare fails the check.
 
-**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for a dispatch a handler, event handler, or job takes that its record declares no edge for, and `dotnet build` reports `LS2021` for a mediator held outside an endpoint, event handler or job.
+**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for a dispatch a handler, event handler, or job takes that its record declares no edge for, and `effect-timing-invalid` (level S) for a command use case declaring a `sends` or `calls` effect with `inline` timing, and `dotnet build` reports `LS2021` for a mediator held outside an endpoint, event handler or job.
 
 ### Declare the Audit Target and Reason Beside the Message
 
@@ -712,22 +698,6 @@ A `sends` or `calls` effect on a command is `after-commit` or `async`, never `in
 **Example:** The list-expenses query validates its page size through its query validator.
 
 **Reviewed for:** Does every query with paging, filters, or ranges declare a query validator? Look at each such query beside the pipeline validators.
-
-### Send Messages After Commit
-
-**ID:** `litespec/backend/application#send-messages-after-commit`
-
-**Strength:** required
-
-**Applies to:** artifact: command-handler, reaction
-
-**Statement:** Each command MUST leave its messages to an event handler after the commit, never send them from the command handler.
-
-**Rationale:** A message that leaves before its transaction commits promises work even when the transaction then fails. The aggregate raises its fact, and an event handler for that fact sends, so no message leaves for a write that never landed. A `sends` effect is `after-commit` or `async`, never `inline`.
-
-**Example:** The submit-expense aggregate raises its submitted fact, and an event handler sends the approver notice after the commit.
-
-**Checked by:** `litespec model check` reports `effect-timing-invalid` (level S) for a command use case declaring a `sends` or `calls` effect with `inline` timing.
 
 ### Build Collaborators Through the Container
 

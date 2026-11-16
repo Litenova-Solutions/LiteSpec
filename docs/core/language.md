@@ -155,7 +155,7 @@ A finding code has the form `<subject>-<problem>`: the subject is a record type,
 | `unreachable` | a screen no other screen leads to | `screen-unreachable` |
 | `unverified` | a use case holds scenarios with no passing proof | `use-case-unverified` |
 | `drift` | the built thing differs from its record | `setting-key-drift` |
-| `invalid` | a value breaks its form | `field-invalid` |
+| `invalid` | a value breaks its form | `record-invalid` |
 | `duplicate` | the same thing is declared twice | `identifier-duplicate` |
 | `expired` | the date passed | `waiver-expired` |
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
@@ -175,6 +175,7 @@ A finding code has the form `<subject>-<problem>`: the subject is a record type,
 | `alias` | a retired name used where the glossary term exists | `wording-alias` |
 | `failed` | a limit the subject did not meet | `design-token-limit-failed` |
 | `dead-end` | a screen that leads nowhere and offers no use case | `screen-dead-end` |
+| `unselected` | an extension the project does not select | `field-extension-unselected` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do appears in the finding table on the [model command page](../tools/model.md), in its own column. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
@@ -268,20 +269,6 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Reviewed for:** Does every quantity use a standard unit? Check the dates, durations, money values, and numbers the change adds.
 
-### Name Each Record by Its Type's Name Form
-
-**ID:** `litespec/core/language#name-each-record-by-its-types-name-form`
-
-**Strength:** required
-
-**Statement:** Every record name MUST use the name form the record-name table gives its type.
-
-**Rationale:** A name in the word class of what the record is shows the type without opening the record: a verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event. One name form per type keeps listings scannable and citations writable by hand. The record-name table lists the Intent, Behavior, and governance forms together. Settled by [decision/0077-use-the-standard-term-for-each-concept](decision/0077-use-the-standard-term-for-each-concept).
-
-**Example:** Claimwick names the flow `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`.
-
-**Reviewed for:** Does every record name use the name form of its type? Check the identifiers the change adds against the record-name table.
-
 ### Write in American English
 
 **ID:** `litespec/core/language#write-in-american-english`
@@ -351,34 +338,6 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 **Example:** The release check runs as `litespec model check --release` and exits 1 on a blocking finding.
 
 **Reviewed for:** Does every subcommand read as a verb and every flag as its mode or value? Check the commands and flags the change adds.
-
-### Follow the Identifier Form of Each Record Type
-
-**ID:** `litespec/core/language#follow-the-identifier-form-of-each-record-type`
-
-**Strength:** required
-
-**Statement:** A record identifier MUST follow the form the model states for its record type.
-
-**Rationale:** A reader who sees `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.
-
-**Example:** `domain-event/expense.submitted` names a domain event of the expense aggregate.
-
-**Checked by:** `litespec model check` reports `identifier-invalid` for an identifier outside the form its type uses.
-
-### Name Records with One to Six Words
-
-**ID:** `litespec/core/language#name-records-with-one-to-six-words`
-
-**Strength:** required
-
-**Statement:** A name MUST carry one to six lowercase hyphenated words.
-
-**Rationale:** A short hyphenated name is easy to read aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts become competing names for one record.
-
-**Example:** `decision/0001-receipt-threshold` counts its number as one word.
-
-**Checked by:** `litespec model check` reports `identifier-invalid` for a name outside one to six lowercase hyphenated words.
 
 ### Use Every Identifier Once
 
@@ -527,11 +486,15 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Strength:** required
 
-**Statement:** A consumer record identifier MUST be `type/home.name` in kebab-case, using the form the Project Model states for its type.
+**Statement:** A consumer record identifier MUST use the form the Project Model states for its type, as `type/home.name` in kebab-case, with its name in the name form the record-name table gives its type and one to six lowercase hyphenated words.
 
-**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [Project Model](model.md) states the form each type uses, and the Identifier Forms section above states the name rules and checks.
+**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table: a reader who sees `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [Project Model](model.md) states the form each type uses, and the Identifier Forms section above states the name rules and checks.
 
-**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `flow/submit-and-reimburse#s2` is the second step of a flow.
+A name in the word class of what the record is shows the type without opening the record: a verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event. One name form per type keeps listings scannable and citations writable by hand. The record-name table lists the Intent, Behavior, and governance forms together. Settled by [decision/0077-use-the-standard-term-for-each-concept](decision/0077-use-the-standard-term-for-each-concept).
+
+A short hyphenated name is easy to read aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts become competing names for one record.
+
+**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `flow/submit-and-reimburse#s2` is the second step of a flow. Claimwick names the flow `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`, each in one to six words. `decision/0001-receipt-threshold` counts its number as one word.
 
 **Checked by:** `litespec model check` reports `identifier-invalid` for a record identifier outside the declared grammar.
 
@@ -541,6 +504,6 @@ None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, `litespec/core/language#write-each-finding-message-as-a-fact` and `litespec/core/language#follow-the-identifier-form-of-each-record-type`.
+This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#write-each-finding-message-as-a-fact` and `litespec/core/language#use-the-declared-record-identifier-grammar`.
 
 Claimwick holds booked rooms with the use case `use-case/booking.hold-room`, which reads the setting `setting/booking.checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When no use case serves the hold step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."

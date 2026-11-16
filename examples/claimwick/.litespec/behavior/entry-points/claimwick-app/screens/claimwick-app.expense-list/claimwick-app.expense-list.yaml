@@ -7,6 +7,13 @@ offers:
 - use-case/spending.list-expenses
 serves:
 - flow/submit-and-reimburse#s5
+fulfills:
+- requirement/ui-chart-series
+- requirement/ui-control-boundary
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
 pageFrame:
   pattern: list-page
   option: search-and-a-state-filter-only

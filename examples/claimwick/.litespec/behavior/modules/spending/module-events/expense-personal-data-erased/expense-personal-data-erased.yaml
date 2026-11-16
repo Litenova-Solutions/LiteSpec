@@ -2,13 +2,8 @@ type: module-event
 id: module-event/spending.expense-personal-data-erased
 title: Expense Personal Data Erased
 summary: The expense-personal-data-erased event announces that the personal data of a decided expense was erased.
-payload:
-- name: expenseId
-  meaning: The expense whose personal data was erased.
-  type: id
-  of: aggregate/spending.expense
-  required: true
-  classification: internal
+fields:
+- expenseId
 translates: domain-event/expense.personal-data-erased
 terms:
 - term/expense

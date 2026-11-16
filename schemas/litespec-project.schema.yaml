@@ -336,6 +336,10 @@ properties:
         items:
           type: string
           pattern: '^[a-z][a-z0-9-]*\.[a-z0-9-]*\{key\}[a-z0-9-]*$'
+  problemTypeBase:
+    description: The URI prefix of every problem type; a refusal code's problem type is this prefix followed by the code's part after its module, as RFC 9457 types.
+    type: string
+    pattern: '^https?://.+/$'
   reviewedLiteSpecVersion:
     description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1.
     type: string
@@ -411,11 +415,6 @@ properties:
         criterion:
           type: string
           minLength: 1
-        releaseStage:
-          description: 'The release stage the stage extension declares: pre-production until a deployment holds customer data, production after the promotion decision.'
-          enum:
-          - pre-production
-          - production
         decision:
           description: The identifier of the audit adoption decision the audit extension names.
           type: string
@@ -423,25 +422,11 @@ properties:
       allOf:
       - if:
           required:
-          - releaseStage
-        then:
-          properties:
-            id:
-              const: stage
-      - if:
-          required:
           - decision
         then:
           properties:
             id:
               const: audit
-      - if:
-          properties:
-            id:
-              const: stage
-        then:
-          required:
-          - releaseStage
 $defs:
   projectPath:
     type: string

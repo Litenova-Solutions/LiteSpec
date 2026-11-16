@@ -221,8 +221,8 @@ internal static class TraceabilityFixtures
     /// <param name="title">The title of the page.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Decision(
-        string id = "decision/0002-store-expenses-as-documents",
-        string title = "Store expenses as documents") =>
+        string id = "decision/0002-keep-expenses-as-documents",
+        string title = "Keep expenses as documents") =>
         Page(FileOf(id), $$"""
             {
               "type": "decision",
@@ -236,9 +236,9 @@ internal static class TraceabilityFixtures
     /// <param name="title">The title of the page.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) TechnicalDecision(
-        string id = "decision/0002-store-expenses-as-documents",
-        string title = "Store expenses as documents") =>
-        Page("implementation/decisions/0002-store-expenses-as-documents.yaml", $$"""
+        string id = "decision/0002-keep-expenses-as-documents",
+        string title = "Keep expenses as documents") =>
+        Page("implementation/decisions/0002-keep-expenses-as-documents.yaml", $$"""
             {
               "type": "decision",
               "id": "{{id}}",

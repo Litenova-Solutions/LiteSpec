@@ -1,6 +1,6 @@
 type: rule-set
 title: Spending Rules
-summary: Receipt files are filed once across spending, each receipt attaches with its expense link in one write, and a manager the suppression list names gets no approval reminder.
+summary: Receipt files are filed once across spending, each receipt attaches with its expense link in one write, and a manager holding a reminder preference gets no approval reminder.
 records:
 - type: rule
   id: rule/spending.receipt-filed-once
@@ -36,11 +36,11 @@ records:
   id: rule/spending.suppressed-manager-gets-no-reminder
   title: Suppressed Manager Gets No Reminder
   kind: precondition
-  statement: A manager the suppression list names gets no approval reminder.
+  statement: A manager holding a reminder preference gets no approval reminder.
   governs:
-  - store/spending.suppression-list
+  - aggregate/spending.reminder-preference
   binds:
-  - store/spending.suppression-list
+  - aggregate/spending.reminder-preference
   basedOn: []
   fulfills:
   - requirement/approval-reminders.remind-approver-after-three-days

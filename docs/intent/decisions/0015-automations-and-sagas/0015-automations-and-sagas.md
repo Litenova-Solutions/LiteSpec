@@ -33,7 +33,7 @@ An entry point leads from outside only. The kinds are `browser`, `api`, `webhook
 
 ## Consequences
 
-An aggregate carries no kind, a store is its own record type under `litespec/core/domain-model#name-the-owner-of-every-store`, and no coordination kind exists. The provision `litespec/core/edges#give-each-entry-point-a-kind` carries the kinds only.
+An aggregate carries no kind, a store is its own record type under `litespec/core/domain-model#keep-technical-state-out-of-behavior`, and no coordination kind exists. The provision `litespec/core/edges#give-each-entry-point-a-kind` carries the kinds only.
 
 The provision `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` carries the 2 consistency modes. An atomic write across aggregates cites its bound rule. A reaction that undoes a committed step names the step in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states.
 

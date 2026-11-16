@@ -17,7 +17,6 @@ oneOf:
 - $ref: '#/$defs/flowPage'
 - $ref: '#/$defs/modulePage'
 - $ref: '#/$defs/aggregatePage'
-- $ref: '#/$defs/storePage'
 - $ref: '#/$defs/useCasePage'
 - $ref: '#/$defs/reactionPage'
 - $ref: '#/$defs/jobPage'
@@ -145,9 +144,6 @@ $defs:
     anyOf:
     - $ref: '#/$defs/moduleEventId'
     - $ref: '#/$defs/integrationEventId'
-  storeId:
-    type: string
-    pattern: '^store/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
   moduleEventId:
     type: string
     pattern: '^module-event/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
@@ -213,13 +209,6 @@ $defs:
     uniqueItems: true
     items:
       $ref: '#/$defs/aggregateId'
-  writesArray:
-    type: array
-    uniqueItems: true
-    items:
-      anyOf:
-      - $ref: '#/$defs/aggregateId'
-      - $ref: '#/$defs/storeId'
   decisionIdArray:
     type: array
     uniqueItems: true
@@ -333,7 +322,6 @@ $defs:
     items:
       anyOf:
       - $ref: '#/$defs/aggregateId'
-      - $ref: '#/$defs/storeId'
       - $ref: '#/$defs/useCaseId'
   readsArray:
     type: array
@@ -341,7 +329,6 @@ $defs:
     items:
       anyOf:
       - $ref: '#/$defs/aggregateId'
-      - $ref: '#/$defs/storeId'
       - $ref: '#/$defs/settingId'
       - $ref: '#/$defs/readModelId'
   scenarioResultValue:
@@ -1818,14 +1805,10 @@ $defs:
     required:
     - code
     - meaning
-    - problemType
     properties:
       code:
         $ref: '#/$defs/refusalCode'
       meaning:
-        $ref: '#/$defs/nonEmptyString'
-      problemType:
-        description: The problem type the refusal maps to, as a URI or a short type name (RFC 9457).
         $ref: '#/$defs/nonEmptyString'
   recordsArray:
     type: array
@@ -2014,7 +1997,7 @@ $defs:
         x-reads-as: governs
         x-read-back-as: is governed by
       binds:
-        $ref: '#/$defs/writesArray'
+        $ref: '#/$defs/aggregateIdArray'
         x-reads-as: binds
         x-read-back-as: is bound by
       refusal:
@@ -2074,7 +2057,6 @@ $defs:
     - id
     - title
     - outcome
-    - meaning
     properties:
       type:
         const: result
@@ -2120,6 +2102,12 @@ $defs:
       then:
         required:
         - code
+        not:
+          required:
+          - meaning
+      else:
+        required:
+        - meaning
   scenarioEntry:
     type: object
     additionalProperties: false
@@ -2226,7 +2214,6 @@ $defs:
         - device
         - cli
         - mcp
-        - served-content
       auth:
         $ref: '#/$defs/authKindArray'
       density:
@@ -2263,27 +2250,32 @@ $defs:
             - one-form-per-table-with-the-zone-stated-once
             - grouped-by-day-so-the-column-is-the-day
             - a-time-with-the-zone-on-every-value
-      path:
-        $ref: '#/$defs/nonEmptyString'
-      contentType:
-        $ref: '#/$defs/nonEmptyString'
-      cacheControl:
-        $ref: '#/$defs/nonEmptyString'
-      versioning:
-        $ref: '#/$defs/nonEmptyString'
-    allOf:
-    - if:
-        required:
-        - kind
-        properties:
-          kind:
-            const: served-content
-      then:
-        required:
-        - path
-        - contentType
-        - cacheControl
-        - versioning
+      servedContent:
+        description: The static content a browser entry point serves, such as a terms page or a script, each with the requirement it fulfills.
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required:
+          - path
+          - contentType
+          - cacheControl
+          - versioning
+          - fulfills
+          properties:
+            path:
+              $ref: '#/$defs/nonEmptyString'
+            contentType:
+              $ref: '#/$defs/nonEmptyString'
+            cacheControl:
+              $ref: '#/$defs/nonEmptyString'
+            versioning:
+              $ref: '#/$defs/nonEmptyString'
+            fulfills:
+              $ref: '#/$defs/requirementIdArray'
+              x-reads-as: fulfills
+              x-read-back-as: is fulfilled by
   configurationKey:
     description: 'A configuration path in the host''s spelling: sections and the key joined by colons.'
     type: string
@@ -2916,55 +2908,6 @@ $defs:
             items:
               required:
               - dataClass
-  storePage:
-    description: A store holds state that no aggregate invariant guards, such as a library-owned table, a suppression list or a delivery log.
-    type: object
-    additionalProperties: false
-    required:
-    - type
-    - id
-    - title
-    - owner
-    properties:
-      type:
-        const: store
-      id:
-        $ref: '#/$defs/storeId'
-      title:
-        $ref: '#/$defs/nonEmptyString'
-      terms:
-        $ref: '#/$defs/termIdArray'
-        x-reads-as: uses
-        x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
-      summary:
-        $ref: '#/$defs/nonEmptyString'
-      data:
-        type: array
-        items:
-          $ref: '#/$defs/aggregateData'
-      dataClasses:
-        type: array
-        minItems: 1
-        items:
-          $ref: '#/$defs/dataClassEntry'
-      owner:
-        anyOf:
-        - $ref: '#/$defs/moduleId'
-        - $ref: '#/$defs/externalSystemId'
-        x-reads-as: is owned by
-        x-read-back-as: owns
-    allOf:
-    - if:
-        required:
-        - dataClasses
-      then:
-        properties:
-          data:
-            items:
-              required:
-              - dataClass
   useCasePage:
     type: object
     additionalProperties: false
@@ -3028,7 +2971,7 @@ $defs:
       paging:
         $ref: '#/$defs/pagingValue'
       writes:
-        $ref: '#/$defs/writesArray'
+        $ref: '#/$defs/aggregateIdArray'
         x-reads-as: writes
         x-read-back-as: is written by
       reads:
@@ -3083,7 +3026,6 @@ $defs:
             const: command
       then:
         required:
-        - audit
         - idempotency
         properties:
           output:
@@ -3391,7 +3333,7 @@ $defs:
     - id
     - title
     - translates
-    - payload
+    - fields
     properties:
       type:
         const: module-event
@@ -3407,10 +3349,14 @@ $defs:
         x-read-back-as: is used by
       records:
         $ref: '#/$defs/recordsArray'
-      payload:
+      fields:
+        description: The names of the fields of the translated domain event that the module event publishes.
         type: array
+        minItems: 1
+        uniqueItems: true
         items:
-          $ref: '#/$defs/integrationEventPayload'
+          type: string
+          pattern: '^[a-z][a-zA-Z0-9]*$'
       translates:
         $ref: '#/$defs/domainEventId'
         x-reads-as: translates
@@ -3813,7 +3759,6 @@ $defs:
         - device
         - cli
         - mcp
-        - served-content
       auth:
         $ref: '#/$defs/authKindArray'
       density:
@@ -3850,32 +3795,32 @@ $defs:
             - one-form-per-table-with-the-zone-stated-once
             - grouped-by-day-so-the-column-is-the-day
             - a-time-with-the-zone-on-every-value
-      path:
-        $ref: '#/$defs/nonEmptyString'
-      contentType:
-        $ref: '#/$defs/nonEmptyString'
-      cacheControl:
-        $ref: '#/$defs/nonEmptyString'
-      versioning:
-        $ref: '#/$defs/nonEmptyString'
-      fulfills:
-        $ref: '#/$defs/requirementIdArray'
-        x-reads-as: fulfills
-        x-read-back-as: is fulfilled by
-    allOf:
-    - if:
-        required:
-        - kind
-        properties:
-          kind:
-            const: served-content
-      then:
-        required:
-        - path
-        - contentType
-        - cacheControl
-        - versioning
-        - fulfills
+      servedContent:
+        description: The static content a browser entry point serves, such as a terms page or a script, each with the requirement it fulfills.
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required:
+          - path
+          - contentType
+          - cacheControl
+          - versioning
+          - fulfills
+          properties:
+            path:
+              $ref: '#/$defs/nonEmptyString'
+            contentType:
+              $ref: '#/$defs/nonEmptyString'
+            cacheControl:
+              $ref: '#/$defs/nonEmptyString'
+            versioning:
+              $ref: '#/$defs/nonEmptyString'
+            fulfills:
+              $ref: '#/$defs/requirementIdArray'
+              x-reads-as: fulfills
+              x-read-back-as: is fulfilled by
   entryPointSetPage:
     type: object
     additionalProperties: false
@@ -3930,6 +3875,11 @@ $defs:
         $ref: '#/$defs/flowStepIdArray'
         x-reads-as: serves
         x-read-back-as: is served by
+      fulfills:
+        description: The requirements about the interface that the screen fulfills, such as what a chart shows.
+        $ref: '#/$defs/requirementIdArray'
+        x-reads-as: fulfills
+        x-read-back-as: is fulfilled by
       pageFrame:
         description: The page-frame pattern the screen follows, with the option the product chose.
         $ref: '#/$defs/pageFrameObject'

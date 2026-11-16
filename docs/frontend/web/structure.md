@@ -150,6 +150,75 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Reviewed for:** Do all cross-route values and browser uses sit in the frame folder their stack page names? Check the frame folder and the route and module sources.
 
+### Use the Stack File Extension
+
+**ID:** `litespec/frontend/web/structure#use-the-stack-file-extension`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A shared file MUST use the file extension its stack states: `.tsx` on React and `.svelte` on Svelte.
+
+**Rationale:** One extension per stack lets the compiler, the lint, and a search treat every shared file the same way on that stack. The table names the extension, so no file needs a second guess.
+
+**Example:**
+
+| Stack | Extension |
+|:---|:---|
+| React | `.tsx` |
+| Svelte | `.svelte` |
+
+The library product holds its shared loan status helper as `src/app/loan-status.tsx` on React, and the Claimwick console holds its expense total as `ExpenseTotal.svelte` on Svelte.
+
+**Reviewed for:** Does every shared file use the extension its stack states? Check the `src` tree of each web frontend.
+
+### Mark Each Web Route Entry with Its Screen
+
+**ID:** `litespec/frontend/web/structure#mark-each-web-route-entry-with-its-screen`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A route entry MUST export its screen mark as the same typed constant a use-case module exports, from the place its stack states.
+
+**Rationale:** A mark where the address is declared ties the address to its use case in one link, so the builder and the check read one place. A wrong identifier fails the consumer type check against the generated union. The place differs by stack, as the table states, and each stack page names its route entry. This realizes litespec/frontend/structure#mark-each-route-with-its-screen.
+
+**Example:**
+
+| Stack | Mark place |
+|:---|:---|
+| React | The route file |
+| Svelte | The `<script module>` of `+page.svelte` |
+
+The library loan list exports its typed screen mark from its route file, and the Claimwick expense list exports its mark from the `<script module>` of its `+page.svelte`.
+
+**Reviewed for:** Does every route entry export its screen mark from the place its stack states? Check each route entry.
+
+### Keep Web Layouts, Error Surfaces, and Route Groups Unmarked
+
+**ID:** `litespec/frontend/web/structure#keep-web-layouts-error-surfaces-and-route-groups-unmarked`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A layout, an error surface, or a route group MUST NOT carry a screen mark.
+
+**Rationale:** A layout, an error surface, or a group draws no screen of its own, so a mark on it ties an address to a screen it does not show. The table names the files that are not route entries on each stack. This realizes litespec/frontend/structure#mark-each-route-with-its-screen.
+
+**Example:**
+
+| Stack | Not route entries |
+|:---|:---|
+| React | Pathless layout routes, error components, route groups |
+| Svelte | Layout files, error pages, route groups |
+
+The library underscore layout route carries no screen mark, and the Claimwick `+layout.svelte` carries none.
+
+**Reviewed for:** Do any layouts, error surfaces, or route groups carry a screen mark? Check the non-entry files under `src/routes`.
+
 ## Conventions
 
 ### Use the Generated Route Tree

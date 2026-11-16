@@ -5,7 +5,7 @@
 
 This page defines the patterns for the states a screen shows around its work. Each pattern answers one recurring question about those states, from what an empty list shows to how a failed command reports itself, and every decided state says what happened, what it means, and what the reader can do next.
 
-Each pattern names a default option: the shape the project builds unless the owner records another choice in the project's pattern catalog, the file that holds the project's interface decisions.
+Each pattern names a default option: the shape the project builds unless the owner records another choice in the project's pattern catalog, the file that holds the project's interface decisions. This page belongs to the Feedback and States category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -21,17 +21,19 @@ A wireframe states the structure of the option and the copy it shows, and nothin
 
 The reader is the staff member using the screen. The wireframes use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them.
 
-Every wireframe follows the six rules in Standards below: a refusal or error message states what failed and the next step; a failed save keeps the reader's input on screen; each status is announced by its urgency; a loading region marks itself busy; focus moves to a refusal; and unsent input survives a dropped connection.
+Every wireframe follows the six defaults in Conventions below unless the project records another choice: a refusal or error message states what failed and the next step; a failed save keeps the reader's input on screen; each status is announced by its urgency; a loading region marks itself busy; focus moves to a refusal; and unsent input survives a dropped connection.
 
-## Standards
+## Conventions
 
 ### State What Failed and the Next Step
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#state-what-failed-and-the-next-step`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A refusal or error message MUST state what failed and the next step the reader can take.
+**Default:** State what failed and the next step the reader can take in a refusal or error message.
+
+**Replacement:** A project that replaces the default records what its failure messages state.
 
 **Rationale:** A message that only says something went wrong leaves the reader guessing whether to retry, fix input, or ask for help; most readers retry blindly or give up. Naming what failed and the one next step gives the reader a task to complete instead of a message to guess at.
 
@@ -41,9 +43,11 @@ Every wireframe follows the six rules in Standards below: a refusal or error mes
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#keep-the-readers-input-through-a-failure`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A failed save MUST keep the reader's unsaved input on the screen.
+**Default:** Keep the reader's unsaved input on the screen after a failed save.
+
+**Replacement:** A project that replaces the default records how its forms treat input after a failure.
 
 **Rationale:** Retyping a whole form to fix one refused field wastes the reader's time and introduces new typos. Worse, readers who lose work to a failure stop trusting the form: they copy long answers elsewhere before saving.
 
@@ -53,9 +57,11 @@ Every wireframe follows the six rules in Standards below: a refusal or error mes
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A page MUST announce each status through one of two live regions present when the page loads: a polite region for routine news and one assertive region for a session about to end, a lost connection holding unsent input, or a failed money command.
+**Default:** Announce each status through one of two live regions present when the page loads: a polite region for routine news and one assertive region for a session about to end, a lost connection holding unsent input, or a failed money command.
+
+**Replacement:** A project that replaces the default records how its pages announce statuses.
 
 **Rationale:** A live region added at the moment of the message is often not read, so both regions exist from the page load. Assertive messages interrupt whatever the reader hears, so only blocking news uses the assertive region: a session about to end, a lost connection holding unsent input, or a failed money command. This is WCAG 4.1.3 Status Messages, which asks that status changes be announced without moving focus.
 
@@ -65,9 +71,11 @@ Every wireframe follows the six rules in Standards below: a refusal or error mes
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#mark-a-loading-region-busy`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A loading region MUST expose its state through markup, as busy on the region or as role and value on a progress bar, and not through a live region announcement.
+**Default:** Expose a loading region state through markup, as busy on the region or as role and value on a progress bar, and not through a live region announcement.
+
+**Replacement:** A project that replaces the default records how its loading regions expose their state.
 
 **Rationale:** A `Loading` announcement on every read hides the messages that matter. A region marked busy with `aria-busy="true"` stays silent while assistive technology reports its state on request, and a progress bar with its role and value says how far the read has come. Announcements stay for the news that matters.
 
@@ -77,9 +85,11 @@ Every wireframe follows the six rules in Standards below: a refusal or error mes
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#move-focus-to-a-refusal`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** After the API refuses a command, focus MUST move to the refusal or to the first field it names.
+**Default:** Move focus to the refusal after the API refuses a command, or to the first field it names.
+
+**Replacement:** A project that replaces the default records where its focus lands after a refusal.
 
 **Rationale:** A sighted reader sees the refusal where it appears. A keyboard or screen-reader user otherwise never meets it. Moving focus to the refusal, or to the first field it names, puts every reader at the same place. This is WCAG 3.3.1 Error Identification, which asks that each error be described in text.
 
@@ -89,9 +99,11 @@ Every wireframe follows the six rules in Standards below: a refusal or error mes
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#keep-unsent-input-when-the-connection-drops`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A route that loses its connection MUST keep the user's unsent input and show the error state with a retry action.
+**Default:** Keep the user's unsent input on a route that loses its connection and show the error state with a retry action.
+
+**Replacement:** A project that replaces the default records how its routes treat unsent input offline.
 
 **Rationale:** A long expense form lost to a train tunnel is typed again or abandoned. Keeping the unsent input on screen with a retry action lets the reader retry the read instead of retyping the form.
 

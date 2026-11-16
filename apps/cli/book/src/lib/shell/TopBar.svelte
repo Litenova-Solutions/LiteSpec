@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { applyTheme, book, currentTheme, type BookTheme } from "$lib/frame";
   import { RecordIcon, TypeTag } from "$lib/record";
   import * as DropdownMenu from "$lib/ui/dropdown-menu";
   import { openRecord } from "./record-navigation";
@@ -8,11 +8,18 @@
   import RecordSearch from "./RecordSearch.svelte";
 
   // The top bar: the brand, the build state, the search box, the completion
-  // meter and the Intent tree, Recent and About actions. App mounts it above
-  // the columns; it reads the store directly.
+  // meter and the Intent tree, Recent, theme and About actions. App mounts it
+  // above the columns; it reads the store directly.
   type Props = { onOpenIntentTree: () => void; onOpenAbout: () => void; onRevealRequest: () => void };
   let { onOpenIntentTree, onOpenAbout, onRevealRequest }: Props = $props();
   let searchInput = $state<HTMLInputElement | null>(null);
+  let theme = $state<BookTheme>(currentTheme());
+
+  function toggleTheme(): void {
+    const next: BookTheme = theme === "dark" ? "light" : "dark";
+    theme = next;
+    applyTheme(next);
+  }
 
   const projName = $derived.by(() => {
     void book.rev;
@@ -58,6 +65,9 @@
       {/if}
     </DropdownMenu.Content>
   </DropdownMenu.Root>
+  <button type="button" aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} onclick={toggleTheme} class="grid size-12 shrink-0 place-items-center hover:bg-shell-hover">
+    <RecordIcon name={theme === "dark" ? "sun" : "moon"} class="size-5" />
+  </button>
   <button type="button" aria-label="About this book" onclick={onOpenAbout} class="grid size-12 shrink-0 place-items-center hover:bg-shell-hover">
     <RecordIcon name="info" class="size-5" />
   </button>

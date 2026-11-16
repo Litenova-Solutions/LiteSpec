@@ -608,6 +608,82 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details[readModel], "in"), "use-case/lending.return-copy", "use-case.reads"));
     }
 
+    /// <summary>A refusal result joins the meaning its module's refusal set declares and the problem type from the project's base; an unknown code joins no meaning and a success keeps its own.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void RefusalResultJoinsMeaningAndProblemType()
+    {
+        var refused = Record("result", "result/borrow-copy.copy-unavailable", "Copy Unavailable", "approved", "approved", """{"outcome": "refusal", "code": "lending.copy-not-available", "sentence": "This copy is on loan to another member."}""");
+        var unknown = Record("result", "result/borrow-copy.card-expired", "Card Expired", "approved", "approved", """{"outcome": "refusal", "code": "lending.card-expired"}""");
+        var success = Record("result", "result/borrow-copy.borrowed", "Borrowed", "approved", "approved", """{"outcome": "success", "meaning": "The copy is lent."}""");
+        var model = NewModel(refused, unknown, success);
+        model["refusals"] = new JsonArray(new JsonObject
+        {
+            ["code"] = "lending.copy-not-available",
+            ["meaning"] = "The copy stays unavailable and the member is told it is on loan.",
+        });
+        model["problemTypeBase"] = "https://library.example/problems/";
+
+        var details = DetailsOf(model);
+
+        var joined = Obj(details["result/borrow-copy.copy-unavailable"], "fields");
+        Assert.Equal("The copy stays unavailable and the member is told it is on loan.", Str(joined, "meaning"));
+        Assert.Equal("https://library.example/problems/copy-not-available", Str(joined, "problemType"));
+        Assert.Equal("This copy is on loan to another member.", Str(joined, "sentence"));
+
+        var missing = Obj(details["result/borrow-copy.card-expired"], "fields");
+        Assert.Null(missing["meaning"]);
+        Assert.Equal("https://library.example/problems/card-expired", Str(missing, "problemType"));
+
+        var kept = Obj(details["result/borrow-copy.borrowed"], "fields");
+        Assert.Equal("The copy is lent.", Str(kept, "meaning"));
+        Assert.Null(kept["problemType"]);
+    }
+
+    /// <summary>Without a problem type base a refusal result carries the short problem type: the code's part after its module.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void RefusalProblemTypeIsShortWithoutABase()
+    {
+        var refused = Record("result", "result/borrow-copy.copy-unavailable", "Copy Unavailable", "approved", "approved", """{"outcome": "refusal", "code": "lending.copy-not-available"}""");
+        var model = NewModel(refused);
+        model["refusals"] = new JsonArray(new JsonObject
+        {
+            ["code"] = "lending.copy-not-available",
+            ["meaning"] = "The copy stays unavailable.",
+        });
+
+        var fields = Obj(DetailsOf(model)["result/borrow-copy.copy-unavailable"], "fields");
+        Assert.Equal("The copy stays unavailable.", Str(fields, "meaning"));
+        Assert.Equal("copy-not-available", Str(fields, "problemType"));
+    }
+
+    /// <summary>A screen fulfills its requirements and a served content entry fulfills its own: both read as fulfilling edges, kept-by counts and coverage reach.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void ScreenAndServedContentFulfillRequirements()
+    {
+        var requirement = Record("requirement", "requirement/self-checkout.late-fee", "Late Fee", "approved", "approved", """{"kind": "policy"}""");
+        var screen = Record("screen", "screen/library-app.search", "Search", "approved", "approved", """{"address": "/search", "fulfills": ["requirement/self-checkout.late-fee"]}""");
+        var entryPoint = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved", """{"kind": "browser", "servedContent": [{"path": "/terms", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["requirement/self-checkout.late-fee"]}]}""");
+        var details = DetailsOf(NewModel(requirement, screen, entryPoint));
+
+        Assert.True(HasEdge(Arr(details["screen/library-app.search"], "out"), "requirement/self-checkout.late-fee", "screen.fulfills"));
+        Assert.True(HasEdge(Arr(details["entry-point/library-app"], "out"), "requirement/self-checkout.late-fee", "entry-point.servedContent.fulfills"));
+        Assert.True(HasEdge(Arr(details["requirement/self-checkout.late-fee"], "in"), "screen/library-app.search", "screen.fulfills"));
+        Assert.True(HasEdge(Arr(details["requirement/self-checkout.late-fee"], "in"), "entry-point/library-app", "entry-point.servedContent.fulfills"));
+
+        var kept = Obj(details["requirement/self-checkout.late-fee"], "keptBy");
+        Assert.Equal(1, kept["screen"]?.GetValue<int>());
+        Assert.Equal(1, kept["entry-point"]?.GetValue<int>());
+
+        var coverage = Obj(details["requirement/self-checkout.late-fee"], "intentCoverage");
+        Assert.True(BoolOf(coverage["reached"]));
+        Assert.Equal(
+            new[] { "entry-point/library-app", "screen/library-app.search" },
+            Arr(coverage, "reachedBy").Select(node => node!.GetValue<string>()).ToList());
+    }
+
     /// <summary>A record detail carries the captures, evidence strength and model completion the model states beside the record, and computes code completion from proof.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
@@ -696,7 +772,7 @@ public sealed class BookEnrichTests
             list.Add(record.DeepClone());
         }
 
-        return BookStores.WithIntentCoverage(new JsonObject
+        var store = BookStores.WithIntentCoverage(new JsonObject
         {
             ["records"] = list,
             ["code"] = new JsonObject
@@ -727,6 +803,92 @@ public sealed class BookEnrichTests
             ["covered"] = new JsonArray(),
             ["testRun"] = null,
         });
+        AddServedContentReach(store);
+        return store;
+    }
+
+    /// <summary>Adds each entry point to the Intent coverage entries of the requirements its served content fulfills.</summary>
+    /// <param name="store">The store object that holds the records and their Intent coverage.</param>
+    static void AddServedContentReach(JsonObject store)
+    {
+        var servedBy = new SortedDictionary<string, SortedSet<string>>(StringComparer.Ordinal);
+
+        foreach (var record in (store["records"] as JsonArray ?? []).OfType<JsonObject>())
+        {
+            if (Str(record, "type") != "entry-point" || Str(record, "id") is not { Length: > 0 } id)
+            {
+                continue;
+            }
+
+            foreach (var entry in (record["fields"]?["servedContent"] as JsonArray ?? []).OfType<JsonObject>())
+            {
+                foreach (var target in EntryFulfills(entry["fulfills"]))
+                {
+                    if (!servedBy.TryGetValue(target, out var sources))
+                    {
+                        sources = new SortedSet<string>(StringComparer.Ordinal);
+                        servedBy[target] = sources;
+                    }
+
+                    sources.Add(id);
+                }
+            }
+        }
+
+        if (servedBy.Count == 0 || store["intentCoverage"] is not JsonObject coverage)
+        {
+            return;
+        }
+
+        var entries = (coverage["entries"] as JsonArray ?? []).OfType<JsonObject>().ToList();
+
+        foreach (var entry in entries)
+        {
+            if (Str(entry, "kind") != "requirement"
+                || Str(entry, "id") is not { Length: > 0 } requirement
+                || !servedBy.TryGetValue(requirement, out var sources))
+            {
+                continue;
+            }
+
+            var reachedBy = new SortedSet<string>(
+                Arr(entry, "reachedBy").OfType<JsonValue>()
+                    .Select(value => value.TryGetValue<string>(out var text) ? text : "")
+                    .Where(text => text.Length > 0),
+                StringComparer.Ordinal);
+            reachedBy.UnionWith(sources);
+
+            var array = new JsonArray();
+            foreach (var source in reachedBy)
+            {
+                array.Add((JsonNode)source);
+            }
+
+            entry["reachedBy"] = array;
+            entry["reached"] = reachedBy.Count > 0;
+        }
+
+        var reached = entries.Count(entry => BoolOf(entry["reached"]));
+        coverage["reached"] = reached;
+        coverage["total"] = entries.Count;
+        coverage["share"] = JsonValue.Create(entries.Count == 0 ? 1.0 : (double)reached / entries.Count);
+        var requirements = Obj(coverage, "requirements");
+        requirements["reached"] = entries.Count(entry => Str(entry, "kind") == "requirement" && BoolOf(entry["reached"]));
+        requirements["total"] = entries.Count(entry => Str(entry, "kind") == "requirement");
+    }
+
+    static List<string> EntryFulfills(JsonNode? value)
+    {
+        if (value is JsonValue scalar && scalar.TryGetValue<string>(out var text))
+        {
+            return text.Length > 0 ? [text] : [];
+        }
+
+        return (value as JsonArray ?? [])
+            .OfType<JsonValue>()
+            .Select(item => item.TryGetValue<string>(out var id) ? id : "")
+            .Where(id => id.Length > 0)
+            .ToList();
     }
 
     static JsonObject Record(string type, string id, string title, string status = "draft", string? effective = null, string fieldsJson = "{}", string? explanation = null)

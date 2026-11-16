@@ -27,10 +27,10 @@ For a project selecting this extension, this extension replaces:
 - `litespec/workspace/dependencies#keep-application-free-of-provider-packages`: an Application project with narrow references replaces the same boundary on the Application layer folders.
 - `litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer`: package ownership by project replaces ownership by layer folder.
 - `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts`: the analyzers run in every layer project instead of in the shared kernel and modules projects and the hosts.
-- `litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout`: aggregate folders in the Domain project replace aggregate layer folders in the module tree.
-- `litespec/backend/dotnet/application#use-the-use-case-folder-layout`: operation folders in the Application project replace operation files in the `UseCases/` use case folders.
-- `litespec/backend/dotnet/api#place-endpoints-in-their-use-case-folders`: endpoint folders in the WebApi project replace endpoint files in the use case folders.
-- `litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout`: the Infrastructure persistence folder replaces the shared kernel and module Infrastructure folders.
+- `litespec/backend/domain#organize-a-module-by-aggregate-and-concept`: aggregate folders in the Domain project replace aggregate layer folders in the module tree.
+- `litespec/backend/application#use-this-use-case-layout`: operation folders in the Application project replace operation files in the `UseCases/` use case folders.
+- `litespec/backend/api#use-this-endpoint-layout`: endpoint folders in the WebApi project replace endpoint files in the use case folders.
+- `litespec/backend/persistence#use-one-persistence-folder`: the Infrastructure persistence folder replaces the shared kernel and module Infrastructure folders.
 - `litespec/backend/testing#keep-the-test-suites-the-size-requires`: Domain.Tests and Application.Tests beside Architecture, Integration, and Acceptance replace the one unit test project beside those suites.
 - `litespec/workspace/structure#keep-production-and-test-code-separate`: the five-project source tree replaces the shared kernel and modules projects beside their hosts.
 

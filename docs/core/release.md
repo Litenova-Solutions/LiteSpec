@@ -64,7 +64,7 @@ Each changed boundary selects the checks written for it. A change that touches s
 
 ### Record Debt as a Waiver
 
-Accepted debt never sits as an untracked compromise: it lives as a gap waiver with an expiry date, an exit, and closing records. Its findings are covered until the date, and `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape.
+Accepted debt never sits as an untracked compromise: it lives as a gap waiver with an expiry date, an exit, and closing records. Its findings are covered until the date, and `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape as `litespec/core/waivers#record-accepted-gaps-as-waivers`.
 
 Governance is a group of records beside the four record layers, not a fifth layer.
 
@@ -88,11 +88,11 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 
 **Applies to:** artifact: record:flow
 
-**Statement:** A completed flow MUST connect verified use cases to one observable outcome through a deployed public boundary.
+**Statement:** A completed flow MUST connect verified use cases to one observable outcome through a deployed public boundary, proved by its flow tests.
 
-**Rationale:** Use cases that pass in isolation can still fail together: wiring, permissions, and data cross boundaries the isolated tests never touch. A flow test that runs verified use cases to one observable outcome through the deployed public boundary proves the connected path customers actually take.
+**Rationale:** Use cases that pass in isolation can still fail together: wiring, permissions, and data cross boundaries the isolated tests never touch. A flow test that runs verified use cases to one observable outcome through the deployed public boundary proves the connected path customers actually take. A flow change alters the connected path, so only a flow test through the deployed public boundary proves it still reaches its outcome; narrower suites keep passing while the flow itself breaks.
 
-**Reviewed for:** Does every completed flow show a passing test through the deployed boundary? Check the flow tests beside each included flow.
+**Reviewed for:** Does every completed flow show a passing test through the deployed boundary, and every flow change its passing flow tests? Check the flow tests beside each included flow.
 
 ### Run Boundary-Selected Checks
 
@@ -104,51 +104,9 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 
 **Statement:** A release change MUST run every check selected by its changed backend, frontend, flow, Intent, Behavior, and extension boundaries.
 
-**Rationale:** Each boundary carries failures the others can't see: frontend checks say nothing about migrations, and backend suites say nothing about rendered screens. Running every check the changed boundaries select keeps each change evidenced where its failure lives. A narrow category that passes alone certifies only part of the change.
+**Rationale:** Each boundary carries failures the others can't see: frontend checks say nothing about migrations, and backend suites say nothing about rendered screens. Running every check the changed boundaries select keeps each change evidenced where its failure lives. A narrow category that passes alone certifies only part of the change. The release build catches the conditional and optimization-gated breaks a debug build hides; frozen installation, lint, type checking, tests, and the production build each guard one failure class of a frontend; and an affected extension's stated verification is the only evidence written for its surface.
 
 **Reviewed for:** Does every change show a passing result for each check its boundaries select? Check the change report against the boundary table.
-
-### Run Backend Release Checks
-
-**ID:** `litespec/core/release#run-backend-release-checks`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A backend change MUST pass the release build and the backend test suites.
-
-**Rationale:** The release build compiles the solution in release mode, catching the conditional and optimization-gated breaks a debug build hides. The architecture, integration, and acceptance suites the size requires prove layering, wiring, and behavior in turn. Skipping any of them ships backend code the project's own suites don't fully prove.
-
-**Reviewed for:** Does every backend change show a passing release build and suite results? Check the build and suite reports beside the change.
-
-### Run Frontend Release Checks
-
-**ID:** `litespec/core/release#run-frontend-release-checks`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A frontend change MUST run frozen installation, lint, type checking, tests, and production build checks.
-
-**Rationale:** Each step guards a different failure: frozen installation pins dependencies, lint and type checking catch static defects, tests prove behavior, and the production build proves the shipped bundle compiles. A frontend that skips one arrives at release with that whole class of defect unchecked.
-
-**Reviewed for:** Does every frontend change show passing install, lint, type, test, and build results? Check the frontend reports beside the change.
-
-### Run Flow Checks
-
-**ID:** `litespec/core/release#run-flow-checks`
-
-**Strength:** required
-
-**Applies to:** artifact: record:flow
-
-**Statement:** A flow change MUST run its flow tests.
-
-**Rationale:** A flow change alters the connected path, so only a flow test through the deployed public boundary can prove it still reaches its outcome. Narrower suites keep passing while the flow itself breaks.
-
-**Reviewed for:** Does every flow change show passing flow tests? Check the flow reports against the deployed boundary.
 
 ### Check Intent and Behavior Changes with the Book
 
@@ -163,20 +121,6 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 **Rationale:** G checks read records only: shape, references, links, reachability, coverage, and the Behavior rules the check list names. Without them, a renamed record or a moved file silently breaks the references other pages rely on, and the book renders a graph that no longer holds. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
 **Checked by:** `litespec model check` exits zero when it reports no G finding, such as `record-invalid`, and the inspection was complete.
-
-### Run Extension Checks
-
-**ID:** `litespec/core/release#run-extension-checks`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A selected project or applicable local extension MUST run its stated verification when affected.
-
-**Rationale:** An extension adds behavior, tests, and operating surface beyond the baseline, and its stated verification is the only evidence written for that surface. Skipping it releases extended behavior the baseline checks never examine.
-
-**Reviewed for:** Does every affected extension show its stated verification evidence? Check the extension evidence beside the change.
 
 ### Regenerate Application Contracts
 
@@ -319,22 +263,6 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 **Rationale:** Specifications own behavior and scenarios. A release record that restates them becomes a second copy, and the copies drift until nobody knows which one holds. Linking outward keeps one home for each fact.
 
 **Reviewed for:** Does any release record restate a specification or copy a scenario? Check the record against the linked specifications.
-
-### Record Accepted Debt as a Waiver
-
-**ID:** `litespec/core/release#record-accepted-debt-as-a-waiver`
-
-**Strength:** required
-
-**Applies to:** artifact: record:waiver
-
-**Statement:** Accepted debt MUST live as a gap waiver with an `expiresOn` date, an `exit`, and `closedBy`.
-
-**Rationale:** Accepted debt with no expiry date is forgotten work. A gap waiver with an `expiresOn` date, an `exit`, and `closedBy` turns it into a dated promise whose findings are covered until the date and whose `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape.
-
-**Example:** Claimwick ships month-end export without its archive proof, so the debt lives as a gap waiver with an `expiresOn` of 2027-03-01, an `exit`, and `closedBy` naming `use-case/spending.export-expenses`; `waiver-expired` reports it after that date.
-
-**Reviewed for:** Does every accepted debt show a gap waiver with an expiry date, an exit, and `closedBy`? Check the waivers beside each debt.
 
 ### State Each Release as a Complete Record
 

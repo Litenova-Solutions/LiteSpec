@@ -4,7 +4,7 @@ using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the state-unreached and transition-unknown checks against hand-built models.</summary>
+/// <summary>Proves the state-unreached and reference-unknown checks against hand-built models.</summary>
 public sealed class LifecycleCheckTests
 {
     /// <summary>State No Transition Reaches Reports State Unreachable.</summary>
@@ -15,14 +15,10 @@ public sealed class LifecycleCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Active", "to": "Returned"}"""));
 
-        var messages = Checker.Check(model).Findings
-            .Where(finding => finding.Code == "state-unreached")
-            .Select(finding => finding.Message)
-            .ToList();
+        var finding = Assert.Single(Checker.Check(model).Findings, finding => finding.Code == "state-unreached");
 
-        Assert.Equal(2, messages.Count);
-        Assert.Contains(messages, message => message.Contains("Active", StringComparison.Ordinal));
-        Assert.Contains(messages, message => message.Contains("Overdue", StringComparison.Ordinal));
+        Assert.Contains("Active", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("Overdue", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Aggregate Without Transitions Reports Every State Unreachable.</summary>
@@ -33,16 +29,12 @@ public sealed class LifecycleCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path));
 
-        var messages = Checker.Check(model).Findings
-            .Where(finding => finding.Code == "state-unreached")
-            .Select(finding => finding.Message)
-            .ToList();
+        var finding = Assert.Single(Checker.Check(model).Findings, finding => finding.Code == "state-unreached");
 
-        Assert.Equal(3, messages.Count);
-        Assert.Contains(messages, message => message.Contains("Active", StringComparison.Ordinal));
-        Assert.Contains(messages, message => message.Contains("Overdue", StringComparison.Ordinal));
-        Assert.Contains(messages, message => message.Contains("Returned", StringComparison.Ordinal));
-        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
+        Assert.Contains("Active", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("Overdue", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("Returned", finding.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Source Only State Reports State Unreachable.</summary>
@@ -75,7 +67,7 @@ public sealed class LifecycleCheckTests
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "Returned", "to": "Overdue"}"""));
 
         Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
-        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>A State Entered Only At Creation Is Reached.</summary>
@@ -89,7 +81,7 @@ public sealed class LifecycleCheckTests
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "-", "to": "Overdue"}"""));
 
         Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
-        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Transition To A Missing State Reports Transition Unresolved.</summary>
@@ -100,7 +92,7 @@ public sealed class LifecycleCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Active", "to": "Vanished"}"""));
 
-        Assert.Contains("transition-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Transition From A Missing State Reports Transition Unresolved.</summary>
@@ -111,7 +103,7 @@ public sealed class LifecycleCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Vanished", "to": "Returned"}"""));
 
-        Assert.Contains("transition-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Transition By A Missing Use Case Reports Transition Unresolved.</summary>
@@ -124,7 +116,7 @@ public sealed class LifecycleCheckTests
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned", "movedBy": "use-case/lending.nope"}"""));
 
-        Assert.Contains("transition-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Transition By A Record That Is No Use Case Reports Transition Unresolved.</summary>
@@ -137,7 +129,7 @@ public sealed class LifecycleCheckTests
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned", "movedBy": "aggregate/lending.loan"}"""));
 
-        Assert.Contains("transition-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Transition By A Use Case Passes.</summary>
@@ -151,7 +143,7 @@ public sealed class LifecycleCheckTests
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned", "movedBy": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),
             TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.yaml"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
         Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
     }
 

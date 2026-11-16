@@ -1,44 +1,24 @@
 type: flow
-id: flow/submit-and-reimburse
-title: Submit and Reimburse
-actor: actor/employee
-summary: An employee who paid a work cost submits the expense and waits for a decision. The flow starts at the paid cost and ends when the reimbursement lands in the employee account. A good flow decides each expense within five business days, because the employee plans around the money.
+id: flow/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+actor: actor/<name>
+summary: <the path the actor takes, from its start to its end>
+# A flow carries serves or answers, never both.
 serves:
-  - goal/decided-in-days
-startedWhen: The employee has paid a work cost and has not yet submitted it.
-finishedWhen: The employee holds the reimbursement.
+- goal/<name>
+startedWhen: <the state the actor starts from>
+finishedWhen: <the state the actor ends in>
+# A step names the actor or the outside system, never both.
 steps:
 - id: s1
-  statement: The employee submits the expense with its amount and currency.
-  actor: actor/employee
+  statement: <what the actor does, in one sentence>
+  actor: actor/<name, or remove this line>
   cites:
-  - requirement/approval.above-threshold-receipt
-  - requirement/approval-reminders.month-end-submission
-- id: s2
-  statement: The employee attaches the receipt to the expense.
-  actor: actor/employee
-  cites:
-  - requirement/approval.above-threshold-receipt
-- id: s3
-  statement: The manager approves or rejects the expense.
-  actor: actor/manager
-  failure: The expense waits unseen, and the approver gets a reminder.
-  cites:
-  - requirement/approval.decided-within-five-days
-  - requirement/approval.nobody-approves-own-expense
-  - requirement/approval-reminders.remind-approver-after-three-days
-- id: s4
-  statement: Finance reimburses the approved expense.
-  actor: actor/finance
-  failure: The expense is not approved, so it waits and no payout is made.
-  cites:
-  - requirement/approval.expense-reimbursed-at-most-once
-- id: s5
-  statement: The employee watches each expense in their own list.
-  actor: actor/employee
-  cites:
-  - requirement/approval.decided-within-five-days
+  - requirement/<feature>.<name, or remove this line>
+  failure: <what goes wrong at this step, or remove this line>
 branches:
-- step: s3
-  condition: the manager rejects the expense
-  nextStep: end
+- step: s1
+  condition: <when the path differs>
+  nextStep: <s2 or end>

@@ -799,7 +799,7 @@
         "owner": "lending-team",
         "outcome": "refusal",
         "code": "lending.copy-not-available",
-        "meaning": "The copy stays unavailable and the member is told it is on loan."
+        "sentence": "This copy is on loan to another member."
       },
       "links": {}
     },
@@ -890,8 +890,16 @@
         "status": "reviewed",
         "meaning": "A copy was lent.",
         "carries": [
-          "copyId",
-          "memberId"
+          {
+            "name": "copyId",
+            "type": "id",
+            "of": "aggregate/lending.loan"
+          },
+          {
+            "name": "memberId",
+            "type": "id",
+            "of": "actor/member"
+          }
         ]
       },
       "links": {}
@@ -915,7 +923,11 @@
         "status": "reviewed",
         "meaning": "A loan approaches its due date.",
         "carries": [
-          "loanId"
+          {
+            "name": "loanId",
+            "type": "id",
+            "of": "aggregate/lending.loan"
+          }
         ]
       },
       "links": {}
@@ -1021,7 +1033,17 @@
         "auth": [
           "session"
         ],
-        "path": "/borrow"
+        "servedContent": [
+          {
+            "path": "/terms",
+            "contentType": "text/html",
+            "cacheControl": "public, max-age=3600",
+            "versioning": "content-hash",
+            "fulfills": [
+              "requirement/self-checkout.late-fee"
+            ]
+          }
+        ]
       },
       "links": {}
     },
@@ -1268,6 +1290,9 @@
         "address": "/search",
         "offers": [
           "use-case/lending.borrow-copy"
+        ],
+        "fulfills": [
+          "requirement/self-checkout.late-fee"
         ]
       },
       "links": {
@@ -1276,6 +1301,9 @@
         ],
         "offers": [
           "use-case/lending.borrow-copy"
+        ],
+        "fulfills": [
+          "requirement/self-checkout.late-fee"
         ]
       }
     },
@@ -1367,29 +1395,6 @@
       }
     },
     {
-      "type": "store",
-      "id": "store/lending.hold-notice-log",
-      "title": "Hold Notice Log",
-      "owner": "module/lending",
-      "status": "reviewed",
-      "effectiveStatus": "approved",
-      "decider": null,
-      "decideBy": null,
-      "line": 3,
-      "file": ".litespec/behavior/modules/lending/stores/hold-notice-log/hold-notice-log.yaml",
-      "fields": {
-        "type": "store",
-        "id": "store/lending.hold-notice-log",
-        "title": "Hold Notice Log",
-        "owner": "module/lending"
-      },
-      "links": {
-        "owner": [
-          "module/lending"
-        ]
-      }
-    },
-    {
       "type": "module-event",
       "id": "module-event/lending.loan-borrowed",
       "title": "Loan Borrowed",
@@ -1406,6 +1411,10 @@
         "title": "Loan Borrowed",
         "translates": [
           "domain-event/loan.loan-borrowed"
+        ],
+        "fields": [
+          "copyId",
+          "memberId"
         ]
       },
       "links": {
@@ -1522,7 +1531,9 @@
         "kind": "requirement",
         "reached": true,
         "reachedBy": [
-          "rule/loan.late-fee"
+          "entry-point/library-app",
+          "rule/loan.late-fee",
+          "screen/library-app.search"
         ]
       },
       {
@@ -1562,5 +1573,12 @@
         "reachedBy": []
       }
     ]
-  }
+  },
+  "refusals": [
+    {
+      "code": "lending.copy-not-available",
+      "meaning": "The copy stays unavailable and the member is told it is on loan."
+    }
+  ],
+  "problemTypeBase": "https://library.example/problems/"
 }

@@ -31,7 +31,7 @@ Host every screen in one activity with one navigation controller. This satisfies
 
 ### Record the Minimum Android Version
 
-Use the Android API level pinned in `litespec.manifest.yaml` for the minimum version the app declares. This satisfies `litespec/core/stacks#use-manifest-version-pins`.
+Use the Android API level pinned in `litespec.manifest.yaml` for the minimum version the app declares. This satisfies `litespec/core/principles#locate-package-versions-in-the-manifest`.
 
 ## Check
 

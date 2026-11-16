@@ -4,7 +4,7 @@
 
 **Concern:** frontend-ui
 
-An expenses list shows many records of one kind so a reader can find one expense, compare rows, and act on them. This page settles the recurring questions every such list asks, with one wireframe drawing per option to choose from. A team building a list screen starts from these patterns, the owner picks an option, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared answer per question keeps every list behaving the same way, so a reader who learns one list knows them all.
+An expenses list shows many records of one kind so a reader can find one expense, compare rows, and act on them. This page settles the recurring questions every such list asks, with one wireframe drawing per option to choose from. A team building a list screen starts from these patterns, the owner picks an option, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared answer per question keeps every list behaving the same way, so a reader who learns one list knows them all. This page belongs to the Lists and Tables category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -14,41 +14,19 @@ Each pattern answers one recurring question about lists, such as which columns a
 
 ### The Running Example
 
-Every drawing on this page uses one example: the Claimwick expenses list for Harbor and Pine. It holds 268 expenses across many spenders and trips, and expense EXP-1042 for Ava serves as the example row. Filters, sorting, and paging narrow the list, and the money column shows amounts such as EUR 125.00. Five rules in the Standards section hold for every option on the page: the list view lives in the address, money columns align right with their currency, the sorted column carries its mark, the result count is announced, and a scrolling table sits in a named region.
+Every drawing on this page uses one example: the Claimwick expenses list for Harbor and Pine. It holds 268 expenses across many spenders and trips, and expense EXP-1042 for Ava serves as the example row. Filters, sorting, and paging narrow the list, and the money column shows amounts such as EUR 125.00. Three defaults in the Conventions section hold for every option on the page unless the project records another choice: the sorted column carries its mark, the result count is announced, and a scrolling table sits in a named region. The list view lives in the address under `litespec/frontend/rendering#validate-address-parameters-with-a-schema`, and money columns show their currency and align by place under `litespec/frontend/patterns/money-time-density#show-the-currency-of-every-amount` and `litespec/frontend/patterns/money-time-density#align-figures-in-a-column`.
 
-## Standards
-
-### Keep a List's View in Its Address
-
-**ID:** `litespec/frontend/patterns/lists-and-tables#keep-a-lists-view-in-its-address`
-
-**Strength:** required
-
-**Statement:** A list MUST keep its filters, sort order, and page in the URL, and its expanded groups where it groups rows.
-
-**Rationale:** Readers pass list views around: they open one expense and come back, they refresh, and they paste a link to a colleague. When the filters, sort order, page, and expanded groups live in the URL, each of these returns to the same rows. Without that, opening one record wipes out the filters the reader set, and a pasted link opens the unfiltered first page instead of the rows under discussion.
-
-**Reviewed for:** Does every built list keep its filters, sort, page, and expanded groups after a reload? Change the view on each built list and reload the address.
-
-### Align Money to the Right with Its Currency
-
-**ID:** `litespec/frontend/patterns/lists-and-tables#align-money-to-the-right-with-its-currency`
-
-**Strength:** required
-
-**Statement:** A table MUST right-align a money column and show the currency of every amount in it.
-
-**Rationale:** Right alignment lines up place value down the column, so a reader compares hundreds against thousands at a glance instead of reading each figure digit by digit. Showing the currency on every amount keeps EUR 125.00 distinct from a bare 125.00, so an export or a screenshot never leaves finance guessing which money it shows.
-
-**Reviewed for:** Does every built money column right-align its figures and show a currency on each? Open the money columns on built tables.
+## Conventions
 
 ### Mark the Sorted Column
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#mark-the-sorted-column`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A sortable column header MUST be a button inside its header cell, with `aria-sort` and its direction on the sorted column only.
+**Default:** Make a sortable column header a button inside its header cell, with `aria-sort` and its direction on the sorted column only.
+
+**Replacement:** A project that replaces the default records how its sortable headers expose the sorted column.
 
 **Rationale:** A screen-reader user needs to hear which column orders the list and to change it like any other button. A header drawn as plain text hides the sorting, and a sorted column with no mark keeps the order silent even though the rows follow it. A button inside the header cell lets the reader change the order, and `aria-sort` with its direction on the sorted column announces which column orders the list. This is WCAG 1.3.1 Info and Relationships.
 
@@ -58,9 +36,11 @@ Every drawing on this page uses one example: the Claimwick expenses list for Har
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#announce-a-lists-result-count`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A list MUST announce its result count after a filter or search and its selection total after a selection changes, once per change through the page's polite status region.
+**Default:** Announce a list result count after a filter or search and its selection total after a selection changes, once per change through the page's polite status region.
+
+**Replacement:** A project that replaces the default records how its lists announce counts and selections.
 
 **Rationale:** A filter narrows 268 expenses to 58, and a screen-reader user reading that list hears nothing: the rows changed under them. A bulk selection of "3 selected, EUR 412.00" stays silent too, so the reader acts without knowing the scope. Announcing the result count after each filter or search, and the selection total after each selection change, through the page's polite status region, keeps the reader informed of both. Announce once per change, through the region in `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`. This is WCAG 4.1.3 Status Messages.
 
@@ -70,15 +50,15 @@ Every drawing on this page uses one example: the Claimwick expenses list for Har
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#make-a-scrolling-table-a-named-region`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A table that scrolls sideways MUST sit in a named region that takes keyboard focus and shows a cue at each edge it can still scroll.
+**Default:** Place a table that scrolls sideways in a named region that takes keyboard focus and shows a cue at each edge it can still scroll.
+
+**Replacement:** A project that replaces the default records how its scrolling tables expose their overflow.
 
 **Rationale:** A sideways scroll without a focus stop is pointer-only, so a keyboard user on a 390 px screen has no other way to reach the columns past the edge. Without a cue at the edge, a sighted user has no sign that more columns exist. A named region gives the table a stop in the tab order and a name for assistive technology, and the edge cue shows there is more to scroll to. This is WCAG 2.1.1 Keyboard.
 
 **Reviewed for:** Does every built sideways-scrolling table take keyboard focus, carry a name, and show a cue at each edge it can still scroll? Open built wide tables at 390 px and tab to each table edge.
-
-## Conventions
 
 ### Keep the Header Row in View
 

@@ -235,7 +235,7 @@ public sealed class WaiverCheckTests
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,
-            found => found.Code is "record-invalid" or "field-invalid" && found.Subject == waiver.Id);
+            found => found.Code is "record-invalid" or "record-invalid" && found.Subject == waiver.Id);
     }
 
     /// <summary>A lasting waiver carrying an expiry date reports record-invalid.</summary>
@@ -274,7 +274,7 @@ public sealed class WaiverCheckTests
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,
-            found => found.Code is "record-invalid" or "field-invalid" && found.Subject == waiver.Id);
+            found => found.Code is "record-invalid" or "record-invalid" && found.Subject == waiver.Id);
     }
 
     /// <summary>Two live waivers covering one finding on one subject report waiver-duplicate on the later waiver.</summary>

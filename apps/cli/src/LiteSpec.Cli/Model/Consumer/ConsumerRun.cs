@@ -155,7 +155,6 @@ sealed class ConsumerRun
 
 
         PageChecks.CheckPages(this);
-        ManifestSelectionChecks.CheckStageDeferrals(this);
         GlossaryChecks.CheckGlossary(this);
 
         ControlledUiChecks.CheckControlledUi(this);
@@ -163,8 +162,8 @@ sealed class ConsumerRun
 
     /// <summary>
     ///     Records one finding. Every finding carries its code, level, path, line
-    ///     and subject, the one finding shape the model check reports. Consumer
-    ///     findings read pages only and always block, so G.
+    ///     and subject, the one finding shape the model check reports. The level
+    ///     is the one the finding code table states for the code.
     /// </summary>
     /// <param name="finding">The finding to record.</param>
     public void Err(Finding finding) => Errors.Add(finding);

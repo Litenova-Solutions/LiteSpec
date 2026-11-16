@@ -18,7 +18,7 @@ Enable `concurrency` when accepted writes can conflict with each other, or when 
 
 This extension replaces no baseline provision. `litespec/ext/concurrency#return-precondition-outcomes` adds the 428 outcome for a missing precondition to the outcome table that `litespec/backend/api#use-consistent-status-codes` owns.
 
-Selecting this extension switches on the `setting` record type: key retention is a setting record under `litespec/ext/concurrency#set-key-retention`.
+Selecting this extension switches on the `setting` record type: key retention is a setting record under `litespec/ext/concurrency#set-key-retention`. It also adds the `conflicts` field on command use cases.
 
 The client-key standards apply to operations whose `idempotency.mode` is `key`. Every stored aggregate already carries a version the store compares at commit, under `litespec/backend/persistence#version-every-aggregate`; the version standards on this page govern what the caller sees for a conflict.
 
@@ -32,13 +32,13 @@ The client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Applies to:** artifact: record:use-case; layer: behavior
 
-**Statement:** A command that can conflict with another accepted write MUST state `conflicts` naming what conflicts in `on`, which write wins in `winner`, and the refusal code the loser gets in `refusal`.
+**Statement:** In a project selecting `concurrency`, a command that can conflict with another accepted write MUST state `conflicts` naming what conflicts in `on`, which write wins in `winner`, and the refusal code the loser gets in `refusal`.
 
-**Rationale:** Version coordination exists to protect one invariant. The `on` entry names the conflicting operations and the invalid combined result they would leave, so an implementation distinguishes a conflict it rejects from contention it absorbs. The `winner` entry names which write wins: `first-write` keeps the accepted change and refuses the late write, `last-write` lets the late write replace the accepted change, and `merge` combines both writes. The `refusal` entry names the refusal code the loser gets from the module's refusal set, so the caller learns the loss as a declared refusal with its stable code.
+**Rationale:** Version coordination exists to protect one invariant. The `on` entry names the conflicting operations and the invalid combined result they would leave, so an implementation distinguishes a conflict it rejects from contention it absorbs. The `winner` entry names which write wins: `first-write` keeps the accepted change and refuses the late write, `last-write` lets the late write replace the accepted change, and `merge` combines both writes. The `refusal` entry names the refusal code the loser gets from the module's refusal set, so the caller learns the loss as a declared refusal with its stable code. The `conflicts` field belongs to this extension: a project that selects `concurrency` writes it on every command whose writes can conflict, and a project that does not select it leaves the field out.
 
 **Example:** Claimwick's approve-expense command states `conflicts` with `on` naming a second approval of the same expense, `winner: first-write`, and `refusal` naming the approve conflict code the late approval gets.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a `conflicts` entry that names no `on`, no `winner`, or no `refusal`, or a `winner` outside `first-write`, `last-write`, and `merge`.
+**Checked by:** `litespec model check` reports `field-extension-unselected` for a `conflicts` entry written when `concurrency` is not selected, and `record-invalid` for a `conflicts` entry that names no `on`, no `winner`, or no `refusal`, or a `winner` outside `first-write`, `last-write`, and `merge`.
 
 ### Require Caller Versions Only for Declared Conflicts
 

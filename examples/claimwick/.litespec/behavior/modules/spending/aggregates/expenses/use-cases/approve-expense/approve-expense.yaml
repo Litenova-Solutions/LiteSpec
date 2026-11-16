@@ -30,9 +30,6 @@ idempotency:
   reason: the first approval moves the expense out of the submitted state, so the aggregate refuses a second approval
   replay: refuses
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
 records:
 - type: result
   id: result/approve-expense.approved
@@ -44,7 +41,6 @@ records:
   title: Own Expense
   outcome: refusal
   code: spending.own-expense
-  meaning: The approver submitted the expense.
   sentence: You submitted this expense, so another manager must decide it.
   sentences:
     nl: Je hebt deze uitgave zelf ingediend, dus een andere manager moet erover beslissen.
@@ -53,7 +49,6 @@ records:
   title: Not Submitted
   outcome: refusal
   code: spending.not-submitted
-  meaning: The expense is already decided.
   sentence: This expense is already decided, so there is nothing to approve.
   sentences:
     nl: Over deze uitgave is al beslist, dus er valt niets meer goed te keuren.

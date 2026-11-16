@@ -37,7 +37,7 @@ public sealed class SeverityMatrixTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A blocking finding reports an error")]
     public Task BlockingFindingReportsError() =>
-        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+        Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
             [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
@@ -47,7 +47,7 @@ public sealed class SeverityMatrixTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An editorconfig lowering turns the error into a warning")]
     public Task EditorconfigLoweringReportsWarning() =>
-        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+        Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
             [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Warning"))],
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application",
@@ -58,7 +58,7 @@ public sealed class SeverityMatrixTests
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact(DisplayName = "A waiver covering the file stays silent")]
     public Task WaiverCoveringFileStaysSilent() =>
-        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+        Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
             [("Source.cs", """
                 using System;
 
@@ -70,11 +70,17 @@ public sealed class SeverityMatrixTests
 
                 public sealed class SubmitExpenseCommandResult;
 
+                internal sealed class ImplementsAttribute : Attribute
+                {
+                    public ImplementsAttribute(string id) { }
+                }
+
+                [Implements("use-case/spending.submit-expense")]
                 internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"])],
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], paths: ["Source.cs"])],
             assemblyName: "Shop.Application");
 
     /// <summary>A lasting waiver, with no expiry date, covers the file and stays silent.</summary>
@@ -82,7 +88,7 @@ public sealed class SeverityMatrixTests
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact(DisplayName = "A lasting waiver covering the file stays silent")]
     public Task LastingWaiverCoveringFileStaysSilent() =>
-        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+        Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
             [("Source.cs", """
                 using System;
 
@@ -94,11 +100,17 @@ public sealed class SeverityMatrixTests
 
                 public sealed class SubmitExpenseCommandResult;
 
+                internal sealed class ImplementsAttribute : Attribute
+                {
+                    public ImplementsAttribute(string id) { }
+                }
+
+                [Implements("use-case/spending.submit-expense")]
                 internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"], expiresOn: null)],
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], paths: ["Source.cs"], expiresOn: null)],
             assemblyName: "Shop.Application");
 
     /// <summary>A waiver covering the subject stays silent.</summary>
@@ -106,7 +118,7 @@ public sealed class SeverityMatrixTests
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact(DisplayName = "A waiver covering the subject stays silent")]
     public Task ExceptionCoveringSubjectStaysSilent() =>
-        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+        Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
             [("Source.cs", """
                 using System;
 
@@ -136,7 +148,7 @@ public sealed class SeverityMatrixTests
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact(DisplayName = "An expired waiver covers nothing")]
     public Task ExpiredWaiverCoversNothing() =>
-        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+        Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
             [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
             [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], expiresOn: "2000-01-01")],
             assemblyName: "Shop.Application");
@@ -146,25 +158,25 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "The traceability context is shared per compilation")]
     public void ContextIsSharedPerCompilation()
     {
-        var store = StoreWith([ProjectFile(), UseCase()]);
+        var records = RecordsWith([ProjectFile(), UseCase()]);
         var compilation = CSharpCompilation.Create("Shop.Application");
 
-        var first = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, store);
-        var second = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, store);
+        var first = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, records);
+        var second = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, records);
 
         Assert.Same(first, second);
         Assert.True(TraceabilityContext.TryGet(compilation, out var cached));
         Assert.Same(first, cached);
     }
 
-    /// <summary>The hoisted covered sets match the store.</summary>
+    /// <summary>The hoisted covered sets match the records.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "The hoisted covered sets match the store")]
-    public void HoistedCoveredSetsMatchStore()
+    [Fact(DisplayName = "The hoisted covered sets match the records")]
+    public void HoistedCoveredSetsMatchRecords()
     {
-        var store = StoreWith([ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"], id: "waiver/marks-deferred"), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "waiver/marks-styled"), Waiver(["mark-missing"], paths: ["Old.cs"], id: "waiver/old-marks", expiresOn: "2000-01-01")]);
+        var records = RecordsWith([ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"], id: "waiver/marks-deferred"), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "waiver/marks-styled"), Waiver(["mark-missing"], paths: ["Old.cs"], id: "waiver/old-marks", expiresOn: "2000-01-01")]);
         var compilation = CSharpCompilation.Create("Shop.Application");
-        var context = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, store);
+        var context = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, records);
 
         var byFile = new Finding("mark-missing", "Missing.", "Source.cs", 1, null);
         var byGap = new Finding("mark-style-invalid", "Mixed.", "Other.cs", 1, "use-case/spending.submit-expense");
@@ -175,13 +187,13 @@ public sealed class SeverityMatrixTests
         Assert.True(context.IsKnown(byGap));
         Assert.False(context.IsKnown(open));
         Assert.False(context.IsKnown(expired));
-        Assert.Equal(store.IsKnown(byFile), context.IsKnown(byFile));
-        Assert.Equal(store.IsKnown(byGap), context.IsKnown(byGap));
-        Assert.Equal(store.IsKnown(open), context.IsKnown(open));
-        Assert.Equal(store.IsKnown(expired), context.IsKnown(expired));
+        Assert.Equal(records.IsKnown(byFile), context.IsKnown(byFile));
+        Assert.Equal(records.IsKnown(byGap), context.IsKnown(byGap));
+        Assert.Equal(records.IsKnown(open), context.IsKnown(open));
+        Assert.Equal(records.IsKnown(expired), context.IsKnown(expired));
     }
 
-    private static CompilationRecords StoreWith(IReadOnlyList<(string Path, string Source)> files)
+    private static CompilationRecords RecordsWith(IReadOnlyList<(string Path, string Source)> files)
     {
         var records = new List<RecordFile>();
 
@@ -190,10 +202,10 @@ public sealed class SeverityMatrixTests
             records.Add(new RecordFile(file.Path, file.Source));
         }
 
-        var store = CompilationRecords.Load(records);
+        var loaded = CompilationRecords.Load(records);
 
-        Assert.NotNull(store);
+        Assert.NotNull(loaded);
 
-        return store!;
+        return loaded!;
     }
 }

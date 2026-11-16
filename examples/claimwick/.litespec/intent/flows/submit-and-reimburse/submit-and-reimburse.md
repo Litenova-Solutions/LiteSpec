@@ -11,6 +11,7 @@ Ava paid a 48.90 EUR train fare for a client visit and has not submitted it yet.
 3. Ben approves the fare within the 5 business days.
 4. Cara reimburses the approved fare on Friday.
 5. Ava sees the expense as paid in her list.
+6. Ben sets whether he gets a reminder for a waiting expense.
 
 ## Branches
 

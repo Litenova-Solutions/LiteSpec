@@ -5,7 +5,7 @@
 
 A dialog, drawer, popover, menu, toast, context menu, shortcut overlay, bottom sheet, or persistent bar floats above or beside the page to confirm, edit, preview, or announce without a full navigation.
 
-Each pattern states when its overlay fits and how the overlay opens, holds focus, and closes. Each pattern draws its options as wireframes and names the default to build, and the Standards section states the rules every option keeps. The product owner picks among the options in the pattern catalog when the team adds a confirmation, a side preview, or another floating layer.
+Each pattern states when its overlay fits and how the overlay opens, holds focus, and closes. Each pattern draws its options as wireframes and names the default to build, and the Conventions section states the defaults every option keeps unless the project records another choice. The product owner picks among the options in the pattern catalog when the team adds a confirmation, a side preview, or another floating layer. This page belongs to the Feedback and States category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -23,17 +23,19 @@ The project records its choice for each pattern in its pattern catalog and build
 
 The drawings use the Claimwick payout desk: the March payout run with 1,204 payouts, expenses such as EXP-1042 for Ava, and the reversal and note commands staff run on them. The reader of each screen is the staff member using it.
 
-Eight rules hold on every option, and the Standards section states them. A confirmation dialog labels its confirm action with the command it runs, and an overlay returns focus to the control that opened it. A dialog or drawer keeps unsaved input through a dismissal, and a confirmation for a command that cannot be taken back opens with focus on its safe action. Tab leaves a menu or popover, a timed toast pauses while in use, a toast waits while a modal is open, and the page behind a modal keeps its scroll position and layout width.
+Eight defaults hold on every option unless the project records another choice, and the Conventions section states them. A confirmation dialog labels its confirm action with the command it runs, and an overlay returns focus to the control that opened it. A dialog or drawer keeps unsaved input through a dismissal, and a confirmation for a command that cannot be taken back opens with focus on its safe action. Tab leaves a menu or popover, a timed toast pauses while in use, a toast waits while a modal is open, and the page behind a modal keeps its scroll position and layout width.
 
-## Standards
+## Conventions
 
 ### Name the Command on a Confirm Action
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#name-the-command-on-a-confirm-action`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A confirmation dialog MUST label its confirm action with the command it runs.
+**Default:** Label the confirm action of a confirmation dialog with the command it runs.
+
+**Replacement:** A project that replaces the default records the label its confirm actions use.
 
 **Rationale:** Staff often scan only the buttons before clicking, so the button text is the last chance to say what happens. A button labeled `OK` or `Yes` forces the reader to reread the dialog title to learn what they are confirming, and under time pressure they click without rereading and run the wrong command.
 
@@ -43,9 +45,11 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#return-focus-when-an-overlay-closes`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** An overlay MUST return focus to the control that opened it when it closes.
+**Default:** Return focus to the control that opened an overlay when the overlay closes.
+
+**Replacement:** A project that replaces the default records where its focus lands after an overlay closes.
 
 **Rationale:** Keyboard and screen-reader users navigate by focus position, so closing an overlay must put them back where they started. Focus that falls back to the top of the page strands them far from their row in a long list, and they must tab through the whole page to continue.
 
@@ -55,9 +59,11 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#keep-unsaved-input-through-a-dismissal`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A dialog or drawer holding unsaved input MUST ignore a press outside it and ask before its close control or the Escape key discards that input.
+**Default:** Ignore a press outside a dialog or drawer holding unsaved input, and ask before its close control or the Escape key discards that input.
+
+**Replacement:** A project that replaces the default records how its dialogs treat unsaved input on dismissal.
 
 **Rationale:** A stray click beside a half-typed payout note wipes out the work, and retyping it from memory invites errors. Ignoring the stray press, and asking before the close control or the Escape key discards anything, gives the reader one chance to keep what was typed. For money movements this is WCAG 3.3.4 Error Prevention (Legal, Financial, and Data), which asks that the reader verify, check, or reverse the submission.
 
@@ -67,9 +73,11 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#place-initial-focus-on-the-safe-action`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A confirmation for a command that cannot be taken back MUST place initial focus on its safe action.
+**Default:** Place initial focus on the safe action of a confirmation for a command that cannot be taken back.
+
+**Replacement:** A project that replaces the default records where its confirmations place initial focus.
 
 **Rationale:** When focus lands on the destructive button, a held Enter key runs the command before the reader has read the question. Starting on the safe action, such as `Keep the run`, makes the command take a deliberate move, so a hurried reader confirms nothing by accident.
 
@@ -79,9 +87,11 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#keep-tab-free-to-leave-a-menu-or-popover`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** Tab MUST move focus out of an open menu or a non-modal popover and close it.
+**Default:** Move focus out of an open menu or a non-modal popover with Tab and close it.
+
+**Replacement:** A project that replaces the default records how its menus and popovers treat Tab.
 
 **Rationale:** A menu that keeps Tab cycling inside it strands a keyboard user on one row of the payout list. Only a modal dialog or drawer holds focus inside itself, because the page behind it waits until it closes. Anything less than a modal that traps Tab fails WCAG 2.1.2 No Keyboard Trap.
 
@@ -91,9 +101,11 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#pause-a-timed-toast-while-it-is-in-use`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A toast that closes on a timer MUST pause that timer while the pointer is over it or focus is inside it.
+**Default:** Pause the timer of a toast that closes on a timer while the pointer is over it or focus is inside it.
+
+**Replacement:** A project that replaces the default records how its timed toasts treat use.
 
 **Rationale:** An Undo that disappears while the reader moves toward it is lost, and the command it would have reversed stands. Pausing the timer while the toast is in use gives the reader the time the movement takes. This is WCAG 2.2.1 Timing Adjustable, which asks that a time limit be adjustable, extendable, or removable.
 
@@ -103,11 +115,11 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#hold-a-toast-while-a-modal-is-open`
 
-**Strength:** advisory
+**Strength:** default
 
-**Statement:** A toast raised while a modal dialog is open SHOULD wait until the dialog closes.
+**Default:** Hold a toast raised while a modal dialog is open until the dialog closes.
 
-**Deviation:** A toast that reports the result of the command the open dialog just sent shows with the dialog.
+**Replacement:** A project that replaces the default records where its toasts land while a modal is open.
 
 **Rationale:** The page behind a modal is inert, so a toast raised over it can be neither read nor used. Waiting until the dialog closes delivers the message when the reader can read and act on it.
 
@@ -117,11 +129,11 @@ Eight rules hold on every option, and the Standards section states them. A confi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#keep-the-page-behind-a-modal-still`
 
-**Strength:** advisory
+**Strength:** default
 
-**Statement:** The page behind a modal overlay SHOULD keep its scroll position and its layout width while the overlay opens and closes.
+**Default:** Keep the scroll position and the layout width of the page behind a modal overlay while the overlay opens and closes.
 
-**Deviation:** A page that rebuilds its layout while the overlay is open keeps its new scroll position and width.
+**Replacement:** A project that replaces the default records how its pages treat scroll and width behind a modal.
 
 **Rationale:** When the page jumps or shifts sideways as the overlay opens, the reader loses their row in the list behind. Keeping the scroll position and the layout width holds their place through the interruption, so closing the overlay returns to the same view, not a nearby one.
 

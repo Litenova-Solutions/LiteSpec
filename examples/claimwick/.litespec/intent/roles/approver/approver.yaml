@@ -7,3 +7,4 @@ allows:
 - permission/approve-expense
 - permission/list-expenses
 - permission/manage-policy
+- permission/manage-reminder-preference

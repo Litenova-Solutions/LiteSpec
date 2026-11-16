@@ -73,7 +73,7 @@ static class BookSiteBuilder
         BookShards.AddShard(
             files,
             "manifest",
-            ManifestJson(store, outline, layers, shardOf, searchKeys, links, generatedOn, claims, coverage));
+            ManifestJson(store, outline, layers, shardOf, searchKeys, links, generatedOn, claims, coverage, CompleteOf(details)));
 
         var project = ProjectOf(store);
         var totals = TotalsOf(store);
@@ -96,7 +96,7 @@ static class BookSiteBuilder
         var line = $"{target}: {build.Records} records, {build.Shards} shards.";
         if (build.Unplaced.Count > 0)
         {
-            line += $" Unplaced (record-parent-missing): {string.Join(", ", build.Unplaced)}.";
+            line += $" Unplaced (record-placement-invalid): {string.Join(", ", build.Unplaced)}.";
         }
 
         return line;
@@ -125,6 +125,35 @@ static class BookSiteBuilder
 
         return ("", "");
     }
+
+    /// <summary>
+    ///     How many records are complete: a record expecting nothing is complete, and one
+    ///     expecting code or tests is complete when it has them and its scenarios pass. The
+    ///     builder counts every record once, so the book shows one number whatever it has loaded.
+    /// </summary>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <returns>The number of complete records.</returns>
+    static int CompleteOf(IReadOnlyDictionary<string, JsonObject> details) =>
+        details.Values.Count(detail =>
+        {
+            if (detail["completion"] is not JsonObject completion)
+            {
+                return true;
+            }
+
+            if (completion["hasCode"] is JsonValue code && code.GetValue<bool>() == false)
+            {
+                return false;
+            }
+
+            if (completion["hasTests"] is JsonValue tests && tests.GetValue<bool>() == false)
+            {
+                return false;
+            }
+
+            return completion["scenarios"] is not JsonObject scenarios
+                || (scenarios["pass"]?.GetValue<int>() ?? 0) >= (scenarios["of"]?.GetValue<int>() ?? 0);
+        });
 
     /// <summary>The record count per record type.</summary>
     /// <param name="store">The model object that holds the records array.</param>
@@ -195,6 +224,7 @@ static class BookSiteBuilder
     /// <param name="generatedOn">The build time in UTC, in ISO 8601 form.</param>
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="coverage">The computed Intent coverage status.</param>
+    /// <param name="complete">How many records the builder counts complete.</param>
     /// <returns>The manifest shard value.</returns>
     static JsonObject ManifestJson(
         JsonObject store,
@@ -205,7 +235,8 @@ static class BookSiteBuilder
         string? links,
         string generatedOn,
         LayerClaims claims,
-        IntentCoverage coverage)
+        IntentCoverage coverage,
+        int complete)
     {
         var project = ProjectOf(store);
         var counts = TotalsOf(store);
@@ -236,6 +267,7 @@ static class BookSiteBuilder
             ["intentCoverage"] = BookIntentCoverage.SummaryJson(coverage),
             ["testRun"] = claims.Proof is null ? JsonNode.Parse("null")! : store["testRun"]?.DeepClone() ?? JsonNode.Parse("null")!,
             ["totals"] = totals,
+            ["complete"] = complete,
             ["layers"] = layers,
             ["shardOf"] = map,
             ["search"] = new JsonArray([.. searchKeys.Select(key => (JsonNode?)key)]),

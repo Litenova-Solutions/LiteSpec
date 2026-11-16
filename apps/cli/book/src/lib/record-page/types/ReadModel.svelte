@@ -20,7 +20,7 @@
   const removedBy = $derived(stringList(f, "removedBy"));
   const fields = $derived(objectList(f, "fields"));
 
-  // A "from" value names the module event or integration event and the payload field, as module-event/<module>.<name>#field.
+  // A "from" value names the module event or integration event and the published field, as module-event/<module>.<name>#field.
   function fromHtml(from: string | undefined): string {
     const [event = "", field = ""] = (from ?? "").split("#");
     const link = event ? refLink(book, event) : "";

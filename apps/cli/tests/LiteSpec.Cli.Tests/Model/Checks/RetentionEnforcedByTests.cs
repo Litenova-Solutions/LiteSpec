@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Support;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -14,7 +15,9 @@ public sealed class RetentionEnforcedByTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), DataClass("record-expiry")));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), DataClass("record-expiry")),
+            PrivacyBasis(temp.Path),
+            BorrowedDomainEvent(temp.Path));
 
         Assert.Contains(
             Checker.Check(model).Findings,
@@ -29,7 +32,9 @@ public sealed class RetentionEnforcedByTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), DataClass("job/lending.erase-expired-borrower")));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), DataClass("job/lending.erase-expired-borrower")),
+            PrivacyBasis(temp.Path),
+            BorrowedDomainEvent(temp.Path));
 
         Assert.Contains(
             Checker.Check(model).Findings,
@@ -49,7 +54,7 @@ public sealed class RetentionEnforcedByTests
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,
-            finding => finding.Code is "field-invalid" or "reference-unknown" && finding.Message.Contains("enforcer", StringComparison.Ordinal));
+            finding => finding.Code is "record-invalid" or "reference-unknown" && finding.Message.Contains("enforcer", StringComparison.Ordinal));
     }
 
     /// <summary>A data class enforcer that names a record of another type reports.</summary>
@@ -60,11 +65,13 @@ public sealed class RetentionEnforcedByTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), DataClass("aggregate/lending.loan")));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), DataClass("aggregate/lending.loan")),
+            PrivacyBasis(temp.Path),
+            BorrowedDomainEvent(temp.Path));
 
         Assert.Contains(
             Checker.Check(model).Findings,
-            finding => finding.Code == "field-invalid" && finding.Message.Contains("names enforcer 'aggregate/lending.loan', which is a aggregate", StringComparison.Ordinal));
+            finding => finding.Code == "record-invalid" && finding.Message.Contains("names enforcer 'aggregate/lending.loan', which is a aggregate", StringComparison.Ordinal));
     }
 
     private static string DataClass(string enforcer) =>
@@ -74,4 +81,22 @@ public sealed class RetentionEnforcedByTests
            "onErasure": "erase", "basis": ["constraint/borrower-privacy"], "purpose": "Keep the borrower identity for the loan file.",
            "period": "P7Y", "periodStartsAt": "domain-event/lending.loan-borrowed", "enforcedBy": ["{{enforcer}}"]}]}
         """;
+
+    /// <summary>The constraint the data classes name as their retention basis.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <returns>The constraint record.</returns>
+    private static Record PrivacyBasis(string root) => TestModel.Record(
+        "constraint",
+        "constraint/borrower-privacy",
+        Path.Combine(root, "privacy.yaml"),
+        """{"authority": "The library privacy law.", "sources": ["Library privacy act 2024"], "kind": "legal", "applies": true, "appliesBecause": "The library holds borrower identity."}""");
+
+    /// <summary>The domain event the data classes count their retention period from.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <returns>The domain event record.</returns>
+    private static Record BorrowedDomainEvent(string root) => TestModel.Record(
+        "domain-event",
+        "domain-event/lending.loan-borrowed",
+        Path.Combine(root, "borrowed.yaml"),
+        """{"meaning": "A copy was lent.", "carries": [{"name": "loanId", "type": "id"}]}""");
 }

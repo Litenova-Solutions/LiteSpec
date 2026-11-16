@@ -4,7 +4,7 @@ Submit expense is the Claimwick use case that files a work expense so it can be 
 
 ## The Record
 
-The use case record names what the use case does and what it touches: the grant, the flow step it serves, the entry point that reaches it, the domain event it raises, the aggregate it writes, and the policy and setting it reads:
+The use case record names what the use case does and what it touches: the grant, the flow step it serves, the entry point that reaches it, the domain event it raises, the aggregate it writes, and the policy it reads:
 
 ```yaml
 type: use-case
@@ -28,7 +28,6 @@ writes:
 - aggregate/spending.expense
 reads:
 - aggregate/spending.policy
-- setting/spending.receipt-threshold
 ```
 
 The file also declares the input, the idempotency, and the results. The input carries a `requestId` the app mints for each submission attempt, the amount, the currency, and an optional receipt. Idempotency is `key` on `{requestId}`, scoped to the account, with `returns-first-result` replay: a retried request returns the first result instead of minting a second expense.

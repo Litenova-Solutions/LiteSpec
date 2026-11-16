@@ -8,4 +8,5 @@ allows:
 - permission/list-expenses
 - permission/list-reimbursed-expenses
 - permission/export-expenses
+- permission/manage-reminder-preference
 - permission/remove-personal-data

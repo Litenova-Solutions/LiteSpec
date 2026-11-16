@@ -12,6 +12,7 @@ layers:
   behavior: litespec
   implementation: litespec
   proof: litespec
+problemTypeBase: https://claimwick.dev/problems/
 reviewedLiteSpecVersion: 7.0.0
 paths:
   docs: .litespec

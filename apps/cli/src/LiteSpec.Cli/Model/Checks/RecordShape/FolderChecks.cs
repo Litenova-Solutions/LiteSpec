@@ -49,7 +49,7 @@ internal static class FolderChecks
         "model", "book",
     };
 
-    /// <summary>Reports folder-invalid, module-undeclared and record-placement-invalid.</summary>
+    /// <summary>Reports record-placement-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -137,7 +137,7 @@ internal static class FolderChecks
                     }
 
                     findings.Add(new Finding(
-                        "folder-invalid",
+                        "record-placement-invalid",
                         $"Folder '{PathText.Relative(model.Config.Root, directory)}' sits outside the closed folder set of its layer and level.",
                         directory,
                         1,
@@ -161,7 +161,7 @@ internal static class FolderChecks
             if (!declared.Contains(name))
             {
                 findings.Add(new Finding(
-                    "module-undeclared",
+                    "record-placement-invalid",
                     $"Module folder '{PathText.Relative(model.Config.Root, directory)}' names no declared module.",
                     directory,
                     1,
@@ -509,7 +509,7 @@ internal static class FolderChecks
         if (!record.IsEntry && RecordFolders.FolderMismatch(record.Type, folders, fileName))
         {
             findings.Add(new Finding(
-                "record-folder-drift",
+                "record-placement-invalid",
                 $"{Label(record.Type)} '{record.Id}' sits in folder '{folders[folders.Length - 1]}', but its file is '{fileName}'; the folder must carry the file's name.",
                 record.File, record.Line, SubjectOf(record)));
         }

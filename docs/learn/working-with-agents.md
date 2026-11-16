@@ -78,8 +78,6 @@ Each agent reads its own entry file, so the project bridges each one to the shar
 
 Adding new intent to a running project follows the one sequence under [New Intent in a Running Project](../core/agent.md#new-intent-in-a-running-project) on the agent page. That page states the only order; this page adds no other.
 
-For any task, the agent reads the project's `AGENTS.md` and `.litespec/project.yaml`, queries the model for the records the task touches, runs `litespec rules <path>` for the files it will edit, reads the pages `rules` cites, and looks at neighboring code after the standards. Before editing, the agent also reads `git status`, so unrelated work in the tree stays untouched. When the change touches an extension's boundary, the agent reads the selected extension before it edits.
-
 The diagram below shows that order, and where the agent stops for a person instead of deciding alone.
 
 ![The agent reads the project files, queries the records, reads the rules for its files, the standards pages the rules cite, extensions, and neighboring code, then changes, checks, and reports, and stops for a person when blocked.](../assets/diagrams/learn-agent-context.svg)

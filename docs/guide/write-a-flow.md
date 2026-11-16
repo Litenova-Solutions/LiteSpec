@@ -22,7 +22,7 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 Run `litespec new flow <name>`, which writes `.litespec/intent/flows/<name>/<name>.yaml` and reserves the identifier `flow/<name>`.
 
-When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the flow template, with its Example and Branches sections. The template values are examples, and `model check` reports a value left unchanged. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
+When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the flow template, with its Example and Branches sections. The template fields are placeholders, and `model check` reports a placeholder left unchanged. This satisfies `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
 ### Decide What One Flow Holds
 
@@ -175,7 +175,7 @@ This satisfies `litespec/core/intent#reach-each-finish-condition-through-a-step`
 
 ### Run Model Check
 
-Run `litespec model check` from the consumer root. It reports `record-invalid` for a flow without `startedWhen`, a flow holding both `serves` and `answers` or neither, or a branch missing `step`, `condition`, or `nextStep`. It reports `field-invalid` for a branch whose `step` or `nextStep` names no step of the flow.
+Run `litespec model check` from the consumer root. It reports `record-invalid` for a flow without `startedWhen`, a flow holding both `serves` and `answers` or neither, or a branch missing `step`, `condition`, or `nextStep`. It reports `record-invalid` for a branch whose `step` or `nextStep` names no step of the flow.
 
 ## Check
 

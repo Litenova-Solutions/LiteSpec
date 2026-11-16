@@ -1,7 +1,7 @@
 namespace LiteSpec.Cli.Model.Records;
 
 /// <summary>The first-line marker that <c>litespec new</c> writes into a record it scaffolds from a template.</summary>
-/// <follows>litespec/core/authoring#copy-each-template-from-the-example</follows>
+/// <follows>litespec/core/authoring#validate-each-template-against-the-record-schema</follows>
 internal static class RecordScaffold
 {
     /// <summary>The text that opens the marker line, before the template file name.</summary>

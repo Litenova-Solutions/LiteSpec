@@ -14,9 +14,10 @@ public sealed class BehaviorContractCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "required": true}]}"""));
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api"}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "input": [{"name": "nights", "meaning": "The nights to hold.", "required": true}]}"""));
 
-        Assert.True(Reports(model, "field-invalid", "holds input field 'nights' with no type"));
+        Assert.True(Reports(model, "record-invalid", "holds input field 'nights' with no type"));
     }
 
     /// <summary>Use Case Input With An Unknown Type Reports.</summary>
@@ -27,9 +28,10 @@ public sealed class BehaviorContractCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "type": "count", "required": true}]}"""));
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api"}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "input": [{"name": "nights", "meaning": "The nights to hold.", "type": "count", "required": true}]}"""));
 
-        Assert.True(Reports(model, "field-invalid", "with type 'count' outside"));
+        Assert.True(Reports(model, "record-invalid", "with type 'count' outside"));
     }
 
     /// <summary>Use Case Id Input Without An Of Record Reports.</summary>
@@ -40,9 +42,10 @@ public sealed class BehaviorContractCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "required": true}]}"""));
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api"}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "required": true}]}"""));
 
-        Assert.True(Reports(model, "field-invalid", "of type id with no of record"));
+        Assert.True(Reports(model, "record-invalid", "of type id with no of record"));
     }
 
     /// <summary>Use Case Id Input Naming No Record Reports.</summary>
@@ -55,7 +58,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.no-such-room", "required": true}]}"""));
 
-        Assert.True(Reports(model, "reference-unknown", "of 'aggregate/inventory.no-such-room', which no record holds"));
+        Assert.True(Reports(model, "reference-unknown", "cites 'aggregate/inventory.no-such-room', which no record holds"));
     }
 
     /// <summary>Use Case Choice Input Without Choices Reports.</summary>
@@ -66,9 +69,10 @@ public sealed class BehaviorContractCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "bed", "meaning": "The bed shape.", "type": "choice", "required": true}]}"""));
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api"}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "input": [{"name": "bed", "meaning": "The bed shape.", "type": "choice", "required": true}]}"""));
 
-        Assert.True(Reports(model, "field-invalid", "of type choice with no choices"));
+        Assert.True(Reports(model, "record-invalid", "of type choice with no choices"));
     }
 
     /// <summary>Typed Inputs With Type Required And Of Pass.</summary>
@@ -82,7 +86,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Record("aggregate", "aggregate/inventory.room", Path.Combine(temp.Path, "room.yaml"), """{"states": [{"name": "Free", "meaning": "The room is free."}]}"""),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.room", "required": true}, {"name": "nights", "meaning": "The nights to hold.", "type": "integer", "required": true}, {"name": "bed", "meaning": "The bed shape.", "type": "choice", "choices": ["single", "double"], "required": false}]}"""));
 
-        Assert.False(Reports(model, "field-invalid", "holds input field"));
+        Assert.False(Reports(model, "record-invalid", "holds input field"));
     }
 
     /// <summary>Integration Event With A Bad Dataschema Reports.</summary>
@@ -95,7 +99,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("integration-event", "integration-event/booking-held", Path.Combine(temp.Path, "held.yaml"), """{"dataschema": "not a url"}"""));
 
-        Assert.True(Reports(model, "field-invalid", "holds dataschema 'not a url', which is no URL"));
+        Assert.True(Reports(model, "record-invalid", "holds dataschema 'not a url', which is no URL"));
     }
 
     /// <summary>Scenario Exercising No Rule Reports.</summary>
@@ -107,9 +111,10 @@ public sealed class BehaviorContractCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/hold-room.refused", Path.Combine(temp.Path, "hold.yaml"), """{"outcome": "success", "meaning": "The second hold is refused."}"""),
             TestModel.Record("scenario", "scenario/hold-room.second-hold-is-refused", Path.Combine(temp.Path, "hold.yaml"), """{"given": "Ben already holds the room.", "when": "Ana holds the room.", "then": "The hold is refused.", "result": "result/hold-room.refused", "exercises": ["rule/hold.no-such-rule"]}"""));
 
-        Assert.True(Reports(model, "reference-unknown", "exercises 'rule/hold.no-such-rule'"));
+        Assert.True(Reports(model, "reference-unknown", "cites 'rule/hold.no-such-rule', which no record holds"));
     }
 
     /// <summary>Scenario Exercising A Rule Passes.</summary>
@@ -125,7 +130,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Record("scenario", "scenario/hold-room.second-hold-is-refused", Path.Combine(temp.Path, "hold-room.yaml"), """{"given": "Ben already holds the room.", "when": "Ana holds the room.", "then": "The hold is refused.", "result": "result/hold-room.refused", "exercises": ["rule/hold.one-hold-per-room-night"]}"""));
 
         Assert.False(Reports(model, "reference-unknown", "exercises"));
-        Assert.False(Reports(model, "field-invalid", "exercises"));
+        Assert.False(Reports(model, "record-invalid", "exercises"));
     }
 
     /// <summary>Entry Point With Anonymous Auth Reports.</summary>
@@ -138,7 +143,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "auth": ["anonymous"]}"""));
 
-        Assert.True(Reports(model, "field-invalid", "holds auth 'anonymous' outside"));
+        Assert.True(Reports(model, "record-invalid", "holds auth 'anonymous' outside"));
     }
 
     /// <summary>Entry Point With Declared Auth Passes.</summary>
@@ -151,7 +156,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "auth": ["session", "none"]}"""));
 
-        Assert.False(Reports(model, "field-invalid", "holds auth"));
+        Assert.False(Reports(model, "record-invalid", "holds auth"));
     }
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>

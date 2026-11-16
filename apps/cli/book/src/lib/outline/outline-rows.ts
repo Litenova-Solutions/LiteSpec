@@ -1,11 +1,12 @@
-// The outline's rows: layer headers with their counts, records grouped by
-// record field, and the security groups. Rows carry everything a row renders,
-// so the components never walk the store twice. One build precomputes each
-// record's group, completion, title and proof rank once and reuses them in
-// grouping, sorting and counts; the last build is memoized per book while its
-// inputs are unchanged.
+// The outline's rows: layer headers, records grouped by record type, and
+// the security groups. Rows carry everything a row renders, so the components
+// never walk the store twice. One build precomputes each record's group,
+// completion, title and proof rank once and reuses them in grouping, sorting
+// and counts; the last build is memoized per book while its inputs are
+// unchanged. Counts and completion sit in tooltips and accessible names; the
+// rows show none.
 
-import { MODULE_MEMBER_TYPES, UNFULFILLED_AREA, areaGroupKey, areaKeysOf, capitalize, formatLabel, proofRank, stripStep } from "$lib/frame";
+import { UNFULFILLED_AREA, areaGroupKey, areaKeysOf, capitalize, formatCount, formatLabel, proofRank, stripStep } from "$lib/frame";
 import type { Book, RecordFields, SecurityItem } from "$lib/frame";
 
 /** One virtual row in the outline. */
@@ -16,14 +17,14 @@ export type OutlineRow =
   | { kind: "note"; key: string; text: string }
   | { kind: "switch"; key: string };
 
-/** The pixel height per row kind for the virtualizer: headers 36, rows 32, the grouping switch 40. */
+/** The pixel height per row kind for the virtualizer: layer headers 32, every other row 28. */
 export const ROW_HEIGHT: Record<OutlineRow["kind"], number> = {
-  layer: 36, note: 32, group: 32, record: 32, switch: 40,
+  layer: 32, note: 28, group: 28, record: 28, switch: 28,
 };
 
 const INDENTS = [
-  "pl-0", "pl-[22px]", "pl-[44px]", "pl-[66px]", "pl-[88px]", "pl-[110px]",
-  "pl-[132px]", "pl-[154px]", "pl-[176px]", "pl-[198px]", "pl-[220px]", "pl-[242px]", "pl-[264px]",
+  "pl-0", "pl-[14px]", "pl-[28px]", "pl-[42px]", "pl-[56px]", "pl-[70px]",
+  "pl-[84px]", "pl-[98px]", "pl-[112px]", "pl-[126px]", "pl-[140px]", "pl-[154px]", "pl-[168px]",
 ];
 
 /** The indentation class for an outline depth, clamped to the deepest step. */
@@ -46,94 +47,6 @@ function isFieldMap(value: unknown): value is RecordFields {
   return typeof value === "object" && value !== null;
 }
 
-function homeOf(id: string): string {
-  return (stripStep(id).split("/")[1] ?? "").split(".")[0] ?? "";
-}
-
-function parentTitleOf(book: Book, id: string): string {
-  const p = book.parent(id);
-  return p ? book.title(p) : "";
-}
-
-function goalTitleForFeatureOf(book: Book, id: string): string {
-  const titles = book.outs(stripStep(id), "advances").map((x) => book.title(x)).filter(Boolean);
-  return titles[0] ?? "";
-}
-
-function goalTitleForProblemOf(book: Book, id: string): string {
-  for (const f of book.kids(stripStep(id)).filter((child) => book.typeOf(child) === "feature")) {
-    const g = goalTitleForFeatureOf(book, f);
-    if (g) return g;
-  }
-  return "";
-}
-
-/** The record field children group by, per record type: a feature, an aggregate, an actor. */
-function groupFieldOf(book: Book, id: string): [string, string] | null {
-  const fields = book.fields(id);
-  const t = book.typeOf(id);
-  if (t === "requirement") {
-    const feature = parentTitleOf(book, id);
-    return feature ? [feature, ""] : null;
-  }
-  if (MODULE_MEMBER_TYPES.includes(t)) {
-    const agg = parentTitleOf(book, id);
-    const mod = homeOf(id);
-    return [agg || mod, agg && mod ? mod : ""];
-  }
-  if (t === "screen") {
-    return [parentTitleOf(book, id) || "No entry point", ""];
-  }
-  if (t === "flow") {
-    const actor = fields.actor;
-    const serves = book.outs(stripStep(id), "serves").map((x) => book.title(x));
-    return [actor ? book.title(stripStep(actor)) : "No actor", serves[0] ?? ""];
-  }
-  if (t === "problem") {
-    const affects = fields.affects;
-    const list = Array.isArray(affects) ? affects : [];
-    return [list.length ? book.title(stripStep(list[0])) : "No affected actor", goalTitleForProblemOf(book, id)];
-  }
-  if (t === "feature") return [parentTitleOf(book, id) || "No module", goalTitleForFeatureOf(book, id)];
-  if (t === "actor") {
-    const kind = fields.kind;
-    return [kind ? capitalize(kind) : "No kind", ""];
-  }
-  if (t === "decision") {
-    const kind = fields.kind;
-    const concerns = decisionConcerns(book, id)
-      .map((concern) => capitalize(formatLabel(concern)))
-      .join(", ");
-    return [kind ? capitalize(kind) : "No kind", concerns];
-  }
-  return null;
-}
-
-/** The decision concerns in display order. */
-const DECISION_CONCERN_ORDER: readonly string[] = [
-  "domain", "application", "infrastructure", "web-api",
-  "frontend-ui", "frontend-data", "tests", "workspace", "operations",
-];
-
-/** The concerns of a decision's followers in display order, as the book command computed them. */
-function decisionConcerns(book: Book, id: string): string[] {
-  const found = new Set<string>();
-  const concerns = book.get(id)?.concerns;
-  if (Array.isArray(concerns)) {
-    for (const concern of concerns) found.add(concern);
-  }
-  return DECISION_CONCERN_ORDER.filter((concern) => found.has(concern));
-}
-
-/** The group a record sits in under its parent: by record field, else by type. */
-function groupOf(book: Book, id: string): { key: string; label: string } {
-  const g = groupFieldOf(book, id);
-  if (g && g[0]) return { key: "field:" + g.join("/"), label: g.filter(Boolean).join(": ") };
-  const t = book.typeOf(id);
-  const q = book.lex.types?.[t];
-  return { key: "type:" + t, label: q ? q.plural || q.label || t : capitalize(t) + "s" };
-}
-
 /** Values computed once per row build and reused by grouping, sorting and counts. */
 interface RowPrecompute {
   group(id: string): { key: string; label: string };
@@ -152,7 +65,7 @@ function precompute(book: Book): RowPrecompute {
     group(id: string): { key: string; label: string } {
       let found = groups.get(id);
       if (!found) {
-        found = groupOf(book, id);
+        found = book.groupOf(id);
         groups.set(id, found);
       }
       return found;
@@ -189,6 +102,51 @@ function completeCounts(pre: RowPrecompute, ids: string[]): string {
   if (!ids.length) return "";
   const done = ids.filter((id) => pre.complete(id)).length;
   return done + " of " + ids.length + " complete";
+}
+
+/** A record count in words: 1 reads "1 record", 1595 reads "1,595 records". */
+export function recordCount(n: number): string {
+  return formatCount(n) + " " + (n === 1 ? "record" : "records");
+}
+
+/** Every real record below a record, each once. Code, tests and findings below it are leaves, never records. */
+export function recordsBelow(book: Book, id: string): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>([id]);
+  const stack = [...book.kids(id)];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (current === undefined || seen.has(current)) continue;
+    seen.add(current);
+    if (book.isReal(current)) out.push(current);
+    stack.push(...book.kids(current));
+  }
+  return out;
+}
+
+/** The records-below summary for a record: how many records sit below it and their completion. */
+export function belowSummary(book: Book, id: string): string {
+  const below = recordsBelow(book, id);
+  if (!below.length) return "no records below";
+  return recordCount(below.length) + " below, " + book.completeCounts(below);
+}
+
+/** The navigation tooltip for a record: its type with the records-below summary. */
+export function recordTip(book: Book, id: string): string {
+  return book.typeName(book.typeOf(id)) + ", " + belowSummary(book, id);
+}
+
+/** The navigation tooltip for a type group: its records and their completion. */
+export function groupTip(label: string, count: number, completion: string): string {
+  return completion
+    ? label + ", " + recordCount(count) + ", " + completion
+    : label + ", " + recordCount(count);
+}
+
+/** The navigation tooltip for a layer header: its records and their completion, with the shown records while filtering. */
+export function layerTip(label: string, total: number, shown: number, done: number, filtering: boolean): string {
+  if (filtering) return label + ", " + formatCount(shown) + " of " + formatCount(total) + " records shown";
+  return label + ", " + recordCount(total) + ", " + formatCount(done) + " of " + formatCount(total) + " complete";
 }
 
 /** The group's records in the active sort, with each title and rank read once. */
@@ -233,7 +191,7 @@ function layerCounts(book: Book, pre: RowPrecompute, filtering: boolean): Map<st
   return counts;
 }
 
-/** One record row and, when open, its children grouped by record field. The path is positional, so every row key is unique and a record shown under two parents keeps two keys. */
+/** One record row and, when open, its children grouped by record type. The path is positional, so every row key is unique and a record shown under two parents keeps two keys. */
 function walkRecord(book: Book, pre: RowPrecompute, id: string, depth: number, rows: OutlineRow[], path: string): void {
   if (!book.isVisible(id)) return;
   const kids = book.kids(id).filter((k) => book.isVisible(k));
@@ -245,7 +203,7 @@ function walkRecord(book: Book, pre: RowPrecompute, id: string, depth: number, r
   if (open) walkGroups(book, pre, kids, id, depth + 1, rows, path);
 }
 
-/** Children grouped by record field, else by type, each with its completion. */
+/** Children grouped by record type, each with its completion for its tooltip. Children of one record type list directly, without a group header. */
 function walkGroups(book: Book, pre: RowPrecompute, kids: string[], parent: string, depth: number, rows: OutlineRow[], path: string): void {
   const groups: { key: string; label: string; list: string[] }[] = [];
   const byKey: Record<string, { key: string; label: string; list: string[] }> = {};
@@ -260,19 +218,28 @@ function walkGroups(book: Book, pre: RowPrecompute, kids: string[], parent: stri
     entry.list.push(id);
   }
   const filtering = book.anyFilter();
-  for (const [gi, g] of groups.entries()) {
-    const list = sortKids(book, pre, g.list);
-    const visible = list.filter((id) => book.isVisible(id));
-    if (!visible.length) continue;
-    const gk = parent + "|" + g.key;
-    const gpath = path + "/g" + gi;
+  const shaped = groups
+    .map((g, gi) => {
+      const list = sortKids(book, pre, g.list);
+      return { g, gi, list, visible: list.filter((id) => book.isVisible(id)) };
+    })
+    .filter((s) => s.visible.length);
+  const only = shaped.length === 1 ? shaped[0] : undefined;
+  if (only) {
+    const gpath = path + "/g" + only.gi;
+    for (const [i, id] of only.list.entries()) walkRecord(book, pre, id, depth, rows, gpath + "/r" + i);
+    return;
+  }
+  for (const s of shaped) {
+    const gk = parent + "|" + s.g.key;
+    const gpath = path + "/g" + s.gi;
     const closed = !filtering && !!book.closedGroups[gk];
     rows.push({
-      kind: "group", key: "group/" + gpath, gk, label: g.label,
-      count: visible.length, completion: completeCounts(pre, visible), open: !closed, depth,
+      kind: "group", key: "group/" + gpath, gk, label: s.g.label,
+      count: s.visible.length, completion: completeCounts(pre, s.visible), open: !closed, depth,
     });
     if (!closed) {
-      for (const [i, id] of list.entries()) walkRecord(book, pre, id, depth, rows, gpath + "/r" + i);
+      for (const [i, id] of s.list.entries()) walkRecord(book, pre, id, depth, rows, gpath + "/r" + i);
     }
   }
 }
@@ -306,7 +273,7 @@ function walkAreas(book: Book, pre: RowPrecompute, rows: OutlineRow[]): void {
   walkArea(UNFULFILLED_AREA, "Not yet fulfilled", [...areas.unfulfilled.features, ...areas.unfulfilled.flows]);
 }
 
-/** The outline rows: the product root, then layer headers with their counts, records and field groups. */
+/** The outline rows: the product root, then layer headers, records and field groups. */
 function buildRows(book: Book): OutlineRow[] {
   const rows: OutlineRow[] = [];
   const filtering = book.anyFilter();
@@ -392,7 +359,7 @@ export function expandChain(book: Book, raw: string): void {
   for (const current of chain) {
     if (book.kids(current).length) book.expanded[current] = true;
     const holder = book.parent(current) ?? book.layerOf[current] ?? "";
-    if (holder) delete book.closedGroups[holder + "|" + groupOf(book, current).key];
+    if (holder) delete book.closedGroups[holder + "|" + book.groupOf(current).key];
   }
   if (book.intentGrouping === "product-area" && book.productAreas) {
     for (const key of areaKeysOf(book.productAreas, chain)) delete book.closedGroups[key];

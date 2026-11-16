@@ -8,7 +8,7 @@ The reminder names the expense and its waiting time, using the template `approva
 
 ## Delivery
 
-The reminder goes by email to the manager who decides the expense, as `actor/manager`, delivered through `external-system/mail-relay`. A manager named in the suppression list gets no reminder, as the rule `rule/spending.suppressed-manager-gets-no-reminder` requires. The frequency is once, and the dedup key is `approval-reminder-{expenseId}`, so each waiting expense earns one reminder.
+The reminder goes by email to the manager who decides the expense, as `actor/manager`, delivered through `external-system/mail-relay`. A manager holding a reminder preference gets no reminder, as the rule `rule/spending.suppressed-manager-gets-no-reminder` requires. The frequency is once, and the dedup key is `approval-reminder-{expenseId}`, so each waiting expense earns one reminder.
 
 The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` decides whether the reminder is sent. It skips an expense that is decided, so a decided expense gets no reminder.
 

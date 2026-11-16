@@ -152,7 +152,7 @@ public sealed class ResearchSourceCheckTests
                 explanationFile,
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nOthers lend for three weeks [per the report][no-such-key].\n"));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "source-key-unknown");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "reference-unknown");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Research explanation cites source key 'no-such-key', which the record's sources do not name.", finding.Message);
         Assert.Equal(explanationFile, finding.Path);
@@ -180,7 +180,7 @@ public sealed class ResearchSourceCheckTests
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nOthers lend for three weeks [per the report][benchmark-report].\n"));
 
         Assert.DoesNotContain("source-link-bare", TestModel.Codes(model));
-        Assert.DoesNotContain("source-key-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
         Assert.DoesNotContain("source-unused", TestModel.Codes(model));
     }
 
@@ -226,7 +226,7 @@ public sealed class ResearchSourceCheckTests
                 """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
         Assert.DoesNotContain("source-link-bare", TestModel.Codes(model));
-        Assert.DoesNotContain("source-key-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
         Assert.DoesNotContain("source-unused", TestModel.Codes(model));
     }
 }

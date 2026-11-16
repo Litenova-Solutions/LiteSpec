@@ -20,7 +20,7 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 ### Scaffold the Problem
 
-Run `litespec new problem <name>` before writing any prose. The command writes `.litespec/intent/problems/<name>/<name>.yaml` and reserves the identifier `problem/<name>`. When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the problem template. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
+Run `litespec new problem <name>` before writing any prose. The command writes `.litespec/intent/problems/<name>/<name>.yaml` and reserves the identifier `problem/<name>`. When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the problem template. This satisfies `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
 ### Name the Failure in the Title
 
@@ -42,7 +42,7 @@ Start the fields with the sufferer in `affects`. Then state the pain in `summary
 |:---|:---|
 | `statement: Employees need a reminder dashboard for approvals.` | `statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.` |
 
-The weak sentence files a missing feature as a pain, so every other answer reads as off-topic. This satisfies `litespec/core/intent#admit-only-outside-pains-as-problems`, `litespec/core/intent#name-no-solution-in-a-problem-statement`, and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
+The weak sentence files a missing feature as a pain, so every other answer reads as off-topic. This satisfies `litespec/core/intent#admit-only-outside-pains-as-problems`, `litespec/core/intent#name-no-solution-in-a-problem-statement`, and `litespec/core/writing#write-for-the-reader-who-arrives-cold`.
 
 ### Open with the Gap, Its Cause, and Its Consequence
 
@@ -116,7 +116,7 @@ evidence:
 | A payment provider offers same-day transfers. | It shows that a solution can be built, not that anyone has the pain. It belongs in research that a feature cites. |
 | An employee asked for a reminder dashboard. | A request is evidence of the requested solution. It supports the pain only for what the employee reports about their own wait. |
 
-This satisfies `litespec/core/intent#grade-problem-evidence-by-kind`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence`, and `litespec/core/intent#state-each-problem-with-its-evidence`.
+This satisfies `litespec/core/intent#grade-problem-evidence-by-kind`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence`, and `litespec/core/intent#admit-only-outside-pains-as-problems`.
 
 ### Write One Resolution Criterion per Failure Case
 
@@ -126,7 +126,7 @@ Under Resolution Criteria, give each failure case one observable outcome for the
 |:---|:---|
 | Add reminders and a status page to the approval screen. | Each submitted expense is decided within 5 business days. The employee sees the decision without asking the approver. |
 
-The weak version picks the answer, and it covers neither failure as an outcome a reader can check. This satisfies `litespec/core/intent#resolve-every-failure-case-with-an-outcome` and `litespec/core/intent#explain-every-problem-in-its-fixed-sections`.
+The weak version picks the answer, and it covers neither failure as an outcome a reader can check. This satisfies `litespec/core/intent#name-no-solution-in-a-problem-statement` and `litespec/core/intent#explain-every-problem-in-its-fixed-sections`.
 
 ## Check
 

@@ -10,23 +10,7 @@ LiteSpec fits a team building one business application: one domain, one API, and
 
 ## Choose Your Layers
 
-LiteSpec's records sit in four layers, each written from the one above it:
-
-- **Intent** holds the outcomes and problems the product answers.
-- **Behavior** holds what the software does, holds, and enforces.
-- **Implementation** is the code that serves the Behavior records.
-- **Proof** is the tests and runs that prove the Behavior scenarios.
-
-To claim a layer, name it in the `layers` block of `.litespec/project.yaml`. `litespec model check`, the book, `litespec rules`, and the analyzers then report the provisions and findings that apply to the layers you claim, and nothing about the others. The book shows a layer you do not claim as not claimed, never as missing.
-
-You leave layers out from the bottom. Behavior needs Intent, and Implementation and Proof each need Behavior but not each other, so you can claim either one without the other. [Layer Claims](../core/scope.md#layer-claims) lists the five combinations a project can claim, from `intent` alone to all four layers.
-
-Each claimed layer takes a value that says whose practice it follows:
-
-- `litespec`: the layer follows LiteSpec's pages for it. Intent and Behavior take only this value.
-- `own`: offered for Implementation and Proof only. The code or tests still point to the Behavior records, but the team keeps its own architecture or test practice.
-
-Claimwick, the running example, claims all four layers with `litespec`.
+Name each record layer the project follows in the `layers` block of `.litespec/project.yaml`; [Supported Scope](../core/scope.md#layer-claims) states the layers, the values each takes, and the combinations a project can claim. Claimwick, the running example, claims all four layers with `litespec`.
 
 Extensions are chosen separately from layers. An extension is a bundle of standards that applies only when its activation criterion holds, and the project selects it whenever that criterion holds, whatever layers it claims. For example, a project that runs the product in production with a formal release, deployment, rollback, or alerting regime selects the `delivery` extension. The [extension catalog](../ext/README.md) lists each extension with its criteria.
 
@@ -78,16 +62,7 @@ Proof is in place when every scenario has a passing proof, or a gap waiver cover
 
 ## Record Waivers for Adoption Gaps
 
-A waiver sets a provision, a page, or a finding code aside for your project, with a reason. Record one for each provision the project cannot yet meet in a layer it claims. A layer you do not claim needs no waiver, since no provision about it applies.
-
-Each waiver sits in its own folder under `.litespec/governance/waivers/`, or under `.litespec/governance/modules/<module>/waivers/` when it covers one module. Every waiver states what it `covers` (provision IDs, pages, or finding codes), its `reason`, and the `subject` records or `paths` it applies to. Its `kind` decides the remaining fields:
-
-| `kind` | Use it for | Required fields |
-|:---|:---|:---|
-| `gap` | Work the team means to finish | `expiresOn`, `exit`, and `closedBy`, the records whose change closes the gap |
-| `lasting` | A choice the project keeps | `consequences`; no `expiresOn`, `exit`, or `closedBy` |
-
-A gap waiver holds through its `expiresOn` date. After that date, the findings it covered report again, and `litespec model check` reports `waiver-expired`, which blocks the run. [Waivers](../core/waivers.md) states every field and how a waiver covers a finding.
+When the project cannot yet meet a provision that applies to a layer it claims, record a waiver for it; [Waivers](../core/waivers.md) states the kinds, the fields each kind carries, and how a waiver covers a finding. A layer you do not claim needs no waiver, since no provision about it applies.
 
 ## Next Steps
 

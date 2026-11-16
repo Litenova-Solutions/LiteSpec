@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The contract checks: each use-case input and each module-event and integration-event payload field holds a known type and its required flag, a claim-shaped input is not taken from a caller of an authenticated entry point, a module-event or integration-event payload field is carried by its translated domain event, and each entry point states a known auth kind.</summary>
+/// <summary>The contract checks: each use-case input and each integration-event payload field holds a known type and its required flag, a claim-shaped input is not taken from a caller of an authenticated entry point, a module event selects only fields its translated domain event carries, and each entry point states a known auth kind.</summary>
 /// <follows>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</follows>
 /// <follows>litespec/core/use-cases#mark-every-provider-verified-input</follows>
 /// <follows>litespec/core/use-cases#type-every-output-field</follows>
@@ -14,7 +14,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind</follows>
 internal static class ContractChecks
 {
-    /// <summary>The contract field types a use-case input or payload field may carry.</summary>
+    /// <summary>The contract field types a use-case input or an integration-event payload field may carry.</summary>
     private static readonly HashSet<string> ContractTypes = new(StringComparer.Ordinal)
     {
         "text", "integer", "decimal", "money", "boolean", "date", "date-time", "duration", "email", "choice", "id", "file", "list",
@@ -23,7 +23,7 @@ internal static class ContractChecks
     /// <summary>The input names that carry a claim a provider verifies, never a caller.</summary>
     private static readonly string[] ClaimNames = ["subject", "tenant", "verified"];
 
-    /// <summary>Reports a use-case input or a module-event or integration-event payload field outside its typed shape, a claim-shaped input a caller supplies, and a payload field its translated domain event does not carry.</summary>
+    /// <summary>Reports a use-case input or an integration-event payload field outside its typed shape, a claim-shaped input a caller supplies, and a module-event field or integration-event payload field its translated domain event does not carry.</summary>
     /// <param name="model">The loaded project model that holds every use case, module event and integration event record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunTypedInputs(ProjectModel model, List<Finding> findings)
@@ -41,8 +41,7 @@ internal static class ContractChecks
 
         foreach (var moduleEvent in model.Records.Where(record => record.Type == RecordTypes.ModuleEvent))
         {
-            CheckContractFields(model, moduleEvent, "payload", "Module event", findings);
-            CheckPayloadCarried(model, moduleEvent, findings);
+            CheckFieldsCarried(model, moduleEvent, findings);
         }
 
         foreach (var integration in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent))
@@ -56,7 +55,7 @@ internal static class ContractChecks
                 && schema.GetString() is { Length: > 0 } url
                 && !Uri.TryCreate(url, UriKind.Absolute, out _))
             {
-                findings.Add(new Finding("field-invalid", $"Integration event '{integration.Id}' holds dataschema '{url}', which is no URL.", integration.File, integration.Line, SubjectOf(integration)));
+                findings.Add(new Finding("record-invalid", $"Integration event '{integration.Id}' holds dataschema '{url}', which is no URL.", integration.File, integration.Line, SubjectOf(integration)));
             }
         }
     }
@@ -89,7 +88,7 @@ internal static class ContractChecks
 
             if (dataClass is not { Length: > 0 } || !DataClassNamesOf(aggregate).Contains(dataClass))
             {
-                findings.Add(new Finding("field-invalid", $"External system '{system.Id}' processes data class '{dataClass ?? "none"}' of '{aggregate.Id}', which the aggregate does not declare.", system.File, system.Line, SubjectOf(system)));
+                findings.Add(new Finding("record-invalid", $"External system '{system.Id}' processes data class '{dataClass ?? "none"}' of '{aggregate.Id}', which the aggregate does not declare.", system.File, system.Line, SubjectOf(system)));
             }
         }
     }
@@ -159,9 +158,50 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>Reports a module-event or integration-event payload field that its translated domain event does not carry.</summary>
+    /// <summary>Reports a module-event field that its translated domain event does not carry.</summary>
+    /// <param name="model">The loaded project model that resolves the translated domain event.</param>
+    /// <param name="published">The module event record whose fields are compared with the domain event it translates.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFieldsCarried(ProjectModel model, Record published, List<Finding> findings)
+    {
+        if (published.Raw.ValueKind != JsonValueKind.Object
+            || !published.Raw.TryGetProperty(RecordFields.Fields, out var fields)
+            || fields.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var domainId in published.Ids(RecordFields.Translates))
+        {
+            if (!model.ById.TryGetValue(Identifiers.BaseId(domainId), out var domain)
+                || domain.Type != RecordTypes.DomainEvent
+                || domain.Raw.ValueKind != JsonValueKind.Object
+                || !domain.Raw.TryGetProperty(RecordFields.Carries, out var carries)
+                || carries.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            var carried = carries.EnumerateArray()
+                .Select(entry => Str(entry, RecordFields.Name))
+                .Where(name => name is { Length: > 0 })
+                .ToHashSet(StringComparer.Ordinal);
+
+            foreach (var entry in fields.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.String
+                    && entry.GetString() is { Length: > 0 } field
+                    && !carried.Contains(field))
+                {
+                    findings.Add(new Finding("event-field-uncarried", $"Module event '{published.Id}' publishes field '{field}' that its translated domain event '{domain.Id}' does not carry.", published.File, published.Line, SubjectOf(published)));
+                }
+            }
+        }
+    }
+
+    /// <summary>Reports an integration-event payload field that its translated domain event does not carry.</summary>
     /// <param name="model">The loaded project model that resolves each translated domain event.</param>
-    /// <param name="published">The module event or integration event record whose payload is compared with the domain events it translates.</param>
+    /// <param name="published">The integration event record whose payload is compared with the domain events it translates.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPayloadCarried(ProjectModel model, Record published, List<Finding> findings)
     {
@@ -171,8 +211,6 @@ internal static class ContractChecks
         {
             return;
         }
-
-        var label = published.Type == RecordTypes.ModuleEvent ? "Module event" : "Integration event";
 
         foreach (var domainId in published.Ids(RecordFields.Translates))
         {
@@ -194,7 +232,7 @@ internal static class ContractChecks
             {
                 if (Str(entry, RecordFields.Name) is { Length: > 0 } field && !carried.Contains(field))
                 {
-                    findings.Add(new Finding("event-field-uncarried", $"{label} '{published.Id}' publishes field '{field}' that its translated domain event '{domain.Id}' does not carry.", published.File, published.Line, SubjectOf(published)));
+                    findings.Add(new Finding("event-field-uncarried", $"Integration event '{published.Id}' publishes field '{field}' that its translated domain event '{domain.Id}' does not carry.", published.File, published.Line, SubjectOf(published)));
                 }
             }
         }
@@ -202,7 +240,7 @@ internal static class ContractChecks
 
     /// <summary>Reports one contract field holding no type, no required, or a dangling of.</summary>
     /// <param name="model">The loaded project model that resolves each id field target.</param>
-    /// <param name="record">The use case, module event or integration event record whose contract fields are judged.</param>
+    /// <param name="record">The use case or integration event record whose contract fields are judged.</param>
     /// <param name="array">The contract array field name, input or payload.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -227,20 +265,20 @@ internal static class ContractChecks
 
             if (type is not { Length: > 0 })
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with no type.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with no type.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 
             if (!ContractTypes.Contains(type))
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with type '{type}' outside {string.Join(", ", ContractTypes.Order(StringComparer.Ordinal))}.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with type '{type}' outside {string.Join(", ", ContractTypes.Order(StringComparer.Ordinal))}.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 
             if (!entry.TryGetProperty(RecordFields.Required, out var required)
                 || required.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
             }
 
             CheckContractOf(model, record, label, array, name, type, entry, findings);
@@ -264,7 +302,7 @@ internal static class ContractChecks
         {
             if (!has || of.ValueKind != JsonValueKind.String || of.GetString() is not { Length: > 0 } target)
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with no of record.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with no of record.", record.File, record.Line, SubjectOf(record)));
                 return;
             }
 
@@ -280,7 +318,7 @@ internal static class ContractChecks
         {
             if (!entry.TryGetProperty(RecordFields.Choices, out var choices) || choices.ValueKind != JsonValueKind.Array || choices.GetArrayLength() == 0)
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type choice with no choices.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type choice with no choices.", record.File, record.Line, SubjectOf(record)));
             }
 
             return;
@@ -299,7 +337,7 @@ internal static class ContractChecks
                 || contentTypes.ValueKind != JsonValueKind.Array
                 || contentTypes.GetArrayLength() == 0)
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type file with no contentTypes and maxSize.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type file with no contentTypes and maxSize.", record.File, record.Line, SubjectOf(record)));
             }
 
             return;
@@ -307,7 +345,7 @@ internal static class ContractChecks
 
         if (has)
         {
-            findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with an of that only id and list carry.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with an of that only id and list carry.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -328,7 +366,7 @@ internal static class ContractChecks
             || rowFields.ValueKind != JsonValueKind.Array
             || rowFields.GetArrayLength() == 0)
         {
-            findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with no of row fields.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with no of row fields.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -349,21 +387,21 @@ internal static class ContractChecks
 
             if (rowType is not { Length: > 0 } || !ContractTypes.Contains(rowType))
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with type '{rowType ?? "none"}' outside the contract types.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with type '{rowType ?? "none"}' outside the contract types.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (row.ValueKind != JsonValueKind.Object
                 || !row.TryGetProperty(RecordFields.Required, out var required)
                 || required.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
             }
         }
 
         if (of.TryGetProperty(RecordFields.MinItems, out var minItems)
             && (minItems.ValueKind != JsonValueKind.Number || !minItems.TryGetInt32(out var count) || count < 0))
         {
-            findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds minItems on {array} field '{name}' that is no non-negative whole number.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds minItems on {array} field '{name}' that is no non-negative whole number.", record.File, record.Line, SubjectOf(record)));
         }
 
         if (!of.TryGetProperty(RecordFields.Unique, out var unique))
@@ -373,7 +411,7 @@ internal static class ContractChecks
 
         if (unique.ValueKind != JsonValueKind.Array)
         {
-            findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds unique on {array} field '{name}' as no list.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds unique on {array} field '{name}' as no list.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -381,7 +419,7 @@ internal static class ContractChecks
         {
             if (key.ValueKind != JsonValueKind.String || !rowNames.Contains(key.GetString()!))
             {
-                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds unique key '{key.ToString()}' on {array} field '{name}', which names no row field.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds unique key '{key.ToString()}' on {array} field '{name}', which names no row field.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -403,7 +441,7 @@ internal static class ContractChecks
             {
                 if (!EntryPointAuth.Contains(auth))
                 {
-                    findings.Add(new Finding("field-invalid", $"Entry point '{point.Id}' holds auth '{auth}' outside {string.Join(", ", EntryPointAuth)}.", point.File, point.Line, SubjectOf(point)));
+                    findings.Add(new Finding("record-invalid", $"Entry point '{point.Id}' holds auth '{auth}' outside {string.Join(", ", EntryPointAuth)}.", point.File, point.Line, SubjectOf(point)));
                 }
             }
         }

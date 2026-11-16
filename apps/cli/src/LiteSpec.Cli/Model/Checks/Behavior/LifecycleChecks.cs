@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/domain-model#connect-every-state-through-transitions</follows>
 internal static class LifecycleChecks
 {
-    /// <summary>Reports transition-unknown and state-unreached.</summary>
+    /// <summary>Reports reference-unknown and state-unreached.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -25,17 +25,17 @@ internal static class LifecycleChecks
             {
                 if (transition.From != RecordReader.Creation && !states.Contains(transition.From))
                 {
-                    findings.Add(new Finding("transition-unknown", $"Aggregate '{aggregate.Id}' holds a transition from '{transition.From}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' holds a transition from '{transition.From}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 if (!states.Contains(transition.To))
                 {
-                    findings.Add(new Finding("transition-unknown", $"Aggregate '{aggregate.Id}' holds a transition to '{transition.To}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' holds a transition to '{transition.To}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 if (transition.MovedBy is not null && !IsMover(model, transition.MovedBy))
                 {
-                    findings.Add(new Finding("transition-unknown", $"Aggregate '{aggregate.Id}' holds a transition moved by '{transition.MovedBy}' which names no use case or job.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' holds a transition moved by '{transition.MovedBy}' which names no use case or job.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
             }
 
@@ -46,7 +46,7 @@ internal static class LifecycleChecks
 
                 if (after is not null && !IsoDuration.IsMatch(after))
                 {
-                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds a transition after '{after}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' holds a transition after '{after}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 if (mover is not null && model.ById.TryGetValue(mover, out var moverRecord) && moverRecord.Type == RecordTypes.Job && after is null)
@@ -56,13 +56,15 @@ internal static class LifecycleChecks
             }
 
             var targets = transitions.Select(transition => transition.To).ToHashSet(StringComparer.Ordinal);
+            var unreached = states.Order(StringComparer.Ordinal).Where(state => !targets.Contains(state)).ToList();
 
-            foreach (var state in states.Order(StringComparer.Ordinal))
+            if (unreached.Count == 1)
             {
-                if (!targets.Contains(state))
-                {
-                    findings.Add(new Finding("state-unreached", $"Aggregate '{aggregate.Id}' holds state '{state}' that no transition reaches.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-                }
+                findings.Add(new Finding("state-unreached", $"Aggregate '{aggregate.Id}' holds state '{unreached[0]}' that no transition reaches.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+            else if (unreached.Count > 1)
+            {
+                findings.Add(new Finding("state-unreached", $"Aggregate '{aggregate.Id}' holds states '{string.Join("', '", unreached)}' that no transition reaches.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
             }
         }
     }

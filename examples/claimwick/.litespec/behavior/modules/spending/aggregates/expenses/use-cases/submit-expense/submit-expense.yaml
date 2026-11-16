@@ -48,7 +48,6 @@ writes:
 - aggregate/spending.expense
 reads:
 - aggregate/spending.policy
-- setting/spending.receipt-threshold
 consistency:
   mode: atomic
   boundBy:
@@ -60,9 +59,6 @@ idempotency:
   key: "{requestId}"
   scope: account
   replay: returns-first-result
-audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
 records:
 - type: result
   id: result/submit-expense.submitted
@@ -74,7 +70,6 @@ records:
   title: Receipt Missing
   outcome: refusal
   code: spending.receipt-missing
-  meaning: The expense is above the receipt threshold and carries no receipt.
   sentence: Attach the receipt for this expense, then submit again.
   sentences:
     nl: Voeg het bonnetje voor deze uitgave toe en dien de uitgave daarna opnieuw in.

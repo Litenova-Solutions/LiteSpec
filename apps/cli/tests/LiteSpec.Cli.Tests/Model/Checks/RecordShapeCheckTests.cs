@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class RecordShapeCheckTests
 {
     /// <summary>Reaction Effects Runs Edge Feeds Effect Loop.</summary>
-    /// <proves>litespec/core/use-cases#keep-the-effect-graph-free-of-cycles</proves>
+    /// <proves>litespec/core/principles#end-every-effect-cycle-in-a-domain-event</proves>
     [Fact]
     public void ReactionEffectsRunsEdgeFeedsEffectLoop()
     {
@@ -42,7 +42,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.return-twice-on-loan-returned", Path.Combine(temp.Path, "twice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}, {"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.return-twice-on-loan-returned", Path.Combine(temp.Path, "twice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}, {"runs": "use-case/lending.hold-copy", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Both copies were returned."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "Returning the same copies again changes nothing."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "a reaction or job runs at most one use case"));
     }
@@ -55,7 +55,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}, {"runs": "use-case/lending.mark-late", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}, {"runs": "use-case/lending.mark-late", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "a reaction or job runs at most one use case"));
     }
@@ -96,7 +96,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"]}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "outcomes": [{"name": "completed", "meaning": "Overdue readers were reminded."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "Reminding the same readers again changes nothing."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no effects"));
     }
@@ -152,7 +152,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "branch"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "branch"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "tenant, account, login, global"));
     }
@@ -165,7 +165,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "login"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "login"}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -191,7 +191,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "outcomes": [{"name": "completed", "meaning": "The due notice was sent."}], "onFailure": "Retry a few times, then give up.", "idempotency": {"mode": "none", "reason": "Resending the same notice is harmless."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
@@ -204,7 +204,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": "Retry a few times, then give up."}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": "Retry a few times, then give up.", "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
@@ -217,7 +217,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "outcomes": [{"name": "completed", "meaning": "The due notice was sent."}], "onFailure": {}, "idempotency": {"mode": "none", "reason": "Resending the same notice is harmless."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "onFailure with no mode"));
     }
@@ -230,7 +230,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "give-up"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "give-up"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "mode 'give-up' outside retry, skip-and-log, discard"));
     }
@@ -243,7 +243,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "5 seconds", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "5 seconds", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
     }
@@ -256,7 +256,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "ifExhausted": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "ifExhausted": "dead-letter"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "retry initialDelay with no duration"));
     }
@@ -269,7 +269,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "no positive maxAttempts"));
     }
@@ -282,7 +282,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "ifExhausted": "dead-letter"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "outcomes": [{"name": "completed", "meaning": "The due notice was sent."}], "onFailure": {"mode": "retry", "ifExhausted": "dead-letter"}, "idempotency": {"mode": "none", "reason": "Resending the same notice is harmless."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "onFailure with no retry"));
     }
@@ -295,7 +295,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "retry with no ifExhausted"));
     }
@@ -308,7 +308,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "requeue"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due copies were marked."}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "requeue"}, "idempotency": {"mode": "none", "reason": "A repeat scan marks the same copies again."}}"""));
 
         Assert.True(Reports(model, "record-invalid", "ifExhausted 'requeue' outside dead-letter"));
     }
@@ -362,7 +362,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "effect onFailure 'retry (5, PT1M) then dead-letter' as prose"));
     }
@@ -375,7 +375,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "effect onFailure retry with no positive maxAttempts"));
     }
@@ -455,7 +455,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.yaml"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": "never (the hold never expires)"}"""));
 
-        Assert.True(Reports(model, "field-invalid", "neither a record id nor a never object"));
+        Assert.True(Reports(model, "record-invalid", "neither a record id nor a never object"));
     }
 
     /// <summary>Goal With DueBy Passes Shape.</summary>

@@ -121,10 +121,13 @@ public sealed class BookViewsTests
         Assert.Equal("product/library", Str(details["flow/borrowing"], "parent"));
 
         // Group nodes carry their layer and type; record nodes carry their records shard.
-        // The flow tops the intent layer as a direct node, so it leaves no group behind.
-        Assert.Null(TryFindNode(tops, "intent/flow"));
-        var roleGroup = FindNode(tops, "behavior/role");
-        Assert.Equal("group", Str(roleGroup, "kind"));
+        // Each intent record type groups under its own plural label.
+        var flows = FindNode(tops, "intent/flow");
+        Assert.Equal("group", Str(flows, "kind"));
+        Assert.Equal("Flows", Str(flows, "label"));
+        var roles = FindNode(tops, "intent/role");
+        Assert.Equal("group", Str(roles, "kind"));
+        Assert.Equal("Roles", Str(roles, "label"));
         foreach (var top in tops)
         {
             foreach (var node in RecordsUnder(top))
@@ -718,6 +721,74 @@ public sealed class BookViewsTests
         Assert.Equal(
             "lending.copy-not-available",
             Str(Obj(details["result/borrow-copy.copy-unavailable"], "fields"), "code"));
+    }
+
+    /// <summary>A refusal result carries the meaning joined from its module's refusal set and the problem type from the project's base.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void RefusalResultCarriesJoinedMeaningAndProblemType()
+    {
+        using var temp = TestCli.Temp("book-views");
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
+        var details = ReadRecords(Path.Combine(temp.Path, "data"));
+        var fields = Obj(details["result/borrow-copy.copy-unavailable"], "fields");
+        Assert.Equal(
+            "The copy stays unavailable and the member is told it is on loan.",
+            Str(fields, "meaning"));
+        Assert.Equal(
+            "https://library.example/problems/copy-not-available",
+            Str(fields, "problemType"));
+        Assert.Equal("This copy is on loan to another member.", Str(fields, "sentence"));
+        Assert.Equal("lending.copy-not-available", Str(fields, "code"));
+    }
+
+    /// <summary>A module event carries the field names it selects from the domain event it translates.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void ModuleEventCarriesItsSelectedFields()
+    {
+        using var temp = TestCli.Temp("book-views");
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
+        var details = ReadRecords(Path.Combine(temp.Path, "data"));
+        var fields = Obj(details["module-event/lending.loan-borrowed"], "fields");
+        Assert.Equal(
+            new[] { "copyId", "memberId" },
+            Arr(fields, "fields").Select(node => node!.GetValue<string>()).ToList());
+        Assert.True(HasEdge(
+            Arr(details["module-event/lending.loan-borrowed"], "out"),
+            "domain-event/loan.loan-borrowed",
+            "module-event.translates"));
+    }
+
+    /// <summary>A screen and a served content entry fulfill the late-fee requirement: fulfilling edges both ways and kept-by counts per type.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void ScreenAndServedContentFulfillTheLateFeeRequirement()
+    {
+        using var temp = TestCli.Temp("book-views");
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
+        var details = ReadRecords(Path.Combine(temp.Path, "data"));
+        Assert.True(HasEdge(
+            Arr(details["screen/library-app.search"], "out"),
+            "requirement/self-checkout.late-fee",
+            "screen.fulfills"));
+        Assert.True(HasEdge(
+            Arr(details["entry-point/library-app"], "out"),
+            "requirement/self-checkout.late-fee",
+            "entry-point.servedContent.fulfills"));
+        Assert.True(HasEdge(
+            Arr(details["requirement/self-checkout.late-fee"], "in"),
+            "screen/library-app.search",
+            "screen.fulfills"));
+        Assert.True(HasEdge(
+            Arr(details["requirement/self-checkout.late-fee"], "in"),
+            "entry-point/library-app",
+            "entry-point.servedContent.fulfills"));
+
+        var kept = Obj(details["requirement/self-checkout.late-fee"], "keptBy");
+        Assert.Equal(1, kept["rule"]?.GetValue<int>());
+        Assert.Equal(1, kept["screen"]?.GetValue<int>());
+        Assert.Equal(1, kept["entry-point"]?.GetValue<int>());
     }
 
     /// <summary>Trace bands walk goal to behavior through incoming advances, citing requirements, kept-by counts and fulfilling edges.</summary>

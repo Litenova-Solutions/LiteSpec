@@ -24,11 +24,13 @@ namespace LiteSpec.Cli.Book.Outline;
 
 
 /// <summary>
-///     The outline over the model: every placed record sits once in its layer, under its parent
-///     or topping the layer when the product parents it, with layer and type groups laid
-///     transparently on the path. The product holds no node. The code implementing a record,
-///     the tests proving it and the findings about it sit under it as leaves. A record no rule
-///     places, or whose parent is itself unplaced, has no node and is only listed unplaced.
+///     The outline over the model: every placed record sits in its layer, under its parent
+///     or topping the layer under its record type group when the product parents it. A
+///     feature solving problems sits under each one, and only there: the Features group
+///     holds the features that solve no problem. The product holds no node. The code
+///     implementing a record, the tests proving it and the findings about it sit under it
+///     as leaves. A record no rule places, or whose parent is itself unplaced, has no node
+///     and is only listed unplaced.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookOutline
@@ -36,14 +38,14 @@ static class BookOutline
     /// <summary>The layer keys in outline order.</summary>
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
-    /// <summary>The record types that top the intent layer, in display order.</summary>
-    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "vision", "problem", "feature", "requirement", "constraint", "decision", "research", "flow", "actor"];
-    /// <summary>The record types under a module, in display order.</summary>
-    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "store", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "module-event", "integration-event", "read-model"];
+    /// <summary>The record types that top the intent layer under their type groups, in display order.</summary>
+    static readonly IReadOnlyList<string> IntentTopOrder = ["vision", "goal", "problem", "feature", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
+    /// <summary>The record types under a module, in display order: aggregates with their use cases first, then the module's other records by type.</summary>
+    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "job", "read-model", "notification", "setting", "permission"];
     /// <summary>The record types under an aggregate, in display order.</summary>
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "domain-event"];
-    /// <summary>The list record types in the behavior layer, in display order.</summary>
-    static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
+    /// <summary>The list record types in the behavior layer, in display order: entry points with their screens, then external systems.</summary>
+    static readonly IReadOnlyList<string> BehaviorListOrder = ["entry-point", "external-system"];
     /// <summary>The record types in the governance layer, in display order.</summary>
     static readonly IReadOnlyList<string> GovernanceOrder = ["waiver"];
 
@@ -101,7 +103,7 @@ static class BookOutline
             var id = layer + "/" + type;
             if (!groups.TryGetValue(id, out var group))
             {
-                group = new BookOutlineNode(id, BookOutlineKinds.Group, PluralOf(type), type, []);
+                group = new BookOutlineNode(id, BookOutlineKinds.Group, GroupLabel(layer, type), type, []);
                 groups[id] = group;
                 layers[layer].Children.Add(group);
             }
@@ -160,7 +162,7 @@ static class BookOutline
 
             if (string.Equals(type, "feature", StringComparison.Ordinal) && SolvedProblems(record, byId, attached) is { Count: > 0 } solved)
             {
-                // A standalone feature sits under each problem it solves, so the book groups it with every problem it answers.
+                // A feature solving problems sits under each one, so the book groups it with every problem it answers, and nowhere else: it never tops the intent layer beside them.
                 foreach (var problem in solved)
                 {
                     nodes[problem].Children.Add(nodes[id]);
@@ -180,27 +182,28 @@ static class BookOutline
             var parent = parents[id]!;
             var parentType = StrProp(byId[parent], "type") ?? "";
             var ownLayer = OwnLayer(record, type);
-            if (string.Equals(type, "decision", StringComparison.Ordinal) && string.Equals(ownLayer, "implementation", StringComparison.Ordinal))
+            if (string.Equals(type, "decision", StringComparison.Ordinal))
             {
-                // A technical decision tops the implementation layer at product
-                // and module level alike, so the decision chapter holds every
-                // technical decision in one place.
+                // A decision tops its own layer at product and module level
+                // alike, so each decision chapter holds every decision of its
+                // kind in one place.
+                PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
+                continue;
+            }
+
+            if (type is "runbook" or "waiver" or "external-system")
+            {
+                // A runbook, waiver or external system filed under a module
+                // still tops its own layer, so a Behavior module holds only
+                // the module's own records.
                 PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
                 continue;
             }
 
             if (string.Equals(parentType, "product", StringComparison.Ordinal))
             {
-                // Every product child tops its own layer: directly in intent, beside the other top nodes elsewhere.
-                if (string.Equals(ownLayer, "intent", StringComparison.Ordinal))
-                {
-                    layers["intent"].Children.Add(nodes[id]);
-                }
-                else
-                {
-                    PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
-                }
-
+                // Every product child tops its own layer under its type group, except a module, which tops Behavior directly.
+                PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
                 continue;
             }
 
@@ -561,7 +564,7 @@ static class BookOutline
         }
         else if (string.Equals(layer, "implementation", StringComparison.Ordinal))
         {
-            layers["implementation"].Children.Add(node);
+            group("implementation", type).Children.Add(node);
         }
         else
         {
@@ -572,16 +575,16 @@ static class BookOutline
     /// <summary>Selects the layer a record tops when placement lifts it out of its parent.</summary>
     /// <param name="record">The record object, whose file path marks a technical decision.</param>
     /// <param name="type">The record type.</param>
-    /// <returns>The layer key for the record type: root for the product, with technical decisions in implementation and unknown types in intent.</returns>
+    /// <returns>The layer key for the record type: root for the product, with technical decisions and runbooks in implementation, waivers in governance, and unknown types in intent.</returns>
     static string OwnLayer(JsonObject record, string type) =>
         type switch
         {
             "product" => "root",
-            "term" => "glossary",
             "waiver" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
-            "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" => "intent",
-            "module" or "aggregate" or "store" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
+            "runbook" => "implementation",
+            "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" or "role" or "term" => "intent",
+            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
             _ => "intent",
         };
 
@@ -642,6 +645,15 @@ static class BookOutline
         string.Equals(type, "screen", StringComparison.Ordinal)
             ? "Screens"
             : LiteSpec.Cli.Book.BookModel.TypeLabel(type, plural: true);
+
+    /// <summary>Gives the display label of one type group: the plural of its record type, with the intent requirements under their own name.</summary>
+    /// <param name="layer">The layer key the group tops.</param>
+    /// <param name="type">The record type the group holds.</param>
+    /// <returns>The group label: Product requirements for the intent requirements group, else the plural label of the type.</returns>
+    static string GroupLabel(string layer, string type) =>
+        string.Equals(layer, "intent", StringComparison.Ordinal) && string.Equals(type, "requirement", StringComparison.Ordinal)
+            ? "Product requirements"
+            : PluralOf(type);
 
     /// <summary>Sorts every layer tree and then each layer root by its layer order.</summary>
     /// <param name="layers">The layer root nodes keyed by layer key.</param>

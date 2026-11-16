@@ -36,12 +36,12 @@ internal static class ConsistencyChecks
 
             if (kind == "query" && (useCase.Has(RecordFields.Consistency) || useCase.Has(RecordFields.Idempotency)))
             {
-                findings.Add(new Finding("field-invalid", $"Query '{useCase.Id}' states consistency or idempotency; a read is idempotent by kind.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("record-invalid", $"Query '{useCase.Id}' states consistency or idempotency; a read is idempotent by kind.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
             if (mode is not null && mode is not ("atomic" or "per-record"))
             {
-                findings.Add(new Finding("field-invalid", $"Use case '{useCase.Id}' has consistency mode '{mode}' outside {string.Join(", ", Modes)}.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' has consistency mode '{mode}' outside {string.Join(", ", Modes)}.", useCase.File, useCase.Line, SubjectOf(useCase)));
                 continue;
             }
 
@@ -89,7 +89,7 @@ internal static class ConsistencyChecks
         }
         else if (!Replays.Contains(replay, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("field-invalid", $"Command '{useCase.Id}' holds replay '{replay}' outside {string.Join(", ", Replays)}.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            findings.Add(new Finding("record-invalid", $"Command '{useCase.Id}' holds replay '{replay}' outside {string.Join(", ", Replays)}.", useCase.File, useCase.Line, SubjectOf(useCase)));
         }
 
         if (Str(idempotency, RecordFields.Mode) == "state"
@@ -112,7 +112,7 @@ internal static class ConsistencyChecks
 
         if (conflicts.ValueKind != JsonValueKind.Array)
         {
-            findings.Add(new Finding("field-invalid", $"Command '{useCase.Id}' holds conflicts as no list.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            findings.Add(new Finding("record-invalid", $"Command '{useCase.Id}' holds conflicts as no list.", useCase.File, useCase.Line, SubjectOf(useCase)));
             return;
         }
 
@@ -130,7 +130,7 @@ internal static class ConsistencyChecks
 
             if (winner is null || !Winners.Contains(winner, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("field-invalid", $"Command '{useCase.Id}' holds conflict winner '{winner ?? "none"}' outside {string.Join(", ", Winners)}.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("record-invalid", $"Command '{useCase.Id}' holds conflict winner '{winner ?? "none"}' outside {string.Join(", ", Winners)}.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -310,7 +310,7 @@ internal static class ConsistencyChecks
                 continue;
             }
 
-            findings.Add(new Finding("field-invalid", $"Rule '{rule.Id}' holds releasedBy as neither a record id nor a never object.", rule.File, rule.Line, SubjectOf(rule)));
+            findings.Add(new Finding("record-invalid", $"Rule '{rule.Id}' holds releasedBy as neither a record id nor a never object.", rule.File, rule.Line, SubjectOf(rule)));
         }
     }
 

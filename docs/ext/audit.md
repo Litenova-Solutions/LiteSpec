@@ -22,7 +22,7 @@ Enable `audit` when a person or a machine acts inside data that another party ow
 
 This extension replaces `litespec/quality/security#record-security-audit-events`. The baseline states the required record fields for one security audit event. This extension owns the rest: the producer that writes records, the transaction boundary for their commit, the policy that selects which attempts are audited, the store that holds them, and the read path a reviewer uses to read them.
 
-This extension switches on no optional record type.
+This extension switches on no optional record type. Selecting this extension adds the `audit` field on command use cases.
 
 Diagnostic logs and domain events already exist in every system, but neither answers who is accountable. An audited system keeps three records with different producers, readers, and retention. Using one in place of another removes evidence.
 
@@ -58,13 +58,13 @@ A domain event cannot substitute for an audit record. It carries domain identity
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Every command use case MUST declare its audit position in its `audit` field, or declare an exemption with its justification.
+**Statement:** Every command use case in a project selecting `audit` MUST declare its audit position in its `audit` field, or declare an exemption with its justification.
 
-**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states a level of `required`, `optional`, or `none` with its target, or an exemption with its justification, so each omission becomes a visible statement. A level of `none` means the command is not audited. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of searching for missing calls.
+**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states a level of `required`, `optional`, or `none` with its target, or an exemption with its justification, so each omission becomes a visible statement. A level of `none` means the command is not audited. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of searching for missing calls. The `audit` field belongs to this extension: a project that selects `audit` writes it on every command, and a project that does not select it leaves the field out.
 
 **Example:** A Claimwick command that lists public help pages declares an exemption, because reading public text is not a sensitive action.
 
-**Reviewed for:** Does every command use case state its audit position or an exemption with its justification in its `audit` field? Check each use case page.
+**Checked by:** `litespec model check` reports `audit-missing` for a command with neither an audit position nor an exemption when `audit` is selected, and `field-extension-unselected` for an `audit` field written when `audit` is not selected.
 
 ### Audit Async Work at Request Time
 

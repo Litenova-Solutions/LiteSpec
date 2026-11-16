@@ -68,24 +68,36 @@ static class RefusalSetReader
             {
                 var code = TextOf(item, RecordFields.Code);
                 var meaning = TextOf(item, RecordFields.Meaning);
-                var problemType = TextOf(item, "problemType");
 
-                if (code.Length == 0 || !code.StartsWith(module + ".", StringComparison.Ordinal) || problemType.Length == 0)
+                if (code.Length == 0 || !code.StartsWith(module + ".", StringComparison.Ordinal))
                 {
                     problems.Add(new Finding(
-                        "field-invalid",
-                        $"Refusal '{code}' in '{file}' needs a code named <module>.<name> and a problemType.",
+                        "record-invalid",
+                        $"Refusal '{code}' in '{file}' needs a code named <module>.<name>.",
                         file,
                         item.Line,
                         null));
                     continue;
                 }
 
-                entries.Add(new RefusalEntry(module, code, meaning, problemType, file));
+                entries.Add(new RefusalEntry(module, code, meaning, file));
             }
         }
 
         return entries;
+    }
+
+    /// <summary>The problem type of a refusal code: the project's base followed by the code's part after its module.</summary>
+    /// <param name="code">The refusal code, <c>&lt;module&gt;.&lt;name&gt;</c>.</param>
+    /// <param name="problemTypeBase">The URI prefix the project declares in <c>problemTypeBase</c>.</param>
+    /// <returns>The problem type of the code, as an RFC 9457 type.</returns>
+    public static string ProblemTypeOf(string code, string problemTypeBase)
+    {
+        var name = code.Contains('.', StringComparison.Ordinal)
+            ? code[(code.IndexOf('.', StringComparison.Ordinal) + 1)..]
+            : code;
+
+        return problemTypeBase + name;
     }
 
     /// <summary>

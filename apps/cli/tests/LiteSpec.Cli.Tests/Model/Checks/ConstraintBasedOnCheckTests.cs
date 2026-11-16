@@ -6,10 +6,10 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the constraint basedOn check: a constraint rests on research records only.</summary>
 public sealed class ConstraintBasedOnCheckTests
 {
-    /// <summary>A basedOn entry that names a decision, not a research record, reports field-invalid.</summary>
+    /// <summary>A basedOn entry that names a decision, not a research record, reports record-invalid.</summary>
     /// <proves>litespec/core/intent#answer-every-constraint</proves>
     [Fact]
-    public void BasedOnNamingNonResearchReportsFieldInvalid()
+    public void BasedOnNamingNonResearchReportsRecordInvalid()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -27,7 +27,7 @@ public sealed class ConstraintBasedOnCheckTests
                 1,
                 """{"summary": "Loan storage.", "options": [{"name": "Documents", "pros": "Simple.", "cons": "Slow."}], "choice": "Documents.", "consequences": "Loans are documents.", "reopenedWhen": "Reads exceed one second."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "field-invalid" && found.Message.Contains("basedOn", StringComparison.Ordinal));
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("basedOn", StringComparison.Ordinal));
 
         Assert.Equal("constraint/library-privacy-law", finding.Subject);
         Assert.Equal("Constraint 'constraint/library-privacy-law' names 'decision/0001-loan-store' in basedOn, which is no research record.", finding.Message);

@@ -72,7 +72,7 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("requirement-cites-missing", "G")]
+    [InlineData("requirement-cites-missing", "A")]
     [InlineData("constraint-unreached", "G")]
     public void NewIntentCodesHaveTiers(string code, string tier)
     {
@@ -96,7 +96,6 @@ public sealed class FindingCodesTests
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData("explanation-orphaned")]
-    [InlineData("source-key-unknown")]
     [InlineData("source-unused")]
     public void YamlLinkCodesAreGeneral(string code)
     {
@@ -109,7 +108,6 @@ public sealed class FindingCodesTests
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData("job-name-invalid", "A")]
-    [InlineData("reaction-trigger-unknown", "G")]
     [InlineData("reaction-unimplemented", "S")]
     [InlineData("job-unimplemented", "S")]
     [InlineData("atomicity-drift", "G")]
@@ -148,6 +146,9 @@ public sealed class FindingCodesTests
     [InlineData("record-invalid", RecordLayer.Any, false, null)]
     [InlineData("quality-alert-missing", RecordLayer.Any, false, "delivery")]
     [InlineData("alert-link-missing", RecordLayer.Any, false, "delivery")]
+    [InlineData("audit-missing", RecordLayer.Behavior, false, "audit")]
+    [InlineData("field-extension-unselected", RecordLayer.Behavior, false, null)]
+    [InlineData("statement-measure-missing", RecordLayer.Proof, false, null)]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);
@@ -225,7 +226,7 @@ public sealed class FindingCodesTests
         "drift", "invalid", "duplicate", "expired", "unverified", "break",
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
         "foreign", "uncarried", "unexercised", "unhandled", "vague", "wide", "written",
-        "unreachable", "alias", "failed", "dead-end",
+        "unreachable", "alias", "failed", "dead-end", "unselected",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

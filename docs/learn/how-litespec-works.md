@@ -26,11 +26,11 @@ Every record belongs to the layer that owns it, and each layer answers one quest
 | Layer | Question | Records |
 |:--|:--|:--|
 | Intent | Why build it, and what do we promise? | goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role |
-| Behavior | How does the system behave to keep the promises? | module, aggregate, store, rule, domain event, module event, integration event, use case, result, scenario, reaction, job, read model, notification, setting, permission, refusal set, entry point, screen, external system |
+| Behavior | How does the system behave to keep the promises? | module, aggregate, rule, domain event, module event, integration event, use case, result, scenario, reaction, job, read model, notification, setting, permission, refusal set, entry point, screen, external system |
 | Implementation | How is it built and operated? | Code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | Tests, check results, the computed completion, the rendered book |
 
-Above the four layers stands the product record at `.litespec/product.yaml`: what is built, for whom, and where it stops. A project claims the layers it uses in `layers` in `.litespec/project.yaml`. Both Intent and Behavior also use glossary terms, which live in the one glossary file at the top of `.litespec/` rather than as record files of their own.
+Above the four layers stands the product record at `.litespec/product.yaml`: what is built, for whom, and where it stops. A project claims the layers it uses in `layers` in `.litespec/project.yaml`, as [Supported Scope](../core/scope.md#layer-claims) states. Both Intent and Behavior also use glossary terms, which live in the one glossary file at the top of `.litespec/` rather than as record files of their own.
 
 Three rules join the layers:
 

@@ -18,7 +18,7 @@ public sealed class SharedCitationTests
         using var temp = ModelFixture.Prepare("small");
         using var home = WriteFixtureHome();
         PinReviewedVersion(temp.Path);
-        AppendCitation(temp.Path, "litespec/core/principles#retire-records-with-replaces");
+        AppendCitation(temp.Path, "litespec/core/principles#keep-one-authored-source");
         var result = TestCli.Run(
             ["model", "check", "--root", temp.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
@@ -82,9 +82,9 @@ public sealed class SharedCitationTests
 
         ## Standards
 
-        ### Retire records with replaces
+        ### Keep One Authored Source
 
-        A retired record stays readable.
+        Each fact has one authored source.
         """;
 
     /// <summary>The provision the fixture's exception cites, so pinning stays complete.</summary>

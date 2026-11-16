@@ -14,4 +14,5 @@ A permission allows only the action its meaning states. These readings are not a
 - `permission/approve-expense` covers refusing an expense too, because the refuse use case cites it.
 - `permission/post-reimbursement` does not cover exporting the approved expenses. Export has its own permission.
 - `permission/list-expenses` reads expenses and changes none of them.
+- `permission/manage-reminder-preference` does not let a manager change another manager's preference. Only finance changes a preference that belongs to someone else.
 - `permission/remove-personal-data` removes personal data of a decided expense only. It does not remove the expense.

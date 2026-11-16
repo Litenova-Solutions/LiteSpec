@@ -5,7 +5,7 @@
 
 These patterns decide how a form takes each value and what the form reports around it. Each field kind gets one shape, so entry stays fast and each error message names exactly what to fix.
 
-An owner picks an option from the wireframe drawings for each field the form needs, and the team records each choice in its pattern catalog. Every option keeps the rules in Standards, whatever the choice.
+An owner picks an option from the wireframe drawings for each field the form needs, and the team records each choice in its pattern catalog. Every option keeps the defaults in Conventions unless the project records another choice, whatever the choice. This page belongs to the Forms and Input category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -23,21 +23,23 @@ Each choice is recorded in the project's pattern catalog, the file that holds th
 
 The drawings follow one Claimwick expense: Ava's EUR 45.00 hotel night for a Rotterdam client visit, its EUR 5.00 booking fee, the Amsterdam sales cost centre that pays, and the trips, payouts, and approval policies around it.
 
-Every drawing keeps the eight rules from the Standards section below. Each field shows a visible label naming its value. An error appears only after the field is left, and clears as soon as the value turns valid. Each error reaches assistive technology.
+Every drawing keeps the eight defaults from the Conventions section below unless the project records another choice. Each field shows a visible label naming its value. An error appears only after the field is left, and clears as soon as the value turns valid. Each error reaches assistive technology.
 
 Each required field carries a marker. Submit stays enabled so it can reveal errors. Each field states its purpose for autocomplete. Enter is ignored while an input method still composes text.
 
 A person's name is one field accepting any script, and a refused submit keeps everything the reader typed, as [Keep the Reader's Input Through a Failure](feedback-and-states.md#keep-the-readers-input-through-a-failure) states.
 
-## Standards
+## Conventions
 
 ### Name Every Field with a Visible Label
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#name-every-field-with-a-visible-label`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** Every field MUST carry a visible label that names its value.
+**Default:** Carry a visible label naming its value on every field.
+
+**Replacement:** A project that replaces the default records how its fields name their values.
 
 **Rationale:** A placeholder vanishes on the first keystroke, so a filled field with no label beside it no longer says what it holds. Screen readers announce the label aloud, and sighted staff read it when they return to a filled form to check each value before saving. Without a visible label, both groups have to guess what each value means.
 
@@ -47,9 +49,11 @@ A person's name is one field accepting any script, and a refused submit keeps ev
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#show-a-field-error-after-the-field-is-left`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A field error MUST appear only once the user leaves the field with a changed value or submits the form, and disappear as soon as the value becomes valid.
+**Default:** Show a field error only once the user leaves the field with a changed value or submits the form, and clear it as soon as the value becomes valid.
+
+**Replacement:** A project that replaces the default records when its field errors appear and clear.
 
 **Rationale:** An error shown while the reader is still typing marks a value they have not finished entering, and one that lingers after the fix makes the reader doubt the repair. The message appears once the field is left or the form is submitted, and it clears as soon as the value turns valid.
 
@@ -59,9 +63,11 @@ A person's name is one field accepting any script, and a refused submit keeps ev
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#expose-a-field-error-to-assistive-technology`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A field MUST set `aria-invalid="true"` and point `aria-describedby` at its error only while the error shows.
+**Default:** Set `aria-invalid="true"` on a field and point `aria-describedby` at its error only while the error shows.
+
+**Replacement:** A project that replaces the default records how its fields expose errors to assistive technology.
 
 **Rationale:** A visible error message alone reaches only sighted readers. Marking the field invalid and pointing at the error message tells assistive technology which field failed and what the message says, which is what WCAG 3.3.1 Error Identification and WCAG 4.1.2 Name, Role, Value ask for: an error described in text, and a field exposing its state. An untouched empty required field carries neither mark, so it is never announced as invalid before the reader reaches it.
 
@@ -71,9 +77,11 @@ A person's name is one field accepting any script, and a refused submit keeps ev
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#mark-every-required-field`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** Every required field MUST carry the `required` attribute and a visible marker that the form explains once, above its first field.
+**Default:** Carry the `required` attribute and a visible marker on every required field, with the form explaining the marker once, above its first field.
+
+**Replacement:** A project that replaces the default records how its forms mark required fields.
 
 **Rationale:** WCAG 3.3.2 Labels or Instructions asks that a required field say so before it is submitted. A visible marker tells sighted readers which fields they must fill, and the `required` attribute tells the same to screen readers. Explaining the marker once, above the first field, teaches it for the whole form, so every field needs only the mark itself.
 
@@ -83,9 +91,11 @@ A person's name is one field accepting any script, and a refused submit keeps ev
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#keep-submit-enabled-to-reveal-errors`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A submit control MUST stay enabled while the form holds errors, so pressing it moves focus to the summary or the first field in error.
+**Default:** Keep a submit control enabled while the form holds errors, so pressing it moves focus to the summary or the first field in error.
+
+**Replacement:** A project that replaces the default records how its submit controls treat a form holding errors.
 
 **Rationale:** A grayed-out submit button gives no reason and no way forward. A submit that stays enabled can be pressed, and pressing it moves focus to the summary or to the first field in error, which names what to fix. The form still refuses the submit, and keeps every entered value.
 
@@ -95,9 +105,11 @@ A person's name is one field accepting any script, and a refused submit keeps ev
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#state-each-fields-purpose`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A field collecting information about the user MUST carry the `autocomplete` token for its purpose.
+**Default:** Carry the `autocomplete` token for its purpose on a field collecting information about the user.
+
+**Replacement:** A project that replaces the default records how its fields state their purpose.
 
 **Rationale:** Without the token, the browser cannot offer the stored bank account holder or email, so the reader retypes both on every claim. With the right token, the browser fills each value once, and the reader checks it instead of typing it. That is what WCAG 1.3.5 Identify Input Purpose asks for: the purpose of each such field must be programmatically determinable.
 
@@ -107,9 +119,11 @@ A person's name is one field accepting any script, and a refused submit keeps ev
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#refuse-enter-while-text-is-being-composed`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A field that acts on the Enter key MUST ignore it while an input method is composing text.
+**Default:** Ignore the Enter key in a field that acts on it while an input method is composing text.
+
+**Replacement:** A project that replaces the default records how its fields treat Enter during composition.
 
 **Rationale:** Someone typing a vendor name in Japanese or Chinese presses Enter to confirm a candidate in the input method, not to submit anything. If a tag input or inline rename acts on that keystroke, it files half-composed text. Ignoring Enter until composition ends keeps the submitted value whole.
 
@@ -119,15 +133,15 @@ A person's name is one field accepting any script, and a refused submit keeps ev
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#take-a-name-in-one-field-of-any-script`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A person's name MUST be one field that accepts letters of any script.
+**Default:** Take a person's name in one field that accepts letters of any script.
+
+**Replacement:** A project that replaces the default records how its name entries split the name and which scripts they accept.
 
 **Rationale:** Given and family names are not universal, so splitting them forces staff into parts their name lacks, and a Latin-only rule refuses real staff. One field accepting letters of any script holds every name staff enter.
 
 **Reviewed for:** Does any built name entry split the name, or refuse letters outside Latin? Open the built staff and spender forms and enter a name in a non-Latin script.
-
-## Conventions
 
 ### Match the Keyboard to the Value
 

@@ -43,17 +43,6 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.fan-out");
     }
 
-    /// <summary>Store Only Command Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
-    [Fact]
-    public void StoreOnlyCommandReportsNothing()
-    {
-        using var temp = WritePassConsumer();
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
-
-        Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.record-scan");
-    }
-
     /// <summary>Entity Command Without A Called Act Still Reports.</summary>
     /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
@@ -138,7 +127,7 @@ public sealed class ActCheckTests
         Assert.Contains("Loan.Borrow", finding.Message);
     }
 
-    /// <summary>Writes a consumer where an entity command, a fan-out with no changes, and a store-only command each have a handler calling nothing.</summary>
+    /// <summary>Writes a consumer where an entity command and a fan-out with no changes each have a handler calling nothing.</summary>
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WritePassConsumer()
     {
@@ -181,8 +170,7 @@ public sealed class ActCheckTests
                   "vocabulary": {
                     "verbs": [
                       "borrow",
-                      "fan",
-                      "record"
+                      "fan"
                     ]
                   }
                 }
@@ -209,20 +197,6 @@ public sealed class ActCheckTests
                 # Loan
 
                 A loan lends one copy to one reader.
-                """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.yaml", """
-                {
-                  "type": "store",
-                  "id": "store/lending.outbox",
-                  "title": "Outbox",
-                  "summary": "The lending-owned table of scans awaiting dispatch.",
-                  "owner": "module/lending"
-                }
-                """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.md", """
-                # Outbox
-
-                The lending-owned table of scans awaiting dispatch.
                 """);
             TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml", """
                 {
@@ -277,34 +251,6 @@ public sealed class ActCheckTests
 
                 A pass issues one borrow command per record.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/use-cases/record-scan/record-scan.yaml", """
-                {
-                  "type": "use-case",
-                  "id": "use-case/lending.record-scan",
-                  "title": "Record scan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "command",
-                  "writes": [
-                    "store/lending.outbox"
-                  ],
-                  "records": [
-                    {
-                      "type": "result",
-                      "id": "result/record-scan.recorded",
-                      "title": "Recorded",
-                      "owner": "lending-team",
-                      "outcome": "success",
-                      "meaning": "The scan is recorded."
-                    }
-                  ]
-                }
-                """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/use-cases/record-scan/record-scan.md", """
-                # Record scan
-
-                A kiosk records each scan attempt.
-                """);
             Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommand.cs", """
                 namespace Library.Application.Lending.Loans.BorrowCopy;
 
@@ -345,27 +291,6 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Outbox/RecordScan/RecordScanCommand.cs", """
-                namespace Library.Application.Lending.Outbox.RecordScan;
-
-                public sealed record RecordScanCommand(string Barcode);
-
-                public sealed record RecordScanCommandResult(string Barcode);
-                """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Outbox/RecordScan/RecordScanCommandHandler.cs", """
-                namespace Library.Application.Lending.Outbox.RecordScan;
-
-                /// <implements>use-case/lending.record-scan</implements>
-                public sealed class RecordScanCommandHandler
-                    : ICommandHandler<RecordScanCommand, RecordScanCommandResult>
-                {
-                    public Task<RecordScanCommandResult> HandleAsync(RecordScanCommand command, CancellationToken cancellationToken)
-                    {
-                        return Task.FromResult(new RecordScanCommandResult(command.Barcode));
-                    }
-                }
-                """);
-
             return temp;
         }
         catch

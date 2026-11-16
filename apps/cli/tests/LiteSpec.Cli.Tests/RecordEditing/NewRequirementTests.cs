@@ -10,7 +10,7 @@ public sealed class NewRequirementTests
 
     /// <summary>New requirement writes its own folder beside the feature's record and no explanation file.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
-    /// <proves>litespec/core/intent#keep-intent-in-its-homes</proves>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact(DisplayName = "new requirement writes its own folder in the feature folder")]
     public void WritesItsOwnFolderInTheFeatureFolder()
     {

@@ -40,10 +40,7 @@ internal static class ResultScenarioChecks
                 findings.Add(new Finding(
                     "result-scenario-missing",
                     $"Result '{result.Id}' is shown by no scenario.",
-                    result.File, result.Line, SubjectOf(result))
-                {
-                    TierOverride = "G",
-                });
+                    result.File, result.Line, SubjectOf(result)));
             }
             else if (result.Field(RecordFields.Outcome) == "refusal")
             {

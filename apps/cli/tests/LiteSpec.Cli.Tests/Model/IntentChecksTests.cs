@@ -115,7 +115,7 @@ public sealed class IntentChecksTests
         Assert.Contains("goal-mover-missing", result.Output);
     }
 
-    /// <summary>A flow step naming both an actor and a system blocks with field-invalid.</summary>
+    /// <summary>A flow step naming both an actor and a system blocks with record-invalid.</summary>
     /// <proves>litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system</proves>
     [Fact]
     public void FlowStepWithActorAndSystemBlocks()
@@ -128,7 +128,7 @@ public sealed class IntentChecksTests
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
         Assert.Equal(1, result.Status);
-        Assert.Contains("field-invalid", result.Output);
+        Assert.Contains("record-invalid", result.Output);
     }
 
     /// <summary>A capitalized phrase named in three records with no glossary term advises with term-missing.</summary>

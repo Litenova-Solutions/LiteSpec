@@ -13,6 +13,11 @@ serves:
 - flow/submit-and-reimburse#s2
 - flow/submit-and-reimburse#s3
 - flow/submit-and-reimburse#s4
+fulfills:
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
 pageFrame:
   pattern: record-page
   option: summary-sections-aside-for-history

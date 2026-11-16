@@ -50,7 +50,6 @@ Each record maps to one design pattern, and the stack pages state the code form 
 |:---|:---|
 | module | one module in the bounded context |
 | aggregate, entity | one aggregate, changed through its root |
-| aggregate, store | one state holder with a named owner and no guarded invariant |
 | aggregate `states` | the lifecycle of the aggregate |
 | (none) | child entity, changed only through the root |
 | (none) | value object, compared by value |
@@ -63,7 +62,7 @@ Each record maps to one design pattern, and the stack pages state the code form 
 | rule, frozen-value | a frozen commercial value with its history |
 | domain event | a domain event raised through the root |
 | integration event | a published fact in CloudEvents form |
-| module event | a fact one module publishes for the other modules of the same product |
+| module event | a fact one module publishes for the other modules of the same product, naming the fields of the domain event it carries |
 | use case, command | one handler behind the use case |
 | use case, query | one read behind the use case |
 | reaction | one reaction answering its events |
@@ -71,7 +70,7 @@ Each record maps to one design pattern, and the stack pages state the code form 
 | job, one-off | one job running once |
 | read model | one module's copy of another module's published facts, with one projection per source event |
 | notification | one rendered message to its audience |
-| setting | one tunable value with its range and setter |
+| setting | one operator configuration value with its range and setter |
 | result | one ending per result, each refusal with its code |
 | scenario | an executable example proving the scenario |
 
@@ -151,7 +150,7 @@ A technical rate limit protects the platform, not the plan, so it is declared in
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, `litespec/core/use-cases#grant-each-use-case-scoped-access`, `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`, `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`, `litespec/core/use-cases#bound-every-caller-supplied-input-value`, `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`, `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/use-cases#name-the-idempotency-of-every-command`, `litespec/core/use-cases#state-the-audit-position-of-every-command`, `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, `litespec/core/use-cases#name-the-result-each-scenario-ends-in`, `litespec/core/use-cases#prove-every-written-result-with-a-scenario`, `litespec/core/use-cases#write-every-scenario-in-given-when-then`, `litespec/core/use-cases#exercise-rules-from-scenarios`, `litespec/core/use-cases#share-scenario-setup-in-background`, `litespec/core/use-cases#record-attempts-behind-recorded-refusals`, `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`, `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`, `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`, `litespec/core/access#authorize-every-use-case-through-a-declared-grant`, `litespec/core/access#scope-every-grant-to-its-tenant-reach`, `litespec/core/edges#describe-every-integration-event-for-its-direction`, `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`, `litespec/core/edges#give-each-entry-point-a-kind`, `litespec/core/edges#give-every-screen-an-address-or-a-host`, and `litespec/core/edges#match-a-screens-offers-to-its-calls`.
+This informative example demonstrates `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/model#connect-every-behavior-record-to-intent`, `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`, `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`, `litespec/core/use-cases#bound-every-caller-supplied-input-value`, `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`, `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/use-cases#name-the-idempotency-of-every-command`, `litespec/core/use-cases#state-the-audit-position-of-every-command`, `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, `litespec/core/use-cases#name-the-result-each-scenario-ends-in`, `litespec/core/use-cases#prove-every-written-result-with-a-scenario`, `litespec/core/use-cases#write-every-scenario-in-given-when-then`, `litespec/core/use-cases#exercise-rules-from-scenarios`, `litespec/core/use-cases#share-scenario-setup-in-background`, `litespec/core/use-cases#record-attempts-behind-recorded-refusals`, `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`, `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`, `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`, `litespec/core/access#authorize-every-use-case-through-a-declared-grant`, `litespec/core/access#scope-every-grant-to-its-tenant-reach`, `litespec/core/edges#describe-every-integration-event-for-its-direction`, `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`, `litespec/core/edges#give-each-entry-point-a-kind`, `litespec/core/edges#give-every-screen-an-address-or-a-host`, and `litespec/core/edges#match-a-screens-offers-to-its-calls`.
 
 **Hold queue.** A reader who finds the copy lent places a hold. The place-hold command serves the hold flow step and fulfills the pickup-window requirement. It declares the place-hold permission with own tenant scope in `access`, and the library browser entry point that reaches it carries session auth. Its caller-supplied pickup code declares its type, with the code-shape rule bounding it. The write commits atomically over the hold aggregate, and the hold-placed integration event, declared with its typed payload and trust, is emitted after commit. The derived refusals come first, then the written refusals in precedence order, ahead of the hold-placed result. Each scenario states its given, when, and then from the shared background, names the rules it exercises, and ends in a named result, so every written result meets its scenario. The command audits at required level, with idempotency keyed on the request.
 

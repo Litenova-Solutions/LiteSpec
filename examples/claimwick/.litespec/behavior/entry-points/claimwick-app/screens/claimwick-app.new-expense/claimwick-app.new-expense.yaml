@@ -7,6 +7,12 @@ offers:
 - use-case/spending.submit-expense
 serves:
 - flow/submit-and-reimburse#s1
+fulfills:
+- requirement/ui-control-boundary
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
 pageFrame:
   pattern: form-page
   option: one-section-one-column-of-fields-cancel-beside-save

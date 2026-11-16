@@ -75,7 +75,7 @@ A reaction or job scenario is proved the same way: its test fires the trigger an
 
 **Statement:** A rule claim MUST confirm only through a scenario the same test proves.
 
-**Rationale:** Every rule holds at the point its kind names: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, and a rule whose `binds` names the aggregates or stores it spans, at the state guard or the atomic use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that `litespec/core/domain-model#tabulate-every-calculation-with-examples` requires.
+**Rationale:** Every rule holds at the point its kind names: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, and a rule whose `binds` names the aggregates it spans, at the state guard or the atomic use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that `litespec/core/domain-model#tabulate-every-calculation-with-examples` requires.
 
 **Example:** A test proves the scenario for an expense above the threshold with no receipt, and claims the receipt rule alongside it. The scenario sends the command and asserts the `spending.receipt-missing` refusal, and the rule claim confirms because the same test proves the scenario. No separate mark names the validator or the store.
 
@@ -89,7 +89,7 @@ A reaction or job scenario is proved the same way: its test fires the trigger an
 
 **Statement:** A test MUST take its expected values only from the Then of the scenario it proves.
 
-**Rationale:** Expected values copied from the code under test restate what the code does, so the test passes with the code whatever the specification says. The Then of the scenario holds the expected ending, and the test asserts exactly that ending. The agent obligation behind this rule lives in `litespec/core/agent#take-expected-values-from-the-scenario`, with held-back example rows checked after implementation under `litespec/core/agent#verify-refusals-and-calculations-against-held-back-examples`.
+**Rationale:** Expected values copied from the code under test restate what the code does, so the test passes with the code whatever the specification says. The Then of the scenario holds the expected ending, and the test asserts exactly that ending. The agent obligation behind this rule lives in `litespec/core/agent#take-expected-values-from-the-scenario`, with held-back example rows checked after implementation under `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples`.
 
 **Example:** When the Then says the expense is submitted, the test asserts the submitted state and the returned identifier from the scenario text. Its author reads no handler code to learn the expected values.
 

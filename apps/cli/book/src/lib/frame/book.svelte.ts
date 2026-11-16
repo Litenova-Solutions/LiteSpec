@@ -85,7 +85,7 @@ import {
   visibleMapFor,
   type FacetDef,
 } from "./filters";
-import { pluralize, stripStep } from "./text";
+import { capitalize, pluralize, stripStep } from "./text";
 
 export type { Connection, Explanation };
 
@@ -910,6 +910,18 @@ export class Book {
     return this.orderIdx[id] ?? 0;
   }
 
+  // ---------- outline grouping ----------
+  /** The outline group a record sits in: its record type from the lexicon, with a requirement at the top of Intent in the product group. */
+  groupOf(id: string): { key: string; label: string } {
+    const clean = stripStep(id);
+    const type = this.typeOf(clean);
+    if (type === "requirement" && (this.parentOf[clean] ?? null) === null && this.layerOf[clean] === "intent") {
+      return { key: "type:product-requirement", label: "Product requirements" };
+    }
+    const entry = this.lex.types?.[type];
+    return { key: "type:" + type, label: entry ? entry.plural || entry.label || type : capitalize(type) + "s" };
+  }
+
   // ---------- navigation ----------
   expandTo(id: string): void {
     const next: Record<string, boolean> = { ...this.expanded };
@@ -922,12 +934,12 @@ export class Book {
     if (this.kids(id).length) next[id] = true;
     let parent = this.parentOf[id] ?? null;
     const layer = this.layerOf[id] ?? "";
-    delete this.closedGroups[(parent ?? layer) + "|" + this.typeOf(id)];
+    delete this.closedGroups[(parent ?? layer) + "|" + this.groupOf(id).key];
     while (parent) {
       next[parent] = true;
       const grandparent = this.parentOf[parent] ?? null;
       const parentLayer = this.layerOf[parent] ?? "";
-      delete this.closedGroups[(grandparent ?? parentLayer) + "|" + this.typeOf(parent)];
+      delete this.closedGroups[(grandparent ?? parentLayer) + "|" + this.groupOf(parent).key];
       parent = this.parentOf[parent] ?? null;
     }
     this.expanded = next;

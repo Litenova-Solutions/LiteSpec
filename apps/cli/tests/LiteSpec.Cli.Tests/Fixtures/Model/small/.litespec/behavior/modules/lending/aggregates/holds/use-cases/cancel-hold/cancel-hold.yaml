@@ -15,9 +15,6 @@ raises:
 idempotency:
   mode: none
   reason: Each call cancels its own hold, and canceling an ended hold is refused.
-audit:
-  level: none
-  target: No audit trail; the hold record shows each cancellation.
 records:
 - type: result
   id: result/cancel-hold.canceled
@@ -29,4 +26,3 @@ records:
   title: Hold ended
   outcome: refusal
   code: lending.hold-not-waiting
-  meaning: The hold already left the queue.

@@ -1033,6 +1033,6 @@ Output: the files to change and the report to write.
 
 Packages: None.
 
-Related extensions: `stage` for the period before the first customer data.
+Related extensions: None.
 
 Guides: None.

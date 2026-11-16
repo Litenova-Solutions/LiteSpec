@@ -33,7 +33,7 @@ A record earns its place by answering its question with evidence. A problem no s
 
 ### Product Intent and Its Parts
 
-Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. Prices, markets, hiring, and launch dates stay out, except as a constraint that binds the software or as dated research behind a choice. [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) draws that boundary, and [The Software Test](#the-software-test) applies it to each record type.
+Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. Prices, markets, hiring, and launch dates stay out, except as a constraint that binds the software or as dated research behind a choice. The software-only rule in `litespec/core/principles#write-every-record-about-the-software` draws that boundary, and [The Software Test](#the-software-test) applies it to each record type.
 
 Read Intent along the chain from problem to requirement. A problem names one pain an outsider suffers today, with the evidence that it is real. A feature is the offer against that pain. Each feature stands in its own folder under `intent/features/`, names the problems it answers in `solves`, and names the goals it moves in `advances`. A requirement states one commitment Behavior fulfills. Each requirement sits in its own folder inside its feature's folder, and keeps one authoritative file there; a commitment no offer carries, such as tenant isolation, sits at product level instead.
 
@@ -94,7 +94,13 @@ Each record sits in its parent's folder, and the folder names that parent. You f
 
 The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds problems, visions, goals, constraints, decisions, research, actors, roles, flows, features, and product requirements, each kind in its own folder. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps.
 
+Decision folders take their numbers from one sequence across every home, as `litespec/core/model#take-decision-numbers-from-one-sequence` states.
+
 Every folder comes from a closed set per layer. A record of a type in the wrong folder, and a record type outside its allowed levels, are blocking findings.
+
+Every Intent record sits in the home its type names, as `litespec/core/model#write-every-record-in-its-home` states.
+
+Each explanation file interprets its record without adding behavior, as `litespec/core/writing#interpret-fields-in-explanations-never-restate-them` states.
 
 Modules are not declared here. A module is a code boundary, so Behavior declares it. [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Behavior and code.
 
@@ -170,22 +176,6 @@ Intent states decisions and promises, not how the system works today. States, re
 
 ## Standards
 
-### Keep Intent in Its Homes
-
-**ID:** `litespec/core/intent#keep-intent-in-its-homes`
-
-**Strength:** required
-
-**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:flow, record:feature, record:requirement
-
-**Statement:** A consumer MUST keep its product record at `.litespec/product.yaml`, each vision, goal, problem, constraint, decision, research record, actor and flow in its own folder under `.litespec/intent/`, each feature in `intent/features/<name>/`, each feature requirement in its own folder in its feature's `requirements/` folder, and each product requirement in `intent/requirements/<name>/`.
-
-**Rationale:** Before building, an agent asks one question: what did the product decide? When Intent sits in one home per kind, every reader finds the answer in the same place. A second home for any kind starts a second truth about the product, and each plan cites the one it prefers.
-
-The folder is the parent: product level holds the product-wide kinds, and a feature's folder holds its requirements. Modules stay out because a module is a code boundary, and Intent is organized by reason, not by code. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
-
-**Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and any file under `intent/modules/`.
-
 ### State One Product
 
 **ID:** `litespec/core/intent#state-one-product`
@@ -217,26 +207,6 @@ The product lists what it leaves out in `excludes`, in plain sentences. Only an 
 **Example:** Claimwick states its reader as an employee submitting expenses from a phone, its accountability as showing what each expense waits for, `is` as calm, plain, and exact, `isNot` as playful, dense, and showy, and one `do` rule: every screen shows each amount with its currency code.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a product `brand` outside the record schema.
-
-### Keep Company Operation Out of Intent
-
-**ID:** `litespec/core/intent#keep-company-operation-out-of-intent`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An Intent or Behavior record MUST state only behavior the application performs, data it holds, a refusal it raises at runtime, infrastructure it runs on, or a limit it enforces.
-
-**Rationale:** A record earns its place when the team can check it against the software. Company facts such as prices as an offer, markets, hiring, sales actions, launch dates, company goals, and founder concerns can be checked only against a bank account, a diary, or a contract, so they pull every review away from the product and toward the business. The rule keeps them out.
-
-A company fact that binds the application still enters: as a constraint when an authority or a limit binds the application, and as dated research when a choice rests on it. [The Software Test](#the-software-test) applies the boundary per record type: a goal states a software outcome, a problem states a user pain the software answers, a feature states a capability the software has, and a module names a product area, never a company function.
-
-Plan entitlements the software enforces stay, as settings and permissions; the price list as a company offer leaves.
-
-**Example:** A library holds its lending limit as a setting the application enforces, so the limit stays as Behavior. The membership price it charges as an offer is a company fact: it enters only as dated research behind the decision that sets the limit.
-
-**Reviewed for:** Does any Intent or Behavior record state company operation instead of software behavior? Read each record beside the constraints and research that carry the binding facts.
 
 ### Reach Every Intent Record with Behavior
 
@@ -374,9 +344,9 @@ An outcome the system controls directly is a quality requirement, not a goal, an
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem MUST name in `affects` a primary sufferer that is a person or organization actor outside the team building the product, and state the pain in `summary` and `statement` in fields.
+**Statement:** A problem MUST name in `affects` a primary sufferer that is a person or organization actor outside the team building the product, state the pain in `summary` and `statement` in fields, and carry graded evidence.
 
-**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page.
+**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. The graded evidence shows the pain is real, as [Grade Problem Evidence by Kind](#grade-problem-evidence-by-kind) states.
 
 Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.
 
@@ -482,7 +452,7 @@ Time, money, and risk stay apart because each is judged in its own units; a tota
 
 **Reviewed for:** Does any problem evidence entry show that a solution can be built rather than that sufferers have the pain? Look at each problem's evidence entries and the sources they cite.
 
-### Name No Solution in a Problem Statement
+### Name No Solution in a Problem Statement or Its Resolution Criteria
 
 **ID:** `litespec/core/intent#name-no-solution-in-a-problem-statement`
 
@@ -490,13 +460,15 @@ Time, money, and risk stay apart because each is judged in its own units; a tota
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem `statement` MUST name no product, feature or solution.
+**Statement:** A problem MUST name no product, feature, solution, or implementation in its `statement` or its Resolution Criteria, and resolve each failure case with an observable outcome for the sufferer.
 
 **Rationale:** A statement naming a solution files a missing feature as a pain: the reader accepts the answer before weighing the pain, and every alternative answer reads as off-topic. A statement naming the sufferer, the condition, and the consequence leaves the answer to the feature that solves it.
 
-**Example:** "Readers lose track of due dates" names a pain. "Readers need a reminder dashboard" names a solution and is reported.
+Criteria covering one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature delivering the outcome names the problem in `solves`, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.
 
-**Reviewed for:** Does any problem statement name a product, a feature, or a solution? Look at the problem statements beside their sufferers.
+**Example:** "Readers lose track of due dates" names a pain. "Readers need a reminder dashboard" names a solution and is reported. The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks.
+
+**Reviewed for:** Does any problem `statement` or Resolution Criteria outcome name a product, feature, solution, or implementation, and does every failure case have a resolution criterion stating an observable outcome for the sufferer? Look at the problem statements beside their sufferers and at Failure Cases beside Resolution Criteria in each problem explanation file.
 
 ### Solve Problems with Standalone Features
 
@@ -531,36 +503,6 @@ A problem page is complete when a reader arriving cold can understand the proble
 **Example:** The library problem on due dates lists its two failure cases, shows one reader at the desk with three overdue copies in Example, and closes with Resolution Criteria: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date.
 
 **Reviewed for:** Does every problem explanation carry each fixed section in order? Look at the H2 sections of each problem explanation file.
-
-### Resolve Every Failure Case with an Outcome
-
-**ID:** `litespec/core/intent#resolve-every-failure-case-with-an-outcome`
-
-**Strength:** required
-
-**Applies to:** artifact: record:problem
-
-**Statement:** A problem explanation file MUST state under Resolution Criteria, for each failure case, an observable outcome for the sufferer that shows the failure has ended, naming no feature or implementation.
-
-**Rationale:** Criteria covering one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature delivering the outcome names the problem in `solves`, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.
-
-**Example:** The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks.
-
-**Reviewed for:** Does every failure case have a resolution criterion stating an outcome, with no feature or implementation named? Look at Failure Cases beside Resolution Criteria in each problem explanation file.
-
-### State Each Problem with Its Evidence
-
-**ID:** `litespec/core/intent#state-each-problem-with-its-evidence`
-
-**Strength:** required
-
-**Applies to:** artifact: record:problem
-
-**Statement:** A problem MUST state its `summary` and `statement` in fields, with its evidence graded under [Grade Problem Evidence by Kind](#grade-problem-evidence-by-kind).
-
-**Rationale:** A problem earns its readers' trust twice: the `summary` describes the pain in the sufferers' own terms, and the graded evidence shows the pain is real. Without named sufferers, the team builds solutions nobody needs; the `affects` link names the actors facing the pain, so each pain traces to the people a solution must serve.
-
-**Checked by:** `litespec model check` reports `record-invalid` for a problem record file missing its `summary` or `statement`.
 
 ### State Each Feature with Its Offering
 
@@ -608,22 +550,6 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Reviewed for:** Does every success criterion state an outcome the feature brings about on its own, one a tester can check? Look at the Success Criteria section of each feature explanation file.
 
-### Add No Behavior in an Explanation File
-
-**ID:** `litespec/core/intent#add-no-behavior-in-an-explanation-file`
-
-**Strength:** required
-
-**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role
-
-**Statement:** An explanation file of an Intent record MUST describe only behavior that the record's own fields and the records it cites state.
-
-**Rationale:** A requirement statement is the one authoritative form of a commitment. A rule appearing only in prose, such as differences above 10 EUR showing in red, is a second requirement no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. The explanation clarifies the requirements with context and an example; a new behavior becomes a requirement or leaves the prose. Proposed by [decision/0054-write-each-shared-record-rule-once](decision/0054-write-each-shared-record-rule-once), which widens this rule from features and requirements to every Intent explanation file.
-
-**Example:** A library feature explanation saying renewed copies show their new date in bold states a behavior no requirement holds, so the sentence becomes a requirement or is removed.
-
-**Reviewed for:** Does any Intent explanation file describe behavior its record's fields and cited records do not state? Compare each explanation file with its record's fields and the records it cites.
-
 ### Split Records Whose Parts Change Separately
 
 **ID:** `litespec/core/intent#split-records-whose-parts-change-separately`
@@ -654,7 +580,7 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway is an external system, not an actor.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an actor record file with a kind outside person and organization, or with no `belongsToTeam`; `litespec model check` reports `field-invalid` for such a kind.
+**Checked by:** `litespec model check` reports `record-invalid` for an actor record file with a kind outside person and organization, or with no `belongsToTeam`; `litespec model check` reports `record-invalid` for such a kind.
 
 ### State What the Product Assumes Each Actor Knows
 
@@ -720,7 +646,7 @@ The `kind` is technical, organizational, convention, or legal. The `authority` n
 
 A constraint can state `effectiveFrom`, the date its rule starts to bind, and can name in `basedOn` the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in `basedOn`. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a constraint record file missing a required field or holding no source, and `field-invalid` for a `basedOn` that names no research record; the builder generates What It Requires from citing requirements.
+**Checked by:** `litespec model check` reports `record-invalid` for a constraint record file missing a required field or holding no source, and `record-invalid` for a `basedOn` that names no research record; the builder generates What It Requires from citing requirements.
 
 ### Cite a Source for Each Constraint Rule
 
@@ -736,7 +662,7 @@ A constraint can state `effectiveFrom`, the date its rule starts to bind, and ca
 
 `model render` writes each source's link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
-**Checked by:** `litespec model check` reports `source-link-bare` for a bare URL, `source-key-unknown` for a key the constraint does not declare, and `source-unused` for a source no rule cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
+**Checked by:** `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for a key the constraint does not declare, and `source-unused` for a source no rule cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
 
 ### State Each Constraint Rule with Its Condition
 
@@ -748,7 +674,7 @@ A constraint can state `effectiveFrom`, the date its rule starts to bind, and ca
 
 **Statement:** Each rule in a constraint's Rules section MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.
 
-**Rationale:** A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. A paragraph stating what the product does about the obligation mixes two authors in one rule, so the product's response stays in Effect on the Product, where each effect names the requirement holding it. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record's Open Questions.
+**Rationale:** A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. A paragraph stating what the product does about the obligation mixes two authors in one rule, so the product's response stays in Effect on the Product, which holds free prose about the effect. The book shows the requirements citing the constraint from their `cites` links. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record's Open Questions.
 
 Scope says whom the rule covers; it is separate from `applies`, which says whether the rule binds the product at all. A constraint holds rules sharing one source, scope, and change, so rules changing separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
@@ -768,7 +694,7 @@ Scope says whom the rule covers; it is separate from `applies`, which says wheth
 
 The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `key`, `url`, and `readOn`, and `publishedOn` where the source states its publication date. The explanation cites a source with a reference link `[text][key]`; a bare URL, an unknown key, or an unused source is a finding. Findings states each claim with its source, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. Open Questions holds what the sources do not establish, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Findings in its explanation file, `source-link-bare` for a bare URL, `source-key-unknown` for an unknown key, and `source-unused` for an unused source.
+**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Findings in its explanation file, `source-link-bare` for a bare URL, `reference-unknown` for an unknown key, and `source-unused` for an unused source.
 
 ### State Each Research Finding with Its Source
 
@@ -810,9 +736,11 @@ The `reopenedWhen` condition names what would reopen the choice, so the decision
 
 **Applies to:** artifact: record:decision
 
-**Statement:** Each decision option MUST carry its `pros` and its `cons`.
+**Statement:** Each decision option MUST carry its `pros` and its `cons`, with the options compared on their merits in Options.
 
-**Rationale:** A later reader can revisit a choice argued from options and evidence, but not one argued from authority. Each option carries its name with what speaks for it in `pros` and against it in `cons`, so the comparison sits in the entries where every option shows both sides, instead of hiding in a prose section.
+**Rationale:** A later reader can revisit a choice argued from options and evidence, but not one argued from authority. Each option carries its name with what speaks for it in `pros` and against it in `cons`, so the comparison sits in the entries where every option shows both sides, instead of hiding in a prose section. Options compared on the same points let a later reader rejudge the choice when the world moves; a record naming only the winner forces the whole argument to run again. Any option singled out from the decision carries its own sentence saying why it stands apart.
+
+**Example:** A Claimwick decision compares a receipt threshold of EUR 25 with EUR 50 on refusal rate and approver load.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a decision option missing `pros` or `cons`.
 
@@ -884,13 +812,15 @@ The `reopenedWhen` condition names what would reopen the choice, so the decision
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** A requirement `rationale` MUST state why the requirement exists, adding no behavior and claiming no more than the reason supports.
+**Statement:** A requirement `rationale` MUST state in one line why the requirement exists, adding no behavior and claiming no more than the reason supports.
 
-**Rationale:** A rationale adding a rule hides a second requirement where no check reads it. A rationale naming one cause where several exist, or claiming a comparison nobody measured, misleads the reader rejudging the requirement later. A difference between two balances can come from a missing entry, a wrong amount, a duplicate, or a wrong opening balance, so "a difference means an entry is missing" is too narrow, and "the quickest sign" is unmeasured.
+**Rationale:** A commitment without its reason cannot be rejudged when the world moves: the reader finds what holds but not why. One line forces the reason into the open without inviting an essay. The feature explanation carries the full story, and an optional requirement explanation carries what the statement does not make obvious; the `rationale` carries the reason beside the commitment.
+
+A rationale adding a rule hides a second requirement where no check reads it. A rationale naming one cause where several exist, or claiming a comparison nobody measured, misleads the reader rejudging the requirement later. A difference between two balances can come from a missing entry, a wrong amount, a duplicate, or a wrong opening balance, so "a difference means an entry is missing" is too narrow, and "the quickest sign" is unmeasured.
 
 **Example:** The Claimwick rationale for `requirement/approval.nobody-approves-own-expense` reads "A second person checks each expense before it is paid": it states the reason and adds no rule.
 
-**Reviewed for:** Does any rationale add a rule, name one cause where several exist, or claim a comparison nobody measured? Look at the `rationale` of each requirement.
+**Reviewed for:** Does every requirement explain its reason in a one-line `rationale` that adds no rule, names no single cause where several exist, and claims no unmeasured comparison? Look at the `rationale` of each requirement.
 
 ### Cite the Reasons of Every Requirement
 
@@ -900,39 +830,13 @@ The `reopenedWhen` condition names what would reopen the choice, so the decision
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Each requirement MUST name its reasons in `cites`.
+**Statement:** Each requirement MUST name its reasons in `cites`, including each constraint with `applies: true` that binds it.
 
 **Rationale:** A requirement with no stated reason cannot be rejudged when the world moves. The `cites` list holds the reasons: any of goal, vision, problem, feature, constraint, research, and decision, in no order of precedence. The parent is the feature whose folder holds the requirement, or the product for a product requirement; the cited reasons are the connections explaining why the commitment exists. A requirement citing nothing reports as `requirement-cites-missing`.
 
-**Checked by:** `litespec model check` reports `requirement-cites-missing` for a requirement naming no reason in `cites`.
+An outside rule the team acknowledged but no requirement answers is a rule the product can break unknowingly. Citing each applying constraint from the requirements bound by it ties the rule to the commitments obeying it, and What It Requires lists those commitments back on the constraint. A constraint with `applies: true` that no requirement cites reports as `constraint-unreached` at check level G.
 
-### Cite Every Constraint That Binds a Requirement
-
-**ID:** `litespec/core/intent#cite-every-constraint-that-binds-a-requirement`
-
-**Strength:** required
-
-**Applies to:** artifact: record:requirement
-
-**Statement:** A requirement MUST cite in `cites` each constraint with `applies: true` that binds it.
-
-**Rationale:** An outside rule the team acknowledged but no requirement answers is a rule the product can break unknowingly. Citing each applying constraint from the requirements bound by it ties the rule to the commitments obeying it, and What It Requires lists those commitments back on the constraint. A constraint with `applies: true` that no requirement cites reports as `constraint-unreached` at check level G.
-
-**Checked by:** `litespec model check` reports `constraint-unreached` for a constraint with `applies: true` that no requirement cites.
-
-### Explain Each Requirement in One Line
-
-**ID:** `litespec/core/intent#explain-each-requirement-in-one-line`
-
-**Strength:** required
-
-**Applies to:** artifact: record:requirement
-
-**Statement:** Each requirement MUST explain its reason in a one-line `rationale`.
-
-**Rationale:** A commitment without its reason cannot be rejudged when the world moves: the reader finds what holds but not why. One line forces the reason into the open without inviting an essay. The feature explanation carries the full story, and an optional requirement explanation carries what the statement does not make obvious; the `rationale` carries the reason beside the commitment.
-
-**Reviewed for:** Does every requirement explain its reason in a one-line `rationale`? Look at the `rationale` of each requirement.
+**Checked by:** `litespec model check` reports `requirement-cites-missing` for a requirement naming no reason in `cites`, and `constraint-unreached` for a constraint with `applies: true` that no requirement cites.
 
 ### State the Measure on a Counted Requirement
 
@@ -978,7 +882,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Statement:** A functional or policy requirement MUST be fulfilled only from Behavior records.
 
-**Rationale:** Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, and a served-content entry point. A flow names the requirements it shows in its steps' `cites`, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in `basedOn`, by its `check`, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.
+**Rationale:** Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, entry point, and screen. An entry point fulfills through a served content entry in its `servedContent` list, and a screen fulfills a requirement about the interface, such as what a chart shows. A flow names the requirements it shows in its steps' `cites`, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in `basedOn`, by its `check`, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.
 
 **Checked by:** `litespec model check` reports `requirement-fulfillment-missing` for a requirement no Behavior record fulfills.
 
@@ -1006,9 +910,9 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Applies to:** artifact: record:flow
 
-**Statement:** A flow MUST state in `summary`, in up to four sentences, who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom.
+**Statement:** A flow MUST state its `summary` in up to four sentences before its steps.
 
-**Rationale:** Steps first would teach a cold reader the mechanics before the purpose. The summary states the flow in the actor's terms, and the book renders it first on the page, so purpose comes before mechanics. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0068-call-ordered-steps-a-flow](decision/0068-call-ordered-steps-a-flow).
+**Rationale:** Steps first would teach a cold reader the mechanics before the purpose. The summary states the flow in the actor's terms: who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom, as `litespec/core/writing#write-for-the-reader-who-arrives-cold` states. The book renders it first on the page, so purpose comes before mechanics. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0068-call-ordered-steps-a-flow](decision/0068-call-ordered-steps-a-flow).
 
 **Example:** The library flow to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return.
 
@@ -1028,7 +932,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Example:** In the library flow, the step sending the overdue notice names the text gateway in `system`; the steps the reader takes name no performer.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a flow step carrying both `actor` and `system`; `litespec model check` reports `field-invalid` for such a step or for a `system` naming no external system.
+**Checked by:** `litespec model check` reports `record-invalid` for a flow step carrying both `actor` and `system`; `litespec model check` reports `record-invalid` for such a step or for a `system` naming no external system.
 
 ### Keep Behavior Out of Intent
 
@@ -1124,7 +1028,7 @@ The performer and the failure text are optional: a step names another actor only
 
 **Example:** A branch with `step` s3, `condition` the manager rejects the expense, and `nextStep` end ends the flow at the rejection; the act of rejecting stays the step s3.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a branch missing `step`, `condition` or `nextStep`, and `field-invalid` for a branch whose `step` or `nextStep` names no step of the flow.
+**Checked by:** `litespec model check` reports `record-invalid` for a branch missing `step`, `condition` or `nextStep`, and `record-invalid` for a branch whose `step` or `nextStep` names no step of the flow.
 
 ### Reach Each Finish Condition Through a Step
 
@@ -1194,21 +1098,7 @@ The `failure` states what the person sees and can do next, never the rule behind
 
 ## Conventions
 
-### Name Product Decisions in One Numbered Sequence
-
-**ID:** `litespec/core/intent#name-product-decisions-in-one-numbered-sequence`
-
-**Strength:** default
-
-**Applies to:** artifact: record:decision
-
-**Default:** Name each product decision folder `<four-digit number>-<name>/`, holding its record file `<four-digit number>-<name>.yaml`, and use `decision/<four-digit number>-<name>` as its identifier.
-
-**Replacement:** A project records its own decision naming in its documentation index.
-
-**Rationale:** Numbers order decisions by when each choice was proposed, giving every record a short stable name a citation can carry. The number counts as a word, so digits never stand alone in the identifier. Without one sequence, scattered names would force every citation to carry the full path.
-
-**Reviewed for:** Does every decision folder follow the numbered sequence, with its record file and identifier matching? Look at each folder under the decisions folder.
+None.
 
 ## Reference Example
 

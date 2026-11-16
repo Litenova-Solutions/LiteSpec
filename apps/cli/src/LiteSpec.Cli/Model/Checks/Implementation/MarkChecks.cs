@@ -14,14 +14,15 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>
 ///     The mark checks: every element carries the marks its kind takes, each mark names
-///     a record of the type its kind takes in the declared style of its language, each
-///     backend mark sits in its record's module folder, hand-written runtime values match
-///     their records, each command handler calls its marked act, each marked act raises its
-///     use case's events, and every mapped record is named by a mark.
+///     a record of the type its kind takes, each frontend element carries the marks its
+///     kind takes, each backend mark sits in its record's module folder, each command
+///     handler calls its marked act, each marked act raises its use case's events, and
+///     every mapped record is named by a mark. The analyzers own the C# mark style,
+///     count, runtime values and partial types, which one compilation shows; this
+///     check owns what needs the records.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 /// <follows>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</follows>
-/// <follows>litespec/core/model#declare-one-mark-style</follows>
 /// <follows>litespec/core/model#match-each-backend-mark-to-its-folder</follows>
 /// <follows>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</follows>
 internal static class MarkChecks
@@ -36,7 +37,6 @@ internal static class MarkChecks
         CheckMarkFolderDrift(model, findings);
         CheckStrayMarks(model, findings);
         CheckDecisionsFollowed(model, findings);
-        CheckRuntimeValueDrift(model, findings);
         CheckUseCaseActCalled(model, findings);
         CheckActEvents(model, findings);
         CheckRecordsImplemented(model, findings);
@@ -59,7 +59,7 @@ internal static class MarkChecks
         }
     }
 
-    /// <summary>Reports each mark that names no record of the kind it takes, uses the wrong style or verb, or breaks its kind count.</summary>
+    /// <summary>Reports each mark that names no record of the kind it takes or uses the wrong verb, and each frontend element that breaks its kind count.</summary>
     /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckMarkLinks(ProjectModel model, List<Finding> findings)
@@ -80,42 +80,27 @@ internal static class MarkChecks
                 {
                     CheckServesMark(model, element, mark, conventions, findings);
                 }
-
-                if (UsesDeclaredStyle(element.Kind) && mark.Style != model.Config.Marks)
-                {
-                    var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
-
-                    findings.Add(new Finding("mark-style-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' writes its mark '{mark.RecordId}' in the {mark.Style.ToProjectValue()} style, but the project declares {model.Config.Marks.ToProjectValue()}.", mark.File, mark.Line, subject));
-                }
             }
 
-            var counted = element.Marks
-                .Where(mark => element.Kind == CodeKind.Technical
-                    ? mark.Verb == MarkVerb.Implements || mark.Verb == MarkVerb.Follows
-                    : mark.Verb != MarkVerb.Follows)
-                .Select(mark => mark.RecordId)
-                .ToList();
-            var count = MarkRules.CheckCount(element.Kind, counted);
-
-            if (count.Violated)
+            // A C# element's count is LS5003's, from the compilation; only the
+            // frontend kinds no analyzer reads are counted here.
+            if (element.Kind is CodeKind.FrontendModule or CodeKind.FrontendRoute or CodeKind.BrowserTest)
             {
-                findings.Add(count.Duplicate is not null
-                    ? new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
-                    : new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
+                var counted = element.Marks
+                    .Where(mark => mark.Verb != MarkVerb.Follows)
+                    .Select(mark => mark.RecordId)
+                    .ToList();
+                var count = MarkRules.CheckCount(element.Kind, counted);
+
+                if (count.Violated)
+                {
+                    findings.Add(count.Duplicate is not null
+                        ? new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
+                        : new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
+                }
             }
         }
     }
-
-    /// <summary>
-    ///     Whether the kind writes its marks in the style the project declares: the C#
-    ///     elements. A frontend kind writes the typed constant whatever the project
-    ///     declares, so its style is compared within its own language, never against
-    ///     the declaration.
-    /// </summary>
-    /// <param name="kind">The scanned code element kind.</param>
-    /// <returns>True for the C sharp element kinds whose mark style follows the project declaration; otherwise false.</returns>
-    private static bool UsesDeclaredStyle(CodeKind kind) =>
-        kind is not (CodeKind.FrontendModule or CodeKind.FrontendRoute or CodeKind.BrowserTest);
 
     /// <summary>
     ///     Reports every backend mark naming a use case, reaction, job or aggregate outside
@@ -529,53 +514,6 @@ internal static class MarkChecks
         return false;
     }
 
-    /// <summary>Reports each domain event classification or rule exception code that differs from its record.</summary>
-    /// <param name="model">The loaded project model that resolves each marked record.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckRuntimeValueDrift(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var element in model.Code.Elements)
-        {
-            if (element.RuntimeValue is not { } actual)
-            {
-                continue;
-            }
-
-            if (element.Kind == CodeKind.DomainEvent)
-            {
-                var record = element.Marks
-                    .Select(mark => model.ById.TryGetValue(mark.RecordId, out var found) ? found : null)
-                    .FirstOrDefault(found => found?.Type == RecordTypes.DomainEvent);
-
-                if (record is null || actual == record.Id)
-                {
-                    continue;
-                }
-
-                findings.Add(new Finding("runtime-value-drift", $"Domain event '{element.Class}' declares Classification '{actual}', but its record states '{record.Id}'.", element.File, element.Line, SubjectOf(record)));
-            }
-            else if (element.Kind == CodeKind.RuleException)
-            {
-                var rule = element.Marks
-                    .Select(mark => model.ById.TryGetValue(mark.RecordId, out var found) ? found : null)
-                    .FirstOrDefault(found => found is { Type: RecordTypes.Rule } candidate && RefusalCodeOf(model, candidate) is not null);
-
-                if (rule is null || actual == RefusalCodeOf(model, rule))
-                {
-                    continue;
-                }
-
-                findings.Add(new Finding("runtime-value-drift", $"Rule exception '{element.Class}' declares Code '{actual}', but its record states '{RefusalCodeOf(model, rule)}'.", element.File, element.Line, SubjectOf(rule)));
-            }
-        }
-    }
-
-    /// <summary>The refusal code of the rule through the shared rule over the model.</summary>
-    /// <param name="model">The loaded project model that resolves the result records the rule refusal names.</param>
-    /// <param name="rule">The rule record whose refusal code is wanted.</param>
-    /// <returns>The refusal code the rule states, or null when it states none.</returns>
-    private static string? RefusalCodeOf(ProjectModel model, Record rule) => RefusalCode.Of(rule);
-
     /// <summary>Reports each guarded use case whose handler calls no aggregate method marked with the use case.</summary>
     /// <param name="model">The loaded project model that holds each handler and aggregate method.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -614,19 +552,12 @@ internal static class MarkChecks
         }
     }
 
-    /// <summary>
-    ///     Whether the use case changes an entity aggregate: one
-    ///     <c>writes</c> entry naming a record that is no store. A store
-    ///     holds no guarded act, so a use case changing only stores calls
-    ///     no marked aggregate method.
-    /// </summary>
-    /// <param name="model">The loaded project model that resolves each changed record.</param>
+    /// <summary>Whether the use case changes an aggregate: one <c>writes</c> entry.</summary>
+    /// <param name="model">The loaded project model.</param>
     /// <param name="useCase">The use case record whose writes field is inspected.</param>
-    /// <returns>True when the use case changes a record that is no store; otherwise false.</returns>
+    /// <returns>True when the use case writes an aggregate; otherwise false.</returns>
     private static bool ChangesGuardedAggregate(ProjectModel model, Record useCase) =>
-        useCase.Ids(RecordFields.Writes).Any(id =>
-            !model.ById.TryGetValue(id, out var changed)
-            || changed.Type != RecordTypes.Store);
+        useCase.Ids(RecordFields.Writes).Any();
 
     /// <summary>
     ///     Whether an aggregate call reaches the use case's act: the called method name

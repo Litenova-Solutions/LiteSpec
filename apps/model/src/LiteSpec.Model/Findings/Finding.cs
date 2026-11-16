@@ -22,12 +22,9 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
     /// <summary>The .NET (Roslyn) reader name.</summary>
     public const string RoslynReader = "roslyn";
 
-    /// <summary>Gets the tier this one finding carries instead of its code's tier, when the check grades it apart from its code.</summary>
-    public string? TierOverride { get; init; }
-
     /// <summary>The TypeScript reader name.</summary>
     public const string TypeScriptReader = "typescript";
 
     /// <summary>Gets the finding tier from <see cref="FindingCodes" />: G blocks, S blocks where qualified, A reports.</summary>
-    public string Tier => TierOverride ?? (FindingCodes.IsKnown(Code) ? FindingCodes.Of(Code).Level : "G");
+    public string Tier => FindingCodes.IsKnown(Code) ? FindingCodes.Of(Code).Level : "G";
 }

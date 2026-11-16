@@ -1,28 +1,29 @@
 <script lang="ts">
   import type { BookRecord, RecordFields } from "$lib/frame";
-  import { book, esc } from "$lib/frame";
+  import { book } from "$lib/frame";
   import { RecordLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
-  import { clsTag, codeOf, fieldType, muted, td, thRow } from "../shared/record-cells";
-  import { objectList, stringField } from "../page-values";
+  import { codeOf, fieldType, td, thRow } from "../shared/record-cells";
+  import { objectList, stringField, stringList } from "../page-values";
 
-  // A module event: the domain event it translates and the payload it carries.
+  // A module event: the domain event it translates and the fields it selects from it, each with its type there.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
-  const payload = $derived(objectList(f, "payload"));
+  const selected = $derived(stringList(f, "fields"));
   const translates = $derived(stringField(f, "translates"));
-
-  function payloadQualifiers(p: RecordFields): string {
-    const quals = [
-      p.required === true ? "required" : p.required === false ? "optional" : "",
-      p.many ? "many" : "",
-    ].filter(Boolean);
-    return quals.length ? muted(quals.map(esc).join(" &middot; ")) : "";
-  }
+  // The translated domain event's carries by name: each selected field reads its type here.
+  const carryOf = $derived.by(() => {
+    const byName: Record<string, RecordFields> = {};
+    for (const carry of objectList(book.get(translates ?? "")?.fields, "carries")) {
+      const name = stringField(carry, "name");
+      if (name) byName[name] = carry;
+    }
+    return byName;
+  });
 </script>
 
 {#if translates}
@@ -30,17 +31,15 @@
     <DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>
   </DefinitionList>
 {/if}
-{#if payload.length}
-  <PageSection blockKey="pay" heading="payload" count={payload.length}>
+{#if selected.length}
+  <PageSection blockKey="fields" heading="fields" count={selected.length}>
     <DataTable
-      head={["Name", "Type", "Meaning", "Classification"]}
-      caption={`Payload of ${r.title}`}
-      rows={payload.map((p) => [
-        thRow(codeOf(stringField(p, "name") ?? "") + payloadQualifiers(p)),
-        td(fieldType(book, p)),
-        td(esc(stringField(p, "meaning") ?? "")),
-        td(clsTag(p.classification)),
-      ])}
+      head={["Name", "Type"]}
+      caption={`Fields of ${r.title}`}
+      rows={selected.map((name) => {
+        const carry = carryOf[name];
+        return [thRow(codeOf(name)), td(carry ? fieldType(book, carry) : "")];
+      })}
     />
   </PageSection>
 {/if}

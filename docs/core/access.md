@@ -81,7 +81,7 @@ Each pattern proves its allowed and refused calls with scenarios, as [Prove Hier
 
 An entry point is how people or systems reach the product from outside. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) lists the kinds, and each entry point declares its `auth`. A device caller authenticates with its own auth kind, `device`, and the protocol detail for devices lives in the devices extension.
 
-A `served-content` entry point carries `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so a static script or a legal text is served content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive.
+A browser entry point lists in `servedContent` the static content it serves, such as a script or a legal text: entries of `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so served content is content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive.
 
 ### External Systems
 
@@ -91,7 +91,7 @@ It declares each operation the product may call in `operations`, with its direct
 
 ### Where Access Records Live
 
-Each access record lives in one home. The [project model](model.md) states the shared identifier and ownership rules.
+Each access record lives in the home its type names, as `litespec/core/model#write-every-record-in-its-home` states. The [project model](model.md) states the shared identifier and ownership rules.
 
 | Type | Stored as | Home |
 |:---|:---|:---|
@@ -101,23 +101,9 @@ Each access record lives in one home. The [project model](model.md) states the s
 | `entry-point` | page | The Behavior entry points home |
 | `external-system` | page | The external systems home in Behavior, at product or module level |
 
-An actor, role, or external system page carries a `summary` field that states what the record is for. Each module permissions file holds its permission entries, and its explanation file states the risks and boundaries of those entries.
+An actor, role, or external system page carries a `summary` field that states what the record is for, as `litespec/core/use-cases#summarize-every-use-case` states. Each module permissions file holds its permission entries, and its explanation file states the risks and boundaries of those entries.
 
 ## Standards
-
-### Keep Access Records in Their Homes
-
-**ID:** `litespec/core/access#keep-access-records-in-their-homes`
-
-**Strength:** required
-
-**Applies to:** artifact: record:actor, record:role, record:permission, record:entry-point, record:external-system
-
-**Statement:** An access record MUST live in the home its type names.
-
-**Rationale:** A reader who wants an actor opens the actors home, and the book renders each record from its home too. A record kept anywhere else looks written while everyone opens the home and finds nothing there.
-
-**Reviewed for:** Does every access record sit in the home its type names? Check the actor, role, permission, entry point, and external system homes.
 
 ### Name Every Actor with Its Kind
 
@@ -133,7 +119,7 @@ An actor, role, or external system page carries a `summary` field that states wh
 
 **Example:** An employee actor carries `person`, and the library as a lending party carries `organization`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an actor without `kind` and `field-invalid` for a kind outside person and organization.
+**Checked by:** `litespec model check` reports `record-invalid` for an actor without `kind` and `record-invalid` for a kind outside person and organization.
 
 ### Record Every Role an Actor Holds
 
@@ -171,7 +157,7 @@ Without a named scope, every grant reads as product-wide, and the narrowest gran
 
 **Example:** A scope of `team` bounds the role to one team, while `platform` bounds it to the whole product.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a role without `scope` and `field-invalid` for a scope outside kebab-case form. A `scope` on a permission entry or on a hold fails the schema as an unknown property.
+**Checked by:** `litespec model check` reports `record-invalid` for a role without `scope` and `record-invalid` for a scope outside kebab-case form. A `scope` on a permission entry or on a hold fails the schema as an unknown property.
 
 ### Grant Permissions Through Roles
 
@@ -239,7 +225,7 @@ Without a named scope, every grant reads as product-wide, and the narrowest gran
 
 **Example:** An expense submission names `session`, a library self-checkout kiosk names `device`, and a public catalog names `none`.
 
-**Checked by:** `litespec model check` reports `field-invalid` for an `auth` kind outside session, token, device, link, app, and none.
+**Checked by:** `litespec model check` reports `record-invalid` for an `auth` kind outside session, token, device, link, app, and none.
 
 ### Authorize Every Use Case Through a Declared Grant
 
@@ -257,7 +243,7 @@ System never authorizes an outside request, and a call with no authentication wh
 
 **Example:** `permission/manage-copies` guards staff work, `self(permission/read-loans)` lets a reader read their own loans, `signed-in` opens a workspace to any signed-in person with no permission, `anonymous` opens a public catalog, and `system` covers an archive use case only its retention job runs.
 
-**Checked by:** `litespec model check` reports `field-invalid` for a grant outside permission, self, signed-in, anonymous, and system, and `reference-unknown` for a permission no record defines.
+**Checked by:** `litespec model check` reports `record-invalid` for a grant outside permission, self, signed-in, anonymous, and system, and `reference-unknown` for a permission no record defines.
 
 ### Require a Recent Sign-In by Setting
 
@@ -309,7 +295,7 @@ Where the target must stay on the message, a self grant states the scope beside 
 
 **Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
-**Checked by:** `litespec model check` reports `field-invalid` for a tenant scope outside own, cross, public, and none.
+**Checked by:** `litespec model check` reports `record-invalid` for a tenant scope outside own, cross, public, and none.
 
 ### Evaluate Access in One Order
 
@@ -341,7 +327,7 @@ A role assignment binds a scope instance as well as a level: the tenant the hold
 
 **Rationale:** An entitlement allows one tenant what another is refused, so the grant alone reads as unequal treatment. Citing the setting or plan shows the commercial or configured reason behind the difference, and gives the reviewer the range and setter to judge it against.
 
-**Example:** A submit command cites `setting/spending.receipt-threshold`, so an expense above the line with no receipt is refused by the policy setting rather than by role.
+**Example:** An export command cites the caller's plan, so a tenant past its plan limit is refused by the plan rather than by role.
 
 **Reviewed for:** Does every entitlement grant cite its setting or plan? Check each grant beside the settings its use case cites.
 
@@ -395,21 +381,21 @@ The assignment binds the scope instance the deputy reaches, the tenant or team, 
 
 **Reviewed for:** Does every cross-tenant delegation grant declare its grant on both sides? Check the delegation grants the tenancy extension declares.
 
-### Describe Every Served Content Entry Point with Its Serving Fields
+### Describe Every Served Content Entry with Its Serving Fields
 
-**ID:** `litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields`
+**ID:** `litespec/core/access#describe-every-served-content-entry-with-its-serving-fields`
 
 **Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
-**Statement:** A served content entry point MUST carry path, contentType, cacheControl, versioning, and fulfills.
+**Statement:** Each served content entry on a browser entry point MUST carry path, contentType, cacheControl, versioning, and fulfills.
 
 **Rationale:** Served content is a file the product hands out, not behavior it runs, so the serving fields are the whole contract: where it lives, what it is, how long it caches, how it versions, and which requirement it carries. Without them, a legal text or a static script ships as an unreviewed file with no stated requirement or freshness.
 
 **Example:** A terms text carries its path, `text/html`, its cache window, its version rule, and the requirement it fulfills.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a served content entry point without path, contentType, cacheControl, versioning, or fulfills.
+**Checked by:** `litespec model check` reports `record-invalid` for a served content entry without path, contentType, cacheControl, versioning, or fulfills.
 
 ### Declare Erasure for Every External System
 
@@ -426,38 +412,6 @@ The assignment binds the scope instance the deputy reaches, the tenant or team, 
 **Example:** A payout archive declares `{"mode": "unsupported", "reason": "settled payouts belong to the bank"}` with the decision that accepts the limit, plus the sentence employees see.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an external system without `erasure` and `reference-unknown` for an unsupported, manual or not-applicable erasure without an Intent decision.
-
-### Write a Summary on Every Actor and Role Page
-
-**ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
-
-**Strength:** advisory
-
-**Applies to:** artifact: record:actor, record:role
-
-**Statement:** An actor or role page SHOULD carry a `summary` field.
-
-**Deviation:** A page whose fields already state who the party is and what the grant is for.
-
-**Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row. Settled by [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
-
-**Checked by:** `litespec model check` reports `prose-missing` as advisory for an actor or role page without `summary`.
-
-### Write a Summary on Every External System Page
-
-**ID:** `litespec/core/access#write-a-summary-on-every-external-system-page`
-
-**Strength:** advisory
-
-**Applies to:** artifact: record:external-system
-
-**Statement:** An external system page SHOULD carry a `summary` field.
-
-**Deviation:** A page whose operations already state what the outside system does for the product.
-
-**Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row. Settled by [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
-
-**Checked by:** `litespec model check` reports `prose-missing` as advisory for an external system page without `summary`.
 
 ### Define Each Scope Level in the Glossary
 

@@ -38,17 +38,17 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
     /// <summary>Holds the well known types data the async method analyzer code works with.</summary>
     private sealed class WellKnownTypes
     {
-        /// <summary>Stores the task used by the well known types code.</summary>
+        /// <summary>Holds the task used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _task;
-        /// <summary>Stores the generic task used by the well known types code.</summary>
+        /// <summary>Holds the generic task used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _genericTask;
-        /// <summary>Stores the value task used by the well known types code.</summary>
+        /// <summary>Holds the value task used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _valueTask;
-        /// <summary>Stores the generic value task used by the well known types code.</summary>
+        /// <summary>Holds the generic value task used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _genericValueTask;
-        /// <summary>Stores the cancellation token used by the well known types code.</summary>
+        /// <summary>Holds the cancellation token used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _cancellationToken;
-        /// <summary>Stores the scope used by the well known types code.</summary>
+        /// <summary>Holds the scope used by the well known types code.</summary>
         private readonly FileScope _scope;
 
         /// <summary>Initializes a new instance of the <see cref="WellKnownTypes"/> class.</summary>

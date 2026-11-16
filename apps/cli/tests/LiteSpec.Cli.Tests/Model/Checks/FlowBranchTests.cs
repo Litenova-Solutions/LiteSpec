@@ -25,7 +25,7 @@ public sealed class FlowBranchTests
         using var temp = TestCli.Temp("checks");
         var model = Model(temp.Path, WithBranches(branches));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "field-invalid" && found.Message == message);
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message == message);
         Assert.Equal("flow/loan-desk", finding.Subject);
     }
 
@@ -37,7 +37,7 @@ public sealed class FlowBranchTests
         using var temp = TestCli.Temp("checks");
         var model = Model(temp.Path, WithBranches("""[{"step": "s1", "condition": "The copy is damaged.", "nextStep": "end"}, {"step": "s1", "condition": "The copy is on hold.", "nextStep": "s2"}]"""));
 
-        Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Code == "field-invalid" && found.Message.Contains("branches", StringComparison.Ordinal));
+        Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("branches", StringComparison.Ordinal));
     }
 
     /// <summary>A flow without where it starts, or still carrying betweenSteps, is reported as an invalid record.</summary>

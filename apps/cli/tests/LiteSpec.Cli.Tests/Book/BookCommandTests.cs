@@ -134,7 +134,7 @@ public sealed class BookCommandTests
         Assert.Null(manifest["approvals"]);
     }
 
-    /// <summary>The console line names each unplaced identifier with the failed record-parent-missing rule.</summary>
+    /// <summary>The console line names each unplaced identifier with the failed record-placement-invalid rule.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void UnplacedConsoleLineNamesTheFailedRule()
@@ -151,7 +151,7 @@ public sealed class BookCommandTests
             """)!;
         var line = BookTestBooks.Write(model, temp.Path, Path.Combine(temp.Path, "out"));
 
-        Assert.Contains("record-parent-missing", line, StringComparison.Ordinal);
+        Assert.Contains("record-placement-invalid", line, StringComparison.Ordinal);
         Assert.Contains("requirement/nowhere.lost", line, StringComparison.Ordinal);
     }
 

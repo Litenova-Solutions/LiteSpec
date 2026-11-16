@@ -137,6 +137,43 @@ sealed class Record : IRecordFields
         return [];
     }
 
+    /// <summary>
+    ///     The requirements the entry point's served content fulfills: the fulfills of each
+    ///     served-content entry, in entry order. Only an entry point serves content; the
+    ///     shape check owns which kind may carry it.
+    /// </summary>
+    /// <returns>The fulfilled requirement identifiers, or an empty list when the record serves no content.</returns>
+    public IReadOnlyList<string> ServedFulfills()
+    {
+        if (Type != RecordTypes.EntryPoint)
+        {
+            return [];
+        }
+
+        var ids = new List<string>();
+
+        foreach (var entry in Objects(RecordFields.ServedContent))
+        {
+            if (!entry.TryGetProperty(RecordFields.Fulfills, out var fulfills))
+            {
+                continue;
+            }
+
+            if (fulfills.ValueKind == JsonValueKind.String && fulfills.GetString() is { } single)
+            {
+                ids.Add(single);
+            }
+            else if (fulfills.ValueKind == JsonValueKind.Array)
+            {
+                ids.AddRange(fulfills.EnumerateArray()
+                    .Where(item => item.ValueKind == JsonValueKind.String)
+                    .Select(item => item.GetString()!));
+            }
+        }
+
+        return ids;
+    }
+
     /// <summary>The flow's step targets: flow/name#step for each step carrying an id.</summary>
     /// <returns>The step targets of the flow, or an empty list for any other record type.</returns>
     public IReadOnlyList<string> StepIds()

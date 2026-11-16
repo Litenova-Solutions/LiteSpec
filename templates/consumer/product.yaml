@@ -1,32 +1,26 @@
 type: product
-id: product/claimwick
-title: Claimwick
-summary: |-
-  The company submits work expenses with receipts.
-
-  Employees submit and attach. Managers approve and reject. Finance reimburses.
-boundary: Claimwick submits, approves, and reimburses work expenses with receipts.
+id: product/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what the product is, who it is for, and what it never does, in one paragraph>
+boundary: <what the product does, in one sentence>
 addresses:
-- actor/employee
-- actor/manager
-- actor/finance
+- actor/<name>
+excludes:
+- <what the product never does, or remove this block>
 brand:
-  reader: An employee submits expenses from a phone, and a manager decides them between meetings.
-  accountableFor: Every screen shows what each expense waits for.
+  reader: <who reads the screens and where>
+  accountableFor: <what every screen shows>
   is:
-  - calm
-  - plain
-  - exact
+  - first-word
+  - second-word
+  - third-word
   isNot:
-  - playful
-  - dense
-  - showy
+  - fourth-word
+  - fifth-word
+  - sixth-word
   do:
-  - Every screen shows each amount with its currency code.
-  - Lead with the action the reader can take now.
-  - Put the deadline beside the work, never in a tooltip.
-  - Say what a disabled control is waiting for.
+  - <what every screen does>
   doNot:
-  - Do not decorate. A border earns its place, a color earns its place, and nothing else does.
-  - Do not nest a card inside a card.
-  - Do not ship a button whose success is a paragraph. Success is a role=status announcement, and failure is role=alert.
+  - <what no screen does>

@@ -42,7 +42,7 @@ internal static class AutomationChecks
 
                 if (!Outcomes.Contains(name, StringComparer.Ordinal))
                 {
-                    findings.Add(new Finding("field-invalid", $"{Label(record.Type)} '{record.Id}' declares outcome '{name}' outside {string.Join(", ", Outcomes)}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"{Label(record.Type)} '{record.Id}' declares outcome '{name}' outside {string.Join(", ", Outcomes)}.", record.File, record.Line, SubjectOf(record)));
                 }
                 else if (!seen.Add(name))
                 {
@@ -96,7 +96,7 @@ internal static class AutomationChecks
 
             if (triggers.Count == 0)
             {
-                findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names no trigger.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                findings.Add(new Finding("reference-unknown", $"Reaction '{reaction.Id}' names no trigger.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 continue;
             }
 
@@ -106,11 +106,11 @@ internal static class AutomationChecks
 
                 if (!model.ById.TryGetValue(baseId, out var resolved))
                 {
-                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which no event holds.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                    findings.Add(new Finding("reference-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which no event holds.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
                 else if (resolved.Type is not (RecordTypes.DomainEvent or RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent))
                 {
-                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                    findings.Add(new Finding("reference-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
                 else if (resolved.Type == RecordTypes.DomainEvent && resolved.Module is { } eventModule && reaction.Module is { } reactionModule && eventModule != reactionModule)
                 {

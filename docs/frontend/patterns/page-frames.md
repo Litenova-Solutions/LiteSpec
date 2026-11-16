@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A page-frame pattern fixes the layout for one kind of page: which parts sit where, in what order, and which action is primary. This page defines the frame for each kind: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, and error. Each pattern names the question it answers, the default option a project builds, and how that default behaves on a narrow screen, and shows every option as a wireframe. An owner picks an option from the wireframes, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One frame per kind keeps every screen predictable: the reader knows where the heading, actions, and content sit before reading.
+A page-frame pattern fixes the layout for one kind of page: which parts sit where, in what order, and which action is primary. This page defines the frame for each kind: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, and error. Each pattern names the question it answers, the default option a project builds, and how that default behaves on a narrow screen, and shows every option as a wireframe. An owner picks an option from the wireframes, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One frame per kind keeps every screen predictable: the reader knows where the heading, actions, and content sit before reading. This page belongs to the Page Frames category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -15,21 +15,7 @@ Each option shows one wireframe drawing, a plain-text sketch of the parts and th
 
 ### The Running Example
 
-The drawings follow the Claimwick expense product for Harbor and Pine: expense EXP-1042 for Ava, the Rotterdam client visit, and the Amsterdam sales cost centre. Each kind of page uses one frame, so each screen shows one heading. One rule applies to every option: each page shows one top-level heading, as the Standards section below states. The [primary-action rule](record-detail.md#show-one-primary-action-in-a-record-header) is stated on the record detail page, and each header on these frames follows it.
-
-## Standards
-
-### Name the Page in One Heading
-
-**ID:** `litespec/frontend/patterns/page-frames#name-the-page-in-one-heading`
-
-**Strength:** required
-
-**Statement:** Each page MUST show one top-level heading that names the record, list, or task it holds.
-
-**Rationale:** One heading names the open record, list, or task, so a reader who arrives from a link or a search knows where they landed. With two headings, the reader guesses which line to trust, and assistive technology announces the wrong one.
-
-**Reviewed for:** Does every built screen carry exactly one top-level heading that names it? Open every built page and read its top-level heading.
+The drawings follow the Claimwick expense product for Harbor and Pine: expense EXP-1042 for Ava, the Rotterdam client visit, and the Amsterdam sales cost centre. Each kind of page uses one frame, so each screen shows one heading. Each page carries exactly one visible `h1` under `litespec/frontend/ui#pass-every-route-suite-check`, which the route suite checks on every route. The [primary-action default](record-detail.md#show-one-primary-action-in-a-record-header) is stated on the record detail page, and each header on these frames follows it.
 
 ## Patterns
 

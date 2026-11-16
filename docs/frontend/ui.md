@@ -20,7 +20,7 @@ A screen is one page a person sees through an entry point. A route is the code t
 | Layer | It decides | Owner | Proof |
 |:---|:---|:---|:---|
 | Product | Which pattern option a screen draws, what it says, and which command is primary | The pattern pages and the product's pattern catalog | The catalog entry and the floorplan check |
-| Behavior | How each control answers the keyboard, focus, pointer, screen reader, motion setting, color scheme, and browser | The behavior Standards on the pattern pages and on [Frontend Components](components.md), drawn from WCAG 2.2 | The route suite and the component tests |
+| Behavior | How each control answers the keyboard, focus, pointer, screen reader, motion setting, color scheme, and browser | The behavior Conventions on the pattern pages and on [Frontend Components](components.md), drawn from WCAG 2.2 | The route suite and the component tests |
 | Parts | The components and their look | The pinned baseline in the shared UI package | The source lock and the component tests |
 
 The parts layer does not weaken the behavior layer. When a baseline component falls short of a behavior Standard, the shared package configures the component, wraps it in a composite, or records a fork, and no route works around it. A dialog that closes when the user presses outside it, for example, is configured once in the shared form dialog to keep unsaved input, so `litespec/frontend/patterns/dialogs-and-overlays#keep-unsaved-input-through-a-dismissal` holds on every route.

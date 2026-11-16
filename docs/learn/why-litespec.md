@@ -58,14 +58,7 @@ The builder reports missing connections and generates documentation from the mod
 
 LiteSpec aims to make product intent readable by someone who isn't a developer, while giving an agent enough detail to implement it without inventing requirements.
 
-Work moves through four layers:
-
-1. **Intent** describes what the product promises.
-2. **Behavior** defines how the application keeps those promises.
-3. **Implementation** is the code that implements that behavior.
-4. **Proof** is the tests that verify the promised examples through the application's public boundary.
-
-The [record layers](../core/layers.md) define what belongs in each layer and how one translates into the next.
+Work moves through four layers, from Intent through Behavior and Implementation to Proof; the [record layers](../core/layers.md) define what belongs in each layer and how one translates into the next.
 
 ## Why the Scope Is Narrow
 

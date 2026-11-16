@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class IntentShapeCheckTests
 {
     /// <summary>Requirement Without Rationale Reports.</summary>
-    /// <proves>litespec/core/intent#explain-each-requirement-in-one-line</proves>
+    /// <proves>litespec/core/intent#keep-each-rationale-to-its-reason</proves>
     [Fact]
     public void RequirementWithoutRationaleReports()
     {
@@ -29,7 +29,7 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "rationale": "Readers share popular copies.", "setBy": "founder"}"""));
 
-        Assert.True(Reports(model, "field-invalid", "has setBy 'founder' outside product, operator, tenant."));
+        Assert.True(Reports(model, "record-invalid", "has setBy 'founder' outside product, operator, tenant."));
     }
 
     /// <summary>Decision Without ReopenedWhen Reports.</summary>

@@ -28,7 +28,7 @@
     data-rk={id}
     onclick={choose}
     class={cn(
-      "relative flex h-8 w-full cursor-pointer items-center gap-2 px-4 text-left text-sm select-none",
+      "relative flex h-7 w-full cursor-pointer items-center gap-2 px-3 text-left text-sm select-none",
       selected ? "bg-layer-selected font-semibold text-foreground" : "text-foreground hover:bg-layer-hover",
     )}
   >

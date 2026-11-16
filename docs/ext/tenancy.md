@@ -20,7 +20,7 @@ Select `tenancy` only when independent customer organizations share one deployme
 
 No baseline provision changes under this extension. It adds the tenant obligations the baseline does not state: identity, isolation, tenant scope, and operations across every boundary a tenant touches. For delegation, this extension adds only the cross-tenant form; a delegated or temporary grant inside one tenant follows `litespec/core/access#record-a-delegated-grant-inside-one-tenant-as-a-role-assignment`.
 
-It switches on no record type: tenant scope applies to records every project requires, such as decisions, audit records, and exports.
+It switches on no record type: tenant scope applies to records every project requires, such as decisions, audit records, and exports. Every use case declares its tenant scope under `litespec/core/access#scope-every-grant-to-its-tenant-reach`. A cross-tenant delegation declares both its grants under `litespec/core/access#grant-across-tenants-only-through-declared-delegation`, and proves an allowed call and a refused call with scenarios under `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios`.
 
 ## Standards
 
@@ -108,22 +108,6 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Reviewed for:** Does every protected operation refuse when the actor and target tenants mismatch? Check the authorization tests.
 
-### Scope Every Use Case to Its Tenant Reach
-
-**ID:** `litespec/ext/tenancy#scope-every-use-case-to-its-tenant-reach`
-
-**Strength:** required
-
-**Applies to:** artifact: record:use-case
-
-**Statement:** Every use case in a multi-tenant product MUST declare its tenant scope as own, cross, public, or none in `access`.
-
-**Rationale:** The tenant scope bounds which tenant data the call may touch: `own` stays inside the caller tenant, `cross` reaches across tenants, `public` works beyond tenant boundaries, and `none` touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same. `litespec/core/access#scope-every-grant-to-its-tenant-reach` states the values.
-
-**Example:** A Claimwick expense report declares `own`, a finance search across companies declares `cross`, a public catalog declares `public`, and a health check declares `none`.
-
-**Reviewed for:** Does every use case declare own, cross, public, or none in its access tenant scope? Check each use case's access declaration.
-
 ### Isolate Administrative Cross-Tenant Access
 
 **ID:** `litespec/ext/tenancy#isolate-administrative-cross-tenant-access`
@@ -134,7 +118,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** An administrative cross-tenant operation MUST require a permission the actor holds through a role whose scope is platform, writing an audit record.
 
-**Rationale:** Support and operations sometimes reach across tenants, and that reach needs exceptional control: a permission held through a role whose scope is `platform`, with an audit record for every use. Without both, one support login gains unrestricted access to every customer's data, with no record of what it touched. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.
+**Rationale:** Support and operations sometimes reach across tenants, and that reach needs exceptional control: a permission held through a role whose scope is `platform`, with an audit record for every use. Without both, one support login gains unrestricted access to every customer's data, with no record of what it touched. Grants that let one tenant act for another follow `litespec/core/access#grant-across-tenants-only-through-declared-delegation` instead.
 
 **Reviewed for:** Does every administrative cross-tenant use case require a platform-scope permission, with an audit record for every run? Check the use case permissions beside the audit trail.
 
@@ -224,22 +208,6 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Reviewed for:** Does every all-tenant run record the actor, operation, reason, tenant count, and reached tenant identifiers up to the adoption bound? Check the run records.
 
-### Declare Delegation Grants on Both Sides
-
-**ID:** `litespec/ext/tenancy#declare-delegation-grants-on-both-sides`
-
-**Strength:** required
-
-**Applies to:** artifact: record:role
-
-**Statement:** A delegation MUST declare the delegator grant naming who may be acted for and the acting grant naming who may act.
-
-**Rationale:** Delegation lets one actor act for another. A grant on one side alone leaves the other side unreviewed, so the delegator grant names the role whose scope may be acted for and the permissions open to delegation, and the acting grant names the role permitted to act and the pairing it acts under. `litespec/core/access#grant-across-tenants-only-through-declared-delegation` requires both declarations.
-
-**Example:** A Claimwick assistant acts for a manager only where the manager delegation grant and the assistant acting grant both name the pairing.
-
-**Reviewed for:** Does every delegation declare both a delegator grant and an acting grant? Check each delegation's grants.
-
 ### Scope Delegated Grants to Named Permissions
 
 **ID:** `litespec/ext/tenancy#scope-delegated-grants-to-named-permissions`
@@ -281,20 +249,6 @@ It switches on no record type: tenant scope applies to records every project req
 **Rationale:** An acted-for action without a marker reads exactly like the delegator's own action, and a reviewer then cannot tell who actually acted. Recording the delegation grant used puts the acting party on the record beside the delegator. `litespec/ext/audit#mark-actions-taken-under-a-support-grant` states the same marker for administrative grants.
 
 **Reviewed for:** Does every action taken under delegation record the delegation grant used? Check the audit records of delegated actions.
-
-### Prove Delegated Calls with Scenarios
-
-**ID:** `litespec/ext/tenancy#prove-delegated-calls-with-scenarios`
-
-**Strength:** required
-
-**Applies to:** artifact: record:scenario
-
-**Statement:** A delegation MUST prove an allowed call and a refused call with scenarios.
-
-**Rationale:** A pairing described only in prose hides where its grant stops. Nothing distinguishes the allowed call from the call without delegation. One scenario walks an allowed call, and another ends a call without delegation in the derived forbidden result, so the boundary stands as checked fact instead of prose. `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios` requires both scenarios.
-
-**Reviewed for:** Does every delegation prove an allowed call and a refused call with scenarios? Check the delegation scenarios.
 
 ## Conventions
 

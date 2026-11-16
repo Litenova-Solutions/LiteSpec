@@ -15,10 +15,10 @@ namespace LiteSpec.Cli.Tests.Model.Screens;
 /// </summary>
 public sealed class UiBlueprintCheckTests
 {
-    /// <summary>A wireframe action that names no use case the screen offers reports wireframe-reference-unknown.</summary>
+    /// <summary>A wireframe action that names no use case the screen offers reports wireframe-invalid.</summary>
     /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
     [Fact]
-    public void WireframeActionNamingAnUnofferedUseCaseReportsReferenceUnknown()
+    public void WireframeActionNamingAnUnofferedUseCaseReportsWireframeInvalid()
     {
         using var temp = TestCli.Temp("ui-blueprint");
         var model = BaseModel(temp.Path);
@@ -35,7 +35,7 @@ public sealed class UiBlueprintCheckTests
             ```
             """));
 
-        var findings = WithCode(model, "wireframe-reference-unknown");
+        var findings = WithCode(model, "wireframe-invalid");
 
         Assert.Single(findings);
         Assert.Contains("Approve loan", findings[0].Message, StringComparison.Ordinal);
@@ -61,7 +61,7 @@ public sealed class UiBlueprintCheckTests
             ```
             """));
 
-        Assert.Empty(WithCode(model, "wireframe-reference-unknown"));
+        Assert.Empty(WithCode(model, "wireframe-invalid"));
     }
 
     /// <summary>A screen no other screen leads to, that is not its entry point's start, reports screen-unreachable.</summary>
@@ -238,7 +238,14 @@ public sealed class UiBlueprintCheckTests
     public void TokenRoleBelowItsLimitReportsTokenLimitFailed()
     {
         using var temp = TestCli.Temp("ui-blueprint");
-        WriteDesignContract(temp.Path, "{\"light\":{\"page\":{\"$value\":\"#ffffff\"},\"text\":{\"$value\":\"#c8c8c8\"}}}");
+        WriteDesignContract(temp.Path, """
+            {
+              "light": {
+                "page": {"$value": "#ffffff"},
+                "text": {"$value": "#c8c8c8"}
+              }
+            }
+            """);
         var model = BaseModel(temp.Path);
 
         var findings = WithCode(model, "design-token-limit-failed");
@@ -320,7 +327,7 @@ public sealed class UiBlueprintCheckTests
         Assert.Empty(WithCode(model, "sentence-language-missing"));
     }
 
-    /// <summary>A use case reached through entry points declaring two languages needs a sentence for each.</summary>
+    /// <summary>A use case reached through entry points declaring two languages reports one finding naming each missing sentence.</summary>
     /// <proves>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</proves>
     [Fact]
     public void TwoEntryPointsRequireEachDeclaredLanguage()
@@ -333,11 +340,10 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "use-case/lending.list-loans");
         model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app","entry-point/kiosk"]}""", temp.Path));
 
-        var findings = WithCode(model, "sentence-language-missing");
+        var finding = Assert.Single(WithCode(model, "sentence-language-missing"));
 
-        Assert.Equal(2, findings.Count);
-        Assert.Contains(findings, finding => finding.Message.Contains("'nl'", StringComparison.Ordinal));
-        Assert.Contains(findings, finding => finding.Message.Contains("'fr'", StringComparison.Ordinal));
+        Assert.Contains("'nl'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("'fr'", finding.Message, StringComparison.Ordinal);
     }
 
     static List<Finding> WithCode(ProjectModel model, string code) =>

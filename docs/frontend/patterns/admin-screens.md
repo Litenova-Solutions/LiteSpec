@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-Settings screens configure the company itself: the team and its roles, API keys and webhooks, data imports, the payout account, subscription invoices, and budget limits and advances. They carry powerful commands, such as granting access, rotating secrets, and paying invoices. Each pattern below draws one settings screen as options with a named default to build, so those commands stay safe to operate and every settings area works the same way. When the team builds or revises a settings area, the product owner picks one option from the drawings, and the team records the choice in its pattern catalog.
+Settings screens configure the company itself: the team and its roles, API keys and webhooks, data imports, the payout account, subscription invoices, and budget limits and advances. They carry powerful commands, such as granting access, rotating secrets, and paying invoices. Each pattern below draws one settings screen as options with a named default to build, so those commands stay safe to operate and every settings area works the same way. When the team builds or revises a settings area, the product owner picks one option from the drawings, and the team records the choice in its pattern catalog. This page belongs to the Administration category: product-domain examples from a finance product. Its patterns are tested layouts a team chooses from, not required rules; a team building another product reads them as worked examples.
 
 ## Concepts
 
@@ -17,17 +17,19 @@ A project records its choice in its pattern catalog and builds the chosen option
 
 Every drawing below uses the same example: the Claimwick settings for Harbor and Pine. The team has Dana as Owner; the API key is the Accounting export key; the import file is staff-2026-01.csv; the payout account sits at Example Bank; the subscription invoice is INV-2026-09; the budget code is TRIP10; and the advance is AC-2026-0117. The reader is the staff member using the screen.
 
-Two rules hold on every option: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent. The Standards section below states both.
+Two defaults hold on every option unless the project records another choice: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent. The Conventions section below states both.
 
-## Standards
+## Conventions
 
 ### Show a New Secret Once
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-a-new-secret-once`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A screen MUST show a newly created API key or secret in full only once, at creation.
+**Default:** Show a newly created API key or secret in full only once, at creation.
+
+**Replacement:** A project that replaces the default records where its secrets stay readable and why.
 
 **Rationale:** Anyone who later opens the page can copy a secret that stays readable: on a shared screen or in a screenshot. Showing the secret once, at creation, forces the person creating it to store it in a vault or an environment file right away, so no later visit can leak it.
 
@@ -39,9 +41,11 @@ Two rules hold on every option: a new secret shows in full only once, and an inv
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-what-a-role-allows-before-granting-it`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** An invitation or role change MUST show what the chosen role allows before it is sent.
+**Default:** Show what the chosen role allows beside an invitation or role change before it is sent.
+
+**Replacement:** A project that replaces the default records how its invitations state the granted access.
 
 **Rationale:** Role names such as Spender or Approver hide what they actually grant. A sender who sees only the name can hand out reimbursement rights by mistake. Showing the granted capabilities beside the name lets the sender confirm the access itself before the invitation goes out.
 

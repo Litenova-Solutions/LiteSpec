@@ -604,6 +604,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `sends` field.</summary>
     public const string Sends = "sends";
 
+    /// <summary>Gets the name of the `servedContent` field.</summary>
+    public const string ServedContent = "servedContent";
+
     /// <summary>Gets the name of the `serves` field.</summary>
     public const string Serves = "serves";
 
@@ -823,8 +826,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `supersedes` field: the decisions a decision replaces.</summary>
     public const string Supersedes = "supersedes";
 
-    /// <summary>Gets the name of the `owner` field: the module or external system that owns a store.</summary>
-    public const string Owner = "owner";
 
     /// <summary>Gets the name of the `widenedBy` field.</summary>
     public const string WidenedBy = "widenedBy";

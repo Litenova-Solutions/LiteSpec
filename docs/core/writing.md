@@ -75,6 +75,8 @@ A section marked optional is removed when it has nothing to say; every other sec
 | runbook | Prerequisites, Steps, Verification, Recovery |
 | waiver | Provision, Reason, Risk, Expiry |
 
+A decision record compares its options with pros and cons, as `litespec/core/intent#record-each-decision-option-with-pros-and-cons` states, with its context and choice as `litespec/core/intent#state-each-decision-with-context-and-choice` states.
+
 ### Documentation Kinds
 
 A documentation page does one of four jobs. A page that tries two serves neither reader well, so each kind links to the kind that holds the rest.
@@ -260,22 +262,6 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Reviewed for:** Does every record statement hold one present-tense sentence with no modal word? Check the statements the change adds.
 
-### Open Each Summary with Who and What Is at Stake
-
-**ID:** `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** Every `summary` MUST restate who it concerns and what is at stake in its first sentence, with any pointer to another page after that content.
-
-**Rationale:** The summary is the lead a cold reader meets in the book, before any field table or link. A first sentence that restates who and what is at stake lets that reader judge the record without opening its links; a bare pointer such as "described on the launch page" gives them nothing to judge and breaks the moment the pointed page moves. A pointer that follows the content helps the reader who wants more; a pointer that replaces the content helps no one.
-
-**Example:** A Claimwick problem `summary` opens "Employees wait three weeks for reimbursement while approvers batch decisions monthly." Who waits and what it costs stand in the first sentence, and any link follows after it.
-
-**Reviewed for:** Does every summary open with who and what is at stake? Check the first sentence of each summary the change adds.
-
 ### Give Each Explanation File Its Fixed Sections
 
 **ID:** `litespec/core/writing#give-each-explanation-file-its-fixed-sections`
@@ -300,9 +286,9 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Applies to:** artifact: any
 
-**Statement:** Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and the consequence at stake.
+**Statement:** Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section.
 
-**Rationale:** A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes context they do not have yet. Proposed by [decision/0049-literal-flow-words-concrete-consequences](../intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md).
+**Rationale:** A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph states what the record is in plain words, who it concerns and the consequence at stake, as `litespec/core/writing#write-for-the-reader-who-arrives-cold` states, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes context they do not have yet. Proposed by [decision/0049-literal-flow-words-concrete-consequences](../intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md).
 
 **Example:** The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin.
 
@@ -316,13 +302,13 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Applies to:** artifact: any
 
-**Statement:** Every explanation file MUST interpret its record's fields in plain words without restating a field value.
+**Statement:** Every explanation file MUST interpret its record's fields in plain words, describing only what those fields and the records they cite state, without restating a field value.
 
-**Rationale:** An explanation that copies a field value becomes a second copy that drifts with the next edit to the record. Interpretation says what the record means, why it matters, and how it reads beside its neighbors, with context and an example the fields cannot hold. Proposed by decision 0070.
+**Rationale:** An explanation that copies a field value becomes a second copy that drifts with the next edit to the record. Interpretation says what the record means, why it matters, and how it reads beside its neighbors, with context and an example the fields cannot hold. A behavior appearing only in prose is a second commitment no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. A new behavior becomes a record or leaves the prose. Proposed by decision 0070 and [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
 
-**Example:** A Claimwick feature explanation says the approval reminders end the wait that costs employees weeks, instead of copying the feature's `offering`.
+**Example:** A Claimwick feature explanation says the approval reminders end the wait that costs employees weeks, instead of copying the feature's `offering`. A sentence stating a behavior no record holds becomes a record or is removed.
 
-**Reviewed for:** Does any explanation file restate a field value instead of interpreting it? Check each explanation file against its record's fields.
+**Reviewed for:** Does any explanation file restate a field value instead of interpreting it, or describe behavior its record's fields and cited records do not state? Check each explanation file against its record's fields and the records it cites.
 
 ### Take Each Example Detail from the Cast or a Cited Record
 
@@ -404,29 +390,13 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Reviewed for:** Does every entry state the present behavior, who it affects, and what the reader does, with no former behavior described outside the changelog? Check the entries the change adds.
 
-### Compare Real Options in Each Decision Record
-
-**ID:** `litespec/core/writing#compare-real-options-in-each-decision-record`
-
-**Strength:** required
-
-**Applies to:** artifact: record:decision
-
-**Statement:** Every decision record MUST compare its real options on their merits in Options, then state the chosen outcome in Decision and what would reopen it in Revisit Conditions.
-
-**Rationale:** A decision record exists for a reader who was not there when the choice was made. That reader needs the forces, the alternatives, and the consequences, not the discussion that produced them. Options compared on the same points let a later reader rejudge the choice when the world moves; a record that names only the winner forces the whole argument to run again. What would reopen the choice belongs in the record beside the choice, so a stable decision stays stable until the named condition holds. Any option singled out from the decision carries its own sentence saying why it stands apart.
-
-**Example:** A Claimwick decision compares a receipt threshold of EUR 25 with EUR 50 on refusal rate and approver load, chooses EUR 25, and names a refusal rate above the stated bound as what would reopen it.
-
-**Reviewed for:** Does every decision record compare real options on the same points and state what would reopen the choice, without recounting the discussion? Check the decision records the change adds.
-
 ## Conventions
 
 None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/writing#write-for-the-reader-who-arrives-cold`, `litespec/core/writing#use-literal-words`, `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
+This informative example demonstrates `litespec/core/writing#write-for-the-reader-who-arrives-cold`, `litespec/core/writing#use-literal-words`, and `litespec/core/writing#give-each-explanation-file-its-fixed-sections`.
 
 A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Expenses Wait Weeks", its `summary` opens with who waits and what the wait costs, and its explanation file holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria.
 

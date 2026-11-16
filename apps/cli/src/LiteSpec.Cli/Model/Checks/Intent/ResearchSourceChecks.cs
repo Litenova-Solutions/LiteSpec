@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Checks.Intent;
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class ResearchSourceChecks
 {
-    /// <summary>Reports source-link-bare, source-key-unknown and source-unused on research and constraint explanations.</summary>
+    /// <summary>Reports source-link-bare, source-unused, and reference-unknown on research and constraint explanations.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -53,7 +53,7 @@ internal static class ResearchSourceChecks
 
                 if (!declared.Contains(key))
                 {
-                    findings.Add(new Finding("source-key-unknown", $"Research explanation cites source key '{key}', which the record's sources do not name.", explanationFile, LineOf(starts, match.Index), SubjectOf(record)));
+                    findings.Add(new Finding("reference-unknown", $"Research explanation cites source key '{key}', which the record's sources do not name.", explanationFile, LineOf(starts, match.Index), SubjectOf(record)));
                 }
             }
 

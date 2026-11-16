@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A record screen shows one record of the product: its state, its facts, its history, and the commands a reader may run. This page gives one pattern for each part of that screen, and a final pattern that assembles the parts into a whole screen. To build a record screen, an owner picks one option from the drawings in each pattern, and the team records each choice in its pattern catalog, the file holding the project's interface decisions. One shared record shape keeps every record readable in the same order, so support staff find the state and the next step in the same place on every record.
+A record screen shows one record of the product: its state, its facts, its history, and the commands a reader may run. This page gives one pattern for each part of that screen, and a final pattern that assembles the parts into a whole screen. To build a record screen, an owner picks one option from the drawings in each pattern, and the team records each choice in its pattern catalog, the file holding the project's interface decisions. One shared record shape keeps every record readable in the same order, so support staff find the state and the next step in the same place on every record. This page belongs to the Lists and Tables category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -15,17 +15,19 @@ Each option shows one wireframe drawing, a plain-text sketch of the parts and th
 
 ### The Running Example
 
-Most drawings on this page use one Claimwick expense, EXP-1042 for Ava: paid, totaling EUR 125.00, part of the Rotterdam client visit. The Record Tabs patterns and the editable children table use the Travel spending policy. The file list and the grouped evidence use dispute D-0182 on expense EXP-1019. The decision aside uses expense EXP-1027. The trip summary, the four tiles, and the thumbnail files use the Rotterdam client visit trip. The parent preview uses receipt RC-0C893968A2 on EXP-1042. In the expense example the header names the expense and its state, the sections give the spender, the lines, and the money, and the aside gives the history. The Standards section states the two rules every option keeps: a record header shows at most one primary action, and a destructive command never takes the primary place or style.
+Most drawings on this page use one Claimwick expense, EXP-1042 for Ava: paid, totaling EUR 125.00, part of the Rotterdam client visit. The Record Tabs patterns and the editable children table use the Travel spending policy. The file list and the grouped evidence use dispute D-0182 on expense EXP-1019. The decision aside uses expense EXP-1027. The trip summary, the four tiles, and the thumbnail files use the Rotterdam client visit trip. The parent preview uses receipt RC-0C893968A2 on EXP-1042. In the expense example the header names the expense and its state, the sections give the spender, the lines, and the money, and the aside gives the history. The Conventions section states the two defaults every option keeps unless the project records another choice: a record header shows at most one primary action, and a destructive command never takes the primary place or style.
 
-## Standards
+## Conventions
 
 ### Show One Primary Action in a Record Header
 
 **ID:** `litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A record header wireframe MUST show at most one primary action.
+**Default:** Show at most one primary action in a record header wireframe.
+
+**Replacement:** A project that replaces the default records how its record headers rank their actions.
 
 **Rationale:** One primary action names the step readers most often take next on the record, such as Message spender on expense EXP-1042. With two equal buttons, the reader compares labels on every visit, and a hurried click lands on the wrong command.
 
@@ -35,9 +37,11 @@ Most drawings on this page use one Claimwick expense, EXP-1042 for Ava: paid, to
 
 **ID:** `litespec/frontend/patterns/record-detail#keep-destructive-commands-out-of-the-primary-place`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A destructive command MUST NOT take the primary action's place or style in a record header.
+**Default:** Keep a destructive command out of the primary action's place and style in a record header.
+
+**Replacement:** A project that replaces the default records where its destructive commands sit.
 
 **Rationale:** The primary place draws the hurried click, so it holds only the safe next step. A destructive command styled or placed as primary, such as Void the expense, turns a routine visit into a retired policy or a voided expense, with no step between the click and the loss.
 

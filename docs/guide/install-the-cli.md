@@ -101,14 +101,14 @@ Match the CI install to the way the repository pins the release. With the local 
   with:
     dotnet-version: "10.0.x"
 - run: dotnet tool restore
-- run: dotnet litespec model check
+- run: dotnet litespec model check --record-proof
 ```
 
 With the standalone binary, the install script reads `reviewedLiteSpecVersion`, and in GitHub Actions it adds the binary to the PATH of later steps:
 
 ```yaml
 - run: curl -fsSL https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.sh | sh
-- run: litespec model check
+- run: litespec model check --record-proof
 ```
 
 ### 7. Check the Platform

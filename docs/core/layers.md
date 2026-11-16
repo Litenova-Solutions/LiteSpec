@@ -81,23 +81,7 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Example:** Claimwick's reimbursement promise gains an entity with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
-**Checked by:** `litespec model check` emits no `requirement-fulfillment-missing`, `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, or `setting-requirement-missing` finding across Behavior records.
-
-### Send Commercial and Observable Figures to the Owner
-
-**ID:** `litespec/core/layers#send-commercial-and-observable-figures-to-the-owner`
-
-**Strength:** required
-
-**Applies to:** artifact: record:setting, record:rule
-
-**Statement:** Behavior that meets a figure the owner sets MUST send it to the owner instead of fixing it.
-
-**Rationale:** The [Project Model](model.md) holds the one list of figures the owner sets: prices, fees, rates, terms, markets, payers, retention periods, freshness, and figures that differ by tenant, market, or date. Each figure is a business choice, and only an accountable person makes it. An agent that fixed one would hide a commitment in a Behavior record nobody chose. The figure becomes a question to the owner or a backlog item, never a silent default.
-
-**Example:** Claimwick's receipt threshold of EUR 25 waits for the owner instead of entering the setting silently.
-
-**Reviewed for:** Did Behavior fix any figure the owner sets without asking? Check the settings and rules the change adds beside the list of owner-set figures on the model page.
+**Checked by:** `litespec model check` emits no `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, or `setting-requirement-missing` finding across Behavior records.
 
 ### Implement Only Declared Behavior
 
@@ -139,13 +123,17 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Applies to:** artifact: any
 
-**Statement:** A need that the upper record layer neither states nor implies, such as a refusal, eligibility condition, limit, or figure an actor meets, MUST travel up as a question to the owner or a backlog item, never as a record or code.
+**Statement:** A need that the upper record layer neither states nor implies, such as a refusal, eligibility condition, limit, or a figure the owner sets, MUST travel up as a question to the owner with a recommendation or as a backlog item, never as a record or code.
 
 **Rationale:** The lower layer does not decide what the upper layer neither states nor implies, so the need travels up with its context instead of turning into a guess. A question carries product choices to the person who answers for them. A backlog item holds the rest where it stays visible until it is specified. The specification is closed: an agent builds what it states and nothing more.
 
-**Example:** Claimwick's agent meets a need for a refusal of expenses with a future date, which the receipt promise neither states nor implies, so the need becomes a question to the owner instead of a rule the agent writes.
+A figure the owner sets is one such need: the [Project Model](model.md) holds the one list of owner-set figures, and each one binds the product to buyers, markets, or law, so only an accountable person decides it. A figure the business changes while the system runs is aggregate data, not a setting: its range is a rule with a refusal, and its change is a use case with access and audit. A setting is operator configuration the running system reads. An agent that fixed a figure would hide a commitment in a Behavior record nobody chose.
 
-**Reviewed for:** Does every need the upper layer neither states nor implies have a question to the owner or a backlog item? Check the added records from a lower record layer beside the owner questions and the backlog.
+A question carries a recommendation with each figure: a figure without one asks the owner to research from nothing, while a recommendation gives a default to accept or correct. Grouping figures by subject lets the owner answer one set at a time.
+
+**Example:** Claimwick's agent meets a need for a refusal of expenses with a future date, which the receipt promise neither states nor implies, so the need becomes a question to the owner instead of a rule the agent writes. A receipt threshold the promise leaves unnamed travels up as a question with a recommended figure the same way.
+
+**Reviewed for:** Does every need the upper layer neither states nor implies have a question to the owner with a recommendation or a backlog item? Check the added records from a lower record layer beside the owner questions and the backlog.
 
 ### Enter World Facts as Cited Research or Constraints
 
@@ -162,22 +150,6 @@ Research and constraints hold facts about the world only. They never hold guesse
 **Example:** Claimwick's observed two-day payout settlement window enters as research, then as a constraint citing that research.
 
 **Reviewed for:** Did every world fact enter as a cited and dated research or constraint record? Check the provider, regulation, and incident facts the change relies on.
-
-### Record Changed Provider Behavior as Observed Research
-
-**ID:** `litespec/core/layers#record-changed-provider-behavior-as-observed-research`
-
-**Strength:** required
-
-**Applies to:** artifact: record:research, record:constraint
-
-**Statement:** A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint citing that research.
-
-**Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint that follows names the research in `basedOn`, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.
-
-**Example:** Claimwick's payout provider starts settling every two days instead of daily: that enters as research with the observed dates, and a settlement-window constraint cites that research.
-
-**Reviewed for:** Does every provider change have observed research and a citing constraint? Check the provider facts the change relies on beside the research records.
 
 ### Build Ahead of a Regulation Only Under Its Constraint
 
@@ -201,8 +173,8 @@ None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items`, `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`, and `litespec/core/layers#record-changed-provider-behavior-as-observed-research`.
+This informative example demonstrates `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items` and `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`.
 
-Top-down: the owner sets EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, and in the same change an agent updates the policy setting default and the scenario where an expense without a receipt is refused. The test changes, Proof shows passing, and the book chapter shows the new promise.
+Top-down: the owner sets EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, and in the same change an agent updates the threshold on the policy aggregate and the scenario where an expense without a receipt is refused. The test changes, Proof shows passing, and the book chapter shows the new promise.
 
 Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then changes the settlement-window constraint to cite it. In the same change, the per-batch deadline rule and its scenarios change to match. The test changes, Proof shows passing, and the book chapter shows the cited source and date.

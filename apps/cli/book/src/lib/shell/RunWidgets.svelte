@@ -1,14 +1,14 @@
 <script lang="ts">
   import { book, formatCount } from "$lib/frame";
 
-  // The completion meter in the top bar. Done counts the loaded records the
-  // store confirms complete, over the manifest total, the same number the
+  // The completion meter in the top bar. Done is the builder's complete count
+  // for the whole book, over the manifest total, the same number the
   // outline shows, so it never changes with the route. The test run text lives
   // on About this book now.
   const complete = $derived.by(() => {
     void book.rev;
     const real = [...new Set(book.orderWithProduct())].filter((id) => book.isReal(id));
-    const done = real.filter((id) => book.get(id) !== undefined && book.completeOf(id)).length;
+    const done = book.man?.complete ?? real.filter((id) => book.get(id) !== undefined && book.completeOf(id)).length;
     const manifest = Object.values(book.man?.totals ?? {}).reduce((a, b) => a + b, 0);
     const total = manifest > 0 ? manifest : real.length;
     const percent = total === 0 ? 100 : Math.round((done / total) * 100);

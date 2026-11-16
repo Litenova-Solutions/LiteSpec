@@ -3,10 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>
-///     Proves the two-way check between a constraint's Effect on the Product section and the requirements that cite it:
-///     a citing requirement the section leaves out is unlisted, and a requirement the section names without citing is uncited.
-/// </summary>
+/// <summary>Proves the Effect on the Product section stays free prose: the book lists the citing requirements from their cites links.</summary>
 public sealed class ConstraintEffectCheckTests
 {
     /// <summary>The constraint explanation with the Effect on the Product section the cases name requirements in.</summary>
@@ -15,31 +12,26 @@ public sealed class ConstraintEffectCheckTests
     static string Explanation(string effect) =>
         $"# Tax Receipt Retention\n\nThe national tax law keeps receipts.\n\n## Scope\n\nBusiness receipts.\n\n## Rules\n\nThe law requires keeping them.\n\n## Effect on the Product\n\n{effect}\n";
 
-    /// <summary>A citing requirement that the Effect section does not name reports constraint-effect-unlisted.</summary>
+    /// <summary>A citing requirement that the Effect section does not name reports nothing.</summary>
     /// <proves>litespec/core/intent#state-each-constraint-rule-with-its-condition</proves>
     [Fact]
-    public void CitingRequirementMissingFromEffectReportsUnlisted()
+    public void CitingRequirementMissingFromEffectReportsNothing()
     {
         using var temp = TestCli.Temp("checks");
-        var finding = Assert.Single(
-            Checker.Check(Model(temp.Path, Explanation("A receipt is kept for seven years."), cites: ["constraint/tax-receipt-retention"])).Findings,
-            found => found.Code == "constraint-effect-unlisted");
+        var findings = Checker.Check(Model(temp.Path, Explanation("A receipt is kept for seven years."), cites: ["constraint/tax-receipt-retention"])).Findings;
 
-        Assert.Equal("Requirement 'requirement/approval.above-threshold-receipt' cites constraint 'constraint/tax-receipt-retention', but its Effect on the Product section does not name it.", finding.Message);
-        Assert.Equal("constraint/tax-receipt-retention", finding.Subject);
+        Assert.DoesNotContain(findings, found => found.Message.Contains("Effect on the Product", StringComparison.Ordinal));
     }
 
-    /// <summary>An Effect section that names a requirement which does not cite the constraint reports constraint-effect-uncited.</summary>
+    /// <summary>An Effect section that names a requirement which does not cite the constraint reports nothing.</summary>
     /// <proves>litespec/core/intent#state-each-constraint-rule-with-its-condition</proves>
     [Fact]
-    public void NamedRequirementThatDoesNotCiteReportsUncited()
+    public void NamedRequirementThatDoesNotCiteReportsNothing()
     {
         using var temp = TestCli.Temp("checks");
-        var finding = Assert.Single(
-            Checker.Check(Model(temp.Path, Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."), cites: [])).Findings,
-            found => found.Code == "constraint-effect-uncited");
+        var findings = Checker.Check(Model(temp.Path, Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."), cites: [])).Findings;
 
-        Assert.Equal("Effect on the Product of 'constraint/tax-receipt-retention' names requirement 'requirement/approval.above-threshold-receipt', which does not cite the constraint.", finding.Message);
+        Assert.DoesNotContain(findings, found => found.Message.Contains("Effect on the Product", StringComparison.Ordinal));
     }
 
     /// <summary>An Effect section that names each citing requirement, and no other, reports nothing.</summary>
@@ -53,7 +45,7 @@ public sealed class ConstraintEffectCheckTests
             Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."),
             cites: ["constraint/tax-receipt-retention"])).Findings;
 
-        Assert.DoesNotContain(findings, found => found.Code is "constraint-effect-unlisted" or "constraint-effect-uncited");
+        Assert.DoesNotContain(findings, found => found.Message.Contains("Effect on the Product", StringComparison.Ordinal));
     }
 
     /// <summary>A model with one applying constraint, one citing requirement and the explanation given.</summary>

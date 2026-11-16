@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** domain
 
-The Domain Model page states the Behavior records that hold the product's business language inside the bounded context: the modules that group it, the glossary that defines it, the aggregates with their lifecycles, the stores that hold state no invariant guards, the rules that hold, and the domain events that announce change. Agents write these records from Intent, and code carries what they declare. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
+The Domain Model page states the Behavior records that hold the product's business language inside the bounded context: the modules that group it, the glossary that defines it, the aggregates with their lifecycles, the rules that hold, and the domain events that announce change. Agents write these records from Intent, and code carries what they declare. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value, and record name is written.
 
 ## Concepts
 
@@ -11,9 +11,9 @@ The Domain Model page states the Behavior records that hold the product's busine
 
 Inside one deployment boundary, the product speaks one business language, as the [scope page](scope.md) states. Modules organize that language into areas. A module stays an area of the one language and the one deployment, never a language or a deployment of its own.
 
-A module is one business area. Its record sits at `behavior/modules/<m>/module.yaml` and carries a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. Intent holds no module: each module is declared only in Behavior, beside the aggregates it groups.
+A module is one business area. Its record sits at `behavior/modules/<m>/module.yaml` and carries a `summary` and the `dependsOn` links to the modules it relies on, as `litespec/core/behavior#shape-each-module-page` states, in the home the [model page](model.md) names. Intent holds no module: each module is declared only in Behavior, beside the aggregates it groups.
 
-Each child record sits in a typed folder inside its module, such as `aggregates/<aggregate>/`, `stores/<store>/`, `integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. Responsibilities, Boundaries, and Example live in the explanation file beside the record file.
+Each child record sits in a typed folder inside its module, such as `aggregates/<aggregate>/`, `integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. Responsibilities, Boundaries, and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -40,7 +40,7 @@ A term that declares a project use-case verb carries `verbKind` with the kind it
 
 ### Aggregates
 
-An aggregate is the product's consistency boundary: the state that stays valid together, guarded by its invariants and changed in one step through its root. Its identifier carries its module, so containment follows the identifier and needs no link field. Claimwick's expense aggregate carries states such as Approved and Reimbursed.
+An aggregate is the product's consistency boundary: the state that stays valid together, guarded by its invariants and changed in one step through its root. Its identifier carries its module, so containment follows the identifier and needs no link field. Claimwick's expense aggregate carries states such as Approved and Reimbursed. An aggregate with no lifecycle declares the single state `Active`.
 
 An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Lifecycle, Data and Retention, Example, and Limits live in the explanation file beside the record file.
 
@@ -60,19 +60,11 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 | `exceptions` | Per-field erasure positions differing from the class, and the retention conflicts with the winning duty and its basis. |
 | `reason`, `basedOn` | The reason of an exemption, and the Intent records accepting retained or exempt personal data. |
 
-### Stores
-
-A store holds state no aggregate invariant guards, such as a library-owned table, a suppression list, or a delivery log. Its identifier carries its module, as `store/notifications.suppression-list`, and its record sits under its module beside aggregates, at `behavior/modules/<module>/stores/<name>/<name>.yaml`, with explanation `<name>.md` beside it.
-
-A store carries `summary`, `owner`, `data`, `dataClasses`, `terms`, and `records`. The `owner` names the module or external system answering for its shape, as a `module/...` or `external-system/...` identifier. The `data` and `dataClasses` entries hold the same shape as on an aggregate. A store carries no states, no transitions, and no kind: a lifecycle on it would promise a reviewed path nothing guards.
-
-A rule may govern how a store is used, though a store itself holds no invariant: a manager the suppression list names gets no approval reminder. Staff actions on a store stay ordinary use cases. The repository or table configuration implementing a store carries `implements store/<module>.<name>`.
-
 ### Rules
 
 A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
 
-A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates or stores names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules.
+A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules.
 
 A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
@@ -132,33 +124,21 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Checked by:** `litespec model check` reports `glossary-invalid` for a glossary term without `layer`, and each behavior term lists the synonyms its readers know in `aliases`.
 
-### State Every Module Dependency
+### Keep Technical State Out of Behavior
 
-**ID:** `litespec/core/domain-model#state-every-module-dependency`
-
-**Strength:** required
-
-**Applies to:** artifact: record:module
-
-**Statement:** Each module MUST name every module it depends on in `dependsOn`.
-
-**Rationale:** A module relies on the language and behavior of others, and each reliance shapes change: editing a module affects everything that depends on it. Naming every reliance in `dependsOn` records that effect as data, instead of leaving readers to reconstruct it from prose.
-
-**Reviewed for:** Does every module name each module it relies on in `dependsOn`? Check the module pages beside the modules they rely on.
-
-### Name the Owner of Every Store
-
-**ID:** `litespec/core/domain-model#name-the-owner-of-every-store`
+**ID:** `litespec/core/domain-model#keep-technical-state-out-of-behavior`
 
 **Strength:** required
 
-**Applies to:** artifact: record:store
+**Applies to:** artifact: aggregate
 
-**Statement:** Each store MUST name its owning module or external system in `owner`.
+**Statement:** State that exists only because of a technical mechanism MUST NOT be written as a Behavior record.
 
-**Rationale:** A store holds state no aggregate invariant guards, so nothing in the model says who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner states who answers for its shape, and staff actions on it stay ordinary use cases instead of unwritten operations. Settled by [decision/0092-store-and-module-event-records](decision/0092-store-and-module-event-records).
+**Rationale:** State the business cares about is an aggregate with its invariants. State that exists only because of a technical mechanism, such as outbox rows, idempotency keys, caches, sessions, leases, or provider delivery logs, is infrastructure: a Behavior record for it promises business meaning nothing guards, and it drifts with every mechanism change. The stack and extension pages and technical decisions govern such state instead. When such state holds personal data, its retention is stated where the mechanism is stated. Settled by [decision/0092-module-events-and-business-state](decision/0092-module-events-and-business-state).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a store page without `owner`.
+**Example:** Claimwick records each manager's reminder choice as `aggregate/spending.reminder-preference`, one per manager with the single state `Active`: a rule states that only the manager or an admin holding the named permission changes it, a use case changes it with its refusals, access, and audit, and its data classes carry an erasure position. The outbox rows carrying the reminder facts are mechanism state, so no Behavior record states them and the outbox extension governs them.
+
+**Reviewed for:** Does any Behavior record state technical mechanism state, such as outbox rows, idempotency keys, caches, sessions, leases, or provider delivery logs? Check the aggregates beside the stack and extension pages and the technical decisions.
 
 ### Model Each Aggregate Lifecycle with States
 
@@ -168,11 +148,11 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Applies to:** artifact: aggregate
 
-**Statement:** Each aggregate MUST declare its lifecycle as `states` entries with a name and a meaning.
+**Statement:** Each aggregate MUST declare its lifecycle as `states` entries with a name and a meaning, and an aggregate with no lifecycle declares the single state `Active`.
 
-**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page and gives `transitions` states to connect. An aggregate tracks what the thing is, while a store carries no lifecycle and therefore no states.
+**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page and gives `transitions` states to connect. An aggregate with no lifecycle declares the single state `Active`, so every aggregate carries states.
 
-**Example:** The library's hold queue aggregate declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
+**Example:** The library's hold queue aggregate declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received. Claimwick's reminder-preference aggregate declares the single state `Active`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an aggregate page without `states` entries carrying a name and a meaning.
 
@@ -186,9 +166,9 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each aggregate MUST list every allowed state change with the use case or job moving it in `transitions`, including the creation that enters its first state.
 
-**Rationale:** States without transitions list names with no path between them: a reviewer sees where an aggregate can stand but never how it moves. Listing every allowed change with the use case or job moving it in `movedBy` shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. A transition moved by time names the job in `movedBy` with the duration from entering its source state in `after`. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state, use case, or job.
+**Rationale:** States without transitions list names with no path between them: a reviewer sees where an aggregate can stand but never how it moves. Listing every allowed change with the use case or job moving it in `movedBy` shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. A transition moved by time names the job in `movedBy` with the duration from entering its source state in `after`. The `state-unreached` and `reference-unknown` checks report a state no transition reaches and a transition naming a missing state, use case, or job.
 
-**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `transition-unknown` (level G) for a transition naming a missing state, or a `movedBy` naming no use case or job.
+**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `reference-unknown` (level G) for a transition naming a missing state, or a `movedBy` naming no use case or job.
 
 ### State Each Rule with Its Kind
 
@@ -216,7 +196,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each rule MUST name what it constrains in `governs`.
 
-**Rationale:** A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates, stores, and use cases in `governs` pins each rule to its records. The governed records match the links that name the rule: input `rules`, consistency bindings, calculation links, scenario `exercises`, and result refusals. A module rule governs records of its own module; a product-level rule governs records in any module and names each aggregate or store it governs.
+**Rationale:** A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates and use cases in `governs` pins each rule to its records. The governed records match the links that name the rule: input `rules`, consistency bindings, calculation links, scenario `exercises`, and result refusals. A module rule governs records of its own module; a product-level rule governs records in any module and names each aggregate it governs.
 
 **Example:** The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results that cite its code.
 
@@ -230,13 +210,13 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Applies to:** artifact: record:rule
 
-**Statement:** Each atomicity rule MUST name the aggregates or stores it binds in `binds`.
+**Statement:** Each atomicity rule MUST name the aggregates it binds in `binds`.
 
-**Rationale:** An atomic write across aggregates or stores stays allowed only through its rule. The rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates or stores is a coordination candidate, and the check reports it at level A.
+**Rationale:** An atomic write across aggregates stays allowed only through its rule. The rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, and the check reports it at level A.
 
 **Example:** The library's hold rule binds the hold and the copy aggregates, so a hold without its copy never stands.
 
-**Checked by:** `litespec model check` reports `atomicity-drift` (level G) for an atomic use case whose `writes` differs from its rule's `binds`, and `atomicity-invalid` (level A) for a group binding more than 4 aggregates or stores.
+**Checked by:** `litespec model check` reports `atomicity-drift` (level G) for an atomic use case whose `writes` differs from its rule's `binds`, and `atomicity-invalid` (level A) for a group binding more than 4 aggregates.
 
 ### Name Every Spanned Aggregate in Binds
 
@@ -246,13 +226,13 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Applies to:** artifact: record:rule
 
-**Statement:** Each rule whose `governs` names more than one aggregate or store MUST name every governed aggregate or store in `binds`.
+**Statement:** Each rule whose `governs` names more than one aggregate MUST name every governed aggregate in `binds`.
 
-**Rationale:** No rule across aggregates or stores is held by one aggregate or store alone: a state guard or an atomicity rule holds it. Naming every reached aggregate or store in `binds` shows the rule's reach beside the rule, so a reader sees which aggregates or stores change together.
+**Rationale:** No rule across aggregates is held by one aggregate alone: a state guard or an atomicity rule holds it. Naming every reached aggregate in `binds` shows the rule's reach beside the rule, so a reader sees which aggregates change together.
 
 **Example:** `rule/spending.receipt-filed-once` states that a receipt file supports one expense across spending, and names `aggregate/spending.expense` and `aggregate/spending.receipt` in `binds`.
 
-**Checked by:** `litespec model check` reports `rule-binds-missing` (level G) for a rule whose `governs` names more than one aggregate or store while `binds` names none or not all of them.
+**Checked by:** `litespec model check` reports `rule-binds-missing` (level G) for a rule whose `governs` names more than one aggregate while `binds` names none or not all of them.
 
 ### Keep the Negation Word in the Rule Name
 

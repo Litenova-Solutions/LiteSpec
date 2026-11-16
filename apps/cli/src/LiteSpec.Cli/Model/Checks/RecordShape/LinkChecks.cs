@@ -4,11 +4,11 @@ using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The link checks: every Markdown link in an explanation file or a document resolves to a file or a record.</summary>
+/// <summary>The link checks: every Markdown link in an explanation file or a document resolves to a file, and every link naming a record resolves to a written record.</summary>
 /// <follows>litespec/core/model#resolve-every-page-link</follows>
 internal static class LinkChecks
 {
-    /// <summary>Reports link-unknown.</summary>
+    /// <summary>Reports link-unknown for a file target that exists nowhere, and reference-unknown for a record target no record holds.</summary>
     /// <param name="model">The loaded project model that holds every explanation and document text and every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -35,7 +35,7 @@ internal static class LinkChecks
                 {
                     if (!byId.ContainsKey(Identifiers.BaseId(target)))
                     {
-                        found.Add(new Finding("link-unknown", $"Link '{target}' resolves to no record.", body.File, body.BodyStartLine + LineOf(starts, match.Index) - 1, body.PageId));
+                        found.Add(new Finding("reference-unknown", $"Link '{target}' resolves to no record.", body.File, body.BodyStartLine + LineOf(starts, match.Index) - 1, body.PageId));
                     }
 
                     continue;

@@ -19,7 +19,7 @@ public static class RecordFolders
     /// <summary>The typed folders a behavior module holds: aggregates, its module-level use cases, rules and automation, and its edges. Any other subfolder of a module is a placement finding.</summary>
     public static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
     {
-        "aggregates", "stores", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
+        "aggregates", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
         "module-events", "integration-events", "external-systems", "read-models",
     };
 
@@ -60,7 +60,6 @@ public static class RecordFolders
         Scaffold("module", "behavior/modules/{name}", "module.yaml"),
         At("term", "", "glossary.yaml"),
         Scaffold("aggregate", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
-        Scaffold("store", "behavior/modules/{module}/stores/{name}", "{name}.yaml"),
         At("use-case", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         Scaffold("use-case", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
         At("result", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),

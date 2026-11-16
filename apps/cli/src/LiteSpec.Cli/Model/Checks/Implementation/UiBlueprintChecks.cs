@@ -37,7 +37,7 @@ internal static class UiBlueprintChecks
     /// <summary>A quoted string in a wireframe block, with backslash escapes.</summary>
     private static readonly Regex QuotedCopy = new("\"(?<copy>(?:[^\"\\\\]|\\\\.)*)\"", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>Reports wireframe-invalid, wireframe-reference-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
+    /// <summary>Reports wireframe-invalid, reference-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
     /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -70,10 +70,7 @@ internal static class UiBlueprintChecks
                 findings.Add(new Finding(
                     "wireframe-invalid",
                     $"Screen '{screen.Id}' carries no wireframe block in its explanation file.",
-                    screen.ExplanationFile, 1, SubjectOf(screen))
-                {
-                    TierOverride = "A",
-                });
+                    screen.ExplanationFile, 1, SubjectOf(screen)));
                 continue;
             }
 
@@ -82,10 +79,7 @@ internal static class UiBlueprintChecks
                 findings.Add(new Finding(
                     "wireframe-invalid",
                     $"Screen '{screen.Id}' carries {blocks.Count} wireframe blocks; it carries one.",
-                    screen.ExplanationFile, blocks[1].Block.Line, SubjectOf(screen))
-                {
-                    TierOverride = "A",
-                });
+                    screen.ExplanationFile, blocks[1].Block.Line, SubjectOf(screen)));
             }
 
             foreach (var (block, closed) in blocks)
@@ -95,10 +89,7 @@ internal static class UiBlueprintChecks
                     findings.Add(new Finding(
                         "wireframe-invalid",
                         $"Screen '{screen.Id}' carries a wireframe block that is not closed.",
-                        screen.ExplanationFile, block.Line, SubjectOf(screen))
-                    {
-                        TierOverride = "A",
-                    });
+                        screen.ExplanationFile, block.Line, SubjectOf(screen)));
                     continue;
                 }
 
@@ -107,10 +98,7 @@ internal static class UiBlueprintChecks
                     findings.Add(new Finding(
                         "wireframe-invalid",
                         $"Screen '{screen.Id}' carries a wireframe block the wireframe language rejects: {error.Message}.",
-                        screen.ExplanationFile, block.Line + error.Line, SubjectOf(screen))
-                    {
-                        TierOverride = "A",
-                    });
+                        screen.ExplanationFile, block.Line + error.Line, SubjectOf(screen)));
                 }
             }
         }
@@ -190,32 +178,23 @@ internal static class UiBlueprintChecks
                 if (node.Part == "action" && !names.Contains(WordsOf(node.Text)))
                 {
                     findings.Add(new Finding(
-                        "wireframe-reference-unknown",
+                        "wireframe-invalid",
                         $"Screen '{screen.Id}' names '{node.Text}' as an action in its wireframe, which matches no use case it offers.",
-                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen))
-                    {
-                        TierOverride = "A",
-                    });
+                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
                 }
                 else if (node.Part == "status" && !terms.Contains(WordsOf(node.Text)))
                 {
                     findings.Add(new Finding(
-                        "wireframe-reference-unknown",
+                        "wireframe-invalid",
                         $"Screen '{screen.Id}' names '{node.Text}' as a state in its wireframe, which matches no glossary term.",
-                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen))
-                    {
-                        TierOverride = "A",
-                    });
+                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
                 }
                 else if (node.Part is "message" or "toast" && node.Has("critical") && !sentences.Contains(WordsOf(node.Text)))
                 {
                     findings.Add(new Finding(
-                        "wireframe-reference-unknown",
+                        "wireframe-invalid",
                         $"Screen '{screen.Id}' names '{node.Text}' as a refusal in its wireframe, which matches no result of a use case it offers.",
-                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen))
-                    {
-                        TierOverride = "A",
-                    });
+                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
                 }
             }
         }
@@ -314,10 +293,7 @@ internal static class UiBlueprintChecks
             findings.Add(new Finding(
                 "screen-unreachable",
                 $"Screen '{screen.Id}' is led to by no other screen and is not the start of entry point '{point}'.",
-                screen.File, screen.Line, SubjectOf(screen))
-            {
-                TierOverride = "A",
-            });
+                screen.File, screen.Line, SubjectOf(screen)));
         }
     }
 
@@ -353,10 +329,7 @@ internal static class UiBlueprintChecks
                 findings.Add(new Finding(
                     "screen-dead-end",
                     $"Screen '{screen.Id}' leads nowhere and offers no use case.",
-                    screen.File, screen.Line, SubjectOf(screen))
-                {
-                    TierOverride = "A",
-                });
+                    screen.File, screen.Line, SubjectOf(screen)));
             }
         }
     }
@@ -522,10 +495,7 @@ internal static class UiBlueprintChecks
                                 findings.Add(new Finding(
                                     "wording-alias",
                                     $"Screen '{screen.Id}' shows '{alias}' in its wireframe, an alias of glossary term '{term}'.",
-                                    screen.ExplanationFile, block.Line + 1 + index, SubjectOf(screen))
-                                {
-                                    TierOverride = "A",
-                                });
+                                    screen.ExplanationFile, block.Line + 1 + index, SubjectOf(screen)));
                             }
                         }
                     }
@@ -554,10 +524,7 @@ internal static class UiBlueprintChecks
                     findings.Add(new Finding(
                         "wording-alias",
                         $"Result '{result.Id}' carries '{alias}' in its sentence, an alias of glossary term '{term}'.",
-                        result.File, result.Line, SubjectOf(result))
-                    {
-                        TierOverride = "A",
-                    });
+                        result.File, result.Line, SubjectOf(result)));
                 }
             }
         }
@@ -593,10 +560,7 @@ internal static class UiBlueprintChecks
                         findings.Add(new Finding(
                             "wording-alias",
                             $"Glossary term '{term.Id}' carries '{alias}' in its '{label.Name}' label, an alias of glossary term '{other}'.",
-                            term.File, term.Line, SubjectOf(term))
-                        {
-                            TierOverride = "A",
-                        });
+                            term.File, term.Line, SubjectOf(term)));
                     }
                 }
             }
@@ -629,15 +593,12 @@ internal static class UiBlueprintChecks
                 findings.Add(new Finding(
                     "refusal-sentence-missing",
                     $"Result '{result.Id}' is a refusal of use case '{useCaseId}' a screen offers and carries no sentence.",
-                    result.File, result.Line, SubjectOf(result))
-                {
-                    TierOverride = "A",
-                });
+                    result.File, result.Line, SubjectOf(result)));
             }
         }
     }
 
-    /// <summary>Reports each written refusal result missing a sentence for a language its use case's entry points declare beside the default.</summary>
+    /// <summary>Reports each written refusal result missing a sentence for a language its use case's entry points declare beside the default, one finding per result naming every missing language.</summary>
     /// <param name="model">The loaded project model that holds every use case, entry point and result.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSentenceLanguages(ProjectModel model, List<Finding> findings)
@@ -663,24 +624,40 @@ internal static class UiBlueprintChecks
                 .OrderBy(result => result.Id, StringComparer.Ordinal))
             {
                 var present = SentencesOf(result);
+                var missing = required.Keys
+                    .Where(tag => !present.Contains(tag))
+                    .Order(StringComparer.Ordinal)
+                    .ToList();
 
-                foreach (var tag in required.Keys.Order(StringComparer.Ordinal))
+                if (missing.Count == 0)
                 {
-                    if (present.Contains(tag))
-                    {
-                        continue;
-                    }
-
-                    findings.Add(new Finding(
-                        "sentence-language-missing",
-                        $"Result '{result.Id}' is a refusal of use case '{useCase.Id}' reached through entry point '{required[tag]}' and carries no '{tag}' sentence.",
-                        result.File, result.Line, SubjectOf(result))
-                    {
-                        TierOverride = "A",
-                    });
+                    continue;
                 }
+
+                findings.Add(new Finding(
+                    "sentence-language-missing",
+                    SentenceLanguageMessage(useCase, result, required, missing),
+                    result.File, result.Line, SubjectOf(result)));
             }
         }
+    }
+
+    /// <summary>The message for a refusal result missing sentences: one missing language reads with its entry point, several join with each one's entry point.</summary>
+    /// <param name="useCase">The use case record the result refuses.</param>
+    /// <param name="result">The refusal result record missing sentences.</param>
+    /// <param name="required">Each non-default language tag with the first entry point declaring it.</param>
+    /// <param name="missing">The missing language tags in identifier order, holding at least one.</param>
+    /// <returns>The finding message naming every missing language.</returns>
+    private static string SentenceLanguageMessage(Record useCase, Record result, Dictionary<string, string> required, List<string> missing)
+    {
+        if (missing.Count == 1)
+        {
+            return $"Result '{result.Id}' is a refusal of use case '{useCase.Id}' reached through entry point '{required[missing[0]]}' and carries no '{missing[0]}' sentence.";
+        }
+
+        var parts = missing.Select(tag => $"'{tag}' through entry point '{required[tag]}'");
+
+        return $"Result '{result.Id}' is a refusal of use case '{useCase.Id}' and carries no sentence in {string.Join(" or ", parts)}.";
     }
 
     /// <summary>The languages a use case's entry points declare beside each entry point's default, with one entry point naming each.</summary>

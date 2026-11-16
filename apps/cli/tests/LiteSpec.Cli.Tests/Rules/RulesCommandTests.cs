@@ -162,7 +162,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Rules for use-case/billing.send-invoice (concern: records, artifact: use-case)", result.Output);
-        Assert.Contains("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);
+        Assert.Contains("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
         Assert.DoesNotContain("- litespec/backend/", result.Output);
     }
 
@@ -192,7 +192,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Rules for use-case/spending.submit-expense (concern: records, artifact: use-case)", result.Output);
-        Assert.Contains("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);
+        Assert.Contains("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
         Assert.Contains("record use-case/spending.submit-expense", result.Output);
     }
 

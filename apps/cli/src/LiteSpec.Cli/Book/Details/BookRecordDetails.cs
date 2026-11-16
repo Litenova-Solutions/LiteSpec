@@ -36,7 +36,9 @@ static class BookRecordDetails
     ///     never reads as missing. The model completion stage, with its parked
     ///     children and scope counts, is carried beside the code completion.
     ///     Every detail that is a requirement or a
-    ///     flow carries its Intent coverage. Every written type is a member
+    ///     flow carries its Intent coverage. A refusal result carries the meaning
+    ///     its module's refusal set declares and the problem type derived from the
+    ///     project's problem type base. Every written type is a member
     ///     of <see cref="RecordTypes"/> and every written layer is a member of
     ///     the outline layer keys, root for the product, or null.
     /// </summary>
@@ -59,6 +61,8 @@ static class BookRecordDetails
         var findings = BookDetailSources.FindingsBySubject(model, index, claims);
         var routes = BookDetailSources.RoutesByScreen(model);
         var calls = BookDetailSources.CallsByScreen(model);
+        var refusals = RefusalMeanings(model);
+        var problemTypeBase = BookRender.StrProp(model, "problemTypeBase");
         var handlers = BookDetailSources.CodeByKey(model, "handlers", "useCase");
         var endpoints = BookDetailSources.CodeByKey(model, "endpoints", "useCase");
         var methods = BookDetailSources.CodeByKey(model, "aggregateMethods", "aggregate");
@@ -75,7 +79,8 @@ static class BookRecordDetails
             }
 
             var type = BookRender.StrProp(record, "type") ?? "";
-            var detail = BaseRecord(record, type);
+            var detail = BaseRecord(record);
+            AddRefusal(detail, type, refusals, problemTypeBase);
             detail["parent"] = BookDetailValues.StrNode(BookDetailSources.ParentOf(outline, id));
             // The product holds no outline node, so its root layer is stated here.
             var layer = string.Equals(type, "product", StringComparison.Ordinal) ? "root" : layers.GetValueOrDefault(id);
@@ -160,26 +165,20 @@ static class BookRecordDetails
         return details;
     }
 
-    /// <summary>The mockup record shape: identity, stripped fields and the source. A store keeps its owner.</summary>
+    /// <summary>The mockup record shape: identity, stripped fields and the source.</summary>
     /// <param name="record">The record.</param>
-    /// <param name="type">The record type.</param>
     /// <returns>The mockup record shape.</returns>
-    static JsonObject BaseRecord(JsonObject record, string type)
+    static JsonObject BaseRecord(JsonObject record)
     {
         var fields = (BookRender.Fields(record)?.DeepClone() as JsonObject) ?? new JsonObject();
         foreach (var key in StrippedKeys)
         {
-            if (string.Equals(key, "owner", StringComparison.Ordinal) && string.Equals(type, "store", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
             fields.Remove(key);
         }
 
         var detail = new JsonObject
         {
-            ["type"] = type,
+            ["type"] = BookRender.StrProp(record, "type") ?? "",
             ["title"] = BookRender.StrProp(record, "title") ?? "",
             ["folder"] = BookRender.StrProp(record, "folder") ?? "",
             ["module"] = BookRender.StrNode(BookRender.StrProp(record, "module")),
@@ -205,6 +204,58 @@ static class BookRecordDetails
         }
 
         return detail;
+    }
+
+    /// <summary>The refusal meaning per refusal code, read once from the model's refusal sets so no result scans them.</summary>
+    /// <param name="model">The parsed model.</param>
+    /// <returns>The meaning per refusal code.</returns>
+    static Dictionary<string, string> RefusalMeanings(JsonObject model)
+    {
+        var meanings = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var entry in model["refusals"] as JsonArray ?? [])
+        {
+            if (entry is JsonObject refusal
+                && BookRender.StrProp(refusal, "code") is { Length: > 0 } code
+                && BookRender.StrProp(refusal, "meaning") is { Length: > 0 } meaning)
+            {
+                meanings.TryAdd(code, meaning);
+            }
+        }
+
+        return meanings;
+    }
+
+    /// <summary>
+    ///     Joins the refusal set's meaning onto one refusal result and derives its problem type:
+    ///     the project's problem type base followed by the code's part after its module, or the
+    ///     short part alone when the project declares no base. A result that states its own
+    ///     meaning keeps it.
+    /// </summary>
+    /// <param name="detail">The detail being built.</param>
+    /// <param name="type">The record type.</param>
+    /// <param name="meanings">The refusal meaning per refusal code.</param>
+    /// <param name="problemTypeBase">The problem type base the project declares, or null.</param>
+    static void AddRefusal(JsonObject detail, string type, Dictionary<string, string> meanings, string? problemTypeBase)
+    {
+        if (type != "result" || detail["fields"] is not JsonObject fields)
+        {
+            return;
+        }
+
+        if (!string.Equals(BookRender.StrProp(fields, "outcome"), "refusal", StringComparison.Ordinal)
+            || BookRender.StrProp(fields, "code") is not { Length: > 0 } code)
+        {
+            return;
+        }
+
+        if (fields["meaning"] is null && meanings.TryGetValue(code, out var meaning))
+        {
+            fields["meaning"] = meaning;
+        }
+
+        var dot = code.IndexOf('.');
+        var shortType = dot >= 0 && dot + 1 < code.Length ? code[(dot + 1)..] : code;
+        fields["problemType"] = string.IsNullOrEmpty(problemTypeBase) ? shortType : problemTypeBase + shortType;
     }
 
     /// <summary>One coverage entry per item id, indexed once so no record scans the entries.</summary>

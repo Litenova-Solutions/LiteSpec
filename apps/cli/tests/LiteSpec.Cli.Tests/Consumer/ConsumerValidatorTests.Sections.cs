@@ -86,7 +86,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, DecisionExplanation, raw => WithoutSection(raw, "Context"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Context'");
+        AssertAdvisory(folder.Path, "requires an H2 'Context'");
     }
 
     /// <summary>Decision that omits its consequences.</summary>
@@ -105,11 +105,11 @@ public sealed partial class ConsumerValidatorTests
     public void DecisionWithoutAnOptionsSection()
     {
         using var folder = ConsumerFixture.Create();
-        AssertAbsent(RunConsumer(folder.Path), "requires an H2 'Options'");
+        AssertAbsent(RunConsumer(folder.Path, "--all"), "requires an H2 'Options'");
     }
 
     /// <summary>Actor that omits its summary.</summary>
-    /// <proves>litespec/core/access#write-a-summary-on-every-actor-and-role-page</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact(DisplayName = "actor that omits its summary")]
     public void ActorThatOmitsItsSummary()
     {
@@ -160,7 +160,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Problem that omits its summary.</summary>
-    /// <proves>litespec/core/intent#state-each-problem-with-its-evidence</proves>
+    /// <proves>litespec/core/intent#admit-only-outside-pains-as-problems</proves>
     [Fact(DisplayName = "problem that omits its summary")]
     public void ProblemThatOmitsItsSummary()
     {
@@ -236,7 +236,7 @@ public sealed partial class ConsumerValidatorTests
             ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.yaml",
             """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}]}""");
         TestRecords.Explain(folder.Path, ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.md", "# Delivery Benchmarks\n");
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Findings'");
+        AssertAdvisory(folder.Path, "requires an H2 'Findings'");
     }
 
     /// <summary>Flow that omits where it starts.</summary>
@@ -266,7 +266,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>External system that omits its summary.</summary>
-    /// <proves>litespec/core/access#write-a-summary-on-every-external-system-page</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact(DisplayName = "external system that omits its summary")]
     public void ExternalSystemThatOmitsItsSummary()
     {
@@ -330,7 +330,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             ".litespec/governance/waivers/export-unimplemented.yaml",
             """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","closedBy":["use-case/orders.cancel-order"],"exit":"The export ships before the date.","expiresOn":"2027-01-01"}""");
-        AssertAbsent(RunConsumer(folder.Path), "requires an H2");
+        AssertAbsent(RunConsumer(folder.Path, "--all"), "requires an H2");
     }
 
     /// <summary>Example cast that omits its people.</summary>
@@ -345,7 +345,7 @@ public sealed partial class ConsumerValidatorTests
             ConsumerFixture.Page(
                 ConsumerFixture.Meta("""{"type":"example-cast","id":"example-cast","title":"Example Cast"}"""),
                 "# Example Cast\n\n## The Organization\n\nThe shop sells printed books.\n\n## The Occasion\n\nAlex orders on Monday morning.\n\n## The Amounts\n\nEvery order carries one fee.\n\n## Recurring Situations\n\nShipments leave each weekday.\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'The People'");
+        AssertAdvisory(folder.Path, "requires an H2 'The People'");
     }
 
     /// <summary>Tutorial that omits what the reader built.</summary>
@@ -355,7 +355,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, TutorialPage, raw => WithoutSection(raw, "What You Built"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'What You Built'");
+        AssertAdvisory(folder.Path, "requires an H2 'What You Built'");
     }
 
     /// <summary>How-to with no check.</summary>
@@ -365,7 +365,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, HowToPage, raw => WithoutSection(raw, "Check"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Check'");
+        AssertAdvisory(folder.Path, "requires an H2 'Check'");
     }
 
     /// <summary>Command page hiding its mechanism.</summary>
@@ -378,7 +378,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             CommandPage,
             raw => raw.Substring(0, raw.IndexOf("## Underneath", StringComparison.Ordinal)));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Underneath'");
+        AssertAdvisory(folder.Path, "requires an H2 'Underneath'");
     }
 
     /// <summary>Reference page with no reference section.</summary>
@@ -388,7 +388,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, ReferencePage, raw => ReplaceFirst(raw, "## Reference", "## Procedure"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Reference'");
+        AssertAdvisory(folder.Path, "requires an H2 'Reference'");
     }
 
     /// <summary>Configuration page with no precedence.</summary>
@@ -398,7 +398,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, ConfigurationPage, raw => ReplaceFirst(raw, "## Precedence", "## Notes"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Precedence'");
+        AssertAdvisory(folder.Path, "requires an H2 'Precedence'");
     }
 
     /// <summary>Module page keeps free body prose.</summary>
@@ -418,7 +418,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, ActorExplanation, raw => ReplaceFirst(raw, "# Customer", "# customer"));
-        AssertProblem(RunConsumer(folder.Path), "H1 'customer' must use Title Case");
+        AssertAdvisory(folder.Path, "H1 'customer' must use Title Case");
     }
 
     /// <summary>Section heading outside Title Case.</summary>
@@ -428,7 +428,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, ModuleExplanation, raw => $"{raw}\n## known limits\n\nThe module stops at the shop edge.\n");
-        AssertProblem(RunConsumer(folder.Path), "H2 'known limits' must use Title Case");
+        AssertAdvisory(folder.Path, "H2 'known limits' must use Title Case");
     }
 
     /// <summary>Small word capitalized in the middle.</summary>
@@ -438,7 +438,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, ActorExplanation, raw => ReplaceFirst(raw, "# Customer", "# Customer Of The Shop"));
-        AssertProblem(RunConsumer(folder.Path), "must use Title Case");
+        AssertAdvisory(folder.Path, "must use Title Case");
     }
 
     /// <summary>Page headings carry their line.</summary>
@@ -448,9 +448,10 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, ModuleExplanation, raw => $"{raw}\n## known limits\n\nThe module stops at the shop edge.\n");
-        var problems = Problems(RunConsumer(folder.Path));
+        var problems = Problems(RunConsumer(folder.Path, "--all"));
         Assert.Contains(problems, problem => problem.Contains(".litespec/behavior/modules/orders/module.md:", StringComparison.Ordinal)
             && problem.Contains("[page-heading-invalid]", StringComparison.Ordinal));
+        Assert.All(Problems(RunConsumer(folder.Path)), problem => Assert.DoesNotContain("[page-heading-invalid]", problem));
     }
 
     /// <summary>Example longer than the bound.</summary>
@@ -464,6 +465,6 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             RequirementExplanation,
             raw => ReplaceFirst(raw, "Alex orders two books on Monday and pays one fee at checkout.", longExample));
-        AssertProblem(RunConsumer(folder.Path), "over the 120 word bound");
+        AssertAdvisory(folder.Path, "over the 120 word bound");
     }
 }

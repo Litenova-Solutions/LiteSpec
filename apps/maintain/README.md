@@ -76,13 +76,13 @@ The solution file `LiteSpec.slnx` lists the maintainer tool and its tests beside
 
 Each command parses its own tail with the shared `CliArgs.Parse`, declaring the flag names and value-option names it accepts. Names carry their dashes, such as `--check` or `--root`. An option takes either `--name value` or `--name=value`, and a flag stands alone. `CliArgs` treats `--help` and `-h` as help wherever they appear. Anything the command did not declare becomes a usage error such as `Unknown option '--foo'.`, and an option without a value becomes `Option --root needs a value.`. A positional past `maxPositionals` becomes `Unexpected argument '<value>'.`. Every `Run` prints its own `Usage` constant after a usage error and exits 2.
 
-Each command's `--help` text is the contract quoted in `docs/maintain/`. Quote it when you document behavior, and change the `Usage` constant together with the docs page when you change options. Exit codes are stable: 0 means success, 1 means a finding or a stale index, and 2 means a usage error or an unreadable input.
+Each command's `--help` text is the contract quoted in `docs/maintain/`. Quote it when you document behavior, and change the `Usage` constant together with the docs page when you change options. Exit codes are stable: 0 means success, 1 means an error finding or a stale index, and 2 means a usage error or an unreadable input.
 
 ### Findings and Diagnostic Codes
 
 Authoring diagnostics share one reporting shape: a stable code, a one-sentence message, a file path, and a 1-based line. Human output prints one line per finding to standard error. JSON output prints one object to standard output, so no caller parses the human lines back apart.
 
-`StandardsValidator.StableDiagnosticCodes` lists every code `validate` may emit, in declaration order, from `ANCHOR_BROKEN` to `STANDARD_STRENGTH_MODAL`. `Validate` throws `InvalidOperationException` when a check emits a code the list does not declare. An undeclared code then fails fast in tests instead of shipping as a typo. Every diagnostic is an error. Human output writes `Relative:Line [CODE] Message` per error. JSON output writes `tool`, `root`, `ok`, and an `errors` array of `file`, `line`, `code`, and `message` objects. A passing human run prints `LiteSpec authoring checks passed.` A failing run appends `LiteSpec authoring checks failed with N error(s).` after the lines.
+`StandardsValidator.StableDiagnosticCodes` lists every code `validate` may emit, in declaration order, from `ANCHOR_BROKEN` to `STANDARD_STRENGTH_MODAL`. `Validate` throws `InvalidOperationException` when a check emits a code the list does not declare. An undeclared code then fails fast in tests instead of shipping as a typo. A diagnostic is an error or a warning: `MaintainerDiagnostics.IsWarning` reports the sentence, modal, casing, and wording codes as warnings, and every other code as an error. Human output writes `Relative:Line [CODE] Message` per error and appends ` (warning)` per warning. JSON output writes `tool`, `root`, `ok`, an `errors` array, and a `warnings` array of `file`, `line`, `code`, and `message` objects. A clean human run prints `LiteSpec authoring checks passed.` A run with only warnings prints `LiteSpec authoring checks passed with N warning(s).` and exits zero. A failing run appends `LiteSpec authoring checks failed with N error(s).` after the lines, with ` and M warning(s)` when warnings are present.
 
 ### Release and Repository Roots
 
@@ -102,7 +102,7 @@ To add a fixture repository for a new case, follow the harness its area already 
 
 #### Add an Authoring Diagnostic Code End to End
 
-1. Add the code to `MaintainerDiagnostics.Codes` and `MaintainerDiagnostics.All` in `Validate/MaintainerDiagnostics.cs`, in declaration order. `StandardsValidator.StableDiagnosticCodes` exposes that list.
+1. Add the code to `MaintainerDiagnostics.Codes` and `MaintainerDiagnostics.All` in `Validate/MaintainerDiagnostics.cs`, in declaration order. `StandardsValidator.StableDiagnosticCodes` exposes that list. A sentence, modal, casing, or wording finding also joins `MaintainerDiagnostics.Warnings`, so it prints as a warning instead of failing the run.
 2. Emit it through the `Add` callback inside `Validate` with the repository-relative file, the 1-based line, the code, and a message naming the file and the fix. Never construct a `StandardsDiagnostic` with a code the list does not hold.
 3. Add a test under the tests' `Authoring/` folder that starts from `StandardsFixture.Base`, mutates one file, and asserts the `file:line [CODE] message` line and the exit code. Add the mirror test showing the clean tree passes.
 4. Quote the code in the affected behavior section of `docs/maintain/validate.md`, or on the relevant standard page when the rule restates visible behavior.

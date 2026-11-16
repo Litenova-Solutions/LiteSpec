@@ -222,7 +222,7 @@ public sealed class FactoryActTests
                     public async Task<SubmitOrderCommandResult> HandleAsync(SubmitOrderCommand command, CancellationToken cancellationToken)
                     {
                         var order = Order.Submit(command.OrderId);
-                        orders.Store(order);
+                        orders.Save(order);
                         return new SubmitOrderCommandResult(order.Id);
                     }
                 }
@@ -244,7 +244,7 @@ public sealed class FactoryActTests
                     public async Task<RenewOrderCommandResult> HandleAsync(RenewOrderCommand command, CancellationToken cancellationToken)
                     {
                         var order = Order.Renew(command.OrderId);
-                        orders.Store(order);
+                        orders.Save(order);
                         return new RenewOrderCommandResult(order.Id);
                     }
                 }

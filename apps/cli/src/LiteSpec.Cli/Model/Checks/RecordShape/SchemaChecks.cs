@@ -27,9 +27,6 @@ internal static class SchemaChecks
     /// <summary>The observation date key on a goal.</summary>
     const string DateField = "date";
 
-    /// <summary>The problem type key of a refusal.</summary>
-    const string ProblemTypeField = "problemType";
-
     /// <summary>The unknown-outcome key of an operation.</summary>
     const string UnknownField = "unknown";
 
@@ -196,7 +193,7 @@ internal static class SchemaChecks
 
                 if (record.Has(RecordFields.Serves))
                 {
-                    findings.Add(new Finding("field-invalid", $"Feature '{record.Id}' names serves and advances holds its goal.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Feature '{record.Id}' names serves and advances holds its goal.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 // A feature stands on its own and names the problems it solves.
@@ -227,7 +224,7 @@ internal static class SchemaChecks
                 // Requirements are cited by each step, so the flow itself holds no cites.
                 if (record.Has(RecordFields.Cites))
                 {
-                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' holds cites; each step cites the requirements it carries.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' holds cites; each step cites the requirements it carries.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 // The order of steps changes only through branches; the removed betweenSteps prose is refused.
@@ -246,10 +243,6 @@ internal static class SchemaChecks
             case RecordTypes.Aggregate:
                 RequireArray(record, RecordFields.States, 1, findings);
                 RequireStateEntries(record, findings);
-                break;
-
-            case RecordTypes.Store:
-                RequireIds(record, RecordFields.Owner, 1, findings);
                 break;
 
             case RecordTypes.Rule:
@@ -312,7 +305,7 @@ internal static class SchemaChecks
 
                 if (record.Has(RecordFields.Writes))
                 {
-                    findings.Add(new Finding("field-invalid", $"{FindingText.Label(record.Type)} '{record.Id}' holds writes; a reaction or job writes through the use case it runs.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"{FindingText.Label(record.Type)} '{record.Id}' holds writes; a reaction or job writes through the use case it runs.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 CheckRunsAtMostOne(record, findings);
@@ -333,7 +326,7 @@ internal static class SchemaChecks
                 // A read model is read by its queries, which carry its fulfilment; it fulfils nothing itself.
                 if (record.Has(RecordFields.Fulfills))
                 {
-                    findings.Add(new Finding("field-invalid", $"Read model '{record.Id}' holds fulfills; the query that reads it fulfils the requirement.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Read model '{record.Id}' holds fulfills; the query that reads it fulfils the requirement.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -344,10 +337,15 @@ internal static class SchemaChecks
 
             case RecordTypes.Result:
                 RequireEnum(record, RecordFields.Outcome, ["success", "refusal"], findings);
-                RequireString(record, RecordFields.Meaning, findings);
 
                 if (record.Field(RecordFields.Outcome) == "refusal")
                 {
+                    // A refusal result names its code and sentence; the module's refusal set holds the meaning.
+                    if (record.Has(RecordFields.Meaning))
+                    {
+                        findings.Add(new Finding("record-invalid", $"Result '{record.Id}' holds meaning; a refusal result names its code and sentence, and the module's refusal set holds the meaning.", record.File, record.Line, SubjectOf(record)));
+                    }
+
                     RequireString(record, RecordFields.Code, findings);
 
                     if (record.Field(RecordFields.Code) is { } code
@@ -355,13 +353,17 @@ internal static class SchemaChecks
                             || !Identifiers.RefusalCode().IsMatch(code)
                             || Identifiers.RefusalCode().Match(code).Value != code))
                     {
-                        findings.Add(new Finding("field-invalid", $"Result '{record.Id}' has code '{code}', which is not a refusal code.", record.File, record.Line, SubjectOf(record)));
+                        findings.Add(new Finding("record-invalid", $"Result '{record.Id}' has code '{code}', which is not a refusal code.", record.File, record.Line, SubjectOf(record)));
                     }
                     else if (record.Field(RecordFields.Code) is { } written)
                     {
                         CheckGenericRefusal(record, written, findings);
                         CheckRefusalCode(model, record, written, findings);
                     }
+                }
+                else
+                {
+                    RequireString(record, RecordFields.Meaning, findings);
                 }
 
                 break;
@@ -392,12 +394,12 @@ internal static class SchemaChecks
 
                 if (record.Has(RecordFields.Consent))
                 {
-                    findings.Add(new Finding("field-invalid", $"Notification '{record.Id}' holds consent as prose; name the rule in requiresConsent.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Notification '{record.Id}' holds consent as prose; name the rule in requiresConsent.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 if (record.Field(RecordFields.Channel) == "webhook")
                 {
-                    findings.Add(new Finding("field-invalid", $"Notification '{record.Id}' names the webhook channel; a webhook to a system is an outbound integration event.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Notification '{record.Id}' names the webhook channel; a webhook to a system is an outbound integration event.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -413,11 +415,17 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.EntryPoint:
-                RequireEnum(record, RecordFields.Kind, ["browser", "api", "webhook", "device", "cli", "mcp", "served-content"], findings);
+                RequireEnum(record, RecordFields.Kind, ["browser", "api", "webhook", "device", "cli", "mcp"], findings);
 
-                if (record.Has(RecordFields.Fulfills) && record.Field(RecordFields.Kind) != "served-content")
+                // An entry point carries no fulfills itself; a served-content entry carries it, and otherwise the use case it reaches fulfills the requirement.
+                if (record.Has(RecordFields.Fulfills))
                 {
-                    findings.Add(new Finding("field-invalid", $"Entry point '{record.Id}' holds fulfills, which only a served-content entry point carries; the use case it reaches fulfills the requirement.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Entry point '{record.Id}' holds fulfills; a served-content entry carries the fulfills, and otherwise the use case the entry point reaches fulfills the requirement.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                if (record.Has(RecordFields.ServedContent) && record.Field(RecordFields.Kind) != "browser")
+                {
+                    findings.Add(new Finding("record-invalid", $"Entry point '{record.Id}' holds servedContent, which only a browser entry point serves.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -535,14 +543,14 @@ internal static class SchemaChecks
 
                 if (allowed.Count > 0 && !allowed.Contains(resolved.Type) && !servesRequirement)
                 {
-                    findings.Add(new Finding("field-invalid", $"Record '{record.Id}' links {property.Name} to '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Record '{record.Id}' links {property.Name} to '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 // A flow cites the requirements it shows; every other cites names
                 // a goal, problem, feature, constraint, research or decision.
                 if (property.Name == RecordFields.Cites && resolved.Type == RecordTypes.Requirement && record.Type != RecordTypes.Flow)
                 {
-                    findings.Add(new Finding("field-invalid", $"Record '{record.Id}' links cites to '{target}', which is a requirement.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Record '{record.Id}' links cites to '{target}', which is a requirement.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 CheckFragment(model, record, target, baseId, resolved, findings);
@@ -566,7 +574,7 @@ internal static class SchemaChecks
                     && model.ById.TryGetValue(id, out var resolved)
                     && resolved.Type != RecordTypes.UseCase)
                 {
-                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 if (step.TryGetProperty(RecordFields.Actor, out var actor)
@@ -575,7 +583,7 @@ internal static class SchemaChecks
                     && model.ById.TryGetValue(actorId, out var actorRecord)
                     && actorRecord.Type != RecordTypes.Actor)
                 {
-                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' names actor '{actorId}', which is a {actorRecord.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' names actor '{actorId}', which is a {actorRecord.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 // A step performs with an external system only; jobs and reactions never appear in a step.
@@ -585,7 +593,7 @@ internal static class SchemaChecks
                     && model.ById.TryGetValue(systemId, out var systemRecord)
                     && systemRecord.Type != RecordTypes.ExternalSystem)
                 {
-                    findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' names system '{systemId}' in a step, which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' names system '{systemId}' in a step, which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 // A step cites the requirements it carries, and nothing else.
@@ -593,7 +601,29 @@ internal static class SchemaChecks
                 {
                     if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && citedRecord.Type != RecordTypes.Requirement)
                     {
-                        findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' step cites '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
+                        findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' step cites '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
+                    }
+                }
+            }
+        }
+
+        if (record.Type == RecordTypes.EntryPoint
+            && record.Raw.TryGetProperty(RecordFields.ServedContent, out var served)
+            && served.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var entry in served.EnumerateArray())
+            {
+                if (entry.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                // A served-content entry fulfills the requirements it names, and nothing else.
+                foreach (var fulfilled in LinkStrings(entry, RecordFields.Fulfills))
+                {
+                    if (model.ById.TryGetValue(Identifiers.BaseId(fulfilled), out var fulfilledRecord) && fulfilledRecord.Type != RecordTypes.Requirement)
+                    {
+                        findings.Add(new Finding("record-invalid", $"Entry point '{record.Id}' serves content fulfilling '{fulfilled}', which is a {fulfilledRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
                     }
                 }
             }
@@ -684,13 +714,13 @@ internal static class SchemaChecks
 
         if (branches.ValueKind != JsonValueKind.Array)
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds {RecordFields.Branches} as no array.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {RecordFields.Branches} as no array.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (branches.GetArrayLength() == 0)
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds an empty {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds an empty {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -700,7 +730,7 @@ internal static class SchemaChecks
         {
             if (branch.ValueKind != JsonValueKind.Object)
             {
-                findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 
@@ -714,12 +744,12 @@ internal static class SchemaChecks
 
             if (Str(branch, RecordFields.Step) is { Length: > 0 } step && !stepTargets.Contains($"{record.Id}#{step}"))
             {
-                findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' branches from step '{step}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' branches from step '{step}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (Str(branch, RecordFields.NextStep) is { Length: > 0 } next && next != "end" && !stepTargets.Contains($"{record.Id}#{next}"))
             {
-                findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' branches to step '{next}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' branches to step '{next}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -777,7 +807,7 @@ internal static class SchemaChecks
         var field = serves ? RecordFields.Serves : RecordFields.Answers;
         if (!IsOneIdList(record, field))
         {
-            findings.Add(new Finding("field-invalid", $"Flow '{record.Id}' holds its {field} as a list of exactly one identifier.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' holds its {field} as a list of exactly one identifier.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -817,11 +847,11 @@ internal static class SchemaChecks
 
             if (date is null || value is null || source is null)
             {
-                findings.Add(new Finding("field-invalid", $"Goal '{record.Id}' holds an observation with no date, value and source.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Goal '{record.Id}' holds an observation with no date, value and source.", record.File, record.Line, SubjectOf(record)));
             }
             else if (!ValidDate(date))
             {
-                findings.Add(new Finding("field-invalid", $"Goal '{record.Id}' holds observation date '{date}', which is not a date.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Goal '{record.Id}' holds observation date '{date}', which is not a date.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -861,7 +891,7 @@ internal static class SchemaChecks
 
         if (!model.RefusalSets.Any(entry => entry.Module == module && entry.Code == code))
         {
-            findings.Add(new Finding("refusal-code-unknown", $"Record '{record.Id}' names refusal '{code}', which the refusal set of module '{module}' does not declare.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' names refusal '{code}', which the refusal set of module '{module}' does not declare.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -880,12 +910,12 @@ internal static class SchemaChecks
 
         if (mode is null || !FreshnessModes.Contains(mode, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("field-invalid", $"Read model '{record.Id}' holds freshness mode '{mode ?? "none"}' outside {string.Join(", ", FreshnessModes)}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Read model '{record.Id}' holds freshness mode '{mode ?? "none"}' outside {string.Join(", ", FreshnessModes)}.", record.File, record.Line, SubjectOf(record)));
         }
 
         if (Str(freshness, RecordFields.Within) is { } within && !IsoDuration.IsMatch(within))
         {
-            findings.Add(new Finding("field-invalid", $"Read model '{record.Id}' holds freshness within '{within}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Read model '{record.Id}' holds freshness within '{within}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -995,7 +1025,7 @@ internal static class SchemaChecks
                 }
                 else if (resolved.Type != RecordTypes.Rule)
                 {
-                    findings.Add(new Finding("field-invalid", $"Use case '{record.Id}' input '{name}' names rule '{rule}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Use case '{record.Id}' input '{name}' names rule '{rule}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
             }
         }
@@ -1038,7 +1068,7 @@ internal static class SchemaChecks
         {
             if (record.Has(field))
             {
-                findings.Add(new Finding("field-invalid", $"External system '{record.Id}' holds {field} as prose; its typed operations hold it.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"External system '{record.Id}' holds {field} as prose; its typed operations hold it.", record.File, record.Line, SubjectOf(record)));
             }
         }
 
@@ -1103,7 +1133,7 @@ internal static class SchemaChecks
         {
             if (Str(entry, RecordFields.Name) is not { Length: > 0 } || Str(entry, RecordFields.Type) is not { Length: > 0 })
             {
-                findings.Add(new Finding("field-invalid", $"Domain event '{record.Id}' carries a field with no name and no type.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Domain event '{record.Id}' carries a field with no name and no type.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -1140,7 +1170,7 @@ internal static class SchemaChecks
                 || meaning.ValueKind != JsonValueKind.String
                 || string.IsNullOrEmpty(meaning.GetString()))
             {
-                findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' holds a state without a name and a meaning.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Aggregate '{record.Id}' holds a state without a name and a meaning.", record.File, record.Line, SubjectOf(record)));
                 return;
             }
         }
@@ -1161,13 +1191,13 @@ internal static class SchemaChecks
 
         if (record.Raw.TryGetProperty(field, out var value) && value.ValueKind != JsonValueKind.Array)
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds {field} as no array.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {field} as no array.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (value.GetArrayLength() < minimum)
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds an empty {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds an empty {field}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1215,7 +1245,7 @@ internal static class SchemaChecks
             }
             else if (!Regex.IsMatch(entry.GetString() ?? "", @"^role/[a-z0-9][a-z0-9-]*$"))
             {
-                findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds '{entry.GetString()}' in {RecordFields.Holds}, which is not a role identifier.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds '{entry.GetString()}' in {RecordFields.Holds}, which is not a role identifier.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -1235,7 +1265,7 @@ internal static class SchemaChecks
         }
         else if (!values.Contains(value, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has {field} '{value}' outside {string.Join(", ", values)}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has {field} '{value}' outside {string.Join(", ", values)}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1246,7 +1276,7 @@ internal static class SchemaChecks
     {
         if (record.Field(RecordFields.SetBy) is { } setBy && setBy is not ("product" or "operator" or "tenant"))
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has setBy '{setBy}' outside product, operator, tenant.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has setBy '{setBy}' outside product, operator, tenant.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1263,7 +1293,7 @@ internal static class SchemaChecks
         else if (record.Raw.TryGetProperty(field, out var value)
             && value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds {field} as no boolean.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {field} as no boolean.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1281,7 +1311,7 @@ internal static class SchemaChecks
         }
         else if (!ValidDate(value))
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has {field} '{value}', which is not a date.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has {field} '{value}', which is not a date.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1301,7 +1331,7 @@ internal static class SchemaChecks
         }
         else if (!Regex.IsMatch(value, pattern))
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has {field} '{value}', which is not {shape}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has {field} '{value}', which is not {shape}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

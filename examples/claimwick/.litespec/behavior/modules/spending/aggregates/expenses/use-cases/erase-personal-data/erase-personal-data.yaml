@@ -28,9 +28,6 @@ idempotency:
   reason: the first call deletes the expense, so a repeat finds nothing to erase
   replay: acts-again
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
 records:
 - type: result
   id: result/erase-personal-data.erased
@@ -42,7 +39,6 @@ records:
   title: Retention Not Ended
   outcome: refusal
   code: spending.retention-not-ended
-  meaning: The retention of the expense has not ended.
   sentence: The retention of this expense has not ended, so its personal data stays.
   sentences:
     nl: De bewaartermijn van deze uitgave is nog niet verstreken, dus de persoonsgegevens blijven bewaard.

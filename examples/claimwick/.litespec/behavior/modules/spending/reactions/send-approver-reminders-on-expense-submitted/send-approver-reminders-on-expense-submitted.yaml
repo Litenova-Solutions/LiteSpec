@@ -1,7 +1,7 @@
 type: reaction
 id: reaction/spending.send-approver-reminders-on-expense-submitted
 title: Send Approver Reminders on Expense Submitted
-summary: A submitted expense that waits past the reminder delay without a decision earns one reminder to its approver. Decided expenses are left alone, and so is an expense whose approver the suppression list names.
+summary: A submitted expense that waits past the reminder delay without a decision earns one reminder to its approver. Decided expenses are left alone, and so is an expense whose approver holds a reminder preference.
 triggeredBy:
 - domain-event/expense.submitted
 skippedWhen: The expense is already decided when the waiting time ends.
@@ -13,7 +13,7 @@ outcomes:
 - name: skipped
   meaning: The expense was already decided when the waiting time ended.
 - name: suppressed
-  meaning: The approver is named in the suppression list.
+  meaning: The approver holds a reminder preference.
 - name: failed
   meaning: The reminder could not be sent after every retry.
 - name: retry-scheduled
@@ -39,7 +39,7 @@ idempotency:
   scope: global
 reads:
 - aggregate/spending.expense
-- store/spending.suppression-list
+- aggregate/spending.reminder-preference
 - setting/spending.approval-reminder-delay
 records:
 - type: scenario
@@ -62,7 +62,7 @@ records:
 - type: scenario
   id: scenario/send-approver-reminders-on-expense-submitted.suppressed-manager-gets-nothing
   title: Suppressed Manager Gets Nothing
-  given: An expense waits past the reminder delay and its approver is named in the suppression list.
+  given: An expense waits past the reminder delay and its approver holds a reminder preference.
   when: The waiting time ends.
   then: No reminder is sent for the expense.
   outcome: suppressed

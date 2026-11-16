@@ -20,7 +20,7 @@ A project selects `plans` when tiers gate behavior or amounts in the software, w
 
 This extension replaces no baseline provision. It sits beside the [multitenancy extension](tenancy.md): tenancy isolates each tenant's data, while plans state what each tenant's tier allows.
 
-It switches on no record type. Plans are policy requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, as the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
+It switches on no record type. Plans are policy requirements, as the [intent page](../core/intent.md) states. Gated behavior resolves through permissions under `litespec/core/access#authorize-every-use-case-through-a-declared-grant`: a plan grants the permissions its tier allows through the same grant chain as any other entitlement. Gated amounts resolve through settings the gated use case cites under `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement`, with each commercial default tied to its requirement under `litespec/core/use-cases#tie-every-setting-default-to-a-requirement`. A run past its plan ends in the named refusal result under `litespec/core/use-cases#end-every-use-case-in-named-results`.
 
 ## Standards
 
@@ -39,50 +39,6 @@ It switches on no record type. Plans are policy requirements, gated behavior res
 **Example:** The team plan's record names the export use case it unlocks and the row cap it allows.
 
 **Reviewed for:** Does every plan have its own record with its entitlements? Read the requirement pages under `.litespec/intent/`.
-
-### Gate Behavior Through Permissions
-
-**ID:** `litespec/ext/plans#gate-behavior-through-permissions`
-
-**Strength:** required
-
-**Applies to:** artifact: record:use-case
-
-**Statement:** A gated use case MUST declare a permission that only an entitled plan grants.
-
-**Rationale:** The permission chain already joins actors to use cases: the actor holds a role, the role allows a permission, and the use case declares it in its grant, as the [access page](../core/access.md) states. A plan grants its permissions through that chain, so entitlement is a grant like any other, not a second access system beside the first.
-
-**Reviewed for:** Does every gated use case declare a permission in its grant that only an entitled plan grants? Read each gated use case's grant.
-
-### Bound Plan Amounts in Settings
-
-**ID:** `litespec/ext/plans#bound-plan-amounts-in-settings`
-
-**Strength:** required
-
-**Applies to:** artifact: record:setting-set
-
-**Statement:** Each amount a plan allows MUST live as a setting the gated use case cites.
-
-**Rationale:** An allowance written in code changes only with a release, with each plan's number in a different branch. A setting states the range, the setter, and the bound behavior, and the gated use case cites it, so raising a tier edits the setting instead of the code. `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement` requires the citation, and `litespec/core/use-cases#tie-every-setting-default-to-a-requirement` holds a commercial default to its requirement.
-
-**Example:** The export-row cap is `setting/spending.max-export-rows` with an operator-set value, and the export command cites it.
-
-**Reviewed for:** Does every plan allowance live in a setting the gated use case cites? Read the gated use cases beside their settings.
-
-### Refuse Runs Beyond Entitlement
-
-**ID:** `litespec/ext/plans#refuse-runs-beyond-entitlement`
-
-**Strength:** required
-
-**Applies to:** artifact: record:use-case
-
-**Statement:** A use case run past its plan MUST end in the refusal result the use case names for that run.
-
-**Rationale:** A run past its plan is a refusal like any other: it ends in the named refusal result with its stable code, as the [behavior page](../core/behavior.md) states. Callers branch on one code instead of guessing from an error page, and the code stays stable while prices and allowances move.
-
-**Reviewed for:** Does every run past its plan end in the named refusal result? Read the use case tests for plan limits.
 
 ### Resolve the Acting Plan from Trusted Context
 

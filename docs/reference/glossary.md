@@ -440,7 +440,7 @@ Source: LiteSpec.
 
 ### Entry Point
 
-One way in from outside, through which people or systems reach the product.
+One way in from outside, through which people or systems reach the product. A `browser` entry point lists the static content it serves in `servedContent`, each entry with the requirement it fulfills.
 
 Layer: Behavior.
 
@@ -718,7 +718,7 @@ Source: DDD.
 
 ### Module Event
 
-One fact one module publishes for the other modules of the same product, delivered in process through the transactional outbox. It translates one domain event of its own module and carries a payload.
+One fact one module publishes for the other modules of the same product, delivered in process through the transactional outbox. It translates one domain event of its own module and selects the fields it publishes from that event in `fields`.
 
 Layer: Behavior.
 
@@ -978,7 +978,7 @@ Source: LiteSpec.
 
 ### Refusal Set
 
-One page holding one module's refusal codes, with each code's meaning and problem type.
+One page holding one module's refusal codes, with each code's meaning. A refusal result names its code and keeps its sentence; the problem type of a code is the project's `problemTypeBase` followed by the code's part after its module.
 
 Layer: Behavior.
 
@@ -1074,7 +1074,7 @@ Rejected: acceptance criterion, which names the review use instead of the exampl
 
 ### Screen
 
-One page a person sees through a browser or device entry point. It serves a flow step only through a use case it offers.
+One page a person sees through a browser or device entry point. It serves a flow step only through a use case it offers, and it may fulfill a requirement about the interface in `fulfills`.
 
 Layer: Behavior.
 
@@ -1084,7 +1084,7 @@ Source: LiteSpec.
 
 ### Setting
 
-One named bound or default the product runs within, with its setter and its behavior at the bound. The use case, reaction, or job reading it names it in `reads`.
+One operator configuration value the running system reads, such as a provider timeout or a delay the operator tunes. A value the business changes while the system runs is aggregate data instead. The use case, reaction, or job reading it names it in `reads`.
 
 Layer: Behavior.
 
@@ -1113,16 +1113,6 @@ Source: LiteSpec.
 ### State
 
 One named stage in an aggregate's lifecycle, with its meaning.
-
-Layer: Behavior.
-
-Home: docs/core/domain-model.md
-
-Source: LiteSpec.
-
-### Store
-
-One record holding state that no aggregate invariant guards, such as a suppression list or a delivery log. It names its owning module or external system and carries no states.
 
 Layer: Behavior.
 

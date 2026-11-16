@@ -324,6 +324,8 @@ export interface Manifest {
   intentCoverage?: IntentCoverage;
   testRun?: { date?: string; passed?: number; failed?: number; total?: number } | null;
   totals: Record<string, number>;
+  /** How many records the builder counts complete, one number for the whole book. */
+  complete?: number;
   layers: { key: string; label: string; outline: string[] }[];
   shardOf: Record<string, string>;
   search: string[];

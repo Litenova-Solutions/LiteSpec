@@ -457,6 +457,6 @@ A domain event never leaves the product: any fact an outside consumer reads trav
 
 Packages: None. When a project introduces an OpenAPI diff tool, it pins the tool version in the manifest.
 
-Related extensions: `stage`, which defers these rules until the first deployment holds customer data.
+Related extensions: None.
 
 Guides: None.

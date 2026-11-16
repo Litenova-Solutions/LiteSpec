@@ -39,14 +39,6 @@ internal static class MarkEdits
             new TextSpan(member.SpanStart, 0), mark + newline + indent));
     }
 
-    /// <summary>Replaces the span text, such as a mistyped record identifier, with the record id.</summary>
-    /// <param name="text">The document text.</param>
-    /// <param name="span">The span to replace.</param>
-    /// <param name="recordId">The record identifier.</param>
-    /// <returns>The text with the span replaced.</returns>
-    public static SourceText Replace(SourceText text, TextSpan span, string recordId) =>
-        text.WithChanges(new TextChange(span, recordId));
-
     /// <summary>
     ///     Converts the documentation-tag mark holding the span to an attribute:
     ///     the tag leaves its line and the attribute is inserted above the member.

@@ -335,7 +335,7 @@ public sealed partial class UiValidatorTests
         {
             var patterns = (JsonArray)catalog["patterns"]!;
             var pattern = (JsonObject)patterns[0]!;
-            pattern["library"] = "litespec/frontend/patterns/page-frames#record-list";
+            pattern["library"] = "litespec/frontend/patterns/page-frames#list-page";
             ((JsonArray)pattern["options"]!).Add(new JsonObject
             {
                 ["id"] = "fixture-only",
@@ -373,7 +373,7 @@ public sealed partial class UiValidatorTests
         {
             var patterns = (JsonArray)catalog["patterns"]!;
             var pattern = (JsonObject)patterns[0]!;
-            pattern["library"] = "litespec/frontend/patterns/page-frames#record-list";
+            pattern["library"] = "litespec/frontend/patterns/page-frames#list-page";
             ((JsonObject)((JsonArray)pattern["options"]!)[0]!)["name"] = "Renamed table";
         });
         UiFixture.AssertProblem(

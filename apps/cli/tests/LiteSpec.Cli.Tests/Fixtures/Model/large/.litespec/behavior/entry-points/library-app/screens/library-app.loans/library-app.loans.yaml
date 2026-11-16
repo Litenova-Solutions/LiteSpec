@@ -2,7 +2,7 @@ type: screen
 id: screen/library-app.loans
 title: Loans
 summary: A reader can register, borrow, extend, list, return and hold copies, and a librarian can retire a copy.
-address: /loans
+address: /
 offers:
 - use-case/lending.register-copy
 - use-case/lending.borrow-copy

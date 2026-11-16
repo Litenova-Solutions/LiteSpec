@@ -60,6 +60,9 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
+    /// <summary>Gets the URI prefix of every problem type, from <c>problemTypeBase</c>; empty when the declaration names none.</summary>
+    public string ProblemTypeBase { get; private set; } = "";
+
     /// <summary>Gets the modules project holding every module, or the Application project under layer-projects.</summary>
     public string ModulesRoot { get; private set; } = "";
 
@@ -373,6 +376,11 @@ sealed class ConsumerConfig
             config.RefusalStatuses = ReadStatuses(refusals);
             config.RefusalAliases = ReadAliases(refusals);
             config.RefusalComposed = [.. ReadNames(refusals, "composed").Where(RefusalTemplate.IsWellFormed)];
+        }
+
+        if (StringAt(document, "problemTypeBase") is { } problemTypeBase)
+        {
+            config.ProblemTypeBase = problemTypeBase;
         }
 
         if (ObjectAt(document, "screenshots") is { } screenshots)

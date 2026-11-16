@@ -1,7 +1,27 @@
 type: external-system
-id: external-system/payout-bank
-title: Payout Bank
-summary: The payout bank moves reimbursed money to employees. Claimwick sends one bank file per batch and reads back a settlement report.
+summary: <what outside system this is and why the product depends on it>
+id: external-system/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
 processes:
-- aggregate: aggregate/spending.expense
-  dataClass: expense-ledger
+- aggregate: aggregate/<module>.<name>
+  dataClass: <data class name>
+operations:
+- name: <operation name>
+  direction: <out|in>
+  timeout: <how long the caller waits, such as PT30S>
+  retries: <how the caller retries, or remove this line>
+  rejected: <what the system does when it refuses the call, and what the caller does then>
+  accepted: <what the system does when it accepts the call, and what the caller then records>
+  unknown: <the cases where the outcome cannot be known>
+  onUnknown: <dedupe-key|reconcile|retry-safe>
+  response: <what the call returns>
+  cache: <what the caller caches and for how long>
+erasure:
+  mode: <call|event|unsupported|manual|not-applicable>
+  operation: external-system/<name>#<operation, or remove this line>
+  event: <module-event/<module>.<name> or integration-event/<name>, or remove this line>
+  reason: <why erasure is unsupported, manual or not applicable, or remove this line>
+basedOn:
+- <decision or requirement id>

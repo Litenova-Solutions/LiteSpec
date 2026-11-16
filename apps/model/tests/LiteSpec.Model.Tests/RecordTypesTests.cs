@@ -93,7 +93,7 @@ public sealed class RecordTypesTests
         Assert.True(RecordTypes.LinkTargets["from"].SetEquals(["module-event", "integration-event"]));
         Assert.True(RecordTypes.LinkTargets["erasedBy"].SetEquals(["module-event", "integration-event"]));
         Assert.True(RecordTypes.LinkTargets["removedBy"].SetEquals(["module-event", "integration-event"]));
-        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "store", "setting", "read-model"]));
+        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "setting", "read-model"]));
     }
 
     /// <summary>A read model is a technical type that code implements, and its record home is its module's read-models folder.</summary>

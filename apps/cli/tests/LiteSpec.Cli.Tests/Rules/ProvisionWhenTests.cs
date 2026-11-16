@@ -165,37 +165,6 @@ public sealed class ProvisionWhenTests
         Assert.DoesNotContain("litespec/backend/persistence#assign-document-numbers-from-a-sequence", result.Output);
     }
 
-    /// <summary>A code path marking a decision never returns the project provision.</summary>
-    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
-    [Fact]
-    public void RulesProjectProvisionNeverReturnsOnACodePath()
-    {
-        using var withStage = CopyDecisionsFixture(StageBlock);
-        using var withoutStage = CopyDecisionsFixture(null);
-        var marked = "apps/api/src/Demo/Billing/Invoicing/Audit/InvoiceRenderer.cs";
-        var withResult = TestCli.Run("rules", "--root", withStage.Path, marked);
-        var withoutResult = TestCli.Run("rules", "--root", withoutStage.Path, marked);
-
-        Assert.Equal(0, withResult.Status);
-        Assert.Equal(0, withoutResult.Status);
-        Assert.Equal(
-            CollapsedCount(withoutResult.Output, "decision/0008-render-invoices-as-pdf"),
-            CollapsedCount(withResult.Output, "decision/0008-render-invoices-as-pdf"));
-    }
-
-    /// <summary>A decision record prints the project provision with its condition shown.</summary>
-    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
-    [Fact]
-    public void RulesDecisionRecordShowsProjectCondition()
-    {
-        using var root = CopyDecisionsFixture(StageBlock);
-        var result = TestCli.Run("rules", "--root", root.Path, "decision/0008-render-invoices-as-pdf");
-
-        Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/ext/stage#promote-through-a-recorded-decision:", result.Output);
-        Assert.Contains("when project", result.Output);
-    }
-
     /// <summary>A code path marking the named adoption decision keeps the audit-adoption provision.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
@@ -248,13 +217,6 @@ public sealed class ProvisionWhenTests
         Assert.Contains("- litespec/ext/audit#record-the-audit-adoption-decision:", result.Output);
         Assert.Contains("when audit-adoption", result.Output);
     }
-
-    /// <summary>The stage extension selection, as YAML under selectedExtensions.</summary>
-    const string StageBlock = """
-        - id: stage
-          criterion: no deployment holds customer data
-          releaseStage: pre-production
-        """;
 
     /// <summary>The audit extension selection naming the adoption decision, as YAML under selectedExtensions.</summary>
     /// <param name="decision">The adoption decision identifier.</param>

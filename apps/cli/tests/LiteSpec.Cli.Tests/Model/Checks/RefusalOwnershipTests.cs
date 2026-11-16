@@ -92,7 +92,6 @@ public sealed class RefusalOwnershipTests
             "spending",
             "spending.receipt-missing",
             "The expense is above the receipt threshold and carries no receipt.",
-            "https://claimwick.dev/problems/receipt-missing",
             Path.Combine(root, "refusals.yaml")));
 
         return model;

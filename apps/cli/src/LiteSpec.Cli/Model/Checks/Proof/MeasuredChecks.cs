@@ -31,7 +31,7 @@ internal static class MeasuredChecks
         CheckNumberedStatement(model, findings);
     }
 
-    /// <summary>Reports a statement naming a number with no measure, at level A.</summary>
+    /// <summary>Reports a statement naming a number with no measure.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckNumberedStatement(ProjectModel model, List<Finding> findings)
@@ -42,10 +42,7 @@ internal static class MeasuredChecks
             && record.Field(RecordFields.Statement) is { Length: > 0 } statement
             && NamesNumber(statement)))
         {
-            findings.Add(new Finding("requirement-measure-missing", $"Requirement '{requirement.Id}' names a number with no measure.", requirement.File, requirement.Line, SubjectOf(requirement))
-            {
-                TierOverride = "A",
-            });
+            findings.Add(new Finding("statement-measure-missing", $"Requirement '{requirement.Id}' names a number with no measure.", requirement.File, requirement.Line, SubjectOf(requirement)));
         }
     }
 

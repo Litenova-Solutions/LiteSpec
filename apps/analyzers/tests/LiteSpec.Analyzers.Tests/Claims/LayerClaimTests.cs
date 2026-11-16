@@ -38,7 +38,7 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "A traceability rule runs nothing when the project claims no implementation")]
     public async Task NoImplementationClaimRunsNoTraceabilityRule()
     {
-        var diagnostics = await AnalyzeAsync<MarkPresenceAnalyzer>(
+        var diagnostics = await AnalyzeAsync<MarkStyleAnalyzer>(
             HandlerSource(), "Shop.Application", Claim(implementation: ""), [ProjectFile(), UseCase()]);
 
         Assert.Empty(diagnostics);
@@ -62,11 +62,11 @@ public sealed class LayerClaimTests
     public async Task OwnImplementationRunsOnlyTraceability()
     {
         var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Domain", Claim(implementation: "own"), []);
-        var traceability = await AnalyzeAsync<MarkPresenceAnalyzer>(
+        var traceability = await AnalyzeAsync<MarkStyleAnalyzer>(
             HandlerSource(), "Shop.Application", Claim(implementation: "own"), [ProjectFile(), UseCase()]);
 
         Assert.Empty(layer);
-        Assert.Equal(new[] { "LS5001" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
+        Assert.Equal(new[] { "LS5004" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
     }
 
     /// <summary>With litespec Implementation, a layer rule and a traceability rule both report.</summary>
@@ -76,11 +76,11 @@ public sealed class LayerClaimTests
     public async Task LiteSpecImplementationRunsEveryRule()
     {
         var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Domain", Claim(implementation: "litespec"), []);
-        var traceability = await AnalyzeAsync<MarkPresenceAnalyzer>(
+        var traceability = await AnalyzeAsync<MarkStyleAnalyzer>(
             HandlerSource(), "Shop.Application", Claim(implementation: "litespec"), [ProjectFile(), UseCase()]);
 
         Assert.Equal(new[] { "LS1002" }, layer.Select(diagnostic => diagnostic.Id).ToArray());
-        Assert.Equal(new[] { "LS5001" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
+        Assert.Equal(new[] { "LS5004" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
     }
 
     /// <summary>A build with no claim reads every layer as litespec, as a project file with no layers does.</summary>
@@ -90,11 +90,11 @@ public sealed class LayerClaimTests
     public async Task AbsentClaimRunsEveryRule()
     {
         var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Domain", Claim(), []);
-        var traceability = await AnalyzeAsync<MarkPresenceAnalyzer>(
+        var traceability = await AnalyzeAsync<MarkStyleAnalyzer>(
             HandlerSource(), "Shop.Application", Claim(), [ProjectFile(), UseCase()]);
 
         Assert.Equal(new[] { "LS1002" }, layer.Select(diagnostic => diagnostic.Id).ToArray());
-        Assert.Equal(new[] { "LS5001" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
+        Assert.Equal(new[] { "LS5004" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
     }
 
     /// <summary>The build property decides the claim, whatever the project file says.</summary>
@@ -153,7 +153,7 @@ public sealed class LayerClaimTests
         public enum OrderStatus { Draft, Placed }
         """;
 
-    /// <summary>The Application source with a handler that carries no mark.</summary>
+    /// <summary>The Application source with a handler that carries an attribute mark.</summary>
     /// <returns>The C# source text.</returns>
     private static string HandlerSource() => """
         using System;
@@ -166,6 +166,12 @@ public sealed class LayerClaimTests
 
         public sealed class SubmitExpenseCommandResult;
 
+        internal sealed class ImplementsAttribute : Attribute
+        {
+            public ImplementsAttribute(string id) { }
+        }
+
+        [Implements("use-case/spending.submit-expense")]
         internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
         {
         }

@@ -18,19 +18,19 @@ namespace LiteSpec.Analyzers.CodeFixes;
 internal sealed class TraceabilityFix
 {
     /// <summary>Initializes a new instance of the <see cref="TraceabilityFix"/> class.</summary>
-    /// <param name="store">The record store that holds the project settings and the record index.</param>
+    /// <param name="records">The consumer's records that hold the project settings and the record index.</param>
     /// <param name="member">The member declaration under inspection.</param>
     /// <param name="symbol">The symbol declared by the element under inspection.</param>
     /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
     /// <param name="folders">The nearest folder names of the source file, containing first.</param>
     private TraceabilityFix(
-        CompilationRecords store,
+        CompilationRecords records,
         MemberDeclarationSyntax member,
         ISymbol? symbol,
         CodeKind? kind,
         IReadOnlyList<string> folders)
     {
-        Store = store;
+        Records = records;
         Member = member;
         Symbol = symbol;
         Kind = kind;
@@ -38,7 +38,7 @@ internal sealed class TraceabilityFix
     }
 
     /// <summary>Gets the consumer's records.</summary>
-    public CompilationRecords Store { get; }
+    public CompilationRecords Records { get; }
 
     /// <summary>Gets the member declaration the diagnostic sits on or in.</summary>
     public MemberDeclarationSyntax Member { get; }
@@ -65,9 +65,9 @@ internal sealed class TraceabilityFix
     public static async Task<TraceabilityFix?> ReadAsync(
         Document document, Microsoft.CodeAnalysis.Text.TextSpan span, CancellationToken cancellationToken)
     {
-        var store = await LoadStoreAsync(document.Project, cancellationToken).ConfigureAwait(false);
+        var records = await LoadRecordsAsync(document.Project, cancellationToken).ConfigureAwait(false);
 
-        if (store is null)
+        if (records is null)
         {
             return null;
         }
@@ -83,14 +83,14 @@ internal sealed class TraceabilityFix
         var symbol = model?.GetDeclaredSymbol(member, cancellationToken);
         var kind = await KindOfAsync(document, member, symbol, cancellationToken).ConfigureAwait(false);
 
-        return new TraceabilityFix(store, member, symbol, kind, FoldersOf(document.FilePath));
+        return new TraceabilityFix(records, member, symbol, kind, FoldersOf(document.FilePath));
     }
 
-    /// <summary>Returns the store.</summary>
+    /// <summary>Returns the records.</summary>
     /// <param name="project">The project that owns the document.</param>
     /// <param name="cancellationToken">The token that cancels the operation when the host aborts it.</param>
-    /// <returns>A task whose result is the store.</returns>
-    private static async Task<CompilationRecords?> LoadStoreAsync(Project project, CancellationToken cancellationToken)
+    /// <returns>A task whose result is the records.</returns>
+    private static async Task<CompilationRecords?> LoadRecordsAsync(Project project, CancellationToken cancellationToken)
     {
         var files = new List<RecordFile>();
 

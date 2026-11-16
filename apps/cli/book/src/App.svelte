@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, initTheme } from "$lib/frame";
   import { OutlinePanel, outlineState } from "$lib/outline";
   import { ExplainLayer } from "$lib/record";
   import { RecordPage } from "$lib/record-page";
@@ -27,6 +27,68 @@
   let railEl = $state<HTMLElement | null>(null);
   const load = $derived(book.load);
 
+  // The navigation width: the reader drags its right border or moves the
+  // focused handle with the arrow keys, and the book remembers the choice.
+  const NAV_MIN_WIDTH = 208;
+  const NAV_MAX_WIDTH = 560;
+  const NAV_WIDTH_KEY = "book-nav-width";
+  let navWidth = $state(304);
+  try {
+    const kept = window.localStorage.getItem(NAV_WIDTH_KEY);
+    const parsed = kept === null ? Number.NaN : Number.parseInt(kept, 10);
+    if (Number.isFinite(parsed)) navWidth = Math.min(NAV_MAX_WIDTH, Math.max(NAV_MIN_WIDTH, parsed));
+  } catch {
+    /* A reader without storage reads at the default width. */
+  }
+
+  function setNavWidth(next: number): void {
+    navWidth = Math.min(NAV_MAX_WIDTH, Math.max(NAV_MIN_WIDTH, Math.round(next)));
+    try {
+      window.localStorage.setItem(NAV_WIDTH_KEY, String(navWidth));
+    } catch {
+      /* A reader without storage still resizes for this visit. */
+    }
+  }
+
+  let navDragging = $state(false);
+  let dragStartX = 0;
+  let dragStartWidth = 304;
+
+  function navDragStart(e: PointerEvent): void {
+    if (e.button !== 0 || e.isPrimary === false) return;
+    e.preventDefault();
+    dragStartX = e.clientX;
+    dragStartWidth = navWidth;
+    navDragging = true;
+    if (e.currentTarget instanceof HTMLElement) e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function navDragMove(e: PointerEvent): void {
+    if (!navDragging) return;
+    setNavWidth(dragStartWidth + (e.clientX - dragStartX));
+  }
+
+  function navDragEnd(): void {
+    navDragging = false;
+  }
+
+  function navKey(e: KeyboardEvent): void {
+    const step = e.shiftKey ? 32 : 8;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setNavWidth(navWidth - step);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setNavWidth(navWidth + step);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setNavWidth(NAV_MIN_WIDTH);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setNavWidth(NAV_MAX_WIDTH);
+    }
+  }
+
   // The one announcement path, at most one text per 300 ms: selections that
   // keep focus in the outline announce the record, and selections that move
   // focus to the title clear the live region instead of announcing twice.
@@ -40,6 +102,9 @@
   const scrollOffsets = new Map<string, number>();
   let prevSelected: string | null = null;
   let historyNav = false;
+
+  // The book opens in light mode; a reader choice kept from a past visit wins.
+  initTheme();
 
   book.boot(decodeURIComponent(location.hash.slice(1)));
 
@@ -157,11 +222,36 @@
     {:else if load.kind === "loading"}
       <p class="p-8 text-sm text-text-secondary">Loading the book.</p>
     {:else}
-      <!-- The outline stays on the left and the rail on the right edge; the record is
-           centered between them, so a wide screen keeps it in the middle of the page. -->
-      <div class="grid grid-cols-[304px_minmax(0,1fr)_304px]">
+      <!-- The outline stays on the left, resizable by its right border, and the
+           rail on the right edge; the record is centered between them, so a
+           wide screen keeps it in the middle of the page. -->
+      <div class="grid" style="grid-template-columns: {navWidth}px minmax(0, 1fr) 304px">
         <aside id="book-nav" aria-label="Navigation" class="sticky top-12 h-[calc(100vh-3rem)] overflow-hidden border-r border-border-subtle bg-layer">
           <OutlinePanel />
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+          <!-- A focusable separator is the ARIA window splitter: arrow keys resize the navigation. -->
+          <div
+            role="separator"
+            tabindex={0}
+            aria-orientation="vertical"
+            aria-label="Navigation width"
+            aria-valuemin={NAV_MIN_WIDTH}
+            aria-valuemax={NAV_MAX_WIDTH}
+            aria-valuenow={navWidth}
+            aria-controls="book-nav"
+            onpointerdown={navDragStart}
+            onkeydown={navKey}
+            onpointermove={navDragMove}
+            onpointerup={navDragEnd}
+            onpointercancel={navDragEnd}
+            class="group absolute top-0 right-0 bottom-0 z-10 w-3 cursor-col-resize touch-none"
+          >
+            <span
+              aria-hidden="true"
+              class={"absolute top-0 right-0 bottom-0 w-[3px] bg-interactive transition-opacity " +
+                (navDragging ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100")}
+            ></span>
+          </div>
         </aside>
         {#if wide === "intent"}
           <section class="col-span-2 min-w-0" aria-label="Intent tree"><IntentTree onClose={closeIntentTree} /></section>
@@ -169,7 +259,7 @@
           <main class="col-span-2 min-w-0"><div class="mx-auto w-full max-w-[52rem]"><AboutBook onClose={closeIntentTree} /></div></main>
         {:else}
           <main class="flex min-h-[calc(100vh-3rem)] min-w-0 flex-col">
-            <article class="mx-auto w-full max-w-[52rem] flex-1 px-8 pt-6 pb-16 [overflow-wrap:anywhere]">
+            <article class="mx-auto w-full max-w-[64rem] flex-1 px-8 pt-6 pb-16 [overflow-wrap:anywhere]">
               <RecordPage />
             </article>
           </main>

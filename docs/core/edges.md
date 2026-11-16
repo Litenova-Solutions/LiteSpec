@@ -9,7 +9,7 @@ Edges and Screens states how the product meets the outside: its integration even
 
 ### Integration Events
 
-An integration event is a published fact that crosses the bounded context in CloudEvents form. Its `direction` says which way the fact travels: `out` for facts the product emits, and `in` for facts it accepts from outside. A fact for the other modules of the same product is a module event instead, which never crosses the bounded context, as the [Automation page](automation.md#module-events) states.
+An integration event is a published fact that crosses the bounded context in CloudEvents form. Its `direction` says which way the fact travels: `out` for facts the product emits, and `in` for facts it accepts from outside. A fact for the other modules of the same product is a module event instead, which never crosses the bounded context, as the [Automation page](automation.md#module-events) states. An integration event carries a full typed `payload`, because it crosses the bounded context and needs a full contract; a module event instead selects `fields` from the domain event it translates.
 
 Each event states how far readers trust it. With `trigger-only` trust, the event only wakes the reader, and the reader goes back to the source for the facts. With `payload` trust, the fields on the event are fit to act on directly. The event carries `summary` and `delivery`: what it announces and who acts on it, and how it reaches its readers.
 
@@ -59,12 +59,11 @@ Claimwick's `notification/spending.receipt-reminder` sends the `receipt-reminder
 
 An entry point is one way outside callers reach the product. Each entry point declares its `auth`, as the [Access page](access.md) states.
 
-Served content is a static script or legal text with its path, content type, cache control, and versioning. It is content served unchanged, not a use case run, so it carries no behavior.
+Served content is a static script or legal text with its path, content type, cache control, and versioning, listed in `servedContent` on a browser entry point. It is content served unchanged, not a use case run, so it carries no behavior.
 
 | Kind | Meaning |
 |:---|:---|
 | `browser`, `api`, `webhook`, `device`, `cli`, `mcp` | A browser app, a public interface, an inbound hook, a device, a command line, or a model context channel. |
-| `served-content` | Static content with `path`, `contentType`, `cacheControl`, and `versioning`. |
 
 An entry point that people use states two things about its audience. Its `density` says how much each screen shows at once: `public-light` for pages that show little, `application-balanced` for screens that balance work and guidance, or `admin-dense` for screens that pack dense rows. Its `voice` says in a sentence or two how the product addresses that audience.
 
@@ -260,7 +259,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Statement:** Each entry point MUST declare its kind and its `auth`.
 
-**Rationale:** An entry point with no kind is entered any way: a webhook is called as a page, and a device as a browser. Declaring the kind, one of `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, or `served-content`, together with its auth, states how callers arrive and how they prove themselves.
+**Rationale:** An entry point with no kind is entered any way: a webhook is called as a page, and a device as a browser. Declaring the kind, one of `browser`, `api`, `webhook`, `device`, `cli`, or `mcp`, together with its auth, states how callers arrive and how they prove themselves.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` or `auth`.
 
@@ -278,7 +277,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Example:** The Claimwick employee app entry point states `application-balanced` in `density`, with the `voice` "Claimwick addresses the employee plainly and names the next step on every screen."
 
-**Checked by:** `litespec model check` reports `record-invalid` for a browser or device entry point without `density` or `voice`, and `field-invalid` for a `density` outside public-light, application-balanced, and admin-dense.
+**Checked by:** `litespec model check` reports `record-invalid` for a browser or device entry point without `density` or `voice`, and `record-invalid` for a `density` outside public-light, application-balanced, and admin-dense.
 
 ### Give Every Page Its Screen Record
 
@@ -384,11 +383,11 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Applies to:** artifact: record:entry-point
 
-**Statement:** A static script or legal text MUST be served content with its path, content type, cache control, and versioning, never a use case.
+**Statement:** A static script or legal text MUST be served through a browser entry point's `servedContent` list, with its path, content type, cache control, and versioning, never as a use case.
 
 **Rationale:** A static file modeled as a use case invents behavior where none exists: results, scenarios, and handlers for bytes that are served unchanged. Serving it as content keeps content apart from behavior.
 
-**Reviewed for:** Is every static script and legal text served as served content, with its path, content type, cache control, and versioning? Check the static files beside the served-content entries.
+**Reviewed for:** Is every static script and legal text served through a browser entry point's `servedContent` list, with its path, content type, cache control, and versioning? Check the static files beside the `servedContent` entries.
 
 ### Describe Every External System Operation
 

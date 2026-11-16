@@ -15,7 +15,7 @@ options:
     pros: One page would hold every writing rule.
     cons: LiteSpec's own prose rules differ from project record language, so one page would serve two readers at once.
 choice: One language page; authoring keeps page prose
-consequences: "`litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, `litespec/core/language#name-each-finding-code-by-subject-and-problem`, `litespec/core/language#write-each-finding-message-as-a-fact` and `litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set` hold the standard, and `litespec/core/authoring#use-one-term-for-one-concept` is one prose rule authoring keeps."
+consequences: "`litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#use-the-declared-record-identifier-grammar`, `litespec/core/language#name-each-finding-code-by-subject-and-problem`, `litespec/core/language#write-each-finding-message-as-a-fact` and `litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set` hold the standard, and `litespec/core/authoring#use-one-term-for-one-concept` is one prose rule authoring keeps."
 reopenedWhen: A record layer appears whose language the page cannot state.
 basedOn:
   - research/naming-grammar-evidence

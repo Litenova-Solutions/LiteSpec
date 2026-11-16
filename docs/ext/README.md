@@ -25,7 +25,6 @@ Selected once for the whole project:
 - [Model Context Protocol](mcp.md): server presentation, tool wording, and refusals for a product that ships an MCP server.
 - [Multitenancy](tenancy.md): tenant isolation across authorization, storage, jobs, and recovery for one shared deployment.
 - [Plans and Entitlements](plans.md): plans, entitlements, and feature gating for a product that sells tiers.
-- [Release Stage](stage.md): the pre-customer-data stage, what it defers, and the promotion that ends it.
 
 ## Local Extensions
 
@@ -37,7 +36,8 @@ Selected per record, for the use cases, entry points, jobs, flows, modules, rule
 - [Data Lifecycle](lifecycle.md): retention, deletion, archival, and restore behavior for records with a lifetime duty.
 - [External Integrations](integrations.md): provider isolation, failure mapping, and boundary tests for use cases that call outside systems.
 - [Durable Delivery](outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure.
-- [Jobs and Queues](jobs.md): recurring, delayed, and heavy work, and human-cleared queues, with leases that survive restarts.
+- [Scheduled Jobs and Reports](jobs.md): recurring, delayed, and heavy work, with leases that survive restarts.
+- [Human Work Queues](queues.md): claimed listings people clear, with ordered scores, previews, and out-of-band confirmation for bulk money actions.
 - [Live Delivery](realtime.md): live transport for updates a measured target requires faster than polling.
 
 ## Stack Extensions

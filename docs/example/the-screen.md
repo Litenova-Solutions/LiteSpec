@@ -16,7 +16,7 @@ The module script carries the screen's mark, which names the record the route im
 </script>
 ```
 
-The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`, with the address `/expenses`. The record names its page frame, `list-page`, and the chosen option; the design contract maps the frame to the `ListPage` floorplan.
+The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`, with the address `/expenses`. The record names its page frame, `list-page`, and the chosen option; the design contract maps the frame to the `ListPage` floorplan. The record also fulfills the six interface quality requirements in `fulfills`, so each requirement about the interface traces to the screen that shows it.
 
 The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
 

@@ -1,6 +1,6 @@
 # Document Templates
 
-These files are starting points for consumer records. `litespec init` copies the project setup files to their targets, writes the six interface quality requirements from `requirements/` to `intent/requirements/`, and writes the local tool manifest, while `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and delete any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves behind, while `litespec model check` rejects a project file still holding one. Each record template copies one record from the Claimwick example, so it carries that record's values, and `litespec model check` reports any scaffold that keeps a copied text or number.
+These files are starting points for consumer records. `litespec init` copies the project setup files to their targets, writes the six interface quality requirements from `requirements/` to `intent/requirements/`, and writes the local tool manifest, while `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every `<placeholder>` with the project's own before committing, and delete any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves behind, while `litespec model check` rejects a project file still holding one. Each record template shows every field of its type with a placeholder value, and `litespec model check` reports `template-value-unchanged` for any scaffold that keeps one.
 
 A record file holds its record in YAML, with the entries under `records`. A named record gets its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits beside the record file in that folder. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Each feature requirement is a named record in its own folder inside its feature's requirements folder, and each product requirement is a named record in its own folder under `intent/requirements/`. Rules and domain events live on an aggregate file, results live on a use-case file, and scenarios live on their use-case, reaction, or job file. Permissions live on their module's permissions file, refusals on their module's refusals file, and settings on a setting-set file. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Terms live in the glossary at `.litespec/glossary.yaml` rather than on a file.
 
@@ -52,8 +52,6 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `module.md` | `.litespec/behavior/modules/<module>/module.md` | Explains the module beside its module file. |
 | `aggregate.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml` | Defines one aggregate, with its states, data classes, and its rule and domain-event entries. |
 | `aggregate.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.md` | Explains the aggregate beside its aggregate file. |
-| `store.yaml` | `.litespec/behavior/modules/<module>/stores/<name>/<name>.yaml` | Defines one store, with its owner, data and data classes. |
-| `store.md` | `.litespec/behavior/modules/<module>/stores/<name>/<name>.md` | Explains the store beside its record file. |
 | `use-case-command.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one command that changes data, with its input, writes, consistency, idempotency, result and scenario entries. |
 | `use-case-query.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one query that returns data, with its output, freshness, paging and scenario entries. |
 | `use-case.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.md` | Explains the use case beside its record file, a command or a query. |
@@ -63,15 +61,15 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `job.md` | `.litespec/behavior/modules/<module>/jobs/<name>/<name>.md` | Explains the job beside its record file. |
 | `notification.yaml` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.yaml` | Defines one person-facing message, its audience, delivery, consent and claims. |
 | `notification.md` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.md` | Explains the notification beside its record file. |
-| `module-event.yaml` | `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml` | Defines one fact a module publishes for the other modules of the product, with the domain event it translates and its payload. |
+| `module-event.yaml` | `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml` | Defines one fact a module publishes for the other modules of the product, with the domain event it translates and the fields it selects from it. |
 | `module-event.md` | `.litespec/behavior/modules/<module>/module-events/<name>/<name>.md` | Explains the module event beside its record file. |
 | `integration-event.yaml` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.yaml` | Defines one published or consumed integration event with the system it travels through and how an inbound one arrives. |
 | `integration-event.md` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.md` | Explains the integration event beside its record file. |
 | `read-model.yaml` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml` | Defines one read model a module keeps from the events another module publishes, with its key, fields and freshness. |
 | `read-model.md` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.md` | Explains the read model beside its record file. |
-| `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one entry point into the system: its kind, auth, density, and voice. |
+| `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one entry point into the system: its kind, auth, density, voice, and the content a browser entry point serves. |
 | `entry-point.md` | `.litespec/behavior/entry-points/<entry-point>/entry-point.md` | Explains the entry point beside its entry-point file. |
-| `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | Records one page a person sees through an entry point: what it offers, the steps it serves, its page frame, and the screens it leads to. |
+| `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | Records one page a person sees through an entry point: what it offers, the steps it serves, the interface requirements it fulfills, its page frame, and the screens it leads to. |
 | `screen.md` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.md` | Explains the screen beside its record file. |
 | `release-record.md` | `.litespec/releases/<YYYY-MM-DD>.md` | Records one release: what it ships and the evidence it was gated on. |
 | `runbook.yaml` | `.litespec/implementation/runbooks/<name>/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
@@ -87,7 +85,7 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `permission-set.md` | `.litespec/behavior/modules/<module>/permissions.md` | Explains the permission set beside its file. |
 | `setting-set.yaml` | `.litespec/behavior/modules/<module>/settings/<name>.yaml` | Holds the setting entries a module runs with. |
 | `setting-set.md` | `.litespec/behavior/modules/<module>/settings/<name>.md` | Explains the setting set beside its file. |
-| `refusals.yaml` | `.litespec/behavior/modules/<module>/refusals.yaml` | Declares each refusal code of one module once, with its meaning and problem type. |
+| `refusals.yaml` | `.litespec/behavior/modules/<module>/refusals.yaml` | Declares each refusal code of one module once, with its meaning. |
 | `refusals.md` | `.litespec/behavior/modules/<module>/refusals.md` | Explains the refusal set beside its file. |
 | `rule-set.yaml` | `.litespec/behavior/modules/<module>/rules/<name>.yaml` | Holds rule entries that sit together outside one aggregate. |
 | `rule-set.md` | `.litespec/behavior/modules/<module>/rules/<name>.md` | Explains the rule set beside its file. |
@@ -120,7 +118,6 @@ An explanation file lives in the record's folder beside its record file, sharing
 | requirement | Example (optional); the explanation file itself is optional |
 | flow | Example, Branches (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
-| store | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |
 | rule-set | Rationale, Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |

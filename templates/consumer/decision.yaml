@@ -1,20 +1,29 @@
 type: decision
-id: decision/0001-receipt-threshold
-title: Receipt Threshold
-summary: Small expenses need no proof, large ones do.
+id: decision/<number>-<name>
+title: <Title in Title Case>
+summary: <the choice, in one sentence, or remove this line>
+terms:
+- <term id, or remove this line>
+kind: <provider|package|format|boundary|topology|replacement, or remove this line>
 options:
-- name: 0 EUR
-  pros: Every expense carries proof.
-  cons: Tiny expenses cost more to file than they pay.
-- name: 25 EUR
-  pros: Small expenses stay light to submit.
-  cons: Some fraud slips under the line.
-- name: 75 EUR
-  pros: Almost nothing needs a receipt.
-  cons: Finance cannot defend the tax file.
-choice: 25 EUR
-consequences: Small expenses stay light to submit.
-reopenedWhen: Finance sees abuse or friction.
+- name: <option name>
+  pros: <what speaks for it>
+  cons: <what speaks against it>
+- name: <option name>
+  pros: <what speaks for it>
+  cons: <what speaks against it>
+choice: <the selected option>
+consequences: <what follows from the choice for the product, the team and the code>
+reopenedWhen: <what would reopen the choice>
 decides:
-- requirement/approval.above-threshold-receipt
-basedOn: []
+- <decided record id, or remove this block>
+admits:
+- package: <nuget:Name or npm:name>
+  layer: <layer the package lives in, or remove this line>
+  license: <license id, or remove this line>
+  location: <where the package is used, or remove this line>
+  failureBehavior: <what happens when the package fails, or remove this line>
+basedOn:
+- <constraint, research, vision or requirement id, or remove this line>
+supersedes:
+- decision/<number>-<name, or remove this line>

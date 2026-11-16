@@ -68,7 +68,7 @@ public sealed class ProofTargetTests
 
         var findings = MarksFixture.Check(temp.Path);
 
-        foreach (var code in new[] { "mark-missing", "mark-unknown", "mark-count-invalid", "mark-style-invalid" })
+        foreach (var code in new[] { "mark-missing", "mark-unknown" })
         {
             Assert.DoesNotContain(
                 MarksFixture.WithCode(findings, code),

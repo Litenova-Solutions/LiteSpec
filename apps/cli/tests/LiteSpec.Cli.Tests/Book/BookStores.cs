@@ -34,6 +34,7 @@ static class BookStores
             if (RecordTypes.FulfillingTypes.Contains(type, StringComparer.Ordinal))
             {
                 Add(fulfilledBy, IdsOf(record, "fulfills"), id);
+                Add(fulfilledBy, ServedFulfills(record), id);
             }
 
             if (RecordTypes.StepServingTypes.Contains(type, StringComparer.Ordinal))
@@ -113,9 +114,26 @@ static class BookStores
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToList();
 
-    static List<string> IdsOf(JsonObject record, string name)
+    static List<string> IdsOf(JsonObject record, string name) => StringsOf(record["fields"]?[name]);
+
+    static List<string> ServedFulfills(JsonObject record)
     {
-        var value = record["fields"]?[name];
+        var targets = new List<string>();
+        if (!string.Equals(Text(record, "type"), RecordTypes.EntryPoint, StringComparison.Ordinal))
+        {
+            return targets;
+        }
+
+        foreach (var entry in (record["fields"]?["servedContent"] as JsonArray ?? []).OfType<JsonObject>())
+        {
+            targets.AddRange(StringsOf(entry["fulfills"]));
+        }
+
+        return targets;
+    }
+
+    static List<string> StringsOf(JsonNode? value)
+    {
         if (value is JsonValue scalar && scalar.TryGetValue<string>(out var text))
         {
             return text.Length > 0 ? [text] : [];

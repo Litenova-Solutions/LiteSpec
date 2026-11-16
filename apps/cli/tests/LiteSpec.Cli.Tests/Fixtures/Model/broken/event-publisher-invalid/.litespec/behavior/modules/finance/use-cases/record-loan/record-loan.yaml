@@ -12,9 +12,6 @@ raises:
 idempotency:
   mode: none
   reason: Each call records its own loan.
-audit:
-  level: none
-  target: No audit trail.
 records:
 - type: result
   id: result/record-loan.recorded

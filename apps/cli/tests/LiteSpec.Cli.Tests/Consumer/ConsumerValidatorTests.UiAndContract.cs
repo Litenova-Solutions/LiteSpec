@@ -127,9 +127,9 @@ public sealed partial class ConsumerValidatorTests
         Assert.NotEmpty(findings);
         Assert.All(findings, finding =>
         {
-            Assert.Equal("G", (string?)finding["level"]);
+            Assert.Equal("A", (string?)finding["level"]);
             Assert.Equal("page-section-missing", (string?)finding["code"]);
-            Assert.Equal("blocking", (string?)finding["outcome"]);
+            Assert.Equal("reported", (string?)finding["outcome"]);
             Assert.Contains("requires an H2 'Context'", (string?)finding["message"] ?? string.Empty, StringComparison.Ordinal);
             Assert.Equal(".litespec/intent/decisions/0001-launch/0001-launch.md", (string?)finding["path"]);
             Assert.Equal(1, (int?)finding["line"]);

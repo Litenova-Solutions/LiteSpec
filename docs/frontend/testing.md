@@ -38,7 +38,7 @@ Element queries follow the [Testing Library guiding principles](https://testing-
 
 Four related rules live on other pages:
 
-- `litespec/core/release#run-frontend-release-checks` owns the gates a changed frontend runs.
+- `litespec/core/release#run-boundary-selected-checks` owns the gates a changed frontend runs.
 - `litespec/frontend/structure#place-tests-at-their-ownership-boundary` owns the test layout.
 - `litespec/frontend/ui#name-the-evidence-for-each-ui-change` owns the evidence a UI change runs.
 - `litespec/quality/testing#use-one-mock-rule-for-every-stack` owns the one mock rule every stack follows.

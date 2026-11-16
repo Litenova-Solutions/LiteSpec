@@ -1,15 +1,18 @@
 <script lang="ts">
-  import { book, stripStep } from "$lib/frame";
-  import type { BookRecord } from "$lib/frame";
+  import { book, esc, stripStep } from "$lib/frame";
+  import type { BookRecord, RecordFields } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
+  import DataTable from "../blocks/DataTable.svelte";
   import NavigationMap from "../shared/NavigationMap.svelte";
-  import { screenFields, stringField, stringList } from "../page-values";
+  import { codeOf, refLink, td, thRow } from "../shared/record-cells";
+  import { objectList, screenFields, stringField, stringList } from "../page-values";
 
-  // An entry point: the path it serves, and the navigation map of its screens.
+  // An entry point: the content it serves with the requirement each entry
+  // fulfills, and the navigation map of its screens.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
-  const f = $derived(r.fields ?? {});
-  const path = $derived(stringField(f, "path"));
+  const f: RecordFields = $derived(r.fields ?? {});
+  const served = $derived(objectList(f, "servedContent"));
   // The screens of this entry point in outline order: the screens placed
   // below it, and the screens naming it as their entry point.
   const screens = $derived.by(() => {
@@ -34,11 +37,26 @@
     }
     return null;
   });
+
+  function fulfillsCell(entry: RecordFields): string {
+    const ids = stringList(entry, "fulfills");
+    return td(ids.length ? ids.map((x) => refLink(book, x)).join(", ") : "");
+  }
 </script>
 
-{#if path}
-  <PageSection blockKey="path" heading="path">
-    <span class="bg-layer px-2 py-1 font-mono text-sm">{path}</span>
+{#if served.length}
+  <PageSection blockKey="served" heading="servedContent" count={served.length}>
+    <DataTable
+      head={["Path", "Content type", "Cache control", "Versioning", "Fulfills"]}
+      caption={`Content the ${r.title} entry point serves`}
+      rows={served.map((entry) => [
+        thRow(codeOf(stringField(entry, "path") ?? "")),
+        td(esc(stringField(entry, "contentType") ?? "")),
+        td(esc(stringField(entry, "cacheControl") ?? "")),
+        td(esc(stringField(entry, "versioning") ?? "")),
+        fulfillsCell(entry),
+      ])}
+    />
   </PageSection>
 {/if}
 <PageSection blockKey="map" heading="Navigation map" count={screens.length > 0 ? screens.length : null}>

@@ -187,4 +187,4 @@ Use cases point at these steps: the submit use case serves `flow/submit-and-reim
 
 The explanation file, `.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.md`, holds the Example and Branches sections, with one worked week of a train fare. The Example begins from the `startedWhen` state instead of repeating it as a precondition.
 
-Next, [Modules and Records](modules-and-records.md) specifies this intent in the Spending module: its aggregates, store, rules, use cases, entry point and screen, and the reaction, job, notification and setting around them. It also covers the Reporting module, which lists the reimbursed expenses from a read model.
+Next, [Modules and Records](modules-and-records.md) specifies this intent in the Spending module: its aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and setting around them. It also covers the Reporting module, which lists the reimbursed expenses from a read model.

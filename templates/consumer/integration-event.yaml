@@ -1,23 +1,32 @@
 type: integration-event
-id: integration-event/expense-submitted
-title: Expense Submitted
-summary: The expense-submitted event announces a newly submitted expense.
-direction: out
-eventType: com.claimwick.expense.submitted
-source: /spending/expenses
-subject: aggregate/spending.expense
-payload:
-- name: expenseId
-  meaning: The submitted expense.
-  type: id
-  of: aggregate/spending.expense
-  required: true
-  classification: internal
-delivery: The broker delivers each event at least once, in submission order.
-requires: permission/request-expense
-through: external-system/event-bus
-trust: payload
-translates: domain-event/expense.submitted
-dataschema: https://schemas.claimwick.dev/expense-submitted/v1
+summary: <what this event carries across the product boundary, or remove this line>
+id: integration-event/<name>
+title: <Title in Title Case>
 terms:
-- term/expense
+- <term id, or remove this line>
+# An outbound event carries translates; an inbound one carries arrivesThrough and correlation instead.
+direction: <out|in>
+eventType: <CloudEvents type>
+source: <CloudEvents source>
+subject: <what the event is about>
+payload:
+- name: <field name>
+  meaning: <what the field holds>
+  classification: <public|internal|personal|sensitive>
+  type: id
+  of: <identified record id>
+- name: <field name>
+  meaning: <what the field holds>
+  classification: <public|internal|personal|sensitive>
+  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+  many: <true|false, or remove this line>
+  required: <true|false, or remove this line>
+# A choice field carries choices, and a file field carries contentTypes and maxSize.
+through: external-system/<name>
+arrivesThrough: <entry-point/<name> or external-system/<name>, or remove this line>
+delivery: <what delivery the event needs, or remove this line>
+requires: permission/<name, or remove this line>
+trust: <trigger-only|payload, or remove this line>
+correlation: <how the receiver matches the event, or remove this line>
+translates: domain-event/<aggregate>.<name>
+dataschema: <schema URL, or remove this line>

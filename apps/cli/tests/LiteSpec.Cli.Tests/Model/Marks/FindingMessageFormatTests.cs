@@ -82,7 +82,7 @@ public sealed class FindingMessageFormatTests
     {
         var findings = new List<Finding>();
 
-        foreach (var name in new[] { "act", "count", "drift", "effects", "exposed", "follows", "missing", "proof-targets", "style", "unimplemented", "unresolved" })
+        foreach (var name in new[] { "act", "effects", "exposed", "follows", "missing", "proof-targets", "unimplemented", "unresolved" })
         {
             using var fixture = MarksFixture.Prepare(name);
             findings.AddRange(MarksFixture.Check(fixture.Path));
@@ -90,8 +90,8 @@ public sealed class FindingMessageFormatTests
 
         var codes = new HashSet<string>(StringComparer.Ordinal)
         {
-            "mark-missing", "mark-style-invalid", "mark-count-invalid", "mark-unknown", "mark-folder-drift",
-            "decision-unimplemented", "runtime-value-drift", "use-case-act-missing",
+            "mark-missing", "mark-count-invalid", "mark-unknown", "mark-folder-drift",
+            "decision-unimplemented", "use-case-act-missing",
             "act-event-undeclared", "act-event-unimplemented", "aggregate-unimplemented",
             "reaction-unimplemented", "job-unimplemented", "external-system-unimplemented",
             "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
@@ -198,8 +198,8 @@ public sealed class FindingMessageFormatTests
         model.Records.Add(Rec("setting", "setting/lending.hold-window", Path.Combine(root, "window.yaml"), """{"status": "reviewed", "setBy": "operator", "valueType": "integer", "key": "Lending:HoldWindow"}"""));
         model.Records.Add(Rec("requirement", "requirement/performance.list-loans-latency", Path.Combine(root, "latency.yaml"), """{"status": "reviewed", "kind": "quality", "statement": "Listing loans answers fast.", "measure": "p99 under 300 ms."}"""));
         model.Records.Add(Rec(
-            "decision", "decision/0002-store-loans-as-documents",
-            Path.Combine(root, ".litespec", "implementation", "decisions", "0002-store-loans-as-documents.md"),
+            "decision", "decision/0002-keep-loans-as-documents",
+            Path.Combine(root, ".litespec", "implementation", "decisions", "0002-keep-loans-as-documents.md"),
             """{"status": "draft", "decider": "lending-team", "decideBy": "2030-01-31", "admits": [{"package": "nuget:UnknownLib", "layer": "Infrastructure"}]}"""));
 
         var routeFile = Path.Combine(root, "apps", "web", "src", "routes", "loans", "+page.svelte");

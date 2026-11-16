@@ -54,7 +54,7 @@ The system combines product intent, domain behavior, access control, and the ope
 - The [behavior page](behavior.md) states the bounded context, modules, the glossary, aggregates, rules, domain events, use cases, results, scenarios, reactions, jobs, notifications, and settings.
 - The [access page](access.md) states actors, permissions, entry points, and external systems.
 
-The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`.
+The [layers page](layers.md) states how each record layer is written from the one above it, as `litespec/core/layers#write-each-layer-from-the-layer-above-it` states, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`.
 
 The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
 
@@ -75,20 +75,6 @@ Each page owns its tables and rules, and this page cites them without copying. A
 **Rationale:** Agents meet unknowns in the middle of a task: an unknown access rule, an unclear retention limit, a missing recovery target. When the answer changes behavior, money, data, access, or recovery, only an accountable person can give it. Stopping and taking the question to that person keeps the choice visible instead of buried in code nobody stated. Accountable people decide outcomes, terms, policies, and criteria, and an agent contribution stays a proposal until one of them accepts it.
 
 **Reviewed for:** Does every change report name the unknown fact, the person asked, and the record carrying the answer? Check the change report beside the change.
-
-### Drive Work from Records
-
-**ID:** `litespec/core/system#drive-work-from-records`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An agent MUST start behavior work from the Intent records and the Behavior records that own the behavior.
-
-**Rationale:** A prompt, ticket, chat message, or code comment can start work, but none of them holds the stated behavior. When each task reinterprets intent from its starting message, the records drift from the code until nobody trusts either. Starting from the owning records keeps the agent building what the records state, and keeps the records as the lasting statement of what the code does.
-
-**Reviewed for:** Does every change report name the Intent and Behavior records the work started from? Check the change report beside the change.
 
 ### Point Code and Tests up to Records
 
@@ -134,7 +120,7 @@ The named target is the reason for the shape the class carries, so review judges
 
 **Statement:** Every edge between use cases, reactions, jobs, notifications, integration events, and external systems MUST be declared in a record and checked.
 
-**Rationale:** The declared edges form the effect graph the checks verify, and an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. No edge shares a transaction: a use case commits its own writes, only a reaction or job runs a use case, and an outbound integration event follows from the domain event it translates. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
+**Rationale:** The declared edges form the effect graph the checks verify, and an undeclared edge is the defect, not the mechanism that carries it. Cycles in the graph end in a domain event with a stated end condition, as `litespec/core/principles#end-every-effect-cycle-in-a-domain-event` states. No edge shares a transaction: a use case commits its own writes, only a reaction or job runs a use case, and an outbound integration event follows from the domain event it translates. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
 
 **Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop-invalid` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (check level S) for a declared edge no code takes.
 

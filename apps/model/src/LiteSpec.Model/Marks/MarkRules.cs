@@ -6,8 +6,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The mark rules for every <see cref="CodeKind" />: which record types a mark
 ///     may name, how many marks the element takes, and which verb they use.
-///     It also holds the finding codes, analyzer rule ids, and tiers of the mark
-///     findings, so every host prints the same codes.
+///     It also holds the finding codes of the mark findings.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class MarkRules
@@ -37,7 +36,7 @@ public static class MarkRules
     /// <summary>The record types a technical class implements mark names.</summary>
     private static readonly string[] TechnicalImplementsTypes =
     [
-        "aggregate", "store", "use-case", "reaction", "job", "external-system",
+        "aggregate", "use-case", "reaction", "job", "external-system",
         "domain-event", "rule", "notification", "setting", "module-event", "integration-event", "read-model",
     ];
     /// <summary>The record types a follows mark names.</summary>
@@ -204,71 +203,8 @@ public static class MarkRules
             : new MarkCount(false, null);
     }
 
-    /// <summary>Gets the finding codes of the mark findings, in rule id order.</summary>
+    /// <summary>Gets the finding codes of the mark findings.</summary>
     public static IReadOnlyList<string> FindingCodes => Codes;
-
-    /// <summary>The analyzer rule id that reports the finding code.</summary>
-    /// <param name="code">The finding code, such as <c>mark-missing</c>.</param>
-    /// <returns>The rule id, such as <c>LS5001</c>.</returns>
-    /// <exception cref="ArgumentNullException">The code is null.</exception>
-    /// <exception cref="ArgumentException">The code names no mark finding.</exception>
-    public static string RuleId(string code)
-    {
-        if (code is null)
-        {
-            throw new ArgumentNullException(nameof(code));
-        }
-
-        switch (code)
-        {
-            case "mark-missing":
-                return "LS5001";
-            case "mark-unknown":
-                return "LS5002";
-            case "mark-count-invalid":
-                return "LS5003";
-            case "mark-style-invalid":
-                return "LS5004";
-            case "runtime-value-drift":
-                return "LS5005";
-            case "partial-missing":
-                return "LS5006";
-            case "act-event-undeclared":
-                return "LS5007";
-            case "act-event-unimplemented":
-                return "LS5008";
-            default:
-                throw new ArgumentException($"Unknown mark finding \"{code}\".", nameof(code));
-        }
-    }
-
-    /// <summary>The check tier of the finding code.</summary>
-    /// <param name="code">The finding code, such as <c>mark-missing</c>.</param>
-    /// <returns>The tier: <c>G</c>, <c>S</c>, or <c>A</c>.</returns>
-    /// <exception cref="ArgumentNullException">The code is null.</exception>
-    /// <exception cref="ArgumentException">The code names no mark finding.</exception>
-    public static string Tier(string code)
-    {
-        if (code is null)
-        {
-            throw new ArgumentNullException(nameof(code));
-        }
-
-        switch (code)
-        {
-            case "mark-missing":
-            case "mark-unknown":
-            case "mark-count-invalid":
-            case "mark-style-invalid":
-            case "runtime-value-drift":
-            case "partial-missing":
-            case "act-event-undeclared":
-            case "act-event-unimplemented":
-                return "S";
-            default:
-                throw new ArgumentException($"Unknown mark finding \"{code}\".", nameof(code));
-        }
-    }
 
     /// <summary>Reads the rule for one code kind.</summary>
     /// <param name="kind">The code kind.</param>

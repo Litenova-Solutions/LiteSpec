@@ -49,7 +49,7 @@ Each `###` heading under `## Patterns` names one pattern, with the ID `litespec/
 | `**Compact:**` | How the default behaves on a narrow screen |
 | `**Rationale:**` | Why the default, the runner-up and when to prefer it, and what to leave out |
 
-Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**`, and an optional `**Reference:**`. An option ID is stable once published, and the page's Standards hold the rules every option keeps.
+Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**`, and an optional `**Reference:**`. An option ID is stable once published, and the page's Conventions hold the defaults every option keeps unless the project records another choice.
 
 A `**Reference:**` names the outside product the option learns from. References are citations, not examples, and may name real products. A `**Rationale:**` or `**Cost:**` may name that product where it states what the option learns from it.
 
@@ -349,7 +349,7 @@ page
     action primary "Message spender"
 ```
 
-**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe block the wireframe language rejects, `wireframe-reference-unknown` for a wireframe action, state or refusal that names nothing the screen reaches, and `wording-alias` for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe block the wireframe language rejects, `reference-unknown` for a wireframe action, state or refusal that names nothing the screen reaches, and `wording-alias` for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.
 
 ## Conventions
 

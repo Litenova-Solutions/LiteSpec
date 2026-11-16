@@ -102,9 +102,11 @@ internal static class ReachChecks
     {
         // Goals and constraints keep their own codes, so this check covers the other five.
         // A vision promises nothing and reaches no Behavior by design, so no check reads it.
+        // A served-content entry fulfills the requirements it names for its entry point.
         var fulfilled = model.Records
             .Where(record => RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal))
             .SelectMany(record => record.Ids(RecordFields.Fulfills))
+            .Concat(model.Records.SelectMany(record => record.ServedFulfills()))
             .ToHashSet(StringComparer.Ordinal);
 
         // A flow reaches the requirements its steps cite; the flow itself holds no cites.

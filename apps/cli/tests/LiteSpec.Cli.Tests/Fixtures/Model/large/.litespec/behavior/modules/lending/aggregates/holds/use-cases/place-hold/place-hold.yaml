@@ -17,9 +17,6 @@ raises:
 idempotency:
   mode: none
   reason: Each call places its own hold, and placing a duplicate hold is refused.
-audit:
-  level: none
-  target: No audit trail; the hold record shows each placement.
 records:
 - type: result
   id: result/place-hold.placed
@@ -31,7 +28,6 @@ records:
   title: Hold already waiting
   outcome: refusal
   code: lending.hold-already-waiting
-  meaning: A hold is already waiting.
 - type: scenario
   id: scenario/place-hold.placing-a-hold-succeeds
   title: Placing a hold succeeds

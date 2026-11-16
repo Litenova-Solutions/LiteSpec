@@ -76,7 +76,7 @@ internal static class ClaimGate
     }
 
     /// <summary>The record layer and whether the diagnostic ties it to the records.</summary>
-    /// <param name="id">The diagnostic identifier, such as LS5001.</param>
+    /// <param name="id">The diagnostic identifier, such as LS5003.</param>
     /// <returns>The layer the diagnostic governs, and its trace flag.</returns>
     private static (RecordLayer Layer, bool Trace) Governs(string id)
     {
@@ -111,7 +111,7 @@ internal static class ClaimGate
     }
 
     /// <summary>Whether the diagnostic is a traceability rule, LS5001 to LS5012.</summary>
-    /// <param name="id">The diagnostic identifier, such as LS5001.</param>
+    /// <param name="id">The diagnostic identifier, such as LS5003.</param>
     /// <returns>True when the identifier names a traceability rule; otherwise false.</returns>
     private static bool IsTraceability(string id) =>
         id.Length == 6

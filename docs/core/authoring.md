@@ -231,7 +231,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A reader decides from one word whether a provision obliges or suggests. That works only when each strength word means exactly one thing, as the listed modals do under their RFC meaning. A second capitalized term would add a shade of obligation that no contract defines.
 
-**Checked by:** `litespec-maintain validate` emits no `STANDARD_MODAL_COUNT` or `STANDARD_MODAL_VOCABULARY` diagnostic.
+**Checked by:** `litespec-maintain validate` reports `STANDARD_MODAL_COUNT` and `STANDARD_MODAL_VOCABULARY` as warnings.
 
 ### Restrict Normative Language to Standards and Conventions
 
@@ -243,7 +243,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** When an obligation sits in Concepts, a Rationale, or an example, a project can miss it because the labeled assertions never state it. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 
-**Checked by:** `litespec-maintain validate` emits no `PROSE_NORMATIVE_LOCATION` or `STANDARD_INFORMATIVE_NORMATIVE` diagnostic.
+**Checked by:** `litespec-maintain validate` reports `PROSE_NORMATIVE_LOCATION` and `STANDARD_INFORMATIVE_NORMATIVE` as warnings.
 
 ### Match Strength to the Modal Word
 
@@ -293,7 +293,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A reader meets titles and headings in indexes, tabs, and search results, where they read as names. One casing rule keeps them uniform there. Title Case capitalizes every word except articles (`a`, `an`, `the`), coordinating conjunctions (`and`, `but`, `for`, `nor`, `or`, `so`, `yet`), and prepositions of four letters or fewer (`as`, `at`, `by`, `for`, `from`, `in`, `into`, `of`, `off`, `on`, `onto`, `over`, `per`, `to`, `up`, `upon`, `via`, `with`); the first and last words stay capitalized, and code, identifiers, and file names keep their own case.
 
-**Checked by:** `litespec-maintain validate` emits no `PAGE_TITLE_CASE` or `PAGE_HEADING_CASE` diagnostic.
+**Checked by:** `litespec-maintain validate` reports `PAGE_TITLE_CASE` and `PAGE_HEADING_CASE` as warnings.
 
 ### Use the Declared Page Contract
 
@@ -471,7 +471,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** The code, product, and standard term groups open the glossary in that order, each with one sentence saying what its terms name.
 
-**Checked by:** `litespec-maintain validate` emits no `GLOSSARY_ORDER` or `GLOSSARY_DEFINITION` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `GLOSSARY_ORDER` diagnostic and reports `GLOSSARY_DEFINITION` as a warning.
 
 ### Keep Each Standard to One Obligation
 
@@ -485,7 +485,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `### Keep Business Invariants in Domain` owns one obligation about where invariants are enforced.
 
-**Checked by:** `litespec-maintain validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, `STANDARD_DEVIATION_NORMATIVE`, `STANDARD_DEVIATION_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, or `STANDARD_UNLABELED_CONTENT` diagnostic, and reports `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_DEVIATION_NORMATIVE`, `STANDARD_DEVIATION_SENTENCE`, and `PROVISION_RESTATES_HEADING` as warnings.
 
 ### Write Each Convention with a Default and a Replacement
 
@@ -497,7 +497,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A project replaces a default by citing it, which works only when each default has an identifier. Without the contract, defaults hide in prose and replacements cite paragraphs instead of identifiers.
 
-**Checked by:** `litespec-maintain validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_WAIVER`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `CONVENTION_MISSING_DEFAULT` or `CONVENTION_MISSING_REPLACEMENT` diagnostic, and reports `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_WAIVER`, and `PROVISION_RESTATES_HEADING` as warnings.
 
 ### Attach Examples to Their Provisions
 
@@ -611,7 +611,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A line that restates its Statement gives the reviewer nothing to check beyond the rule's own words. Naming the artifact and its location turns the line into an instruction the reviewer follows.
 
-**Checked by:** `litespec-maintain validate` emits no `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, `VERIFY_DUPLICATE_EVIDENCE`, `VERIFY_COMMAND`, or `CHECKED_BY_UNKNOWN` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `VERIFY_COMMAND` or `CHECKED_BY_UNKNOWN` diagnostic, and reports `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, and `VERIFY_DUPLICATE_EVIDENCE` as warnings.
 
 ### Use One Mark for One Fact Across Pages
 
@@ -637,17 +637,17 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec-maintain provisions --check` exits zero.
 
-### Copy Each Template from the Example
+### Validate Each Template Against the Record Schema
 
-**ID:** `litespec/core/authoring#copy-each-template-from-the-example`
+**ID:** `litespec/core/authoring#validate-each-template-against-the-record-schema`
 
 **Strength:** required
 
-**Statement:** Each record template in `templates/consumer/` MUST equal the Claimwick example record its identifier names, and a scaffold that `litespec new` writes keeps no copied text or number.
+**Statement:** Each record template in `templates/consumer/` MUST satisfy `schemas/record.schema.yaml` with a placeholder value in every field, and a scaffold that `litespec new` writes keeps no copied text or number.
 
-**Rationale:** A template serves as a worked example, so it stays coherent only as one record of the reference product. `litespec-maintain validate` reports a template that differs from its example record, and `litespec model check` reports `template-value-unchanged` on a scaffold that keeps a copied value, so a copied period or a copied statement cannot pass as a decision. Proposed by [decision/0056-copy-each-template-from-claimwick](decision/0056-copy-each-template-from-claimwick).
+**Rationale:** A template teaches the shape of its record type, so the record schema is its contract: a template that satisfies the schema stays teachable while the example product changes beside it. Each field shows a placeholder value, so nothing in the template reads as a decided value, and the Claimwick example beside it shows realistic values in one coherent product. `litespec model check` reports `template-value-unchanged` on a scaffold that keeps a copied value, so a copied period or a copied statement cannot pass as a decision. Settled by [decision/0093-check-templates-against-the-record-schema](decision/0093-check-templates-against-the-record-schema).
 
-**Checked by:** `litespec-maintain validate` (`TEMPLATE_SOURCE_DIFFERS`, `TEMPLATE_SOURCE_MISSING`) and `litespec model check` (`template-value-unchanged`).
+**Checked by:** `litespec-maintain validate` emits no `TEMPLATE_SCHEMA` diagnostic, and `litespec model check` reports `template-value-unchanged` on a scaffold that keeps a copied value.
 
 ### Run Repeatable Authoring Checks
 
@@ -657,7 +657,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A standards change MUST pass the repository validator, the test suite, and `git diff --check`.
 
-**Rationale:** Structure, behavior, and whitespace each need their own check: the repository validator, the test suite, and `git diff --check` each catch what the others miss. Passing all three on every standards change keeps the standard checkable by anyone who runs the same commands. The tools check every schema with LiteSpec's own evaluator, so running them needs no paid license, settled by [decision/0022-own-schema-evaluator](decision/0022-own-schema-evaluator) on the evidence in [research/schema-evaluator-evidence](research/schema-evaluator-evidence). The change report lists every skipped check with its reason. The [command index](../tools/README.md) and the [maintainer index](../maintain/README.md) name each check and its command. Settled by [decision/0035-bind-docs-to-tools-and-example](decision/0035-bind-docs-to-tools-and-example), which checks each tool fact the pages cite against the tools' own data.
+**Rationale:** Structure, behavior, and whitespace each need their own check: the repository validator, the test suite, and `git diff --check` each catch what the others miss. Passing all three on every standards change keeps the standard checkable by anyone who runs the same commands. Diagnostics that judge wording print as warnings and do not fail the run; every other diagnostic fails it. The tools check every schema with LiteSpec's own evaluator, so running them needs no paid license, settled by [decision/0022-own-schema-evaluator](decision/0022-own-schema-evaluator) on the evidence in [research/schema-evaluator-evidence](research/schema-evaluator-evidence). The change report lists every skipped check with its reason. The [command index](../tools/README.md) and the [maintainer index](../maintain/README.md) name each check and its command. Settled by [decision/0035-bind-docs-to-tools-and-example](decision/0035-bind-docs-to-tools-and-example), which checks each tool fact the pages cite against the tools' own data.
 
 **Checked by:** `litespec-maintain validate`, `dotnet test --solution LiteSpec.slnx` and `git diff --check` exit zero.
 
@@ -759,4 +759,4 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Replacement:** Use a noun heading only for a pattern, an informative definition, or an index entry.
 
-**Checked by:** `litespec-maintain validate` emits no `HEADING_ACTION` diagnostic.
+**Checked by:** `litespec-maintain validate` reports `HEADING_ACTION` as a warning.

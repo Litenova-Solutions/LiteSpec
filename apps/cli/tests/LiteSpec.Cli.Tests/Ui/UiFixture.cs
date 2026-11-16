@@ -574,7 +574,7 @@ sealed class UiFixture : IDisposable
 
         ## Patterns
 
-        ### Record list
+        ### List Page
 
         **Question:** How does a reader find one record among many?
 

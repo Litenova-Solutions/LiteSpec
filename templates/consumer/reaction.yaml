@@ -1,71 +1,73 @@
 type: reaction
-id: reaction/spending.send-approver-reminders-on-expense-submitted
-title: Send Approver Reminders on Expense Submitted
-summary: A submitted expense that waits past the reminder delay without a decision earns one reminder to its approver. Decided expenses are left alone, and so is an expense whose approver the suppression list names.
+id: reaction/<module>.<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what answers what, and what it does in response, or remove this line>
 triggeredBy:
-- domain-event/expense.submitted
-skippedWhen: The expense is already decided when the waiting time ends.
-# compensates: use-case/spending.approve-expense
+- domain-event/<aggregate>.<name>
+skippedWhen: <when the reaction stands down, or remove this line>
+compensates: use-case/<module>.<name, or remove this line>
 effects:
-- sends: notification/spending.approval-reminder
-serves:
-- flow/submit-and-reimburse#s3
-fulfills:
-- requirement/approval-reminders.remind-approver-after-three-days
+- sends: notification/<module>.<name>
+  timing: <inline|after-commit|async, or remove this line>
+  onFailure:
+    mode: <retry|skip-and-log|discard>
+    retry:
+      maxAttempts: <how many tries>
+      initialDelay: <first wait, such as PT1M>
+      maxDelay: <longest wait, such as PT1H>
+      backoff: <exponential|fixed>
+    ifExhausted: dead-letter
+    deadLetter:
+      after: <how long the failure is kept, such as P1D>
+      action: <what happens to the exhausted effect>
+  onExhausted: <what happens after every retry, or remove this line>
+  before: <what runs before the effect, or remove this line>
+  forEach: <what the effect repeats over, or remove this line>
+# An effect runs a use case with runs, or calls an outside operation with calls, instead of sends.
 outcomes:
 - name: completed
-  meaning: The reminder was sent to the approver.
+  meaning: <what completed means>
 - name: skipped
-  meaning: The expense was already decided when the waiting time ended.
-- name: suppressed
-  meaning: The approver is named in the suppression list.
+  meaning: <what skipped means>
 - name: failed
-  meaning: The reminder could not be sent after every retry.
-- name: retry-scheduled
-  meaning: The send failed and another attempt is scheduled.
+  meaning: <what failed means>
+fulfills:
+- requirement/<feature>.<name, or remove this line>
+serves:
+- flow/<name>#s1
 onFailure:
-  mode: retry
+  mode: <retry|skip-and-log|discard>
   retry:
-    maxAttempts: 5
-    initialDelay: PT1M
-    maxDelay: PT1H
-    backoff: exponential
+    maxAttempts: <how many tries>
+    initialDelay: <first wait, such as PT1M>
+    maxDelay: <longest wait, such as PT1H>
+    backoff: <exponential|fixed>
   ifExhausted: dead-letter
   deadLetter:
-    after: P1D
-    action: The reminder is dropped and the drop is logged; the expense still waits for its decision.
+    after: <how long the failure is kept, such as P1D>
+    action: <what happens to the exhausted reaction>
+  surfacesIn: entry-point/<name, or remove this line>
+  runbook: runbook/<name, or remove this line>
 idempotency:
-  mode: key
-  key: approval-reminder-{expenseId}
-  scope: global
+  mode: <key|state|none>
+  key: <key template, such as reminder-{expenseId}, or remove this line>
+  scope: <tenant|account|login|global, or remove this line>
+  replay: <returns-first-result|refuses|acts-again, or remove this line>
+  recognizedBy: <the state that shows a repeat, or remove this line>
+  reason: <why this reaction needs no idempotency, or remove this line>
 reads:
-- aggregate/spending.expense
-- store/spending.suppression-list
-- setting/spending.approval-reminder-delay
+- <aggregate/<module>.<name>, setting/<module>.<name> or read-model/<module>.<name>, or remove this line>
 records:
 - type: scenario
-  id: scenario/send-approver-reminders-on-expense-submitted.waiting-expense-earns-a-reminder
-  title: Waiting Expense Earns a Reminder
-  given: An employee submitted an expense that waits past the reminder delay with no decision.
-  when: The waiting time ends.
-  then: The approver gets one reminder for the expense.
+  id: scenario/<reaction>.<name>
+  title: <Title in Title Case>
+  terms:
+  - <term id, or remove this line>
+  given: <the situation>
+  when: <the trigger fires>
+  then: <the expected effect>
   outcome: completed
   exercises:
-  - rule/spending.suppressed-manager-gets-no-reminder
-- type: scenario
-  id: scenario/send-approver-reminders-on-expense-submitted.decided-expense-is-skipped
-  title: Decided Expense Is Skipped
-  given: A manager decided an expense before the waiting time ended.
-  when: The waiting time ends.
-  then: No reminder is sent for the expense.
-  outcome: skipped
-  exercises: []
-- type: scenario
-  id: scenario/send-approver-reminders-on-expense-submitted.suppressed-manager-gets-nothing
-  title: Suppressed Manager Gets Nothing
-  given: An expense waits past the reminder delay and its approver is named in the suppression list.
-  when: The waiting time ends.
-  then: No reminder is sent for the expense.
-  outcome: suppressed
-  exercises:
-  - rule/spending.suppressed-manager-gets-no-reminder
+  - rule/<home>.<name, or remove this line>

@@ -1,15 +1,19 @@
 type: screen
-id: screen/claimwick-app.expense-list
-title: Expense List
-summary: An employee sees their own expenses, newest first, with the amount and the latest state of each.
-address: /expenses
+id: screen/<home>.<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what a person does on this screen, or remove this line>
+# A screen carries address or host, never both.
+address: <route address, such as /expenses>
 offers:
-- use-case/spending.list-expenses
+- use-case/<module>.<name, or remove this line>
 serves:
-- flow/submit-and-reimburse#s5
+- flow/<name>#s1
+fulfills:
+- requirement/<feature>.<name, or remove this line>
 pageFrame:
-  pattern: list-page
-  option: search-and-a-state-filter-only
+  pattern: <page frame pattern, such as list-page>
+  option: <chosen option>
 leadsTo:
-- screen/claimwick-app.expense-record
-- screen/claimwick-app.new-expense
+- screen/<home>.<name, or remove this line>

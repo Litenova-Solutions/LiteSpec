@@ -3,7 +3,5 @@ summary: The refusals the lending module returns, each with the problem type it 
 records:
 - code: lending.copy-not-available
   meaning: The copy is unavailable.
-  problemType: https://fixture.library/problems/copy-not-available
 - code: lending.loan-not-active
   meaning: The loan is inactive.
-  problemType: https://fixture.library/problems/loan-not-active

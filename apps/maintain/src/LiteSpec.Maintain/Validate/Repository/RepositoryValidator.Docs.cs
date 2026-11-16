@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using LiteSpec.Maintain.ProvisionIndex;
 using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -32,7 +31,6 @@ internal sealed partial class RepositoryValidator
         Provisions.PagesPath,
         ReferenceTables.FindingCodesPath,
         ReferenceTables.FoldersPath,
-        Concepts.ConceptsPath,
     };
 
     /// <summary>The source folders whose usage texts declare the commands the command pages describe.</summary>

@@ -12,12 +12,12 @@ This page defines that record system for projects of every size, shape, and stac
 
 ### The Four Record Layers
 
-Each layer answers one question, each layer is written from the layer above it, and each record belongs to the layer that owns it.
+Each layer answers one question, each layer is written from the layer above it as `litespec/core/layers#write-each-layer-from-the-layer-above-it` states, and each record belongs to the layer that owns it.
 
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | people and agents | goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, store, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
+| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
@@ -25,7 +25,7 @@ Governance sits beside the four layers instead of forming a fifth: the `waiver` 
 
 Three translation rules join the layers:
 
-- **Specify** moves Intent to Behavior. It adds the states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope that the Intent record implies but leaves unstated. It sends every price, fee, rate, term, market, payer, retention period for personal data, observable freshness, and default or figure that differs by tenant, market, or date to the owner, as `send-commercial-and-observable-figures-to-the-owner` states.
+- **Specify** moves Intent to Behavior. It adds the states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope that the Intent record implies but leaves unstated. It sends every price, fee, rate, term, market, payer, retention period for personal data, observable freshness, and default or figure that differs by tenant, market, or date to the owner, as `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items` states. A figure the business changes while the system runs is aggregate data: its range is a rule with a refusal, and its change is a use case with access and audit. A setting is operator configuration the running system reads, such as a provider timeout or a batch size.
 - **Implement** moves Behavior to Implementation. It adds the code shapes the stack pages fix, and nothing else: no observable outcome that no result declares, no edge that no record declares, no write outside `writes`, and no access wider than the grant.
 - **Verify** moves Implementation to Proof. One test proves each scenario through the public boundary. A proof is fresh when its run commit is HEAD, or when every path that changed between the run commit and the working tree is a record or documentation path. Otherwise the proof is stale and reads "last passed at <short commit>, <N> commits ago". A run records its commit.
 
@@ -49,7 +49,6 @@ A record type is one kind of statement a project can write, and each type answer
 | `role` | intent | Which permission sets exist? |
 | `module` | behavior | Which product areas exist? |
 | `aggregate` | behavior | Which things stay consistent? |
-| `store` | behavior | Which stored state holds no invariant? |
 | `rule` | behavior | What holds? |
 | `use-case` | behavior | Which use cases does the product offer? |
 | `result` | behavior | How does a use case end? |
@@ -61,7 +60,7 @@ A record type is one kind of statement a project can write, and each type answer
 | `job` | behavior | Which work runs on a schedule, once, or by hand? |
 | `read-model` | behavior | What does a module keep of another module's published facts? |
 | `notification` | behavior | Which person-facing messages go out? |
-| `setting` | behavior | Which adjustable values hold, and who sets them? |
+| `setting` | behavior | Which operator configuration does the running system read? |
 | `permission` | behavior | Which single actions are allowed? |
 | `refusal-set` | behavior | Which refusal codes does a module declare? |
 | `entry-point` | behavior | How do people reach the product? |
@@ -130,7 +129,6 @@ Each parent with child records holds them in a folder named for the child type i
 | `module` | Behavior | module | `behavior/modules/<m>/module.yaml` | product | `module/<name>` |
 | `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` |
 | `aggregate` | Behavior | module | `behavior/modules/<m>/aggregates/<aggregate>/aggregate.yaml` | module | `aggregate/<module>.<name>` |
-| `store` | Behavior | module | `behavior/modules/<m>/stores/<name>/<name>.yaml` | module | `store/<module>.<name>` |
 | `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
 | `result` | Behavior | entry | in its use case file | use case | `result/<use-case>.<name>` |
 | `scenario` | Behavior | entry | in the file of its use case, reaction or job | that record | `scenario/<parent>.<name>` |
@@ -151,9 +149,9 @@ Each parent with child records holds them in a folder named for the child type i
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `waiver` | Governance | product, module | `governance/waivers/<name>/<name>.yaml`, `governance/modules/<m>/waivers/<name>/<name>.yaml` | product or module | `waiver/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `stores/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Each store sits in `stores/<name>/`. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
 
-A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `module-undeclared` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
+A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
 
 A module, an aggregate, and an entry point are scope nodes, and the folder path of each record under one names that node. Storage is the folder path and the module, never a second name. A feature names the problems it solves in `solves`, and a product-level requirement cites at least one constraint, goal, or problem in `cites`.
 
@@ -173,7 +171,7 @@ The book groups a use case's scenarios by result, and it groups each feature und
 
 Module `dependsOn` may not form a cycle; a `module-dependency-invalid` finding reports one.
 
-Decision numbers come from one sequence across every home, allocated by `litespec new decision`, which takes the next free number. A repeated number is a `decision-number-duplicate` finding.
+Decision numbers come from one sequence across every home, allocated by `litespec new decision`, which takes the next free number. A repeated number is a `record-key-duplicate` finding.
 
 Implementation content that is not a record, and Proof content left by a run, sit in fixed folders:
 
@@ -189,7 +187,7 @@ Implementation content that is not a record, and Proof content left by a run, si
 
 ### Record Parents
 
-A parent is the one record a record sits under. Every record except the product has exactly one parent, so book grouping places each record once: under its parent, or at the top of its own layer when the product parents it. A use case's scenarios group by result instead, and a feature also shows under every problem its `solves` names.
+A parent is the one record a record sits under. Every record except the product has exactly one parent, so book grouping places each record once: under its parent, or at the top of its own layer when the product parents it. A use case's scenarios group by result instead, and a feature shows under the problems its `solves` names, or under Features when it solves none.
 
 Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. An inverse link stays computed unless a reader needs it stated, in which case a check holds the copy.
 
@@ -208,7 +206,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | Folder | Record layer | Holds |
 |:---|:---|:---|
 | `.litespec/intent/` | Intent | Goals, visions, problems, features with their requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
-| `.litespec/behavior/` | Behavior | Modules with their aggregates, stores, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, module events, integration events, permissions and refusal sets; entry points with their screens; external systems |
+| `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, module events, integration events, permissions and refusal sets; entry points with their screens; external systems |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, test runs, and operating logs. No person writes a fact here that a tool can compute |
 | `.litespec/governance/` | Governance | Waivers at product level or under modules, and project conventions under `conventions/` |
@@ -305,7 +303,6 @@ An identifier is the one name every link and citation uses for a record. It name
 | `flow` | `flow/<name>` | `flow/submit-and-reimburse` |
 | `module` | `module/<name>` | `module/spending` |
 | `aggregate` | `aggregate/<module>.<name>` | `aggregate/spending.expense` |
-| `store` | `store/<module>.<name>` | `store/notifications.suppression-list` |
 | `rule` | `rule/<home>.<name>` | `rule/expense.approver-is-not-submitter` |
 | `use-case` | `use-case/<module>.<name>` | `use-case/spending.submit-expense` |
 | `result` | `result/<use-case-name>.<name>` | `result/submit-expense.receipt-missing` |
@@ -334,9 +331,9 @@ A use case name is unique among use cases, so a result cites only that name. Use
 
 A feature requirement's feature segment names its feature, and the feature's folder holds it. A product-level requirement carries no feature segment. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
-The folder decides. A record that moves to another module changes the module segment of its identifier and every citation in the same change. An identifier whose home segment disagrees with its folder is an `identifier-folder-drift` finding.
+The folder decides. A record that moves to another module changes the module segment of its identifier and every citation in the same change. An identifier whose home segment disagrees with its folder is an `record-placement-invalid` finding.
 
-Each name stays unique in its record type, and a `name-duplicate` finding reports a duplicate. Folders do not narrow uniqueness within a type. A page record takes its identifier name from its title, with the name words appearing in the title words in the same order.
+Each name stays unique in its record type, and a `record-key-duplicate` finding reports a duplicate. Folders do not narrow uniqueness within a type. A page record takes its identifier name from its title, with the name words appearing in the title words in the same order.
 
 A flow step id is `flow/<name>#<step-id>`, with step ids `s1`, `s2`, and so on.
 
@@ -372,14 +369,15 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | Field | Written on | Points at | Reads as | Read back as |
 |:---|:---|:---|:---|:---|
 | `terms` | any record | term | uses | is used by |
-| `governs` | rule | aggregate, store, use case | governs | is governed by |
-| `binds` | rule | aggregate, store | binds | is bound by |
+| `governs` | rule | aggregate, use case | governs | is governed by |
+| `binds` | rule | aggregate | binds | is bound by |
 | `basedOn` | rule | constraint, research | is based on | is a basis for |
-| `fulfills` | rule, setting, use case, reaction, job, notification, entry point | requirement | fulfills | is fulfilled by |
+| `fulfills` | rule, setting, use case, reaction, job, notification, screen | requirement | fulfills | is fulfilled by |
 | `releasedBy` | rule | use case | is released by | releases |
 | `result` | scenario | result, derived result | ends in | is shown by |
 | `exercises` | scenario | rule | exercises | is exercised by |
 | `competesWith` | scenario | use case | competes with | is competed with by |
+| `servedContent.fulfills` | entry point | requirement | fulfills | is fulfilled by |
 | `addresses` | product | actor | addresses | is addressed by |
 | `basedOn` | constraint | research | is based on | is a basis for |
 | `decides` | decision | generic record | decides | is decided by |
@@ -400,17 +398,16 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `steps.cites` | flow | requirement | carries | is carried by |
 | `dependsOn` | module | module | depends on | is depended on by |
 | `transitions.movedBy` | aggregate | use case, job | is moved by | moves |
-| `dataClasses.basis` | aggregate, store | constraint, requirement, decision | rests on | is the basis for |
-| `dataClasses.periodStartsAt` | aggregate, store | domain event | starts at | starts the period of |
-| `dataClasses.enforcedBy` | aggregate, store | job, use case | is enforced by | enforces |
-| `owner` | store | module, external system | is owned by | owns |
+| `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
+| `dataClasses.periodStartsAt` | aggregate | domain event | starts at | starts the period of |
+| `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
 | `access.recentSignIn` | use case | setting | is limited by | limits |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
 | `computedBy` | use case | rule | is computed by | computes |
 | `reachedThrough` | use case | entry point | is reached through | reaches |
 | `raises` | use case | domain event | raises | is raised by |
-| `writes` | use case | aggregate, store | writes | is written by |
-| `reads` | use case, reaction, job | aggregate, store, setting, read model | reads | is read by |
+| `writes` | use case | aggregate | writes | is written by |
+| `reads` | use case, reaction, job | aggregate, setting, read model | reads | is read by |
 | `consistency.boundBy` | use case | rule | is kept by | keeps |
 | `consistency.guards` | use case | aggregate | holds the guard of | is guarded by |
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
@@ -452,7 +449,7 @@ Effect and structure links follow the effect graph within Behavior: `runs`, `sen
 
 The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, `holds`, which names the roles an actor holds, and `steps.system`, which names the external system that performs a flow step: a flow names no use case, and a requirement names no rule.
 
-A read model carries no `fulfills`, and an entry point carries one only when it serves content: the query that reads a read model, or the use case an entry point reaches, fulfills the requirement.
+A read model carries no `fulfills`: the query that reads the read model fulfills the requirement. Each `servedContent` entry on a `browser` entry point carries `fulfills` naming the requirement its content meets.
 
 Containment needs no link field: it follows storage. The scope node holds the parent, so `serves` on a flow and `answers` on a flow remain connections that carry meaning without deciding placement.
 
@@ -506,7 +503,6 @@ This page is the one home of the mark rules: the marks table below states the ma
 | Application or Infrastructure | Job host | `job/<module>.<name>` |
 | Application | Port for an external system | `external-system/<name>` |
 | Infrastructure | Adapter implementing that port | `external-system/<name>` |
-| Infrastructure | Repository or table configuration implementing a store | `store/<module>.<name>` |
 | API | Endpoint | `use-case/<module>.<name>` |
 | Frontend | Use-case module | `use-case/<module>.<name>` |
 | Frontend | Route entry: a web route file, a Blazor `@page` component, or an Android destination activity or fragment class | `screen/<entry-point>.<name>`, exactly one |
@@ -582,7 +578,7 @@ Each Intent type reaches Behavior in its own way:
 - A goal reaches a flow serving it or a quality requirement.
 - A flow serves one goal or answers one problem or constraint, and each step cites the requirements it carries.
 - A problem reaches a feature, a requirement, or a flow that answers it.
-- A feature or requirement reaches a use case, flow, or quality scenario in Behavior.
+- A feature or requirement reaches a use case, screen, flow, or quality scenario in Behavior.
 - A constraint is answered by a requirement or by a flow.
 - Research is cited by a record that reaches Behavior.
 - A decision decides a record that reaches Behavior.
@@ -649,7 +645,7 @@ The `decision-index` region renders one table of the decisions beside it, groupe
 
 A finding that a live waiver covers is reported as covered and exits zero. A waiver is live when it has no `expiresOn` date or its date has not passed. [The waivers page](waivers.md) states how a waiver covers a finding, what no waiver covers, and when one expires. A waiver past its `expiresOn` date is reported as `waiver-expired`.
 
-Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the run commit and the outcome at the last passing run. A proof is fresh when its run commit is HEAD, or when every path that changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: a path under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads "last passed at <short commit>, <N> commits ago". When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. CI writes `proofs.json` from the run on the pull request head, so a merged pull request carries fresh proofs.
+Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the run commit and the outcome at the last passing run. A proof is fresh when its run commit is HEAD, or when every path that changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: a path under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads "last passed at <short commit>, <N> commits ago". When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. Only `litespec model check --record-proof` writes `proofs.json`; CI runs it on the pull request head, so a merged pull request carries fresh proofs.
 
 ### Check Levels
 
@@ -739,7 +735,7 @@ Field tables render as tables. A use case's scenarios group under their result. 
 
 **Example:** A decision lives at `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml`.
 
-**Checked by:** `litespec model check` reports `folder-invalid` for a folder outside the closed set of its layer and level, `module-undeclared` for a `modules` folder naming no declared module, and `record-placement-invalid` for a record outside its home.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a folder outside the closed set of its layer and level, `record-placement-invalid` for a `modules` folder naming no declared module, and `record-placement-invalid` for a record outside its home.
 
 ### State the Common Fields on Every Record
 
@@ -795,13 +791,15 @@ Field tables render as tables. A use case's scenarios group under their result. 
 
 **Applies to:** artifact: any
 
-**Statement:** A fact a check reads MUST live as a field in the record file rather than in the explanation file.
+**Statement:** A fact a check reads MUST live as a field in the record file, the page's only metadata carrier.
 
-**Rationale:** Fields are checked and prose is not, so a check-read fact sitting in prose is invisible to its check. The page explanation cites entries by identifier, so entries need no file of their own.
+**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place: fields are checked and prose is not, so a check-read fact sitting in prose is invisible to its check. The page explanation cites entries by identifier, so entries need no file of their own.
+
+A generated region that `model render` writes from the record file is not a second carrier, because no person edits it and `model check` reports any drift from the record. The source-links region of a research or constraint explanation is one such region.
 
 **Example:** The submit-expense summary lives in the `summary` field of `submit-expense.yaml`, while why the flow reads well lives under Notes in `submit-expense.md`.
 
-**Reviewed for:** Does any explanation file state a fact a check reads? Compare each explanation file with its record file.
+**Reviewed for:** Does any explanation file state a fact a check reads, or any page carry field values outside the record file? Compare each explanation file with its record file.
 
 ### Require an Explanation File for Article Types
 
@@ -883,7 +881,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/features/approval-reminders/requirements/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits in the file of `use-case/spending.submit-expense`.
 
-**Checked by:** `litespec model check` reports `record-parent-missing` (level G) for a record whose required parent is missing.
+**Checked by:** `litespec model check` reports `record-placement-invalid` (level G) for a record whose required parent is missing.
 
 ### Place a Record by Its Content and Link It by Its Reason
 
@@ -915,7 +913,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Example:** Claimwick moves `use-case/spending.submit-expense` from the spending module to the finance module, so the use case becomes `use-case/finance.submit-expense` and every citation changes in the same change.
 
-**Checked by:** `litespec model check` reports `identifier-folder-drift` for an identifier whose home segment disagrees with its folder.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for an identifier whose home segment disagrees with its folder.
 
 ### Keep Each Name Unique in Its Record Type
 
@@ -931,7 +929,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Example:** Claimwick names one feature `approval-reminders`; a second feature with that name is reported even though the folders differ. An actor named `owner` and a role named `owner` coexist.
 
-**Checked by:** `litespec model check` reports `name-duplicate` for a name that occurs twice in one record type, and for a use case, reaction or job name that occurs in another of the three types.
+**Checked by:** `litespec model check` reports `record-key-duplicate` for a name that occurs twice in one record type, and for a use case, reaction or job name that occurs in another of the three types.
 
 ### Take Decision Numbers from One Sequence
 
@@ -941,13 +939,13 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Applies to:** artifact: record:decision
 
-**Statement:** A decision number MUST come from one sequence across every home.
+**Statement:** A decision number MUST come from one sequence across every home, with each decision folder named `<four-digit number>-<name>/` holding its record file.
 
-**Rationale:** Product and technical decisions share one identifier space, so a number identifies one decision wherever it sits. `litespec new decision` takes the next free number, and no two decisions share it.
+**Rationale:** Product and technical decisions share one identifier space, so a number identifies one decision wherever it sits. `litespec new decision` takes the next free number, and no two decisions share it. Each decision folder is named `<four-digit number>-<name>/` and holds its record file `<four-digit number>-<name>.yaml`, with `decision/<four-digit number>-<name>` as its identifier. Numbers order decisions by when each choice was proposed, giving every record a short stable name a citation can carry. The number counts as a word, so digits never stand alone in the identifier.
 
 **Example:** `decision/0005-render-receipts-as-pdf` is the fifth decision, whether it sits under Intent or under Implementation.
 
-**Checked by:** `litespec model check` reports `decision-number-duplicate` for two decisions sharing one number.
+**Checked by:** `litespec model check` reports `record-key-duplicate` for two decisions sharing one number.
 
 ### Name Each Identifier from Its Title
 
@@ -1185,7 +1183,7 @@ Kept in Intent, the rule and the target stand as the promises they are, the deci
 
 **Example:** A waiver exit reads "The gap closes when `decision/0005-render-receipts-as-pdf` lands." rather than "The gap closes when Decision 5 lands."
 
-**Checked by:** `litespec model check` reports `prose-reference-unknown` for a backticked identifier that names no written record and for a backticked provision the carried release does not ship.
+**Checked by:** `litespec model check` reports `reference-unknown` for a backticked identifier that names no written record and for a backticked provision the carried release does not ship.
 
 ### Declare Size and Stacks
 
@@ -1202,22 +1200,6 @@ Kept in Intent, the rule and the target stand as the promises they are, the deci
 **Example:** The running Claimwick example declares large with a server shape and two stacks.
 
 **Checked by:** `litespec model check` reports `size-type-missing` and `record-invalid` for a project missing its declaration or a required type.
-
-### Write Each Slice from Intent Down
-
-**ID:** `litespec/core/model#write-each-slice-from-intent-down`
-
-**Strength:** required
-
-**Applies to:** artifact: record:feature
-
-**Statement:** Each slice MUST write its Intent before its Behavior, and its Behavior before its code.
-
-**Rationale:** A slice worked from Intent down stays complete at every level: each record lands with the Intent above it already written. Independent slices may run at the same time.
-
-**Example:** Two agents write the approval and approval-reminder features at once, each from its requirement down.
-
-**Reviewed for:** Does every Behavior record show the Intent above it? Follow its `fulfills` and `decides` links.
 
 ### Compute Proof Statuses in the Builder
 
@@ -1361,7 +1343,7 @@ A test that verifies a choice no record states shows a missing record, which is 
 
 **Statement:** Every entity aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
 
-**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it blocks at level S: the link between a use case and the screens that call it is never advisory.
+**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A use case with no screen calling it blocks at level S: the link between a use case and the screens that call it is never advisory.
 
 **Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` has no event handler carrying its mark, so the check reports `reaction-unimplemented` and blocks.
 
@@ -1485,20 +1467,6 @@ title: Submit Expense
 
 **Checked by:** `litespec model check` reports `record-invalid` for each record file and document frontmatter block that fails the record schema.
 
-### Keep Every Field Value in the Record File
-
-**ID:** `litespec/core/model#keep-every-field-value-in-the-record-file`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A consumer page MUST use its record file as its only metadata carrier.
-
-**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value. A generated region that `model render` writes from the record file is not a second carrier, because no person edits it and `model check` reports any drift from the record. The source-links region of a research or constraint explanation is one such region.
-
-**Reviewed for:** Does any page carry field values outside the record file? Look at the explanation files beside the changed record files.
-
 ### Classify Every Specification File
 
 **ID:** `litespec/core/model#classify-every-specification-file`
@@ -1619,7 +1587,7 @@ The figures below render from the retention schedule at build time.
 
 **Applies to:** artifact: any
 
-**Statement:** A rule statement, scenario step, and result meaning SHOULD avoid words that hide behavior.
+**Statement:** A rule statement, scenario step, result meaning, and result sentence SHOULD avoid words that hide behavior.
 
 **Deviation:** A quoted name, an interface label, or a cited source keeps its fixed wording.
 
@@ -1627,7 +1595,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
 
-**Reviewed for:** Does any rule statement, scenario step, or result meaning hide its behavior behind a vague word? Look at the statements the change adds.
+**Reviewed for:** Does any rule statement, scenario step, result meaning, or result sentence hide its behavior behind a vague word? Look at the statements the change adds.
 
 ## Conventions
 

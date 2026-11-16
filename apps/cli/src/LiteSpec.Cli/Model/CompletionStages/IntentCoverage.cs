@@ -48,7 +48,8 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
     /// <summary>
     ///     Computes the Intent coverage of a built project model: a requirement
     ///     is reached when a record of a fulfilling type names it in
-    ///     <c>fulfills</c>, and a flow step is reached when a record of a
+    ///     <c>fulfills</c>, or a served-content entry of an entry point names
+    ///     it, and a flow step is reached when a record of a
     ///     step-serving type names it in <c>serves</c>.
     /// </summary>
     /// <param name="model">The built project model that holds every record.</param>
@@ -85,6 +86,12 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
                 {
                     Add(fulfilledBy, target, record.Id);
                 }
+            }
+
+            // A served-content entry fulfills the requirements it names for its entry point.
+            foreach (var target in record.ServedFulfills())
+            {
+                Add(fulfilledBy, target, record.Id);
             }
 
             if (RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal))

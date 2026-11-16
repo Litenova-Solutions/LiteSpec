@@ -75,7 +75,7 @@ internal static class RecordPages
     /// <param name="id">The decision identifier.</param>
     /// <returns>The page text.</returns>
     public static string DecisionPage(string id) =>
-        Page("{\"type\": \"decision\", \"id\": \"" + id + "\", \"title\": \"Store expenses as documents\"}");
+        Page("{\"type\": \"decision\", \"id\": \"" + id + "\", \"title\": \"Keep expenses as documents\"}");
 
     /// <summary>Builds a use-case page.</summary>
     /// <param name="id">The use-case identifier.</param>

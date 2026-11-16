@@ -6,7 +6,7 @@
 
 Staff create records such as expenses, trips, and fares, change them, and remove one or several at a time.
 
-Each pattern below covers one such task with a set of layout options and a named default to build. The product owner picks among the options when the team builds or revises a screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they run it.
+Each pattern below covers one such task with a set of layout options and a named default to build. The product owner picks among the options when the team builds or revises a screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they run it. This page belongs to the Forms and Input category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -24,17 +24,19 @@ The project records its choice for each pattern in its pattern catalog and build
 
 The drawings all use Harbor and Pine travel: trips such as Rotterdam client visit, expenses such as EXP-1042 for Ava, and fares such as the train fare at EUR 48.90. The reader of each screen is the staff member using it.
 
-Three rules hold on every option, and the Standards section states them. Each removal offers undo or asks for confirmation, a successful create shows the created record, and a command in flight refuses a second send.
+Two defaults hold on every option unless the project records another choice, and the Conventions section below states them: each removal offers undo or asks for confirmation, and a successful create shows the created record. A command in flight refuses a second send under `litespec/frontend/components#render-control-states`.
 
-## Standards
+## Conventions
 
 ### Confirm or Undo Every Removal
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#confirm-or-undo-every-removal`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** Every removal MUST either offer undo or ask for confirmation before it runs.
+**Default:** Offer undo for every removal, or ask for confirmation before it runs.
+
+**Replacement:** A project that replaces the default records which removals run with neither undo nor confirmation and why.
 
 **Rationale:** Staff remove the wrong record by misreading a row or misclicking, and without a way back the record is gone. An undo toast restores a reversible removal in one click, while a confirmation dialog makes an irreversible removal a deliberate choice. Either way, the reader gets a moment to catch the mistake before it becomes permanent.
 
@@ -44,25 +46,15 @@ Three rules hold on every option, and the Standards section states them. Each re
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#show-the-created-record`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A successful create MUST take the reader to the created record or show it in place.
+**Default:** Take the reader to the created record after a successful create, or show it in place.
+
+**Replacement:** A project that replaces the default records where its creates end instead.
 
 **Rationale:** After creating, the reader needs proof that the record exists with the values entered, and the created record itself is that proof. A create that ends on an empty form or a bare toast leaves the reader unsure whether it worked, so they create it again and produce a duplicate.
 
 **Reviewed for:** Does every built create flow end at its new record? Open the create dialogs, pages, and bulk flows on built screens.
-
-### Refuse a Second Send While One Is in Flight
-
-**ID:** `litespec/frontend/patterns/create-edit-remove#refuse-a-second-send-while-one-is-in-flight`
-
-**Strength:** required
-
-**Statement:** While a command is in flight, the control that sent it MUST show a pending state and refuse a second send until the first settles.
-
-**Rationale:** A double click on Submit creates two expenses or pays a payout twice. A pending state tells the reader the first send is still running, so there is no reason to press again, and refusing the second send means one press sends one command.
-
-**Reviewed for:** Which built command controls show no pending state, or send twice when pressed twice in a row? Open the built submits and pays, press each twice quickly, and read what the API received.
 
 ## Patterns
 

@@ -375,7 +375,7 @@ static class RecordReader
         catch (JsonTextException exception)
         {
             problems.Add(new Finding(
-                "field-invalid", $"The glossary is not YAML: {exception.Message}",
+                "record-invalid", $"The glossary is not YAML: {exception.Message}",
                 config.GlossaryPath, exception.Line, null));
             return;
         }

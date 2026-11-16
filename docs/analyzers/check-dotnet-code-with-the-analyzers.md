@@ -52,7 +52,7 @@ The accepted values are `Domain`, `Application.Abstractions`, `Application`, `In
 
 #### Check the Record Layer Claims
 
-The package also follows the record layers the project claims. A project that claims the record model alone gets no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5001` to `LS5012`, so a project can mark its code in its own layout before taking on the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing `.litespec/project.yaml`, set the property in that project's file:
+The package also follows the record layers the project claims. A project that claims the record model alone gets no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5003` to `LS5006`, `LS5009`, `LS5011`, and `LS5012`, so a project can mark its code in its own layout before taking on the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing `.litespec/project.yaml`, set the property in that project's file:
 
 ```xml
 <PropertyGroup>
@@ -172,7 +172,7 @@ Or scope an `.editorconfig` entry to the single file:
 dotnet_diagnostic.LS1011.severity = suggestion
 ```
 
-That entry quiets `litespec/backend/dotnet/domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record behind it: the waiver holds the reason, and the suppression quiets the compiler only where the record allows.
+That entry quiets `litespec/backend/domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record behind it: the waiver holds the reason, and the suppression quiets the compiler only where the record allows.
 
 ## Check
 

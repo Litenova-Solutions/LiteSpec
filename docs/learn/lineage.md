@@ -10,7 +10,7 @@ Developers use domain-driven design to keep code aligned with the business: one 
 
 **Words:** aggregate, module, glossary, domain event.
 
-**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, and the builder checks each declaration. A store holds state that no invariant guards: it names its owner instead of carrying a lifecycle.
+**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, and the builder checks each declaration.
 
 ## Event Storming
 

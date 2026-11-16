@@ -15,9 +15,6 @@ raises:
 idempotency:
   mode: none
   reason: Each call registers its own copy, and registering the same barcode twice is refused.
-audit:
-  level: none
-  target: No audit trail; the copy record shows each registration.
 records:
 - type: result
   id: result/register-copy.registered
@@ -29,4 +26,3 @@ records:
   title: Copy already registered
   outcome: refusal
   code: lending.copy-already-registered
-  meaning: The copy is already registered.

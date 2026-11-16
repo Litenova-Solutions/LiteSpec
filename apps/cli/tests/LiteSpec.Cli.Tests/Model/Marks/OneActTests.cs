@@ -2,37 +2,9 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
-/// <summary>
-///     Proves each aggregate act takes one use case: a root method with two marks
-///     reports mark-count-invalid, and a mark on a reading method, a private method, or a
-///     method with no test attribute reports mark-unknown.
-/// </summary>
+/// <summary>Proves a mark on a reading method, a private method, or a method with no test attribute reports mark-unknown.</summary>
 public sealed class OneActTests
 {
-    /// <summary>Two Marks On A Root Method Report Mark Count.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
-    [Fact]
-    public void TwoMarksOnARootMethodReportMarkCount()
-    {
-        using var fixture = MarksFixture.Prepare("act");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
-
-        var finding = Assert.Single(counts, found => found.Message.Contains("Loan.Borrow"));
-        Assert.Contains("carries 2 marks", finding.Message);
-        Assert.Contains("takes one", finding.Message);
-    }
-
-    /// <summary>Single Mark On A Root Method Reports No Mark Count.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
-    [Fact]
-    public void SingleMarkOnARootMethodReportsNoMarkCount()
-    {
-        using var fixture = MarksFixture.Prepare("clean");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
-
-        Assert.Empty(counts);
-    }
-
     /// <summary>Marked Reading Method Reports Mark Unresolved.</summary>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]

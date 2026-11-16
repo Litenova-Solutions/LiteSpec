@@ -17,15 +17,15 @@ Each row of the jobs table is one CI job, and every job is a gate: when the job 
 | test-backend | Architecture, integration, and acceptance suites pass. | Backend or contract change. | `dotnet test <solution>`. | Architecture and integration only. | Runs all suites. |
 | test-frontend | Lint, type-check, and route suite pass. | Frontend change. | `pnpm lint`, `pnpm type-check`, and the route suite. | Runs. | Runs. |
 | measure | Each measured check the change names passes. | Backend, frontend, or measured-requirement change. | k6 thresholds, Lighthouse CI assert, and the ZAP baseline; results feed the model. | Runs. | Runs. |
-| model | Model check and every check reading the in-memory model. | Record, code, or test change. | `litespec model check`. | Runs. | Runs. |
+| model | Model check and every check reading the in-memory model. | Record, code, or test change. | `litespec model check --record-proof`. | Runs. | Runs. |
 | docs | Page contract, configuration, prose. | Documentation change. | `litespec model check`. | Runs. | Runs. |
 | contract | Published document and clients unchanged. | API or contract change. | Regenerate, then `git diff --exit-code`. | Runs. | Runs. |
 
 Projects that select the [Delivery extension](../ext/delivery.md) add its mutation, supply-chain, and release jobs, selected and promoted the same way.
 
-The model job runs `litespec model check`. That command blocks on the planned-Intent findings and every link finding in every run, on a developer machine and in the pull-request check alike, as [Check Levels](../core/model.md#check-levels) states.
+The model job runs `litespec model check --record-proof`. That command blocks on the planned-Intent findings and every link finding in every run, on a developer machine and in the pull-request check alike, as [Check Levels](../core/model.md#check-levels) states.
 
-The check writes `proofs.json` from the run on the pull request head, so a merged pull request carries fresh proofs: the check runs after the test run in the same job.
+Only `litespec model check --record-proof` writes `.litespec/proof/proofs.json`, from the run on the pull request head, so a merged pull request carries fresh proofs: the check runs after the test run in the same job.
 
 The model job treats exit 3 as failure unless the job allows incomplete inspection. Exit 3 means no finding blocks but a reader was missing, so some findings report without blocking.
 

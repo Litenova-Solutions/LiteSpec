@@ -65,7 +65,7 @@ sealed class CompletionLookups
         Model = model;
         byType = RecordsByType(model);
         scenariosByHome = ScenariosByHome(model);
-        fulfilling = Citing(model, RecordTypes.FulfillingTypes, RecordFields.Fulfills);
+        fulfilling = Fulfilling(model);
         decisionsBasedOn = Citing(
             model,
             [RecordTypes.Decision],
@@ -176,6 +176,29 @@ sealed class CompletionLookups
         }
 
         return byHome;
+    }
+
+    /// <summary>The Behavior records fulfilling each requirement: records of a fulfilling type by their fulfills, and entry points by their served-content entries, each record once per id, in model order.</summary>
+    /// <param name="model">The built project model.</param>
+    /// <returns>The fulfilling records by fulfilled id.</returns>
+    static Dictionary<string, List<Record>> Fulfilling(ProjectModel model)
+    {
+        var byTarget = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records)
+        {
+            // A served-content entry fulfills the requirements it names for its entry point.
+            var targets = RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal)
+                ? record.Ids(RecordFields.Fulfills)
+                : record.ServedFulfills();
+
+            foreach (var target in targets.Distinct(StringComparer.Ordinal))
+            {
+                Add(byTarget, target, record);
+            }
+        }
+
+        return byTarget;
     }
 
     /// <summary>The records of the given types by each id one of their fields names, each record once per id, in model order.</summary>

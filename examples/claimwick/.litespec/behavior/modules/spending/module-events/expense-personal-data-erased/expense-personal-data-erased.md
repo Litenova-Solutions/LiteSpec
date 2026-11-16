@@ -8,7 +8,7 @@ The reporting module clears the employee of the matching row in `read-model/repo
 
 ## Compatibility
 
-The payload may gain a new field. No field may be removed or renamed, and no meaning may change.
+The selection may gain a new field the domain event carries. No field may be removed, and no meaning may change.
 
 ## Example
 

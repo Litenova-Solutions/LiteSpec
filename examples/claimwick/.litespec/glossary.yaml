@@ -31,6 +31,15 @@ terms:
     nl: beleid
     de: Richtlinie
   rejected: []
+- id: term/reminder-preference
+  term: reminder preference
+  meaning: One manager's choice to skip approval reminders.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: herinneringsvoorkeur
+    de: Erinnerungspraeferenz
+  rejected: []
 - id: term/approver
   term: approver
   meaning: The manager who decides a submitted expense.

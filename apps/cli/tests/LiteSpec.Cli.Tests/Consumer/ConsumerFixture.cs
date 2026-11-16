@@ -148,7 +148,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/refusals.yaml",
             """
-            {"type":"refusal-set","summary":"The refusals the orders module returns, each with the problem type it maps to.","records":[{"code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused.","problemType":"https://shop.example/problems/cancel-refused"}]}
+            {"type":"refusal-set","summary":"The refusals the orders module returns.","records":[{"code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/rules/order-claim-rules.yaml",
@@ -182,7 +182,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"input":[{"name":"orderId","meaning":"The order the customer cancels.","type":"id","of":"aggregate/orders.order-claim","required":true,"origin":"caller","classification":"internal"}],"writes":["aggregate/orders.order-claim"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant","replay":"returns-first-result"},"audit":{"level":"required","target":"order claim"},"raises":["domain-event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused."}]}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"input":[{"name":"orderId","meaning":"The order the customer cancels.","type":"id","of":"aggregate/orders.order-claim","required":true,"origin":"caller","classification":"internal"}],"writes":["aggregate/orders.order-claim"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant","replay":"returns-first-result"},"audit":{"level":"required","target":"order claim"},"raises":["domain-event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","code":"orders.cancel-refused","sentence":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
     ];

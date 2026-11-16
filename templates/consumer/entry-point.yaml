@@ -1,15 +1,25 @@
 type: entry-point
-id: entry-point/claimwick-app
-title: Claimwick App
-summary: Employees reach spending through the expenses app.
-kind: browser
+id: entry-point/<name>
+title: <Title in Title Case>
+summary: <who reaches the product here and how, or remove this line>
+terms:
+- <term id, or remove this line>
+kind: <browser|api|webhook|device|cli|mcp>
 auth:
-- session
-density: application-balanced
-voice: Claimwick addresses the employee plainly and names the next step on every screen.
+- <session|token|device|link|app|none>
+density: <public-light|application-balanced|admin-dense, or remove this line>
+voice: <how the product addresses this audience, or remove this line>
 languages:
 - en
-- nl
+- <another BCP 47 tag, or remove this line>
 formats:
-  money: code-and-the-currency-s-own-decimals
-  moment: one-form-per-table-with-the-zone-stated-once
+  money: <code-and-decimals-with-the-column-totals-at-the-foot|code-and-the-currency-s-own-decimals|money-out-in-red-with-a-true-minus>
+  moment: <one-form-per-table-with-the-zone-stated-once|grouped-by-day-so-the-column-is-the-day|a-time-with-the-zone-on-every-value>
+# Only a browser entry point lists servedContent.
+servedContent:
+- path: <served path, such as /terms>
+  contentType: <media type, such as text/html>
+  cacheControl: <cache directive, such as max-age=3600>
+  versioning: <how a new version reaches readers, such as content hash in the file name>
+  fulfills:
+  - requirement/<feature>.<name>

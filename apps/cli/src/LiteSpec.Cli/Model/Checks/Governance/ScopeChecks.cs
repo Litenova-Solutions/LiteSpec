@@ -36,10 +36,7 @@ internal static class ScopeChecks
                 $"Runbook '{record.Id}' is named by no alert, job, reaction or failure policy.",
                 record.File,
                 record.Line,
-                SubjectOf(record))
-            {
-                TierOverride = "A",
-            });
+                SubjectOf(record)));
         }
     }
 

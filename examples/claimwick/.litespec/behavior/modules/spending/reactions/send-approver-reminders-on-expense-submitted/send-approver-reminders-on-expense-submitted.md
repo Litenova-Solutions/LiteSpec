@@ -4,7 +4,7 @@ This reaction reminds the approver of an expense that waits too long for a decis
 
 ## Trigger and Effect
 
-Each `domain-event/expense.submitted` starts the reaction. The reaction waits the approval reminder delay from `setting/spending.approval-reminder-delay`. If the expense is still undecided then, the reaction sends `notification/spending.approval-reminder` to the approver. A decided expense is skipped, and so is an expense whose approver the suppression list names.
+Each `domain-event/expense.submitted` starts the reaction. The reaction waits the approval reminder delay from `setting/spending.approval-reminder-delay`. If the expense is still undecided then, the reaction sends `notification/spending.approval-reminder` to the approver. A decided expense is skipped, and so is an expense whose approver holds a reminder preference.
 
 A reminder is due only after the wait, so the reaction cannot send it when the expense is submitted.
 

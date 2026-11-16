@@ -37,16 +37,16 @@ internal static class Descriptors
     private static readonly Provision Nondeterminism = Provision.Of("backend/domain", "pass-nondeterministic-values-into-domain");
     /// <summary>The provision the related descriptors enforce: keep repository interfaces in domain (litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain).</summary>
     private static readonly Provision Repositories = Provision.Of("backend/dotnet/domain", "keep-repository-interfaces-in-domain");
-    /// <summary>The provision the related descriptors enforce: document every public domain contract (litespec/backend/dotnet/domain#document-every-public-domain-contract).</summary>
+    /// <summary>The provision the related descriptors enforce: document every public domain contract (litespec/backend/domain#document-every-public-domain-contract).</summary>
     private static readonly Provision DomainDocumentation = Provision.Of("backend/dotnet/domain", "document-every-public-domain-contract");
     /// <summary>The provision the related descriptors enforce: use strongly typed version 7 identifiers (litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers).</summary>
     private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
     /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/backend/dotnet/architecture#keep-implementation-types-internal).</summary>
     private static readonly Provision InternalImplementations = Provision.Of("backend/dotnet/architecture", "keep-implementation-types-internal");
     /// <summary>The provision the related descriptors enforce: use five application projects (litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project).</summary>
-    private static readonly Provision ApplicationProjects = Provision.Of("backend/dotnet/ext/layer-projects", "use-five-application-projects");
-    /// <summary>The provision the related descriptors enforce: respect layer direction in every file (litespec/backend/dotnet/architecture#respect-layer-direction-in-every-file).</summary>
-    private static readonly Provision RespectLayerDirection = Provision.Of("backend/dotnet/architecture", "respect-layer-direction-in-every-file");
+    private static readonly Provision ApplicationProjects = Provision.Of("backend/dotnet/ext/layer-projects", "package-each-layer-as-its-own-project");
+    /// <summary>The provision the related descriptors enforce: follow layer direction in every file (litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file).</summary>
+    private static readonly Provision RespectLayerDirection = Provision.Of("backend/dotnet/architecture", "follow-layer-direction-in-every-file");
     /// <summary>The provision the related descriptors enforce: keep use case folders isolated (litespec/backend/dotnet/architecture#keep-use-case-folders-isolated).</summary>
     private static readonly Provision UseCaseIsolation = Provision.Of("backend/dotnet/architecture", "keep-use-case-folders-isolated");
     /// <summary>The provision the related descriptors enforce: reach another module only through contracts (litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts).</summary>
@@ -56,7 +56,7 @@ internal static class Descriptors
     /// <summary>The provision the related descriptors enforce: stage aggregate writes through repositories (litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories).</summary>
     private static readonly Provision RepositoryWrites = Provision.Of("backend/dotnet/persistence", "stage-aggregate-writes-through-repositories");
     /// <summary>The provision the related descriptors enforce: name asynchronous operations completely (litespec/workspace/naming#reveal-asynchrony-and-cancellation-in-operation-names).</summary>
-    private static readonly Provision AsyncNames = Provision.Of("workspace/naming", "name-asynchronous-operations-completely");
+    private static readonly Provision AsyncNames = Provision.Of("workspace/naming", "reveal-asynchrony-and-cancellation-in-operation-names");
     /// <summary>The provision the related descriptors enforce: keep implementation style consistent (litespec/backend/dotnet/naming#keep-implementation-style-consistent).</summary>
     private static readonly Provision ImplementationStyle = Provision.Of("backend/dotnet/naming", "keep-implementation-style-consistent");
     /// <summary>The provision the related descriptors enforce: put the cancellation token last (litespec/backend/dotnet/naming#put-the-cancellation-token-last).</summary>
@@ -74,7 +74,7 @@ internal static class Descriptors
     /// <summary>The provision the related descriptors enforce: enforce target authorization in the pipeline (litespec/backend/application#enforce-target-authorization-in-the-pipeline).</summary>
     private static readonly Provision TargetAuthorization = Provision.Of("backend/application", "enforce-target-authorization-in-the-pipeline");
     /// <summary>The provision the related descriptors enforce: declare audit values beside the message (litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message).</summary>
-    private static readonly Provision AuditValues = Provision.Of("backend/application", "declare-audit-values-beside-the-message");
+    private static readonly Provision AuditValues = Provision.Of("backend/application", "declare-the-audit-target-and-reason-beside-the-message");
     /// <summary>The provision the related descriptors enforce: implement one outcome path per command (litespec/backend/application#implement-one-outcome-path-per-command).</summary>
     private static readonly Provision OutcomePath = Provision.Of("backend/application", "implement-one-outcome-path-per-command");
     /// <summary>The provision the related descriptors enforce: issue per record work from a job (litespec/backend/application#issue-per-record-work-from-a-job).</summary>
@@ -95,8 +95,6 @@ internal static class Descriptors
     private static readonly Provision RuntimeValues = Provision.Of("backend/dotnet/stack", "generate-runtime-values-from-the-records");
     /// <summary>The provision the related descriptors enforce: declare marked events and exceptions as partial types (litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types).</summary>
     private static readonly Provision PartialTypes = Provision.Of("backend/dotnet/stack", "declare-marked-events-and-exceptions-as-partial-types");
-    /// <summary>The provision the related descriptors enforce: raise the declared events from the marked act (litespec/backend/domain#raise-the-declared-events-from-the-marked-act).</summary>
-    private static readonly Provision MarkedAct = Provision.Of("backend/domain", "raise-the-declared-events-from-the-marked-act");
     /// <summary>The LS1001 descriptor: Domain references an outer-layer concern.</summary>
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
         "Domain references an outer-layer concern",
@@ -328,18 +326,6 @@ internal static class Descriptors
         "Test '{0}' contains no assertion",
         "A test calls the behavior it proves and asserts the result, so a passing test proves something.");
 
-    /// <summary>The LS5001 descriptor: Code element carries no mark.</summary>
-    public static readonly DiagnosticDescriptor LS5001 = Create("LS5001", TraceabilityCategory, PointToRecords,
-        "Code element carries no mark",
-        "'{0}' carries no mark naming the {1} record it serves",
-        "A code element of a recognized kind carries a mark naming the record it serves, in the style the project declares.");
-
-    /// <summary>The LS5002 descriptor: Mark names no usable record.</summary>
-    public static readonly DiagnosticDescriptor LS5002 = Create("LS5002", TraceabilityCategory, PointToRecords,
-        "Mark names no usable record",
-        "'{0}' marks '{1}', which {2}",
-        "A mark names a record of a type its code element takes, spelled as the record states it.");
-
     /// <summary>The LS5003 descriptor: Code element carries the wrong number of marks.</summary>
     public static readonly DiagnosticDescriptor LS5003 = Create("LS5003", TraceabilityCategory, PointToRecords,
         "Code element carries the wrong number of marks",
@@ -363,18 +349,6 @@ internal static class Descriptors
         "Marked event or exception is not partial",
         "'{0}' carries a mark and must be declared partial",
         "A marked domain event or rule exception is declared partial, so the generator can add the runtime value as a second part.");
-
-    /// <summary>The LS5007 descriptor: Marked act raises an undeclared event.</summary>
-    public static readonly DiagnosticDescriptor LS5007 = Create("LS5007", TraceabilityCategory, MarkedAct,
-        "Marked act raises an undeclared event",
-        "'{0}' marked with '{1}' raises '{2}', which the use case does not list in 'raises'",
-        "An aggregate method marked with a use case raises only the events the use case lists in raises.");
-
-    /// <summary>The LS5008 descriptor: Declared event is raised by no marked act.</summary>
-    public static readonly DiagnosticDescriptor LS5008 = Create("LS5008", TraceabilityCategory, MarkedAct,
-        "Declared event is raised by no marked act",
-        "'{0}' marked with '{1}' raises no '{2}', which the use case lists in 'raises'",
-        "Every event a use case lists in raises is raised by a root method marked with the use case.");
 
     /// <summary>The LS5011 descriptor: Message maps to two use cases.</summary>
     public static readonly DiagnosticDescriptor LS5011 = Create("LS5011", TraceabilityCategory, PointToRecords,

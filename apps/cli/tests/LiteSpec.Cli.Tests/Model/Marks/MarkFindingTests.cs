@@ -1,6 +1,14 @@
+using System.Text.Json;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using Record = LiteSpec.Cli.Model.Records.Record;
+
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
-/// <summary>Proves the mark presence, link, style and drift findings against the marks fixtures.</summary>
+/// <summary>Proves the mark presence and link findings against the marks fixtures, and the frontend count finding against an inline model.</summary>
 public sealed class MarkFindingTests
 {
     /// <summary>Handler Without A Mark Reports Mark Missing.</summary>
@@ -44,69 +52,58 @@ public sealed class MarkFindingTests
         Assert.Equal("rule/loan.copy-available", finding.Subject);
     }
 
-    /// <summary>Handler With Two Marks Reports Mark Count.</summary>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <summary>Route With Two Marks Reports Mark Count.</summary>
+    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void HandlerWithTwoMarksReportsMarkCount()
+    public void RouteWithTwoMarksReportsMarkCount()
     {
-        using var fixture = MarksFixture.Prepare("count");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
+        using var temp = TestCli.Temp("marks");
+        var model = RouteModel(temp.Path);
+        var webFile = Path.Combine(temp.Path, "apps", "web", "src", "routes", "loans", "+page.svelte");
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.FrontendRoute, "/loans", null, webFile, 3,
+            [
+                new CodeMark("screen/app.loans", MarkStyle.Xml, MarkVerb.Implements, webFile, 1),
+                new CodeMark("screen/app.holds", MarkStyle.Xml, MarkVerb.Implements, webFile, 2),
+            ],
+            InTests: false));
 
-        var finding = Assert.Single(counts, found => found.Message.Contains("carries 2 marks"));
-        Assert.Contains("BorrowCopyCommandHandler", finding.Message);
+        var counts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-count-invalid");
+
+        var finding = Assert.Single(counts);
+        Assert.Contains("carries 2 marks", finding.Message);
+        Assert.Contains("takes one", finding.Message);
     }
 
-    /// <summary>Port Naming One System Twice Reports Mark Count.</summary>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact]
-    public void PortNamingOneSystemTwiceReportsMarkCount()
+    /// <summary>A model with the screen record the route marks name.</summary>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    /// <returns>The project model holding the records.</returns>
+    static ProjectModel RouteModel(string root)
     {
-        using var fixture = MarksFixture.Prepare("count");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
+        File.WriteAllText(
+            Path.Combine(root, ".litespec/project.yaml"),
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"}");
+        var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
-        var finding = Assert.Single(counts, found => found.Message.Contains("twice"));
-        Assert.Contains("external-system/text-gateway", finding.Message);
+        model.Records.Add(Rec("screen", "screen/app.loans", root, """{"status": "reviewed"}"""));
+        model.Records.Add(Rec("screen", "screen/app.holds", root, """{"status": "reviewed"}"""));
+
+        return model;
     }
 
-    /// <summary>Mark In The Undeclared Style Reports Mark Style Mixed.</summary>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
-    [Fact]
-    public void MarkInTheUndeclaredStyleReportsMarkStyleMixed()
+    static Record Rec(string type, string id, string root, string json)
     {
-        using var fixture = MarksFixture.Prepare("style");
-        var mixed = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-style-invalid");
+        using var document = JsonDocument.Parse(json);
+        var raw = document.RootElement.Clone();
 
-        var finding = Assert.Single(mixed);
-        Assert.Contains("BorrowCopyCommandHandler", finding.Message);
-        Assert.Contains("in the xml style", finding.Message);
-        Assert.Contains("declares attribute", finding.Message);
-        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
-    }
-
-    /// <summary>Event Classification Drifting From Its Record Reports Runtime Value Drift.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact]
-    public void EventClassificationDriftingFromItsRecordReportsRuntimeValueDrift()
-    {
-        using var fixture = MarksFixture.Prepare("drift");
-        var drifts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "runtime-value-drift");
-
-        var finding = Assert.Single(drifts, found => found.Subject == "domain-event/loan.loan-borrowed");
-        Assert.Contains("Classification", finding.Message);
-        Assert.Contains("domain-event/loan.placed", finding.Message);
-    }
-
-    /// <summary>Exception Code Drifting From Its Result Reports Runtime Value Drift.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact]
-    public void ExceptionCodeDriftingFromItsResultReportsRuntimeValueDrift()
-    {
-        using var fixture = MarksFixture.Prepare("drift");
-        var drifts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "runtime-value-drift");
-
-        var finding = Assert.Single(drifts, found => found.Subject == "rule/loan.copy-available");
-        Assert.Contains("Code", finding.Message);
-        Assert.Contains("lending.wrong-code", finding.Message);
-        Assert.Contains("lending.copy-not-available", finding.Message);
+        return new Record
+        {
+            Type = type,
+            Id = id,
+            Title = id,
+            File = Path.Combine(root, ".litespec", "record.md"),
+            Line = 1,
+            Raw = raw,
+        };
     }
 }

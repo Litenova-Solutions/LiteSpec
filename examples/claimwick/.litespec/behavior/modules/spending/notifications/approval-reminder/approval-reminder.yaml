@@ -14,6 +14,6 @@ dedupKey: approval-reminder-{expenseId}
 params:
 - submitterName
 locale: English only; the template ships one language.
-suppressedWhen: The approver is named in the suppression list.
+suppressedWhen: The approver holds a reminder preference.
 fulfills:
 - requirement/approval.decided-within-five-days

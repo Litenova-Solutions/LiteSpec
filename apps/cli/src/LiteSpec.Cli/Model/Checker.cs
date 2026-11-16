@@ -140,6 +140,7 @@ static class Checker
         ContractChecks.RunTypedInputs,
         GraphChecks.RunExercises,
         ContractChecks.RunDoors,
+        ExtensionFieldChecks.Run,
         ScopeChecks.Run,
         AgentProtocolChecks.RunRegion,
         AgentProtocolChecks.RunSkill,
@@ -210,9 +211,11 @@ static class Checker
             return code != 0 ? code : string.Compare(left.Message, right.Message, StringComparison.Ordinal);
         });
 
-        findings = FindingStrength.Apply(
-            findings,
-            LiteSpecHome.Root is { } home && Directory.Exists(Path.Combine(home, "docs")) ? Provisions.Collect(home) : []);
+        // Merged codes can reach one defect from two checks: one code, place and subject report once.
+        findings = findings
+            .GroupBy(finding => (finding.Code, finding.Path, finding.Line, finding.Subject))
+            .Select(group => group.First())
+            .ToList();
 
         return Suppress(model, findings);
     }

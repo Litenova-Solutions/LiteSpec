@@ -17,7 +17,7 @@ Selecting a stack applies its folder and every folder above it, so a stack never
 
 ### Where Versions Come From
 
-Every SDK, framework, and package version resolves from `litespec.manifest.yaml`, which owns the pins. One source for every pin keeps each consumer on the same tested combination. A version copied from anywhere else, prose, an example, a package search, or agent memory, drifts from the pin with the next edit.
+The standards-selected stack versions resolve from `litespec.manifest.yaml`, which owns the pins, as `litespec/core/principles#locate-package-versions-in-the-manifest` states. One source for every pin keeps each consumer on the same tested combination. A version copied from anywhere else, prose, an example, a package search, or agent memory, drifts from the pin with the next edit. Consumer dependencies still live in package manifests and lockfiles.
 
 ### How a Replacement Names What It Changes
 
@@ -51,18 +51,6 @@ A selection can name a stack, shape, page, or extension that no page applies. Th
 **Rationale:** The stack is the unit of conformance: a consumer cannot claim a stack while silently omitting an applicable page. Applying the folder, every folder above it, and their stackless subfolders keeps inherited principles in force without restating them. A deeper page replaces only the provisions it names, so everything it leaves unnamed keeps applying.
 
 **Reviewed for:** Does the project apply every page its stack selection brings in? Compare the files against the stack folders, the folders above them, and their stackless subfolders.
-
-### Use Manifest Version Pins
-
-**ID:** `litespec/core/stacks#use-manifest-version-pins`
-
-**Strength:** required
-
-**Statement:** A consumer MUST resolve every SDK, framework, and package version from `litespec.manifest.yaml`.
-
-**Rationale:** The manifest owns every pin, so resolving versions anywhere else produces builds the standard never described. A version copied from prose, an example, a package search, or agent memory drifts from the pin with the next edit. One resolution source keeps every consumer on the same tested combination.
-
-**Reviewed for:** Does every resolved SDK, framework, and package version match its pin? Compare the resolved versions against `litespec.manifest.yaml`.
 
 ### Name Every Provision a Replacement Replaces
 

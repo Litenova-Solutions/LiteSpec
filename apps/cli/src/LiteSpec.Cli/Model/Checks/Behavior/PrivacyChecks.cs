@@ -156,7 +156,7 @@ internal static class PrivacyChecks
 
                 if (classes.FirstOrDefault(position => position.Name == className) is not { } owner)
                 {
-                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' field '{field.Name}' names data class '{className}', which the aggregate does not declare.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' field '{field.Name}' names data class '{className}', which the aggregate does not declare.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
                 else if (owner.Classification != field.Classification)
                 {
@@ -224,13 +224,13 @@ internal static class PrivacyChecks
                     }
                     else if (resolved.Type is not (RecordTypes.Job or RecordTypes.UseCase))
                     {
-                        findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' names enforcer '{enforcer}', which is a {resolved.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                        findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' names enforcer '{enforcer}', which is a {resolved.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                     }
                 }
 
                 if (position.Period is not null && !IsoDuration.IsMatch(position.Period))
                 {
-                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' holds period '{position.Period}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' holds period '{position.Period}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 if (position.Period is not null && position.PeriodStartsAt is null)
@@ -245,7 +245,7 @@ internal static class PrivacyChecks
 
                 if (position.PeriodStartsAt is { } start && !PeriodStartValid(model, start))
                 {
-                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' counts its period from '{start}', which is no domain event, state transition or calendar end.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' counts its period from '{start}', which is no domain event, state transition or calendar end.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 foreach (var basis in position.Basis.Order(StringComparer.Ordinal))

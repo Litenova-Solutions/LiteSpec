@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ReadModelCheckTests
 {
     /// <summary>The four finding codes the read-model checks report.</summary>
-    static readonly string[] ReadModelCodes = ["read-model-source-unknown", "read-model-erasure-missing", "read-model-unused", "read-model-key-invalid"];
+    static readonly string[] ReadModelCodes = ["reference-unknown", "read-model-erasure-missing", "read-model-unused", "read-model-key-invalid"];
 
     /// <summary>A read-model field taken from the employee payload field of the reimbursed event, internal.</summary>
     const string EmployeeField = """{"name": "employeeId", "meaning": "The employee who was paid.", "type": "id", "from": "integration-event/expense-reimbursed#employeeId", "classification": "internal"}""";
@@ -28,13 +28,15 @@ public sealed class ReadModelCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ReimbursedEvent(temp.Path),
+            ReimbursedDomainEvent(temp.Path),
+            ExpenseAggregate(temp.Path),
             ReadModel(temp.Path, EmployeeField),
             Reader(temp.Path));
 
         Assert.Empty(ReadModelFindings(model));
     }
 
-    /// <summary>A field taken from an event no record names reports read-model-source-unknown.</summary>
+    /// <summary>A field taken from an event no record names reports reference-unknown.</summary>
     /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
     [Fact]
     public void FieldFromAnUnknownEventReportsSourceUnknown()
@@ -45,11 +47,11 @@ public sealed class ReadModelCheckTests
             ReadModel(temp.Path, EmployeeField),
             Reader(temp.Path));
 
-        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "read-model-source-unknown");
+        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "reference-unknown");
         Assert.Contains("integration-event/expense-reimbursed", finding.Message);
     }
 
-    /// <summary>A field taken from an inbound integration event reports read-model-source-unknown, because a read model reads only what the system publishes.</summary>
+    /// <summary>A field taken from an inbound integration event reports reference-unknown, because a read model reads only what the system publishes.</summary>
     /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
     [Fact]
     public void FieldFromAnInboundEventReportsSourceUnknown()
@@ -61,10 +63,10 @@ public sealed class ReadModelCheckTests
             ReadModel(temp.Path, EmployeeField),
             Reader(temp.Path));
 
-        Assert.Contains(ReadModelFindings(model), found => found.Code == "read-model-source-unknown");
+        Assert.Contains(ReadModelFindings(model), found => found.Code == "reference-unknown");
     }
 
-    /// <summary>A field naming a payload field the event does not carry reports read-model-source-unknown.</summary>
+    /// <summary>A field naming a payload field the event does not carry reports reference-unknown.</summary>
     /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
     [Fact]
     public void FieldNamingAMissingPayloadFieldReportsSourceUnknown()
@@ -74,14 +76,16 @@ public sealed class ReadModelCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ReimbursedEvent(temp.Path),
+            ReimbursedDomainEvent(temp.Path),
+            ExpenseAggregate(temp.Path),
             ReadModel(temp.Path, accountField),
             Reader(temp.Path));
 
-        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "read-model-source-unknown");
+        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "reference-unknown");
         Assert.Contains("accountId", finding.Message);
     }
 
-    /// <summary>A removal event that is not an outbound integration event reports read-model-source-unknown.</summary>
+    /// <summary>A removal event that is not an outbound integration event reports reference-unknown.</summary>
     /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
     [Fact]
     public void RemovedByAnUnknownEventReportsSourceUnknown()
@@ -90,14 +94,16 @@ public sealed class ReadModelCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ReimbursedEvent(temp.Path),
+            ReimbursedDomainEvent(temp.Path),
+            ExpenseAggregate(temp.Path),
             ReadModel(temp.Path, EmployeeField, """, "removedBy": ["integration-event/expense-erased"]"""),
             Reader(temp.Path));
 
-        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "read-model-source-unknown");
+        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "reference-unknown");
         Assert.Contains("integration-event/expense-erased", finding.Message);
     }
 
-    /// <summary>An erasedBy event that is not an outbound integration event reports read-model-source-unknown.</summary>
+    /// <summary>An erasedBy event that is not an outbound integration event reports reference-unknown.</summary>
     /// <proves>litespec/core/automation#erase-a-read-model-personal-field-with-its-owner</proves>
     [Fact]
     public void ErasedByAnUnknownEventReportsSourceUnknown()
@@ -107,10 +113,12 @@ public sealed class ReadModelCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ReimbursedEvent(temp.Path),
+            ReimbursedDomainEvent(temp.Path),
+            ExpenseAggregate(temp.Path),
             ReadModel(temp.Path, erasedField),
             Reader(temp.Path));
 
-        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "read-model-source-unknown");
+        var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "reference-unknown");
         Assert.Contains("integration-event/expense-erased", finding.Message);
     }
 
@@ -142,11 +150,14 @@ public sealed class ReadModelCheckTests
             TestModel.Config(temp.Path),
             ReimbursedEvent(temp.Path),
             ErasedEvent(temp.Path),
+            ReimbursedDomainEvent(temp.Path),
+            ErasedDomainEvent(temp.Path),
+            ExpenseAggregate(temp.Path),
             ReadModel(temp.Path, erasedField),
             Reader(temp.Path));
 
         Assert.DoesNotContain(ReadModelFindings(model), found => found.Code == "read-model-erasure-missing");
-        Assert.DoesNotContain(ReadModelFindings(model), found => found.Code == "read-model-source-unknown");
+        Assert.DoesNotContain(ReadModelFindings(model), found => found.Code == "reference-unknown");
     }
 
     /// <summary>A read model no use case reads reports read-model-unused at tier G.</summary>
@@ -240,6 +251,33 @@ public sealed class ReadModelCheckTests
         "integration-event/expense-erased",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "integration-events", "expense-erased", "expense-erased.yaml"),
         """{"direction": "out", "translates": "domain-event/spending.expense-erased", "payload": [{"name": "expenseId", "meaning": "The erased expense.", "classification": "internal", "type": "id", "required": true}]}""");
+
+    /// <summary>The domain event the reimbursed integration event translates, carrying the payload fields.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <returns>The domain event record.</returns>
+    static Record ReimbursedDomainEvent(string root) => TestModel.Record(
+        "domain-event",
+        "domain-event/spending.expense-reimbursed",
+        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "domain-events", "expense-reimbursed", "expense-reimbursed.yaml"),
+        """{"meaning": "An expense was reimbursed.", "carries": [{"name": "employeeId", "type": "id"}, {"name": "amount", "type": "money"}]}""");
+
+    /// <summary>The domain event the erased integration event translates, carrying the erased expense.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <returns>The domain event record.</returns>
+    static Record ErasedDomainEvent(string root) => TestModel.Record(
+        "domain-event",
+        "domain-event/spending.expense-erased",
+        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "domain-events", "expense-erased", "expense-erased.yaml"),
+        """{"meaning": "An expense was erased.", "carries": [{"name": "expenseId", "type": "id"}]}""");
+
+    /// <summary>The spending aggregate the read model is keyed by.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <returns>The aggregate record.</returns>
+    static Record ExpenseAggregate(string root) => TestModel.Record(
+        "aggregate",
+        "aggregate/spending.expense",
+        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expense", "aggregate.yaml"),
+        """{"states": [{"name": "Active", "meaning": "The expense is open."}]}""");
 
     /// <summary>The read model of reimbursed expenses, keyed by an aggregate of the spending module by default.</summary>
     /// <param name="root">The consumer folder.</param>

@@ -6,7 +6,7 @@ Change Receipt Threshold lets a manager set the receipt threshold, the amount ab
 
 The manager sends the new threshold with its currency. Spending refuses a negative threshold with `spending.negative-threshold`. Otherwise the policy carries the new threshold from then on. The change raises no event and stores no audit entry.
 
-Sending the same value again leaves the same threshold in place. The setting `setting/spending.receipt-threshold` gives the threshold a range of EUR 0 to EUR 500, but this use case names only the refusal of a negative value. The records do not say what happens to a value above EUR 500.
+Sending the same value again leaves the same threshold in place. The rule `rule/policy.threshold-never-negative` refuses a negative value with `spending.negative-threshold`. The records state no upper bound for the threshold.
 
 ## Example
 

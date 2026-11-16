@@ -1,6 +1,6 @@
 # Overview
 
-The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 49 rules, each with its own reference page.
+The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 45 rules, each with its own reference page.
 
 ## How the Pages Fit Together
 
@@ -14,7 +14,7 @@ Whether a rule runs on a file comes down to four facts.
 
 The record layers the project claims in `layers` in `.litespec/project.yaml` decide which rules run at all. The build props read that block into the `LiteSpecImplementation` and `LiteSpecProof` properties and make them visible to the compiler, and a project can also set either property itself to name another practice.
 
-A project that claims neither layer runs no rule, and the generator writes no source and reports no diagnostic. A claim of Implementation with either practice runs the traceability rules `LS5001` to `LS5012`, and `LiteSpecImplementation` set to `litespec` also runs every architecture rule. A claim of Proof runs `LS4001`. An absent property reads as `litespec`, which matches what a project with no `layers` block claims.
+A project that claims neither layer runs no rule, and the generator writes no source and reports no diagnostic. A claim of Implementation with either practice runs the traceability rules `LS5003` to `LS5006`, `LS5009`, `LS5011`, and `LS5012`, and `LiteSpecImplementation` set to `litespec` also runs every architecture rule. A claim of Proof runs `LS4001`. An absent property reads as `litespec`, which matches what a project with no `layers` block claims.
 
 ### File Layers
 
@@ -48,8 +48,8 @@ Each rule runs only in the layers its provision covers:
 - `LS2021` runs on Domain, Application, and Infrastructure files of the modules project, and `LS2022` on every layer except Test.
 - Style rules run in every production layer.
 - `LS4001` runs in test projects.
-- `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds.
-- `LS5005` to `LS5008` run in Domain.
+- `LS5003` and `LS5004` run in every layer, checking the kinds each layer holds.
+- `LS5005` and `LS5006` run in Domain.
 - `LS5009` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes permission constants.
 - `LS5011` runs in every layer, where the generator writes the registry.
 - `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries.
@@ -58,7 +58,7 @@ The analyzers skip generated code.
 
 ### Decision Time
 
-Most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, `LS3004`, `LS5007`, and `LS5008` wait until the end of compilation, when every type is known.
+Most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` wait until the end of compilation, when every type is known.
 
 ## How a Rule Reads Records
 

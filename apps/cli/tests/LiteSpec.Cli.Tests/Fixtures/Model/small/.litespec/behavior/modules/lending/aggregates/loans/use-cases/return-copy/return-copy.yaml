@@ -15,9 +15,6 @@ raises:
 idempotency:
   mode: none
   reason: Each call returns its own copy, and returning an inactive loan is refused.
-audit:
-  level: none
-  target: No audit trail; the loan record shows each return.
 records:
 - type: result
   id: result/return-copy.returned
@@ -29,4 +26,3 @@ records:
   title: Loan inactive
   outcome: refusal
   code: lending.loan-not-active
-  meaning: The loan is inactive.

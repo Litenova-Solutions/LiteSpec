@@ -1,19 +1,24 @@
 type: notification
-id: notification/spending.approval-reminder
-title: Approval Reminder
-summary: The reminder names the expense and its waiting time. Each waiting expense earns one reminder.
-template: approval-reminder-manager
+id: notification/<module>.<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what the message says and who gets it, or remove this line>
+template: <template key>
 audience:
-- actor/manager
-deliveredThrough: external-system/mail-relay
+- actor/<name>
 channel:
-- email
-requiresConsent: rule/spending.suppressed-manager-gets-no-reminder
-frequency: once
-dedupKey: approval-reminder-{expenseId}
+- <email|sms|push>
+deliveredThrough: external-system/<name>
+requiresConsent: rule/<home>.<name, or remove this line>
+frequency: <once|per-attempt>
+dedupKey: <dedup template, such as reminder-{expenseId}>
 params:
-- submitterName
-locale: English only; the template ships one language.
-suppressedWhen: The approver is named in the suppression list.
+- <parameter name>
+locale: <the languages the template ships, such as English only>
+suppressedWhen: <when no message goes out, or remove this line>
+claims:
+- claim: <what the message promises>
+  requirement: requirement/<feature>.<name>
 fulfills:
-- requirement/approval.decided-within-five-days
+- requirement/<feature>.<name, or remove this line>

@@ -132,10 +132,10 @@ extensions:
     - 'litespec/workspace/dependencies#keep-application-free-of-provider-packages'
     - 'litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer'
     - 'litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts'
-    - 'litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout'
-    - 'litespec/backend/dotnet/application#use-the-use-case-folder-layout'
-    - 'litespec/backend/dotnet/api#place-endpoints-in-their-use-case-folders'
-    - 'litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout'
+    - 'litespec/backend/domain#organize-a-module-by-aggregate-and-concept'
+    - 'litespec/backend/application#use-this-use-case-layout'
+    - 'litespec/backend/api#use-this-endpoint-layout'
+    - 'litespec/backend/persistence#use-one-persistence-folder'
     - 'litespec/backend/testing#keep-the-test-suites-the-size-requires'
     - 'litespec/workspace/structure#keep-production-and-test-code-separate'
     switchesOn: []
@@ -151,9 +151,11 @@ extensions:
     switchesOn:
     - setting
     - runbook
-  stage:
-    path: docs/ext/stage.md
-    activationScope: project
+  queues:
+    path: docs/ext/queues.md
+    activationScope: local
+    applicableKinds:
+    - use-case
     replaces: []
     switchesOn: []
   delivery:

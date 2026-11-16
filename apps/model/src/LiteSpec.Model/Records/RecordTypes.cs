@@ -74,8 +74,6 @@ public static class RecordTypes
     /// <summary>Gets the `module-event` record type name.</summary>
     public const string ModuleEvent = "module-event";
 
-    /// <summary>Gets the `store` record type name.</summary>
-    public const string Store = "store";
 
     /// <summary>Gets the `job` record type name.</summary>
     public const string Job = "job";
@@ -154,7 +152,7 @@ public static class RecordTypes
     {
         "product", "goal", "vision", "constraint", "research", "decision", "requirement", "problem",
         "feature", "actor", "role", "permission", "flow", "module",
-        "aggregate", "store", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
+        "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
         "reaction", "job", "notification", "setting", "read-model",
         "entry-point", "screen", "external-system", "runbook", "waiver", "term",
     };
@@ -172,7 +170,7 @@ public static class RecordTypes
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
             ["actor"] = "intent", ["flow"] = "intent", ["term"] = "intent",
-            ["module"] = "behavior", ["aggregate"] = "behavior", ["store"] = "behavior", ["rule"] = "behavior",
+            ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
             ["domain-event"] = "behavior", ["module-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
             ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior",
@@ -198,7 +196,7 @@ public static class RecordTypes
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
-        "requirement", "aggregate", "store", "rule", "use-case", "result",
+        "requirement", "aggregate", "rule", "use-case", "result",
         "scenario", "domain-event", "module-event", "reaction", "job", "notification", "setting", "screen", "read-model",
     };
 
@@ -237,7 +235,7 @@ public static class RecordTypes
             ["answers"] = new HashSet<string> { "problem", "constraint" },
             ["solves"] = new HashSet<string> { "problem" },
             ["fulfills"] = new HashSet<string> { "requirement" },
-            ["governs"] = new HashSet<string> { "aggregate", "store", "use-case" },
+            ["governs"] = new HashSet<string> { "aggregate", "use-case" },
             ["raises"] = new HashSet<string> { "domain-event" },
             ["runs"] = new HashSet<string> { "use-case" },
             ["sends"] = new HashSet<string> { "notification" },
@@ -246,16 +244,15 @@ public static class RecordTypes
             ["compensates"] = new HashSet<string> { "use-case" },
             ["decidedBy"] = new HashSet<string> { "use-case", "aggregate" },
             ["closedBy"] = new HashSet<string>(),
-            ["writes"] = new HashSet<string> { "aggregate", "store" },
+            ["writes"] = new HashSet<string> { "aggregate" },
             ["keyedBy"] = new HashSet<string> { "aggregate" },
             ["from"] = new HashSet<string> { "module-event", "integration-event" },
             ["erasedBy"] = new HashSet<string> { "module-event", "integration-event" },
             ["removedBy"] = new HashSet<string> { "module-event", "integration-event" },
-            ["reads"] = new HashSet<string> { "aggregate", "store", "setting", "read-model" },
+            ["reads"] = new HashSet<string> { "aggregate", "setting", "read-model" },
             ["guards"] = new HashSet<string> { "aggregate" },
             ["competesWith"] = new HashSet<string> { "use-case" },
             ["supersedes"] = new HashSet<string> { "decision" },
-            ["owner"] = new HashSet<string> { "module", "external-system" },
             ["translates"] = new HashSet<string> { "domain-event" },
             ["through"] = new HashSet<string> { "external-system" },
             ["arrivesThrough"] = new HashSet<string> { "entry-point", "external-system" },
@@ -292,7 +289,7 @@ public static class RecordTypes
     /// </summary>
     public static readonly IReadOnlyList<string> FulfillingTypes =
     [
-        "rule", "use-case", "reaction", "job", "notification", "setting", "entry-point",
+        "rule", "use-case", "reaction", "job", "notification", "setting", "screen",
     ];
 
     /// <summary>
@@ -306,11 +303,11 @@ public static class RecordTypes
 
     /// <summary>
     ///     The record types that link up with serves or fulfills, in message order:
-    ///     every fulfilling type except a rule and an entry point. The orphan check reads this table.
+    ///     every fulfilling type except a rule. The orphan check reads this table.
     /// </summary>
     public static readonly IReadOnlyList<string> UpLinkedTypes =
     [
-        "use-case", "reaction", "job", "notification", "setting",
+        "use-case", "reaction", "job", "notification", "setting", "screen",
     ];
 
     /// <summary>Fields that hold links but are read from nested objects.</summary>

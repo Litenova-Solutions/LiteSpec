@@ -19,7 +19,7 @@ public sealed class ProseReferenceCheckTests
             Path.Combine(temp.Path, "borrowing.md"),
             "# Max Active Loans\n\nThe limit follows `use-case/lending.no-such-use-case`.\n"));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-reference-unknown");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "reference-unknown");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Prose names 'use-case/lending.no-such-use-case', which no record holds.", finding.Message);
         Assert.Equal(Path.Combine(temp.Path, "borrowing.md"), finding.Path);
@@ -40,7 +40,7 @@ public sealed class ProseReferenceCheckTests
                 Path.Combine(temp.Path, "ghost-route.yaml"),
                 """{"kind": "gap", "covers": ["mark-missing"], "paths": ["src/Ghost.cs"], "reason": "Infrastructure.", "closedBy": ["waiver/ghost-route"], "exit": "The gap closes when `decision/0084-no-such-decision` lands.", "expiresOn": "2999-01-01"}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-reference-unknown");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "reference-unknown");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Record 'waiver/ghost-route' names 'decision/0084-no-such-decision' in prose, which no record holds.", finding.Message);
         Assert.Equal("waiver/ghost-route", finding.Subject);
@@ -57,7 +57,7 @@ public sealed class ProseReferenceCheckTests
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans, as `litespec/core/model#no-such-provision` requires."}"""));
         model.Provisions = new HashSet<string>(StringComparer.Ordinal) { "litespec/core/model#give-every-record-one-parent" };
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-reference-unknown");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "reference-unknown");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Record 'requirement/borrowing.max-active-loans' names 'litespec/core/model#no-such-provision' in prose, which the carried release does not ship.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
@@ -74,7 +74,7 @@ public sealed class ProseReferenceCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-reference-unknown");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "reference-unknown");
         Assert.Equal("Prose names 'use-case/lending.no-such-use-case', which no record holds.", finding.Message);
         Assert.Equal(Path.Combine(temp.Path, "AGENTS.md"), finding.Path);
         Assert.Equal(3, finding.Line);
@@ -93,7 +93,7 @@ public sealed class ProseReferenceCheckTests
             Path.Combine(temp.Path, "borrowing.md"),
             "# Max Active Loans\n\n```markdown\nSee `use-case/lending.no-such-use-case`.\n```\n"));
 
-        Assert.DoesNotContain("prose-reference-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>A known identifier with a flow-step suffix passes.</summary>
@@ -110,6 +110,6 @@ public sealed class ProseReferenceCheckTests
             Path.Combine(temp.Path, "borrowing.md"),
             "# Borrowing\n\nStart at `flow/borrow-and-return#s1`.\n"));
 
-        Assert.DoesNotContain("prose-reference-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 }

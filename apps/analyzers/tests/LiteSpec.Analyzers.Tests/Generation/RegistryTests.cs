@@ -116,12 +116,12 @@ public sealed class RegistryTests
                 public interface ICommandHandler<TCommand, TResult>;
 
                 /// <implements>use-case/spending.submit-expense</implements>
-                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                /// <follows>decision/0002-keep-expenses-as-documents</follows>
                 internal sealed class SubmitExpenseCommandHandler : ICommandHandler<object, object>
                 {
                 }
 
-                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                /// <follows>decision/0002-keep-expenses-as-documents</follows>
                 internal sealed class CommitStep
                 {
                     public void Commit()
@@ -132,11 +132,11 @@ public sealed class RegistryTests
             RecordPages.Files(
                 "xml",
                 ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", null)),
-                ("0002-store-expenses-as-documents.yaml", RecordPages.DecisionPage("decision/0002-store-expenses-as-documents"))));
+                ("0002-keep-expenses-as-documents.yaml", RecordPages.DecisionPage("decision/0002-keep-expenses-as-documents"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.SubmitExpenseCommandHandler\"] = new string[] { \"use-case/spending.submit-expense\" },", registry, StringComparison.Ordinal);
-        Assert.DoesNotContain("decision/0002-store-expenses-as-documents", registry, StringComparison.Ordinal);
+        Assert.DoesNotContain("decision/0002-keep-expenses-as-documents", registry, StringComparison.Ordinal);
         Assert.DoesNotContain("CommitStep", registry, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }

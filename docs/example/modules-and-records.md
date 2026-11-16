@@ -1,16 +1,17 @@
 # Modules and Records
 
-Intent says what Claimwick promises; Behavior says how the product keeps those promises. The Spending module holds the Behavior side: the aggregates that hold each expense, policy, and receipt, the store that holds the suppression list, the rules that guard the aggregates, the use cases that change them, and the entry point, screen, reaction, job, notification, and setting around them. This page lists those records as written in `examples/claimwick/.litespec/behavior/modules/spending/`, with the counts and IDs you can check in the folder. For the Intent they answer, see [The Claimwick Product](the-product.md).
+Intent says what Claimwick promises; Behavior says how the product keeps those promises. The Spending module holds the Behavior side: the aggregates that hold each expense, policy, receipt, and reminder preference, the rules that guard the aggregates, the use cases that change them, and the entry point, screen, reaction, job, notification, and setting around them. This page lists those records as written in `examples/claimwick/.litespec/behavior/modules/spending/`, with the counts and IDs you can check in the folder. For the Intent they answer, see [The Claimwick Product](the-product.md).
 
 ## The Aggregates
 
-An aggregate is one thing the module keeps true, and Spending has three of them, each in its own folder under `behavior/modules/spending/`:
+An aggregate is one thing the module keeps true, and Spending has four of them, each in its own folder under `behavior/modules/spending/`:
 
 | Aggregate | File | States |
 |:---|:---|:---|
 | Expense | `expenses/aggregate.yaml` | Submitted, Approved, Refused, Reimbursed, Erased |
 | Receipt | `receipts/aggregate.yaml` | Attached |
 | Policy | `policies/aggregate.yaml` | Active |
+| Reminder preference | `reminder-preferences/aggregate.yaml` | Active |
 
 The Expense aggregate file shows the pattern every aggregate follows. It holds its states, its transitions with the use case that moves each one, its data with a classification, its data classes with their retention, and its domain events:
 
@@ -45,21 +46,11 @@ The `expense-ledger` class holds the amount, receipt, and state, is kept for sev
 
 The aggregate raises five domain events: `domain-event/expense.submitted`, `domain-event/expense.approved`, `domain-event/expense.refused`, `domain-event/expense.reimbursed`, and `domain-event/expense.personal-data-erased`. The receipt aggregate raises `domain-event/receipt.attached`.
 
-## The Store
-
-A store holds state no invariant guards, and Spending has one of them, beside the aggregates under `behavior/modules/spending/`. The suppression list in `stores/suppression-list/suppression-list.yaml` names the managers who get no approval reminder, so the reminder reaction skips them. It names its owning module in `owner` and carries no states, because no invariant guards the stored rows:
-
-```yaml
-type: store
-id: store/spending.suppression-list
-title: Suppression List
-summary: The suppression list names the managers who get no approval reminder, so the reminder reaction skips them.
-owner: module/spending
-```
+The fourth aggregate is the reminder preference in `reminder-preferences/aggregate.yaml`: one per manager, with the single state `Active`. Its `preference-owner` class holds the manager and is personal, and its `preference-record` class holds the reason and the update time. Both classes erase when the manager asks for reminders again, enforced by the use case that changes the preference.
 
 ## The Rules
 
-A rule states one condition the module enforces, and the Spending module has twelve of them, in four rule-set files:
+A rule states one condition the module enforces, and the Spending module has thirteen of them, in five rule-set files:
 
 | Rule-set file | Rules |
 |:---|:---|
@@ -67,6 +58,7 @@ A rule states one condition the module enforces, and the Spending module has twe
 | `receipts/rules/receipt-rules.yaml` | 1 |
 | `rules/spending-rules.yaml` | 3 |
 | `policies/rules/policy-rules.yaml` | 1 |
+| `reminder-preferences/rules/reminder-preference-rules.yaml` | 1 |
 
 The first rule in the expense file shows the shape. It names its kind, the use case and aggregate it governs, the refusal code it returns, and the requirement it fulfills:
 
@@ -87,13 +79,13 @@ The first rule in the expense file shows the shape. It names its kind, the use c
 
 The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, that an export carries only approved expenses, and that personal data is erased after its retention.
 
-A rule whose `governs` names more than one aggregate or store names every governed aggregate and store in `binds`, so `rule/spending.receipt-filed-once` binds `aggregate/spending.expense` and `aggregate/spending.receipt`. Each rule names a refusal code from the module's refusal set in `behavior/modules/spending/refusals.yaml`, and each refusal result carries one of those codes.
+A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, so `rule/spending.receipt-filed-once` binds `aggregate/spending.expense` and `aggregate/spending.receipt`. The reminder-preference rule holds that only the manager the preference belongs to, or finance, changes the preference, refusing anyone else with `spending.not-preference-owner`. Each rule names a refusal code from the module's refusal set in `behavior/modules/spending/refusals.yaml`, and each refusal result carries one of those codes.
 
 ## The Use Cases
 
-A use case is one thing an actor does through the system. The module has nine, each in a file of its own.
+A use case is one thing an actor does through the system. The module has ten, each in a file of its own.
 
-Every use case names its grant and the entry point that reaches it, and most name the flow step they serve. The erasure use case serves none, because a scheduled promise is a requirement that a job fulfills:
+Every use case names its grant and the entry point that reaches it, and most name the flow step they serve. The erasure use case serves none, because a scheduled promise is a requirement that a job fulfills, and the reminder-preference change serves none, fulfilling its requirement directly:
 
 | Use case | Kind | Grant | Serves | Raises |
 |:---|:---|:---|:---|:---|
@@ -104,6 +96,7 @@ Every use case names its grant and the entry point that reaches it, and most nam
 | Reimburse expense | command | `permission/post-reimbursement` | `flow/submit-and-reimburse#s4` | `domain-event/expense.reimbursed` |
 | List expenses | query | `permission/list-expenses` | `flow/submit-and-reimburse#s5` | none |
 | Change receipt threshold | command | `permission/manage-policy` | `flow/set-receipt-threshold#s1` | none |
+| Change reminder preference | command | `permission/manage-reminder-preference` | none | none |
 | Export expenses | query | `permission/export-expenses` | `flow/export-approved-expenses#s1` | none |
 | Erase personal data | command | `permission/remove-personal-data` | none | `domain-event/expense.personal-data-erased` |
 
@@ -135,7 +128,7 @@ leadsTo:
 
 The list offers only List expenses. The record at `/expenses/{expenseId}` offers Approve, Attach receipt, Erase personal data, Refuse, and Reimburse expense, and the new-expense form at `/expenses/new` offers Submit expense.
 
-Export expenses, Change receipt threshold, and List reimbursed expenses are reached through the entry point but have no screen yet; the waivers in [The Model and Its Checks](model-and-checks.md) account for them.
+Export expenses, Change receipt threshold, Change reminder preference, and List reimbursed expenses are reached through the entry point but have no screen yet; the waivers in [The Model and Its Checks](model-and-checks.md) account for them.
 
 The record names its page frame and the chosen option, and the frontend design contract maps each frame to the floorplan component that implements it.
 
@@ -146,13 +139,13 @@ Four records act outside a single request:
 - The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` answers `domain-event/expense.submitted`: a submitted expense that waits past the reminder delay without a decision earns one reminder to its approver. The reaction declares its outcomes, its failure handling, and its idempotency, and it carries no `compensates`, because it undoes no committed step.
 - The notification `notification/spending.approval-reminder` is the reminder itself. It names the manager as its audience, email as its channel, the external system that delivers it, and the rule that governs consent, once per expense.
 - The job `job/spending.erase-expired-personal-data` runs every day in the Europe/Amsterdam timezone and erases the personal data of decided expenses past their retention. It declares its outcomes, its failure handling, and its idempotency, and it runs `use-case/spending.erase-personal-data` once for each selected expense, asynchronously.
-- The settings file holds two values. `setting/spending.receipt-threshold` defaults to EUR 25, ranges from EUR 0 to EUR 500, and the product sets it. `setting/spending.approval-reminder-delay` defaults to 72 hours, ranges from 1 to 120 hours, and the operator sets it through the configuration key `Spending:ApprovalReminderDelay`.
+- The settings file holds one value: `setting/spending.approval-reminder-delay` defaults to 72 hours, ranges from 1 to 120 hours, and the operator sets it through the configuration key `Spending:ApprovalReminderDelay`. The receipt threshold is not a setting: the policy aggregate holds it, and a manager changes it with Change receipt threshold.
 
 ## The Permissions and the Access Chain
 
-The permission set in `behavior/modules/spending/permissions.yaml` names seven permissions, and two carry a risk: `permission/post-reimbursement` carries `money`, and `permission/remove-personal-data` carries `personal-data`.
+The permission set in `behavior/modules/spending/permissions.yaml` names eight permissions, and two carry a risk: `permission/post-reimbursement` carries `money`, and `permission/remove-personal-data` carries `personal-data`.
 
-The roles allow these permissions. The employee role allows submitting and listing, the approver role allows approving, listing, and managing the policy, and the finance role allows reimbursing, listing, exporting, and erasing, including the reimbursed-expenses list, which the reporting module names in `permission/list-reimbursed-expenses`. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
+The roles allow these permissions. The employee role allows submitting and listing, the approver role allows approving, listing, managing the policy, and managing reminder preferences, and the finance role allows reimbursing, listing, exporting, erasing, and managing reminder preferences, including the reimbursed-expenses list, which the reporting module names in `permission/list-reimbursed-expenses`. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
 
 ## The Reporting Module
 
@@ -167,7 +160,7 @@ dependsOn:
 - module/spending
 ```
 
-The module keeps one row for each reimbursed expense in `read-model/reporting.reimbursed-expense`, keyed by `aggregate/spending.expense`. Each of its four fields takes its value from one payload field of `module-event/spending.expense-reimbursed`, and the employee field is personal. The employee field names `module-event/spending.expense-personal-data-erased` as the event that erases it, so the row keeps the amount and the reimbursement time when the personal data is erased. Each module event travels in process through the transactional outbox, with no external transport.
+The module keeps one row for each reimbursed expense in `read-model/reporting.reimbursed-expense`, keyed by `aggregate/spending.expense`. Each of its four fields takes its value from one published field of `module-event/spending.expense-reimbursed`, and the employee field is personal. The employee field names `module-event/spending.expense-personal-data-erased` as the event that erases it, so the row keeps the amount and the reimbursement time when the personal data is erased. Each module event travels in process through the transactional outbox, with no external transport.
 
 The read model declares freshness `{mode: snapshot, within: PT5S, decidedBy: use-case/spending.reimburse-expense}`, so a reader sees a row at most five seconds old, and the reimburse command decides each figure it holds.
 
@@ -181,6 +174,6 @@ Claimwick sends one bank file per payout batch and reads back a settlement repor
 
 ## Counting the Records
 
-Every count on these pages comes from the folder, not from memory. The Spending module holds 3 aggregates, 1 store, 12 rules, 9 use cases, 2 settings, 1 job, 1 reaction, 1 notification, 2 module events, and 1 integration event. The Reporting module holds 1 read model and 1 use case. The entry point holds 3 screens, and the module talks to 3 external systems. The product holds 3 actors, 3 roles, and 3 flows.
+Every count on these pages comes from the folder, not from memory. The Spending module holds 4 aggregates, 13 rules, 10 use cases, 1 setting, 1 job, 1 reaction, 1 notification, 2 module events, and 1 integration event. The Reporting module holds 1 read model and 1 use case. The entry point holds 3 screens, and the module talks to 3 external systems. The product holds 3 actors, 3 roles, and 3 flows.
 
 Run `dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root examples/claimwick` to see the model's view of the same records; [The Model and Its Checks](model-and-checks.md) shows that output.

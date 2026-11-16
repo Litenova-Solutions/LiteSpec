@@ -82,7 +82,7 @@ For example, a Claimwick agent that needs an unstated receipt threshold asks the
 
 ### Every Record Is About the Software
 
-Every record states what the application does, holds, refuses at runtime, or runs on, as [Write Every Record About the Software](#write-every-record-about-the-software) states. Goals, problems, features, research, and constraints all qualify when they translate into code, results, tests, or infrastructure. None qualifies when it is about running the company: a goal is a software goal, never a business goal.
+Every record states behavior the application performs, data it holds, a refusal it raises at runtime, infrastructure it runs on, or a limit it enforces, as [Write Every Record About the Software](#write-every-record-about-the-software) states. Goals, problems, features, research, and constraints all qualify when they translate into code, results, tests, or infrastructure. None qualifies when it is about running the company: a goal is a software goal, never a business goal.
 
 For example, a Claimwick goal that translates into payout code qualifies, while a sales target does not. Records cover the application only, and company business enters solely as a constraint or as dated research.
 
@@ -312,7 +312,7 @@ For example, a Claimwick use case with no endpoint yet stays on its branch until
 
 **Applies to:** artifact: any
 
-**Statement:** Every record MUST state what the application does, holds, refuses at runtime, or runs on.
+**Statement:** Every record MUST state behavior the application performs, data it holds, a refusal it raises at runtime, infrastructure it runs on, or a limit it enforces.
 
 **Rationale:** A goal, problem, feature, research record, or constraint qualifies when it translates into code, results, tests, or infrastructure. Running the company stays out: it enters only as a constraint or as dated research.
 

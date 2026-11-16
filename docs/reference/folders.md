@@ -1,6 +1,6 @@
 # Record Folders
 
-Use this generated page to find the folder and file each record type lives in, relative to `.litespec/`. A named record sits in a folder that carries its name, beside its explanation, so `<name>/<name>.yaml` and `<name>/<name>.md` are the pair. A record in any other folder is a `record-placement-invalid` finding, a folder whose name differs from its file stem is a `record-folder-drift` finding. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.
+Use this generated page to find the folder and file each record type lives in, relative to `.litespec/`. A named record sits in a folder that carries its name, beside its explanation, so `<name>/<name>.yaml` and `<name>/<name>.md` are the pair. A record in any other folder is a `record-placement-invalid` finding, a folder whose name differs from its file stem is a `record-placement-invalid` finding. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.
 
 ## Reference
 
@@ -24,7 +24,6 @@ Use this generated page to find the folder and file each record type lives in, r
 | `module` | `behavior/modules/{name}` | `module.yaml` |
 | `term` | `` | `glossary.yaml` |
 | `aggregate` | `behavior/modules/{module}/aggregates/{aggregate}` | `aggregate.yaml` |
-| `store` | `behavior/modules/{module}/stores/{name}` | `{name}.yaml` |
 | `use-case` | `behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}` | `{name}.yaml` |
 | `use-case` | `behavior/modules/{module}/use-cases/{name}` | `{name}.yaml` |
 | `result` | `behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}` | `{name}.yaml` |

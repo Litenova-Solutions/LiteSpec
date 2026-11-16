@@ -176,7 +176,7 @@ public sealed class BookLexiconTests
             {
                 "requirement", "product", "permission", "rule", "result", "scenario", "domain-event",
                 "entry-point", "setting", "goal", "vision", "constraint", "research", "decision",
-                "problem", "feature", "actor", "role", "flow", "module", "aggregate", "store", "use-case",
+                "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
                 "reaction", "job", "notification", "external-system", "module-event", "integration-event",
                 "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
                 "setting-set", "rule-set", "refusal-set", "index", "tutorial", "how-to", "reference",
@@ -334,6 +334,9 @@ public sealed class BookLexiconTests
         Assert.Equal("Effective from", lexicon.Fields["effectiveFrom"]);
         Assert.Equal("Restart", lexicon.Fields["restart"]);
         Assert.Equal("Owner", lexicon.Fields["owner"]);
+        Assert.Equal("Fields", lexicon.Fields["fields"]);
+        Assert.Equal("Served content", lexicon.Fields["servedContent"]);
+        Assert.Equal("Problem type", lexicon.Fields["problemType"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));

@@ -7,7 +7,6 @@ Reference pages state the exact values behind the names the rules use: what each
 - [Glossary](glossary.md): what each LiteSpec term means, with one term per concept.
 - [Provisions](provisions.md): every provision ID, each naming one rule, with its heading, owning page, and mark.
 - [Finding Codes](finding-codes.md): every finding code the tools emit, with its level, layer, trace, meaning, and fix.
-- [Concepts](concepts.md): the owning page of each glossary concept, with the provisions that page holds.
 
 ## Files and Contracts
 

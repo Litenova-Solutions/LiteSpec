@@ -21,7 +21,7 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 Run `litespec new feature <name>` before writing any prose, with the name in kebab-case such as `expense-submission` and the title in plain words.
 
-The command writes `<name>/<name>.yaml` under `.litespec/intent/features/`, with the product as the parent and the identifier `feature/<name>` reserved. This satisfies `litespec/core/model#write-every-record-in-its-record-file`, `litespec/core/intent#keep-intent-in-its-homes`, and `litespec/core/intent#solve-problems-with-standalone-features`.
+The command writes `<name>/<name>.yaml` under `.litespec/intent/features/`, with the product as the parent and the identifier `feature/<name>` reserved. This satisfies `litespec/core/model#write-every-record-in-its-record-file`, `litespec/core/model#write-every-record-in-its-home`, and `litespec/core/intent#solve-problems-with-standalone-features`.
 
 ### State the Offering and Its Links
 
@@ -45,7 +45,7 @@ Turn each commitment the feature makes into its own requirement record. Scaffold
 
 Then fill the record fields: the kind, `functional`, `quality`, or `policy`; one testable sentence in `statement`; one line of reason in `rationale`; and the records behind it in `cites`.
 
-Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-requirement-with-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-every-constraint-that-binds-a-requirement`.
+Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-requirement-with-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-the-reasons-of-every-requirement`.
 
 A commitment that belongs to no feature is a product requirement instead. It lives at `.litespec/intent/requirements/<name>/<name>.yaml` with its identifier `requirement/<name>`, its parent the product, and its `cites` naming at least one constraint, goal, or problem.
 
@@ -97,7 +97,7 @@ Keep the rationale to one line that says why the requirement exists. Add no beha
 | A second pair of eyes keeps approvals honest. | A metaphor. Write: A second person checks each expense before it is paid. |
 | A late decision is the main reason employees chase managers. | An unmeasured claim. Write: Late decisions keep employees waiting for their money. |
 
-This satisfies `litespec/core/intent#explain-each-requirement-in-one-line`, `litespec/core/intent#keep-each-rationale-to-its-reason`, and `litespec/core/writing#use-literal-words`.
+This satisfies `litespec/core/intent#keep-each-rationale-to-its-reason`, `litespec/core/intent#keep-each-rationale-to-its-reason`, and `litespec/core/writing#use-literal-words`.
 
 ### State Each Quality Requirement as a Scenario
 
@@ -144,7 +144,7 @@ Under Capabilities, describe what the user can do, with one short paragraph or s
 |:---|:---|
 | Expenses waiting more than 10 days show in red. | No requirement states it. Add a requirement for it, or remove the sentence. |
 
-This satisfies `litespec/core/intent#add-no-behavior-in-an-explanation-file`.
+This satisfies `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`.
 
 ### State Success Criteria the Feature Controls
 
@@ -185,7 +185,7 @@ This satisfies `litespec/core/writing#use-literal-words` and `litespec/core/writ
 
 When a statement needs context it cannot carry, such as the date a comparison uses or a term a reader may misread, add `<name>.md` beside `<name>.yaml` in the requirement folder. Open it with one paragraph and add an optional Example.
 
-Leave acceptance criteria out of it, because the Behavior scenarios that fulfill the requirement state them, and describe no behavior the statement does not hold. When the statement and its rationale say everything, leave the file out. This satisfies `litespec/core/intent#add-no-behavior-in-an-explanation-file`.
+Leave acceptance criteria out of it, because the Behavior scenarios that fulfill the requirement state them, and describe no behavior the statement does not hold. When the statement and its rationale say everything, leave the file out. This satisfies `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`.
 
 ## Check
 

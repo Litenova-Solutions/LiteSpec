@@ -53,7 +53,7 @@ internal static class AccessChecks
             {
                 if (!GrantForm.IsMatch(grant))
                 {
-                    findings.Add(new Finding("field-invalid", $"Use case '{useCase.Id}' holds grant '{grant}', which is no signed-in, anonymous, system, permission or self grant.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' holds grant '{grant}', which is no signed-in, anonymous, system, permission or self grant.", useCase.File, useCase.Line, SubjectOf(useCase)));
                     continue;
                 }
 
@@ -67,14 +67,14 @@ internal static class AccessChecks
 
                 if (grant == "system" && reached.Count > 0)
                 {
-                    findings.Add(new Finding("field-invalid", $"Use case '{useCase.Id}' grants system, which authorizes no outside caller, yet it is reached through an entry point.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' grants system, which authorizes no outside caller, yet it is reached through an entry point.", useCase.File, useCase.Line, SubjectOf(useCase)));
                 }
             }
 
             if (Str(access, RecordFields.RecentSignIn) is { } window
                 && (!window.StartsWith(RecordTypes.Setting + "/", StringComparison.Ordinal) || !model.ById.TryGetValue(window, out var setting) || setting.Type != RecordTypes.Setting))
             {
-                findings.Add(new Finding("field-invalid", $"Use case '{useCase.Id}' names recentSignIn '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignIn '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
             foreach (var id in reached)
@@ -84,7 +84,7 @@ internal static class AccessChecks
                     && point.Field(RecordFields.Auth) == DeviceAuth
                     && point.Field(RecordFields.Kind) != "device")
                 {
-                    findings.Add(new Finding("field-invalid", $"Entry point '{point.Id}' states auth device but its kind is '{point.Field(RecordFields.Kind)}', not device.", point.File, point.Line, SubjectOf(point)));
+                    findings.Add(new Finding("record-invalid", $"Entry point '{point.Id}' states auth device but its kind is '{point.Field(RecordFields.Kind)}', not device.", point.File, point.Line, SubjectOf(point)));
                 }
             }
         }

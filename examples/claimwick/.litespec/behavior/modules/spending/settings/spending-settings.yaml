@@ -2,20 +2,6 @@ type: setting-set
 title: Settings
 records:
 - type: setting
-  id: setting/spending.receipt-threshold
-  title: Receipt Threshold
-  valueType: money
-  default:
-    amount: 25
-    currency: EUR
-  dated: true
-  range: EUR 0 to EUR 500
-  unit: EUR
-  setBy: product
-  atBound: refuse
-  fulfills:
-  - requirement/approval.above-threshold-receipt
-- type: setting
   id: setting/spending.approval-reminder-delay
   title: Approval Reminder Delay
   valueType: duration

@@ -27,4 +27,4 @@ Two pages sit beside the path for a team that is still comparing options. Read e
 
 ## Then Build
 
-Once the path has answered why and how, build. [Start a Consumer Repository](../tutorial/getting-started.md) turns an empty folder into a checked consumer with one coded use case, then continues into [Model a Behavior Module](../tutorial/model-domain.md). A team that wants records without code yet takes [Start with Records Only](../guide/start-with-records-only.md) instead.
+Once the path has answered why and how, build. The [Guides overview](../guide/README.md) states what to build first.

@@ -1,0 +1,18 @@
+type: decision
+id: decision/0093-check-templates-against-the-record-schema
+title: Check Templates Against the Record Schema
+options:
+  - name: "Check each template against the record schema with placeholder values"
+    pros: "A template stays teachable while the example product changes beside it, and every field shows the shape its schema declares."
+    cons: "A placeholder reads as unfinished, and the check fills each placeholder before it validates."
+  - name: "Keep each template as a copy of a Claimwick record"
+    pros: "Every link in a template resolves in one coherent product."
+    cons: "A template changes when its Claimwick record changes, and Claimwick must carry every record the templates need."
+  - name: "Check that templates parse without checking their shape"
+    pros: "The check never blocks on a template."
+    cons: "Templates drift from the schema silently and teach shapes the schema refuses."
+choice: "Check each template against the record schema with placeholder values"
+consequences: "`litespec-maintain validate` fills each template placeholder with a value its field accepts and reports `TEMPLATE_SCHEMA` for a template that then fails the record schema; `TEMPLATE_SOURCE_DIFFERS` is removed. Each template shows every field of its record type with a placeholder value. `model check` still reports `template-value-unchanged` for a scaffolded record that keeps a copied value unchanged."
+reopenedWhen: "A template needs a shape the record schema cannot state, or a placeholder value a reader takes for a decided value."
+supersedes:
+  - decision/0056-copy-each-template-from-claimwick

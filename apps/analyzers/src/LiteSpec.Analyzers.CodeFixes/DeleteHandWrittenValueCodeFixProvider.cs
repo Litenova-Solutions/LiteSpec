@@ -242,7 +242,7 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
         foreach (var mark in MarkReader.Read(fix.Member))
         {
             if (mark.HasRecordId
-                && fix.Store.Index.ById(mark.RecordId) is IRecordFields record
+                && fix.Records.Index.ById(mark.RecordId) is IRecordFields record
                 && record.Type == recordType)
             {
                 return recordType == "domain-event" ? mark.RecordId : RefusalCode(fix, mark.RecordId);
@@ -258,7 +258,7 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
     /// <returns>The code as text, or null when none applies.</returns>
     private static string? RefusalCode(TraceabilityFix fix, string ruleId)
     {
-        var rule = fix.Store.Index.ById(ruleId);
+        var rule = fix.Records.Index.ById(ruleId);
 
         if (rule?.Field("refusal") is not string refusal || refusal.Length == 0)
         {
@@ -267,7 +267,7 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
 
         if (refusal.StartsWith("result/", System.StringComparison.Ordinal))
         {
-            var result = fix.Store.Index.ById(refusal);
+            var result = fix.Records.Index.ById(refusal);
 
             return result?.Field("code") is string code && code.Length > 0 ? code : null;
         }

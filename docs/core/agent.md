@@ -31,9 +31,9 @@ A deeper page is one that sits further down the documentation tree, such as a st
 
 ### Agents Write Below Decided Intent
 
-The [layers page](layers.md) states the closed specification: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests.
+The [layers page](layers.md) states the closed specification: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests, as `litespec/core/layers#write-each-layer-from-the-layer-above-it` states.
 
-The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Specify adds the detail the promise implies but leaves unstated: a detail is implied when every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise does not name. Something the upper layer neither states nor implies becomes a question to the owner or a backlog item, never code.
+The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Specify adds the detail the promise implies but leaves unstated: a detail is implied when every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise does not name. Something the upper layer neither states nor implies becomes a question to the owner with a recommendation or a backlog item, never code, as `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items` states.
 
 ### Side Effects That Need an Explicit Task Instruction
 
@@ -63,12 +63,12 @@ Work in progress that leaves a record unreached carries a gap waiver with `expir
 
 A running project takes new Intent through this one sequence. Other pages link to this sequence instead of stating their own order.
 
-1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`. Add or confirm the problem and the feature, then the requirement and the flow step. Raise every undecided figure, such as a price, a term, a retention period, or a date-dependent default, to the owner with a recommendation, or place it on the backlog board.
+1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`. Add or confirm the problem and the feature, then the requirement and the flow step. Raise every undecided figure, such as a price, a term, a retention period, or a date-dependent default, to the owner with a recommendation, or place it on the backlog board, as `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items` states.
 2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`. Name the rules, access, aggregates, consistency, and effects the use case carries.
 3. Validate the records. Run `dotnet litespec model check`. Fix every finding before code moves.
 4. Load provisions and choose patterns. Run `dotnet litespec rules <path>` for each path the change touches before editing it. Build the pattern Default and record it with `source: recommended`. Wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
 5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that default layer order. Use `dotnet build` for the backend code. Approval gate: an explicit task instruction naming the action and its bounds approves before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
-6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations that carry the money risk also run against example rows held back from the agent that wrote the code, written by a different author and run in CI. Other refusals and calculations verify against held-back rows as advisory practice. The suites in the next step run the proofs.
+6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations that carry the money risk also run against example rows held back from the agent that wrote the code, written by a different author and run in CI, as `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples` states. Other refusals and calculations verify against held-back rows as good practice. The suites in the next step run the proofs.
 7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model check`, then `dotnet litespec model render`.
 8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review. In a consumer, `<base>` is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. The run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete. The check blocks on unreached records in every run, and a record that must stay unreached past a merge carries a gap waiver with `expiresOn` and `closedBy`.
 9. Write the release record. Create the release record for the immutable artifact. Pass the release gate: green checks, every scenario proven by a passing test, and a gap waiver with `expiresOn` and `closedBy` for each check held red.
@@ -263,26 +263,6 @@ Packages, migrations, authentication, a public API, production data, releases, s
 
 **Reviewed for:** Do each test's expected values match the scenario's Then, with none taken from a code run? Check the assertions beside the scenario Thens.
 
-### Verify Refusals and Calculations Against Held-Back Examples
-
-**ID:** `litespec/core/agent#verify-refusals-and-calculations-against-held-back-examples`
-
-**Strength:** advisory
-
-**Applies to:** artifact: any
-
-**Statement:** An agent SHOULD verify a refusal or calculation implementation against example rows held back from the agent that wrote it.
-
-**Deviation:** A rule whose scenarios already pin every boundary in their expected values.
-
-**Rationale:** An agent that sees the examples while implementing fits the code to the rows instead of the rule. Held-back rows turn the examples into an independent check: the implementing agent works from the rule and the scenario, and a later check runs the withheld rows against the result.
-
-For a calculation or refusal rule that carries the money risk, held-back verification is required, as [Verify Money Calculations and Refusals Against Held-Back Examples](#verify-money-calculations-and-refusals-against-held-back-examples) states. Settled by [decision/0085-bind-proof-to-code-and-outcomes](decision/0085-bind-proof-to-code-and-outcomes).
-
-**Example:** The implementing agent writes a discount calculation from its rule and scenario; a later check runs the withheld example rows against the result.
-
-**Reviewed for:** Does the check log show refusal and calculation example rows withheld during implementation and run after? Check the log beside the implementing change.
-
 ### Verify Money Calculations and Refusals Against Held-Back Examples
 
 **ID:** `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples`
@@ -293,7 +273,7 @@ For a calculation or refusal rule that carries the money risk, held-back verific
 
 **Statement:** An agent MUST verify a refusal or calculation implementation that carries the money risk against example rows held back from the agent that wrote it.
 
-**Rationale:** Money rules decide amounts a customer pays or receives, so fitting the code to the examples instead of the rule moves money. A different author than the implementing agent writes the held-back rows. They sit under `proof/withheld/`, which the implementing agent's instructions exclude. Their expected values cite the scenario's rule, and they run in CI.
+**Rationale:** Money rules decide amounts a customer pays or receives, so fitting the code to the examples instead of the rule moves money. A different author than the implementing agent writes the held-back rows. They sit under `proof/withheld/`, which the implementing agent's instructions exclude. Their expected values cite the scenario's rule, and they run in CI. Teams apply the same ceremony to other refusals and calculations as good practice.
 
 The money risk is the risk on the permission guarding the use case. Settled by [decision/0085-bind-proof-to-code-and-outcomes](decision/0085-bind-proof-to-code-and-outcomes).
 
@@ -318,54 +298,6 @@ The proof ledger records each scenario's hash and the hash of each test that pro
 **Example:** A handler change makes a proving test fail; the agent reports the failing test and the mismatch instead of changing the expected value to fit the new result.
 
 **Checked by:** `litespec model check --since <ref>` reports `proof-hash-drift` as advisory for each scenario whose proving test method changed since the base while the scenario did not.
-
-### Write Pages Below Decided Intent
-
-**ID:** `litespec/core/agent#write-pages-below-decided-intent`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An agent MUST write every page below decided Intent.
-
-**Rationale:** Intent holds the decided promises, and everything below those decisions is written by agents: Behavior records, code, and tests that carry the decisions down. An agent that invents promises writes commitments nobody decided, while an agent that waits for dictation wastes the reading the owner gives to finished work. Writing below decided Intent keeps authorship with the agent and decisions with the owner.
-
-**Example:** Given a requirement for expense reimbursement, an agent writes the use case, its scenarios, and the handler without asking what the promise means.
-
-**Reviewed for:** Does each written page trace to a decided Intent record, with no invented promise? Check the written pages beside the Intent records.
-
-### Escalate Decisions That Specify Forbids
-
-**ID:** `litespec/core/agent#escalate-decisions-that-specify-forbids`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An agent MUST NOT decide a figure the owner sets.
-
-**Rationale:** The Specify rule reserves the figures the owner sets for Intent, because each one binds the product to buyers, markets, or law; the [Intent page](intent.md) states the Specify boundary. An agent that picks a figure silently takes a decision that belongs to the owner. Each undecided figure becomes a question to the owner with a recommendation, or a backlog item.
-
-**Example:** A setting needs a default queue cap; the agent raises a question to the owner with a recommendation instead of writing the default into the record.
-
-**Reviewed for:** Does each figure the owner sets that the change needs sit in an owner question or a backlog item, not in an agent-written decision? Check the owner questions and the backlog board beside the change.
-
-### Raise Open Figures to the Owner
-
-**ID:** `litespec/core/agent#raise-open-figures-to-the-owner`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An agent MUST raise each open figure to the owner with a recommendation, or place it on the backlog board.
-
-**Rationale:** A figure without a recommendation asks the owner to research from nothing, while a recommendation gives a default to accept or correct. Grouping figures by subject lets the owner answer one set at a time. A figure never becomes a silent agent decision or code written on a guess.
-
-**Example:** Two open figures land in one owner question set, each with a recommendation.
-
-**Reviewed for:** Does every open figure have an owner question with a recommendation or a backlog item? Check the owner questions and the backlog board beside the change.
 
 ### Name Judged Provisions in the Completion Report
 
@@ -477,6 +409,6 @@ The proof ledger records each scenario's hash and the hash of each test that pro
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/agent#select-task-context`, `litespec/core/agent#load-applicable-provisions-before-editing`, `litespec/core/agent#load-applicable-extensions`, `litespec/core/agent#raise-open-figures-to-the-owner`, and `litespec/core/agent#inspect-local-examples-after-standards`.
+This informative example demonstrates `litespec/core/agent#select-task-context`, `litespec/core/agent#load-applicable-provisions-before-editing`, `litespec/core/agent#load-applicable-extensions`, `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items`, and `litespec/core/agent#inspect-local-examples-after-standards`.
 
 A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the query output, runs `litespec rules` for the handler path, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to the owner with recommendations, and the completion report names each judged provision with its judgment. It leaves unrelated frontend and container guidance unread.

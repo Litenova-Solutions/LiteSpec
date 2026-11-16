@@ -1,34 +1,28 @@
 type: read-model
-id: read-model/reporting.reimbursed-expense
-title: Reimbursed Expense
-summary: What Reporting keeps about each reimbursed expense to list the payouts per employee.
-keyedBy: aggregate/spending.expense
+id: read-model/module.name
+title: <Title in Title Case>
+summary: <what this module keeps about another module's state, and which query reads it>
+keyedBy: aggregate/<module>.<name>
 fields:
-- name: employeeId
-  meaning: The employee the expense was reimbursed to.
+- name: <field name>
+  meaning: <what the field holds>
   type: id
-  of: actor/employee
-  from: module-event/spending.expense-reimbursed#employeeId
-  classification: personal
-  erasedBy: module-event/spending.expense-personal-data-erased
-- name: amount
-  meaning: The exact amount paid.
-  type: decimal
-  from: module-event/spending.expense-reimbursed#amount
-  classification: internal
-- name: currency
-  meaning: The ISO 4217 currency code of the amount.
-  type: text
-  from: module-event/spending.expense-reimbursed#currency
-  classification: internal
-- name: reimbursedAt
-  meaning: The time the payment was posted.
-  type: date-time
-  from: module-event/spending.expense-reimbursed#reimbursedAt
-  classification: internal
+  of: <identified record id>
+  from: module-event/sample.entry#sampleField
+  classification: <public|internal|personal|sensitive>
+- name: <field name>
+  meaning: <what the field holds>
+  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+  from: module-event/sample.entry#sampleField
+  accumulate: <latest|sum|count, or remove this line>
+  classification: <public|internal|personal|sensitive>
+  erasedBy: module-event/module.name
+# A choice field carries choices. from names the published event and field the value is copied from.
+removedBy:
+- module-event/module.name
 freshness:
-  mode: snapshot
-  within: PT5S
-  decidedBy: use-case/spending.reimburse-expense
+  mode: <immediate|snapshot|eventual>
+  within: <how old a reading may be, such as PT5S, or remove this line>
+  decidedBy: <use-case/<module>.<name> or aggregate/<module>.<name>, or remove this line>
 terms:
-- term/expense
+- <term id, or remove this line>

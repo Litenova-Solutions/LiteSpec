@@ -1,12 +1,19 @@
 type: constraint
-id: constraint/tax-receipt-retention
-title: Tax Receipt Retention
-summary: National tax law requires a company to keep its business receipts for seven years.
-authority: National tax law.
+id: constraint/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <the outside rule, in one sentence>
+authority: <who states the rule>
+# A source carries url or path, never both.
 sources:
-- key: national-tax-law
-  url: https://example.com/national-tax-law
-  readOn: 2026-02-10
-kind: organizational
-applies: true
-appliesBecause: Claimwick stores receipts for reimbursed expenses.
+- key: <source key>
+  url: <source page>
+  readOn: <date read, such as 2026-02-10>
+  publishedOn: <date published, such as 2026-01-15, or remove this line>
+effectiveFrom: <date the rule takes effect, such as 2026-02-10, or remove this line>
+basedOn:
+- research/<name, or remove this line>
+kind: <technical|organizational|convention|legal>
+applies: <true|false>
+appliesBecause: <why the rule binds the product, or why it binds nothing>

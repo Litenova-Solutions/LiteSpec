@@ -28,9 +28,9 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
             return;
         }
 
-        var store = CompilationRecords.Load(context.Options, context.CancellationToken);
+        var records = CompilationRecords.Load(context.Options, context.CancellationToken);
 
-        if (store is null)
+        if (records is null)
         {
             return;
         }
@@ -40,7 +40,7 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
             FileScope.DeclaredLayout(context.Options),
             FileScope.DeclaredLayer(context.Options),
             ClaimGate.Declared(context.Options),
-            store);
+            records);
 
         RegisterTraceability(context, state);
     }

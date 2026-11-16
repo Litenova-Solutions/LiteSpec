@@ -1,10 +1,10 @@
 # The Model and Its Checks
 
-The project model joins a project's written records to its code, screens, and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 18 findings, and the record and query commands an agent uses to load one record. Each command below ran against `examples/claimwick`, and the output is copied from that run.
+The project model joins a project's written records to its code, screens, and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 20 findings, and the record and query commands an agent uses to load one record. Each command below ran against `examples/claimwick`, and the output is copied from that run.
 
 ## The Full Check
 
-`litespec model check` builds the model in memory and reports each finding with its file, level, code, and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, 18 findings plus the summary line, copied from the run, is:
+`litespec model check` builds the model in memory and reports each finding with its file, level, code, and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, 20 findings plus the summary line, copied from the run, is:
 
 ```text
 .litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered G] [use-case-flow-missing] Use case 'use-case/reporting.list-reimbursed-expenses' sits in no flow.
@@ -23,17 +23,19 @@ The project model joins a project's written records to its code, screens, and te
 .litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.change-receipt-threshold' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-receipt-threshold' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.change-reminder-preference' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-reminder-preference' has scenarios with no passing proof.
 .litespec/intent/flows/export-approved-expenses/export-approved-expenses.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/export-approved-expenses#s1' is served by a browser or device use case but by no screen.
 .litespec/intent/flows/set-receipt-threshold/set-receipt-threshold.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/set-receipt-threshold#s1' is served by a browser or device use case but by no screen.
-0 findings, 0 blocking, 18 covered.
+0 findings, 0 blocking, 20 covered.
 ```
 
-The 18 covered findings fall into six codes:
+The 20 covered findings fall into six codes:
 
 | Code | Count | Covered by |
 |:---|:---|:---|
-| `use-case-unreached` | 3 | `waiver/expense-screens-unimplemented` |
-| `use-case-unverified` | 10 | `waiver/use-cases-unverified` |
+| `use-case-unreached` | 4 | `waiver/expense-screens-unimplemented` |
+| `use-case-unverified` | 11 | `waiver/use-cases-unverified` |
 | `step-screen-missing` | 2 | `waiver/expense-steps-unscreened` |
 | `use-case-unimplemented` | 1 | `waiver/export-expenses-unimplemented` |
 | `use-case-flow-missing` | 1 | `waiver/reimbursed-list-unserved` |
@@ -64,15 +66,13 @@ closedBy:
 - use-case/spending.export-expenses
 ```
 
-The `covers` list names the finding code, and the `subject` list names the record the finding is about, so the finding is reported as covered and the run passes. The `kind` states the waiver is a gap.
+The `covers` list names the finding code and the `subject` list names the record the finding is about, so the finding is reported as covered and the run passes; [Waivers](../core/waivers.md) states what each field carries. After 2027-06-01 the waiver stops covering the finding, and the check fails again, which keeps unfinished work visible instead of letting it sit unnoticed.
 
-The `exit` field states how the gap closes, `closedBy` names the record whose change closes it, and `expiresOn` sets the expiry: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
-
-The example holds eight waivers in `.litespec/governance/waivers/`. Six of them cover the codes in the table above; the `ui-requirements-proved-outside-behavior` waiver covers `intent-unreached`, and the `export-review-bypass` waiver covers a provision rather than a finding.
+The example holds seven waivers in `.litespec/governance/waivers/`. Six of them cover the codes in the table above, and the `export-review-bypass` waiver covers a provision rather than a finding.
 
 ## Proof for the Use Cases
 
-The `use-case-unverified` findings say that a use case has scenarios with no passing proof. Submit expense shows why: tests confirm its two scenarios by naming them in `<proves>` tags, but no run has passed for them. [A Use Case in Code](a-use-case-in-code.md) shows the links. The waiver `waiver/use-cases-unverified` covers all ten use cases until the example ships a test run whose passing proofs cover every scenario.
+The `use-case-unverified` findings say that a use case has scenarios with no passing proof. Submit expense shows why: tests confirm its two scenarios by naming them in `<proves>` tags, but no run has passed for them. [A Use Case in Code](a-use-case-in-code.md) shows the links. The waiver `waiver/use-cases-unverified` covers all eleven use cases until the example ships a test run whose passing proofs cover every scenario.
 
 ## Querying One Record
 

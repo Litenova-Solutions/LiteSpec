@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/model#name-records-in-prose-by-their-identifiers</follows>
 internal static class ProseReferenceChecks
 {
-    /// <summary>Reports prose-reference-unknown for each backticked identifier in record fields, explanations, documents and the agent context that resolves to no record or shipped provision.</summary>
+    /// <summary>Reports reference-unknown for each backticked identifier in record fields, explanations, documents and the agent context that resolves to no record or shipped provision.</summary>
     /// <param name="model">The loaded project model that holds every record, explanation, document and carried provision.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -47,7 +47,7 @@ internal static class ProseReferenceChecks
             {
                 if (Unknown(model, reference) is { } message)
                 {
-                    findings.Add(new Finding("prose-reference-unknown", $"Record '{record.Id}' names '{reference}' in prose, {message}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' names '{reference}' in prose, {message}.", record.File, record.Line, SubjectOf(record)));
                 }
             }
         }
@@ -105,7 +105,7 @@ internal static class ProseReferenceChecks
         {
             if (Unknown(model, entry.Key) is { } message)
             {
-                findings.Add(new Finding("prose-reference-unknown", $"Prose names '{entry.Key}', {message}.", file, entry.Value, subject));
+                findings.Add(new Finding("reference-unknown", $"Prose names '{entry.Key}', {message}.", file, entry.Value, subject));
             }
         }
     }

@@ -4,10 +4,11 @@
   import { outlineState } from "./outline-state.svelte";
   import { cachedSecurityItems, totalRecords } from "./outline-rows";
 
-  // The filter panel, the active filter tags and the count line with the
+  // The filter panel, the active filter tags and the summary line with the
   // expand, collapse and reveal buttons beneath the navigation tools. One pass
   // over the records caches each record's facet values, and every facet count
-  // reads the cache instead of walking the store again.
+  // reads the cache instead of walking the store again. The summary line shows
+  // no counts; hovering it shows the full sentence.
   type Props = { onRevealRequest: () => void };
   let { onRevealRequest }: Props = $props();
 
@@ -90,6 +91,17 @@
     };
   });
   const nActive = $derived(chips.length + (book.query ? 1 : 0));
+  const summaryTitle = $derived.by(() => {
+    if (book.view === "security") {
+      if (!security.loaded) return undefined;
+      return book.anyFilter()
+        ? `${formatCount(security.shown)} of ${formatCount(security.total)} security items match`
+        : `${formatCount(security.total)} security items in this book.`;
+    }
+    return book.anyFilter()
+      ? `${formatCount(model.shown)} of ${formatCount(model.total)} records match`
+      : `${formatCount(model.total)} records in this book.`;
+  });
 
   function expandAndReveal(): void {
     book.expandAll();
@@ -166,19 +178,15 @@
   </div>
 {/if}
 <div class="mt-2 flex items-center gap-2">
-  <p class="min-w-0 flex-1 text-xs tracking-[0.32px] text-text-helper">
+  <p class="min-w-0 flex-1 text-xs tracking-[0.32px] text-text-helper" title={summaryTitle}>
     {#if book.view === "security"}
       {#if !security.loaded}
         Loading the security items.
       {:else if book.anyFilter()}
-        <b class="font-semibold text-foreground tabular-nums">{formatCount(security.shown)}</b> of {formatCount(security.total)} security items match
-      {:else}
-        <b class="font-semibold text-foreground tabular-nums">{formatCount(security.total)}</b> security items
+        Security items match the filters.
       {/if}
     {:else if book.anyFilter()}
-      <b class="font-semibold text-foreground tabular-nums">{formatCount(model.shown)}</b> of {formatCount(model.total)} records match
-    {:else}
-      <b class="font-semibold text-foreground tabular-nums">{formatCount(model.total)}</b> records in this book.
+      Records match the filters.
     {/if}
   </p>
   {#if book.view === "outline"}

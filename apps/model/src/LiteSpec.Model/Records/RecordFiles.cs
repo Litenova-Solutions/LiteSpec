@@ -108,7 +108,7 @@ public static class RecordFiles
                 if (entryType is null || !RecordTypes.All.Contains(entryType))
                 {
                     problems.Add(new Finding(
-                        "field-invalid",
+                        "record-invalid",
                         $"Entry type '{entryType ?? "missing"}' is not a record type.",
                         path,
                         entry.Line,

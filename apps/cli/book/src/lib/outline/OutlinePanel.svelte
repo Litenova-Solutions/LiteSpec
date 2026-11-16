@@ -154,7 +154,7 @@
     role="tabpanel"
     id="viewpanel"
     aria-labelledby={book.view === "outline" ? "viewtab-outline" : "viewtab-security"}
-    class="min-h-0 flex-1 overflow-y-auto pt-3 pb-6"
+    class="min-h-0 flex-1 overflow-y-auto pt-2 pb-6"
   >
     {#if outlineLoading}
       <p class="px-4 py-2 text-xs text-text-helper">Loading the outline.</p>

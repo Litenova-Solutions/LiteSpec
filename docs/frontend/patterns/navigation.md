@@ -5,7 +5,7 @@
 
 The navigation patterns define the product frame around every screen: the sidebar, breadcrumb, header bar, tabs, icons, language and theme, command palette, account menu, notifications, help, and workspace switching. The frame moves a reader between areas and shows where the open page sits: every page opens directly from its own address, and the frame marks the area holding it.
 
-A team building the product frame starts from these patterns. The owner picks an option from the drawings, and the team records the choice in its pattern catalog, which records the project's interface decisions.
+A team building the product frame starts from these patterns. The owner picks an option from the drawings, and the team records the choice in its pattern catalog, which records the project's interface decisions. This page belongs to the Page Frames category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -21,17 +21,19 @@ A pattern catalog is the project's record of these choices: one entry per patter
 
 The drawings on this page use the Claimwick expense console for Harbor and Pine, with seven areas from Home to Settings, expense EXP-1042 for Ava, and the Amsterdam sales cost centre.
 
-The frame marks the current area, and every page has its own address. The Standards section states the three rules every option keeps: the navigation marks the section holding the current page, every page opens directly from its own URL, and a row of sibling pages is a navigation landmark of links rather than a tab list.
+The frame marks the current area, and every page has its own address. The Conventions section states the two defaults every option keeps unless the project records another choice: the navigation marks the section holding the current page, and a row of sibling pages is a navigation landmark of links rather than a tab list. Every page opens directly from its own URL under `litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules`, which gives each address its route entry.
 
-## Standards
+## Conventions
 
 ### Mark the Current Section
 
 **ID:** `litespec/frontend/patterns/navigation#mark-the-current-section`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** The navigation MUST mark the section that holds the current page.
+**Default:** Mark the section that holds the current page in the navigation.
+
+**Replacement:** A project that replaces the default records how its navigation marks the current section.
 
 **Rationale:** A marked section tells a reader who arrived from a link, a notification, or a search which area holds the open page. Without it, every page looks like the start, and the reader reopens the sidebar to learn where they already are.
 
@@ -39,27 +41,15 @@ The frame marks the current area, and every page has its own address. The Standa
 
 **Reviewed for:** Does every built screen highlight the area holding its open page? Open three screens reached by link, notification, and search.
 
-### Give Every Page Its Own Address
-
-**ID:** `litespec/frontend/patterns/navigation#give-every-page-its-own-address`
-
-**Strength:** required
-
-**Statement:** Every page MUST have its own URL that opens it directly.
-
-**Rationale:** A direct address lets a reader share, bookmark, and reopen a page, and lets a notification or a record link to it. Without it, support cannot send the page under discussion, and a refresh drops the reader back to the start.
-
-**Example:** A dispute notification links to expense EXP-1042; pasting that address into a fresh tab opens the same record, not the console home.
-
-**Reviewed for:** Can every built screen be opened directly from its copied address? Paste three copied addresses into a fresh tab.
-
 ### Draw Sibling Pages as Links, Not Tabs
 
 **ID:** `litespec/frontend/patterns/navigation#draw-sibling-pages-as-links-not-tabs`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A row of sibling pages MUST be a navigation landmark of links with `aria-current="page"` on the current page, leaving the tab list for switching panels within one page.
+**Default:** Build a row of sibling pages as a navigation landmark of links with `aria-current="page"` on the current page, leaving the tab list for switching panels within one page.
+
+**Replacement:** A project that replaces the default records how its sibling pages expose themselves.
 
 **Rationale:** A screen reader announces a tab list as panels on one page, so a reader who opens Receipts from a tab expects the address to stay and the Back button to skip it. A navigation landmark of links matches the behavior: each page has its own address, and the Back button returns to the page before it. WCAG 2.2 criterion 1.3.1 Info and Relationships and criterion 4.1.2 Name, Role, Value require the announced role to match the behavior.
 

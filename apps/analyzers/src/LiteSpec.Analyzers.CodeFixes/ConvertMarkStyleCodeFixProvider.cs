@@ -36,12 +36,12 @@ public sealed class ConvertMarkStyleCodeFixProvider : CodeFixProvider
 
         if (fix is null
             || MarkAt(fix, diagnostic.Location.SourceSpan) is not Mark mark
-            || mark.Style == fix.Store.Settings.Marks)
+            || mark.Style == fix.Records.Settings.Marks)
         {
             return;
         }
 
-        var declared = fix.Store.Settings.Marks;
+        var declared = fix.Records.Settings.Marks;
         var title = declared == MarkStyle.Xml ? "Convert mark to documentation tag" : "Convert mark to attribute";
 
         context.RegisterCodeFix(

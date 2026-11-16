@@ -198,10 +198,7 @@ internal static class TokenLimitChecks
                 findings.Add(new Finding(
                     "design-token-limit-failed",
                     $"Token role '{role}' has no color in scheme '{scheme}': {problem}.",
-                    tokensFile, resolved.Line, null)
-                {
-                    TierOverride = "G",
-                });
+                    tokensFile, resolved.Line, null));
             }
         }
 
@@ -451,10 +448,7 @@ internal static class TokenLimitChecks
             findings.Add(new Finding(
                 "design-token-limit-failed",
                 $"Token role '{role}' reaches {reached}:1 on '{surface}' in scheme '{scheme}', below the {lowest}:1 limit.",
-                tokensFile, ink.Line, null)
-            {
-                TierOverride = "G",
-            });
+                tokensFile, ink.Line, null));
         }
     }
 
@@ -476,10 +470,7 @@ internal static class TokenLimitChecks
                 findings.Add(new Finding(
                     "design-token-limit-failed",
                     $"Token role 'card' matches 'page' in scheme '{scheme}' with no edge between them; the card reads as a separate surface.",
-                    tokensFile, roles["card"].Line, null)
-                {
-                    TierOverride = "G",
-                });
+                    tokensFile, roles["card"].Line, null));
             }
         }
 
@@ -490,10 +481,7 @@ internal static class TokenLimitChecks
             findings.Add(new Finding(
                 "design-token-limit-failed",
                 $"Token role 'card-edge' equals 'card' in scheme '{scheme}'; the edge differs from 'page' and 'card'.",
-                tokensFile, roles["card-edge"].Line, null)
-            {
-                TierOverride = "G",
-            });
+                tokensFile, roles["card-edge"].Line, null));
         }
 
         if (Ready(roles, "separator", "card") && Ready(roles, "card-edge", "card"))
@@ -516,10 +504,7 @@ internal static class TokenLimitChecks
                 findings.Add(new Finding(
                     "design-token-limit-failed",
                     $"Token role 'separator' reaches {reached}:1 on 'card' in scheme '{scheme}', above the card edge's {held}:1.",
-                    tokensFile, separator.Line, null)
-                {
-                    TierOverride = "G",
-                });
+                    tokensFile, separator.Line, null));
             }
         }
     }
@@ -579,10 +564,7 @@ internal static class TokenLimitChecks
                     findings.Add(new Finding(
                         "design-token-limit-failed",
                         $"Chart colors '{first}' and '{second}' read {apart} apart under {name} simulation in scheme '{scheme}', below the 10.0 limit.",
-                        tokensFile, roles[first].Line, null)
-                    {
-                        TierOverride = "G",
-                    });
+                        tokensFile, roles[first].Line, null));
                 }
             }
         }
@@ -661,10 +643,7 @@ internal static class TokenLimitChecks
             findings.Add(new Finding(
                 "design-token-limit-failed",
                 $"Token role 'magnitude' has no color in scheme '{scheme}': it names no 'magnitude' token.",
-                tokensFile, group.Line, null)
-            {
-                TierOverride = "G",
-            });
+                tokensFile, group.Line, null));
             return;
         }
 
@@ -684,10 +663,7 @@ internal static class TokenLimitChecks
             findings.Add(new Finding(
                 "design-token-limit-failed",
                 $"Token role 'magnitude' holds no steps in scheme '{scheme}'.",
-                tokensFile, magnitude.Line, null)
-            {
-                TierOverride = "G",
-            });
+                tokensFile, magnitude.Line, null));
             return;
         }
 
@@ -698,10 +674,7 @@ internal static class TokenLimitChecks
                 findings.Add(new Finding(
                     "design-token-limit-failed",
                     $"Token role '{names[position]}' has no color in scheme '{scheme}': {problem}.",
-                    tokensFile, steps[position].Line, null)
-                {
-                    TierOverride = "G",
-                });
+                    tokensFile, steps[position].Line, null));
             }
         }
 
@@ -720,10 +693,7 @@ internal static class TokenLimitChecks
                 findings.Add(new Finding(
                     "design-token-limit-failed",
                     $"Token role 'magnitude' falls from step {position} to step {position + 1} in scheme '{scheme}'; the steps rise in lightness.",
-                    tokensFile, after.Line, null)
-                {
-                    TierOverride = "G",
-                });
+                    tokensFile, after.Line, null));
                 return;
             }
         }

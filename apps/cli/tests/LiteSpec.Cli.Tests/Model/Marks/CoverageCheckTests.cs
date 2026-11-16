@@ -17,17 +17,6 @@ public sealed class CoverageCheckTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
-    /// <summary>Store Aggregate Without A Root Reports Nothing.</summary>
-    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
-    [Fact]
-    public void StoreAggregateWithoutARootReportsNothing()
-    {
-        using var temp = WriteKindConsumer();
-        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "aggregate-unimplemented");
-
-        Assert.DoesNotContain(findings, finding => finding.Subject == "store/lending.outbox");
-    }
-
     /// <summary>Entity Aggregate Without A Root Still Reports.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
@@ -115,7 +104,7 @@ public sealed class CoverageCheckTests
         Assert.Contains("sends notification/lending.loan-due", finding.Message);
     }
 
-    /// <summary>Writes a consumer where an aggregate and a store each have no root in code.</summary>
+    /// <summary>Writes a consumer where an aggregate has no root in code.</summary>
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteKindConsumer()
     {
@@ -179,20 +168,6 @@ public sealed class CoverageCheckTests
                 # Loan
 
                 A loan lends one copy to one reader.
-                """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.yaml", """
-                {
-                  "type": "store",
-                  "id": "store/lending.outbox",
-                  "title": "Outbox",
-                  "summary": "The lending-owned table of scans awaiting dispatch.",
-                  "owner": "module/lending"
-                }
-                """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/stores/outbox/outbox.md", """
-                # Outbox
-
-                The lending-owned table of scans awaiting dispatch.
                 """);
 
             return temp;

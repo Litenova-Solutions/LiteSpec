@@ -22,7 +22,7 @@ The command merges the preset over `consumer/project.yaml`, stamps the release v
 
 The `consumer/` folder holds one starting point per record type and page style, plus the project file, the language file, the design contract, the UI catalog, and the source lock. The [consumer template index](consumer/README.md) maps each file to the consumer path it targets, from `.litespec/product.yaml` to `packages/ui/ui-source-lock.yaml`.
 
-Each record template is a YAML record file shaped like [record.schema.yaml](../schemas/record.schema.yaml) with working example values. An article type's template also ships its explanation file, and a document style's template is a Markdown document.
+Each record template is a YAML record file shaped like [record.schema.yaml](../schemas/record.schema.yaml) with every field carrying a `<placeholder>` value. An article type's template also ships its explanation file, and a document style's template is a Markdown document.
 
 A value in `<...>` marks a placeholder for the author to write; `litespec-maintain validate` skips placeholders when validating shape. Replace every `<placeholder>` and `__PROJECT__` value before committing. `litespec init` fills the project placeholders in `.litespec/project.yaml` and lists the ones it leaves behind, and `litespec model check` rejects a project file that still holds one.
 
@@ -81,6 +81,6 @@ Record authors copy templates by hand into the paths the [consumer template inde
 
 ## Limits
 
-- Templates carry example values, not a migration. Adopting a new release means re-reading the templates, not diffing them.
+- Templates carry placeholders, not a migration. Adopting a new release means re-reading the templates, not diffing them.
 - `litespec init` never overwrites an existing project file. Delete the existing file before running it again.
 - Placeholders mark author input, not defaults. A committed file still holding one is unfinished.

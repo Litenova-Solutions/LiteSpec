@@ -5,8 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
 /// <summary>The identifier checks: every identifier is unique, follows the type and home grammar, sits in the folder its home names, carries a name used once in the product, takes a decision number used once, and takes its name from its title with its file named for it.</summary>
-/// <follows>litespec/core/language#follow-the-identifier-form-of-each-record-type</follows>
-/// <follows>litespec/core/language#name-records-with-one-to-six-words</follows>
+/// <follows>litespec/core/language#use-the-declared-record-identifier-grammar</follows>
 /// <follows>litespec/core/language#use-every-identifier-once</follows>
 /// <follows>litespec/core/model#move-each-identifier-with-its-module</follows>
 /// <follows>litespec/core/model#keep-each-name-unique-in-its-record-type</follows>
@@ -51,7 +50,7 @@ internal static class IdentifierChecks
         "glossary.yaml",
     };
 
-    /// <summary>Reports identifier-invalid, identifier-duplicate, identifier-folder-drift, identifier-title-invalid, name-duplicate and decision-number-duplicate.</summary>
+    /// <summary>Reports identifier-invalid, identifier-duplicate, record-placement-invalid, identifier-title-invalid, record-key-duplicate and record-key-duplicate.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -74,7 +73,7 @@ internal static class IdentifierChecks
             if (!Identifiers.TrySplit(record.Id, out var prefix, out var home, out var name))
             {
                 // A home-parented record reports its missing home through
-                // record-parent-missing, so identifier-invalid stays silent here.
+                // record-placement-invalid, so identifier-invalid stays silent here.
                 if (ParentChecks.ReportsMissingHome(record))
                 {
                     continue;
@@ -168,15 +167,15 @@ internal static class IdentifierChecks
                 continue;
             }
 
-            // A home naming no declared module is record-parent-missing, and a
-            // folder naming none is module-undeclared, so drift stays silent here.
+            // A home naming no declared module is record-placement-invalid, and a
+            // folder naming none is record-placement-invalid, so drift stays silent here.
             if (!model.ById.ContainsKey($"module/{home}") || !model.ById.ContainsKey($"module/{folder}"))
             {
                 continue;
             }
 
             findings.Add(new Finding(
-                "identifier-folder-drift",
+                "record-placement-invalid",
                 $"{Label(record.Type)} '{record.Id}' sits in module '{folder}' but its identifier names module '{home}'.",
                 record.File,
                 record.Line,
@@ -227,7 +226,7 @@ internal static class IdentifierChecks
                 var label = Label(type);
 
                 findings.Add(new Finding(
-                    "name-duplicate",
+                    "record-key-duplicate",
                     $"{label} '{record.Id}' shares its name '{name}' with another {label.ToLowerInvariant()}.",
                     record.File,
                     record.Line,
@@ -278,7 +277,7 @@ internal static class IdentifierChecks
             foreach (var record in records)
             {
                 findings.Add(new Finding(
-                    "decision-number-duplicate",
+                    "record-key-duplicate",
                     $"Decision '{record.Id}' shares its number '{number}' with another decision.",
                     record.File,
                     record.Line,

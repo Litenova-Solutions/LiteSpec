@@ -12,6 +12,13 @@
   const model = $derived(id ? buildTrace(book, id) : null);
   const groups = $derived(id && model ? railGroups(book, model, id) : []);
   const traceIds = $derived(model ? model.rows.flatMap((row) => (row.kind === "rec" ? [row.id] : [])) : []);
+  // The trace walks links stored on each record, so a record the page has not
+  // loaded yet would read as a gap. Load the walked records; the trace rebuilds
+  // when they arrive and walks one step further.
+  $effect(() => {
+    const missing = traceIds.map((x) => stripStep(x) ?? x).filter((x) => x && book.get(x) === undefined);
+    if (missing.length) void book.ensureRecords(missing);
+  });
   const rec = $derived(id ? book.get(id) : undefined);
   const impl = $derived(rec?.impl ?? []);
   const implShow = $derived(!!rec && !!rec.expect && (!!rec.expect.impl || impl.length > 0));

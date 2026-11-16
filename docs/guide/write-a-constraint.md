@@ -18,7 +18,7 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 ### Scaffold the Constraint
 
-Run `litespec new constraint <name>`, which writes `.litespec/intent/constraints/<name>/<name>.yaml` and reserves the identifier `constraint/<name>`. When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the constraint template, with the title filled in. The template values are examples, and `model check` reports a value left unchanged. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
+Run `litespec new constraint <name>`, which writes `.litespec/intent/constraints/<name>/<name>.yaml` and reserves the identifier `constraint/<name>`. When the project lists `intent` in `explanations.layers`, you also get `<name>.md` from the constraint template, with the title filled in. The template fields are placeholders, and `model check` reports a placeholder left unchanged. This satisfies `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
 ### Decide What One Constraint Holds
 
@@ -45,7 +45,7 @@ Keep `summary` to one or two sentences that state the rule, the condition under 
 | `summary: Keeping receipts for seven years is important for audits.` | `summary: National tax law requires a company to keep its business receipts for seven years.` |
 | `summary: Finance reimburses the expense.` | `summary: Finance reimburses the approved expense.` |
 
-The first weak version names no authority, no subject, and no condition, so a reader cannot tell what is required or of whom. The second drops the condition the rule holds under. A shortened summary keeps every condition the rule carries, as `litespec/core/writing#keep-the-conditions-when-shortening` requires. This satisfies `litespec/core/intent#state-each-constraint-rule-with-its-condition` and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
+The first weak version names no authority, no subject, and no condition, so a reader cannot tell what is required or of whom. The second drops the condition the rule holds under. A shortened summary keeps every condition the rule carries, as `litespec/core/writing#keep-the-conditions-when-shortening` requires. This satisfies `litespec/core/intent#state-each-constraint-rule-with-its-condition` and `litespec/core/writing#write-for-the-reader-who-arrives-cold`.
 
 ### Name the Authority
 
@@ -84,7 +84,7 @@ This satisfies `litespec/core/layers#build-ahead-of-a-regulation-only-under-its-
 
 When a rule rests on research, as observed provider behavior does, name that research in `basedOn`. A law that states its rule on a public page needs no research record, because its own source carries the rule. Research stays the home for a question that needs investigating, as `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints` describes.
 
-This satisfies `litespec/core/layers#record-changed-provider-behavior-as-observed-research`.
+This satisfies `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`.
 
 ### State Why the Rule Binds the Product
 
@@ -163,7 +163,7 @@ This satisfies `litespec/core/writing#use-literal-words` and `litespec/core/inte
 
 Run `litespec model render` from the consumer root. It appends a generated `source-links` region to the explanation file: one Markdown link definition per source, with its read date, such as `[national-tax-law]: https://example.com/national-tax-law "Read on 2026-02-10"`. Each `[text][key]` citation then works in a plain Markdown preview, without the book. The region is generated, so a hand edit inside it counts as drift.
 
-This satisfies `litespec/core/model#keep-every-field-value-in-the-record-file` as reworded for generated regions, and the [Model](../tools/model.md) command page states what `render` writes.
+This satisfies `litespec/core/model#split-record-fields-from-explanation` as reworded for generated regions, and the [Model](../tools/model.md) command page states what `render` writes.
 
 ## Check
 

@@ -41,10 +41,10 @@ The event carries the identifier `module-event/<module>.<name>`, such as `module
 | Field | Meaning |
 |:---|:---|
 | `translates` | The domain event of its own module it carries, required; the event's publishers are the use cases raising it, so each module event has exactly one publishing module. |
-| `payload` | `{ name, meaning, type, of, many, required, classification }` entries, with the same field shape integration events use. |
+| `fields` | The names of the fields of the translated domain event that the module event publishes. |
 | `terms` | The glossary terms used, optional. |
 
-A module event carries no `direction`, no CloudEvents identity, no `trust`, and no `through`: it travels one way between known modules, and nothing outside the product reads it. It publishes only fields the domain event it translates carries. No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each module event that translates them, built from the domain event alone, in the same commit.
+A module event carries no `direction`, no CloudEvents identity, no `trust`, and no `through`: it travels one way between known modules, and nothing outside the product reads it. It keeps its record and name as the published contract between modules, and it selects in `fields` the fields of the domain event it translates, publishing only fields that event carries. The book shows each selected field with the domain event's type and meaning. No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each module event that translates them, built from the domain event alone, in the same commit.
 
 In Claimwick, the spending module publishes `module-event/spending.expense-approved` when an expense is approved, and the payouts module answers it from a reaction that pays the reimbursement.
 
@@ -148,7 +148,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Example:** In the library product, `reaction/lending.send-due-notice-on-loan-borrowed` answers `domain-event/loan.loan-borrowed` and runs the send-due-notice command.
 
-**Checked by:** `litespec model check` reports `reaction-trigger-unknown` (level G) for a trigger naming an unknown event, `reaction-trigger-foreign` (level G) for a trigger naming another module's domain event, and fails a reaction without a `triggeredBy` list.
+**Checked by:** `litespec model check` reports `reference-unknown` (level G) for a trigger naming an unknown event, `reaction-trigger-foreign` (level G) for a trigger naming another module's domain event, and fails a reaction without a `triggeredBy` list.
 
 ### Publish Every Module Event from the Event It Translates
 
@@ -160,11 +160,11 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each module event MUST name in `translates` the domain event of its own module it carries, and is published only from that domain event, by the pipeline step that stages raised events.
 
-**Rationale:** When a handler builds a module event from whatever the aggregate holds after the act, it publishes state the act never announced, and a second handler can publish the same event with a different payload. Deriving the event from the one domain event it translates keeps every published field a field of the announced fact. The publishing use cases then follow from `raises`, with no second declaration to drift, and the domain event carries every field its module events publish, as typed fields. A publish call in user code is an edge no record can declare, so the stack reader reports it. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
+**Rationale:** When a handler builds a module event from whatever the aggregate holds after the act, it publishes state the act never announced, and a second handler can publish the same event with different fields. Deriving the event from the one domain event it translates keeps every published field a field of the announced fact. The publishing use cases then follow from `raises`, with no second declaration to drift, and the domain event carries every field its module events publish, as typed fields. A publish call in user code is an edge no record can declare, so the stack reader reports it. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
 
 **Example:** Claimwick's `module-event/spending.expense-approved` translates `domain-event/expense.approved`, so `use-case/spending.approve-expense`, which raises that event, publishes it, and its handler publishes nothing. The payouts module answers the module event from a reaction.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a module event without `translates`, `event-field-uncarried` (level G) for a payload field its translated domain event does not carry, `event-publisher-invalid` for a module event with a second publishing module, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
+**Checked by:** `litespec model check` reports `record-invalid` for a module event without `translates` or `fields`, `event-field-uncarried` (level G) for a field name its translated domain event does not carry, `event-publisher-invalid` for a module event with a second publishing module, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
 
 ### Run Every Job from Its Declared Kind
 
@@ -280,13 +280,13 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Applies to:** artifact: record:read-model
 
-**Statement:** Each read model MUST name in `keyedBy` an aggregate of another module and, on each field, name in `from` the module event or integration event and the payload field the field comes from.
+**Statement:** Each read model MUST name in `keyedBy` an aggregate of another module and, on each field, name in `from` the module event or integration event and the published field the field comes from.
 
-**Rationale:** A read model is a copy, and a copy with no stated source drifts: nobody can tell which event fills a field, so a renamed payload field breaks the read model without a finding. Naming the event and its field makes every crossing of the module boundary a declared edge the check reads, the same way an effect names its target. A read model keyed by its own module's aggregate copies state the module already reads directly. A use case names the read model in `reads`, and a read model no use case reads is kept current for no reader. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model). Settled by [decision/0084-give-read-models-their-semantics](decision/0084-give-read-models-their-semantics).
+**Rationale:** A read model is a copy, and a copy with no stated source drifts: nobody can tell which event fills a field, so a renamed published field breaks the read model without a finding. Naming the event and its field makes every crossing of the module boundary a declared edge the check reads, the same way an effect names its target. A read model keyed by its own module's aggregate copies state the module already reads directly. A use case names the read model in `reads`, and a read model no use case reads is kept current for no reader. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model). Settled by [decision/0084-give-read-models-their-semantics](decision/0084-give-read-models-their-semantics).
 
 **Example:** `read-model/reporting.reimbursed-expense` is keyed by `aggregate/spending.expense`, and its `amount` field comes from `module-event/spending.expense-reimbursed#amount`.
 
-**Checked by:** `litespec model check` reports `read-model-source-unknown` (level G) for a `from`, `erasedBy` or `removedBy` naming no module event or integration event, or a payload field the event does not carry, `read-model-key-invalid` (level G) for a `keyedBy` naming an aggregate of the read model's own module, and `read-model-unused` (level G) for a read model no use case reads.
+**Checked by:** `litespec model check` reports `reference-unknown` (level G) for a `from`, `erasedBy` or `removedBy` naming no module event or integration event, or a field the event does not carry, `read-model-key-invalid` (level G) for a `keyedBy` naming an aggregate of the read model's own module, and `read-model-unused` (level G) for a read model no use case reads.
 
 ### Erase a Read Model Personal Field with Its Owner
 
@@ -334,7 +334,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Example:** The hold transition from Ready to Expired carries `after: P7D` and `movedBy: job/lending.expire-lapsed-holds`, and the job runs the expire-holds command once per lapsed hold.
 
-**Checked by:** `litespec model check` reports `transition-unknown` (level G) for a timed transition naming a missing state or a job no record declares.
+**Checked by:** `litespec model check` reports `reference-unknown` (level G) for a timed transition naming a missing state or a job no record declares.
 
 ### Raise Completion Only When Every Module Is Done
 
@@ -394,7 +394,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction MUST be named `<verb>-<what>-on-<fact>` with a declared verb.
 
-**Rationale:** A reaction runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a hold, or a reminder run. Naming the act and the fact lets a reader find every consequence of a fact by its name, as `litespec/core/language#name-each-record-by-its-types-name-form` states.
+**Rationale:** A reaction runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a hold, or a reminder run. Naming the act and the fact lets a reader find every consequence of a fact by its name, as `litespec/core/language#use-the-declared-record-identifier-grammar` states.
 
 **Example:** `reaction/lending.send-due-notice-on-loan-borrowed` answers `domain-event/loan.loan-borrowed`.
 
@@ -410,7 +410,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each job MUST be named `<verb>-<what>` with the verb of the use case it runs, or with its own verb when it runs no use case.
 
-**Rationale:** A job selects items and runs one command for each. Naming it for that command lets a reader go from the schedule to the behavior in one step, as `litespec/core/language#name-each-record-by-its-types-name-form` states. A job that only sends or calls takes its own verb, since no use case verb names it.
+**Rationale:** A job selects items and runs one command for each. Naming it for that command lets a reader go from the schedule to the behavior in one step, as `litespec/core/language#use-the-declared-record-identifier-grammar` states. A job that only sends or calls takes its own verb, since no use case verb names it.
 
 **Example:** `job/lending.expire-lapsed-holds` runs `use-case/lending.expire-holds`.
 
@@ -442,7 +442,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Rationale:** A reaction or job scenario ending anywhere else proves another behavior story: it covers the trigger or schedule and asserts an ending no run use case declares and no outcome names. Ending in a run use case result or in a declared outcome keeps the scenario a proof of the reaction or job consequence. A send-only reaction or job ends its scenarios in outcomes, with no invented command.
 
-**Checked by:** `litespec model check` reports `scenario-result-unknown` for a reaction or job scenario ending outside the run use case results and the declared outcomes.
+**Checked by:** `litespec model check` reports `reference-unknown` for a reaction or job scenario ending outside the run use case results and the declared outcomes.
 
 ### Keep Job Fields off Reactions
 

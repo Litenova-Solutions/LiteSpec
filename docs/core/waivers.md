@@ -47,7 +47,7 @@ When two live waivers cover the same finding code, provision, or page on the sam
 
 ### What No Waiver Covers
 
-Some findings stop the model from loading, and every other result depends on them. No waiver covers these codes: `record-invalid`, `folder-invalid`, `record-placement-invalid`, `identifier-invalid`, `identifier-duplicate`, and `reference-unknown`.
+Some findings stop the model from loading, and every other result depends on them. No waiver covers these codes: `record-invalid`, `record-placement-invalid`, `identifier-invalid`, `identifier-duplicate`, and `reference-unknown`.
 
 A waiver whose `covers` names one of them reports `waiver-invalid`. The same finding reports when a `covers` item names a finding code no check emits, or a provision or page the installed release does not ship. A `waiver-invalid` finding is never covered.
 

@@ -145,7 +145,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         {
             foreach (var mark in MarkReader.Read(member))
             {
-                if (mark.HasRecordId && state.Store.Index.ById(mark.RecordId) is IRecordFields record
+                if (mark.HasRecordId && state.Records.Index.ById(mark.RecordId) is IRecordFields record
                     && record.Type == recordType)
                 {
                     return mark.RecordId;
@@ -162,7 +162,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     /// <returns>The code as text, or null when none applies.</returns>
     private static string? ExpectedCode(TraceabilityContext state, string ruleId)
     {
-        var rule = state.Store.Index.ById(ruleId);
+        var rule = state.Records.Index.ById(ruleId);
 
         return rule is null ? null : RefusalCode.Of(rule);
     }

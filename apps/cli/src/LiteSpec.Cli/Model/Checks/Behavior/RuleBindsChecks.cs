@@ -16,9 +16,9 @@ internal static class RuleBindsChecks
             .Where(record => record.Type == RecordTypes.Rule)
             .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            // Governs names aggregates, stores and use cases; only the aggregate and store ids decide the span.
+            // Governs names aggregates and use cases; only the aggregate ids decide the span.
             var governed = rule.Ids(RecordFields.Governs)
-                .Where(id => Identifiers.TrySplit(id, out var prefix, out _, out _) && prefix is RecordTypes.Aggregate or RecordTypes.Store)
+                .Where(id => Identifiers.TrySplit(id, out var prefix, out _, out _) && prefix is RecordTypes.Aggregate)
                 .Distinct(StringComparer.Ordinal)
                 .Order(StringComparer.Ordinal)
                 .ToList();

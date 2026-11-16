@@ -8,11 +8,12 @@
   import ScenarioCard from "../shared/ScenarioCard.svelte";
   import { isRecord, stringField } from "../page-values";
 
-  // A result: what it means, its code, and the scenarios that show it.
+  // A result: what it means, its code, its problem type, and the scenarios that show it.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
   const code = $derived(stringField(f, "code"));
+  const problemType = $derived(stringField(f, "problemType"));
   const sentence = $derived(stringField(f, "sentence"));
   const sentences = $derived.by(() => {
     const v = f.sentences;
@@ -30,6 +31,20 @@
         class="flex size-6 items-center justify-center hover:bg-hover-wash"
         aria-label="Copy code"
         onclick={() => copyText(code)}
+      >
+        <RecordIcon name="copy" class="size-4" />
+      </button></span
+    >
+  </PageSection>
+{/if}
+{#if problemType}
+  <PageSection blockKey="ptype" heading="problemType">
+    <span class="inline-flex min-h-6 items-center gap-2 bg-layer pl-2 font-mono text-xs [overflow-wrap:anywhere]"
+      >{problemType}<button
+        type="button"
+        class="flex size-6 items-center justify-center hover:bg-hover-wash"
+        aria-label="Copy problem type"
+        onclick={() => copyText(problemType)}
       >
         <RecordIcon name="copy" class="size-4" />
       </button></span

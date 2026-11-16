@@ -59,21 +59,6 @@ public sealed class SeverityTests
         Assert.Equal(outcome, decided.Outcome);
     }
 
-    /// <summary>A finding graded apart from its code follows the override tier.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void TierOverrideDecidesTheSeverity()
-    {
-        var lifted = Severity.Of(Graded("result-scenario-missing", "G"), true);
-        var lowered = Severity.Of(Graded("requirement-measure-missing", "A"), true);
-
-        Assert.Equal(Outcome.Blocking, lifted.Outcome);
-        Assert.Equal(Outcome.Reported, lowered.Outcome);
-    }
-
     static Finding At(string code, string? subject) =>
         new Finding(code, "Something is wrong.", "docs/page.md", 3, subject);
-
-    static Finding Graded(string code, string tier) =>
-        new Finding(code, "Something is wrong.", "docs/page.md", 3, null) { TierOverride = tier };
 }

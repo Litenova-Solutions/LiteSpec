@@ -23,7 +23,7 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Endpoint, "use-case")]
     [InlineData(CodeKind.FrontendModule, "use-case")]
     [InlineData(CodeKind.Test, "scenario,rule,requirement,decision,external-system,module-event,integration-event,litespec")]
-    [InlineData(CodeKind.Technical, "aggregate,store,use-case,reaction,job,external-system,domain-event,rule,notification,setting,module-event,integration-event,read-model")]
+    [InlineData(CodeKind.Technical, "aggregate,use-case,reaction,job,external-system,domain-event,rule,notification,setting,module-event,integration-event,read-model")]
     public void RecordTypesNamesExpectedTypes(CodeKind kind, string expected)
     {
         var types = MarkRules.RecordTypes(kind);
@@ -88,7 +88,7 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Test, "scenario/submit-expense.succeeds"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "rule/expense.approver-is-not-submitter"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "requirement/spending.month-end-submissions"));
-        Assert.True(MarkRules.Accepts(CodeKind.Test, "decision/0002-store-expenses-as-documents"));
+        Assert.True(MarkRules.Accepts(CodeKind.Test, "decision/0002-keep-expenses-as-documents"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "external-system/payout-bank"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "integration-event/expense-submitted"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "litespec/backend/architecture#point-dependencies-inward"));
@@ -108,7 +108,7 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "notification/spending.approval-reminder"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "setting/spending.max-open-expenses"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "integration-event/expense-submitted"));
-        Assert.False(MarkRules.Accepts(CodeKind.Technical, "decision/0002-store-expenses-as-documents"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "decision/0002-keep-expenses-as-documents"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "waiver/export-review-bypass"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
     }
@@ -125,7 +125,7 @@ public sealed class MarkRulesTests
     public void AcceptsFollowsTakesChoices()
     {
         Assert.True(MarkRules.AcceptsFollows("litespec/backend/persistence#commit-each-command-pipeline-once"));
-        Assert.True(MarkRules.AcceptsFollows("decision/0002-store-expenses-as-documents"));
+        Assert.True(MarkRules.AcceptsFollows("decision/0002-keep-expenses-as-documents"));
         Assert.True(MarkRules.AcceptsFollows("waiver/export-review-bypass"));
         Assert.False(MarkRules.AcceptsFollows("use-case/spending.submit-expense"));
         Assert.False(MarkRules.AcceptsFollows("decision/"));
@@ -174,46 +174,4 @@ public sealed class MarkRulesTests
             ],
             MarkRules.FindingCodes);
 
-    /// <summary>RuleId prints the analyzer rule for every mark finding.</summary>
-    /// <param name="code">The finding code under test.</param>
-    /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Theory(DisplayName = "RuleId prints the analyzer rule for every mark finding")]
-    [InlineData("mark-missing", "LS5001")]
-    [InlineData("mark-unknown", "LS5002")]
-    [InlineData("mark-count-invalid", "LS5003")]
-    [InlineData("mark-style-invalid", "LS5004")]
-    [InlineData("runtime-value-drift", "LS5005")]
-    [InlineData("partial-missing", "LS5006")]
-    [InlineData("act-event-undeclared", "LS5007")]
-    [InlineData("act-event-unimplemented", "LS5008")]
-    public void RuleIdPrintsExpectedRule(string code, string expected) =>
-        Assert.Equal(expected, MarkRules.RuleId(code));
-
-    /// <summary>RuleId rejects an unknown code.</summary>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "RuleId rejects an unknown code")]
-    public void RuleIdRejectsUnknownCode() =>
-        Assert.Throws<ArgumentException>(() => MarkRules.RuleId("no-such-finding"));
-
-    /// <summary>Tier holds S for every mark finding.</summary>
-    /// <param name="code">The finding code under test.</param>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Theory(DisplayName = "Tier holds S for every mark finding")]
-    [InlineData("mark-missing")]
-    [InlineData("mark-unknown")]
-    [InlineData("mark-count-invalid")]
-    [InlineData("mark-style-invalid")]
-    [InlineData("runtime-value-drift")]
-    [InlineData("partial-missing")]
-    [InlineData("act-event-undeclared")]
-    [InlineData("act-event-unimplemented")]
-    public void TierHoldsSForMarkFindings(string code) =>
-        Assert.Equal("S", MarkRules.Tier(code));
-
-    /// <summary>Tier rejects an unknown code.</summary>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "Tier rejects an unknown code")]
-    public void TierRejectsUnknownCode() =>
-        Assert.Throws<ArgumentException>(() => MarkRules.Tier("no-such-finding"));
 }

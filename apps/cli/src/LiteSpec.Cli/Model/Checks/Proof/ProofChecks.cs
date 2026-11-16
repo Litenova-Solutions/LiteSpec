@@ -22,7 +22,7 @@ internal static class ProofChecks
     private static bool IsComposedFromLiteral(ProjectModel model, string code) =>
         model.Config.RefusalComposed.Any(template => RefusalTemplate.TryMatch(template, code, out var key) && model.Code.KeyLiterals.Contains(key));
 
-    /// <summary>Reports use-case-success-missing, use-case-scenario-missing, use-case-unimplemented, scenario-result-unknown, refusal-unimplemented and proves-unreached.</summary>
+    /// <summary>Reports use-case-success-missing, use-case-scenario-missing, use-case-unimplemented, reference-unknown, refusal-unimplemented and proves-unreached.</summary>
     /// <param name="model">The loaded project model that holds every record, each test and the proof links.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -73,7 +73,7 @@ internal static class ProofChecks
 
             if (!ResultBelongsToScenario(model, scenario, result))
             {
-                findings.Add(new Finding("scenario-result-unknown", $"Scenario '{scenario.Id}' ends in '{resultId}' outside its use case.", scenario.File, scenario.Line, SubjectOf(scenario)));
+                findings.Add(new Finding("reference-unknown", $"Scenario '{scenario.Id}' ends in '{resultId}' outside its use case.", scenario.File, scenario.Line, SubjectOf(scenario)));
             }
         }
 

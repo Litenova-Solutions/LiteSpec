@@ -14,12 +14,7 @@ Before recording a decision, query `rules` for the subject: where a provision se
 
 A technical decision takes its home under `.litespec/implementation/decisions/` or `.litespec/implementation/modules/<m>/decisions/` instead, as the [model page](../core/model.md) states.
 
-| Item | Value |
-|:---|:---|
-| Path | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.yaml` with `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` beside it |
-| Record template | `templates/consumer/decision.yaml` |
-| Explanation template | `templates/consumer/decision.md` |
-| Record type | `decision` |
+The [record folders](folders.md) state every home a decision takes. The record starts from `templates/consumer/decision.yaml` and its explanation from `templates/consumer/decision.md`.
 
 ### Identifier Form
 

@@ -14,7 +14,7 @@ namespace LiteSpec.Analyzers.Tests.Support;
 ///     Runs one analyzer over C# sources and compares its diagnostics with the spans the
 ///     sources mark. A marked span reads <c>{|LS1002:Status|}</c>: the diagnostic ID, then
 ///     the exact text the diagnostic must cover. A span may name its severity:
-///     <c>{|LS5001:Warning:SubmitExpenseCommandHandler|}</c>.
+///     <c>{|LS5004:Warning:use-case/spending.submit-expense|}</c>.
 /// </summary>
 internal static partial class Verify
 {

@@ -19,7 +19,7 @@ static class ModelCommand
     /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all] [--module <module>]
+          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof]
           litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
@@ -47,7 +47,7 @@ static class ModelCommand
             args[1..],
             command switch
             {
-                "check" => ["--release", "--all"],
+                "check" => ["--release", "--all", "--record-proof"],
                 "format" => ["--check"],
                 _ => [],
             },
@@ -107,9 +107,9 @@ static class ModelCommand
                     return CommandFailure.Fail(fail.Message, json, fail.Code);
                 }
 
-                model.Ledger.Save(config);
                 var release = parsed.Has("--release");
                 var all = parsed.Has("--all");
+                var recordProof = parsed.Has("--record-proof");
                 var sinceRef = parsed.Value("--since");
                 HashSet<(string Code, string Subject, string Message)>? baseline = null;
                 string? baseError = null;
@@ -275,6 +275,13 @@ static class ModelCommand
                     {
                         CliHost.Out.WriteLine(incomplete);
                     }
+                }
+
+                // The check writes the proof ledger only on --record-proof, after the
+                // findings are printed: a plain check reads the project and writes nothing.
+                if (recordProof)
+                {
+                    model.Ledger.Save(config);
                 }
 
                 if (shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking))

@@ -48,9 +48,6 @@ idempotency:
   reason: a repeat attaches the same receipt to the same submitted expense, leaving the same receipt attached
   replay: acts-again
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
 records:
 - type: result
   id: result/attach-receipt.attached
@@ -62,7 +59,6 @@ records:
   title: Expense Decided
   outcome: refusal
   code: spending.expense-decided
-  meaning: The expense is already decided.
   sentence: This expense is already decided, so it takes no more receipts.
   sentences:
     nl: Over deze uitgave is al beslist, dus er kunnen geen bonnetjes meer bij.

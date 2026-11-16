@@ -108,14 +108,6 @@ const facts: Record<string, FactFn> = {
   },
   reaction: () => [{ key: "Kind", text: "Reaction" }],
   job: (f) => [{ key: "Kind", text: capitalize(stringField(f, "kind") ?? "job") }],
-  store: (f) => {
-    const out: Fact[] = [];
-    const classes = objectList(f, "dataClasses").length;
-    const fields = objectList(f, "data").length;
-    if (classes) out.push({ key: "Data classes", text: pluralize(classes, "data class", "data classes") });
-    if (fields) out.push({ key: "Data", text: pluralize(fields, "field") });
-    return out;
-  },
   "module-event": (_f, r) => {
     const out: Fact[] = [];
     // The use cases that publish it, computed from the domain event each raises and the domain event this translates.
@@ -227,6 +219,8 @@ export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "startedWhen",
   // A screen draws its wireframe in its own section.
   "wireframe",
+  // A refusal result shows its joined problem type in its own section.
+  "problemType",
 ]);
 
 /** The field table's rows: the type's relations and facts, then the plain fields. */

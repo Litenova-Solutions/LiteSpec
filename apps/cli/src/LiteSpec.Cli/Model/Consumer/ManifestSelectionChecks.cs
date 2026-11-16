@@ -1,7 +1,5 @@
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Configuration;
-using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
@@ -10,7 +8,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 /// <summary>
 ///     The manifest and selection checks of the consumer validator: the recorded
 ///     release, the stack names and the extension selections against the
-///     pinned manifest, and stage deferrals.
+///     pinned manifest.
 /// </summary>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
@@ -30,9 +28,6 @@ static class ManifestSelectionChecks
     /// <returns>True when the path is the folder or sits under it.</returns>
     static bool IsUnder(string path, string folder) =>
         path == folder || path.StartsWith(folder + "/", StringComparison.Ordinal);
-
-    /// <summary>One provision row of the provision index.</summary>
-    static readonly Regex ProvisionRow = new(@"^\| (litespec/[^\s|]*#[^\s|]*) \|", RegexOptions.Multiline);
 
     /// <summary>
     ///     Holds the recorded release, the stack names and the extension selections
@@ -223,86 +218,6 @@ static class ManifestSelectionChecks
         else
         {
             run.KnownStacks.AddRange(DefaultStacks);
-        }
-    }
-
-    /// <summary>
-    ///     Holds stage deferrals to their waiver records: each waiver names its
-    ///     deferred provisions in covers, so a deferral of an unknown provision is
-    ///     refused here. A deferral past its date belongs to the model check, which
-    ///     reports waiver-expired.
-    /// </summary>
-    /// <param name="run">The state of the run.</param>
-    public static void CheckStageDeferrals(ConsumerRun run)
-    {
-        var stage = run.Selections.FirstOrDefault(selection => selection.Id == "stage");
-
-        if (stage is null)
-        {
-            return;
-        }
-
-        // The page scan already reported every malformed record file, so this pass reads
-        // quietly and keeps the waivers only.
-        var deferrals = new List<(string File, string Id, string Provision)>();
-
-        foreach (var file in run.Files)
-        {
-            if (!RecordFiles.IsRecordFile(file))
-            {
-                continue;
-            }
-
-            if (!RecordFile.TryParse(run.ReadText(file), out var root, out _, out _))
-            {
-                continue;
-            }
-
-            var page = JsonNode.Parse(root.GetRawText()) as JsonObject;
-
-            if (page is not null
-                && JsonValues.PropString(page, "type") == "waiver"
-                && page["covers"] is JsonArray covers)
-            {
-                foreach (var cover in covers)
-                {
-                    if (JsonValues.AsString(cover) is { } provision && provision.Contains('#'))
-                    {
-                        deferrals.Add((file, JsonValues.PropText(page, "id"), provision));
-                    }
-                }
-            }
-        }
-
-        if (deferrals.Count == 0)
-        {
-            return;
-        }
-
-        var indexFile = Path.Combine(run.StandardsRoot, "docs", "reference", "provisions.md");
-        var knownProvisions = new HashSet<string>(StringComparer.Ordinal);
-
-        if (File.Exists(indexFile))
-        {
-            foreach (Match match in ProvisionRow.Matches(run.ReadText(indexFile)))
-            {
-                knownProvisions.Add(match.Groups[1].Value);
-            }
-        }
-
-        foreach (var (file, id, provision) in deferrals)
-        {
-            if (knownProvisions.Contains(provision))
-            {
-                continue;
-            }
-
-            run.Err(new Finding(
-                "stage-deferral-invalid",
-                $"waiver '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
-                file,
-                1,
-                id));
         }
     }
 }

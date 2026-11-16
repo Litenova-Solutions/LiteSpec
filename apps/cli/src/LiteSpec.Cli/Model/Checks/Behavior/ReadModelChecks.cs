@@ -7,7 +7,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>
-///     The read model checks: each read model field is taken from a payload field of a module event or an outbound
+///     The read model checks: each read model field is taken from a published field of a module event or an outbound
 ///     integration event, each personal or sensitive field names the event that erases it, each read model is read
 ///     by a use case, and each read model is keyed by an aggregate of another module.
 /// </summary>
@@ -63,7 +63,7 @@ internal static class ReadModelChecks
     }
 
     /// <summary>
-    ///     Reports each field whose source is not a payload field of a module event or an outbound integration event,
+    ///     Reports each field whose source is not a published field of a module event or an outbound integration event,
     ///     and each erasedBy or removedBy entry that names no module event or outbound integration event.
     /// </summary>
     /// <param name="model">The loaded project model that resolves each module event and integration event.</param>
@@ -79,15 +79,15 @@ internal static class ReadModelChecks
             {
                 var hash = from.IndexOf('#');
                 var eventId = hash < 0 ? from : from[..hash];
-                var payloadField = hash < 0 ? "" : from[(hash + 1)..];
+                var publishedField = hash < 0 ? "" : from[(hash + 1)..];
 
                 if (!IsReadableSource(model, eventId, out var source))
                 {
                     findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' field '{name}' takes from '{from}', which is no module event or outbound integration event."));
                 }
-                else if (payloadField.Length == 0 || !PayloadNames(source!).Contains(payloadField, StringComparer.Ordinal))
+                else if (publishedField.Length == 0 || !PublishedNames(source!).Contains(publishedField, StringComparer.Ordinal))
                 {
-                    findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' field '{name}' takes from '{from}', which names a payload field '{payloadField}' the event does not carry."));
+                    findings.Add(SourceFinding(readModel, $"ReadModel '{readModel.Id}' field '{name}' takes from '{from}', which names a field '{publishedField}' the event does not publish."));
                 }
             }
 
@@ -175,15 +175,34 @@ internal static class ReadModelChecks
         return fields;
     }
 
-    /// <summary>The payload field names a module event or integration event carries.</summary>
-    /// <param name="published">The module event or integration event record whose payload is read.</param>
-    /// <returns>Each payload field name in declared order.</returns>
-    private static List<string> PayloadNames(Record published)
+    /// <summary>The published field names of a module event or integration event: the selected fields of a module event, the payload field names of an integration event.</summary>
+    /// <param name="published">The module event or integration event record whose published fields are read.</param>
+    /// <returns>Each published field name in declared order.</returns>
+    private static List<string> PublishedNames(Record published)
     {
         var names = new List<string>();
 
-        if (published.Raw.ValueKind == JsonValueKind.Object
-            && published.Raw.TryGetProperty(RecordFields.Payload, out var payload)
+        if (published.Raw.ValueKind != JsonValueKind.Object)
+        {
+            return names;
+        }
+
+        if (published.Type == RecordTypes.ModuleEvent
+            && published.Raw.TryGetProperty(RecordFields.Fields, out var fields)
+            && fields.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var entry in fields.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { Length: > 0 } name)
+                {
+                    names.Add(name);
+                }
+            }
+
+            return names;
+        }
+
+        if (published.Raw.TryGetProperty(RecordFields.Payload, out var payload)
             && payload.ValueKind == JsonValueKind.Array)
         {
             foreach (var entry in payload.EnumerateArray())
@@ -218,10 +237,10 @@ internal static class ReadModelChecks
         return false;
     }
 
-    /// <summary>A read-model-source-unknown finding on one read model.</summary>
+    /// <summary>A reference-unknown finding on one read model.</summary>
     /// <param name="readModel">The read model record the finding is raised on.</param>
     /// <param name="message">The finding's message.</param>
     /// <returns>The finding, at the read model's file and line.</returns>
     private static Finding SourceFinding(Record readModel, string message) =>
-        new("read-model-source-unknown", message, readModel.File, readModel.Line, SubjectOf(readModel));
+        new("reference-unknown", message, readModel.File, readModel.Line, SubjectOf(readModel));
 }

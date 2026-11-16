@@ -23,7 +23,7 @@ public sealed class VisionCheckTests
         var findings = new List<Finding>();
         FolderChecks.Run(model, findings);
 
-        Assert.DoesNotContain(findings, found => found.Code is "folder-invalid" or "record-placement-invalid");
+        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-placement-invalid");
     }
 
     /// <summary>A vision under a module sits outside its one home and reports its placement.</summary>

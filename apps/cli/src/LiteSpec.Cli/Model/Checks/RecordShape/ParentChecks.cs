@@ -92,7 +92,7 @@ internal static class ParentChecks
         if (!record.File.Replace('\\', '/').Contains("/intent/features/", StringComparison.Ordinal))
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Feature '{record.Id}' sits outside the product's intent/features folder, so it has no parent product.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -109,7 +109,7 @@ internal static class ParentChecks
         if (reasons.Count == 0)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Flow '{record.Id}' has no parent and names neither 'serves' nor 'answers'.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -129,7 +129,7 @@ internal static class ParentChecks
         }
 
         findings.Add(new Finding(
-            "record-parent-missing",
+            "record-placement-invalid",
             $"Flow '{record.Id}' has no parent and names no goal, problem or constraint.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -162,7 +162,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Scenario '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -178,7 +178,7 @@ internal static class ParentChecks
             if (record.Ids(RecordFields.Result).Count == 0)
             {
                 findings.Add(new Finding(
-                    "record-parent-missing",
+                    "record-placement-invalid",
                     $"Scenario '{record.Id}' has no parent and 'result' names no result.",
                     record.File, record.Line, SubjectOf(record)));
             }
@@ -194,7 +194,7 @@ internal static class ParentChecks
         if (!automation)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Scenario '{record.Id}' has no parent and its home '{home}' names no use case, reaction or job.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -203,7 +203,7 @@ internal static class ParentChecks
         if (!record.Has(RecordFields.Result) && !record.Has(RecordFields.Outcome))
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Scenario '{record.Id}' has no parent and names neither result nor outcome.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -218,7 +218,7 @@ internal static class ParentChecks
         if (FrontendRecords.EntryPointOf(record) is not { } entryPoint)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Screen '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -229,7 +229,7 @@ internal static class ParentChecks
             var home = entryPoint[(RecordTypes.EntryPoint.Length + 1)..];
 
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Screen '{record.Id}' has no parent and its home '{home}' names no entry point.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -244,7 +244,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Result '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -253,7 +253,7 @@ internal static class ParentChecks
         if (ModelBuilder.UseCaseOf(model, home) is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Result '{record.Id}' has no parent and its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -308,7 +308,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"{label} '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -326,7 +326,7 @@ internal static class ParentChecks
         }
 
         findings.Add(new Finding(
-            "record-parent-missing",
+            "record-placement-invalid",
             $"{label} '{record.Id}' has no parent and its home '{home}' names no module.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -342,7 +342,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Rule '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -360,7 +360,7 @@ internal static class ParentChecks
         }
 
         findings.Add(new Finding(
-            "record-parent-missing",
+            "record-placement-invalid",
             $"Rule '{record.Id}' has no parent and its home '{home}' names no module, aggregate or product.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -374,7 +374,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Event '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -383,7 +383,7 @@ internal static class ParentChecks
         if (!aggregates.Contains(home))
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Event '{record.Id}' has no parent and its home '{home}' names no aggregate.",
                 record.File, record.Line, SubjectOf(record)));
         }

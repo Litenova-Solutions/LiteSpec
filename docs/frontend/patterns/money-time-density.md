@@ -6,7 +6,7 @@
 
 This page holds the money, time, and density patterns: how amounts, statements, moments, periods, counts, charts, payouts, invoices, VAT, and identifiers read in tables, on statements and charts, in exports, and at phone width.
 
-A team building a finance or reporting screen starts from these patterns. The owner chooses an option from the wireframe drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared form keeps screens, statements, and exports in agreement, so finance can cite a figure without checking where it was read.
+A team building a finance or reporting screen starts from these patterns. The owner chooses an option from the wireframe drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared form keeps screens, statements, and exports in agreement, so finance can cite a figure without checking where it was read. This page holds the Money and Time category and the Documents and Charts category. Money and Time patterns recur in every product; Documents and Charts patterns are product-domain examples from a finance product. Its patterns are tested layouts a team chooses from, not required rules; a team building another product reads the Documents and Charts patterns as worked examples.
 
 ## Concepts
 
@@ -20,17 +20,19 @@ Each option shows one wireframe drawing with its own rationale, its cost, and th
 
 Every drawing on this page comes from one month: the Claimwick September 2026 statement. It covers expense EXP-1042 for Ava at EUR 125.00, the payout run holding it, and the autumn travel season. Amounts use currency codes with the decimals each currency defines, moments use the Europe/Amsterdam zone, and counts name what they count.
 
-Three rules hold for every option, whichever one a project picks, and the Standards section states them: every amount shows its currency, a moment shared across zones states its zone, and figures in a column line up by place.
+Three defaults hold for every option unless the project records another choice, whichever one a project picks, and the Conventions section states them: every amount shows its currency, a moment shared across zones states its zone, and figures in a column line up by place.
 
-## Standards
+## Conventions
 
 ### Show the Currency of Every Amount
 
 **ID:** `litespec/frontend/patterns/money-time-density#show-the-currency-of-every-amount`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** Every amount MUST show its currency.
+**Default:** Write every amount with its currency code and the decimals its currency defines.
+
+**Replacement:** A project that replaces the default records where its amounts show without a currency and why.
 
 **Rationale:** A bare 125.00 reads clearly until a second currency arrives. Then each bare figure is a guess, and a pasted number carries nothing to settle it. A currency on every amount keeps EUR 125.00 distinct from GBP 125.00 on every screen and export.
 
@@ -40,9 +42,11 @@ Three rules hold for every option, whichever one a project picks, and the Standa
 
 **ID:** `litespec/frontend/patterns/money-time-density#state-the-time-zone-of-a-shared-moment`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A moment shown to readers in different time zones MUST state its time zone.
+**Default:** State the time zone of a moment shown to readers in different time zones.
+
+**Replacement:** A project that replaces the default records how its shared moments state their zone.
 
 **Rationale:** Without a stated zone, a reader in London reads 09:32 in Amsterdam as 09:32 local time. Two readers then plan the same payout window an hour apart, and finance meets only one of them. A stated zone keeps the moment the same for every reader.
 
@@ -52,15 +56,15 @@ Three rules hold for every option, whichever one a project picks, and the Standa
 
 **ID:** `litespec/frontend/patterns/money-time-density#align-figures-in-a-column`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** An amount, count, or quantity shown in a column MUST use tabular figures, so digits of equal place sit under each other.
+**Default:** Use tabular figures for an amount, count, or quantity shown in a column, so digits of equal place sit under each other.
+
+**Replacement:** A project that replaces the default records how its figure columns align.
 
 **Rationale:** Proportional figures give each digit its own width, so digits in equal places stop lining up down a column. A misaligned reversal column is misread at a glance, and the wrong row gets paid. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.
 
 **Reviewed for:** Does every built figure column line up by place? Open built amount, count, and quantity columns and read down each one.
-
-## Conventions
 
 ### Mark a Moment with Its Machine Value
 

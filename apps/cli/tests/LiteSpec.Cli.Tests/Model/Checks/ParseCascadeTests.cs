@@ -16,14 +16,14 @@ public sealed class ParseCascadeTests
         var moduleFile = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command"}"""));
         var scan = RecordFiles.Scan(moduleFile, "type: module\ntitle: Lending: renewals\ndependsOn: []\n");
         Assert.NotEmpty(scan.Problems);
         model.Problems.AddRange(scan.Problems);
 
         var findings = Checker.Check(model).Findings;
         Assert.Contains(findings, found => found.Code == "record-invalid" && found.Path == moduleFile);
-        Assert.DoesNotContain(findings, found => found.Code == "record-parent-missing");
+        Assert.DoesNotContain(findings, found => found.Code == "record-placement-invalid");
     }
 
     /// <summary>Rule With Unreadable Module Stays Silent.</summary>
@@ -42,7 +42,7 @@ public sealed class ParseCascadeTests
 
         var findings = Checker.Check(model).Findings;
         Assert.Contains(findings, found => found.Code == "record-invalid" && found.Path == moduleFile);
-        Assert.DoesNotContain(findings, found => found.Code == "record-parent-missing");
+        Assert.DoesNotContain(findings, found => found.Code == "record-placement-invalid");
     }
 
     /// <summary>Child Of Readable Missing Module Still Reports.</summary>
@@ -54,14 +54,14 @@ public sealed class ParseCascadeTests
         var moduleFile = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("use-case", "use-case/archive.return-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "return-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/archive.return-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "use-cases", "return-copy", "return-copy.yaml"), """{"kind": "command"}"""));
         var scan = RecordFiles.Scan(moduleFile, "type: module\ntitle: Lending: renewals\ndependsOn: []\n");
         Assert.NotEmpty(scan.Problems);
         model.Problems.AddRange(scan.Problems);
 
         var findings = Checker.Check(model).Findings;
-        var finding = Assert.Single(findings, found => found.Code == "record-parent-missing");
+        var finding = Assert.Single(findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Use case 'use-case/archive.return-copy' has no parent and its home 'archive' names no module.", finding.Message);
         Assert.Equal("use-case/archive.return-copy", finding.Subject);

@@ -19,7 +19,7 @@ public sealed class RecordSchemaParityTests
     const string SchemaFile = "schemas/record.schema.yaml";
 
     /// <summary>The finding codes the model check uses for a record shape failure.</summary>
-    static readonly string[] ShapeCodes = ["record-invalid", "field-invalid"];
+    static readonly string[] ShapeCodes = ["record-invalid", "record-invalid"];
 
     /// <summary>The valid baseline of each page record type: its identifier and its fields, as JSON.</summary>
     static readonly IReadOnlyDictionary<string, (string Id, string Json)> Baselines = new Dictionary<string, (string Id, string Json)>(StringComparer.Ordinal)
@@ -190,7 +190,7 @@ public sealed class RecordSchemaParityTests
     /// <param name="type">The record type.</param>
     /// <param name="id">The record identifier.</param>
     /// <param name="json">The record fields as JSON.</param>
-    /// <returns>The messages of the record-invalid and field-invalid findings, empty when the check accepts the record.</returns>
+    /// <returns>The messages of the record-invalid and record-invalid findings, empty when the check accepts the record.</returns>
     static List<string> ModelShapeMessages(string type, string id, string json)
     {
         using var temp = TestCli.Temp("parity");

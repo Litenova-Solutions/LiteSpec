@@ -8,7 +8,7 @@ using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
-/// <summary>Proves the backend mark-to-folder check and the per-language mark style check.</summary>
+/// <summary>Proves the backend mark-to-folder check.</summary>
 public sealed class MarkFolderDriftTests
 {
     /// <summary>Handler In Another Module Folder Reports Mark Folder Drift.</summary>
@@ -207,28 +207,6 @@ public sealed class MarkFolderDriftTests
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "aggregate/billing.invoice"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
-    }
-
-    /// <summary>Frontend Mark In Undeclared Style Reports No Mark Style Invalid.</summary>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
-    [Fact]
-    public void FrontendMarkInUndeclaredStyleReportsNoMarkStyleInvalid()
-    {
-        using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path, "attribute");
-        var webFile = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "booking", "holds", "hold-room", "litespec.ts");
-        model.Code.Elements.Add(new MarkedElement(
-            CodeKind.FrontendModule, "booking/holds/hold-room", null, webFile, 3,
-            [new CodeMark("use-case/booking.hold-room", MarkStyle.Xml, MarkVerb.Implements, webFile, 1)],
-            InTests: false));
-        var handlerFile = LayerFile(temp.Path, "Application", "Booking", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
-        model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", handlerFile, "use-case/booking.hold-room"));
-
-        var styled = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-style-invalid");
-
-        var finding = Assert.Single(styled);
-        Assert.Contains("HoldRoomCommandHandler", finding.Message);
-        Assert.DoesNotContain("Frontend module", finding.Message);
     }
 
     /// <summary>Handler Outside Its Module In The Module BackendLayout Reports Mark Folder Drift.</summary>

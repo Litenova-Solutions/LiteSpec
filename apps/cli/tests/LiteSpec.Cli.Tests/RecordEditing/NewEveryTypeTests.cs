@@ -52,7 +52,7 @@ public sealed class NewEveryTypeTests
     }
 
     /// <summary>A query is scaffolded from the query template, which its kind names, and the record opens with the scaffold marker.</summary>
-    /// <proves>litespec/core/authoring#copy-each-template-from-the-example</proves>
+    /// <proves>litespec/core/authoring#validate-each-template-against-the-record-schema</proves>
     [Fact(DisplayName = "new writes a query from the query template")]
     public void NewWritesAQueryFromTheQueryTemplate()
     {

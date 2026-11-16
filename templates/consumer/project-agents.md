@@ -32,7 +32,7 @@ A project waiver record sets a Standard aside only when it names the provision I
 
 An explicit project convention in `.litespec/governance/conventions/` can replace a baseline Convention when it cites the Convention's ID. (litespec/core/agent#apply-guidance-precedence)
 
-Read `.litespec/product.yaml` and the affected feature files before changing behavior that touches money, payouts, or terms. (litespec/core/intent#keep-intent-in-its-homes)
+Read `.litespec/product.yaml` and the affected feature files before changing behavior that touches money, payouts, or terms. (litespec/core/model#write-every-record-in-its-home)
 
 Record a product decision for any changed product choice. Research outside `.litespec/` is source material, never authority. (litespec/core/intent#treat-generated-research-as-source-material)
 <!-- /generated:agent-protocol -->

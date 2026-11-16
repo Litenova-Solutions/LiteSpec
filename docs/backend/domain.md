@@ -15,8 +15,6 @@ In code, the [aggregate root](../reference/glossary.md) is the single type throu
 
 One aggregate references another by typed identifier rather than by object reference. One domain repository per aggregate loads and stages it; the repository is a contract the Domain declares and Infrastructure implements.
 
-A `store` is the exception: it has no root in code and reaches code through a port, as `litespec/backend/application#expose-store-state-through-ports` states.
-
 ### Lifecycles as State Types
 
 Domain models the lifecycle as state types: one state property on the root, backed by one closed hierarchy with one type per state. Each state is a named type carrying the facts that exist in that state, and the root's methods own the transitions between them.
@@ -231,7 +229,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`.
 
-A command that changes only stores, or that only runs other commands and lists nothing in `writes`, performs no act on a root, so it needs no marked call.
+A command that only runs other commands and lists nothing in `writes` performs no act on a root, so it needs no marked call.
 
 **Example:** The handler for `use-case/spending.reimburse-expense` calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 

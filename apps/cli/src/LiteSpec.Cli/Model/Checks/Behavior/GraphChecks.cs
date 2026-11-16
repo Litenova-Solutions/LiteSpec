@@ -102,7 +102,7 @@ internal static class GraphChecks
 
         if (!SettingValueTypes.Contains(valueType, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("field-invalid", $"Setting '{setting.Id}' holds valueType '{valueType}' outside {string.Join(", ", SettingValueTypes)}.", setting.File, setting.Line, SubjectOf(setting)));
+            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds valueType '{valueType}' outside {string.Join(", ", SettingValueTypes)}.", setting.File, setting.Line, SubjectOf(setting)));
             return;
         }
 
@@ -139,7 +139,7 @@ internal static class GraphChecks
 
         if (!fits)
         {
-            findings.Add(new Finding("field-invalid", $"Setting '{setting.Id}' holds a default that does not take its valueType {valueType}.", setting.File, setting.Line, SubjectOf(setting)));
+            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds a default that does not take its valueType {valueType}.", setting.File, setting.Line, SubjectOf(setting)));
         }
     }
 
@@ -206,7 +206,7 @@ internal static class GraphChecks
                 }
                 else if (target.Type != RecordTypes.Rule)
                 {
-                    findings.Add(new Finding("field-invalid", $"Scenario '{scenario.Id}' exercises '{id}', which is a {target.Type}.", scenario.File, scenario.Line, SubjectOf(scenario)));
+                    findings.Add(new Finding("record-invalid", $"Scenario '{scenario.Id}' exercises '{id}', which is a {target.Type}.", scenario.File, scenario.Line, SubjectOf(scenario)));
                 }
             }
 
@@ -329,22 +329,21 @@ internal static class GraphChecks
             }
 
             // An aggregate or store is reached when the rule binds it, or a use case reaching the rule writes it.
-            var reachedAggregatesAndStores = rule.Ids(RecordFields.Binds).ToHashSet(StringComparer.Ordinal);
+            var reachedAggregates = rule.Ids(RecordFields.Binds).ToHashSet(StringComparer.Ordinal);
 
             foreach (var useCaseId in linked)
             {
                 if (model.ById.TryGetValue(useCaseId, out var reachingUseCase))
                 {
-                    reachedAggregatesAndStores.UnionWith(reachingUseCase.Ids(RecordFields.Writes));
+                    reachedAggregates.UnionWith(reachingUseCase.Ids(RecordFields.Writes));
                 }
             }
 
-            var governedAggregatesAndStores = GovernedOfType(model, rule, RecordTypes.Aggregate);
-            governedAggregatesAndStores.UnionWith(GovernedOfType(model, rule, RecordTypes.Store));
+            var governedAggregates = GovernedOfType(model, rule, RecordTypes.Aggregate);
 
-            if (!governedAggregatesAndStores.SetEquals(reachedAggregatesAndStores))
+            if (!governedAggregates.SetEquals(reachedAggregates))
             {
-                findings.Add(new Finding("rule-governs-drift", $"Rule '{rule.Id}' governs aggregates and stores '{string.Join("', '", governedAggregatesAndStores.Order(StringComparer.Ordinal))}' but its links reach '{string.Join("', '", reachedAggregatesAndStores.Order(StringComparer.Ordinal))}'.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("rule-governs-drift", $"Rule '{rule.Id}' governs aggregates '{string.Join("', '", governedAggregates.Order(StringComparer.Ordinal))}' but its links reach '{string.Join("', '", reachedAggregates.Order(StringComparer.Ordinal))}'.", rule.File, rule.Line, SubjectOf(rule)));
             }
         }
     }
