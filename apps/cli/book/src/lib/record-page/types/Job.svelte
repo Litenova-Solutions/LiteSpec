@@ -69,4 +69,4 @@
 </PageSection>
 <EffectsBlock {f} caption={`Effects of ${r.title}`} />
 <FailureBlock {f} />
-<DataTouched {f} />
+<DataTouched {f} carrier={r.type} />

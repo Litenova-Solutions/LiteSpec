@@ -11,12 +11,14 @@
 
   // The data a behavior touches: what it writes, what it reads, and how the two
   // agree. A use case also states its idempotency and audit here.
-  type Props = { f: RecordFields; guarantees?: boolean };
-  let { f, guarantees = false }: Props = $props();
+  type Props = { f: RecordFields; guarantees?: boolean; carrier?: string | null };
+  let { f, guarantees = false, carrier = null }: Props = $props();
   const writes = $derived(stringList(f, "writes"));
   const reads = $derived(stringList(f, "reads"));
   const consistency = $derived(objectField(f, "consistency"));
   const boundBy = $derived(stringList(consistency, "boundBy"));
+  const guards = $derived(stringList(consistency, "guards"));
+  const guardsPhrase = $derived(book.phraseFor("consistency.guards", carrier, "forward"));
   const idem = $derived(guarantees ? idemTileOf(f) : null);
   const idemHintHtml = $derived.by(() => {
     const i = guarantees ? objectField(f, "idempotency") : undefined;
@@ -54,6 +56,11 @@
           {#if boundBy.length}
             <span class="mt-1 block font-mono text-xs text-text-helper">
               because {#each boundBy as c, i (c)}{#if i > 0}{", "}{/if}<RecordLink id={c} />{/each}
+            </span>
+          {/if}
+          {#if guards.length}
+            <span class="mt-1 block font-mono text-xs text-text-helper">
+              {guardsPhrase} {#each guards as g, i (g)}{#if i > 0}{", "}{/if}<RecordLink id={g} />{/each}
             </span>
           {/if}
         </DefinitionRow>

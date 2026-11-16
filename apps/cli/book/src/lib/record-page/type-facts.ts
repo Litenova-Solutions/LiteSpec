@@ -219,6 +219,8 @@ export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "given", "when", "then", "result",
   // A read model shows these in its own definition list, with the key as a record link.
   "keyedBy", "removedBy", "freshness",
+  // A module event and an integration event show the domain event each translates in their own definition list, as a record link.
+  "translates",
   // A reaction shows the use case it undoes in its own section.
   "compensates",
   // A flow shows these in its own start and finish callouts.

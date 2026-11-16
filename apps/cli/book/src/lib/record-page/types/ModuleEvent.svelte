@@ -25,11 +25,11 @@
   }
 </script>
 
-<PageSection blockKey="id" heading="translates">
+{#if translates}
   <DefinitionList>
-    {#if translates}<DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>{/if}
+    <DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>
   </DefinitionList>
-</PageSection>
+{/if}
 {#if payload.length}
   <PageSection blockKey="pay" heading="payload" count={payload.length}>
     <DataTable

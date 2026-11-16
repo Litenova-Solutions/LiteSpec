@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book, esc, freshnessLine, pluralize, stripStep } from "$lib/frame";
+  import { book, capitalize, esc, freshnessLine, pluralize, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { RecordLink, SourceFileLink, ProofMark } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
@@ -16,6 +16,7 @@
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const sf = $derived(scenarioFields(r.fields ?? {}));
+  const competesPhrase = $derived(book.phraseFor("competesWith", r.type, "forward"));
   const resultId = $derived(book.outs(stripStep(id), "result")[0] ?? null);
   const ri = $derived(resultInfoOf(resultId ? book.get(resultId) : null));
   const resultLink = $derived(resultId ?? "");
@@ -31,7 +32,7 @@
   const exampleKeys = $derived(Object.keys(sf.examples[0] ?? {}));
 </script>
 
-{#if ri || sf.exercises.length}
+{#if ri || sf.exercises.length || sf.competesWith}
   <DefinitionList>
     {#if ri}
       <DefinitionRow label="Result">
@@ -42,6 +43,11 @@
     {#if sf.exercises.length}
       <DefinitionRow label="Exercises">
         {#each sf.exercises as x, i (x)}{#if i > 0}{", "}{/if}<RecordLink id={x} />{/each}
+      </DefinitionRow>
+    {/if}
+    {#if sf.competesWith}
+      <DefinitionRow label={capitalize(competesPhrase)}>
+        <RecordLink id={sf.competesWith} />
       </DefinitionRow>
     {/if}
   </DefinitionList>

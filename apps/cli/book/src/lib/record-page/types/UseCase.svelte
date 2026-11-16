@@ -58,7 +58,7 @@
   <PageSection blockKey="exp" heading="exposure"><RenderedProse html={exposure} /></PageSection>
 {/if}
 <AccessBlock {id} {f} />
-<DataTouched {f} guarantees />
+<DataTouched {f} guarantees carrier={r.type} />
 {#if model.input.length}
   <PageSection blockKey="in" heading="input" count={model.input.length}>
     <DataTable

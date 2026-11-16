@@ -71,6 +71,7 @@ export interface ScenarioFields {
   when?: string;
   then?: string;
   exercises: string[];
+  competesWith?: string;
   examples: RecordFields[];
 }
 
@@ -81,6 +82,7 @@ export function scenarioFields(f: RecordFields): ScenarioFields {
     when: stringField(f, "when"),
     then: stringField(f, "then"),
     exercises: stringList(f, "exercises"),
+    competesWith: stringField(f, "competesWith"),
     examples: objectList(f, "examples"),
   };
 }
