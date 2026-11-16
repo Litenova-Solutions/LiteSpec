@@ -5,7 +5,7 @@
 
 Every screen in a product draws from one shared UI package: the ready-made controls, the interaction behavior, the page layouts, and the named visual values.
 
-This page states how the workspace governs that package: the visual authority, the design contract, the token roles and limits, the screen blueprint, the floorplan set, and the route suite that proves every route. Frontend teams and agents apply it whenever they add or change a screen, a component, or a named value, so every page of one kind looks and behaves as one page.
+This page states the rules for governing that package. Frontend teams and agents apply it whenever they add or change a screen, a component, or a named value.
 
 ## Concepts
 
@@ -23,15 +23,11 @@ A screen is one page a person sees through an entry point. A route is the code t
 | Behavior | How each control answers the keyboard, focus, pointer, screen reader, motion setting, color scheme, and browser | The behavior Standards on the pattern pages and on [Frontend Components](components.md), drawn from WCAG 2.2 | The route suite and the component tests |
 | Parts | The components and their look | The pinned baseline in the shared UI package | The source lock and the component tests |
 
-The product layer decides what the screen draws and says. The behavior layer decides how controls answer input, and it comes from the behavior Standards on the pattern pages and the component page, drawn from WCAG 2.2. The parts layer decides which components supply the look, and it comes from the pinned baseline in the shared UI package.
-
-The parts layer does not weaken the behavior layer. When a baseline component falls short of a behavior Standard, the shared package configures the component, wraps it in a composite, or records a fork, and no route works around it. A dialog that closes on a press outside it, for example, is configured once in the shared form dialog to keep unsaved input, so `litespec/frontend/patterns/dialogs-and-overlays#keep-unsaved-input-through-a-dismissal` holds on every route.
-
-The table also names the proof for each layer. The pattern catalog entry and the floorplan check prove the product layer, the route suite and the component tests prove the behavior layer, and the source lock and the component tests prove the parts layer.
+The parts layer does not weaken the behavior layer. When a baseline component falls short of a behavior Standard, the shared package configures the component, wraps it in a composite, or records a fork, and no route works around it. A dialog that closes when the user presses outside it, for example, is configured once in the shared form dialog to keep unsaved input, so `litespec/frontend/patterns/dialogs-and-overlays#keep-unsaved-input-through-a-dismissal` holds on every route.
 
 ### The Floorplan Set
 
-A floorplan is a page component that fixes one page layout and exposes named slots for the domain to fill. The shared package holds the closed set, and a route composes exactly one of them. A closed set lets an author choose a known shape by rule rather than invent a layout. Each floorplan implements the chosen option of one page-frame pattern from the pattern catalog ([UI patterns](patterns.md)).
+A floorplan is a page component that fixes one page layout and exposes named slots for the domain to fill. The shared package holds the closed set, and a route composes exactly one of them. A closed set lets an author choose a known shape by rule rather than creating a new layout. Each floorplan implements the chosen option of one page-frame pattern from the pattern catalog ([UI patterns](patterns.md)).
 
 The reference set holds one floorplan for each user task. Your workspace declares the floorplans its routes need, and each declaration carries the rule for choosing it.
 
@@ -43,7 +39,7 @@ The reference set holds one floorplan for each user task. Your workspace declare
 | `FormPage` | Supplies the input of one command | The fields, one primary action, and the refusals |
 | `OutcomePage` | Receives one answer after an action | The answer and the next step |
 
-The domain fills the slots, so a floorplan invents no state, action, or refusal.
+The domain fills the slots, so a floorplan defines no state, action, or refusal.
 
 | Slot | Domain source |
 |:---|:---|
@@ -123,7 +119,7 @@ For example, Claimwick starts with `requirement/ui-text-contrast`. Its body text
 
 ### The Command Surface
 
-A command is a use case that changes something. Its surface is where a person runs it: a button, a dialog, or a page. The surface follows the size of the input, because a surface larger than the command needs costs attention the command has no use for.
+A command is a use case that changes something. Its surface is where a person runs it: a button, a dialog, or a page. The surface follows the size of the input, because a larger surface than the command needs wastes the user's attention.
 
 | The command takes | Surface |
 |:---|:---|
@@ -161,9 +157,9 @@ For example, when Claimwick adds an expense route, the suite visits it on the ne
 
 ### Proving Results
 
-A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`: every refusal a screen can reach through its computed `calls` carries its sentence on its result. Success results are proved through their scenarios, as [Frontend Testing](testing.md) describes.
+A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`: every written refusal of a use case the screen offers carries its `sentence` on the result record, the sentence a person reads.
 
-Result proof for routes follows `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`. That Behavior provision is the one result obligation for a screen: every written refusal of a use case the screen offers carries its `sentence` on the result record, the sentence a person reads, and `refusal-sentence-missing` checks it from the records alone. A browser test asserting the code does not stand in for the sentence, and a derived refusal, one the model derives instead of anyone writing it, carries none of its own. Success results stay proved through their scenarios. For example, the expense form offers the use case that raises `spending.receipt-missing`, and that refusal carries its sentence on its result.
+`refusal-sentence-missing` checks the sentence from the records alone. A browser test asserting the code does not stand in for the sentence, and a derived refusal, one the model derives instead of anyone writing it, carries none of its own. Success results are proved through their scenarios, as [Frontend Testing](testing.md) describes. For example, the expense form offers the use case that raises `spending.receipt-missing`, and that refusal carries its sentence on its result.
 
 ## Standards
 
@@ -205,7 +201,7 @@ Result proof for routes follows `litespec/core/edges#write-the-sentence-a-person
 
 **Statement:** A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Baseline, Tokens, Page Frames, Vocabulary, Motion, Browser Support.
 
-**Rationale:** An author that has read no contract picks their own tokens, motion, browser features, and components for each page. The picks differ on the next page, and the user sees the difference as clutter: same product, different looks. One design contract published with the shared UI package keeps every answer in one file. Baseline names the pinned design baseline and its version, Tokens names the path of the token values file, Page Frames maps each page-frame pattern the product uses to the component that implements it, Vocabulary names the composites a page reaches for, Motion states the durations and what each becomes under the reduced-motion setting, and Browser Support states the target every platform feature is judged against. The contract names no screen: each screen names its own page frame on its record. Proposed by decision 0089.
+**Rationale:** An author that has read no contract picks their own tokens, motion, browser features, and components for each page. The picks differ on the next page, and the user sees the difference as clutter. One design contract published with the shared UI package keeps every answer in one file. Baseline names the pinned design baseline and its version, Tokens names the path of the token values file, Page Frames maps each page-frame pattern the product uses to the component that implements it, Vocabulary names the composites a page reaches for, Motion states the durations and what each becomes under the reduced-motion setting, and Browser Support states the target every platform feature is judged against. The contract names no screen: each screen names its own page frame on its record. Proposed by decision 0089.
 
 **Example:** Claimwick publishes its contract with `@claimwick/ui`. The metadata block names the package, the token file, and the component behind each page frame it draws:
 
@@ -232,7 +228,7 @@ pageFrames:
 
 **Statement:** The `Page Frames` section of the design contract MUST map each page-frame pattern the product uses to the floorplan component that implements it, each with a when-to-use rule.
 
-**Rationale:** Without a when-to-use rule, authors choose floorplans by resemblance. Two authors pick different floorplans for one kind of page, and users meet the same kind in two layouts. A map from each page-frame pattern to its component, with the rule that selects it, makes the choice mechanical. A floorplan outside the map is a decision for the shared package, not a choice a route makes on its own. Proposed by decision 0089.
+**Rationale:** Without a when-to-use rule, authors choose floorplans by resemblance. Two authors pick different floorplans for one kind of page, and users meet the same kind in two layouts. A map from each page-frame pattern to its component, with the rule that selects it, lets authors choose by rule. A floorplan outside the map is a decision for the shared package, not a choice a route makes on its own. Proposed by decision 0089.
 
 **Example:** Claimwick's Page Frames section states each page frame, its component, and the question that selects it:
 
@@ -274,7 +270,7 @@ pageFrames:
 
 **Statement:** Route code MUST NOT declare layout outside its floorplan and display composites.
 
-**Rationale:** A layout declaration in a route file is a second layout beside the floorplan: the route draws its own spacing while claiming the floorplan's shape. The next route copies the declaration because it looks like the local way to draw, and the floorplan stops describing what routes render. Floorplan and display composites own layout, so one change there reaches every route composing them.
+**Rationale:** A layout declaration in a route file is a second layout beside the floorplan: the route draws its own spacing while claiming the floorplan's shape. The next route copies the declaration because it looks like the accepted local practice, and the floorplan stops describing what routes render. Floorplan and display composites own layout, so one change there updates every route composing them.
 
 **Reviewed for:** Does any route file declare layout outside its floorplan and display composites? Look in the route sources.
 
@@ -302,7 +298,7 @@ pageFrames:
 
 **Statement:** Every route MUST name its page type's reference, with a freestyle route naming its decision record instead.
 
-**Rationale:** An author with no named reference invents a page from primitives, and the next author invents another page for the same type. Naming the page type's reference keeps every page of one type on the one drawing it derives from, so the type stays one design. A freestyle route names its decision record instead, since it derives from no reference.
+**Rationale:** An author with no named reference builds a page from primitives, and the next author builds another page for the same type. Naming the page type's reference keeps every page of one type following the one drawing it derives from, so the type stays one design. A freestyle route names its decision record instead, since it derives from no reference.
 
 **Reviewed for:** Does every route name its page type reference, or its decision record for a freestyle route? Look in the route sources.
 
@@ -316,7 +312,7 @@ pageFrames:
 
 **Statement:** Each screen MUST name every screen a person reaches from it in one step in `leadsTo`.
 
-**Rationale:** The screens and their links are the navigation, and they exist in records before any route is built. The book draws each entry point as a map of places and connections, and each flow as a strip of its step screens. A screen that no other screen leads to strands its readers unless it starts its entry point. A screen that leads nowhere and offers no use case ends their task with nothing done. Proposed by decision 0089.
+**Rationale:** The screens and their links are the navigation, and they exist in records before any route is built. The book draws each entry point as a map of places and connections, and each flow as a strip of its step screens. A screen that no other screen leads to leaves its readers with no way in unless it starts its entry point. A screen that leads nowhere and offers no use case ends their task with nothing done. Proposed by decision 0089.
 
 **Example:** The Claimwick expense list names the expense record and the new expense form in `leadsTo`. A reader on the list reaches the record to act on one expense, or the form to start a new one, each in one step.
 
@@ -362,7 +358,7 @@ pageFrames:
 
 **Statement:** An application MUST use the shared token definition and declare no value, with no literal color in any shipped definition.
 
-**Rationale:** One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first has no opinion about. A definition the shared package ships declares no literal color, so every value traces to the one token file the design contract names.
+**Rationale:** One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first does not define. A definition the shared package ships declares no literal color, so every value traces to the one token file the design contract names.
 
 **Reviewed for:** Does any application declare its own token value, or does any shipped definition carry a literal color? Look in the application and shared token definitions.
 
@@ -376,7 +372,7 @@ pageFrames:
 
 **Statement:** Every token value in each declared color scheme MUST meet the limit the Concepts table states for its role.
 
-**Rationale:** Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while waving through a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089.
+**Rationale:** Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while accepting a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089.
 
 **Example:** Claimwick's card edge differs from the page by 1.2:1 in both schemes, so cards read as separate surfaces while separators stay quieter.
 
@@ -392,7 +388,7 @@ pageFrames:
 
 **Statement:** A project MUST keep every token value in the one token file the design contract's Tokens section names, written in the W3C Design Tokens format, version 2025.10.
 
-**Rationale:** When values scatter across stylesheets, each limit depends on a hand-run script that runs once and is forgotten. Design tools and token converters have no file they read, and the check has no file to judge. One token file gives every value a home that tools read: components read the stylesheet generated from it, and the check reads it to judge every limit. Proposed by decision 0089.
+**Rationale:** When values scatter across stylesheets, each limit depends on a hand-run script that runs once and is forgotten. Design tools and token converters have no file they read, and the check has no file to judge. One token file holds every value where tools read it: components read the stylesheet generated from it, and the check reads it to judge every limit. Proposed by decision 0089.
 
 **Example:** Claimwick keeps every value in `tokens/claimwick.tokens.json` and builds its component stylesheet from that file:
 
@@ -433,7 +429,7 @@ pageFrames:
 
 **Statement:** A command MUST use the surface the Concepts table assigns to its input.
 
-**Rationale:** The surface fits the input: a button for a reversible action, a confirmation dialog for an irreversible one, a form dialog for one to four inputs, and a form page beyond that. A form dialog with more inputs than the table allows scrolls, loses its title, and hides the refusal beside the field that caused it. An oversized surface for a small command costs the user attention the command has no use for.
+**Rationale:** The surface fits the input: a button for a reversible action, a confirmation dialog for an irreversible one, a form dialog for one to four inputs, and a form page beyond that. A form dialog with more inputs than the table allows scrolls, loses its title, and hides the refusal beside the field that caused it. An oversized surface for a small command wastes the user's attention.
 
 **Reviewed for:** Does every command use the surface the Concepts table assigns to its input? Look in the command surfaces.
 
@@ -475,7 +471,7 @@ pageFrames:
 
 **Statement:** A style MUST use a semantic token rather than a raw value.
 
-**Rationale:** A raw value in a style answers to no token. The theme leaves it unchanged through every restyle, and the next author copies the value instead of the token. The shared package definition is the authoritative style surface, holding the tokens, the fonts, and the documented resets. A style built from semantic tokens stays inside the product's visual language by construction.
+**Rationale:** A raw value in a style traces to no token. The theme leaves it unchanged through every restyle, and the next author copies the value instead of the token. The shared package definition is the authoritative style surface, holding the tokens, the fonts, and the documented resets. A style built from semantic tokens stays inside the product's visual language by construction.
 
 **Reviewed for:** Does any style use a raw value instead of a semantic token? Look in the stylesheets and the shared package definition.
 
@@ -527,7 +523,7 @@ pageFrames:
 
 **Statement:** A frontend outside the controlled platforms MUST declare an entry point record naming that platform and the boundaries replacing this contract.
 
-**Rationale:** A device client with no shared component and no router sits outside the floorplan set and the component rules: the contract's checks do not apply to it. Declaring an entry point record that names its platform and the boundaries replacing this contract keeps the decision visible, instead of letting the frontend report as one with nothing to check.
+**Rationale:** A device client with no shared component and no router sits outside the floorplan set and the component rules: the contract's checks do not apply to it. Declaring an entry point record that names its platform and the boundaries replacing this contract keeps the decision visible, instead of letting the frontend appear as one with nothing to check.
 
 **Reviewed for:** Does every frontend outside the controlled platforms declare an entry point record with its platform and replacement boundaries? Look in the entry point records.
 
@@ -561,6 +557,6 @@ pageFrames:
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A user looking for an action needs to learn it exists and why it is unavailable, such as a missing permission or an unmet precondition. A control that vanishes instead reads as a product that does not offer the action at all. Staying visible and disabled with the reason beside it teaches both the existence and the block.
+**Rationale:** A user looking for an action needs to learn it exists and why it is unavailable, such as a missing permission or an unmet precondition. A control that vanishes instead looks like a product that does not offer the action at all. Staying visible and disabled with the reason beside it shows both the existence and the block.
 
 **Reviewed for:** Does every command blocked only by state or role stay visible and disabled with its reason beside it? Look in the command surfaces.

@@ -5,13 +5,13 @@
 
 Frontend tests prove behavior at the cheapest level that represents the risk. Pure logic takes unit tests, navigation and integration take browser suites against a running deployment, and every address takes the route check.
 
-This page states which kind proves what, how a test proves a use case by calling it and asserting the result each scenario names, and where mocks may stand. Frontend developers and agents apply it whenever they add or change a test, so each risk is proved once at the right level instead of slowly everywhere or nowhere at all.
+This page states the test kinds and the rules for proving scenarios and using mocks. Frontend developers and agents apply it whenever they add or change a test.
 
 ## Concepts
 
 ### Test Kinds
 
-Each kind runs against a frontend and answers one question. A scenario is one worked example that leads from a situation to one named result, written in `given`, `when`, `then`. The [Project Model](../core/model.md) defines both record types.
+Each kind runs in one place and proves one thing. A scenario is one worked example that leads from a situation to one named result, written in `given`, `when`, `then`. The [Project Model](../core/model.md) defines both record types.
 
 | Kind | Where it runs | What it proves |
 |:---|:---|:---|
@@ -28,7 +28,7 @@ A browser suite needs a deployment, and nothing in the suite starts one, so the 
 
 A browser test reaches a screen when a `page.goto` literal or template in the test matches that screen's `address` template. Click-through navigation inference is out of scope.
 
-The test confirms a scenario when, in the same test, an assertion holds the refusal `code` or the success result's declared text or code, and the reached screen offers the scenario's use case. A flow test therefore uses one `page.goto` per screen it proves on.
+In the same test, the test confirms a scenario when an assertion holds the refusal `code` or the success result's declared text or code, and the reached screen offers the scenario's use case. A flow test therefore uses one `page.goto` for each screen where it proves a scenario.
 
 ### Element Queries
 
@@ -65,7 +65,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test that proves a scenario MUST carry a `proves` annotation naming that scenario.
 
-**Rationale:** A title tag claims proof without anything reading it, so the builder cannot count it. The written annotation is the link the builder counts: it names the lowest record the test verifies, exactly as a backend test mark does, and it is built by the `proves` helper the generated records file exports. A wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran.
+**Rationale:** A title tag claims proof without anything reading it, so the builder cannot count it. The written annotation is the link the builder counts: it names the lowest record the test verifies, exactly as a backend test mark does. The annotation is built by the `proves` helper the generated records file exports. A wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran.
 
 **Example:** The browser specification at `apps/web/tests/expenses/list-expenses.spec.ts` in the Claimwick example carries `proves("scenario/list-expenses.listing-own-expenses-succeeds")`. That mark makes the specification the evidence for the listing scenario.
 
@@ -79,7 +79,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test that proves a scenario MUST reach a screen that offers the scenario's use case by a `page.goto` literal or template matching that screen's `address`.
 
-**Rationale:** A test that only clicks through navigation names no screen it proved on, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the `page.goto` target against the screen `address` templates gives the deterministic reach the reader computes.
+**Rationale:** A test that only clicks through navigation names no screen where it proved the scenario, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the `page.goto` target against the screen `address` templates produces the deterministic reach the reader computes.
 
 **Example:** The evidence specification opens `/expenses`, the address of `screen/claimwick-app.expense-list`, which offers `use-case/spending.list-expenses`. That navigation is the reach the check reads.
 
@@ -93,7 +93,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test that proves a scenario MUST assert the result the scenario ends in by its refusal code or by the success result's declared text or code.
 
-**Rationale:** Reaching the screen shows only that the page opened; the assertion shows the ending the result promises. Holding the refusal code or the success text in the same test ties the proof to the named result. A money-moving use case that a test only reads leaves completion unshown, so the test submits it.
+**Rationale:** Reaching the screen shows only that the page opened; the assertion shows the ending the result promises. Holding the refusal code or the success text in the same test ties the proof to the named result. A test that only reads a money-moving use case does not show its completion, so the test submits it.
 
 **Example:** The browser specification for `scenario/list-expenses.listing-own-expenses-succeeds` opens the expense list on `screen/claimwick-app.expense-list` and asserts the expenses table: the listed ending the success result `result/list-expenses.listed` promises.
 
@@ -121,7 +121,7 @@ Four related rules live on other pages:
 
 **Statement:** A scenario MUST carry one `proves` mark, on the test at the cheapest boundary that represents its risk.
 
-**Rationale:** Marking both boundaries on one scenario makes the slower test a second witness nobody needs, and doubles the work when the scenario changes. An API test proves a business outcome faster and more steadily than a browser test, and a browser test is the only proof that a page offers the use case and renders its result. A scenario whose risk is the outcome is proved at the API, and a scenario whose risk is what a person sees is proved in the browser.
+**Rationale:** Marking both boundaries on one scenario makes the slower test an unneeded duplicate, and doubles the work when the scenario changes. An API test proves a business outcome faster and more reliably than a browser test, and a browser test is the only proof that a page offers the use case and renders its result. A scenario whose risk is the outcome is proved at the API, and a scenario whose risk is what a person sees is proved in the browser.
 
 **Example:** `scenario/list-expenses.listing-own-expenses-succeeds` is proved by the browser specification at `apps/web/tests/expenses/list-expenses.spec.ts`, the cheapest boundary that shows what a person sees on the expense list. A scenario whose risk is a business outcome alone is proved at the API boundary instead.
 
@@ -135,7 +135,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test that drives several screens MUST carry a `flow` annotation naming the flow and a `proves` mark for each scenario it drives and asserts.
 
-**Rationale:** A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The `flow` annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+**Rationale:** A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The `flow` annotation tells a reader which flow the test covers without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
 **Example:** The submit-and-reimburse flow test carries `flow: flow/submit-and-reimburse` and a `proves` mark for each scenario it drives and asserts on each screen it reaches.
 
@@ -151,7 +151,7 @@ Four related rules live on other pages:
 
 **Deviation:** A logic test asserts only the states its level reaches.
 
-**Rationale:** An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test's situation reaches ties the test to the reader's view instead. The scenario states which states its situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success. The project records each state as a term with labels per language.
+**Rationale:** An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test's situation reaches ties the test to what the reader sees instead. The scenario states which states its situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success. The project records each state as a term with labels per language.
 
 **Reviewed for:** Does every test assert observable behavior, in each state its situation reaches, instead of internal state? Check the test assertions.
 
@@ -163,7 +163,7 @@ Four related rules live on other pages:
 
 **Statement:** A component or logic test that needs HTTP MUST serve its answers through network mocks generated from the published contract.
 
-**Rationale:** A mocked client replaces the generated code with a guess of what it returns, so the test proves the mock rather than the component. A network mock generated from the published contract answers the same HTTP request the browser would send instead. The generated client stays in the path it takes in production, and the component is tested through the client the page actually uses.
+**Rationale:** A mocked client replaces the generated code with a guess at what it returns, so the test proves the mock rather than the component. A network mock generated from the published contract answers the same HTTP request the browser would send instead. The generated client stays in the path it takes in production, and the component is tested through the client the page actually uses.
 
 **Example:** The workspace keeps one mock-generation command that regenerates them from the published OpenAPI document.
 
@@ -177,7 +177,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test MUST create or identify its own data, its own authentication context, and its own expected state.
 
-**Rationale:** A test that depends on execution order or on leftover data fails for reasons unrelated to the change under review, and passes only when the suite runs in one order. Creating its own data, its own authentication context, and its own expected state makes each test runnable alone and in any order. A test spends no seeded record; it creates the record it needs.
+**Rationale:** A test that depends on execution order or on leftover data fails for reasons unrelated to the change under review, and passes only when the suite runs in one order. Creating its own data, its own authentication context, and its own expected state makes each test runnable alone and in any order. A test uses no seeded record; it creates the record it needs.
 
 **Reviewed for:** Does every browser test create or identify its own data, authentication context, and expected state? Check the browser specifications.
 
@@ -189,7 +189,7 @@ Four related rules live on other pages:
 
 **Statement:** A frontend calling the API MUST hold a test asserting that its module tree resolves to the backend use-case folders and names no refused folder.
 
-**Rationale:** Without a check, the backend adds or renames a use case and the frontend tree silently stops matching, so the translation lands nowhere. The module mirror is the claim that makes a specification findable from a folder path: translate three names, land on the code. A test asserting the mirror on every build, and naming no refused folder, keeps the translation true. The same test can also assert no import between use case folders or between modules, which no lint rule checks.
+**Rationale:** Without a check, the backend adds or renames a use case and the frontend tree silently stops matching, so the translation finds nothing. The module mirror is the claim that makes a specification findable from a folder path: translating three names finds the code. A test that asserts the mirror on every build, and names no refused folder, keeps the translation true. The same test can also assert no import between use case folders or between modules, which no lint rule checks.
 
 **Example:** The structure check resolves each folder name against the backend's module tree, as the Vitest structure test on [Web Testing](web/testing.md) shows.
 
@@ -203,7 +203,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser suite MUST run through the command line, addressable per route and per file.
 
-**Rationale:** A check that runs only inside an editor plugin or a proxy runner leaves the next investigator with no way to repeat it. The command line is the interface every runner shares: the developer, the drill, and the integration job all invoke the same command. Addressable per route and per file, the suite also runs just the check under review instead of the whole suite.
+**Rationale:** A check that runs only inside an editor plugin or a proxy runner leaves the next investigator with no way to repeat it. The command line is the interface every runner shares: the developer, the drill, and the integration job all invoke the same command. Because the suite is addressable per route and per file, it also runs just the check under review instead of the whole suite.
 
 **Reviewed for:** Does every browser suite run through the command line, addressable per route and per file? Check the suite runner and the CI invocation.
 
@@ -219,7 +219,7 @@ Four related rules live on other pages:
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Test support grows easily into render frameworks, data builders, and custom runners: a second application with its own untested surface. Limiting it to render helpers for required providers, one shared API helper, and locator helpers keeps it small. A change to the actor header or the idempotency key then reaches the fixtures rather than every specification.
+**Rationale:** Test support grows easily into render frameworks, data builders, and custom runners: a second application with its own untested surface. Limiting it to render helpers for required providers, one shared API helper, and locator helpers keeps it small. A change to the actor header or the idempotency key is then made in the fixtures rather than in every specification.
 
 **Reviewed for:** Does every test support file hold only render helpers, one shared API helper, and locator helpers? Check the test support files.
 
@@ -233,7 +233,7 @@ Four related rules live on other pages:
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A hard-coded record identifier passes against the deployment it was copied from and fails against the next deployment, where that record does not exist. Reading the identifier from the running deployment keeps the test true wherever it runs. Falling back to an absent identifier still visits the route as a not-found page, which is a state a reader can reach anyway.
+**Rationale:** A hard-coded record identifier passes against the deployment it was copied from and fails against the next deployment, where that record does not exist. Reading the identifier from the running deployment keeps the test valid wherever it runs. Falling back to an absent identifier still visits the route as a not-found page, which is a state a reader can reach.
 
 **Reviewed for:** Does every browser test read the record identifiers it needs from the running deployment instead of hard-coding them? Check the browser specifications.
 
