@@ -40,7 +40,7 @@ Comments on route lambdas do not reach the contract, so this metadata is declare
 
 **Statement:** A WebApi endpoint MUST implement `IEndpoint`, map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
-**Rationale:** When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route can affect another, and a second routing pattern can grow beside the first unnoticed. This provision binds `litespec/backend/api#map-one-operation-per-endpoint` for .NET.
+**Rationale:** When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route silently affects another, and a second routing pattern grows beside the first unnoticed. This provision binds `litespec/backend/api#map-one-operation-per-endpoint` for .NET.
 
 **Example:** The WebApi project owns this contract:
 

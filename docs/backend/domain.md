@@ -5,7 +5,7 @@
 
 The Domain layer holds a product's business rules in code that depends on nothing but itself, so the rules are tested on their own.
 
-An aggregate is one unit of business state that stays consistent and changes in one step. The rules below state how aggregates hold business state and what keeps technical concerns out of business rules.
+An aggregate is one unit of business state that stays consistent and changes in one step. The rules below state how to model aggregates, their lifecycles, closed sets of values, and the domain repositories that load them, and the boundary that keeps technical concerns out of business rules.
 
 ## Concepts
 

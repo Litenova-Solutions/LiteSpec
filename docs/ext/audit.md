@@ -134,7 +134,7 @@ A domain event cannot substitute for an audit record. It carries domain identity
 
 **Statement:** A handler MUST contribute only the audit values that the handler alone determines.
 
-**Rationale:** The declaration beside the message already fixes the audit target and the reason value the message carries, as `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message` requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest creates a second copy of each field that drifts from the first.
+**Rationale:** The declaration beside the message already fixes the audit target and the reason value the message carries, as `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message` requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest invites a second copy of each field that drifts from the first.
 
 **Example:** A Claimwick handler that creates an expense contributes the expense identity it generated, and nothing else: no actor, action code, timestamp, or value the message already carries.
 
