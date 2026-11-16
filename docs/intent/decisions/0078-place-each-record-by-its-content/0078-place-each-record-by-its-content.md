@@ -1,10 +1,12 @@
 # Place Each Record by Its Content
 
-A record's folder says where its content belongs, and its links say why it exists. This decision defines content as what a record states and changes, so each record nests only where its whole content lies.
+An author placing a record reads its folder for where its content belongs and its links for why it exists. This decision defines content as what a record states and changes, so each record nests only where its whole content lies.
 
 ## Context
 
-The placement provision said a record nests under another record only when its whole content lies within it, but the Placement Table predated it. Decisions, rules, and external systems each allowed more than one home, and reactions answering another module's event sat with the module that triggered them instead of the module they changed.
+The placement provision said a record nests under another record only when its whole content lies within it, but the Placement Table predated it. Decisions, rules, and external systems each allowed more than one home.
+
+Reactions answering another module's event sat with the module that triggered them instead of the module they changed.
 
 ## Options
 
@@ -22,7 +24,9 @@ Each parent in the table was checked against the provision. A requirement lies w
 
 ## Consequences
 
-The Placement Table states the integration-event and external-system homes. A product-level external system called from one module only is reported, so the system moves to its module. No cheap and sure check was found for the general provision, so it stays guidance.
+The Placement Table states the integration-event and external-system homes. A product-level external system called from one module only is reported, so the system moves to its module.
+
+No cheap and sure check was found for the general provision, so it stays guidance.
 
 ## Evidence
 

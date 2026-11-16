@@ -12,4 +12,4 @@ sources:
     readOn: 2026-10-31
     key: record-schema
 question: Which record format holds each fact once and validates against the record schema?
-conclusion: A strict YAML subset holding one record file per page with an optional explanation file beside it carries each fact once and validates against the unchanged record schema, while the closest surveyed alternative stays in beta with no .NET implementation.
+conclusion: A strict YAML subset holds one record file per page with an optional explanation file beside it. It carries each fact once and validates against the unchanged record schema. The closest surveyed alternative stays in beta with no .NET implementation.

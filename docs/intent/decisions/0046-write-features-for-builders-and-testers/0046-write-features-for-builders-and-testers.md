@@ -1,6 +1,6 @@
 # Write Features for the Builder and the Tester
 
-A feature and its requirements are read by someone who has to build or test what they say. Until now, a feature's explanation could leave its edges unstated, promise outcomes it cannot bring about, and describe behavior no requirement holds. This decision requires a Boundaries section and states how success criteria, requirement statements and rationales are written, so a developer can tell what to build and a tester can tell what passes.
+A developer builds what a feature and its requirements state, and a tester tests it. A feature explanation that leaves its edges unstated, promises outcomes the feature cannot bring about, or describes behavior no requirement holds gives neither reader what they need. This decision requires a Boundaries section and states how success criteria, requirement statements and rationales are written, so a developer can tell what to build and a tester can tell what passes.
 
 ## Context
 

@@ -3,7 +3,7 @@ id: decision/0086-set-one-agent-authority-boundary
 title: Set One Agent Authority Boundary
 options:
   - name: "One stated boundary: apply, draft, implement, report; never approve, widen, invent, or act beyond the task"
-    pros: "Every agent knows what it may do unasked, product policy stays with the owner, and consequential acts need a naming instruction."
+    pros: "Every agent knows what it may do unasked, product policy stays with the owner, and consequential acts need an instruction naming them."
     cons: "Agents stop at the boundary and ask instead of acting."
   - name: "Trust the task text alone"
     pros: "No boundary to learn."
@@ -12,7 +12,7 @@ options:
     pros: "Nothing happens unreviewed."
     cons: "The owner approves each draft and each finding, and agents wait instead of working."
 choice: "One stated boundary: apply, draft, implement, report; never approve, widen, invent, or act beyond the task"
-consequences: "An agent may apply an approved standard or decision, draft records and proposed decisions, implement within the task, and report findings, including a failed check or a conflict between provisions. It may not approve its own product-policy proposal, widen scope, invent business values, or take a consequential outside action beyond the task. An explicit task instruction naming the action and its bounds is the approval; a project may grant wider authority in its `AGENTS.md`. `litespec/core/agent#restrict-unapproved-side-effects` and `litespec/core/agent#select-task-context` state the side effects and the context."
+consequences: "An agent may apply an approved standard or decision, draft records and proposed decisions, implement within the task, and report findings. Findings include a failed check or a conflict between provisions. It may not approve its own product-policy proposal, widen scope, invent business values, or take a consequential outside action beyond the task. An explicit task instruction naming the action and its bounds is the approval. A project may grant wider authority in its `AGENTS.md`. `litespec/core/agent#restrict-unapproved-side-effects` and `litespec/core/agent#select-task-context` state the side effects and the context."
 reopenedWhen: "A task needs an act the boundary forbids and no instruction can approve, or the boundary blocks work the owner always allows."
 basedOn:
   - research/agent-testing-evidence

@@ -11,5 +11,5 @@ sources:
   - path: docs/core/intent.md
     readOn: 2026-10-30
     key: intent
-question: Do consumer research records state a conclusion a decision can cite, and where does that conclusion live today?
-conclusion: Every consumer research record states its finding in Answer, but sixteen of twenty-nine restate what follows under seven different invented headings and the register index repeats the conclusions outside the records, so the conclusion needs one field of its own.
+question: Do consumer research records state a conclusion a decision can cite, and where is that conclusion held?
+conclusion: Every consumer research record states its finding in Answer. Sixteen of twenty-nine restate what follows under seven different invented headings, and the register index repeats the conclusions outside the records. So the conclusion needs one field of its own.

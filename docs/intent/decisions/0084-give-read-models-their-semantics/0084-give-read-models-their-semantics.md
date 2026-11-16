@@ -1,6 +1,6 @@
 # Give Read Models Their Semantics
 
-A read model copies another module's state for queries, filled from published integration events. This decision states the event semantics behind each copy: identity, ordering, corrections, rebuilds, erasure, and the decisions a copy must never guard.
+A module that reads another module's state keeps a read model: its own copy for queries, filled from published integration events. This decision states the event semantics behind each copy: identity, ordering, corrections, rebuilds, erasure, and the decisions a copy never guards.
 
 ## Context
 
@@ -24,7 +24,9 @@ Read models never guard decisions that need current truth. Revoked permissions, 
 
 ## Consequences
 
-A reporting read model carries source identity on its source events and a tombstone path for erasure. A command deciding on funds or permissions asks the owning module instead of reading the copy.
+The source events behind a reporting read model carry identity, and the model keeps a tombstone path for erasure.
+
+A command deciding on funds or permissions asks the owning module instead of reading the copy.
 
 ## Evidence
 

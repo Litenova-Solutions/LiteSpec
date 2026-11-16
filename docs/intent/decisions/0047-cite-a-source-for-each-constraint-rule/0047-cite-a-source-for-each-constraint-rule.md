@@ -30,7 +30,7 @@ A constraint's Rules section states one rule per paragraph. Each rule keeps its 
 
 The record-level `readOn` is removed, and `effectiveFrom` states the date a rule starts to bind when it starts on a date. The source checks run on constraint files as they run on research files. `model render` writes the source links into each explanation file that cites a source, and `model check` reports drift when that region differs from what `render` writes.
 
-`litespec/core/intent#cite-a-source-for-each-constraint-rule` is required. `litespec/core/intent#state-each-constraint-rule-with-its-condition` is required and reviewed. `constraint-effect-unlisted` and `constraint-effect-uncited` keep each citing requirement and each Effect on the Product entry in step. The book renders sources and the effective date.
+`litespec/core/intent#cite-a-source-for-each-constraint-rule` is required. `litespec/core/intent#state-each-constraint-rule-with-its-condition` is required and reviewed. `constraint-effect-unlisted` and `constraint-effect-uncited` keep each citing requirement and each Effect on the Product entry matching. The book renders sources and the effective date.
 
 ## Revisit Conditions
 

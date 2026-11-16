@@ -21,4 +21,4 @@ sources:
     readOn: 2026-10-31
     key: glossary-schema
 question: What does the 248-field inventory show about name collisions and value shapes, and which grammar follows from it?
-conclusion: The inventory counts 248 field names with 18 genuine collisions plus link-shaped justifications and string mini-languages, so one grammar of eight word classes with no exceptions, objects for mini-languages, and American spelling follows.
+conclusion: The inventory counts 248 field names with 18 genuine collisions plus link-shaped justifications and string mini-languages. One grammar of eight word classes with no exceptions, objects for mini-languages, and American spelling follows.

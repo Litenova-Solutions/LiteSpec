@@ -1,12 +1,12 @@
 # Solve Problems with Standalone Features
 
-A feature is an offer, and an offer can answer more than one pain. This decision stands features alone with an explicit `solves` link, and gives product-wide commitments a home without an offer.
+An author files a feature as an offer, and one offer can answer more than one problem. This decision stands each feature alone with an explicit `solves` link, and gives a product-wide commitment a home with no offer.
 
 ## Context
 
 Each feature sat in the folder of the one problem it answered. A feature whose content spanned two problems did not belong to either, yet the folder filed it under one. Splitting such features cost more than sharing them.
 
-Beside it, a permanent commitment with no offer had no home, because every requirement needed a feature. Tenant isolation, audit integrity, and retention of the books hid under invented features or stayed unwritten.
+A permanent commitment with no offer had no home either, because every requirement needed a feature. Authors filed tenant isolation, audit integrity, and retention of the books under invented features, or left them unwritten.
 
 ## Options
 
@@ -24,7 +24,7 @@ A requirement with no offer sits at `intent/requirements/<name>/` under the prod
 
 ## Consequences
 
-The typed-folder consequences naming features under problems are rewritten in place. `litespec new feature` writes the standalone home and takes the solved problems. One feature solving two problems is one feature naming both, and the book shows it under each.
+The typed-folder consequences naming features under problems are rewritten in place. `litespec new feature` writes the standalone home and takes the solved problems.
 
 ## Evidence
 

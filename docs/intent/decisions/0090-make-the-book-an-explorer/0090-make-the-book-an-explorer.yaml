@@ -3,7 +3,7 @@ id: decision/0090-make-the-book-an-explorer
 title: Make the Book an Explorer
 options:
   - name: "Desktop and light only, teaching text out, wireframe, navigation-map and storyboard views"
-    pros: "One layout to keep calm; record content, labels, counts and states stay while definitions move to hover and the lexicon; the blueprint views show each screen before code."
+    pros: "One layout to keep; record content, labels, counts, and states stay while definitions move to hover and the lexicon; the blueprint views show each screen before code."
     cons: "No narrow-screen layout and no dark scheme; readers who learned from the teaching text open the lexicon instead."
   - name: "Keep the responsive tutoring book"
     pros: "Every screen size keeps working and nothing is removed."
@@ -12,5 +12,5 @@ options:
     pros: "The pages look calmer with nothing removed."
     cons: "The definitions still repeat beside every use, and the pages stay long."
 choice: "Desktop and light only, teaching text out, wireframe, navigation-map and storyboard views"
-consequences: "The book assumes a minimum content width of 1024 CSS pixels and ships a light scheme only, with no theme toggle and no narrow-screen layouts. Its surfaces are a tinted page behind white cards with a visible edge and a soft shadow, a rule under each card header and between rows, and a filled table header; its text is near-black with muted secondary text, one blue accent for links and the current item, and a visible focus ring; cards, controls and badges take 8, 6 and 4 pixel radii with square table cells. Teaching text that explains LiteSpec leaves the pages; record content, labels, counts and states stay, and a term definition is available on hover and in the lexicon page. The screen page draws its wireframe, each entry point page draws its navigation map from `leadsTo`, and each flow page draws its storyboard of its steps' screens in step order."
+consequences: "The book assumes a minimum content width of 1024 CSS pixels and ships a light scheme only, with no theme toggle and no narrow-screen layouts. Its surfaces are a tinted page behind white cards with a visible edge and a soft shadow, a rule under each card header and between rows, and a filled table header. Its text is near-black with muted secondary text, one blue accent for links and the current item, and a visible focus ring. Cards, controls, and badges take 8, 6, and 4 pixel radii with square table cells. Teaching text that explains LiteSpec leaves the pages. Record content, labels, counts, and states stay, and a reader finds a term definition on hover and in the lexicon page. The screen page draws its wireframe, each entry point page draws its navigation map from `leadsTo`, and each flow page draws its storyboard of its steps' screens in step order."
 reopenedWhen: "Readers need the book on narrow screens or in a dark room, or the removed teaching text proves needed where it stood."

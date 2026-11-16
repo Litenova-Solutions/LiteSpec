@@ -44,5 +44,5 @@ sources:
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
     key: record-schema
-question: Which Intent links does LiteSpec require and check, how should Intent group its requirements and name their reasons, and what do outside tools and the largest consumer show?
-conclusion: Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links, and in the largest consumer 719 of 928 requirements name no origin while every enforced Intent check passes. Outside tools group each promise with the unit its author writes, while authors follow the page rather than the parent, so each feature holds its requirements as entries and reasons become one cites list.
+question: Which Intent links does LiteSpec require and check? How should Intent group its requirements and name their reasons? What do outside tools and the largest consumer show?
+conclusion: Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links. In the largest consumer, 719 of 928 requirements name no origin while every enforced Intent check passes. Outside tools group each promise with the unit its author writes. Authors follow the page rather than the parent, so each feature holds its requirements as entries and reasons become one cites list.

@@ -21,4 +21,4 @@ sources:
     readOn: 2026-11-10
     key: record-schema
 question: Can the YAML language server check LiteSpec's YAML files against YAML-held schemas, and which JSON Schema drafts must it read?
-conclusion: The language server reads a schema named by a modeline, validates draft 2020-12, which every LiteSpec schema declares, and accepts a schema written in JSON or YAML.
+conclusion: The language server reads a schema named by a modeline. It validates draft 2020-12, which every LiteSpec schema declares, and accepts a schema written in JSON or YAML.

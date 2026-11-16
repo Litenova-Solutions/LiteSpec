@@ -10,7 +10,7 @@ options:
     cons: "A reaction answering another module's integration event sits with a module it never changes."
   - name: "Keep the table as written"
     pros: "No record moves."
-    cons: "The table predates the placement provision and contradicts it where links pass for content."
+    cons: "The table predates the placement provision and contradicts it where the table places records by their links."
 choice: "Content is what a record states and changes; links are its reasons"
 consequences: "A record nests under another record only when its whole content lies within it: content is what the record states and changes, and its links are its reasons. A reaction answering another module's integration event sits with the module whose records it changes. An integration event sits with its one publishing module, or its receiving module when inbound. An external system sits at the lowest node holding every record that calls it. `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason` and `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes` state the content rule and the reaction home."
 reopenedWhen: "A record's content and its reasons point at different homes with no lowest node holding all of it."

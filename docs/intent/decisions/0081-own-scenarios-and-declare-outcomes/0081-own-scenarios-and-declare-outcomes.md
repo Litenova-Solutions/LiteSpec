@@ -1,10 +1,14 @@
 # Own Scenarios and Declare Outcomes
 
-A scenario proves one behavior, and a reaction or job ends each run in one state. This decision keeps each scenario with the behavior it exercises, declares the outcomes of every reaction and job, and runs each effect on its own.
+An author proving one behavior writes a scenario, and a reaction or job ends each run in one state. This decision keeps each scenario with the behavior it exercises, declares the outcomes of every reaction and job, and runs each effect on its own.
 
 ## Context
 
-A scenario's parent was its result, so scenarios of reactions and jobs sat under use-case results they never touched. Automation scenarios had to end in a run use case's result, which a send-only reaction or job has none of; authors invented commands to end them. Effects of one reaction shared a run, so one slow effect blocked the rest and a retry reran finished work.
+A scenario's parent was its result, so scenarios of reactions and jobs sat under use-case results they never touched.
+
+An automation scenario had to end in a run use case's result. A send-only reaction or job runs no use case, so authors invented commands to end its scenarios.
+
+Effects of one reaction shared a run, so one slow effect blocked the rest and a retry reran finished work.
 
 ## Options
 
@@ -16,15 +20,17 @@ A scenario's parent was its result, so scenarios of reactions and jobs sat under
 
 ## Decision
 
-A scenario's parent is its use case, reaction, or job, stored in that record's file. It names its expected result, or for a reaction or job one of its outcomes, in an explicit link. The special case of a scenario's parent being its result goes.
+A scenario's parent is its use case, reaction, or job, stored in that record's file. It names its expected result, or for a reaction or job one of its outcomes, in an explicit link. A scenario's parent is never its result.
 
 A reaction or job declares its run outcomes from a closed set: `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. Its scenarios end in one of them or in a run use case's result, so a send-only reaction or job needs no invented command. A job's name takes its own verb when it runs no use case.
 
-Each effect of a reaction or job runs, retries, and deduplicates on its own under its own idempotency. An order between effects is expressed by chaining facts, never assumed.
+Each effect of a reaction or job runs, retries, and deduplicates on its own under its own idempotency. An author orders effects by chaining facts, never by assuming an order.
 
 ## Consequences
 
-The book still groups a use case's scenarios by result. A use-case scenario keeps `result`; a reaction or job scenario names either `result` or `outcome`. A send-only reaction ends in `completed` with no command behind it.
+The book groups a use case's scenarios by result.
+
+A use-case scenario keeps `result`; a reaction or job scenario names either `result` or `outcome`. A send-only reaction ends in `completed` with no command behind it.
 
 ## Evidence
 

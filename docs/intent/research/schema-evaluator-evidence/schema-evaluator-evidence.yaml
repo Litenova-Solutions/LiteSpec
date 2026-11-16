@@ -18,4 +18,4 @@ sources:
     readOn: 2026-11-09
     key: schema-evaluator
 question: Which JSON Schema evaluator can LiteSpec's tools use with no fee, and does LiteSpec's own evaluator keep the messages the checks print?
-conclusion: JsonSchema.Net charges a maintenance fee for its binaries from version 9.0.0, and no maintained free library fits Native AOT without extra dependencies, so LiteSpec evaluates JSON Schema itself; its evaluator printed the library's messages on 9,828 real and mutated instances except where the library reported the rejected shape of a passing composite, and passed 757 of the 761 applicable cases of the JSON Schema Test Suite.
+conclusion: JsonSchema.Net charges a maintenance fee for its binaries from version 9.0.0. No maintained free library fits Native AOT without extra dependencies, so LiteSpec evaluates JSON Schema itself. Its evaluator printed the library's messages on 9,828 real and mutated instances except where the library reported the rejected shape of a passing composite. It passed 757 of the 761 applicable cases of the JSON Schema Test Suite.

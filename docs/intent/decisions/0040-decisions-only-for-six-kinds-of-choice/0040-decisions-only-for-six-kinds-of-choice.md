@@ -20,11 +20,11 @@ LiteSpec compared 3 options for which choices get a decision record. The table s
 
 ## Decision
 
-A technical decision records only an expensive-to-reverse choice of one of 6 kinds: `provider`, `package`, `format`, `boundary`, `topology` or `replacement`. A choice of no kind states its reason in the class documentation.
+A technical decision records only an expensive-to-reverse choice of one of 6 kinds: `provider`, `package`, `format`, `boundary`, `topology` or `replacement`. A choice of no kind states its reason in the class documentation. Claimwick renders each receipt as a PDF file, so `decision/0005-render-receipts-as-pdf` carries `kind: package`.
 
 A standing rule that every change follows is a convention under `.litespec/governance/conventions/`. A `follows` mark can cite that convention.
 
-Categories live in fields and in generated indexes, not in folders. The concern of a decision is computed from the concerns of its followers. `model render` writes the decision and waiver indexes. The book groups decisions by kind, then by concern. Claimwick renders each receipt as a PDF file, so `decision/0005-render-receipts-as-pdf` carries `kind: package`.
+Categories live in fields and in generated indexes, not in folders. The concern of a decision is computed from the concerns of its followers. `model render` writes the decision and waiver indexes. The book groups decisions by kind, then by concern.
 
 ## Consequences
 

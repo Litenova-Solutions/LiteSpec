@@ -1,10 +1,10 @@
 # One Default and Two Options per Pattern
 
-LiteSpec's pattern catalog gives one recommended answer for each decision that a project faces. That answer is the Default, and a pattern may add options beside it. This decision caps each pattern at the Default and 2 options, so a reader compares 3 answers at most.
+LiteSpec's pattern catalog gives one recommended answer for each decision that a project faces. That answer is the Default, and a pattern may add options beside it. This decision limits each pattern to the Default and 2 options, so a reader compares 3 answers at most.
 
 ## Context
 
-Pattern pages offered long option lists for one decision. The pattern pages listed 107 options before the cut, and a reader cannot compare that many. An agent that builds a page has no basis to choose among them.
+Pattern pages list 107 options across the catalog, and a reader cannot compare that many. An agent that builds a page has no basis to choose among them.
 
 ## Options
 
@@ -24,10 +24,10 @@ Each pattern offers its Default and at most 2 options. A proposal for a third op
 
 `validate` reports a pattern that offers more than its Default and 2 options, under `PATTERN_OPTION_COUNT`.
 
-The pattern pages were cut to the Default and the 2 options that their rationale points to most. Page order breaks a tie between options.
+The pattern pages hold the Default and the 2 options with the strongest rationale. Page order breaks a tie between options.
 
 ## Revisit Conditions
 
 This decision reopens when an owner needs a third option that a proposal to the pattern page cannot settle.
 
-A proposal for a third option that the pattern page cannot settle leaves the owner with no way to add it. That gap is the case that would change the choice.
+A proposal for a third option that the pattern page cannot settle leaves the owner with no way to add it.

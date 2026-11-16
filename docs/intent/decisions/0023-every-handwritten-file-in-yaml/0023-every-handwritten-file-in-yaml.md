@@ -4,7 +4,7 @@ Maintainers edit the files that a LiteSpec project keeps, and reviewers read the
 
 ## Context
 
-The release manifest, the project file, the pattern catalog, the UI source lock and the schemas are JSON. Record pages are YAML, as `decision/0020-records-in-yaml` sets. A person edits 2 syntaxes in one project, and JSON gives the reviewers no comments and no place for a reason beside a value.
+The release manifest, the project file, the pattern catalog, the UI source lock, and the schemas are JSON. Record pages are YAML, as `decision/0020-records-in-yaml` sets. A person edits 2 syntaxes in one project, and JSON holds no comments and no place for a reason beside a value.
 
 ## Options
 
@@ -18,23 +18,25 @@ LiteSpec compared 3 options for the syntax of its hand-written files. The table 
 
 ## Decision
 
-Every file a person edits is YAML, and every file a program exchanges stays JSON. The conversion covers the project file, the release manifest, the pattern catalog, the UI source lock, the presets, the schemas and the check-result schema.
+Every file a person edits is YAML, and every file a program exchanges stays JSON. The conversion covers the project file, the release manifest, the pattern catalog, the UI source lock, the presets, the schemas, and the check-result schema.
 
-Each converted file keeps its shape and states its `schemaVersion`. `decision/0020-records-in-yaml` holds the record files, and this decision extends the same rule to every hand-written file.
+Each converted file keeps its shape and states its `schemaVersion`. `decision/0020-records-in-yaml` covers the record files, and this decision extends the same rule to every hand-written file.
 
 ## Consequences
 
 Each hand-written LiteSpec file states its `schemaVersion` and names its schema in a first-line `yaml-language-server` comment. Each file reads through `YamlText` into the tree that the evaluator already validates.
 
-Keys that are not plain identifiers are double-quoted, and regular expressions are single-quoted. The site reads the manifest and the schemas with the `yaml` package that the owner approved. The shell scripts that run without Node read the 2 version keys with one `sed` line each.
+Authors double-quote keys that are not plain identifiers, and single-quote regular expressions.
 
-Check results, the provision index, the book data, `--format json` output and the reader protocol stay JSON. The design contract takes `schemaVersion: 2`, because its `kind` and `shell` fields leave.
+The site reads the manifest and the schemas with the `yaml` package that the owner approved. The shell scripts that run without Node read the 2 version keys with one `sed` line each.
+
+Check results, the provision index, the book data, `--format json` output, and the reader protocol stay JSON. The design contract takes `schemaVersion: 2`, because its `kind` and `shell` fields leave.
 
 ## Evidence
 
-`research/record-format-evidence` holds the survey of 18 formats, which found no format that beats the strict YAML subset, with high confidence. `research/yaml-format-evidence` shows that an editor checks a YAML file against the schema that its first-line comment names, and that the language server validates draft 2020-12, which every LiteSpec schema declares. That is why each converted file names its schema.
+`research/record-format-evidence` holds the survey of 18 formats, which found no format better than the strict YAML subset, with high confidence. `research/yaml-format-evidence` shows that an editor checks a YAML file against the schema that its first-line comment names. It also shows that the language server validates draft 2020-12, which every LiteSpec schema declares, so each converted file names its schema.
 
-The record reports, with high confidence, that each converted schema and the manifest were read through the YAML reader and compared with its JSON original, and that all 8 trees matched. The cited research does not record that comparison, so the claim rests on this record alone.
+With high confidence, this record reports that each converted schema and the manifest passed through the YAML reader. All 8 trees matched their JSON originals. The cited research does not record that comparison, so the claim rests on this record alone.
 
 ## Revisit Conditions
 

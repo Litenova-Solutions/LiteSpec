@@ -12,4 +12,4 @@ sources:
     readOn: 2026-11-10
     key: impossiblebench
 question: Which failure modes of agent-written tests does LiteSpec's testing standard need to guard, and which have measured evidence?
-conclusion: Two studies measure coding agents adding mocks and models asserting buggy behavior from buggy code. A benchmark measures shortcuts on conflicting tests but gives no rate here.
+conclusion: Two studies measure coding agents adding mocks and models asserting buggy behavior from buggy code. A benchmark counts shortcuts on conflicting tests but reports no rate for agents.

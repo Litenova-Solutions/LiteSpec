@@ -12,5 +12,5 @@ options:
     pros: "No file to keep in step with the source."
     cons: "A changed primitive passes unreported, so a fork reads as unchanged."
 choice: "Keep the lock, written by `litespec model render`"
-consequences: "`litespec model render` writes each component's digest from its paths, the preset from the manifest baseline and the CLI version from the manifest pin. It keeps the names, addresses, statuses and dependencies the team chose. `litespec model check` remains the guard, and a changed digest shows in the pull request diff. The lock is `ui-source-lock.yaml`, in the folder it held before."
+consequences: "`litespec model render` writes each component's digest from its paths, the preset from the manifest baseline, and the CLI version from the manifest pin. It keeps the names, addresses, statuses, and dependencies the team chose. `litespec model check` still enforces the digests, and a changed digest shows in the pull request diff. The lock is `ui-source-lock.yaml`, in the folder that held it before."
 reopenedWhen: "Source changes arrive that a render cannot digest from the declared paths, or the team stops copying primitives into one shared package."

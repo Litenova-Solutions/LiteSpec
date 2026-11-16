@@ -1,12 +1,10 @@
 # Use Plain Noun Sections and an Opening Paragraph
 
-Explanation files tell a reader what each record means. Until now, every record type had its own headings, and some of them were questions or stories. This decision gives each record type one fixed list of plain noun sections, and it has each explanation file open with one paragraph before the first section. A reader who knows one record knows where to look on every other record of the type.
+Explanation files tell a reader what each record means. Headings that differ by record type, with some phrased as questions and some as stories, put the same kind of content under different words on each type. This decision gives each record type one fixed list of plain noun sections, and each explanation file opens with one paragraph before the first section. A reader who knows one record knows where to look on every other record of the type.
 
 ## Context
 
 Before this release, each record type had its own headings. Eight types had a fixed list, such as Who Walks and Why or What Would Retire It, and every other type had one generic heading, What It Means. Some headings were questions, and some were stories, so the same kind of content sat under different words on each type. The check for explanation files knew only the eight lists, so it could not require the same content on the other types.
-
-Three options were weighed. Keeping the old headings preserves the author's voice, but a reader cannot predict a section's name, and the check must list every phrasing. Keeping only the H1 and letting each file choose its sections gives authors the most freedom, but no check can tell whether a limit, a cost or an example is present. A fixed list of plain nouns for each type gives every reader the same map, and the one paragraph before the first section tells a cold reader what the record is.
 
 ## Options
 

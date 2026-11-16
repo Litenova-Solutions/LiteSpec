@@ -13,6 +13,6 @@ options:
     cons: "The decision rests on opinion, and no run shows which tests catch faults."
 choice: "Measure once with a scratch tool, and add no gate or tool in this release"
 consequences: "The repository gains no mutation tool, and the scratch install leaves the repository. The consumer default `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines` stays as it is, because it governs consumers, and the Delivery extension keeps its mutation job for projects that select it."
-reopenedWhen: "A CI job runs the CLI suite and the model suite under one mutation run on Linux, and the measured score reflects the tests that cover the changed lines."
+reopenedWhen: "A CI job runs the CLI suite and the model suite under one mutation run on Linux. The measured score then reflects the tests that cover the changed lines."
 basedOn:
   - research/agent-testing-evidence

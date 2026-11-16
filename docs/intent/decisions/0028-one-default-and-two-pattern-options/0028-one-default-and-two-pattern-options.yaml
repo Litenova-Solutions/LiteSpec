@@ -12,5 +12,5 @@ options:
     pros: "The catalog holds one answer per pattern."
     cons: "An owner with a real choice has no option to pick, so each waiver becomes a pattern outside the catalog."
 choice: "The Default and at most two options, enforced by validate"
-consequences: "`validate` reports a pattern that offers more than its Default and two options, under `PATTERN_OPTION_COUNT`. The pattern pages were cut to the Default and the two options that their rationale points to most, with page order breaking a tie."
+consequences: "`validate` reports a pattern that offers more than its Default and two options, under `PATTERN_OPTION_COUNT`. The pattern pages hold the Default and the two options with the strongest rationale. Page order breaks a tie between options."
 reopenedWhen: "An owner needs a third option that a proposal to the pattern page cannot settle."

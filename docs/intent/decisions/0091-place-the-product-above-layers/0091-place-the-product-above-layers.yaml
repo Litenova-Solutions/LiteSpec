@@ -3,8 +3,8 @@ id: decision/0091-place-the-product-above-layers
 title: Place the Product Above the Layers
 options:
   - name: "The product stands above the record layers at .litespec/product.yaml with the layer key root"
-    pros: "The file, the layer key and the book all say what principle 1 already states: the product is the root of one tree. Its summary, boundary and excludes read as scoping the whole application."
-    cons: "Every consumer moves one file, and the book must name the product without an outline node for it."
+    pros: "The file, the layer key, and the book all say what Principle 1 already states: the product is the root of one tree. Its summary, boundary, and excludes read as scoping the whole application."
+    cons: "Every consumer moves one file, and the book names the product without an outline node for it."
   - name: "The product stays in Intent at .litespec/intent/product.yaml"
     pros: "No file moves and no outline changes."
     cons: "The book keeps one node above everything in the Intent layer, and the placement keeps saying the product is intent only while its summary, boundary and excludes scope the whole application."
@@ -12,5 +12,5 @@ options:
     pros: "The product keeps a layer of its own with nothing else in it."
     cons: "A layer with one record that no project may leave out is not a claimed layer; the claims, the coverage and the checks would each carry an exception for it."
 choice: "The product stands above the record layers at .litespec/product.yaml with the layer key root"
-consequences: "The product record lives at `.litespec/product.yaml` with its explanation beside it, carries the layer key `root`, and is always present whatever layers the project claims. A product file left at `intent/product.yaml` is a record in the wrong place. The book holds no product node: the product's Intent children top the Intent layer directly, the manifest names the product record in `productId`, and every parent chain still ends at the product."
+consequences: "The product record file is `.litespec/product.yaml` with its explanation beside it. It carries the layer key `root` and is always present whatever layers the project claims. A product file left at `intent/product.yaml` is a record in the wrong place. The book holds no product node. The product's Intent children top the Intent layer directly. The manifest names the product record in `productId`, and every parent chain ends at the product."
 reopenedWhen: "A consumer shows work that needs the product inside a claimed layer, or readers cannot find the product without its Intent node."

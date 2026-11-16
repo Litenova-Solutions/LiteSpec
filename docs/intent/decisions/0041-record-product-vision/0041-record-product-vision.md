@@ -4,7 +4,7 @@ A product vision is the longer destination that a product heads toward, beyond t
 
 ## Context
 
-A consumer starting its first release knows where the product should go later: private and business books side by side, staff with their own permissions, and many currencies and countries. In that release, 2 choices are made for this destination. Every record carries the business it belongs to, and amounts are stored in a home currency rather than in euros.
+A consumer starting its first release knows where the product should go later: private and business books side by side, staff with their own permissions, and many currencies and countries. In that release, 2 choices keep this destination open. Every record carries the business it belongs to, and the product stores amounts in a home currency rather than in euros.
 
 Neither decision can name its reason, because a decision's `basedOn` takes constraints, research and requirements. A destination is none of these. Both decisions therefore show an empty `basedOn`, and the reason sits in the product explanation file. No record can cite that file, and no check reads it.
 
@@ -41,4 +41,4 @@ Four provisions on the intent page state the fields of a vision. They keep dates
 
 This decision reopens when visions start to carry dates or priorities in practice, or when no consumer cites a vision from a decision within 2 releases.
 
-Either case means the vision record no longer holds what the decision gave it. The team would then need to decide again whether a vision stays a separate record.
+Either case means the vision record no longer holds what the decision gave it. The team then decides again whether a vision stays a separate record.

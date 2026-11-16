@@ -4,7 +4,7 @@ Agents do engineering work and people keep decision authority. This decision sta
 
 ## Context
 
-No page stated what an agent may do on its own. Agents approved their own product-policy proposals, widened scope past the task, invented business values no record holds, and took consequential outside actions. Reviews caught some of it after the fact; most of it shipped in records nobody questioned.
+No page stated what an agent may do on its own. Agents approved their own product-policy proposals, widened scope past the task, invented business values no record holds, and took consequential outside actions. Reviews caught some of it after the fact. Most of it shipped in records nobody questioned.
 
 ## Options
 
@@ -18,15 +18,19 @@ No page stated what an agent may do on its own. Agents approved their own produc
 
 An agent may apply an approved standard or decision, draft records and proposed decisions, implement within the task, and report findings, including a failed check or a conflict between provisions. It may not approve its own product-policy proposal, widen scope, invent business values, or take a consequential outside action beyond the task.
 
-An explicit task instruction that names the action and its bounds is the approval. A project may grant wider authority in its `AGENTS.md`.
+An explicit task instruction that names the action and its bounds is the approval.
+
+A project may grant wider authority in its `AGENTS.md`.
 
 ## Consequences
 
-A product-policy proposal from an agent waits on the owner like any draft. A failed check or a conflict between provisions is reported, never worked around. The agent protocol carries the boundary, so each task starts inside it.
+A product-policy proposal from an agent waits on the owner like any draft. The agent reports a failed check or a conflict between provisions, never works around it.
+
+The agent protocol carries the boundary, so each task starts inside it.
 
 ## Evidence
 
-[research/agent-testing-evidence](research/agent-testing-evidence) measured how agent-written tests fail and what guards them: the boundary is the guard for acts beyond tests. [research/comparable-rationale-practice](research/comparable-rationale-practice) found the specification remaining the only normative surface, which agents apply and owners decide. The unapproved acts were read from live records with high confidence.
+[research/agent-testing-evidence](research/agent-testing-evidence) measured how agent-written tests fail and what guards them: the boundary is the guard for acts beyond tests. [research/comparable-rationale-practice](research/comparable-rationale-practice) found the specification remaining the only normative surface, which agents apply while owners keep decision authority. The unapproved acts were read from live records with high confidence.
 
 ## Revisit Conditions
 
