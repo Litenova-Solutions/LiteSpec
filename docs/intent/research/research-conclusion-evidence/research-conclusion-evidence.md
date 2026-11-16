@@ -6,7 +6,7 @@ A LiteSpec research record gathers evidence on one question, and a decision can 
 
 Every consumer research record states its finding in Answer. But 16 of the 29 records restate what follows under 7 invented headings. The register index repeats the conclusions again, outside the records. So the conclusion needs a field of its own.
 
-The consumer's research record requires a frontmatter `question`, a `sources` array, and one body section, Answer. No field holds the conclusion where a tool can read it. Answer is body prose, and only `sources` and `question` are data. So a record's finding changes in prose, and no field marks that change. The record gives high confidence for this gap, because it read the schema, the template, the validator, the checker, and the book field list.
+The consumer's research record requires a frontmatter `question`, a `sources` array, and one body section, Answer. No field holds the conclusion where a tool can read it. Answer is body prose, and only `sources` and `question` are data. So a record's finding can change in prose, and no field marks that change. The record gives high confidence for this gap, because it read the schema, the template, the validator, the checker, and the book field list.
 
 The book renders only `question` and `sources` for research. So a decision that cites research through `basedOn` points at a page whose takeaway no field states. The record gives high confidence for this gap, for the same reason.
 

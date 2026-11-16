@@ -14,7 +14,7 @@ The checks carried the same defect. A goal's completion depended on flows outsid
 
 | Option | Gains | Costs |
 |:---|:---|:---|
-| One reason per flow in serves or answers | Each flow names its reason, and goal completion counts only moving flows. | Authors choose the reason for every enabling and duty flow. |
+| One reason per flow in serves or answers | Each flow names its honest reason, and goal completion counts only moving flows. | Authors choose the reason for every enabling and duty flow. |
 | Keep one goal per flow | No record changes. | Enabling and duty flows stay on goals they do not move, and the trace misleads. |
 | One link field with four target types | One field holds every reason. | Several target sets and two meanings share one verb. |
 

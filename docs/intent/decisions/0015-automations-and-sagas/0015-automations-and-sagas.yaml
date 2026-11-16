@@ -10,7 +10,7 @@ options:
     cons: One name hides whether the work answers an event or runs on a schedule.
   - name: Atomic writes for one aggregate only
     pros: The aggregate boundary stays absolute, as the outside practice advises.
-    cons: The largest consumer's place-order writes seven aggregates atomically, so the ban would force coordination where the business settles in one step.
+    cons: The largest consumer's place-order writes seven aggregates atomically today, so the ban would force coordination where the business settles in one step.
   - name: Coordination as a core aggregate kind
     pros: Multi-aggregate flows sit beside entities in core.
     cons: No consumer uses them in core, and the record schema would need a saga kind that no check reads.

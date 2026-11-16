@@ -17,5 +17,5 @@ sources:
   - url: https://www.rfc-editor.org/rfc/rfc6855.txt
     readOn: 2026-10-30
     key: rfc-editor-rfc-rfc6855
-question: How do comparable standards projects keep design rationale so readers reference it beside the rules it produced?
+question: How do comparable standards projects keep design rationale so readers can reference it beside the rules it produced?
 conclusion: Comparable projects keep rationale in numbered, dated, never-edited records beside the normative text - each stating its motivation, its drawbacks, and its unresolved questions - while the specification itself remains the only normative surface.

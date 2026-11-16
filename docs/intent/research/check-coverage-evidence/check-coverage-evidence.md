@@ -1,6 +1,6 @@
 # Check Coverage Evidence
 
-LiteSpec's checker reads a built model and reports findings. Each finding names a check that a record failed. This research record counts which links and parents the checker enforces, which it only reports, and which no check reads at all. It takes the counts from the largest consumer project, which uses LiteSpec. A clean model report means that a rule is satisfied, waived, or never run. The report alone does not show which.
+LiteSpec's checker reads a built model and reports findings. Each finding names a check that a record failed. This research record counts which links and parents the checker enforces, which it only reports, and which no check reads at all. It takes the counts from the largest consumer project, which uses LiteSpec. A clean model report can mean that a rule is satisfied, waived, or never run. The report alone does not show which.
 
 ## Findings
 
@@ -16,13 +16,13 @@ The code, screen, store, and operations traces also run many checks. They cover 
 
 The same traces cover unshown refusals (911 advisory), unconfirmed and duplicated proofs (90, with 50 known and 237 advisory), unthrown refusals, and contract mismatches. They also cover alerts, settings, templates, and dependencies. The record gives no confidence for this claim.
 
-A clean result has 4 causes, and only the first means the rule holds. Satisfied checks have complete data. No in-scope record lacks both parents, no step is unserved, and every reaction trigger resolves. The sender, fallback, reservation, and serve checks agree with independent counts. The record gives no confidence for this claim.
+A clean result can have 4 causes, and only the first means the rule holds. Satisfied checks have complete data. No in-scope record lacks both parents, no step is unserved, and every reaction trigger resolves. The sender, fallback, reservation, and serve checks agree with independent counts. The record gives no confidence for this claim.
 
 Covered checks emit findings, and named waivers suppress those findings. A waiver suppresses findings only while it stays unexpired. The covered checks are the unfulfilled requirements, the unscreened steps, the unmeasured requirements, and the undeclared and unconfirmed families. The record gives no confidence for this claim.
 
 Gated or scoped checks never run their predicate. Flow reach exempts background-only use cases. Of the checks, 2 run only at large size. The transition check skips stores that have no transitions. The checker exempts decision codes by folder in opposite directions. `record-link-missing` covers only 5 Behavior types, and screen checks skip screens without a route. Dependency and template checks return without a finding when they are not configured, so their clean tallies hide whether each check passed or never ran. The record gives no confidence for this claim.
 
-The checker lacks some checks. Only the analyzer emits `partial-missing`, so a waiver that names it draws `gap-finding-unknown`. One working check passes more than its standard allows. `state-unreached` passes a state that is a transition source or target. The standard means a state that no transition reaches, so the check hides 9 states that have no incoming transition. The record gives no confidence for these claims.
+The checker lacks some checks. Only the analyzer emits `partial-missing`, so a waiver that names it would itself draw `gap-finding-unknown`. One working check passes more than its standard allows. `state-unreached` passes a state that is a transition source or target. The standard means a state that no transition reaches, so the check hides 9 states that have no incoming transition. The record gives no confidence for these claims.
 
 Almost no check runs above a requirement. No check reads a feature's goal link, and 28 of 40 features name no goal. No check reads a requirement's origin, and 719 of 925 live requirements name neither `feature` nor `basedOn`. No check reads a rule's `fulfills` link. Of 2,295 rules, 2,052 have no direct links, and 79 still have none even when transitive fulfillment through governed use cases and aggregates counts. No check reads a flow's goal, and all 112 goals are prose sentences. The record gives no confidence for this claim.
 
@@ -36,7 +36,7 @@ The investigation proposes new finding codes in the existing naming pattern. Eac
 
 The remaining proposed codes are `permission-unused` (1), `operation-uncalled` (9), `integration-event-untranslated` (8), `integration-event-unconsumed` (2), `claim-unlinked` (33 entries), and `job-without-runbook` (15). The record also proposes that `record-link-missing` extend to flows, which covers none. It proposes that `decision-basis-missing` extend to product decisions (2 more), and that `state-unreached` become incoming-only, starting advisory (9). The record states no confidence for these proposals.
 
-The recommendation has 2 refinements. The simplest measurable form of requirement origin is the union of `feature` and `basedOn`, because `feature` alone is deliberately narrow. The flow goal link needs a LiteSpec field change before a check, because no field exists for a checker to read. The record states no confidence for these refinements.
+The recommendation has 2 refinements. The cheap measurable form of requirement origin is the union of `feature` and `basedOn`, because `feature` alone is deliberately narrow. The flow goal link needs a LiteSpec field change before a check, because no field exists for a checker to read. The record states no confidence for these refinements.
 
 ## Source Notes
 

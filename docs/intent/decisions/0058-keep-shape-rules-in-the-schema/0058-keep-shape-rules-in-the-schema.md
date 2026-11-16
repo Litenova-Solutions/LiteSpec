@@ -32,4 +32,4 @@ The change edits the schema, the schema checks and the parity test. No record ch
 
 ## Revisit Conditions
 
-This decision holds until the schema and the model check disagree on a rule that the parity test does not cover. It also holds until an editor's schema support loses a rule the schema cannot carry. Either report reopens the choice.
+This decision holds until the schema and the model check disagree on a rule that the parity test does not cover. It also holds until an editor's schema support loses a rule the schema can no longer carry. Either report reopens the choice.

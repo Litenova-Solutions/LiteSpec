@@ -23,7 +23,7 @@ One consumer found the baseline's light-scheme borders too faint for screens ful
 
 ## Decision
 
-The specification states what each screen is for, what it shows, what it lets a person do, what it says, and the measurable limits it meets. The implementation states how it looks and what it is built with. A binding connects the two, and `model check` verifies it.
+The specification states what each screen is for, what it shows, what it lets a person do, what it says, and the measurable limits it meets. The implementation states how it looks and what it is built with. A small binding connects the two, and `model check` verifies it.
 
 The `product` record carries the brand: the reader, the one thing the product is accountable for on every screen, three words it is and three it is not, and the rules every screen keeps. The `entry-point` record carries the audience's density and voice. Each screen names its page-frame pattern with the option the product chose, and names the screens it leads to. It draws one wireframe in its explanation file. Each refusal result carries the sentence a person reads, with one sentence per language beside it.
 

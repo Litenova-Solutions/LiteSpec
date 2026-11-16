@@ -4,7 +4,7 @@
 
 **Concern:** tests
 
-Web frontends test pure logic in Vitest beside the module under test, and navigation and integration in Playwright against the running system.
+Web frontends prove pure logic in Vitest beside the module under test, and navigation and integration in Playwright against the running system.
 
 [Frontend Testing](../testing.md) states what each test kind proves. This page states where each kind runs on the web stacks: the runners, the libraries, the commands, and the lint rule that rejects a test with no assertion.
 

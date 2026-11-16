@@ -4,7 +4,7 @@ title: Write Each Shared Record Rule Once
 options:
   - name: "One provision per shared rule, applying to every record type it concerns"
     pros: "A rule is stated once, a reviewer reads it once, and a later change edits one provision."
-    cons: "A reader of one record type finds some of its rules in provisions that name other types, so each provision says which types it covers."
+    cons: "A reader of one record type finds some of its rules in provisions that name other types, so each provision must say which types it covers."
   - name: "A rule per record type in each workstream"
     pros: "Each record type's page states all of its rules in one place."
     cons: "The same rule is written several times in slightly different words, and each copy can drift."

@@ -25,7 +25,7 @@ LiteSpec compared 4 options for installing the CLI. The table sets each option a
 
 ## Decision
 
-The CLI compiles ahead of time into one native executable for each of 8 platforms: `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64`, and `osx-arm64`. The `LiteSpec.Cli` package names one native package for each platform, and a framework-dependent package serves every other platform. `dotnet tool install` and `dotnet tool restore` keep working.
+The CLI compiles ahead of time into one native executable for each of 8 platforms: `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64`, and `osx-arm64`. The `LiteSpec.Cli` package names one native package for each platform, and a framework-dependent package serves every other platform. So `dotnet tool install` and `dotnet tool restore` keep working.
 
 Each GitHub release also carries a standalone archive for each platform, a `SHA256SUMS` file, a build provenance attestation for each file, and install scripts for Linux, macOS, and Windows. A project uses one of the two installs.
 

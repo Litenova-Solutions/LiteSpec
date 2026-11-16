@@ -1,6 +1,6 @@
 # Make the Book an Explorer
 
-A reader opens the book as the model made readable. This decision makes it an explorer for desktop and light mode only: record content without teaching text, and the blueprint drawn on the pages it describes.
+A reader opens the book as the model made readable. This decision makes it a calm explorer for desktop and light mode only: record content without teaching text, and the blueprint drawn on the pages it describes.
 
 ## Context
 

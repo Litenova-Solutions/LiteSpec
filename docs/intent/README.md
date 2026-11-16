@@ -12,7 +12,7 @@ The Intent records hold the research and decisions behind LiteSpec's provisions,
   - [Established Traceability Practice](research/established-traceability-practice/established-traceability-practice.md): what established practice requires of hierarchy.
   - [Book Outline Evidence](research/book-outline-evidence/book-outline-evidence.md): where the book outline invents a parent.
   - [Check Coverage Evidence](research/check-coverage-evidence/check-coverage-evidence.md): which links the checker enforces and which none reads.
-  - [Research Conclusion Evidence](research/research-conclusion-evidence/research-conclusion-evidence.md): where a research conclusion lives.
+  - [Research Conclusion Evidence](research/research-conclusion-evidence/research-conclusion-evidence.md): where a research conclusion lives today.
   - [Comparable Rationale Practice](research/comparable-rationale-practice/comparable-rationale-practice.md): how comparable projects keep rationale beside rules.
   - [Naming Grammar Evidence](research/naming-grammar-evidence/naming-grammar-evidence.md): the 248-field inventory, the collisions, and the word classes behind `decision/0011-one-grammar-for-names-and-values`, `decision/0012-use-cases-read-their-settings` and `decision/0018-one-record-language`.
   - [Lower Layers Practice](research/lower-layers-practice/lower-layers-practice.md): the outside review and the measured consumer counts behind `decision/0014-one-waiver-record`, `decision/0015-automations-and-sagas`, `decision/0016-typed-contracts-and-privacy` and `decision/0017-proof-that-holds`.

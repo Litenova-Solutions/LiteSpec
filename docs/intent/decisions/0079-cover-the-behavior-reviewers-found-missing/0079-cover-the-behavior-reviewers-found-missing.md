@@ -1,6 +1,6 @@
 # Cover the Behavior Reviewers Found Missing
 
-Authors stating Behavior records could not express signed-in acts, verified claims, row inputs, replays, or unknown outcomes. An outside review of one consumer's Behavior records proved these gaps. This decision gives each proved gap a field or a stated pattern, so each gap has a stated shape.
+Authors stating Behavior records could not express signed-in acts, verified claims, row inputs, replays, unknown outcomes, and more. An outside review of one consumer's Behavior records proved these gaps. This decision gives each proved gap a field or a stated pattern, so each gap has a stated shape.
 
 ## Context
 

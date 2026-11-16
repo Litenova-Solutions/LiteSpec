@@ -20,7 +20,7 @@ A `read-model` is a Behavior record at `behavior/modules/<module>/read-models/<n
 
 Each field names its source as `integration-event/<name>#<field>`. It may accumulate with `sum` or `count`. A personal or sensitive field names the event that erases it in `erasedBy`. `removedBy` names the events that remove a row. `freshness` states how stale a reader may see it. A use case names the read model in `reads`.
 
-Three other patterns cover what a read model does not. A screen that only shows another module's data calls each owner's own query and joins the answers. A command whose decision needs another module's current value asks one question through a decision port. Repositories, outside-system ports, and rule calculators stay ports.
+Three other answers cover what a read model does not. A screen that only shows another module's data calls each owner's own query and joins the answers. A command whose decision needs another module's current value asks one question through a decision port. Repositories, outside-system ports, and rule calculators stay ports.
 
 ## Consequences
 

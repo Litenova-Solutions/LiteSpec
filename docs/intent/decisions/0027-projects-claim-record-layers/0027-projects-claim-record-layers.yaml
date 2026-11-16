@@ -4,7 +4,7 @@ title: Projects Claim the Record Layers They Use
 options:
   - name: "A `layers` map that names the practice each layer follows"
     pros: "A team names each layer it uses and the practice it follows, and it can take LiteSpec's architecture while it keeps its own tests. Each of the three conformance levels stays expressible."
-    cons: "The conformance level leaves the project file and every tool, and each citation of the level changes with it."
+    cons: "The conformance level leaves the project file and every tool, and each citation of the level changes in one change."
   - name: "Keep the conformance levels and add a level for each partial case"
     pros: "No project file changes, and each partial case gets a name."
     cons: "Each new level lowers every check at once, so the levels multiply the same mismatch."

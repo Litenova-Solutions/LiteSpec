@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A record screen shows one record of the product: its state, its facts, its history, and the commands a reader may run. This page gives one pattern for each part of that screen, and a final pattern that assembles the parts into a whole screen. To build a record screen, an owner picks one option from the drawings in each pattern, and the team records each choice in its pattern catalog. One shared record shape keeps every record readable in the same order, so support staff find the state and the next step in the same place on every record.
+A record screen shows one record of the product: its state, its facts, its history, and the commands a reader may run. This page gives one pattern for each part of that screen, and a final pattern that assembles the parts into a whole screen. To build a record screen, an owner picks one option from the drawings in each pattern, and the team records each choice in its pattern catalog, the file holding the project's interface decisions. One shared record shape keeps every record readable in the same order, so support staff find the state and the next step in the same place on every record.
 
 ## Concepts
 
@@ -639,7 +639,7 @@ page
 
 **Rationale:** Airtable draws linked records as rows that can be added and removed in place, because the relation itself is the work. Each exception to the travel policy gets a row with its ceiling and use count, and the section holds the Add control rather than sending the reader to another page.
 
-**Cost:** Editing inside a section blurs reading and writing: every row needs its own validation and refusal states. It also fits only children with few columns, and a wide child still needs its own page.
+**Cost:** Editing inside a section blurs reading and writing: every row needs its own validation and refusal states. It also fits only children with few columns, and a wide child still wants its own page.
 
 **Reference:** Airtable
 
@@ -704,7 +704,7 @@ page
 
 **Rationale:** Google Drive turns a refusal into a request: the reader asks, an owner decides, and the decision arrives as a message. An auditor who needs to reverse the payout asks from the refusal itself instead of tracking down an owner.
 
-**Cost:** Every request needs an owner who answers it, and a queue of access requests is a new surface to build and watch. On records where access is never granted, the button suggests a decision that never comes.
+**Cost:** Every request needs an owner who answers it, and a queue of access requests is a new surface to build and watch. On records where access is never granted, the button promises a decision that never comes.
 
 **Reference:** Google Drive
 

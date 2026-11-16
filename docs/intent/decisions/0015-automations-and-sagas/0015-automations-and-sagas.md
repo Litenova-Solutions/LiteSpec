@@ -14,7 +14,7 @@ LiteSpec compares 4 designs for automation and multi-aggregate writes.
 |---|---|---|
 | Reactions and jobs in core, atomic writes through a bound rule | Reaction and job name the two shapes, entry-point kinds end the auth split, and bound groups keep atomic writes visible | Reactions, jobs, and entry points all move to the new shapes in one change |
 | Keep one automation record | One trigger shape ends the reaction and job split | One name hides whether the work answers an event or runs on a schedule |
-| Atomic writes for one aggregate only | The aggregate boundary stays absolute, as the outside practice advises | The largest consumer's place-order write changes 7 aggregates atomically, so the ban would force coordination where the business settles in one step |
+| Atomic writes for one aggregate only | The aggregate boundary stays absolute, as the outside practice advises | The largest consumer's place-order write changes 7 aggregates atomically today, so the ban would force coordination where the business settles in one step |
 | Coordination as a core aggregate kind | Multi-aggregate flows sit beside entities in core | No consumer uses them in core, and the record schema would need a saga kind that no check reads |
 
 The chosen option keeps two record types and an atomic write rule. The other options each merge the two work types, ban atomic writes, or add a kind that no consumer uses.
@@ -29,7 +29,7 @@ An aggregate is an entity or a store. Coordination across aggregates is not a re
 
 No workflow-engine extension exists. `decision/0030-limit-the-jobs-extension` removes the workflow-engine subjects that the jobs extension held.
 
-An entry point leads from outside only. The kinds are `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, and `served-content`. The entry point states how a caller authenticates, in `auth`. The use case states who may act, in `grant` and `tenant`. An atomic write across aggregates is allowed through an `atomicity` rule that `binds` the aggregates, and the use case's `writes` equals that group.
+An entry point leads from outside only. The kinds are `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, and `served-content`. The entry point states how a caller authenticates, in `auth`. The use case states who may act, in `grant` and `tenant`. An atomic write across aggregates stays allowed through an `atomicity` rule that `binds` the aggregates, and the use case's `writes` must equal that group.
 
 ## Consequences
 

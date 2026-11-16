@@ -18,7 +18,7 @@ Both files carry each provision with its scope, layer, trace, strength, and the 
 
 A provision takes its layer from its page, or from its Applies to line when that layer differs, and its trace is `yes` only where its Applies to line states it, as the [Provision Scopes](../core/scopes.md) page states.
 
-The same run also writes the finding code table, the record folder table from the record folder map, and the pin table from the release manifest. Run it after adding, renaming, or removing a provision, a finding code, a record folder, or a pin. Never edit the page or the data file directly: the next run overwrites a hand edit.
+The same run also writes the finding code table from the finding code table the tool reads, the record folder table from the record folder map, and the pin table from the release manifest. Run it after adding, renaming, or removing a provision, a finding code, a record folder, or a pin. Never edit the page or the data file directly: the next run overwrites a hand edit.
 
 ## Arguments
 

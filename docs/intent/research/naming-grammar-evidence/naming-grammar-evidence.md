@@ -1,6 +1,6 @@
 # Naming Grammar Evidence
 
-LiteSpec records are written as YAML fields, and each field name means one thing. This research record holds the count of field names in the record schema and the collision analysis behind decisions `D9` to `D18`. From that analysis it sets one naming grammar for the fields. It matters because a reader cannot tell which shape a name holds when one name holds several shapes.
+LiteSpec records are written as YAML fields, and each field name should mean one thing. This research record holds the count of field names in the record schema and the collision analysis behind decisions `D9` to `D18`. From that analysis it sets one naming grammar for the fields. It matters because a reader cannot tell which shape a name holds when one name holds several shapes.
 
 ## Findings
 
@@ -12,7 +12,7 @@ The field set is mostly systematic. All 37 page types share one header: `type`, 
 
 Most of the 21 multi-shape names are collisions that a reader cannot tell apart. The `id` and `kind` names vary by type by design, because each record carries its own identifier form and its own classifier. The other names do not vary by design. `audience` holds actor lists on a product and on a notification, but one permission on an integration event. The checker rejects that as an invalid field. `basedOn` holds 2 different arrays. `code` holds one refusal code or a list of codes. The record gives no confidence for these claims.
 
-More names span several shapes. `direction`, `effects`, `fields`, `key`, `mode`, `runbook`, `scope`, `sends`, `steps`, and `subject` each span 2 or 3 shapes. `onFailure` is a string policy on effects and a structured object on reactions and jobs. That is the clearest shape inconsistency in the schemas. `reason` is free prose in most places, but on audit and idempotency objects it is an enum that is required, optional, or absent. `setBy` is `product` or `tenant` on requirements, and it adds `operator` on settings. The record gives no confidence for these claims.
+More names span several shapes. `direction`, `effects`, `fields`, `key`, `mode`, `runbook`, `scope`, `sends`, `steps`, and `subject` each span 2 or 3 shapes. `onFailure` is a string policy on effects and a structured object on reactions and jobs. That is the most mechanical inconsistency in the schemas. `reason` is free prose in most places, but on audit and idempotency objects it is an enum that is required, optional, or absent. `setBy` is `product` or `tenant` on requirements, and it adds `operator` on settings. The record gives no confidence for these claims.
 
 `serves` spans 2 shapes across 5 record types, with 3 target sets. `source` carries 4 shapes across 21 definitions. Those are the origin marker, the constraint's free-text source, the integration event's CloudEvents source, and the nested input and output origin. Research sources are a sixth shape beside them. The record gives no confidence for these claims.
 
@@ -34,7 +34,7 @@ The language page holds the normative list of classes. This record holds only th
 
 ## Source Notes
 
-The 248 count comes from a script run over the record schema on 31 October 2026. The run read the schema beside this record. The script's definition counts per name are truncated in its output, so the record relied only on the shape lists.
+The 248 count comes from a fresh script run over the current record schema on 31 October 2026. The run matches the schema this release carries. The script's definition counts per name are truncated in its output, so the record relied only on the shape lists.
 
 The consumer illustrations come second-hand from `research/field-naming-evidence`. That record measured them on 30 October 2026, over 434 scanned files and the largest consumer's built model. The record read the Gherkin reference on 31 October 2026, including its keywords, Rule, and Background sections. Its index page notes an update on 27 October 2026. The record read the CloudEvents text as version 1.0.3-wip on the same date.
 

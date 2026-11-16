@@ -78,7 +78,7 @@ In Claimwick, `use-case/spending.list-expenses` lists expenses. The backend impl
 
 The three backend names become three lowercase folder names, while the `UseCases/` segment has no counterpart in the frontend path.
 
-A query that describes no one aggregate keeps its record location under `use-cases/` beside its module, so its folder mirrors that location with two names instead of three. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/use-cases/read-spending-summary/` and `<backend>/Spending/UseCases/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
+A query that describes no one aggregate keeps its record home under `use-cases/` beside its module, so its folder mirrors that home with two names instead of three. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/use-cases/read-spending-summary/` and `<backend>/Spending/UseCases/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 

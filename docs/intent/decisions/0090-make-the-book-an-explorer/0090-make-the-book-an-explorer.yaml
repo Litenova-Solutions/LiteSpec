@@ -3,7 +3,7 @@ id: decision/0090-make-the-book-an-explorer
 title: Make the Book an Explorer
 options:
   - name: "Desktop and light only, teaching text out, wireframe, navigation-map and storyboard views"
-    pros: "One layout to keep; record content, labels, counts, and states stay while definitions move to hover and the lexicon; the blueprint views show each screen before code."
+    pros: "One layout to keep calm; record content, labels, counts, and states stay while definitions move to hover and the lexicon; the blueprint views show each screen before code."
     cons: "No narrow-screen layout and no dark scheme; readers who learned from the teaching text open the lexicon instead."
   - name: "Keep the responsive tutoring book"
     pros: "Every screen size keeps working and nothing is removed."

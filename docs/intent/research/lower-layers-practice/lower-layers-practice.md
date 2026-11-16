@@ -1,6 +1,6 @@
 # Lower Layers Practice
 
-The lower areas of LiteSpec are Behavior, Implementation, Proof, and Governance. They sit below the Intent records. This research record holds the findings of an outside review of those 4 areas, made on 31 October 2026. The reviewers read each area as a newcomer would, compared it with outside practice, and checked each finding in the files. It matters because several findings concern checks that pass instead of failing, or that claim more than they check.
+The lower areas of LiteSpec are Behavior, Implementation, Proof, and Governance. They sit below the Intent records. This research record holds the findings of an outside review of those 4 areas, made on 31 October 2026. The reviewers read each area as a newcomer would, compared it with outside practice, and checked each finding in the files. It matters because several findings concern checks that pass when they should fail, or that claim more than they check.
 
 ## Findings
 
@@ -8,7 +8,7 @@ The review confirms that exceptions are uneven and too wide. It confirms that pr
 
 The review used 4 reviewers, and each read one area against branch v3 at commit c9b2725. The Governance reviewer confirmed behavior on scratch builds, and the reviewers rechecked 5 code claims in the code on the same day. The review does not repeat the 124 findings that the findings table already verifies. The record gives no confidence for this method claim.
 
-Exceptions are uneven and too wide. A known gap suppresses a tier G finding on presence alone. A deviation asks for a recorded reviewer, but a deviation holds every finding on its subject, not only the findings its provision governs. So a deviation that cites a precedence provision suppresses unrelated findings. Deferrals and the frozen phase relax blocking checks with no reason and no expiry. That conflicts with the scope rule that each waiver resolves to a deviation record. The record gives no confidence for this claim.
+Exceptions are uneven and too wide. A known gap suppresses a tier G finding on presence alone. A deviation asks for a recorded reviewer, but a deviation holds every finding on its subject, not only the findings its provision governs. So a deviation that cites a precedence provision suppressed unrelated findings. Deferrals and the frozen phase relax blocking checks with no reason and no expiry. That conflicts with the scope rule that each waiver resolves to a deviation record. The record gives no confidence for this claim.
 
 Expiry uses 4 field names, and a deviation expires without a report. A retired subject suppresses tier G findings. The review proposes one exception record to replace the deviation, the known gap, the deferred provisions, and the frozen check phases. The record holds the kind of waiver or gap, the provision or finding codes it covers, the subject or paths, the reason, the exit, and `expiresOn`. It covers only what it names, and `exception-expired` reports it after its date. The record gives no confidence for this proposal.
 
@@ -18,7 +18,7 @@ Verified does not mean what it says. The builder creates browser proof links wit
 
 A git-ignored cache holds the staleness state, and the cache is empty in every fresh clone. So CI never sees a changed scenario, and locally a rerun of an unchanged test clears the cache. OpenFastTrace marks coverage outdated from the revision of the covered item. Nothing blocks on an unverified scenario, while SonarQube quality gates evaluate pass or fail mechanically. The record gives no confidence for these claims.
 
-An assertion-free test marks records tested. Background use cases verify through any `when` and `then` step, and the docs do not say so. `verified` names 2 predicates, while `tested` and `exercised` overlap. The book recomputes proof state with its own vocabulary, across thousands of lines. The record gives no confidence for these claims.
+An assertion-free test still marks records tested. Background use cases verify through any `when` and `then` step, and the docs do not say so. `verified` names 2 predicates, while `tested` and `exercised` overlap. The book recomputes proof state with its own vocabulary, across thousands of lines. The record gives no confidence for these claims.
 
 The proposed repair keeps proof state in a committed proofs file. The file holds each scenario's hash and its test body's hash at the last passing run. A scenario is stale when either hash changes, and proof readers read browser outcomes. A finding blocks or reports by its tier. `use-case-unverified` reports by default. The release flag makes release-readiness items block, and the since flag blocks only on what changed. The record gives no confidence for this proposal.
 
@@ -46,7 +46,7 @@ Entry points cover outside callers, triggers, and content, and 2 pages assign au
 
 Several words carry 2 or 3 meanings. The verbs `issue` and `publish`, the word `operator`, and the words `system`, `anonymous`, and `door` each do so. The review makes effect verbs into `runs`, `sends`, `emits`, and `calls`. A manual job carries `kind: manual`. A coordinator step that a person runs is `person`, and the auth kind `anonymous` becomes `none`. The record gives no confidence for these repairs.
 
-The set ends with 3 structural decisions. Provision ids come from headings, so a retitle breaks every citation in consumer code. The review proposes that sphinx-needs' explicit stable ids replace this. The ID line then becomes the provision's identity, and headings change without changing it. The record gives no confidence for this proposal.
+The set ends with 3 structural decisions. Provision ids come from headings, so a retitle breaks every citation in consumer code. The review proposes that sphinx-needs' explicit stable ids replace this. The ID line then becomes the provision's identity, and headings may change without changing it. The record gives no confidence for this proposal.
 
 Projects, property tests, model-based tests, and mutation thresholds stand as must-level rules, with no tool and no size scaling. The review compares them with the test pyramid's proportions, which are guidance and not mandates. So they become Defaults by size. Every must-level rule names a real check or says `Reviewed for`, and one page answers where code goes. The record gives no confidence for this proposal.
 

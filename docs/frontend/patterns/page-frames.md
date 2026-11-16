@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A page-frame pattern fixes the layout for one kind of page: which parts sit where, in what order, and which action is primary. This page defines the frame for each kind, from home and list pages to setup and error pages. Each pattern names the question it answers, the default option a project builds, and how that default behaves on a narrow screen, and shows every option as a wireframe. An owner picks an option from the wireframes, and the team records the choice in its pattern catalog. One frame per kind keeps every screen predictable: the reader knows where the heading, actions, and content sit before reading.
+A page-frame pattern fixes the layout for one kind of page: which parts sit where, in what order, and which action is primary. This page defines the frame for each kind: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, and error. Each pattern names the question it answers, the default option a project builds, and how that default behaves on a narrow screen, and shows every option as a wireframe. An owner picks an option from the wireframes, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One frame per kind keeps every screen predictable: the reader knows where the heading, actions, and content sit before reading.
 
 ## Concepts
 
@@ -778,7 +778,7 @@ page
 
 **Rationale:** The preview takes the whole page and the settings float over it as a panel: the full-bleed shape. A cover image is judged at real size with the logo and Submit expense in place, and closing the panel shows the whole result.
 
-**Cost:** The panel covers the preview it edits, and dragging it aside is awkward on a laptop trackpad. This shape fits a visual judged whole, such as a cover, while detailed fields need side-by-side.
+**Cost:** The panel covers the preview it edits, and dragging it aside is awkward on a laptop trackpad. This shape fits a visual judged whole, such as a cover, while detailed fields want side-by-side.
 
 **Reference:** Webflow
 

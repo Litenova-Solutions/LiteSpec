@@ -4,17 +4,17 @@ The book is the generated reference that LiteSpec builds from its records. The b
 
 ## Findings
 
-LiteSpec allows 3 ways for a record to receive a parent, and the book uses no fourth. The current outline places most Behavior records correctly. It invents Intent groupings from file paths and build order, and it splits the glossary by layer. It drops the Implementation and Proof records that the builder constructs.
+LiteSpec allows 3 ways for a record to receive a parent, and the book may use no fourth. The current outline places most Behavior records correctly. It invents Intent groupings from file paths and build order, and it splits the glossary by layer. It drops the Implementation and Proof records that the builder constructs.
 
-The 3 ways are identifier containment, a required single link, and no parent, which places the record as a top-level list under its own layer. The record states 2 corollaries. A reader reads a parent from the child's own identifier or fields, never by inverting another record's link without saying so. A book label is a record type, a field name, a status, or a glossary term, so any other outline node is an invented grouping. The record gives no confidence for these rules.
+The 3 ways are identifier containment, a required single link, and no parent, which places the record as a top-level list under its own layer. The record states 2 corollaries. A reader must read a parent from the child's own identifier or fields, never by inverting another record's link without saying so. A book label must be a record type, a field name, a status, or a glossary term, so any other outline node is an invented grouping. The record gives no confidence for these rules.
 
 Product, goal, problem, constraint, research, flow, and actor stand correctly as top-level lists. Nothing in their identifiers names a parent, and none carries a required parent link. The record gives high confidence for this verdict. It measures each verdict against the governing provision, the identifier table, the Links table, and the containment paragraph.
 
-Feature has 2 candidate parents, and LiteSpec names neither. The builder nests a feature under the first problem it names. Its placed-once guard drops any second parent without a finding, which leaves 71 features with no `solves` as unlabeled roots beside the live features. The record gives high confidence for this verdict.
+Feature has 2 candidate parents, and LiteSpec names neither. The builder nests a feature under the first problem that claims it. Its placed-once guard drops any second parent without a finding, which leaves 71 features with no `solves` as unlabeled roots beside the live features. The record gives high confidence for this verdict.
 
 The builder invents a `requirement-page/<file path>` node from the source file. A requirement page is a page style, not a record type, so the grouping breaks both the outline provision and the label provision. The grouping also hides the 719 requirements that name neither a feature nor a `basedOn` entry. In the sample, 32 requirement pages and 32 files coincide, so grouping by page and grouping by file produce the same grouping. At any other size, only the feature entry decides the grouping. The record gives high confidence for this verdict.
 
-The builder places all 74 decisions in one Intent list. Of them, 71 are technical decisions that belong under Implementation. A reader therefore meets implementation choices inside a layer that contains no mechanism. The record gives high confidence for this verdict.
+The builder places all 74 decisions in one Intent list. Of them, 71 are technical decisions that belong under Implementation. A reader therefore meets implementation choices inside a layer that must never contain mechanism. The record gives high confidence for this verdict.
 
 The builder splits Term across Intent and Behavior by its `layer` field. That field states which clock the word follows, not where the entry stands. The glossary is one list, and the split places it in 2 homes. Flow stands correctly as a top-level list, because its `goal` is a sentence, not an identifier. Nesting flows under goals needs a model change before the builder chooses it. The record gives high confidence for these verdicts.
 
@@ -26,7 +26,7 @@ The builder attaches results and scenarios through shared files. A scenario on a
 
 The builder gives children only to the sampled modules. The record calls this sampling, not outline logic, but a reader sees no difference. Use cases need a precedence that the specification never gives: the aggregate where the model assigns one, the module otherwise, and never a file path. The record gives high confidence for this verdict.
 
-Roles, permissions, and entry points stand correctly as top-level lists. Nesting permissions under roles repeats every shared permission. Only 4 of 23 actors record any `holds`, so an outline that uses `holds` orphans most actors. The record gives high confidence for this verdict.
+Roles, permissions, and entry points stand correctly as top-level lists. Nesting permissions under roles would repeat every shared permission. Only 4 of 23 actors record any `holds`, so an outline that uses `holds` would orphan most actors. The record gives high confidence for this verdict.
 
 Governance has the correct shape and an incorrect label. The builder lists waivers separately with the correct entries. The builder emits that list as a third layer beside Intent and Behavior. The provision places governance beside all 4 layers, and subject links attach it without nesting. The record gives high confidence for this verdict.
 
@@ -36,7 +36,7 @@ LiteSpec defines both parents in its code marks. Code stands under the record it
 
 The outline has 5 gaps that belong to LiteSpec, not to the builder. Feature needs a primary-parent rule. Requirement needs a stated tree home in the feature that contains it as an entry, and it keeps links as trace. Flow needs a goal identifier field. Rule needs its identifier home resolved as a typed reference. Governance needs one statement of its attach-by-link rule. The record gives no confidence for these gaps.
 
-A sixth and smaller gap is that a platform-wide setting carries a module-shaped identifier. LiteSpec either names the module value that setting carries or admits a platform group. The record gives no confidence for this gap.
+A sixth and smaller gap is that a platform-wide setting still carries a module-shaped identifier. LiteSpec must either name the module value that setting carries or admit a platform group. The record gives no confidence for this gap.
 
 The investigation proposes 11 outline rules. They define 4 layer roots with governance beside them, and they place each record once: by identifier, then by required link, then by type list. The rules order Intent with requirements under their feature, and they split decisions by home. Features nest by a stated precedence, and extra links count as trace.
 

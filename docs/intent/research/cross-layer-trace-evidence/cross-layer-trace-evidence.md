@@ -1,6 +1,6 @@
 # Cross-Layer Trace Evidence
 
-A trace links a goal down through the layers to the test that proves it. A reader who follows the trace moves from a promise to the check that confirms it. This research record follows that trace top down and bottom up through the largest consumer, a project that uses LiteSpec, and shows where it breaks. It matters because a team that reads only its open findings sees no break, and this record shows where a break exists.
+A trace links a goal down through the layers to the test that proves it. A reader who follows the trace can move from a promise to the check that confirms it. This research record follows that trace top down and bottom up through the largest consumer, a project that uses LiteSpec, and shows where it breaks. It matters because a team that reads only its open findings sees no break, and this record shows where a break exists.
 
 ## Findings
 
@@ -32,17 +32,17 @@ The link from a flow to its goal is undefined, not merely empty. A goal record h
 
 The rest of the flow chain has no gaps. All 1,077 steps carry an identity and an actor, and all are served. Screens serve 817 of them. The model contains 91 known `step-screen-missing` findings, and none is open. The record gives no confidence for this claim.
 
-The specifications disagree in 3 places. Of the use cases, 11 serve a whole flow instead of a step. The link-type table allows `serves` to name a flow, but the schema's `servesArray` allows only a step or a goal. Written result identifiers drop the module, while derived ones keep it, so a reader learns 2 containment shapes. Route links name screens by frontend and route text, not by `screen/` identifiers. Joining a call to its screen therefore needs the computed `screens` array. The record gives no confidence for these claims.
+The specifications disagree in 3 places. Of the use cases, 11 serve a whole flow instead of a step. The link-type table allows `serves` to name a flow, but the schema's `servesArray` allows only a step or a goal. Written result identifiers drop the module, while derived ones keep it, so a reader must learn 2 containment shapes. Route links name screens by frontend and route text, not by `screen/` identifiers. Joining a call to its screen therefore needs the computed `screens` array. The record gives no confidence for these claims.
 
-Governance splits by home. All 3 product decisions carry `decides`. Of 71 technical decisions, which govern through `follows` and `basedOn`, 56 name a basis. Of them, 15 show the advisory `decision-basis-missing`, and 8 show `decision-unimplemented`. The record gives no confidence for this claim.
+Governance splits sharply by home. All 3 product decisions carry `decides`. Of 71 technical decisions, which govern through `follows` and `basedOn`, 56 name a basis. Of them, 15 show the advisory `decision-basis-missing`, and 8 show `decision-unimplemented`. The record gives no confidence for this claim.
 
 The tooling breaks the `follows` link. The model writer exports only `implements`, `calls`, and `proves`. LiteSpec defines and checks code-to-decision traceability, but the built model and the book omit it. The record gives no confidence for this claim.
 
-`basedOn` reaches constraints and research unevenly: 24 of 29 constraints and 14 of 29 research records. Of 29 constraints, 25 cite research as free text in `source`, and no link table validates that text. Of 22 waivers, 5 name neither `subject` nor `code`, so they govern nothing that a tool names. No waiver subject grammar covers one flow step. The record gives no confidence for these claims.
+`basedOn` reaches constraints and research unevenly: 24 of 29 constraints and 14 of 29 research records. Of 29 constraints, 25 cite research as free text in `source`, and no link table validates that text. Of 22 waivers, 5 name neither `subject` nor `code`, so they govern nothing that a tool can name. No waiver subject grammar covers one flow step. The record gives no confidence for these claims.
 
-The investigation argues against making `requirement.feature` mandatory as written. The field's meaning is narrow, and a mandatory field inverts that meaning and repeats the requirement page's own rationale. The investigation supports an anchor set instead. Each live requirement is fulfilled, undelivered through its feature, served by a technical decision for a quality requirement, or covered by an unexpired waiver. One advisory check flags a requirement that has no `feature`, no `basedOn`, and no deciding decision. The record gives no confidence for this proposal.
+The investigation argues against making `requirement.feature` mandatory as written. The field's meaning is narrow, and a mandatory field would invert that meaning and repeat the requirement page's own rationale. The investigation supports an anchor set instead. Each live requirement must be fulfilled, undelivered through its feature, served by a technical decision for a quality requirement, or covered by an unexpired waiver. One advisory check flags a requirement that has no `feature`, no `basedOn`, and no deciding decision. The record gives no confidence for this proposal.
 
-The record agrees that every feature names its goal beside the existing `solves` rule. It agrees that the flow needs an identifier-typed goal link, and that checks start advisory. The waivers cover 105 fulfilled-check results, which are invisible in the open findings. So a new advisory check needs a named promotion test, or it ends up in the waiver list instead of raising compliance. The record gives no confidence for this agreement.
+The record agrees that every feature should name its goal beside the existing `solves` rule. It agrees that the flow needs an identifier-typed goal link, and that checks should start advisory. The waivers cover 105 fulfilled-check results, which are invisible in the open findings. So a new advisory check needs a named promotion test, or it will end up in the waiver list instead of raising compliance. The record gives no confidence for this agreement.
 
 ## Source Notes
 
@@ -50,4 +50,4 @@ The record names 3 repository sources, all read on 30 October 2026. They are the
 
 The Answer cites the schema's `servesArray`, but the record schema is not in the sources list. The specifications disagree on `serves`. The link-type table allows a flow, and the schema allows only a step or a goal. The record reports this disagreement and does not settle it.
 
-The record names no claim it did not confirm. Its counts come from one consumer's built model on one day.
+The record names no claim that it could not confirm. Its counts come from one consumer's built model on one day.

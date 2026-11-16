@@ -42,7 +42,7 @@ Authority reports conflicts. A lower record never overrides a higher one. A cont
 
 ## Consequences
 
-A release never passes on a missing reader: under `model check --release`, a claimed layer whose reader is missing or failing blocks, unless a waiver with an expiry defers it.
+A release never passes on a missing reader: under `model check --release`, a claimed layer whose reader is missing or failing blocks, unless a waiver with an expiry parks it.
 
 The core stays strict about contracts; modeling and implementation choices belong to profiles and defaults.
 

@@ -4,7 +4,7 @@ LiteSpec's pattern catalog gives one recommended answer for each decision that a
 
 ## Context
 
-Pattern pages list 107 options across the catalog, and a reader cannot compare that many. An agent that builds a page has no basis to choose among them.
+Pattern pages offered long option lists for one decision. The pattern pages listed 107 options before the cut, and a reader cannot compare that many. An agent that builds a page has no basis to choose among them.
 
 ## Options
 

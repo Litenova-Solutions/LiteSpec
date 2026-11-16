@@ -24,7 +24,7 @@ LiteSpec compared 3 options for where a shared rule is written. The table sets e
 
 A rule that more than one record type shares is one provision. The provision applies to every record type it concerns, and each record type's page and template cite it instead of stating a copy.
 
-The shared rules cover describing what an explanation file holds, keeping the conditions when a claim is shortened, drawing each Example detail from the cast or a cited record, splitting a record whose parts change separately, and keeping release phases and plans out of records.
+The shared rules cover what an explanation file describes, keeping the conditions when a claim is shortened, drawing each Example detail from the cast or a cited record, splitting a record whose parts change separately, and keeping release phases and plans out of records.
 
 ## Consequences
 

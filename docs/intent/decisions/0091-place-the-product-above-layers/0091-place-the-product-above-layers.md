@@ -28,7 +28,7 @@ The book holds no product node. The product's Intent children top the Intent lay
 
 ## Evidence
 
-Principle 1 on the model page already states one tree from the product, with the product as the only record without a parent. The book outline held the product as the single node above every Intent record.
+Principle 1 on the model page already states one tree from the product, with the product as the only record without a parent. The book outline before this change held the product as the single node above every Intent record, which the outline code has now removed.
 
 ## Revisit Conditions
 

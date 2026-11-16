@@ -3,7 +3,7 @@ id: decision/0066-name-the-record-a-flow-exists-for
 title: Name the Record a Flow Exists For
 options:
   - name: "One reason per flow, in serves for a goal and answers for a problem or constraint"
-    pros: "Each flow names its reason. Goal completion counts only the flows that move the measure. The trace from a flow to its reason stays accurate."
+    pros: "Each flow names its honest reason. Goal completion counts only the flows that move the measure. The trace from a flow to its reason stays accurate."
     cons: "Authors choose the reason for every enabling and duty flow, and flows that served a goal for convenience move to answers."
   - name: "Keep one goal per flow"
     pros: "No record changes and every flow keeps its goal."

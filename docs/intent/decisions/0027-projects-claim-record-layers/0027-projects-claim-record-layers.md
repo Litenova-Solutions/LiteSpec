@@ -42,4 +42,4 @@ The research also gives the 5 shapes a claim can take: Intent alone, Intent with
 
 This decision reopens when a team needs a claim that the 4 keys cannot state, such as a claim for each stack.
 
-A claim per stack would need a key that the `layers` map does not hold. The current keys cover the 5 shapes and nothing more.
+A claim per stack would need a key that the `layers` map does not hold today. The current keys cover the 5 shapes and nothing more.

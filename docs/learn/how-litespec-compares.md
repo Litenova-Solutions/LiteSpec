@@ -70,7 +70,7 @@ Behavior-driven development with Gherkin ([Cucumber](https://cucumber.io/docs/),
 
 Teams write `.feature` files of Given-When-Then scenarios, versioned with the software and wired to code through step definitions. Reqnroll is an open-source Cucumber-style framework that automates them for .NET as a SpecFlow reboot.
 
-BDD is about discovery, collaboration, and examples rather than testing alone. Cucumber reads executable specifications in plain text and validates the software against them, reporting pass or fail per scenario.
+BDD is about discovery, collaboration, and examples rather than testing alone. Cucumber reads executable specifications in plain text and validates the software against them, reporting pass or fail per scenario through step definitions that hard-wire each specification to its implementation.
 
 ### ADRs, arc42, and C4
 

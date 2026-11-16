@@ -1,6 +1,6 @@
 # Publish Release Candidates from Release Branches
 
-A consumer validates a LiteSpec release before the release is final, and a defect it finds is fixed before the final tag. This decision lets a release branch publish candidate packages, so the consumer tests the packages it will install.
+A consumer validates a LiteSpec release before the release is final, and a defect it finds must be fixed before the final tag. This decision lets a release branch publish candidate packages, so the consumer tests the packages it will install.
 
 ## Context
 

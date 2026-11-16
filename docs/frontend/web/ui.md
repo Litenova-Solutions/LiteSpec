@@ -102,7 +102,7 @@ The shared UI rules live on [Controlled UI Governance](../ui.md): the baseline, 
 
 **Statement:** The route suite and every visual golden MUST carry a `proves` annotation for each UI provision, pattern provision, or quality requirement they enforce.
 
-**Rationale:** The route suite is where accessibility is enforced for every page, and a visual golden is where a pattern's look is held. Until each names what it enforces, no tool can read that evidence from it. The marks turn the suite into the evidence for the UI provisions it checks and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `frontends[]` entry, so the check reads a named subject instead of a convention.
+**Rationale:** The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern's look is held. Until each names what it enforces, no tool can read that evidence from it. The marks turn the suite into the evidence for the UI provisions it checks and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `frontends[]` entry, so the check reads a named subject instead of a convention.
 
 **Example:** Claimwick's route suite, named in its web frontend's `routeSuite`, carries `proves("litespec/frontend/ui#pass-every-route-suite-check")`.
 

@@ -135,7 +135,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test that drives several screens MUST carry a `flow` annotation naming the flow and a `proves` mark for each scenario it drives and asserts.
 
-**Rationale:** A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The `flow` annotation tells a reader which flow the test covers without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+**Rationale:** A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The `flow` annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
 **Example:** The submit-and-reimburse flow test carries `flow: flow/submit-and-reimburse` and a `proves` mark for each scenario it drives and asserts on each screen it reaches.
 

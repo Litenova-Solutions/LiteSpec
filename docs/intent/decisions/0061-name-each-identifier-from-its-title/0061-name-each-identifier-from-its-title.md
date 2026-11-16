@@ -26,7 +26,7 @@ The owner prefix and the decision number name the home and the sequence rather t
 
 ## Consequences
 
-`litespec model check` reports `identifier-title-invalid` for a page record outside the rule. Claimwick renames five requirements to take their names from their titles, so the example follows the rule.
+`litespec model check` reports `identifier-title-invalid` for a page record outside the rule. Claimwick renames five requirements to take their names from their titles, so the example stays a perfect example of the rule.
 
 ## Revisit Conditions
 

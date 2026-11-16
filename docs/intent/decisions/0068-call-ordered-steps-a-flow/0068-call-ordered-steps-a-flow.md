@@ -1,6 +1,6 @@
 # Call Ordered Steps a Flow
 
-Authors and readers meet one record in every list. The record holds a trigger, ordered steps, alternative paths, step failures, and an end state. This decision names that record a flow, so the type uses the standard engineering word for what it holds.
+Authors and readers meet one record. The record holds a trigger, ordered steps, alternative paths, step failures, and an end state. This decision names that record a flow, so the type uses the standard engineering word for what it holds.
 
 ## Context
 

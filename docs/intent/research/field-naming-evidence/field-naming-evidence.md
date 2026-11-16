@@ -18,13 +18,13 @@ The third collision is that `source` carries 5 meanings. It marks the origin on 
 
 The fourth collision is that `serves` covers 3 target sets across 1,807 records. A feature serves goals, a use case, reaction, or job serves steps or goals, and a screen serves steps. A feature contributes to a goal, while a use case names the step it serves. The record gives no confidence for this claim.
 
-The fifth collision is that `goal` is both a record type and a required prose sentence on all 112 flows. The flow link change resolves it. The record gives no confidence for this claim.
+The fifth collision is that `goal` is both a record type and a required prose sentence on all 112 flows. The flow link change must resolve it. The record gives no confidence for this claim.
 
 The consumer shows invalid or misleading data from 2 collisions. All 111 features carry milestone-style `by` values. Of the use-case `serves` values, 11 name a whole flow, where the schema allows only a flow step or a goal. The record gives no confidence for these claims.
 
-The record judges several smaller overloads as keep-and-document. `steps` on flows and `steps` on coordination aggregates overlap, so LiteSpec renames the aggregate side, which touches 6 records. `values` on requirements and terms overlap, so the term side becomes `codes`. Exceptions and integration events share `subject`. `scope`, `check`, and `code` keep consistent cores. The record gives no confidence for these judgments.
+The record judges several smaller overloads as keep-and-document. `steps` on flows and `steps` on coordination aggregates overlap, so LiteSpec should rename the aggregate side, which touches 6 records. `values` on requirements and terms overlap, so the term side should become `codes`. Exceptions and integration events share `subject`. `scope`, `check`, and `code` keep consistent cores. The record gives no confidence for these judgments.
 
-The `*Because` suffix needs repair only where it contains links. The nested `consistency.because` contains a rule list, and `wideningBecause` contains a requirement link. Both become verb-form link names. The effect-level `onFailure` is a string, while the page-level `onFailure` is a structured object. This is the most mechanical inconsistency in the schemas. The effect-level string takes the structured shape or the name `onFailurePolicy`. The record gives no confidence for these claims.
+The `*Because` suffix needs repair only where it contains links. The nested `consistency.because` contains a rule list, and `wideningBecause` contains a requirement link. Both should become verb-form link names. The effect-level `onFailure` is a string, while the page-level `onFailure` is a structured object. This is the most mechanical inconsistency in the schemas. The effect-level string should take the structured shape or the name `onFailurePolicy`. The record gives no confidence for these claims.
 
 The investigation also found schema drift outside the brief. The behavior page, its provision, and the consumer glossary template all require `layer` and `aliases` on every term. The glossary schema defines neither, and it sets `additionalProperties: false`. The template's `schemaVersion: 3` contradicts the schema's `const: 2`. All 508 consumer terms carry `layer`, so the schema is out of step. The record gives no confidence for this claim.
 
@@ -32,7 +32,7 @@ The consumer carries fields that LiteSpec never defines. They are `result.kind` 
 
 The proposed naming rule is one concept, one name, one shape, everywhere it appears. A field name keeps one concept, one value kind, and one cardinality on every record that carries it. New fields follow the existing grammar. A classifier is `kind`. A link is a present-tense verb, plural when it contains an array. A deadline is `<verb>By`, and a recorded date is `<verb>On`. A justification is `reason` or `rationale`, never a `*Because` field that contains links. The record states no confidence for this rule.
 
-The rule also fixes the other word classes. The defining sentence of a named thing is `meaning`, and the normative sentence of a promise is `statement`. A group nests as an object only when its fields always appear together. A name that a record type carries is never reused for a prose field. The maintainer validator checks the mechanical half of the rule, which covers same type, plural as array, and `*By` and `*On` as dates. The judgment half stays a reviewed provision. The record states no confidence for these parts of the rule.
+The rule also fixes the other word classes. The defining sentence of a named thing is `meaning`, and the normative sentence of a promise is `statement`. A group nests as an object only when its fields always appear together. A name that a record type carries is never reused for a prose field. The maintainer validator can check the mechanical half of the rule, which covers same type, plural as array, and `*By` and `*On` as dates. The judgment half stays a reviewed provision. The record states no confidence for these parts of the rule.
 
 ## Source Notes
 
@@ -40,4 +40,4 @@ The record read the schemas and templates in the repository. They are the record
 
 The count of 434 files comes from a scan of the files under `docs/`, `schemas/`, `templates/`, and `examples/`. The consumer counts come from the consumer's built model, measured on 30 October 2026. The record names no second source for the scan or the counts.
 
-The glossary template and the glossary schema disagree on `layer`, `aliases`, and the schema version. The record reports this disagreement and treats the schema as out of step. The record did not confirm the purpose of the consumer's extra fields, so it calls them consumer inventions.
+The glossary template and the glossary schema disagree on `layer`, `aliases`, and the schema version. The record reports this disagreement and treats the schema as out of step. The record could not confirm the purpose of the consumer's extra fields, so it calls them consumer inventions.

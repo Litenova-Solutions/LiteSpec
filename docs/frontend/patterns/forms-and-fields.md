@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-These patterns decide how a form takes each value and how it reports errors. Each field kind gets one shape, so entry stays fast and each error message names exactly what to fix.
+These patterns decide how a form takes each value and what the form reports around it. Each field kind gets one shape, so entry stays fast and each error message names exactly what to fix.
 
 An owner picks an option from the wireframe drawings for each field the form needs, and the team records each choice in its pattern catalog. Every option keeps the rules in Standards, whatever the choice.
 
