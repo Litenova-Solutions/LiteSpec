@@ -1778,7 +1778,7 @@
       "title": "Overview",
       "intent": "",
       "sections": [
-        "How the Pages Fit Together",
+        "What Each Page Holds",
         "Pattern Pages"
       ]
     },
@@ -4337,7 +4337,7 @@
       "style": "command",
       "area": "tools",
       "title": "Initialize Consumer",
-      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset: a ready-made selection of shape, stacks, frontends, and layer claims. The records preset claims the record model with no stacks.",
+      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset: a ready-made selection of shape, stacks, frontends, and layer claims. The \u0060records\u0060 preset claims Intent and Behavior only, with no stacks.",
       "sections": [
         "Name",
         "Synopsis",
