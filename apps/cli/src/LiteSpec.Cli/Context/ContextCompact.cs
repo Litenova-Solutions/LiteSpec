@@ -213,7 +213,10 @@ static partial class ContextCompact
                 continue;
             }
 
-            return IndentOf(lines[next]) <= indent;
+            // YAML lets a list stand at its key's indent, so a dash line there
+            // is the key's value too.
+            var nextIndent = IndentOf(lines[next]);
+            return nextIndent < indent || (nextIndent == indent && !lines[next][nextIndent..].StartsWith('-'));
         }
 
         return true;

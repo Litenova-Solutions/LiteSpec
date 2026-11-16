@@ -20,10 +20,17 @@ public sealed class ContextCommandTests
         Assert.True(File.Exists(file), result.Output);
         var text = File.ReadAllText(file);
         Assert.StartsWith("LiteSpec context for ", text);
-        Assert.Contains("== .litespec/intent/", text);
-        Assert.Contains("== .litespec/behavior/", text);
-        var firstBlock = text.Split('\n').First(line => line.StartsWith("== ", StringComparison.Ordinal));
-        Assert.EndsWith("product.yaml", firstBlock);
+        Assert.Contains("=== BEGIN FILE: .litespec/intent/", text);
+        Assert.Contains("=== BEGIN FILE: .litespec/behavior/", text);
+        var lines = text.Split('\n');
+        var begins = lines.Where(line => line.StartsWith("=== BEGIN FILE: ", StringComparison.Ordinal)).ToList();
+        Assert.EndsWith("product.yaml ===", begins[0]);
+
+        // Every file closes with its own end marker, and the context closes with the file count.
+        var ends = lines.Where(line => line.StartsWith("=== END FILE: ", StringComparison.Ordinal)).ToList();
+        Assert.Equal(begins.Select(line => line["=== BEGIN FILE: ".Length..]), ends.Select(line => line["=== END FILE: ".Length..]));
+        Assert.Equal($"=== END OF CONTEXT: {begins.Count} files ===", text.TrimEnd('\n').Split('\n')[^1]);
+        Assert.Contains($"Files: {begins.Count}", text);
 
         var recordsOnly = Path.Combine(output.Path, "records-only.txt");
         var filtered = TestCli.Run("context", "--root", Root, "--out", recordsOnly, "--layers", "behavior", "--include", "records");
@@ -31,9 +38,9 @@ public sealed class ContextCommandTests
         Assert.Equal(0, filtered.Status);
         var blocks = File.ReadAllText(recordsOnly)
             .Split('\n')
-            .Where(line => line.StartsWith("== ", StringComparison.Ordinal))
+            .Where(line => line.StartsWith("=== BEGIN FILE: ", StringComparison.Ordinal))
             .ToList();
-        Assert.Contains(blocks, block => block.EndsWith(".yaml", StringComparison.Ordinal));
-        Assert.DoesNotContain(blocks, block => block.EndsWith(".md", StringComparison.Ordinal));
+        Assert.Contains(blocks, block => block.EndsWith(".yaml ===", StringComparison.Ordinal));
+        Assert.DoesNotContain(blocks, block => block.EndsWith(".md ===", StringComparison.Ordinal));
     }
 }

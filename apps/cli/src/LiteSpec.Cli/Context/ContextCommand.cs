@@ -28,8 +28,10 @@ static class ContextCommand
 
         Writes the consumer's records and explanation files as one compact
         plain-text file for an AI chat: a short header, then one block per
-        record file starting with '== <relative path>', each explanation
-        file following its record file. The product record comes first and
+        file between '=== BEGIN FILE: <relative path> ===' and
+        '=== END FILE: <relative path> ===', each explanation file
+        following its record file, and a closing
+        '=== END OF CONTEXT: <n> files ===' line. The product record comes first and
         is always included. The command never edits, moves or deletes a
         LiteSpec file.
 
@@ -400,17 +402,32 @@ static class ContextCommand
         {
             if (include is not "explanations")
             {
-                blocks.Add($"== {Relative(config, file.File)}\n{BlockText(SourceTree.Read(file.File), full, yaml: true, title: "")}");
+                blocks.Add(Block(Relative(config, file.File), BlockText(SourceTree.Read(file.File), full, yaml: true, title: "")));
             }
 
             if (include is not "records" && file.ExplanationFile is { } explanation)
             {
-                blocks.Add($"== {Relative(config, explanation)}\n{BlockText(SourceTree.Read(explanation), full, yaml: false, file.Title)}");
+                blocks.Add(Block(Relative(config, explanation), BlockText(SourceTree.Read(explanation), full, yaml: false, file.Title)));
             }
         }
 
-        return header + "\n\n" + string.Join("\n\n", blocks) + "\n";
+        // The file count and the closing line let a reader tell a complete
+        // context from one an upload or a chat cut short.
+        var guide = string.Join("\n", new[]
+        {
+            $"Files: {blocks.Count}",
+            "Format: each file stands between '=== BEGIN FILE: <path> ===' and '=== END FILE: <path> ===', and the context ends with '=== END OF CONTEXT: <n> files ==='. A context without that last line is incomplete.",
+        });
+
+        return header + "\n" + guide + "\n\n" + string.Join("\n\n", blocks) + $"\n\n=== END OF CONTEXT: {blocks.Count} files ===\n";
     }
+
+    /// <summary>One file's block between its begin and end markers.</summary>
+    /// <param name="path">The file path relative to the consumer root.</param>
+    /// <param name="text">The file's block text.</param>
+    /// <returns>The block with its markers.</returns>
+    static string Block(string path, string text) =>
+        $"=== BEGIN FILE: {path} ===\n{text}\n=== END FILE: {path} ===";
 
     /// <summary>The block text of one file: as written with LF endings, or compacted.</summary>
     /// <param name="text">The file text.</param>

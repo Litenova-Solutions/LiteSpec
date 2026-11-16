@@ -14,7 +14,7 @@ litespec context [--root <folder>] [--out <file-or-folder>] [--layers <list>] [-
 
 The command reads every record file under the consumer's record roots, each with the explanation file beside it, and writes them as one UTF-8 text file with LF line endings, so an author can paste the specification into an AI chat to discuss it. It never edits, moves, or deletes a LiteSpec file.
 
-The output opens with a short header, then holds one block per file, each starting with `== <relative path>`. Each explanation follows its record file. The product record comes first and is always included, and the rest follow the book's outline order: by record layer first, then by path.
+The output opens with a short header, then holds one block per file between `=== BEGIN FILE: <relative path> ===` and `=== END FILE: <relative path> ===`, and closes with `=== END OF CONTEXT: <n> files ===`. Each explanation follows its record file. The product record comes first and is always included, and the rest follow the book's outline order: by record layer first, then by path.
 
 Unless you pass `--full`, the output is compacted to save tokens. From YAML it drops comments, blank lines, and keys with an empty value, and collapses runs of spaces inside scalar text to one while keeping the indentation. From Markdown it drops HTML comments and trailing whitespace, collapses repeated blank lines to one, and drops an explanation's first `# Title` line when it equals the record's title. Values, identifiers, and wording stay untouched. With `--full`, the files are kept as written.
 
@@ -26,7 +26,7 @@ Three options narrow the output by record:
 
 `--include records` writes the YAML record files only, `--include explanations` the Markdown explanation files only, and `both` writes each record file followed by its explanation.
 
-The header names the project title and identifier, the LiteSpec version the project reviewed, the filters applied, the record count, and the generation time. Once written, the command prints the path with the size in characters and an estimated token count at four characters per token.
+The header names the project title and identifier, the LiteSpec version the project reviewed, the filters applied, the record count, the generation time, the file count, and a line describing the markers. A reader, or a model in an AI chat, knows the context is complete only when the closing line is present and its count matches the header. Once written, the command prints the path with the size in characters and an estimated token count at four characters per token.
 
 ## Arguments
 
