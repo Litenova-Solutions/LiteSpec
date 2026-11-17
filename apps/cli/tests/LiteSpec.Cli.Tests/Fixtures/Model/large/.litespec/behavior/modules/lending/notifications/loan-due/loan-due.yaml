@@ -8,8 +8,8 @@ channel:
 - email
 deliveredThrough: external-system/text-gateway
 frequency: once
-dedupKey: loan-due per loan
-params:
+deduplicationKey: loan-due per loan
+parameters:
 - loanId
 - dueDate
 locale: en

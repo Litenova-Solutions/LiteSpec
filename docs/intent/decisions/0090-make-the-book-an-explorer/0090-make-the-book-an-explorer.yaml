@@ -1,6 +1,7 @@
 type: decision
 id: decision/0090-make-the-book-an-explorer
 title: Make the Book an Explorer
+context: "The book taught LiteSpec on every page, so a reader who knew the records reread teaching text on each visit and pages grew long. The book kept narrow-screen layouts and a dark scheme while readers opened it on desktop, and it drew none of the three blueprint views."
 options:
   - name: "Desktop and light only, teaching text out, wireframe, navigation-map and storyboard views"
     pros: "One layout to keep calm; record content, labels, counts, and states stay while definitions move to hover and the lexicon; the blueprint views show each screen before code."

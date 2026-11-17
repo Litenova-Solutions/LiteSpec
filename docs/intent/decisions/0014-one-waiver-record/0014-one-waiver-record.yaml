@@ -1,6 +1,7 @@
 type: decision
 id: decision/0014-one-waiver-record
 title: One Waiver Record
+context: "Waivers are uneven and too wide, and a known gap suppresses a check at level G, the gating level. A deviation suppresses every finding on its subject, not only the finding for its provision. A deferral with the frozen phase disables checks with no expiry."
 options:
   - name: One waiver record with kind, scope and closing records
     pros: One shape carries every waiver with its kind, reason, scope, closing records for a gap, and consequences for a lasting choice. It covers only what it names.

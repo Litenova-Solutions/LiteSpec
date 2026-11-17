@@ -8,8 +8,4 @@ Finance exports the approved expenses of a period, and the payout batch carries 
 
 ## Data Shared
 
-The bank holds the payout batches of one period: the expense identities, amounts and currencies. These are the ledger facts of the expenses it pays.
-
-## Failure Handling
-
-The bank rejects a payout file that does not balance. Finance then fixes the entry and re-sends the batch. A batch with an unknown outcome is reconciled against the settlement report before anything is re-sent.
+The bank holds the payout batches of one period: the expense identities, amounts and currencies. These are the ledger facts of the expenses it pays. The bank rejects a payout file that does not balance. Finance then fixes the entry and re-sends the batch. A batch with an unknown outcome is reconciled against the settlement report before anything is re-sent.

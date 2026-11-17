@@ -191,7 +191,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("waiver", "waiver/lower-analyzer-rule", Path.Combine(temp.Path, "lower-analyzer-rule.yaml"), """{"kind": "gap", "covers": ["analyzer-lowering-unrecorded"], "subject": ["use-case/lending.list-loans"], "reason": "The lowering waits for its waiver record.", "closedBy": ["waiver/lower-analyzer-rule"], "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/lower-analyzer-rule", Path.Combine(temp.Path, "lower-analyzer-rule.yaml"), """{"kind": "gap", "covers": ["analyzer-lowering-unrecorded"], "subject": ["use-case/lending.list-loans"], "reason": "The lowering waits for its waiver record.", "closedBy": ["waiver/lower-analyzer-rule"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         Assert.Empty(Lowerings(model));
     }
@@ -274,7 +274,7 @@ public sealed class AnalyzerSuppressionCheckTests
             "waiver",
             "waiver/lower-analyzer-rule",
             Path.Combine(root, "lower-analyzer-rule.yaml"),
-            $$"""{"kind": "gap", "covers": {{coversJson}}, "subject": ["use-case/lending.list-loans"], "reason": "The lowering is recorded as a waiver.", "closedBy": ["waiver/lower-analyzer-rule"], "exit": "The lowering is removed.", "expiresOn": "{{expiresOn}}"}""");
+            $$"""{"kind": "gap", "covers": {{coversJson}}, "subject": ["use-case/lending.list-loans"], "reason": "The lowering is recorded as a waiver.", "closedBy": ["waiver/lower-analyzer-rule"], "exitWhen": "The lowering is removed.", "expiresOn": "{{expiresOn}}"}""");
 
     static void CopyFixture(string root)
     {

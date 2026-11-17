@@ -1,6 +1,7 @@
 type: decision
 id: decision/0005-flows-serve-a-goal
 title: Flows Serve a Goal
+context: "Every other Intent record with a goal links to a goal record. A flow does not. It states its goal in a sentence, in the field `goal`, and no link connects it to a goal record."
 options:
   - name: A flow serves one goal record
     pros: The flow is the only Intent record that states its goal in prose. Both story mapping and impact mapping make the spine a link the book can follow.

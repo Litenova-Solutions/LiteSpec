@@ -1,6 +1,7 @@
 type: decision
 id: decision/0071-give-every-stated-rule-a-field
 title: Give Every Stated Rule a Field
+context: "The pages stated rules the records had no fields to hold: reaction triggers, unnamed scenario rules, nested links, and undescribed event fields. In one consumer four reactions triggered on another module's event with no finding, and Claimwick scenarios showed rules the records never named."
 options:
   - name: "A field for every stated rule, and a check where cheap and sure"
     pros: "No rule stays in prose alone. Reactions, scenarios, links, and domain events each have a check that proved itself on real records."

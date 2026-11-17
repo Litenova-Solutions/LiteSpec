@@ -1,6 +1,7 @@
 type: decision
 id: decision/0025-remove-fields-nothing-reads
 title: Remove Fields Nothing Reads
+context: "Several fields in the project file, release manifest, pattern catalog, and design contract have no reader in any tool. Some repeat a value another file keeps, so the two copies can disagree."
 options:
   - name: "Remove every field no tool reads, and keep the toolchain pins"
     pros: "A file shows only what a check reads, so a value cannot drift from the value the tool uses."

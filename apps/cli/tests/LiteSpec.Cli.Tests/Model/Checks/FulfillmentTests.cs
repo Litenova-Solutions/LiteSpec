@@ -39,7 +39,7 @@ public sealed class FulfillmentTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "library-app.yaml"), """{"kind": "browser", "auth": ["session"], "servedContent": [{"path": "/loans", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["requirement/borrowing.max-active-loans"]}]}"""));
+            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "library-app.yaml"), """{"kind": "browser", "authentication": ["session"], "audience": ["actor/reader"], "servedContent": [{"path": "/loans", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["requirement/borrowing.max-active-loans"]}]}"""));
 
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
@@ -53,7 +53,7 @@ public sealed class FulfillmentTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy.", "cites": ["requirement/borrowing.max-active-loans"]}]}"""));
+            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy.", "carries": ["requirement/borrowing.max-active-loans"]}]}"""));
 
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }

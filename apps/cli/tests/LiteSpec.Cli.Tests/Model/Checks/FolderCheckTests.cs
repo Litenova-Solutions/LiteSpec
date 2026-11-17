@@ -505,7 +505,7 @@ public sealed class FolderCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
-            TestModel.Record("screen", "screen/library-app.loans", file, """{"address": "/loans"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", file, """{"route": "/loans"}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
@@ -522,7 +522,7 @@ public sealed class FolderCheckTests
         var file = PathAt(temp.Path, ".litespec", "behavior", "entry-points", "library-app", "screens", "library-app.loans", "library-app.loans.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", file, """{"address": "/loans"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", file, """{"route": "/loans"}"""));
 
         Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
     }
@@ -734,8 +734,8 @@ public sealed class FolderCheckTests
             TestModel.Record("external-system", "external-system/lending-printer", PathAt(root, ".litespec", "behavior", "modules", "lending", "external-systems", "lending-printer", "lending-printer.yaml"), """{}"""),
             TestModel.Record("runbook", "runbook/clear-stuck-holds", PathAt(root, ".litespec", "implementation", "runbooks", "clear-stuck-holds", "clear-stuck-holds.yaml"), """{}"""),
             TestModel.Record("runbook", "runbook/lending-nightly", PathAt(root, ".litespec", "implementation", "modules", "lending", "runbooks", "lending-nightly", "lending-nightly.yaml"), """{}"""),
-            TestModel.Record("waiver", "waiver/shelf-check-bypass", PathAt(root, ".litespec", "governance", "waivers", "shelf-check-bypass", "shelf-check-bypass.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.borrow-copy"], "reason": "Borrowing waits for its handler.", "closedBy": ["waiver/shelf-check-bypass"], "exit": "The handler ships.", "expiresOn": "2999-01-01"}"""),
-            TestModel.Record("waiver", "waiver/lending-waiver", PathAt(root, ".litespec", "governance", "modules", "lending", "waivers", "lending-waiver", "lending-waiver.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.borrow-copy"], "reason": "Borrowing waits for its handler.", "closedBy": ["waiver/lending-waiver"], "exit": "The handler ships.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/shelf-check-bypass", PathAt(root, ".litespec", "governance", "waivers", "shelf-check-bypass", "shelf-check-bypass.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.borrow-copy"], "reason": "Borrowing waits for its handler.", "closedBy": ["waiver/shelf-check-bypass"], "exitWhen": "The handler ships.", "expiresOn": "2999-01-01"}"""),
+            TestModel.Record("waiver", "waiver/lending-waiver", PathAt(root, ".litespec", "governance", "modules", "lending", "waivers", "lending-waiver", "lending-waiver.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.borrow-copy"], "reason": "Borrowing waits for its handler.", "closedBy": ["waiver/lending-waiver"], "exitWhen": "The handler ships.", "expiresOn": "2999-01-01"}"""));
 
         Assert.Empty(Run(model));
     }

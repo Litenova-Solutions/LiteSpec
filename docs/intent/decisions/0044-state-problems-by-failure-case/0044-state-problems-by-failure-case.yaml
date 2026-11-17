@@ -1,6 +1,7 @@
 type: decision
 id: decision/0044-state-problems-by-failure-case
 title: State Each Problem by Its Failure Cases
+context: "A problem explanation carried 5 sections, and a review of explanations written to them found the same faults again and again. The opening often started with the workaround and never said why the task is needed, and 2 failures often shared one sentence. The Resolution then covered only the first failure, evidence often held feasibility, and claims were often wider than their evidence."
 options:
   - name: "Keep the five problem sections: Affected Users, Current Workaround, Cost, Evidence and Resolution"
     pros: "No problem explanation is rewritten again, and the list stays short."

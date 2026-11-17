@@ -6,3 +6,9 @@ kind: person
 belongsToTeam: false
 holds:
 - role/reader
+responsibilities:
+- Borrows copies.
+- Returns loans.
+knowledge:
+- The product assumes the reader knows the copy to borrow.
+- The product assumes the reader knows the due date of each loan.

@@ -15,4 +15,4 @@ obligations:
 - statement: A company keeps its business receipts for seven years.
   sources:
   - national-tax-law
-productEffect: An expense above the receipt threshold carries its receipt, which the product keeps for the retention period: requirement/approval.above-threshold-receipt. The personal data of a decided expense is erased after the retention period: requirement/approval.erased-after-retention.
+productEffect: An expense above the receipt threshold carries its receipt, which the product keeps for the retention period under `requirement/approval.above-threshold-receipt`. The personal data of a decided expense is erased after the retention period under `requirement/approval.erased-after-retention`.

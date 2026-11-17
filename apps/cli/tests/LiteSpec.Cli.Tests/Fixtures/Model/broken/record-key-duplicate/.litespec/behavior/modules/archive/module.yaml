@@ -2,3 +2,7 @@ type: module
 id: module/archive
 title: Archive
 dependsOn: []
+responsibilities:
+  - Archive keeps withdrawn copies.
+excludes:
+  - Archive lends no copies.

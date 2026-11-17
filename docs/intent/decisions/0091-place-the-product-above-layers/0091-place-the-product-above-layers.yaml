@@ -1,6 +1,7 @@
 type: decision
 id: decision/0091-place-the-product-above-layers
 title: Place the Product Above the Layers
+context: "The model calls the product the root, but the placement table stored it in Intent, so the book drew one node above everything in Intent. That placement filed the product as intent only, while its summary, boundary and excludes scope the whole application."
 options:
   - name: "The product stands above the record layers at .litespec/product.yaml with the layer key root"
     pros: "The file, the layer key, and the book all say what Principle 1 already states: the product is the root of one tree. Its summary, boundary, and excludes read as scoping the whole application."

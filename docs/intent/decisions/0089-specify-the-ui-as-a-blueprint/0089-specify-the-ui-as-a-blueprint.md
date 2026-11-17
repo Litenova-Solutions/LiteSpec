@@ -4,7 +4,7 @@ A screen's blueprint and its look change for different reasons. This decision st
 
 ## Context
 
-The `screen` record carried an address or a host, the use cases it offered and the flow steps it served. It carried no layout, no content and no wording, so a project claiming only Intent and Behavior had nowhere to write down what its screens were.
+The `screen` record carried no layout, no content and no wording, so a project claiming only Intent and Behavior had nowhere to write down what its screens were. It carried an address or a host, the use cases it offered and the flow steps it served.
 
 Product choices appeared only in the implementation. The design contract inside the shared UI package required Brand, Voice, Do and Do Not beside token values and component names. The page frame each screen composed appeared in the contract's `screens` map, not on the screen. The sentence a person read for a refusal appeared in a frontend dictionary file.
 

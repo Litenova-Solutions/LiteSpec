@@ -18,16 +18,16 @@ output:
       - name: loans
         type: list
         meaning: "One row per loan: its identity, copy, reader, and due date."
-        of:
+        identifies:
           fields:
           - name: loan
             type: id
-            of: aggregate/lending.loan
+            identifies: aggregate/lending.loan
             required: true
             meaning: The loan identity.
           - name: copy
             type: id
-            of: aggregate/lending.copy
+            identifies: aggregate/lending.copy
             required: true
             meaning: The copy on loan.
           - name: reader
@@ -49,6 +49,8 @@ paging:
   cursor: The due date and loan identity of the last row.
   defaultLimit: 25
   maxLimit: 100
+steps:
+- statement: The reader lists their own loans.
 records:
 - type: result
   id: result/list-loans.listed

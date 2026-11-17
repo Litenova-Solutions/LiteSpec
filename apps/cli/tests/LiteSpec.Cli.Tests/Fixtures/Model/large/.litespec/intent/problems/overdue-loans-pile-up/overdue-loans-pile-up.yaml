@@ -5,6 +5,14 @@ affects:
 - actor/reader
 summary: When a reader holds several loans, each due date lives on its own slip, and the reader finds the dates only at the desk.
 statement: Readers lose track of due dates.
+failureCases:
+- A reader holding several loans finds each due date only at the desk.
+- A loan passes its due date without notice to the reader.
+workaround: Readers keep the due date slips and check them at the desk.
+cost: Due dates pass without notice and loans pile up overdue.
+resolutionCriteria:
+- Each reader sees the due date of every loan without visiting the desk.
+- No loan passes its due date without notice to the reader.
 evidence:
 - claim: Readers lose track of due dates across several loans.
   source: https://example.org/library/desk-log

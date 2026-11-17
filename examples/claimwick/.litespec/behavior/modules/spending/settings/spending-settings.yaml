@@ -1,15 +1,15 @@
 type: setting-set
 title: Settings
 records:
-  - type: setting
-    id: setting/spending.approval-reminder-delay
-    title: Approval Reminder Delay
-    valueType: duration
-    default: PT72H
-    range: 1-120 hours
-    unit: hours
-    setBy: operator
-    key: Spending:ApprovalReminderDelay
-    outOfRange: refuse
-    fulfills:
-      - requirement/approval.decided-within-five-days
+- type: setting
+  id: setting/spending.approval-reminder-delay
+  title: Approval Reminder Delay
+  valueType: duration
+  default: PT72H
+  range: 1-120 hours
+  unit: hours
+  setBy: operator
+  key: Spending:ApprovalReminderDelay
+  outOfRange: refuse
+  fulfills:
+  - requirement/approval.decided-within-five-days

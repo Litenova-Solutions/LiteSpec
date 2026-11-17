@@ -4,3 +4,7 @@ title: Reader
 summary: A reader borrows copies from the library.
 kind: person
 belongsToTeam: false
+responsibilities:
+  - Borrows copies from the library.
+knowledge:
+  - The product assumes the reader knows the copy to borrow.

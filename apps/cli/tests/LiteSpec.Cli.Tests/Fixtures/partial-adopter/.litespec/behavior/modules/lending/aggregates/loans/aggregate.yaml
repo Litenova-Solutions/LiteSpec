@@ -28,12 +28,12 @@ records:
   carries:
   - name: loanId
     type: id
-    of: aggregate/lending.loan
+    identifies: aggregate/lending.loan
   - name: copyId
     type: text
   - name: readerId
     type: id
-    of: actor/reader
+    identifies: actor/reader
   - name: dueDate
     type: date
 - type: domain-event
@@ -43,6 +43,6 @@ records:
   carries:
   - name: loanId
     type: id
-    of: aggregate/lending.loan
+    identifies: aggregate/lending.loan
   - name: returnedAt
     type: date-time

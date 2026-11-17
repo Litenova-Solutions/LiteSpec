@@ -2,6 +2,9 @@ type: use-case
 id: use-case/lending.retire-copy
 title: Retire copy
 kind: command
+steps:
+  - statement: The librarian sends the copy to retire.
+  - statement: Lending retires the copy.
 access:
   grant: permission/manage-copies
   tenant: own

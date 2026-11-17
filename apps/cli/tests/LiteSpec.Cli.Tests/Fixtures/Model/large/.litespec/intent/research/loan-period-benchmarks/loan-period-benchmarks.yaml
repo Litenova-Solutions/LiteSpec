@@ -7,3 +7,7 @@ sources:
   key: example-loan-study
 question: How long do city libraries lend?
 conclusion: City libraries lend for two to four weeks.
+findings:
+- statement: City libraries lend for two to four weeks.
+  sources:
+  - example-loan-study

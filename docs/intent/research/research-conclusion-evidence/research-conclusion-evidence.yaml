@@ -5,11 +5,146 @@ sources:
   - path: templates/consumer/research.md
     readOn: 2026-10-30
     key: research
+    note: The record read the consumer research template on 30 October 2026.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-30
     key: record-schema
+    note: The record read the record schema on 30 October 2026.
   - path: docs/core/intent.md
     readOn: 2026-10-30
     key: intent
+    note: The record read the core Intent page on 30 October 2026.
 question: Do consumer research records state a conclusion a decision can cite, and where is that conclusion held?
 conclusion: Every consumer research record states its finding in Answer. Sixteen of twenty-nine restate what follows under seven different invented headings, and the register index repeats the conclusions outside the records. So the conclusion needs one field of its own.
+findings:
+  - statement: Every consumer research record states its finding in Answer.
+    sources:
+      - research
+  - statement: Sixteen of the 29 records restate what follows under 7 invented headings.
+    sources:
+      - research
+  - statement: The register index repeats the conclusions again, outside the records.
+    sources:
+      - research
+  - statement: The record infers that the conclusion needs a field of its own.
+    sources:
+      - research
+      - record-schema
+  - statement: The consumer research record requires a frontmatter question, a sources array, and one body section, Answer.
+    sources:
+      - research
+      - record-schema
+  - statement: No field holds the conclusion where a tool can read it.
+    sources:
+      - record-schema
+  - statement: Answer is body prose, and only sources and question are data.
+    sources:
+      - research
+      - record-schema
+  - statement: The record infers that a finding can change in prose with no field marking that change.
+    sources:
+      - record-schema
+  - statement: The book renders only question and sources for research.
+    sources:
+      - research
+  - statement: The record infers that a decision citing research through basedOn points at a page whose takeaway no field states.
+    sources:
+      - research
+      - record-schema
+  - statement: The schema does not enforce the read date that the provision already requires.
+    sources:
+      - record-schema
+      - intent
+  - statement: The read field is optional on a source entry.
+    sources:
+      - record-schema
+  - statement: All 29 consumer records carry Answer.
+    sources:
+      - research
+  - statement: Sixteen add a second section that states the conclusion, under 7 drifting names.
+    sources:
+      - research
+  - statement: Six records use What This Means for the Choice, and 4 use What This Means for Each Choice.
+    sources:
+      - research
+  - statement: One record each uses What This Means for the Model, a product-named variant, Conclusion, The Position, and What This Record Changes.
+    sources:
+      - research
+  - statement: Short records state their whole conclusion inside Answer.
+    sources:
+      - research
+  - statement: Long records separate what the sources say from what it means for each choice.
+    sources:
+      - research
+  - statement: The register index repeats the conclusions a third time, in a beliefs table.
+    sources:
+      - research
+  - statement: The table gives a confidence and a required action for each record.
+    sources:
+      - research
+  - statement: The index sits outside any record, and no check reads it.
+    sources:
+      - research
+  - statement: All 125 source entries already carry a read date.
+    sources:
+      - research
+  - statement: No other record basedOn cites 15 of 29 records.
+    sources:
+      - research
+  - statement: The record calls that tolerated, not defective.
+    sources:
+      - research
+  - statement: The record proposes one required frontmatter field, conclusion, on the research page.
+    sources:
+      - record-schema
+  - statement: It makes read required on every source.
+    sources:
+      - record-schema
+  - statement: Each source takes exactly one of url for a web source, or path for a repository-relative evidence path.
+    sources:
+      - record-schema
+  - statement: Repository evidence cannot name a URL honestly.
+    sources:
+      - record-schema
+  - statement: The record proposes that the provision require question, one-sentence conclusion, dated sources, and Answer.
+    sources:
+      - record-schema
+      - intent
+  - statement: Three checks follow the proposal.
+    sources:
+      - record-schema
+  - statement: Schema validation fails a page that breaks it.
+    sources:
+      - record-schema
+  - statement: The model checker reports a missing conclusion with the other record-invalid findings.
+    sources:
+      - record-schema
+  - statement: The book renders a Conclusion row, and it shows path sources as code text.
+    sources:
+      - record-schema
+  - statement: The record rejects two alternatives.
+    sources:
+      - record-schema
+  - statement: It rejects a Conclusion body section, because the 7 invented names are the drift that a section would make official.
+    sources:
+      - record-schema
+  - statement: Prose cannot be cited as data.
+    sources:
+      - record-schema
+  - statement: It also rejects a record-level confidence field.
+    sources:
+      - record-schema
+  - statement: Multi-claim records carry a label for each claim, so one value would make some claims false.
+    sources:
+      - record-schema
+  - statement: Confidence stays in Answer, claim by claim.
+    sources:
+      - research
+      - record-schema
+  - statement: The cost to the consumer is 29 one-sentence fields, lifted from the existing openings.
+    sources:
+      - research
+  - statement: The read tightening costs nothing, because all 125 of 125 entries already carry a read date.
+    sources:
+      - research
+      - record-schema

@@ -4,11 +4,7 @@ A receipt is the proof of payment that an employee attaches to an expense. It co
 
 ## Lifecycle
 
-A receipt has one state, Attached, which means it sits on the expense. `use-case/spending.attach-receipt` creates the receipt on a submitted expense. The records show no way to remove or replace a receipt once attached.
-
-## Data and Retention
-
-The records give the receipt no data fields of its own. The expense keeps the receipt in its `receipt` field, which falls under the expense ledger and is kept for 7 years on a statute basis. The records do not say whether the receipt file is stored apart from the expense.
+A receipt has one state, Attached, which means it sits on the expense. `use-case/spending.attach-receipt` creates the receipt on a submitted expense. The records show no way to remove or replace a receipt once attached. The receipt holds no data fields of its own: the expense keeps it in its `receipt` field, which falls under the expense ledger and is kept for 7 years on a statute basis. The records do not say whether the receipt file is stored apart from the expense.
 
 ## Example
 

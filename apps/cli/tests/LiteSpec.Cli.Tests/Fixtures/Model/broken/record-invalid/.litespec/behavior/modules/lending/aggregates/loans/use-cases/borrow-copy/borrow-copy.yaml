@@ -1,6 +1,9 @@
 type: use-case
 id: use-case/lending.borrow-copy
 title: Borrow copy
+steps:
+  - statement: The reader sends the copy to borrow.
+  - statement: Lending lends the copy and raises the borrowed event.
 access:
   grant: permission/borrow-copy
   tenant: own
@@ -16,7 +19,7 @@ input:
   - name: copyId
     meaning: The copy the reader borrows.
     type: id
-    of: aggregate/lending.copy
+    identifies: aggregate/lending.copy
     required: true
 idempotency:
   mode: key

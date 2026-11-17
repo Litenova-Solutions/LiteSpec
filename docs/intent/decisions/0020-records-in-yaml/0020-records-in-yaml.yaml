@@ -1,6 +1,7 @@
 type: decision
 id: decision/0020-records-in-yaml
 title: Records in YAML
+context: "Each record page is a Markdown file with JSON frontmatter, so one fact lives in three places: frontmatter, merged tables, and body sections. The largest consumer holds 2,450 behavior pages with 403k frontmatter lines, and checks read only frontmatter and merged tables. Aggregate transitions and data appear only in body tables, and 486 of 584 cited URLs are missing from the dated sources list."
 options:
   - name: Strict YAML record files with explanation files beside them
     pros: Each fact appears once, and the tool owns the canonical layout.

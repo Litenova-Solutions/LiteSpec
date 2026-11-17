@@ -1,6 +1,7 @@
 type: decision
 id: decision/0016-typed-contracts-and-privacy
 title: Typed Contracts and Privacy
+context: "Domain-event payloads and use-case inputs carry no type or schema. Trusted payloads still claim that their fields are fit to act on. The position `pseudonymize` sits among the erasure positions, although pseudonymized data stays personal data."
 options:
   - name: Typed fields with honest privacy positions
     pros: Types let the builder compare records with the generated contract, and honest positions keep personal data personal with a basis and a purpose.

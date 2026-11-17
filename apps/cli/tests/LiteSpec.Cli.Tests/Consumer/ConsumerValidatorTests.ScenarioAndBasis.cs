@@ -56,7 +56,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/implementation/decisions/0002-order-claim-store.yaml",
-            """{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","options":[{"name":"Documents","pros":"Each claim reads as one record.","cons":"Cross-claim reports need an index."}],"choice":"Documents","consequences":"The document store owns claim persistence.","reopenedWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"]}""");
+            """{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","options":[{"name":"Documents","pros":"Each claim reads as one record.","cons":"Cross-claim reports need an index."}],"choice":"Documents","consequences":"The document store owns claim persistence.","reopenedWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"],"context":"Each claim reads as one record with no joins."}""");
         TestRecords.Explain(
             folder.Path,
             ".litespec/implementation/decisions/0002-order-claim-store.md",

@@ -5,6 +5,7 @@ sources:
   - url: https://www.mintlify.com/github/spec-kit/advanced/templates
     readOn: 2026-10-30
     key: mintlify-github-spec-kit-advanced
+    note: A Mintlify mirror of the Spec Kit templates. The Spec Kit wording is second-hand through this mirror, and the record keeps it marked as secondary.
   - url: https://openspec.dev/docs/core-concepts
     readOn: 2026-10-30
     key: openspec-docs-core-concepts
@@ -14,35 +15,462 @@ sources:
   - url: https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/
     readOn: 2026-10-30
     key: producttalk-glossary-discovery-opportunity
+    note: A ProductTalk glossary page on the opportunity solution tree. It is a practitioner page, not the originator's book.
   - url: https://www.techtarget.com/searchsoftwarequality/definition/impact-mapping
     readOn: 2026-10-30
     key: techtarget-searchsoftwarequality-definition
+    note: A TechTarget page on impact mapping. It is a practitioner page, not the originator's book.
   - url: https://www.incose.org/wp-content/uploads/legacy/presentation/IS2013-pdf/3-3-1.pdf
     readOn: 2026-10-30
     key: incose-wp-content-uploads-legacy
+    note: INCOSE conference slides behind the ISO/IEC/IEEE 29148 level names, not the paywalled standard.
   - url: https://reqview-homepage.netlify.app/doc/iso-iec-ieee-29148-templates
     readOn: 2026-10-30
     key: reqview-homepage-netlify-doc-iso-iec-ieee-29148
+    note: ReqView template pages behind the ISO/IEC/IEEE 29148 level names, not the paywalled standard.
   - url: https://www.inf.ed.ac.uk/teaching/courses/seoc/2004_2005/resources/volere-template.pdf
     readOn: 2026-10-30
     key: inf-ed-ac-teaching-courses-seoc
+    note: A 2004 university copy of version 9 of the Volere template. The Volere claims stay unconfirmed beyond this copy.
   - url: https://www.aha.io/roadmapping/guide/release-management/what-is-user-story-mapping
     readOn: 2026-10-30
     key: aha-roadmapping-guide-release-management
+    note: An Aha guide page on user story mapping. It is a practitioner page, not the originator's book.
   - url: https://link.springer.com/10.1007/s00766-023-00408-9
     readOn: 2026-10-30
     key: link-springer-s00766-023-00408-9
+    note: A Springer article that the record identifies as Ruiz et al. 2023, behind the traceability cost claims.
   - path: docs/core/intent.md
     readOn: 2026-10-31
     key: intent
+    note: The Intent core page, re-read on 31 October 2026 with the web citations kept.
   - path: docs/core/model.md
     readOn: 2026-10-31
     key: model
+    note: The core model page, re-read on 31 October 2026 with the web citations kept.
   - path: docs/tools/model.md
     readOn: 2026-10-30
     key: model-2
+    note: The model tool page, read with the other repository paths.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
     key: record-schema
+    note: The record schema, re-read on 31 October 2026 with the web citations kept.
 question: Which Intent links does LiteSpec require and check? How should Intent group its requirements and name their reasons? What do outside tools and the largest consumer show?
 conclusion: Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links. In the largest consumer, 719 of 928 requirements name no origin while every enforced Intent check passes. Outside tools group each promise with the unit its author writes. Authors follow the page rather than the parent, so each feature holds its requirements as entries and reasons become one cites list.
+findings:
+- statement: Above the requirements, LiteSpec hierarchy rests on rationale prose rather than on required or checked links.
+  sources:
+  - intent
+  - record-schema
+  - model-2
+- statement: In the largest consumer, 719 of 928 requirements name no origin.
+  sources:
+  - record-schema
+- statement: The record states that every enforced Intent check passes in that consumer.
+  sources:
+  - model-2
+- statement: The schema requires only 4 Intent links, and a check enforces each of them.
+  sources:
+  - record-schema
+  - model-2
+- statement: They are product.audience, flow.actor, a requirement except entry to its fallback, and decision.decides on product decisions.
+  sources:
+  - record-schema
+  - model-2
+- statement: The provision and the check require decision.decides even though the schema leaves it optional.
+  sources:
+  - intent
+  - model-2
+  - record-schema
+- statement: Every other link above the requirements is optional in the schema, is mentioned only in the provision rationale, and is unchecked.
+  sources:
+  - intent
+  - record-schema
+  - model-2
+- statement: The record reads each cell from the schema, the provision text, and the check table.
+  sources:
+  - intent
+  - record-schema
+  - model-2
+- statement: One layer below Intent, LiteSpec already applies the principle that every record points up.
+  sources:
+  - intent
+  - model-2
+- statement: A use case with neither serves nor fulfills fails record-link-missing at tier G.
+  sources:
+  - model-2
+- statement: LiteSpec applies the principle nowhere inside Intent.
+  sources:
+  - intent
+  - model-2
+- statement: The central measured gap is that 719 of 928 requirements name neither feature nor basedOn.
+  sources:
+  - record-schema
+- statement: Of 928 requirements, 56 name a feature, 164 name basedOn, and 11 carry both.
+  sources:
+  - record-schema
+- statement: The absence of feature alone is not a defect, because the field is defined narrowly.
+  sources:
+  - record-schema
+  - intent
+- statement: It names the feature that carries the requirement in a named phase, so a built requirement correctly carries none.
+  sources:
+  - record-schema
+  - intent
+- statement: The combined absence is still not a conformance defect today either.
+  sources:
+  - intent
+  - model-2
+- statement: The provision puts the expectation in its rationale.
+  sources:
+  - intent
+- statement: Its statement and its check require only the identifier, kind, statement, and dated applied values.
+  sources:
+  - intent
+  - model-2
+  - record-schema
+- statement: So the record counts the 719 as specification-tolerated traceability defects.
+  sources:
+  - intent
+  - model-2
+  - record-schema
+- statement: They are the fault of LiteSpec's missing obligation and missing check, not of the consumer's authors.
+  sources:
+  - intent
+  - model-2
+- statement: One measured signal shows that the anchor already matters in practice.
+  sources:
+  - record-schema
+  - model-2
+- statement: Of 150 requirements that nothing below fulfills, all 100 without a feature appear as known requirement-fulfillment-missing findings.
+  sources:
+  - record-schema
+  - model-2
+- statement: None of the 50 with a feature produces such a finding.
+  sources:
+  - record-schema
+  - model-2
+- statement: Requirements follow 3 different groupings, so one feature story spreads over 3 files.
+  sources:
+  - intent
+  - model
+  - record-schema
+- statement: A requirement page groups commitments by area.
+  sources:
+  - model
+  - record-schema
+- statement: A feature groups an offer under a problem.
+  sources:
+  - intent
+  - record-schema
+- statement: A flow groups steps under a goal.
+  sources:
+  - intent
+  - record-schema
+- statement: The parent of a requirement is its feature, and the file that holds it is the requirement page.
+  sources:
+  - intent
+  - model
+  - record-schema
+- statement: The flow that walks it sits under a third record.
+  sources:
+  - intent
+  - record-schema
+- statement: The 3 agent-driven peers group records by the unit the author writes.
+  sources:
+  - mintlify-github-spec-kit-advanced
+  - openspec-docs-core-concepts
+  - kiro-docs-specs-concepts
+- statement: GitHub Spec Kit keeps one spec file per feature, with user scenarios, numbered functional requirements, and success criteria.
+  sources:
+  - mintlify-github-spec-kit-advanced
+- statement: OpenSpec keeps one spec per capability, with Requirement blocks and Scenario examples.
+  sources:
+  - openspec-docs-core-concepts
+- statement: Kiro keeps one requirements file per spec, with user stories and EARS acceptance criteria.
+  sources:
+  - kiro-docs-specs-concepts
+- statement: The record reads the shape from each tool's own concept pages.
+  sources:
+  - mintlify-github-spec-kit-advanced
+  - openspec-docs-core-concepts
+  - kiro-docs-specs-concepts
+- statement: The largest consumer shows that authors follow the page, not the parent.
+  sources:
+  - record-schema
+- statement: Its 719 requirements name no origin.
+  sources:
+  - record-schema
+- statement: All 112 goal sentences are distinct, and none contains a goal record title.
+  sources:
+  - record-schema
+- statement: The consumer counts are measured, not sampled.
+  sources:
+  - record-schema
+- statement: The record proposes that each feature hold its requirements as entries.
+  sources:
+  - mintlify-github-spec-kit-advanced
+  - openspec-docs-core-concepts
+  - kiro-docs-specs-concepts
+  - record-schema
+- statement: The identifier requirement/<feature>.<name> already names the feature.
+  sources:
+  - record-schema
+- statement: A requirement whose feature segment differs from its file feature is an identifier-invalid finding.
+  sources:
+  - record-schema
+  - model-2
+- statement: A reader never sees what one offer promised from one place.
+  sources:
+  - intent
+  - model
+- statement: The parent rule also produces hundreds of missing-parent findings that authors never see as mistakes.
+  sources:
+  - model-2
+- statement: A requirement has 3 origin fields with a precedence rule, where one ordered list suffices.
+  sources:
+  - record-schema
+- statement: The origin is the first features entry, otherwise the first basedOn entry, otherwise a decision that names the requirement in decides.
+  sources:
+  - record-schema
+- statement: A goal is never a requirement reason at all.
+  sources:
+  - record-schema
+- statement: Goal-oriented practice refines goals directly into requirements.
+  sources:
+  - producttalk-glossary-discovery-opportunity
+  - techtarget-searchsoftwarequality-definition
+- statement: Impact mapping traces deliverables to a goal through an actor and an impact.
+  sources:
+  - techtarget-searchsoftwarequality-definition
+- statement: With the feature as the parent, the precedence rule serves no purpose.
+  sources:
+  - record-schema
+- statement: So the record proposes that a requirement name its reasons in one cites list.
+  sources:
+  - record-schema
+  - producttalk-glossary-discovery-opportunity
+  - techtarget-searchsoftwarequality-definition
+- statement: The list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence.
+  sources:
+  - record-schema
+- statement: A requirement that cites nothing fails requirement-cites-missing at tier G.
+  sources:
+  - model-2
+- statement: Fulfillment and constraint answers each get one home.
+  sources:
+  - intent
+  - model
+- statement: A flow alone clears requirement-fulfillment-missing, because the checker counts rule, use case, and flow as fulfilling.
+  sources:
+  - model-2
+- statement: The record proposes that only Behavior records fulfill a requirement.
+  sources:
+  - intent
+  - model-2
+- statement: Those are the rule, use case, reaction, job, notification, and setting.
+  sources:
+  - intent
+- statement: A flow names the requirements it shows in carries.
+  sources:
+  - record-schema
+- statement: Authors write a constraint answer twice, once as prose under What It Requires and once as requirement entries that cite the constraint.
+  sources:
+  - intent
+  - record-schema
+- statement: Of 29 constraints, 5 are cited by none.
+  sources:
+  - record-schema
+- statement: So the record proposes that What It Requires become a generated region that lists the requirements citing the constraint.
+  sources:
+  - intent
+  - record-schema
+- statement: A constraint with applies set to true that no requirement cites is constraint-unreached at tier G.
+  sources:
+  - model-2
+- statement: Volere supports this shape by treating a mandated constraint as a requirement with its own rationale and fit criterion.
+  sources:
+  - inf-ed-ac-teaching-courses-seoc
+- statement: Names take their outside meaning.
+  sources:
+  - incose-wp-content-uploads-legacy
+  - reqview-homepage-netlify-doc-iso-iec-ieee-29148
+- statement: LiteSpec kind for business requirements holds dated values, such as a receipt threshold or a price.
+  sources:
+  - record-schema
+- statement: ISO/IEC/IEEE 29148 names the Business Requirements Specification as the business or mission level above stakeholder requirements.
+  sources:
+  - incose-wp-content-uploads-legacy
+  - reqview-homepage-netlify-doc-iso-iec-ieee-29148
+- statement: So the record proposes that the kind become policy, and that the constraint kind gain legal for laws.
+  sources:
+  - incose-wp-content-uploads-legacy
+  - reqview-homepage-netlify-doc-iso-iec-ieee-29148
+  - record-schema
+- statement: The word flow also covers scheduled work that nobody walks.
+  sources:
+  - record-schema
+  - aha-roadmapping-guide-release-management
+- statement: Story mapping walks a person through activities toward a goal.
+  sources:
+  - aha-roadmapping-guide-release-management
+- statement: So the record proposes that flows walk a person only.
+  sources:
+  - aha-roadmapping-guide-release-management
+  - record-schema
+- statement: Scheduled promises become requirements that jobs fulfill.
+  sources:
+  - record-schema
+- statement: A flow drops aim, because its 112 sentences match no goal title and differ from serves.
+  sources:
+  - record-schema
+- statement: A step sentence becomes statement, and its failure text becomes failure.
+  sources:
+  - record-schema
+- statement: The Intent page never says why each record type exists or when not to use it.
+  sources:
+  - intent
+- statement: It has 11 similar types, each with one line and no write-when, skip-when, or familiar name.
+  sources:
+  - intent
+- statement: Each comparable method teaches a chain of questions.
+  sources:
+  - producttalk-glossary-discovery-opportunity
+  - techtarget-searchsoftwarequality-definition
+- statement: Impact mapping asks why, who, how, and what, and the opportunity solution tree asks about outcome, opportunity, and solution.
+  sources:
+  - techtarget-searchsoftwarequality-definition
+  - producttalk-glossary-discovery-opportunity
+- statement: So the record proposes a Concepts section that opens with a table of the questions Intent answers.
+  sources:
+  - producttalk-glossary-discovery-opportunity
+  - techtarget-searchsoftwarequality-definition
+  - intent
+- statement: Tracing above the requirements costs more than it returns today.
+  sources:
+  - link-springer-s00766-023-00408-9
+- statement: Teams skip tracing that costs effort without a direct benefit, and the links stop matching the records.
+  sources:
+  - link-springer-s00766-023-00408-9
+- statement: The record proposes that strict parents stay where checks read them, which are the requirement and the flow step.
+  sources:
+  - link-springer-s00766-023-00408-9
+  - model-2
+- statement: Links above them stay advisory.
+  sources:
+  - link-springer-s00766-023-00408-9
+  - model-2
+- statement: Goals connect weakly to the records below them.
+  sources:
+  - record-schema
+- statement: All 40 features carry solves, and 12 features serve all 8 goals through 16 serves links.
+  sources:
+  - record-schema
+- statement: The gap is that 28 of 40 features name no goal.
+  sources:
+  - record-schema
+- statement: Flows name their goal as prose in all 112 cases.
+  sources:
+  - record-schema
+- statement: The schema requires a string, the provision requires the goal in words, and the Links table holds no flow-to-goal edge.
+  sources:
+  - record-schema
+  - intent
+  - model
+- statement: A migration warning follows from the measurements.
+  sources:
+  - record-schema
+- statement: So no mechanical mapping from the sentences to the 8 goals exists.
+  sources:
+  - record-schema
+- statement: The record tolerates several other record groups, and leaves some by design.
+  sources:
+  - record-schema
+  - model-2
+- statement: Of 29 constraints, 5 are cited by no basedOn, and of 29 research records, 15 are.
+  sources:
+  - record-schema
+- statement: No rule requires citation, so they remain available as bases.
+  sources:
+  - intent
+  - model-2
+- statement: The record notes that 15 of 29 suggests authors write research faster than decisions cite it.
+  sources:
+  - record-schema
+- statement: All 3 product decisions decide, with 2, 65, and 4 targets.
+  sources:
+  - record-schema
+- statement: The 71 technical decisions carry no decides by design, and they govern code instead.
+  sources:
+  - record-schema
+  - intent
+- statement: Of them, 8 draw decision-unimplemented, and 15 draw the advisory decision-basis-missing.
+  sources:
+  - model-2
+- statement: The record also tolerates other cases.
+  sources:
+  - record-schema
+  - model-2
+- statement: No feature solves one of 30 problems, which the record treats as deliberate.
+  sources:
+  - record-schema
+- statement: Nothing names exactly one actor, actor/report-recipient, which the record calls a genuine but minor orphan.
+  sources:
+  - record-schema
+- statement: No record cites 14 of 164 intent-layer terms, and the record tolerates that.
+  sources:
+  - record-schema
+- statement: The record never judged requirement-page container conformance from the model, because the builder emits zero requirement-page records.
+  sources:
+  - model
+  - model-2
+- statement: That still needs the consumer validation run.
+  sources:
+  - model-2
+- statement: The investigation tests its recommendation clause by clause.
+  sources:
+  - intent
+  - model-2
+  - record-schema
+- statement: It supports the requirement origin clause with one amendment.
+  sources:
+  - intent
+  - model-2
+  - record-schema
+- statement: The wording keeps feature and basedOn distinct, and the checker reports the found anchor as one finding.
+  sources:
+  - intent
+  - model-2
+  - record-schema
+- statement: A requirement settled by a decision counts as anchored.
+  sources:
+  - intent
+  - model-2
+  - record-schema
+- statement: The investigation supports the feature clause for solves, because all 40 features already comply.
+  sources:
+  - record-schema
+- statement: serves stays advisory, because with only 8 goals, forcing one goal per feature produces vague claims.
+  sources:
+  - record-schema
+- statement: The expectation attaches to dated features, where it informs sequencing.
+  sources:
+  - record-schema
+- statement: The record argues against the flow goal clause as a replacement and supports it as an added optional link.
+  sources:
+  - intent
+  - record-schema
+- statement: The sentence in words lets a reader judge a flow chapter without opening a goal page.
+  sources:
+  - intent
+  - record-schema
+- statement: The record supports the advice-first checks with a written promotion trigger.
+  sources:
+  - model-2
+- statement: "The trigger has 3 parts: zero advisory findings on merged records, and checks added one slice at a time."
+  sources:
+  - model-2
+- statement: Its third part is promotion through the waiver mechanism with an end date.
+  sources:
+  - model-2

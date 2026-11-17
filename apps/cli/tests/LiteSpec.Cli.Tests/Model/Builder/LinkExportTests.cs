@@ -35,8 +35,8 @@ public sealed class LinkExportTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("problem", "problem/long-waits", Path.Combine(temp.Path, "problem.yaml"), """{"affects": ["actor/reader"], "statement": "Readers wait weeks."}"""),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "feature.yaml"), """{"solves": ["problem/long-waits"], "advances": ["problem/long-waits"]}"""));
+            TestModel.Record("problem", "problem/long-waits", Path.Combine(temp.Path, "problem.yaml"), """{"affects": ["actor/reader"], "statement": "Readers wait weeks.", "failureCases": ["A reader waits weeks for a hold to arrive."], "workaround": "Readers ask staff to check the shelf by hand.", "cost": "Each wait costs a reader weeks of delay.", "resolutionCriteria": ["Holds arrive within two days."]}"""),
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "feature.yaml"), """{"solves": ["problem/long-waits"], "advances": ["problem/long-waits"], "successCriteria": ["Holds arrive within two days."], "excludes": ["The queue tracks no fines."]}"""));
 
         Assert.Contains(Checker.Check(model).Findings, finding =>
             finding.Code == "record-invalid" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));

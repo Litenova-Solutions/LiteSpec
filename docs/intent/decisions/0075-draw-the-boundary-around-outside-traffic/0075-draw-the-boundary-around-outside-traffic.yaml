@@ -1,6 +1,7 @@
 type: decision
 id: decision/0075-draw-the-boundary-around-outside-traffic
 title: Draw the Boundary Around Outside Traffic
+context: "Inbound traffic named no arrival, and a webhook-only rule excluded broker consumers and stream subscriptions. Consent stayed free text, mails to people were recorded as transport, and exports, cross-module reads, and quotas followed no stated pattern. Conflicts stayed a prose requirement in the concurrency extension."
 options:
   - name: "Every outside touch names its arrival, its system, its consent, and its failure"
     pros: "Inbound traffic arrives through a named webhook or subscription. Conflicts, consent, and notifications each have a field. Exports and cross-module reads follow stated patterns."

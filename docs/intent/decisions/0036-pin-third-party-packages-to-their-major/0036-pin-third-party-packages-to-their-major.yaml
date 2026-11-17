@@ -1,6 +1,7 @@
 type: decision
 id: decision/0036-pin-third-party-packages-to-their-major
 title: Pin Third-Party Packages to Their Major
+context: "The manifest pins each third-party package to an exact version. A consumer therefore waits for a LiteSpec release to take a patch, although its lockfile already holds the exact version."
 options:
   - name: "Pin the major of each third-party package, and exact versions only where a check depends on them"
     pros: "A consumer takes a patch without waiting for a LiteSpec release, and the lockfile still records the exact version."

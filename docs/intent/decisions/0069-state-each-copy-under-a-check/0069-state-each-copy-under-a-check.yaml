@@ -1,6 +1,7 @@
 type: decision
 id: decision/0069-state-each-copy-under-a-check
 title: State Each Copy Under a Check
+context: "Two readings of Clean disagreed: one forced a reader to open every linked file, while the other stated copies that drifted with no finding. The review found both failures at once, with facts in two to four places and a check reporting no blocking finding over disagreeing records."
 options:
   - name: "A record states what its reader needs, and a check holds each derived copy to its source"
     pros: "An isolated file reads whole for a reader and a tool. Stated copies cannot drift from their sources. Judgements stay computed."

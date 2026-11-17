@@ -1,6 +1,7 @@
 type: decision
 id: decision/0089-specify-the-ui-as-a-blueprint
 title: Specify the UI as a Blueprint
+context: "The screen record carried no layout, content or wording, so a project with Intent and Behavior only had nowhere to state its screens. Brand, page frames and refusal sentences lived only in implementation files, while tokens were pinned by value. One consumer product drew a more readable palette, still needed a waiver, and found its faint borders only through a hand-run script."
 options:
   - name: "Blueprint and limits in the records, values and build in the implementation, binding checked"
     pros: "A project with Intent and Behavior only can specify its screens; readability is checked, not pinned; the book shows each screen before code."

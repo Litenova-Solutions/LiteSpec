@@ -1,6 +1,7 @@
 type: decision
 id: decision/0018-one-record-language
 title: One Record Language
+context: "The model, authoring, and intent pages hold the field grammar, the value style, identifier names, finding codes, and tool names. One rule appears in several places. No page states what language rules a record follows."
 options:
   - name: One language page; authoring keeps page prose
     pros: Each language rule appears once, every layer cites one page, and LiteSpec's own prose rules stay with the pages they govern.

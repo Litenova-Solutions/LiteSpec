@@ -1,6 +1,7 @@
 type: decision
 id: decision/0093-check-templates-against-the-record-schema
 title: Check Templates Against the Record Schema
+context: "An earlier decision made each template a copy of one example record, with a check reporting a template that differs from its source. A template changed when its example record changed, and the example carried every record the templates use. A template passed its source check while teaching a shape the record schema refuses."
 options:
   - name: "Check each template against the record schema with placeholder values"
     pros: "A template stays teachable while the example product changes beside it, and every field shows the shape its schema declares."

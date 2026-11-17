@@ -169,6 +169,7 @@ A finding code has the form `<subject>-<problem>`: the subject is a record type,
 | `uncarried` | a published field is carried by no field of its source | `event-field-uncarried` |
 | `unexercised` | a rule is shown by no scenario that should show it | `scenario-rule-unexercised` |
 | `unhandled` | a declared trigger is answered by no handler | `reaction-trigger-unhandled` |
+| `unbacked` | a fixed section whose backing fields are all empty or absent | `explanation-section-unbacked` |
 | `vague` | a statement uses a word that names no act | `statement-word-vague` |
 | `wide` | a record sits higher than every record that uses it | `external-system-placement-wide` |
 | `written` | a thing the model derives is written by hand | `refusal-generic-written` |
@@ -205,7 +206,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Strength:** required
 
-**Statement:** A field name MUST read naturally in its record type, MUST keep one name for one concept across record types, and MUST hold links to a record type when it names that type, in the singular or the plural.
+**Statement:** A field name MUST read naturally in its record type, keep one name for one concept across record types, and hold links to a record type when it names that type, in the singular or the plural.
 
 **Rationale:** A reader meets a field inside one record, so its record type gives the name its meaning: a constraint's `scope` and a role's `scope` each read plainly where they stand. Forcing one meaning per word across every type pushes new fields toward names nobody uses. Two things stay fixed because they mislead across types: one concept keeps one name, so `summary` and `fulfills` read the same everywhere, and a name that names a record type, such as `rules`, always holds links to that type. Settled by [decision/0096-read-field-names-in-their-record-type](decision/0096-read-field-names-in-their-record-type).
 

@@ -5,5 +5,7 @@ records:
     id: entry-point/library-app
     title: Library app
     kind: browser
-    auth:
+    authentication:
       - session
+    audience:
+      - actor/reader

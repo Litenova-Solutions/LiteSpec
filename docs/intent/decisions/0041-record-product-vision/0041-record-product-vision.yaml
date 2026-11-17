@@ -1,6 +1,7 @@
 type: decision
 id: decision/0041-record-product-vision
 title: Record Product Vision as a Vision Record
+context: "A consumer starting its first release knows where the product should go later, and 2 choices keep that destination open. Neither decision can name its reason, because a decision basedOn takes only constraints, research and requirements. No existing record type fits a destination with no date: a goal needs a measure, a feature needs evidence, and a waiver needs an expiry date."
 options:
   - name: "Add a vision record at product level that decisions and requirements cite, which reaches nothing by design"
     pros: "A decision made to keep a later destination open names its reason as a record, the book shows the vision with the choices that keep it open, and no planned-Intent finding reports it."

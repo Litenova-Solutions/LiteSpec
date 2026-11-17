@@ -4,3 +4,5 @@ title: Ghost
 scope: self
 allows:
   - permission/borrow-copy
+limits:
+  - The ghost role allows no action outside ghost queues.

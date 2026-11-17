@@ -1,6 +1,7 @@
 type: decision
 id: decision/0024-keep-the-ui-source-lock
 title: Keep the UI Source Lock
+context: "Teams compute the lock digests by hand, and no command writes them, although the check needs them exact."
 options:
   - name: "Keep the lock, written by `litespec model render`"
     pros: "A person acknowledges a digest change in the pull request diff, and the tool computes every digest the same way the check does."

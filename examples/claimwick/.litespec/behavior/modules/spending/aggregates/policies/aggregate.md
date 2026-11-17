@@ -8,7 +8,7 @@ The policy has one state, Active, which means the threshold applies. The records
 
 ## Data and Retention
 
-The records give the policy no personal data. It holds the receipt threshold, an amount in EUR. The records state no retention for the policy.
+The policy holds one field, `threshold`: the receipt threshold, an amount in EUR. The field is internal data, and the records give the policy no personal data. The records state no retention for the policy.
 
 ## Example
 

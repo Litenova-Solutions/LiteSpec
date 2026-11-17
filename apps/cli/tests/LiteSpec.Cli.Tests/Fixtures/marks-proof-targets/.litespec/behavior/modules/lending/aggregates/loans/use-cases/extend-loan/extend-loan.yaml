@@ -2,6 +2,9 @@ type: use-case
 id: use-case/lending.extend-loan
 title: Extend loan
 kind: command
+steps:
+  - statement: The reader sends the loan to extend.
+  - statement: Lending extends the loan.
 access:
   grant: permission/borrow-copy
   tenant: own

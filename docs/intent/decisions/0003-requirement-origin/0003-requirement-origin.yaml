@@ -1,6 +1,7 @@
 type: decision
 id: decision/0003-requirement-origin
 title: Requirement Origin
+context: "Most requirements name neither a carrying feature nor a basis. Every enforced Intent check still passes. No check reports these missing origins."
 options:
   - name: Origin in feature, basedOn, or decides
     pros: "Established practice treats a requirement without a stated origin as incomplete. The three sources answer different questions: which feature carries it, which fact grounds it, and which choice settles it."

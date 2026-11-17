@@ -1,6 +1,7 @@
 type: decision
 id: decision/0030-limit-the-jobs-extension
 title: Jobs Extension Limited to Scheduled and Manual Work
+context: "The jobs extension holds 73 provisions across 6 subjects, and the ingest pipeline and workflow engine serve products a small team does not run. No check can prove the workflow engine steps, because the record schema has no kind for a multi-step workflow."
 options:
   - name: "Keep scheduled and manual jobs, occurrences, time rules, queues and reports"
     pros: "The extension covers the work a small team runs, and no provision describes a check that nothing reads."

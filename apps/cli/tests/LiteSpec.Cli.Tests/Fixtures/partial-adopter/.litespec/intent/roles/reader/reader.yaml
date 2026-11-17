@@ -5,3 +5,5 @@ summary: Readers act on their own loans.
 scope: self
 allows:
 - permission/borrow-copy
+limits:
+- The reader acts only on their own loans.

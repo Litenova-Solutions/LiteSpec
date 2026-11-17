@@ -2271,6 +2271,7 @@ $defs:
     - title
     - kind
     - authentication
+    - audience
     properties:
       type:
         const: entry-point
@@ -2292,6 +2293,16 @@ $defs:
         - mcp
       authentication:
         $ref: '#/$defs/authKindArray'
+      audience:
+        $ref: '#/$defs/actorIdArray'
+        x-reads-as: is used by
+        x-read-back-as: uses
+      session:
+        $ref: '#/$defs/sessionPolicy'
+      reauthenticationTriggers:
+        $ref: '#/$defs/sentenceArray'
+      limits:
+        $ref: '#/$defs/sentenceArray'
       density:
         description: How much the entry point's screens show at once.
         $ref: '#/$defs/densityValue'

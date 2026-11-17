@@ -1,6 +1,7 @@
 type: decision
 id: decision/0029-delete-the-unwired-language-checker
 title: Delete the Unwired Language Checker
+context: "The glossary language checker exists in code, but no command runs it. Its rules and finding codes exist only in the docs, where a reader can mistake them for checks the tools run."
 options:
   - name: "Delete the glossary language checker"
     pros: "Unwired code leaves the release, and each kept check runs under a command."

@@ -5,14 +5,240 @@ sources:
   - path: schemas/record.schema.yaml
     readOn: 2026-10-30
     key: record-schema
+    note: The record schema, read with the glossary schema and the template on 30 October 2026.
   - path: schemas/glossary.schema.yaml
     readOn: 2026-10-30
     key: glossary-schema
+    note: The glossary schema, read with the record schema and the template on 30 October 2026. It defines neither layer nor aliases and pins version 2, so the record treats it as out of step.
   - path: templates/consumer/glossary.yaml
     readOn: 2026-10-30
     key: glossary
+    note: The consumer glossary template, read with the schemas on 30 October 2026. It requires layer and aliases on every term and pins schemaVersion 3.
   - path: docs/core/model.md
     readOn: 2026-10-30
     key: model
+    note: The core model page, read with the schemas and the template on 30 October 2026.
 question: Where does one field name carry two concepts, or one concept carry two names, across the record types?
 conclusion: The field set is mostly systematic, but five collisions - two status-like fields with unrelated values, the bare `by`, `source` with five meanings, `serves` with three target sets, and the flow `goal` sentence beside the goal record - produce invalid or misleading consumer data.
+findings:
+- statement: The field set is mostly systematic, and 5 collisions cause real damage.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: The consumer shows invalid or misleading data from 2 collisions.
+  sources:
+  - record-schema
+- statement: The field set uses one shared header and one suffix grammar, and its link names each carry one meaning.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: "All 37 page types share one header: type, id, title, terms, and the type's own fields."
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: Links are present-tense verbs, and they are plural when they contain arrays.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: fulfills, governs, solves, decides, and basedOn each carry one meaning everywhere.
+  sources:
+  - record-schema
+- statement: Every field name in both schemas is camelCase or a single lowercase word.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A program parses the field inventory from the schemas.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: Multiword names follow a suffix grammar.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: <verb>By names a deadline, <verb>On names an event date, <verb>When names a condition, and <verb>Because names a justification.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: The first collision is 2 status-like fields with unrelated values.
+  sources:
+  - record-schema
+- statement: The record header field takes one value on all 111 consumer features.
+  sources:
+  - record-schema
+- statement: The feature offer field takes 4 values.
+  sources:
+  - record-schema
+- statement: The field states also names aggregate state entries.
+  sources:
+  - record-schema
+- statement: The second collision is that bare by names 2 kinds of value.
+  sources:
+  - record-schema
+- statement: Goals require a date, and requirements take dates.
+  sources:
+  - record-schema
+- statement: Features take milestones, such as v1 and M1 Evidence, which appear in all 39 live records, under a plain string type.
+  sources:
+  - record-schema
+- statement: Beside it, 4 sibling fields follow the <verb>By pattern.
+  sources:
+  - record-schema
+- statement: All 111 features carry milestone-style by values where the surrounding convention expects dates.
+  sources:
+  - record-schema
+- statement: The third collision is that source carries 5 meanings.
+  sources:
+  - record-schema
+- statement: It marks the origin on 13 page types and on most entries, about 2,900 consumer fields.
+  sources:
+  - record-schema
+- statement: It contains a constraint's free-text outside source.
+  sources:
+  - record-schema
+- statement: It names the CloudEvents source of an integration event.
+  sources:
+  - record-schema
+- statement: It contains a nested input origin enum and a nested output origin aggregate array under a singular name.
+  sources:
+  - record-schema
+- statement: research.sources is a sixth shape beside them.
+  sources:
+  - record-schema
+- statement: The fourth collision is that serves covers 3 target sets across 1,807 records.
+  sources:
+  - record-schema
+- statement: A feature serves goals, a use case, reaction, or job serves steps or goals, and a screen serves steps.
+  sources:
+  - record-schema
+- statement: A feature contributes to a goal, while a use case names the step it serves.
+  sources:
+  - record-schema
+- statement: The fifth collision is that goal is both a record type and a required prose sentence on all 112 flows.
+  sources:
+  - record-schema
+- statement: The flow link change resolves it.
+  sources:
+  - record-schema
+- statement: Of the use-case serves values, 11 name a whole flow, where the schema allows only a flow step or a goal.
+  sources:
+  - record-schema
+- statement: The record judges several smaller overloads as keep-and-document.
+  sources:
+  - record-schema
+- statement: steps on flows and steps on coordination aggregates overlap, so LiteSpec renames the aggregate side, which touches 6 records.
+  sources:
+  - record-schema
+- statement: values on requirements and terms overlap, so the term side becomes codes.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: Exceptions and integration events share subject.
+  sources:
+  - record-schema
+- statement: scope, check, and code keep consistent cores.
+  sources:
+  - record-schema
+- statement: "The *Because suffix needs repair only where it contains links."
+  sources:
+  - record-schema
+- statement: The nested consistency.because contains a rule list, and wideningBecause contains a requirement link.
+  sources:
+  - record-schema
+- statement: Both become verb-form link names.
+  sources:
+  - record-schema
+- statement: The effect-level onFailure is a string, while the page-level onFailure is a structured object.
+  sources:
+  - record-schema
+- statement: This is the most mechanical inconsistency in the schemas.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: The effect-level string takes the structured shape or the name onFailurePolicy.
+  sources:
+  - record-schema
+- statement: The investigation also finds schema drift outside the brief.
+  sources:
+  - glossary-schema
+  - glossary
+- statement: The consumer glossary template requires layer and aliases on every term.
+  sources:
+  - glossary
+- statement: The glossary schema defines neither, and it forbids extra properties.
+  sources:
+  - glossary-schema
+- statement: The template schemaVersion 3 contradicts the schema const 2.
+  sources:
+  - glossary
+  - glossary-schema
+- statement: All 508 consumer terms carry layer, so the schema is out of step.
+  sources:
+  - glossary-schema
+  - glossary
+- statement: The consumer carries fields that LiteSpec never defines.
+  sources:
+  - record-schema
+- statement: They are result.kind with 163 uses, which duplicates outcome, setting.readBy with 15, and notification.sentBy with 8.
+  sources:
+  - record-schema
+- statement: They also are notification.personal with 9, job.errorBackoff with 4, job.startupDelay with 3, and rule.writes with 33, always empty.
+  sources:
+  - record-schema
+- statement: The record calls these consumer inventions.
+  sources:
+  - record-schema
+- statement: The link-shaped names show authors seeking vocabulary that LiteSpec does not offer.
+  sources:
+  - record-schema
+- statement: The proposed naming rule is one concept, one name, one shape, everywhere it appears.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A field name keeps one concept, one value kind, and one cardinality on every record that carries it.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: New fields follow the existing grammar.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A classifier is kind.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A link is a present-tense verb, plural when it contains an array.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A deadline is <verb>By, and a recorded date is <verb>On.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A justification is reason or rationale, never a *Because field that contains links.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: The rule also fixes the other word classes.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: The defining sentence of a named thing is meaning, and the normative sentence of a promise is statement.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A group nests as an object only when its fields always appear together.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: A name that a record type carries is never reused for a prose field.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: The maintainer validator checks the mechanical half of the rule, which covers same type, plural as array, and *By and *On as dates.
+  sources:
+  - record-schema
+  - glossary-schema
+- statement: The judgment half stays a reviewed provision.
+  sources:
+  - record-schema
+  - glossary-schema

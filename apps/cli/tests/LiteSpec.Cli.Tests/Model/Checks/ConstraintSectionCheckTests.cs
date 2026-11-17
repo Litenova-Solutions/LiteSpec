@@ -27,7 +27,7 @@ public sealed class ConstraintSectionCheckTests
                 "constraint/library-privacy-law",
                 Path.Combine(temp.Path, "library-privacy-law.yaml"),
                 1,
-                """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
+                """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records.", "scope": "Reader records.", "obligations": [{"statement": "The library keeps reader records private.", "sources": ["ordinance"]}], "productEffect": "Reader records stay private in the product."}""",
                 Path.Combine(temp.Path, "library-privacy-law.md"),
                 explanation));
 

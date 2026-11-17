@@ -1,6 +1,7 @@
 type: decision
 id: decision/0011-one-grammar-for-names-and-values
 title: One Grammar for Names and Values
+context: "One field name carries two concepts, and one concept carries two names, across the record types. Values arrive as free text with several small notations of their own. Checks parse that text instead of reading the values."
 options:
   - name: State the grammar and rename every field
     pros: The collisions already produce invalid and misleading data, and a stated grammar lets the validator check the mechanical half on every run.

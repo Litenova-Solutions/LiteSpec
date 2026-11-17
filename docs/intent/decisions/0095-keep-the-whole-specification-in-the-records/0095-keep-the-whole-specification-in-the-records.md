@@ -6,7 +6,7 @@ An agent builds the product from the YAML records alone, and a person reads the 
 
 Several fixed sections asked for facts no field held. A problem's Failure Cases, a constraint's Rules, research Findings, a screen's States, an entry point's Authentication and a use case's Flow were written only as prose. An agent reading only the YAML missed build facts such as session timeouts, screen states, legal retention rules and idempotent replies, and no check saw them.
 
-The gap was measured on LiteCount. Constraints hold 2,259 words of YAML and 9,866 words of explanation; research holds 7,396 and 31,441; screens hold 1,890 and 10,509; entry points hold 2,064 and 11,395.
+The gap was measured on one consumer product. Constraints hold 2,259 words of YAML and 9,866 words of explanation; research holds 7,396 and 31,441; screens hold 1,890 and 10,509; entry points hold 2,064 and 11,395.
 
 ## Options
 
@@ -34,7 +34,7 @@ The fixed H2 sections of each record type stay, as the human reading structure. 
 
 ## Consequences
 
-The records state the whole specification under `litespec/core/model#keep-the-whole-specification-in-the-records`, and `litespec/core/writing#explain-the-same-specification-the-records-state` replaces `litespec/core/writing#interpret-fields-in-explanations-never-restate-them`, so an explanation file restates and elaborates its record, adds no fact, and contradicts no field. `litespec/core/writing#update-a-record-and-its-explanation-together` requires both to change in one commit.
+The records state the whole specification under `litespec/core/model#keep-the-whole-specification-in-the-records`, and `litespec/core/writing#explain-the-same-specification-the-records-state` replaces the provision that told explanation files to interpret fields and never restate them, so an explanation file restates and elaborates its record, adds no fact, and contradicts no field. `litespec/core/writing#update-a-record-and-its-explanation-together` requires both to change in one commit.
 
 Intent records gain fields. A problem states `failureCases`, `workaround`, `cost` and `resolutionCriteria`. A constraint states `scope`, `obligations`, `productEffect` and `openPoints`. Research states `findings` and `openQuestions`, and each source may carry a `note`. A feature states `successCriteria` and `excludes`. An actor states `responsibilities` and `knowledge`. A role states `limits`. A decision states `context`.
 

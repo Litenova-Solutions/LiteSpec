@@ -124,7 +124,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copy}", "scope": "tenant"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copy}", "scope": "tenant"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "placeholder 'copy' names no input field"));
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
@@ -138,7 +138,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "notice per loan", "scope": "tenant"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "notice per loan", "scope": "tenant"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "with no {field} placeholder"));
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
@@ -152,7 +152,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "branch"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "branch"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "tenant, account, login, global"));
     }
@@ -165,7 +165,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "login"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "login"}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -362,7 +362,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "effect onFailure 'retry (5, PT1M) then dead-letter' as prose"));
     }
@@ -375,7 +375,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "ifExhausted": "dead-letter"}}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "effect onFailure retry with no positive maxAttempts"));
     }

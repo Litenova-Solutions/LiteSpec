@@ -96,7 +96,7 @@ public sealed class ExplanationCheckTests
                 "decision/0001-loan-period",
                 file,
                 1,
-                """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
+                """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts.", "context": "Readers asked for a longer loan."}""",
                 Path.Combine(temp.Path, "0001-loan-period.md"),
                 "# Loan period\n\nThe loan period decides how long a copy stays out.\n\n## Options\n\nFourteen days or twenty-one.\n\n## Decision\n\nFourteen days.\n\n## Consequences\n\nCopies turn over faster.\n\n## Revisit Conditions\n\nDemand shifts.\n"));
 
@@ -143,7 +143,7 @@ public sealed class ExplanationCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks.", "findings": [{"statement": "Others lend for three weeks.", "sources": ["benchmark-report"]}]}""",
                 Path.Combine(temp.Path, "benchmarks.md"),
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Source Notes\n\nOne source covers the answer.\n"));
 
@@ -262,7 +262,7 @@ public sealed class ExplanationCheckTests
                 "feature/submit-an-expense-claim",
                 file,
                 1,
-                """{"summary": "Reminders nudge approvers."}""",
+                """{"summary": "Reminders nudge approvers.", "successCriteria": ["Approvers answer reminders within three business days."]}""",
                 Path.Combine(temp.Path, "submit-an-expense-claim.md"),
                 "# Submit an Expense Claim\n\nEmployees submit claims and wait for an answer.\n\n## Capabilities\n\nReminders nudge approvers.\n\n## Boundaries\n\nThe feature stops at the approval step.\n"));
 
@@ -291,7 +291,7 @@ public sealed class ExplanationCheckTests
                 "use-case/spending.submit-expense",
                 file,
                 1,
-                """{"kind": "command"}""",
+                """{"kind": "command", "steps": [{"statement": "The employee submits the expense."}]}""",
                 Path.Combine(temp.Path, "submit-expense.md"),
                 "# Submit Expense\n\nNo sections here.\n"));
 
@@ -379,18 +379,19 @@ public sealed class ExplanationCheckTests
     /// <param name="id">The record identifier.</param>
     /// <param name="sections">The fixed sections of the type, in order.</param>
     /// <param name="missing">The section the explanation leaves out.</param>
+    /// <param name="json">The record fields, holding the backing field of the missing section.</param>
     /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Theory]
-    [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" }, "Recovery")]
-    [InlineData("waiver", "waiver/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" }, "Risk")]
-    [InlineData("actor", "actor/reader", new[] { "Responsibilities", "Knowledge", "Example" }, "Knowledge")]
-    public void MissingFixedSectionReportsItsName(string type, string id, string[] sections, string missing)
+    [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" }, "Recovery", """{"recovery": "Restart the worker again."}""")]
+    [InlineData("waiver", "waiver/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" }, "Risk", """{"consequences": "The queue stays unmarked."}""")]
+    [InlineData("actor", "actor/reader", new[] { "Responsibilities", "Knowledge", "Example" }, "Knowledge", """{"knowledge": ["Readers know the catalogue."]}""")]
+    public void MissingFixedSectionReportsItsName(string type, string id, string[] sections, string missing, string json)
     {
         using var temp = TestCli.Temp("checks");
         var kept = sections.Where(section => section != missing).ToArray();
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            RecordWithExplanation(temp.Path, type, id, Explanation("An opening paragraph names the record.", kept)));
+            RecordWithExplanation(temp.Path, type, id, Explanation("An opening paragraph names the record.", kept), json));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
@@ -537,14 +538,15 @@ public sealed class ExplanationCheckTests
     /// <param name="type">The record type.</param>
     /// <param name="id">The record identifier.</param>
     /// <param name="text">The explanation file text.</param>
+    /// <param name="json">The record fields as JSON.</param>
     /// <returns>The record with its explanation file.</returns>
-    static LiteSpec.Cli.Model.Records.Record RecordWithExplanation(string root, string type, string id, string text)
+    static LiteSpec.Cli.Model.Records.Record RecordWithExplanation(string root, string type, string id, string text, string json = "{}")
     {
         var name = id[(id.IndexOf('/') + 1)..].Split('.').Last();
         var file = Path.Combine(root, ".litespec", type, name, name + ".yaml");
         var explanation = Path.ChangeExtension(file, ".md");
 
-        return TestModel.Record(type, id, file, 1, "{}", explanation, text);
+        return TestModel.Record(type, id, file, 1, json, explanation, text);
     }
 
     /// <summary>An explanation file text: the H1 title, one opening paragraph, then each section with one line.</summary>

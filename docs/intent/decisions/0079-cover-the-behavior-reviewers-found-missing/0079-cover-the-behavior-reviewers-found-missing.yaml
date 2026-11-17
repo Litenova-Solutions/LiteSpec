@@ -1,6 +1,7 @@
 type: decision
 id: decision/0079-cover-the-behavior-reviewers-found-missing
 title: Cover the Behavior Reviewers Found Missing
+context: "An outside review of one consumer's Behavior records proved gaps from forgeable claims and anonymous grants to unstated replays, unknown outcomes, and overreaching scenarios. The same review claimed a folder layout defect, which the authors checked against the Placement Table and rejected."
 options:
   - name: "A field or pattern for each gap the review proved"
     pros: "Signed-in acts, verified claims, row inputs, replays, unknown outcomes, cross-module completion, validity, scenario scope, and read risk each have a stated shape."

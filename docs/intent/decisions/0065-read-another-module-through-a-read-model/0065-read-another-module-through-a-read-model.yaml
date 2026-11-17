@@ -1,6 +1,7 @@
 type: decision
 id: decision/0065-read-another-module-through-a-read-model
 title: Read Another Module Through a Read Model
+context: "A module read another module's data through a read port in the owner's Contracts folder. One large consumer had 86 such readers named in 741 files of other modules, and the busiest reader had 18 methods. No record said which fields crossed the boundary, and a personal field could travel to any reader."
 options:
   - name: "A read-model record each consumer owns, built from published integration events"
     pros: "A module reads its own copy of what it needs. Each field names the published field it comes from. A personal field names the event that erases it. The owner keeps no reader written for one caller."

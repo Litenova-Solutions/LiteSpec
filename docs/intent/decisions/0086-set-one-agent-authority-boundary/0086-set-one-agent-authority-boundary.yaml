@@ -1,6 +1,7 @@
 type: decision
 id: decision/0086-set-one-agent-authority-boundary
 title: Set One Agent Authority Boundary
+context: "No page stated what an agent does on its own. Agents approved their own product-policy proposals, widened scope past the task, invented business values no record holds and took consequential outside actions. Reviews caught some of it after the fact, and most of it shipped in records nobody questioned."
 options:
   - name: "One stated boundary: apply, draft, implement, report; never approve, widen, invent, or act beyond the task"
     pros: "Every agent knows what it may do unasked, product policy stays with the owner, and consequential acts need an instruction naming them."

@@ -385,7 +385,7 @@ public sealed class SettingsCheckTests
             + "  \"range\": \"1-10\",\n"
             + "  \"unit\": \"loans\",\n"
             + "  \"setBy\": \"" + setBy + "\"" + keyLine + ",\n"
-            + "  \"atBound\": \"refuse\",\n"
+            + "  \"outOfRange\": \"refuse\",\n"
             + "  \"fulfills\": [\n"
             + "    \"requirement/borrowing.max-active-loans\"\n"
             + "  ]\n"
@@ -396,7 +396,7 @@ public sealed class SettingsCheckTests
     {
         var paramsJson = parameters.Length == 0
             ? ""
-            : ",\n  \"params\": [\n" + string.Join(",\n", parameters.Select(parameter => "    \"" + parameter + "\"")) + "\n  ]";
+            : ",\n  \"parameters\": [\n" + string.Join(",\n", parameters.Select(parameter => "    \"" + parameter + "\"")) + "\n  ]";
 
         return "{\n"
             + "  \"type\": \"notification\",\n"

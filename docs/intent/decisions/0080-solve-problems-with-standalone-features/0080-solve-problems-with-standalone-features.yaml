@@ -1,6 +1,7 @@
 type: decision
 id: decision/0080-solve-problems-with-standalone-features
 title: Solve Problems with Standalone Features
+context: "Each feature sat in the folder of the one problem it answered, so an offer spanning two problems was filed under one. Splitting such features cost more than sharing them. A commitment with no offer had no home, since every requirement needed a feature, so authors invented features or left them unwritten."
 options:
   - name: "Features stand alone with solves; product-wide commitments stand as product requirements"
     pros: "Each offer is written once however many problems it answers, the book groups a feature under every problem it solves, and commitments with no offer gain a home."

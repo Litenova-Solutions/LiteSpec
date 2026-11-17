@@ -116,11 +116,16 @@ internal static class ExplanationChecks
     /// <summary>
     ///     Reports each explanation that lacks a required section of its type's table, or holds its sections out of
     ///     order. Covers the explanation of every record and of every container page whose type the table lists.
+    ///     A section explains its backing fields, so a required section is missing only when a backing field holds a
+    ///     value, or when the section has no backing fields at all.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and page body.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSections(ProjectModel model, List<Finding> findings)
     {
+        var byId = model.ById;
+        var containerFields = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+
         foreach (var explanation in Explanations(model))
         {
             if (!ExplanationSections.ByType.TryGetValue(explanation.Type, out var sections))
@@ -133,7 +138,8 @@ internal static class ExplanationChecks
 
             foreach (var section in sections.Where(section => !section.Optional))
             {
-                if (!headings.Any(heading => heading.Text == "## " + section.Name))
+                if (!headings.Any(heading => heading.Text == "## " + section.Name)
+                    && (section.Fields.Count == 0 || BackingPresent(model, byId, explanation, section.Fields, containerFields)))
                 {
                     findings.Add(new Finding("explanation-missing", $"{label} '{explanation.Name}' holds no {section.Name} section in its explanation.", explanation.File, 1, explanation.Subject));
                 }

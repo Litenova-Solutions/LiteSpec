@@ -5,6 +5,12 @@ affects:
   - actor/reader
 summary: A ghost reader waits in a ghost queue past the pickup window and misses the hold.
 statement: Ghost readers miss pickup windows in ghost queues.
+failureCases:
+- A ghost reader waits in a ghost queue past the pickup window.
+workaround: Ghost readers wait in ghost queues.
+cost: Ghost readers miss holds past the pickup window.
+resolutionCriteria:
+- Ghost readers miss no pickup window in a ghost queue.
 evidence:
   - claim: Ghost readers wait in ghost queues past pickup windows.
     source: https://example.org/library/ghost-log

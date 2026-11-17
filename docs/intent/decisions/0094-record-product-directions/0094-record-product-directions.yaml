@@ -1,6 +1,7 @@
 type: decision
 id: decision/0094-record-product-directions
 title: Record Product Directions as Light Records
+context: "An earlier decision added the vision record at product level, with a statement and three fixed explanation sections. Vision names one statement for a whole product, while LiteSpec holds many small wishes, and consumers repeated the statement and copied design facts across sections. The fixed sections listed by hand the keeping decisions the book already computes from basedOn."
 options:
   - name: "Record each product wish as a direction record with only statement required and a free-form explanation file"
     pros: "The name fits many small wishes that may never happen, one required field keeps a wish light, and the book shows the decisions that keep a direction open from basedOn, so no prose lists them."

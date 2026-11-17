@@ -1,6 +1,7 @@
 type: decision
 id: decision/0059-publish-candidates-from-release-branches
 title: Publish Release Candidates from Release Branches
+context: "The release workflow published only on a tag on main, so nothing could be published from a release branch before it merged. A consumer tested a release only by building the command line from source, and its first real run came after the final tag."
 options:
   - name: "Candidate tags on the release branch publish prerelease packages"
     pros: "A consumer tests a release on the packages it will install, before the final tag, and a defect found there ships in the next candidate."

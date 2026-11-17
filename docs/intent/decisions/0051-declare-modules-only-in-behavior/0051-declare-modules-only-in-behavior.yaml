@@ -1,6 +1,7 @@
 type: decision
 id: decision/0051-declare-modules-only-in-behavior
 title: Declare Modules Only in Behavior
+context: "Intent modules were defined from Behavior, so Intent grouped records by code boundaries and not by product reasons. Once features sit under problems, the Intent module folders hold nothing, and a reader sees code boundaries where the product reasons belong."
 options:
   - name: "Declare modules only in Behavior"
     pros: "Intent is organized by reason, and each module sits in Behavior beside the aggregates it groups, with its code dependencies in one record."

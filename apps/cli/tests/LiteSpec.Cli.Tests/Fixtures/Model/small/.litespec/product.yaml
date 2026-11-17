@@ -3,6 +3,6 @@ id: product/library
 title: Library
 summary: The library lends copies to readers, tracks holds, and keeps every copy on one home shelf.
 boundary: The library lends copies to readers and tracks holds.
-addresses:
+users:
 - actor/reader
 - actor/librarian

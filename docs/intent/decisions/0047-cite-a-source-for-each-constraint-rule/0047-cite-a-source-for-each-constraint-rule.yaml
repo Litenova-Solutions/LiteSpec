@@ -1,6 +1,7 @@
 type: decision
 id: decision/0047-cite-a-source-for-each-constraint-rule
 title: Cite a Source for Each Constraint Rule
+context: "A constraint kept one read date for the whole record, and its rules cited no source of their own. A law stating a rule on one public page is its own source, so a required research record beside it held no question. Constraint explanations mixed the outside obligation with the product response, so a reviewer could not tell which sentence an outside party wrote."
 options:
   - name: "Put sources on the constraint, with an optional research link"
     pros: "A law is its own source, a rule needs no extra record for one URL, and each rule names the source key it rests on in its own file."

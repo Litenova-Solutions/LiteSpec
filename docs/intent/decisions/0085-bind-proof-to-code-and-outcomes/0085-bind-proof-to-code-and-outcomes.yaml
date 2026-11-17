@@ -1,6 +1,7 @@
 type: decision
 id: decision/0085-bind-proof-to-code-and-outcomes
 title: Bind Proof to Code and Outcomes
+context: "A test run recorded no source commit, so a passing test followed by a code change still read as proof. A fulfills link read as verified before its scenarios passed, and a fully built goal read as reached with nothing measured. The examples proving money rules came from the same author that implemented them."
 options:
   - name: "Runs record their commit; staleness watches code; goals separate delivery from outcome"
     pros: "A passing test followed by a code change shows stale, fulfills reads as a claim until scenarios pass, a goal never shows reached from delivery alone, and money rules face held-back examples."

@@ -5,7 +5,7 @@ summary: The text gateway sends overdue notices to readers.
 operations:
 - name: send-overdue-notice
   action: send
-  timeout: 5 seconds
+  timeout: PT5S
   rejected: The gateway refuses the notice, which queues for the next run.
   accepted: The gateway accepts the notice and returns a delivery receipt.
   unknown: The call times out before a receipt arrives.
@@ -14,7 +14,7 @@ operations:
   cache: none, every notice is sent once
 - name: receive-delivery-receipt
   action: receive
-  timeout: none
+  timeout: PT0S
   rejected: The receipt names no sent notice, so it is dropped.
   accepted: The receipt is recorded against the notice.
   unknown: The receipt is lost before it is read.

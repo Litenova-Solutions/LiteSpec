@@ -377,6 +377,8 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `result` | scenario | result, derived result | ends in | is shown by |
 | `exercises` | scenario | rule | exercises | is exercised by |
 | `competesWith` | scenario | use case | competes with | is competed with by |
+| `carries.identifies` | domain event | generic record | identifies | is identified by |
+| `audience` | entry point | actor | is used by | uses |
 | `servedContent.fulfills` | entry point | requirement | fulfills | is fulfilled by |
 | `users` | product | actor | is used by | uses |
 | `basedOn` | constraint | research | is based on | is a basis for |
@@ -415,6 +417,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
 | `consentRule` | use case, notification | rule | needs consent under | sets consent for |
+| `steps.cites` | use case | rule, result, setting, domain event, read model, external system, aggregate | applies | is applied in |
 | `triggeredBy` | reaction | domain event, module event, integration event | is triggered by | triggers |
 | `compensates` | reaction | use case | compensates | is compensated by |
 | `effects.runs` | reaction, job | use case | runs | is run by |
@@ -428,6 +431,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `erasure.operation` | external system | external operation | is erased through | erases |
 | `erasure.event` | external system | published event | is erased through | carries the erasure of |
 | `basedOn` | external system | decision, requirement | is based on | is a basis for |
+| `payload.identifies` | integration event | generic record | identifies | is identified by |
 | `through` | integration event | external system | travels through | carries |
 | `arrivesThrough` | integration event | entry point, external system | arrives through | receives |
 | `requires` | integration event | permission | requires | is required by |

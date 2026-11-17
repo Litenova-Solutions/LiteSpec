@@ -2,6 +2,9 @@ type: use-case
 id: use-case/finance.record-loan
 title: Record loan
 kind: command
+steps:
+  - statement: Finance sends the loan to record.
+  - statement: Finance records the loan for the ledger.
 access:
   grant: permission/borrow-copy
   tenant: own

@@ -50,7 +50,7 @@ export const AGENT_PROTOCOL_PLACEHOLDERS: { placeholder: string; field: keyof Ag
 
 /** The first line of the region, with the command that runs the CLI filled in. */
 export function precedenceSentence(command: string): string {
-  return `When this file disagrees with \`${command} rules\`, \`${command} model query\` or a record, the tool output and the record win; this file only points to them.`;
+  return `When this file disagrees with \`${command} rules\`, \`${command} model query\` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.`;
 }
 
 /** The generated region of the consumer protocol template, fences included. */

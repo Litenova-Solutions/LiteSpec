@@ -1,6 +1,7 @@
 type: decision
 id: decision/0027-projects-claim-record-layers
 title: Projects Claim the Record Layers They Use
+context: "The project file conformance takes one of three values, and each bundles the code practice and the proof practice together. A team that wants LiteSpec architecture with its own tests takes all of full or none of it."
 options:
   - name: "A `layers` map that names the practice each layer follows"
     pros: "A team names each layer it uses and the practice it follows, and it can take LiteSpec's architecture while it keeps its own tests. Each of the three conformance levels stays expressible."

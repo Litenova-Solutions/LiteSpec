@@ -1,6 +1,7 @@
 type: decision
 id: decision/0017-proof-that-holds
 title: Proof That Holds
+context: "The word verified does not mean what it says, and browser-proved scenarios never pass. A git-ignored cache holds the staleness data, and it is empty in CI. Nothing blocks on an unverified scenario, and finding codes use synonyms for one problem."
 options:
   - name: Tracked proof state, check level blocking, four words, one code grammar
     pros: Committed hashes make staleness visible in CI, check level blocking ends unrecorded suppression, four words end the double meanings, and one grammar ends synonym codes.

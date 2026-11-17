@@ -4,7 +4,7 @@ Authors who write records and checkers that read them need one grammar for field
 
 ## Context
 
-One field name carries two concepts, and one concept carries two names, across the record types. Values arrive as free text with several small notations of their own. Checks must parse that text instead of reading the values.
+One field name carries two concepts, and one concept carries two names, across the record types. Values arrive as free text with several small notations of their own. Checks parse that text instead of reading the values.
 
 ## Options
 

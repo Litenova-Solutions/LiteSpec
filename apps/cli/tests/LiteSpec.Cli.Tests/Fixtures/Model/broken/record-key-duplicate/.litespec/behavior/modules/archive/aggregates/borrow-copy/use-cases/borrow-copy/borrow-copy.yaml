@@ -2,6 +2,9 @@ type: use-case
 id: use-case/archive.borrow-copy
 title: Borrow copy
 kind: command
+steps:
+  - statement: The reader sends the archived copy to borrow.
+  - statement: Archive lends the archived copy.
 access:
   grant: permission/borrow-copy
   tenant: own

@@ -2,6 +2,9 @@ type: use-case
 id: use-case/lending.borrow-copy
 title: Borrow copy
 kind: command
+steps:
+  - statement: The reader sends the copy to borrow.
+  - statement: Lending lends the copy and raises the borrowed event.
 reachedThrough:
   - entry-point/library-app
 records:

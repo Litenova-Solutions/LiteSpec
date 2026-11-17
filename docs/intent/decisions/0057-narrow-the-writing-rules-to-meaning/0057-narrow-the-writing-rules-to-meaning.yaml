@@ -1,6 +1,7 @@
 type: decision
 id: decision/0057-narrow-the-writing-rules-to-meaning
 title: Narrow the Writing Rules to Meaning
+context: "The actor-first rule made every sentence open with an actor, though a fact or calculation reads better with its object as subject. The arriving-cold rule repeated the stake in each section of a record, so a reader met the same sentence several times. The required 25-word bound pushed writers to drop the conditions a long sentence needed."
 options:
   - name: "Actor-first for actions only, the stake in the opening paragraph only, and an advisory 25-word bound"
     pros: "A fact or calculation reads with its object as subject, the stake appears once, and a writer keeps the conditions a long sentence needs."

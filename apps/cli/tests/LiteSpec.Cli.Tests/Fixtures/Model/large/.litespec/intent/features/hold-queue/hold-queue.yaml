@@ -6,3 +6,8 @@ solves:
 - problem/overdue-loans-pile-up
 advances:
 - goal/faster-pickup
+successCriteria:
+- Waiting readers queue for busy copies.
+- Readers pick up each ready hold within two days.
+excludes:
+- The hold queue lends no copy directly.

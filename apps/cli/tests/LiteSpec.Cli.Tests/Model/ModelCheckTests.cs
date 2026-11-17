@@ -202,7 +202,7 @@ public sealed class ModelCheckTests
             + "  ],\n"
             + $"  \"expiresOn\": \"{expiresOn}\",\n"
             + "  \"reason\": \"Listing waits for the search index.\",\n"
-            + "  \"exit\": \"The search index ships and listing loans gains its handler.\"\n"
+            + "  \"exitWhen\": \"The search index ships and listing loans gains its handler.\"\n"
             + "}\n";
     }
 

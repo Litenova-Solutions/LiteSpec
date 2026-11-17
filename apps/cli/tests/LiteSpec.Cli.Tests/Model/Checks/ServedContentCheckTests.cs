@@ -13,7 +13,7 @@ public sealed class ServedContentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "served-content", "auth": ["session"]}"""));
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "served-content", "authentication": ["session"], "audience": ["actor/reader"]}"""));
 
         Assert.Contains("record-invalid", TestModel.Codes(model));
     }
@@ -27,7 +27,8 @@ public sealed class ServedContentCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/web.terms-page", Path.Combine(temp.Path, "terms-requirement.yaml"), """{"kind": "functional", "statement": "The product shows its terms of service.", "rationale": "Readers accept the terms before they sign in."}"""),
-            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "browser", "auth": ["session"], "servedContent": [{"path": "/terms", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["requirement/web.terms-page"]}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "responsibilities": ["Readers read the terms."], "knowledge": ["Readers know the terms page."]}"""),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "browser", "authentication": ["session"], "audience": ["actor/reader"], "servedContent": [{"path": "/terms", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["requirement/web.terms-page"]}]}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -41,7 +42,7 @@ public sealed class ServedContentCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/web.terms-page", Path.Combine(temp.Path, "terms-requirement.yaml"), """{"kind": "functional", "statement": "The product shows its terms of service.", "rationale": "Readers accept the terms before they sign in."}"""),
-            TestModel.Record("entry-point", "entry-point/api", Path.Combine(temp.Path, "api.yaml"), """{"kind": "api", "auth": ["token"], "servedContent": [{"path": "/terms", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["requirement/web.terms-page"]}]}"""));
+            TestModel.Record("entry-point", "entry-point/api", Path.Combine(temp.Path, "api.yaml"), """{"kind": "api", "authentication": ["token"], "audience": ["actor/reader"], "servedContent": [{"path": "/terms", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["requirement/web.terms-page"]}]}"""));
 
         Assert.Contains("record-invalid", TestModel.Codes(model));
     }
@@ -55,7 +56,7 @@ public sealed class ServedContentCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/web.terms-page", Path.Combine(temp.Path, "terms-requirement.yaml"), """{"kind": "functional", "statement": "The product shows its terms of service.", "rationale": "Readers accept the terms before they sign in."}"""),
-            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "browser", "auth": ["session"], "fulfills": ["requirement/web.terms-page"]}"""));
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "browser", "authentication": ["session"], "audience": ["actor/reader"], "fulfills": ["requirement/web.terms-page"]}"""));
 
         Assert.Contains("record-invalid", TestModel.Codes(model));
     }
@@ -69,7 +70,7 @@ public sealed class ServedContentCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/grow-revenue", Path.Combine(temp.Path, "goal.yaml"), """{"statement": "Grow revenue.", "measure": "Monthly revenue.", "target": "One million."}"""),
-            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "browser", "auth": ["session"], "servedContent": [{"path": "/terms", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["goal/grow-revenue"]}]}"""));
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "browser", "authentication": ["session"], "audience": ["actor/reader"], "servedContent": [{"path": "/terms", "contentType": "text/html", "cacheControl": "public, max-age=3600", "versioning": "content-hash", "fulfills": ["goal/grow-revenue"]}]}"""));
 
         Assert.Contains("record-invalid", TestModel.Codes(model));
     }

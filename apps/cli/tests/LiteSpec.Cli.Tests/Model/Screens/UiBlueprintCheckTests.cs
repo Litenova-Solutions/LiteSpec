@@ -413,7 +413,7 @@ public sealed class UiBlueprintCheckTests
         return model;
     }
 
-    static Record Screen(string id, string address, IReadOnlyList<string> offers, IReadOnlyList<string> serves, IReadOnlyList<string>? leadsTo = null) =>
+    static Record Screen(string id, string route, IReadOnlyList<string> offers, IReadOnlyList<string> serves, IReadOnlyList<string>? leadsTo = null) =>
         new()
         {
             Type = "screen",
@@ -422,13 +422,13 @@ public sealed class UiBlueprintCheckTests
             File = "screen.md",
             Line = 1,
             Raw = JsonDocument.Parse(
-                "{\"entryPoint\":\"entry-point/app\",\"address\":" + JsonSerializer.Serialize(address)
+                "{\"entryPoint\":\"entry-point/app\",\"route\":" + JsonSerializer.Serialize(route)
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
                 + ",\"serves\":" + JsonSerializer.Serialize(serves)
                 + ",\"leadsTo\":" + JsonSerializer.Serialize(leadsTo ?? []) + "}").RootElement.Clone(),
         };
 
-    static Record ScreenWithExplanation(string root, string id, string address, IReadOnlyList<string> offers, string explanation) =>
+    static Record ScreenWithExplanation(string root, string id, string route, IReadOnlyList<string> offers, string explanation) =>
         new()
         {
             Type = "screen",
@@ -439,7 +439,7 @@ public sealed class UiBlueprintCheckTests
             ExplanationFile = Path.Combine(root, "screen.md"),
             Explanation = explanation,
             Raw = JsonDocument.Parse(
-                "{\"entryPoint\":\"entry-point/app\",\"address\":" + JsonSerializer.Serialize(address)
+                "{\"entryPoint\":\"entry-point/app\",\"route\":" + JsonSerializer.Serialize(route)
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
                 + ",\"serves\":[],\"leadsTo\":[]}").RootElement.Clone(),
         };

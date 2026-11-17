@@ -15,7 +15,7 @@ steps:
   statement: The reader borrows the copy from the shelf.
   actor: actor/reader
   failure: The copy is lent out, so the reader places a hold instead.
-  cites:
+  carries:
   - requirement/borrowing.max-active-loans
 - id: s3
   statement: The reader renews the loan before it ends.

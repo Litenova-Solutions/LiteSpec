@@ -452,7 +452,7 @@ public sealed class ScreenCheckTests
         return model;
     }
 
-    static Record Screen(string id, string address, IReadOnlyList<string> offers, IReadOnlyList<string> serves) =>
+    static Record Screen(string id, string route, IReadOnlyList<string> offers, IReadOnlyList<string> serves) =>
         new()
         {
             Type = "screen",
@@ -461,7 +461,7 @@ public sealed class ScreenCheckTests
             File = "screen.md",
             Line = 1,
             Raw = JsonDocument.Parse(
-                "{\"entryPoint\":\"entry-point/app\",\"address\":" + JsonSerializer.Serialize(address)
+                "{\"entryPoint\":\"entry-point/app\",\"route\":" + JsonSerializer.Serialize(route)
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
                 + ",\"serves\":" + JsonSerializer.Serialize(serves) + "}").RootElement.Clone(),
         };

@@ -1,6 +1,7 @@
 type: decision
 id: decision/0053-actors-by-responsibility-and-knowledge
 title: Describe Actors by Responsibility and Knowledge
+context: "The Access section restated the access the role grants and added session and sign-in rules, so the same grant appeared in two places. An actor stated what users know as a fact about every user, with no section for an assumption of the product. Product rules appeared in actor files, since the rule against behavior in explanations applied only to features and requirements."
 options:
   - name: "Responsibilities, Knowledge and Example, with Access removed"
     pros: "The `holds` field names the role and scope, the role's files state the permissions, and each section says what the actor answers for or what the product assumes."

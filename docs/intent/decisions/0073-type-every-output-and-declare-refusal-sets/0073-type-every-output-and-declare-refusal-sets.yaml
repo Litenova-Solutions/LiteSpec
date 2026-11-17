@@ -1,6 +1,7 @@
 type: decision
 id: decision/0073-type-every-output-and-declare-refusal-sets
 title: Type Every Output and Declare Refusal Sets
+context: "Outputs carried no value types, so file inputs and lists of rows stayed in prose, and refusal codes spread across results with no shared meaning. Rules spread the same way, with one condition refused two ways in two use cases. A rule over several aggregates named its scope with a kind."
 options:
   - name: "Typed outputs with files and rows, and one refusal set per module"
     pros: "Every output field carries a type. Files state content types and size. Each refusal code is declared once with its meaning and problem type. Generic refusals derive instead of being written."

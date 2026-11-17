@@ -12,6 +12,8 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-borrowed
+steps:
+- statement: The reader borrows the copy from the shelf.
 idempotency:
   mode: none
   reason: Each call lends its own copy, and lending an unavailable copy is refused.

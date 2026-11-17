@@ -28,7 +28,7 @@ A scenario's proof is fresh when its run commit is HEAD, or when every path chan
 
 ## Consequences
 
-Claimwick's suppression list is the reminder-preference aggregate, with the rule that only the manager or an admin changes it. LiteCount's audit trail is an aggregate whose rules guard it. The `store` record type and its checks do not exist.
+Claimwick's suppression list is the reminder-preference aggregate, with the rule that only the manager or an admin changes it. An audit trail is an aggregate whose rules guard it. The `store` record type and its checks do not exist.
 
 A reaction answers its own module's domain event, a module event of any module of the product, or an inbound integration event. `event-field-uncarried` reports a selected field the domain event does not carry.
 

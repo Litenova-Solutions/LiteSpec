@@ -1000,7 +1000,7 @@
       "trace": false,
       "strength": "required",
       "statement": "The authorization guard, not the handler, MUST authorize every message from the \u0060access\u0060 its use-case record declares.",
-      "rationale": "Authorization decided in each handler is decided differently in each handler. The guard decides once from what the record declares: the \u0060auth\u0060 kinds the caller presents, the \u0060grant\u0060 naming a permission, a \u0060self\u0060 scope over one, \u0060anonymous\u0060, or \u0060system\u0060, and the \u0060tenant\u0060 scope naming the tenants the call reaches. Ownership, tenant, role, state, or delegated access resolves against the target data through a scope owner lookup for the record the message names. A handler never compares the caller with a target, and never throws the forbidden refusal itself. Code names no permitted action outside that grant, so the record stays the one list of who may run a use case. Where the stack generates code, it generates one constant per \u0060permission/\u0060 record from the records. Declaring \u0060access\u0060 beside the message also lets composition refuse to start when a message states no position at all. The guard reports a refusal as a denial rather than raising it, so a refused attempt reaches the audit trail beside the ones that succeeded. The audit extension records the denial under \u0060litespec/ext/audit#record-refused-authorization\u0060. A collection query has no single target record, so a scope owner lookup has nothing to resolve. Its authorized scope is a database predicate under \u0060litespec/quality/security#restrict-a-protected-collection-in-the-database\u0060, applied before paging. Filtering a loaded collection in memory satisfies neither rule. It matches the shape [OWASP names as broken object level authorization](https://owasp.org/www-project-top-ten/2021/A01_2021-Broken_Access_Control/). WebApi enforces coarse authenticated, role, or scope policies first under \u0060litespec/backend/api#apply-only-coarse-policies-at-the-endpoint\u0060, which replaces no decision that depends on business data.",
+      "rationale": "Authorization decided in each handler is decided differently in each handler. The guard decides once from what the record declares: the \u0060authentication\u0060 kinds the caller presents, the \u0060grant\u0060 naming a permission, a \u0060self\u0060 scope over one, \u0060anonymous\u0060, or \u0060system\u0060, and the \u0060tenant\u0060 scope naming the tenants the call reaches. Ownership, tenant, role, state, or delegated access resolves against the target data through a scope owner lookup for the record the message names. A handler never compares the caller with a target, and never throws the forbidden refusal itself. Code names no permitted action outside that grant, so the record stays the one list of who may run a use case. Where the stack generates code, it generates one constant per \u0060permission/\u0060 record from the records. Declaring \u0060access\u0060 beside the message also lets composition refuse to start when a message states no position at all. The guard reports a refusal as a denial rather than raising it, so a refused attempt reaches the audit trail beside the ones that succeeded. The audit extension records the denial under \u0060litespec/ext/audit#record-refused-authorization\u0060. A collection query has no single target record, so a scope owner lookup has nothing to resolve. Its authorized scope is a database predicate under \u0060litespec/quality/security#restrict-a-protected-collection-in-the-database\u0060, applied before paging. Filtering a loaded collection in memory satisfies neither rule. It matches the shape [OWASP names as broken object level authorization](https://owasp.org/www-project-top-ten/2021/A01_2021-Broken_Access_Control/). WebApi enforces coarse authenticated, role, or scope policies first under \u0060litespec/backend/api#apply-only-coarse-policies-at-the-endpoint\u0060, which replaces no decision that depends on business data.",
       "example": ""
     },
     {
@@ -1271,7 +1271,7 @@
       "strength": "required",
       "statement": "A handler MUST read a setting record through a typed options value, or through stored tenant data where the record\u0027s \u0060setBy\u0060 is \u0060tenant\u0060.",
       "rationale": "A raw configuration lookup bypasses the type, the range, and the bound the setting record owns, so no handler uses one. Binding decider-set and operator-set values to typed options the host validates at startup fails a bad value before traffic arrives. A setting record owns its type, its default, its range, its unit, and what happens at the bound. Tenant-set values are data nobody reviews: they live in stored tenant state the handler reads per tenant.",
-      "example": "The receipt threshold binds to a spending options value. The handler reads the bound and refuses past it with \u0060atBound: refuse\u0060."
+      "example": "The receipt threshold binds to a spending options value. The handler reads the bound and refuses past it with \u0060outOfRange: refuse\u0060."
     },
     {
       "id": "litespec/backend/application#read-time-from-the-scoped-clock",
@@ -5200,21 +5200,21 @@
       "example": ""
     },
     {
-      "id": "litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind",
-      "heading": "Authenticate Every Caller Through a Declared Auth Kind",
+      "id": "litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind",
+      "heading": "Authenticate Every Caller Through a Declared Authentication Kind",
       "page": "docs/core/access.md",
-      "anchor": "authenticate-every-caller-through-a-declared-auth-kind",
+      "anchor": "authenticate-every-caller-through-a-declared-authentication-kind",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an \u0060auth\u0060 kind outside session, token, device, link, app, and none.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an \u0060authentication\u0060 kind outside session, token, device, link, app, and none.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:entry-point",
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "Each entry point MUST name its auth kinds from session, token, device, link, app, and none.",
-      "rationale": "The auth kind says how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.",
+      "statement": "Each entry point MUST name its authentication kinds from session, token, device, link, app, and none.",
+      "rationale": "The authentication kind says how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.",
       "example": "An expense submission names \u0060session\u0060, a library self-checkout kiosk names \u0060device\u0060, and a public catalog names \u0060none\u0060."
     },
     {
@@ -5368,15 +5368,15 @@
       "anchor": "grant-permissions-through-roles",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a role with no \u0060allows\u0060 entry, and \u0060permission-unused\u0060 for a permission allowed by no role.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a role with no \u0060allows\u0060 entry or no \u0060limits\u0060, and \u0060permission-unused\u0060 for a permission allowed by no role.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:role",
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "A role MUST name the permissions it allows in \u0060allows\u0060.",
-      "rationale": "The \u0060allows\u0060 list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link. The role lives in Intent and the permission lives in Behavior, so \u0060allows\u0060 is a declared down-link from Intent to Behavior.",
+      "statement": "A role MUST name the permissions it allows in \u0060allows\u0060 and state its limits in \u0060limits\u0060.",
+      "rationale": "The \u0060allows\u0060 list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link. The role lives in Intent and the permission lives in Behavior, so \u0060allows\u0060 is a declared down-link from Intent to Behavior. The \u0060limits\u0060 state the acts inside the role\u0027s scope that the grant does not allow, so a reader sees the edge of the grant on the role itself.",
       "example": "\u0060role/employee\u0060 allows \u0060permission/request-expense\u0060, which the submit use case cites in its grant."
     },
     {
@@ -5393,9 +5393,27 @@
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "A module permissions file MUST hold permission entries only, and its explanation states only the risks and boundaries of those entries, without restating a permission\u0027s meaning or adding a grant.",
-      "rationale": "Each permission is defined once, in its entry: its \u0060meaning\u0060 is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so the explanation holds what the entries cannot. A permission that guards a query or use case disclosing personal or financial data carries the \u0060personal-data\u0060 or \u0060access\u0060 risk, like a permission for a write. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once). Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing).",
+      "statement": "A module permissions file MUST hold permission entries only, and its explanation states only the risks and boundaries of those entries in \u0060excludes\u0060, without restating a permission\u0027s meaning or adding a grant.",
+      "rationale": "Each permission is defined once, in its entry: its \u0060meaning\u0060 is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so \u0060excludes\u0060 states what the set does not allow and the explanation holds what the entries cannot. A permission that guards a query or use case disclosing personal or financial data carries the \u0060personal-data\u0060 or \u0060access\u0060 risk, like a permission for a write. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once). Settled by [decision/0079-cover-the-behavior-reviewers-found-missing](decision/0079-cover-the-behavior-reviewers-found-missing).",
       "example": ""
+    },
+    {
+      "id": "litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting",
+      "heading": "Limit the Age of a Sign-In by a Setting",
+      "page": "docs/core/access.md",
+      "anchor": "limit-the-age-of-a-sign-in-by-a-setting",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a \u0060recentSignInLimit\u0060 that names no \u0060setting/\u0060 identifier and \u0060reference-unknown\u0060 for a setting no record defines.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:use-case",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "A use case that requires a recent sign-in MUST name the window in \u0060recentSignInLimit\u0060 with a \u0060setting/\u0060 identifier.",
+      "rationale": "Some operations need a fresh sign-in: changing a sign-in method or approving a large payout on a week-old session is not the same as doing it just after signing in. The window is a product decision, so it lives in a setting that states its range and setter, and every use case that needs it names the same setting instead of typing its own duration. A call whose sign-in is older than the window ends in the derived sign-in-too-old result. Settled by [decision/0074-declare-access-settings-and-deadlines](decision/0074-declare-access-settings-and-deadlines).",
+      "example": "Claimwick payout approval above the threshold names \u0060setting/spending.sign-in-window\u0060 in \u0060recentSignInLimit\u0060; a session older than the window ends in the derived sign-in-too-old result."
     },
     {
       "id": "litespec/core/access#name-each-permission-by-a-use-case-verb",
@@ -5504,24 +5522,6 @@
       "statement": "A message whose target must be the caller MUST carry no target and act on the caller, or declare a self grant that the authorization guard enforces.",
       "rationale": "A target that must equal the caller is a value the caller could forge. Each handler would compare it with the verified identity, and each comparison is authorization logic sitting in a handler. Carrying no target leaves nothing to forge: the call acts on the caller from verified claims. Where the target must stay on the message, a self grant states the scope beside the use case, and the guard enforces it.",
       "example": "\u0022My loans\u0022 lists the signed-in reader\u0027s loans and takes no reader id."
-    },
-    {
-      "id": "litespec/core/access#require-a-recent-sign-in-by-setting",
-      "heading": "Require a Recent Sign-In by Setting",
-      "page": "docs/core/access.md",
-      "anchor": "require-a-recent-sign-in-by-setting",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a \u0060recentSignIn\u0060 that names no \u0060setting/\u0060 identifier and \u0060reference-unknown\u0060 for a setting no record defines.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:use-case",
-      "layer": "behavior",
-      "trace": false,
-      "strength": "required",
-      "statement": "A use case that requires a recent sign-in MUST name the window in \u0060recentSignIn\u0060 with a \u0060setting/\u0060 identifier.",
-      "rationale": "Some operations need a fresh sign-in: changing a sign-in method or approving a large payout on a week-old session is not the same as doing it just after signing in. The window is a product decision, so it lives in a setting that states its range and setter, and every use case that needs it names the same setting instead of typing its own duration. A call whose sign-in is older than the window ends in the derived sign-in-too-old result. Settled by [decision/0074-declare-access-settings-and-deadlines](decision/0074-declare-access-settings-and-deadlines).",
-      "example": "Claimwick payout approval above the threshold names \u0060setting/spending.sign-in-window\u0060 in \u0060recentSignIn\u0060; a session older than the window ends in the derived sign-in-too-old result."
     },
     {
       "id": "litespec/core/access#scope-every-grant-to-its-tenant-reach",
@@ -7643,8 +7643,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each notification MUST declare its template, audience, channel, consent rule, frequency, dedup key, parameters, locale, and delivering system.",
-      "rationale": "A message without a declared audience and consent reaches the wrong actors, ignores consent, and repeats without control. Declaring the template with its parameters and locale, the audience, the channel of \u0060email\u0060, \u0060sms\u0060, or \u0060push\u0060, the consent rule in \u0060requiresConsent\u0060, the frequency of \u0060once\u0060 or \u0060per-attempt\u0060, the dedup key, and the delivering system in \u0060deliveredThrough\u0060 puts the message beside its promise. A notification is a message to a person; a webhook to a system is an outbound integration event. Suppression lives on the notification in \u0060suppressedWhen\u0060, and suppression scenarios show the message sending nothing. A use case that needs consent names the same rule in its \u0060requiresConsent\u0060.",
+      "statement": "Each notification MUST declare its template, audience, channel, consent rule, frequency, deduplication key, parameters, locale, and delivering system.",
+      "rationale": "A message without a declared audience and consent reaches the wrong actors, ignores consent, and repeats without control. Declaring the template with its parameters and locale, the audience, the channel of \u0060email\u0060, \u0060sms\u0060, or \u0060push\u0060, the consent rule in \u0060consentRule\u0060, the frequency of \u0060once\u0060 or \u0060per-attempt\u0060, the deduplication key, and the delivering system in \u0060deliveredThrough\u0060 puts the message beside its promise. A notification is a message to a person; a webhook to a system is an outbound integration event. Suppression lives on the notification in \u0060suppressedWhen\u0060, and suppression scenarios show the message sending nothing. A use case that needs consent names the same rule in its \u0060consentRule\u0060.",
       "example": ""
     },
     {
@@ -7654,15 +7654,15 @@
       "anchor": "give-each-entry-point-a-kind",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an entry point without \u0060kind\u0060 or \u0060auth\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an entry point without \u0060kind\u0060 or \u0060authentication\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:entry-point",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each entry point MUST declare its kind and its \u0060auth\u0060.",
-      "rationale": "An entry point with no kind is entered any way: a webhook is called as a page, and a device as a browser. Declaring the kind, one of \u0060browser\u0060, \u0060api\u0060, \u0060webhook\u0060, \u0060device\u0060, \u0060cli\u0060, or \u0060mcp\u0060, together with its auth, states how callers arrive and how they prove themselves.",
+      "statement": "Each entry point MUST declare its kind and its \u0060authentication\u0060.",
+      "rationale": "An entry point with no kind is entered any way: a webhook is called as a page, and a device as a browser. Declaring the kind, one of \u0060browser\u0060, \u0060api\u0060, \u0060webhook\u0060, \u0060device\u0060, \u0060cli\u0060, or \u0060mcp\u0060, together with its \u0060authentication\u0060, states how callers arrive and how they prove themselves.",
       "example": ""
     },
     {
@@ -7702,22 +7702,22 @@
       "example": "Claimwick\u0027s web route \u0060/expenses\u0060 carries \u0060implements: \u0022screen/claimwick-app.expense-list\u0022\u0060, and the screen record at \u0060behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml\u0060 offers \u0060use-case/spending.list-expenses\u0060."
     },
     {
-      "id": "litespec/core/edges#give-every-screen-an-address-or-a-host",
-      "heading": "Give Every Screen an Address or a Host",
+      "id": "litespec/core/edges#give-every-screen-a-route-or-a-host",
+      "heading": "Give Every Screen a Route or a Host",
       "page": "docs/core/edges.md",
-      "anchor": "give-every-screen-an-address-or-a-host",
+      "anchor": "give-every-screen-a-route-or-a-host",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a screen without exactly one of \u0060address\u0060 and \u0060host\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a screen without exactly one of \u0060route\u0060 and \u0060host\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:screen",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each screen MUST carry exactly one of \u0060address\u0060 and \u0060host\u0060.",
-      "rationale": "A route screen without an address is unreachable, and an overlay with one is two pages fighting over a route. An address places a screen on its route, while a host places an overlay on the screen it opens on. Exactly one of the two places every page once.",
-      "example": "The Claimwick expense list carries the address \u0060/expenses\u0060, and its confirm overlay names the expense list in \u0060host\u0060 instead."
+      "statement": "Each screen MUST carry exactly one of \u0060route\u0060 and \u0060host\u0060.",
+      "rationale": "A route screen without a route is unreachable, and an overlay with one is two pages fighting over a route. A route places a screen on its route, while a host places an overlay on the screen it opens on. Exactly one of the two places every page once.",
+      "example": "The Claimwick expense list carries the route \u0060/expenses\u0060, and its confirm overlay names the expense list in \u0060host\u0060 instead."
     },
     {
       "id": "litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve",
@@ -7806,7 +7806,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each inbound integration event MUST name how it arrives in \u0060arrivesThrough\u0060.",
-      "rationale": "An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, with its own trust decision. Naming the arrival gives each inbound fact one entry point with one auth, where trust and correlation hold. That is either the \u0060webhook\u0060 entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).",
+      "rationale": "An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, with its own trust decision. Naming the arrival gives each inbound fact one entry point with one authentication, where trust and correlation hold. That is either the \u0060webhook\u0060 entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).",
       "example": "Claimwick\u0027s receipt-scan-available event names the scanning provider webhook entry point in \u0060arrivesThrough\u0060, and the payout-settled event names the payout bank stream the spending module subscribes to."
     },
     {
@@ -7913,7 +7913,7 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Every parameter a notification declares in \u0060params\u0060 MUST appear as a placeholder in at least one of its template\u0027s texts.",
+      "statement": "Every parameter a notification declares in \u0060parameters\u0060 MUST appear as a placeholder in at least one of its template\u0027s texts.",
       "rationale": "A declared parameter is part of the message\u0027s promise: the order number in a confirmation, or the name in a reminder. A parameter the template never uses is a promise the message does not keep, and it usually means someone rewrote the template without updating the record.",
       "example": "Claimwick\u0027s \u0060notification/spending.receipt-reminder\u0060 declares the parameter \u0060submitterName\u0060, and the \u0060receipt-reminder-manager\u0060 template renders it as \u0060{{SubmitterName}}\u0060."
     },
@@ -7942,15 +7942,15 @@
       "anchor": "admit-only-outside-pains-as-problems",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060problem-sufferer-invalid\u0060 for a problem whose primary sufferer is no person or organization outside the team; \u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a problem record file missing \u0060affects\u0060, \u0060summary\u0060 or \u0060statement\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060problem-sufferer-invalid\u0060 for a problem whose primary sufferer is no person or organization outside the team; \u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a problem record file missing \u0060affects\u0060, \u0060summary\u0060 or \u0060statement\u0060; \u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a problem record file missing \u0060failureCases\u0060, \u0060workaround\u0060, \u0060cost\u0060, or \u0060resolutionCriteria\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:problem",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A problem MUST name in \u0060affects\u0060 a primary sufferer that is a person or organization actor outside the team building the product, state the pain in \u0060summary\u0060 and \u0060statement\u0060 in fields, and carry graded evidence.",
-      "rationale": "A problem is a pain someone outside the team has today. The first \u0060affects\u0060 entry is the primary sufferer, so who has the pain is the first fact a reader meets. The \u0060statement\u0060 names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the \u0060summary\u0060 states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. The graded evidence shows the pain is real, as [Grade Problem Evidence by Kind](#grade-problem-evidence-by-kind) states. Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.",
+      "statement": "A problem MUST name in \u0060affects\u0060 a primary sufferer that is a person or organization actor outside the team building the product, state the pain in \u0060summary\u0060 and \u0060statement\u0060 in fields, carry graded evidence, state its failure cases in \u0060failureCases\u0060, its workaround in \u0060workaround\u0060, its cost in \u0060cost\u0060, and its resolution criteria in \u0060resolutionCriteria\u0060.",
+      "rationale": "A problem is a pain someone outside the team has today. The first \u0060affects\u0060 entry is the primary sufferer, so who has the pain is the first fact a reader meets. The \u0060statement\u0060 names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the \u0060summary\u0060 states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. The graded evidence shows the pain is real, as [Grade Problem Evidence by Kind](#grade-problem-evidence-by-kind) states. The \u0060failureCases\u0060 state each failure that can happen on its own as its own sentence, with what is missing or wrong, how the sufferer finds it, and what follows when they do not. The \u0060workaround\u0060 states what the sufferer does instead today, with the burden that work carries. The \u0060cost\u0060 states what the pain costs the sufferer, with time, money, and risk kept apart. The \u0060resolutionCriteria\u0060 state one observable outcome per failure case, with no solution named. The explanation file restates each of these fields in its fixed sections. Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.",
       "example": "In the library product, readers losing track of due dates is a problem whose primary sufferer is the reader. The library having too few staff for the summer is an internal limit, not a problem."
     },
     {
@@ -7967,8 +7967,8 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A constraint MUST state its \u0060authority\u0060, \u0060summary\u0060, \u0060sources\u0060, \u0060kind\u0060, \u0060applies\u0060, and \u0060appliesBecause\u0060 in fields, and What It Requires is generated from the requirements that cite it.",
-      "rationale": "An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. The \u0060kind\u0060 is technical, organizational, convention, or legal. The \u0060authority\u0060 names the body issuing the rule in a few words, and the \u0060summary\u0060 states the rule with its condition and whom it binds, in the form \u0022the authority requires the subject to act when the condition holds\u0022. Each source in \u0060sources\u0060 carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, the shape research uses, so each rule cites its source by key. A rule that stops binding is set \u0060applies: false\u0060 with its reason in \u0060appliesBecause\u0060; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. A constraint can state \u0060effectiveFrom\u0060, the date its rule starts to bind, and can name in \u0060basedOn\u0060 the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in \u0060basedOn\u0060. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
+      "statement": "A constraint MUST state its \u0060authority\u0060, \u0060summary\u0060, \u0060sources\u0060, \u0060kind\u0060, \u0060applies\u0060, \u0060appliesBecause\u0060, \u0060scope\u0060, \u0060obligations\u0060, and \u0060productEffect\u0060 in fields, and What It Requires is generated from the requirements that cite it.",
+      "rationale": "An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. The \u0060kind\u0060 is technical, organizational, convention, or legal. The \u0060authority\u0060 names the body issuing the rule in a few words, and the \u0060summary\u0060 states the rule with its condition and whom it binds, in the form \u0022the authority requires the subject to act when the condition holds\u0022. Each source in \u0060sources\u0060 carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, the shape research uses, so each rule cites its source by key. A rule that stops binding is set \u0060applies: false\u0060 with its reason in \u0060appliesBecause\u0060; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. The \u0060scope\u0060 states which subjects, transactions, and periods the rule covers. The \u0060obligations\u0060 state each outside rule as one sourced statement with the keys of the sources that support it. The \u0060productEffect\u0060 states what the rule changes in the product, naming each requirement that holds it. The \u0060openPoints\u0060 hold optional questions about application. The explanation file restates each of these fields in its fixed sections. A constraint can state \u0060effectiveFrom\u0060, the date its rule starts to bind, and can name in \u0060basedOn\u0060 the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in \u0060basedOn\u0060. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
       "example": ""
     },
     {
@@ -8014,15 +8014,15 @@
       "anchor": "cite-a-source-for-each-constraint-rule",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060source-link-bare\u0060 for a bare URL, \u0060reference-unknown\u0060 for a key the constraint does not declare, and \u0060source-unused\u0060 for a source no rule cites, on the constraint\u0027s explanation; it reports \u0060source-links-missing\u0060 and \u0060source-links-drift\u0060 for the generated region.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060constraint-obligation-source-unknown\u0060 for an \u0060obligations\u0060 item naming a key the constraint\u0027s \u0060sources\u0060 list does not hold; \u0060litespec model check\u0060 reports \u0060source-link-bare\u0060 for a bare URL, \u0060reference-unknown\u0060 for a key the constraint does not declare, and \u0060source-unused\u0060 for a source no obligation cites, on the constraint\u0027s explanation; it reports \u0060source-links-missing\u0060 and \u0060source-links-drift\u0060 for the generated region.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:constraint",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each rule in a constraint\u0027s Rules section MUST cite one of the constraint\u0027s \u0060sources\u0060 by key with a reference link \u0060[text][key]\u0060, and the explanation holds the generated source-links region that writes each source\u0027s link definition.",
-      "rationale": "A reader checking a rule needs the source beside it, and a rule with two sources needs to show which one holds it. A law stating the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides. \u0060model render\u0060 writes each source\u0027s link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
+      "statement": "Each item of a constraint\u0027s \u0060obligations\u0060 MUST name in its \u0060sources\u0060 one key of the constraint\u0027s \u0060sources\u0060, and the explanation holds the generated source-links region that writes each source\u0027s link definition.",
+      "rationale": "A reader checking an obligation needs the source beside it, and an obligation with two sources needs to show which one holds it. A law stating the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides. \u0060model render\u0060 writes each source\u0027s link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
       "example": ""
     },
     {
@@ -8112,7 +8112,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A problem explanation file MUST carry Affected Users, Failure Cases, Current Workaround, Cost, Evidence, and Resolution Criteria, in that order, with an optional Example after Failure Cases.",
-      "rationale": "The fields state who suffers and the pain in one sentence; the explanation carries everything else: the circumstances, each failure, one concrete case where the failures are hard to follow, the workaround in use, the cost, the evidence behind each claim, and the outcomes that would end each failure. A fixed order means a reader who learned one problem page finds each part on every problem page. A problem page is complete when a reader arriving cold can understand the problem, judge its evidence, and propose a different solution without asking its author. Settled by [decision/0044-state-problems-by-failure-case](../intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md), which gives each problem its failure cases and one resolution criterion for each.",
+      "rationale": "The fields state who suffers, the pain, each failure, the workaround, the cost, and the outcomes that would end each failure; the explanation restates them in fixed sections and adds the circumstances, one concrete case where the failures are hard to follow, and the evidence behind each claim. A fixed order means a reader who learned one problem page finds each part on every problem page. A problem page is complete when a reader arriving cold can understand the problem, judge its evidence, and propose a different solution without asking its author. Settled by [decision/0044-state-problems-by-failure-case](../intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md), which gives each problem its failure cases and one resolution criterion for each.",
       "example": "The library problem on due dates lists its two failure cases, shows one reader at the desk with three overdue copies in Example, and closes with Resolution Criteria: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date."
     },
     {
@@ -8158,15 +8158,15 @@
       "anchor": "keep-actors-to-people-and-organizations",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an actor record file with a kind outside person and organization, or with no \u0060belongsToTeam\u0060; \u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for such a kind.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an actor record file with a kind outside person and organization, or with no \u0060belongsToTeam\u0060, \u0060responsibilities\u0060, or \u0060knowledge\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:actor",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "An actor MUST carry a \u0060kind\u0060 of person or organization and state in \u0060belongsToTeam\u0060 whether it belongs to the team building and running the product.",
-      "rationale": "An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport, or a renderer is never an actor. Only a person or an organization can hold a role, suffer a problem, and take a flow. \u0060belongsToTeam\u0060 reads as a predicate about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
+      "statement": "An actor MUST carry a \u0060kind\u0060 of person or organization, state in \u0060belongsToTeam\u0060 whether it belongs to the team building and running the product, state its responsibilities in \u0060responsibilities\u0060, and state what the product assumes it knows in \u0060knowledge\u0060.",
+      "rationale": "An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport, or a renderer is never an actor. Only a person or an organization can hold a role, suffer a problem, and take a flow. \u0060belongsToTeam\u0060 reads as a predicate about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. The \u0060responsibilities\u0060 state the acts the product holds the actor to. The \u0060knowledge\u0060 states the product\u0027s assumption about what the actor knows. The explanation file restates both fields in its Responsibilities and Knowledge sections. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "The library reader is an actor of kind person with \u0060belongsToTeam\u0060 false. The text gateway is an external system, not an actor."
     },
     {
@@ -8256,7 +8256,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A flow MUST lead one actor toward the record it exists for through ordered steps, naming exactly one reason, one goal in \u0060serves\u0060 or one problem or constraint in \u0060answers\u0060, and stating each path off that order in \u0060branches\u0060.",
-      "rationale": "A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in \u0060cites\u0060 the requirements it carries, and the use cases, reactions, and jobs serving each step point up with \u0060serves\u0060. \u0060branches\u0060 holds the paths leaving the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).",
+      "rationale": "A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in \u0060carries\u0060 the requirements it carries, and the use cases, reactions, and jobs serving each step point up with \u0060serves\u0060. \u0060branches\u0060 holds the paths leaving the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).",
       "example": "Claimwick held a 21-step flow with five actors, from filing an expense to closing the month. Split by reason, it is four flows: file an expense; approve an expense; reimburse the employee; close the month."
     },
     {
@@ -8302,14 +8302,14 @@
       "anchor": "name-no-solution-in-a-problem-statement-or-its-resolution-criteria",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any problem \u0060statement\u0060 or Resolution Criteria outcome name a product, feature, solution, or implementation, and does every failure case have a resolution criterion stating an observable outcome for the sufferer? Look at the problem statements beside their sufferers and at Failure Cases beside Resolution Criteria in each problem explanation file.",
+      "evidence": "Does any problem \u0060statement\u0060 or \u0060resolutionCriteria\u0060 outcome name a product, feature, solution, or implementation, and does every failure case have a resolution criterion stating an observable outcome for the sufferer? Look at the problem statements beside their sufferers and at \u0060failureCases\u0060 beside \u0060resolutionCriteria\u0060 in each problem record and its explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:problem",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A problem MUST name no product, feature, solution, or implementation in its \u0060statement\u0060 or its Resolution Criteria, and resolve each failure case with an observable outcome for the sufferer.",
+      "statement": "A problem MUST name no product, feature, solution, or implementation in its \u0060statement\u0060 or its \u0060resolutionCriteria\u0060, and resolve each failure case with an observable outcome for the sufferer.",
       "rationale": "A statement naming a solution files a missing feature as a pain: the reader accepts the answer before weighing the pain, and every alternative answer reads as off-topic. A statement naming the sufferer, the condition, and the consequence leaves the answer to the feature that solves it. Criteria covering one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature delivering the outcome names the problem in \u0060solves\u0060, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.",
       "example": "\u0022Readers lose track of due dates\u0022 names a pain. \u0022Readers need a reminder dashboard\u0022 names a solution and is reported. The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks."
     },
@@ -8446,15 +8446,15 @@
       "anchor": "record-research-with-its-question-conclusion-and-sources",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a research record file without \u0060question\u0060, \u0060conclusion\u0060, or \u0060sources\u0060; \u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a research record without Findings in its explanation file, \u0060source-link-bare\u0060 for a bare URL, \u0060reference-unknown\u0060 for an unknown key, and \u0060source-unused\u0060 for an unused source.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a research record file without \u0060question\u0060, \u0060conclusion\u0060, \u0060findings\u0060, or \u0060sources\u0060; \u0060litespec model check\u0060 reports \u0060source-link-bare\u0060 for a bare URL, \u0060reference-unknown\u0060 for an unknown key, and \u0060source-unused\u0060 for an unused source.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:research",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A research record MUST state its \u0060question\u0060, state its \u0060conclusion\u0060 in one sentence, list each source with its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, and carry Findings in its explanation file.",
-      "rationale": "A fact without its source cannot be rechecked when a decision depends on it. \u0060readOn\u0060 says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect: the date a rule starts, or the period it covers, is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory. The \u0060conclusion\u0060 states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, and \u0060publishedOn\u0060 where the source states its publication date. The explanation cites a source with a reference link \u0060[text][key]\u0060; a bare URL, an unknown key, or an unused source is a finding. Findings states each claim with its source, as \u0060litespec/core/intent#state-each-research-finding-with-its-source\u0060 requires. Open Questions holds what the sources do not establish, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).",
+      "statement": "A research record MUST state its \u0060question\u0060, state its \u0060conclusion\u0060 in one sentence, list each source with its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, and state its \u0060findings\u0060 in fields.",
+      "rationale": "A fact without its source cannot be rechecked when a decision depends on it. \u0060readOn\u0060 says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect: the date a rule starts, or the period it covers, is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory. The \u0060conclusion\u0060 states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, an optional \u0060note\u0060 holding what a later reader needs about that source, and \u0060publishedOn\u0060 where the source states its publication date. The \u0060findings\u0060 state each claim with its sources, as \u0060litespec/core/intent#state-each-research-finding-with-its-source\u0060 requires. The \u0060openQuestions\u0060 hold what the sources do not establish. The explanation file restates each of these fields in its fixed sections, citing a source with a reference link \u0060[text][key]\u0060; a bare URL, an unknown key, or an unused source is a finding. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).",
       "example": ""
     },
     {
@@ -8472,7 +8472,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A functional or policy requirement MUST be fulfilled only from Behavior records.",
-      "rationale": "Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, entry point, and screen. An entry point fulfills through a served content entry in its \u0060servedContent\u0060 list, and a screen fulfills a requirement about the interface, such as what a chart shows. A flow names the requirements it shows in its steps\u0027 \u0060cites\u0060, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in \u0060basedOn\u0060, by its \u0060check\u0060, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.",
+      "rationale": "Only Behavior keeps functional and policy promises. The records that fulfill are rule, use case, reaction, job, notification, setting, entry point, and screen. An entry point fulfills through a served content entry in its \u0060servedContent\u0060 list, and a screen fulfills a requirement about the interface, such as what a chart shows. A flow names the requirements it shows in its steps\u0027 \u0060carries\u0060, but it never fulfills: a flow alone never clears an unfulfilled requirement. A quality requirement is fulfilled by a Behavior record, by a technical decision naming it in \u0060basedOn\u0060, by its \u0060check\u0060, or by a test proving it. Behavior points up to the promises it keeps, and each promise traces down to the behavior keeping it.",
       "example": ""
     },
     {
@@ -8518,15 +8518,15 @@
       "anchor": "state-each-constraint-rule-with-its-condition",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any constraint rule drop its condition, state a product effect, or state an unverified fact as settled? Look at each paragraph of the Rules section beside its source.",
+      "evidence": "Does any \u0060obligations\u0060 item drop its condition, state a product effect, or state an unverified fact as settled? Look at each \u0060obligations\u0060 item beside its source and the Rules section of the explanation.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:constraint",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each rule in a constraint\u0027s Rules section MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.",
-      "rationale": "A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. A paragraph stating what the product does about the obligation mixes two authors in one rule, so the product\u0027s response stays in Effect on the Product, which holds free prose about the effect. The book shows the requirements citing the constraint from their \u0060cites\u0060 links. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record\u0027s Open Questions. Scope says whom the rule covers; it is separate from \u0060applies\u0060, which says whether the rule binds the product at all. A constraint holds rules sharing one source, scope, and change, so rules changing separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
+      "statement": "Each item of a constraint\u0027s \u0060obligations\u0060 MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.",
+      "rationale": "A rule dropping its condition binds more or less than its source says, and the team builds against the wrong reach. An item stating what the product does about the obligation mixes two authors in one rule, so the product\u0027s response stays in \u0060productEffect\u0060, which the explanation\u0027s Effect on the Product section restates. The book shows the requirements citing the constraint from their \u0060cites\u0060 links. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the \u0060openQuestions\u0060 of the research record. Scope says whom the rule covers; it is separate from \u0060applies\u0060, which says whether the rule binds the product at all. A constraint holds rules sharing one source, scope, and change, so rules changing separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
       "example": ""
     },
     {
@@ -8536,15 +8536,15 @@
       "anchor": "state-each-decision-with-context-and-choice",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a decision record file missing a required field; \u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a decision without Context or Decision in its explanation file.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a decision record file missing a required field; \u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a decision without Decision in its explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:decision",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A decision MUST state its \u0060choice\u0060 and \u0060consequences\u0060 in fields and carry Context and Decision in its explanation file.",
-      "rationale": "A decision read cold needs its situation, its options, and its outcome in the same places every time. Context states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option; the \u0060choice\u0060 field names it, and \u0060consequences\u0060 states what follows. Evidence holds the supporting material with its confidence where the choice rests on it. The \u0060reopenedWhen\u0060 condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The \u0060basedOn\u0060 link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in \u0060decides\u0060.",
+      "statement": "A decision MUST state its \u0060context\u0060, \u0060choice\u0060, and \u0060consequences\u0060 in fields and carry Decision in its explanation file.",
+      "rationale": "A decision read cold needs its situation, its options, and its outcome in the same places every time. The \u0060context\u0060 states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option in the explanation; the \u0060choice\u0060 field names it, and \u0060consequences\u0060 states what follows. The explanation file restates \u0060context\u0060 in its Context section. Evidence holds the supporting material with its confidence where the choice rests on it. The \u0060reopenedWhen\u0060 condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The \u0060basedOn\u0060 link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in \u0060decides\u0060.",
       "example": ""
     },
     {
@@ -8590,15 +8590,15 @@
       "anchor": "state-each-failure-case-on-its-own",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every failure case stand on its own, with how the sufferer finds it and what follows when they miss it? Look at the Failure Cases section of each problem explanation file.",
+      "evidence": "Does every failure case stand on its own, with how the sufferer finds it and what follows when they miss it? Look at each \u0060failureCases\u0060 item of each problem record beside the Failure Cases section of its explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:problem",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A problem explanation file MUST list under Failure Cases each failure that can happen independently as its own entry, naming what is missing or wrong, how the sufferer finds it, and what follows when they do not.",
-      "rationale": "Two failures joined in one sentence read as one, and the reader cannot see that each needs its own check and its own resolution. Direction matters: when two records should agree, an entry missing from the first and an entry missing from the second are found by different checks, so a solution running only one check leaves the other failure in place. Naming how the sufferer finds each failure, and what follows when they miss it, shows what the failure costs and what a solution has to catch.",
+      "statement": "Each item of a problem\u0027s \u0060failureCases\u0060 MUST state one failure that can happen independently on its own, naming what is missing or wrong, how the sufferer finds it, and what follows when they do not.",
+      "rationale": "Two failures joined in one sentence read as one, and the reader cannot see that each needs its own check and its own resolution. Direction matters: when two records should agree, an entry missing from the first and an entry missing from the second are found by different checks, so a solution running only one check leaves the other failure in place. Naming how the sufferer finds each failure, and what follows when they miss it, shows what the failure costs and what a solution has to catch. The explanation file\u0027s Failure Cases section restates each \u0060failureCases\u0060 item for a person.",
       "example": "The library problem of readers losing due dates lists two failure cases. A loan missing from the reader\u0027s paper list goes overdue unnoticed, and the reader learns of it from the late fee. A renewed loan keeps its old date on the list, so the reader returns the copy early and loses the renewal."
     },
     {
@@ -8608,15 +8608,15 @@
       "anchor": "state-each-feature-with-its-offering",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every feature state its offering and name the goals it moves? Look at each feature record beside its goals.",
+      "evidence": "Does every feature state its offering, its success criteria, what it leaves out, and the goals it moves? Look at each feature record beside its goals.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:feature",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A feature MUST state its \u0060offering\u0060 and name the goals it moves in \u0060advances\u0060.",
-      "rationale": "A feature without a written scope grows with every reading: each builder fills the gap with behavior nobody asked for. The \u0060offering\u0060 states what is in and what is out, where the links are. The \u0060solves\u0060 list ties the offer to the pains it answers, and \u0060advances\u0060 ties it to the goals it moves, so each offer traces to a pain beside an outcome. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).",
+      "statement": "A feature MUST state its \u0060offering\u0060, its success criteria in \u0060successCriteria\u0060, what it leaves out in \u0060excludes\u0060, and name the goals it moves in \u0060advances\u0060.",
+      "rationale": "A feature without a written scope grows with every reading: each builder fills the gap with behavior nobody asked for. The \u0060offering\u0060 states what is in and what is out, where the links are. The \u0060successCriteria\u0060 state only outcomes the feature brings about on its own and a tester can check. The \u0060excludes\u0060 state what the feature leaves to other features, which features it depends on, and each open question its owner has not decided. The explanation file restates both fields in its Success Criteria and Boundaries sections. The \u0060solves\u0060 list ties the offer to the pains it answers, and \u0060advances\u0060 ties it to the goals it moves, so each offer traces to a pain beside an outcome. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).",
       "example": ""
     },
     {
@@ -8626,16 +8626,16 @@
       "anchor": "state-each-flow-blocker-as-a-step-failure",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every condition stopping the flow sit as the \u0060failure\u0060 of the step it blocks, stating what the person sees and can do next, with the requirement holding the rule cited in the step\u0027s \u0060cites\u0060? Read each branch and each Example sentence naming a refusal or a wait.",
+      "evidence": "Does every condition stopping the flow sit as the \u0060failure\u0060 of the step it blocks, stating what the person sees and can do next, with the requirement holding the rule carried in the step\u0027s \u0060carries\u0060? Read each branch and each Example sentence naming a refusal or a wait.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:flow",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A condition that stops a flow MUST be the \u0060failure\u0060 of the step it blocks, stating what the person sees and can do next with the requirement that holds the rule cited in the step\u0027s \u0060cites\u0060, and never stated only in a branch or in the explanation.",
-      "rationale": "A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The \u0060failure\u0060 of the step keeps each blocker where the step fails, and the step\u0027s \u0060cites\u0060 names the requirement holding the rule, so the rule is not restated in the flow. The \u0060failure\u0060 states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.",
-      "example": "The step submitting an expense carries in \u0060failure\u0060 that the expense cannot be submitted and the employee can attach the receipt and submit again, and cites in its \u0060cites\u0060 the requirement holding the receipt rule."
+      "statement": "A condition that stops a flow MUST be the \u0060failure\u0060 of the step it blocks, stating what the person sees and can do next with the requirement that holds the rule carried in the step\u0027s \u0060carries\u0060, and never stated only in a branch or in the explanation.",
+      "rationale": "A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The \u0060failure\u0060 of the step keeps each blocker where the step fails, and the step\u0027s \u0060carries\u0060 names the requirement holding the rule, so the rule is not restated in the flow. The \u0060failure\u0060 states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.",
+      "example": "The step submitting an expense carries in \u0060failure\u0060 that the expense cannot be submitted and the employee can attach the receipt and submit again, and carries in its \u0060carries\u0060 the requirement holding the receipt rule."
     },
     {
       "id": "litespec/core/intent#state-each-goal-with-its-measure",
@@ -8698,15 +8698,15 @@
       "anchor": "state-each-research-finding-with-its-source",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any finding state an inference as a source statement, drop a condition the source gives, or answer a question other than the record\u0027s \u0060question\u0060? Look at each Findings paragraph beside its source. \u0060litespec model check\u0060 reports \u0060finding-source-missing\u0060 for a Findings paragraph with no source link, so this review covers the wording only.",
+      "evidence": "Does any \u0060findings\u0060 item state an inference as a source statement, drop a condition the source gives, or answer a question other than the record\u0027s \u0060question\u0060? Look at each \u0060findings\u0060 item beside its source. \u0060litespec model check\u0060 reports \u0060research-finding-source-unknown\u0060 for a \u0060findings\u0060 item naming a key the record\u0027s \u0060sources\u0060 list does not hold, and \u0060finding-source-missing\u0060 for a Findings paragraph with no source link, so this review covers the wording only.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:research",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each paragraph under a research record\u0027s Findings MUST state one claim with its conditions, cite its source key with a reference link, and say whether the source states the claim or the writer infers it.",
-      "rationale": "A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per paragraph keeps each source tied to one statement. The record\u0027s question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).",
+      "statement": "Each item of a research record\u0027s \u0060findings\u0060 MUST state one claim with its conditions, name in its \u0060sources\u0060 one key of the record\u0027s \u0060sources\u0060, and say whether the source states the claim or the writer infers it.",
+      "rationale": "A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per item keeps each source tied to one statement. The record\u0027s question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).",
       "example": ""
     },
     {
@@ -8723,8 +8723,8 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST state exactly one product record at \u0060.litespec/product.yaml\u0060, with \u0060boundary\u0060, \u0060addresses\u0060, and \u0060summary\u0060.",
-      "rationale": "One product record gives every reader one answer to what the product is and who it serves. The \u0060summary\u0060 states what the product is, and the \u0060boundary\u0060 and \u0060addresses\u0060 focus every later choice: two product statements let each plan cite the one it prefers. The product lists what it leaves out in \u0060excludes\u0060, in plain sentences. Only an \u0060excludes\u0060 entry sets a requirement aside; the summary is never read as one.",
+      "statement": "A consumer MUST state exactly one product record at \u0060.litespec/product.yaml\u0060, with \u0060boundary\u0060, \u0060users\u0060, and \u0060summary\u0060.",
+      "rationale": "One product record gives every reader one answer to what the product is and who it serves. The \u0060summary\u0060 states what the product is, and the \u0060boundary\u0060 and \u0060users\u0060 focus every later choice: two product statements let each plan cite the one it prefers. The product lists what it leaves out in \u0060excludes\u0060, in plain sentences. Only an \u0060excludes\u0060 entry sets a requirement aside; the summary is never read as one.",
       "example": ""
     },
     {
@@ -8752,14 +8752,14 @@
       "anchor": "state-success-criteria-the-feature-controls",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every success criterion state an outcome the feature brings about on its own, one a tester can check? Look at the Success Criteria section of each feature explanation file.",
+      "evidence": "Does every success criterion state an outcome the feature brings about on its own, one a tester can check? Look at \u0060successCriteria\u0060 and the Success Criteria section of each feature explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:feature",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A feature explanation file MUST state under Success Criteria only outcomes that the feature brings about on its own and a tester can check.",
+      "statement": "A feature MUST state in \u0060successCriteria\u0060 only outcomes that the feature brings about on its own and a tester can check.",
       "rationale": "A criterion the feature cannot guarantee sets a test nobody can pass: importing a bank statement does not make the book balance equal the statement balance, because an entry can be missing or wrong and a later entry moves the balance again. A criterion the feature controls, such as showing both balances for the same date, can be built and checked. An outcome depending on people or on other features belongs to the goal the feature advances.",
       "example": "The library feature for due dates states that a reader sees the due date of every copy they hold, not that no reader pays a late fee, which depends on the reader returning the copy in time."
     },
@@ -8770,14 +8770,14 @@
       "anchor": "state-the-boundaries-of-every-feature",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every feature explanation state what the feature leaves to other features, what it depends on, and its open questions? Look at the Boundaries section of each feature explanation file.",
+      "evidence": "Does every feature state what the feature leaves to other features, what it depends on, and its open questions? Look at \u0060excludes\u0060 and the Boundaries section of each feature explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:feature",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A feature explanation file MUST state under Boundaries what the feature leaves to other features, which features it depends on, and each open question its owner has not decided.",
+      "statement": "A feature MUST state in \u0060excludes\u0060 what it leaves to other features, which features it depends on, and each open question its owner has not decided.",
       "rationale": "A feature answering part of a problem reads as answering all of it unless its edges are written down. Builders then fill the gap with behavior nobody asked for. Naming what the feature leaves to other features, and which features it depends on, keeps each behavior in one feature. An open question written beside the feature reaches the owner as a question instead of reaching the code as a guess. Settled by [decision/0046-write-features-for-builders-and-testers](../intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers.md), which writes each feature for the people who build and test it.",
       "example": "The Claimwick approval feature leaves reminders for late decisions to the approval reminders feature, depends on the receipt threshold decision, and names one open question: whether a manager on leave hands decisions to a deputy."
     },
@@ -8806,15 +8806,15 @@
       "anchor": "state-the-cost-and-workaround-of-every-problem",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every problem state its workaround with its burden, and its cost with time, money, and risk kept apart? Look at Current Workaround and Cost in each problem explanation file.",
+      "evidence": "Does every problem state its workaround with its burden, and its cost with time, money, and risk kept apart? Look at the \u0060workaround\u0060 and \u0060cost\u0060 fields of each problem record beside the Current Workaround and Cost sections of its explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:problem",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A problem MUST state in its explanation file what the sufferer does instead today with the burden that workaround carries, and what the pain costs them, with time, money and risk each in the sufferer\u0027s own units or the word \u0060unknown\u0060.",
-      "rationale": "A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around. Work done by hand is no burden on its own, so the workaround names the burden: the time it takes, what the sufferer repeats or has to remember, and what it still misses. Time, money, and risk stay apart because each is judged in its own units; a total mixing them hides which one matters. Where nobody priced the cost or named the workaround, \u0060unknown\u0060 states the gap honestly.",
+      "statement": "A problem MUST state in \u0060workaround\u0060 what the sufferer does instead today with the burden that workaround carries, and in \u0060cost\u0060 what the pain costs them, with time, money and risk each in the sufferer\u0027s own units or the word \u0060unknown\u0060.",
+      "rationale": "A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around. Work done by hand is no burden on its own, so the workaround names the burden: the time it takes, what the sufferer repeats or has to remember, and what it still misses. Time, money, and risk stay apart because each is judged in its own units; a total mixing them hides which one matters. Where nobody priced the cost or named the workaround, \u0060unknown\u0060 states the gap honestly. The explanation file restates \u0060workaround\u0060 and \u0060cost\u0060 in its Current Workaround and Cost sections.",
       "example": "A reader who loses track of due dates pays late fees, an amount nobody has measured. The reader keeps a paper list of due dates, updates it at every loan and renewal, and cannot check it when the list stays at home."
     },
     {
@@ -8842,15 +8842,15 @@
       "anchor": "state-what-the-product-assumes-each-actor-knows",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does any actor explanation state a user\u0027s knowledge as a fact about every user instead of an assumption of the product? Look at the opening paragraph and the Knowledge section of each actor explanation.",
+      "evidence": "Does any actor \u0060knowledge\u0060 item state a user\u0027s knowledge as a fact about every user instead of an assumption of the product? Look at the \u0060knowledge\u0060 items and the Knowledge section of each actor explanation.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:actor",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "An actor explanation MUST state what the product assumes the actor knows in its Knowledge section, as an assumption of the product, and states no user\u0027s knowledge as a fact about every user.",
-      "rationale": "What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as \u0022has no training in accounting\u0022 written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Written as \u0022Claimwick does not assume the employee knows the expense policy\u0022, it names the product\u0027s assumption and the actor it applies to. Proposed by [decision/0053-actors-by-responsibility-and-knowledge](decision/0053-actors-by-responsibility-and-knowledge).",
+      "statement": "An actor MUST state in \u0060knowledge\u0060 what the product assumes the actor knows, as an assumption of the product, and it states no user\u0027s knowledge as a fact about every user.",
+      "rationale": "What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as \u0022has no training in accounting\u0022 written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Written as \u0022Claimwick does not assume the employee knows the expense policy\u0022, it names the product\u0027s assumption and the actor it applies to. The explanation file restates \u0060knowledge\u0060 in its Knowledge section. Proposed by [decision/0053-actors-by-responsibility-and-knowledge](decision/0053-actors-by-responsibility-and-knowledge).",
       "example": "Claimwick\u0027s employee actor states in its Knowledge section that Claimwick does not assume the employee knows the expense policy."
     },
     {
@@ -8957,7 +8957,7 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each flow step MUST carry its \u0060id\u0060, its product sentence in \u0060statement\u0060 naming one act of its performer and no use case, and in \u0060cites\u0060 each requirement the step carries.",
+      "statement": "Each flow step MUST carry its \u0060id\u0060, its product sentence in \u0060statement\u0060 naming one act of its performer and no use case, and in \u0060carries\u0060 each requirement the step carries.",
       "rationale": "A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence states one act of its performer and may end with the product\u0027s observable response after the act, as in \u0022Finance reimburses the approved expense, and Claimwick pays the amount into the employee\u0027s account\u0022. How the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits, and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). The \u0060id\u0060 (\u0060s1\u0060, \u0060s2\u0060, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with \u0060serves\u0060 to \u0060flow/\u003Cname\u003E#s1\u0060. A step naming its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames. The performer and the failure text are optional: a step names another actor only at a handoff in \u0060actor\u0060, or the external system performing it in \u0060system\u0060 when no person acts, and carries \u0060failure\u0060 where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067.",
       "example": "Step \u0060s4\u0060 states \u0060Finance reimburses the approved expense.\u0060 in \u0060statement\u0060 and names no use case; \u0060use-case/spending.reimburse-expense\u0060 names \u0060flow/submit-and-reimburse#s4\u0060 in \u0060serves\u0060."
     },
@@ -9120,7 +9120,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every record field MUST use the name its word class gives it in the word-class table.",
-      "rationale": "One grammar with no list of exceptions means a reader who learned \u0060cites\u0060 on a flow understands \u0060cites\u0060 on a requirement the same way. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).",
+      "rationale": "One grammar means a reader who learned \u0060serves\u0060 on a flow understands \u0060serves\u0060 on a use case the same way. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).",
       "example": "The Claimwick flow \u0060submit-an-expense\u0060 names its goal in \u0060serves\u0060 and states each step in \u0060statement\u0060."
     },
     {
@@ -9140,6 +9140,24 @@
       "statement": "Every finding code MUST read as \u0060\u003Csubject\u003E-\u003Cproblem\u003E\u0060 with the problem drawn from the problem-word table.",
       "rationale": "A code in subject-problem form tells a reader what the finding is about and what is wrong with it without opening the message. A closed set of problem words, each with one meaning, keeps codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table lists each word with its meaning and an example.",
       "example": "A use case with no scenario takes the code \u0060use-case-scenario-missing\u0060."
+    },
+    {
+      "id": "litespec/core/language#read-each-field-name-in-its-record-type",
+      "heading": "Read Each Field Name in Its Record Type",
+      "page": "docs/core/language.md",
+      "anchor": "read-each-field-name-in-its-record-type",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec-maintain validate\u0060 reports \u0060FIELD_NAME_SHAPE\u0060 for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A field name MUST read naturally in its record type, keep one name for one concept across record types, and hold links to a record type when it names that type, in the singular or the plural.",
+      "rationale": "A reader meets a field inside one record, so its record type gives the name its meaning: a constraint\u0027s \u0060scope\u0060 and a role\u0027s \u0060scope\u0060 each read plainly where they stand. Forcing one meaning per word across every type pushes new fields toward names nobody uses. Two things stay fixed because they mislead across types: one concept keeps one name, so \u0060summary\u0060 and \u0060fulfills\u0060 read the same everywhere, and a name that names a record type, such as \u0060rules\u0060, always holds links to that type. Settled by [decision/0096-read-field-names-in-their-record-type](decision/0096-read-field-names-in-their-record-type).",
+      "example": "A Claimwick screen, the Expense List (\u0060screen/claimwick-app.expense-list\u0060), lists its \u0060states\u0060 (Empty, Loading, Failed), and the expense aggregate (\u0060aggregate/spending.expense\u0060) lists its lifecycle \u0060states\u0060 (Submitted, Approved, Refused, Reimbursed, Erased). Each reads plainly in its record. A Claimwick constraint states its legal rules in \u0060obligations\u0060, because \u0060rules\u0060 holds links to rule records."
     },
     {
       "id": "litespec/core/language#record-the-project-vocabulary-as-data",
@@ -10006,6 +10024,24 @@
       "example": "A Claimwick research record with an empty \u0060sources\u0060 list fails the schema in an editor and the model check alike, and a research record that names source key \u0060benchmark-report\u0060 twice is reported as \u0060record-key-duplicate\u0060."
     },
     {
+      "id": "litespec/core/model#keep-the-whole-specification-in-the-records",
+      "heading": "Keep the Whole Specification in the Records",
+      "page": "docs/core/model.md",
+      "anchor": "keep-the-whole-specification-in-the-records",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-section-unbacked\u0060 for an explanation section whose backing fields are empty on its record. Whether prose adds a fact no field holds is reviewed: does any explanation file state a fact that no field of its record or of a record it cites holds?",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every fact an agent needs to build the product MUST stand in a record field, and no fact MAY stand only in an explanation file.",
+      "rationale": "An agent builds from the records, and a check reads only fields. A fact written only in prose reaches neither: the agent builds without it, and no finding notices when it changes. Keeping every fact in a field makes the YAML a complete specification on its own, and leaves the explanation file free to restate and elaborate it for people. Settled by [decision/0095-keep-the-whole-specification-in-the-records](decision/0095-keep-the-whole-specification-in-the-records).",
+      "example": "Claimwick\u0027s \u0060problem/expenses-wait-weeks\u0060 states its failure cases in \u0060failureCases\u0060 and the condition that ends the problem in \u0060resolutionCriteria\u0060. Its explanation\u0027s Failure Cases section restates those cases and walks through one with the cast."
+    },
+    {
       "id": "litespec/core/model#mark-every-check-with-its-level",
       "heading": "Mark Every Check with Its Level",
       "page": "docs/core/model.md",
@@ -10111,7 +10147,7 @@
       "strength": "required",
       "statement": "Prose in a record field, an explanation file, a document, or the \u0060AGENTS.md\u0060 file at the consumer root MUST name every record by its identifier in backticks and every provision by the published identifier the carried release ships.",
       "rationale": "A name in plain words, such as a decision number without its identifier, cannot be resolved: nothing tells whether the record still exists after a rename or a move. The identifier in backticks is the one form every check reads, so a stale name fails the check at the line that names it instead of sending the reader after a record nobody wrote.",
-      "example": "A waiver exit reads \u0022The gap closes when \u0060decision/0005-render-receipts-as-pdf\u0060 lands.\u0022 rather than \u0022The gap closes when Decision 5 lands.\u0022"
+      "example": "A waiver \u0060exitWhen\u0060 reads \u0022The gap closes when \u0060decision/0005-render-receipts-as-pdf\u0060 lands.\u0022 rather than \u0022The gap closes when Decision 5 lands.\u0022"
     },
     {
       "id": "litespec/core/model#name-the-lowest-record-each-test-proves",
@@ -10183,7 +10219,7 @@
       "strength": "required",
       "statement": "A record MUST nest under another record only when its whole content lies within that record, and otherwise sit at the lowest scope node that holds all of its content and name the record it exists for in a link field.",
       "rationale": "A folder states that everything inside it belongs to the record above it. Content is what a record states and what it changes; its links are its reasons, not its content. A record filed under one of several records its content spans claims a scope it does not hold, and a reader looking for every record of its type must search the folder of every possible parent. The reason a record exists can change while its content stays the same, so a link field keeps that change to one line where a folder would move the record. Settled by [decision/0078-place-each-record-by-its-content](decision/0078-place-each-record-by-its-content).",
-      "example": "In the Claimwick product, \u0060flow/submit-and-reimburse\u0060 cites requirements of both \u0060feature/approval\u0060 and \u0060feature/approval-reminders\u0060, so it sits in \u0060intent/flows/\u0060 under the product and names its goal in \u0060serves\u0060. A reaction answering another module\u0027s integration event sits with the module whose records it changes, and names the event in \u0060triggeredBy\u0060."
+      "example": "In the Claimwick product, \u0060flow/submit-and-reimburse\u0060 carries requirements of both \u0060feature/approval\u0060 and \u0060feature/approval-reminders\u0060, so it sits in \u0060intent/flows/\u0060 under the product and names its goal in \u0060serves\u0060. A reaction answering another module\u0027s integration event sits with the module whose records it changes, and names the event in \u0060triggeredBy\u0060."
     },
     {
       "id": "litespec/core/model#place-child-records-in-typed-folders",
@@ -10255,7 +10291,7 @@
       "strength": "required",
       "statement": "The builder MUST record each screen\u0027s captures from the gallery folders and file-name pattern the project file names, as \u0060captures\u0060 with \u0060path\u0060, \u0060theme\u0060, \u0060width\u0060 and \u0060capturedOn\u0060, and its \u0060captureState\u0060 as \u0060captured\u0060, \u0060route-not-captured\u0060 or \u0060no-route\u0060.",
       "rationale": "A reader judging a screen needs to see it, and a capture named by its route, theme, and width is the copy the built screen makes. The route slug names the file the same way everywhere: the leading slash dropped, segments joined with a hyphen, a parameter reduced to its name, and the root route named \u0060home\u0060. A missing gallery folder captures nothing and fails nothing, so a project with no photography yet still builds its model.",
-      "example": "The Claimwick web gallery holds \u0060expenses--light--1440.png\u0060, so \u0060screen/expenses.list\u0060 at \u0060/expenses\u0060 shows that capture at theme \u0060light\u0060 and width 1440 with \u0060captureState\u0060 \u0060captured\u0060; a screen with no address shows \u0060no-route\u0060."
+      "example": "The Claimwick web gallery holds \u0060expenses--light--1440.png\u0060, so \u0060screen/expenses.list\u0060 at \u0060/expenses\u0060 shows that capture at theme \u0060light\u0060 and width 1440 with \u0060captureState\u0060 \u0060captured\u0060; a screen with no route shows \u0060no-route\u0060."
     },
     {
       "id": "litespec/core/model#record-each-technical-choice-as-a-decision",
@@ -10312,24 +10348,6 @@
       "example": "Claimwick adds \u0060use-case/spending.export-expenses\u0060 with two scenarios and one passing proof: \u0060litespec model check\u0060 reports \u0060use-case-unverified\u0060 for it and exits zero, and \u0060litespec model check --release\u0060 blocks on it."
     },
     {
-      "id": "litespec/core/model#require-an-explanation-file-for-article-types",
-      "heading": "Require an Explanation File for Article Types",
-      "page": "docs/core/model.md",
-      "anchor": "require-an-explanation-file-for-article-types",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for an article type with no explanation file or with a required H2 section missing or its sections out of order.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:research, record:decision",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A research or decision page MUST carry its explanation file with the required H2 sections.",
-      "rationale": "Research and decision records are read as prose: a research\u0027s Findings and a decision\u0027s Decision are what the reader comes for. The required sections keep each article complete: Findings for research, and Context, Options, Decision, Consequences, and Revisit Conditions for decision.",
-      "example": "\u0060research/approval-time-benchmarks\u0060 carries its Findings in \u0060approval-time-benchmarks.md\u0060."
-    },
-    {
       "id": "litespec/core/model#require-explanation-files-on-the-layers-a-project-names",
       "heading": "Require Explanation Files on the Layers a Project Names",
       "page": "docs/core/model.md",
@@ -10344,7 +10362,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A record page on a layer the project lists in \u0060explanations.layers\u0060 MUST carry its explanation file with the required H2 sections.",
-      "rationale": "On a complex product, every record needs explaining for people who did not write it. Listing a layer in \u0060explanations.layers\u0060 makes the explanation a gate instead of a habit.",
+      "rationale": "On a complex product, every record needs explaining for people who did not write it. Listing a layer in \u0060explanations.layers\u0060 makes the explanation a gate instead of a habit. On a layer the project does not list, the explanation file is optional for every record type, including research and decision records.",
       "example": "Claimwick lists \u0060intent\u0060 and \u0060behavior\u0060 in \u0060explanations.layers\u0060, so its problem \u0060problem/expenses-wait-weeks\u0060 carries \u0060expenses-wait-weeks.md\u0060 with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check."
     },
     {
@@ -12410,7 +12428,7 @@
       "anchor": "describe-every-use-case-input-with-origin-and-classification",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a use-case input without name, meaning, or type, without \u0060of\u0060 on an \u0060id\u0060 or \u0060list\u0060 field, without \u0060choices\u0060 on a \u0060choice\u0060 field, or with \u0060of\u0060 or \u0060choices\u0060 on another type.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a use-case input without name, meaning, or type, without \u0060identifies\u0060 on an \u0060id\u0060 or \u0060list\u0060 field, without \u0060choices\u0060 on a \u0060choice\u0060 field, or with \u0060identifies\u0060 or \u0060choices\u0060 on another type.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:use-case",
@@ -12418,8 +12436,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each use-case input MUST declare its name, meaning, type, origin, and classification.",
-      "rationale": "An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type, the origin, and the classification states what arrives, what it is, and how far to trust it. The type comes from \u0060text\u0060, \u0060integer\u0060, \u0060decimal\u0060, \u0060money\u0060, \u0060boolean\u0060, \u0060date\u0060, \u0060date-time\u0060, \u0060duration\u0060, \u0060email\u0060, \u0060choice\u0060, \u0060file\u0060, \u0060list\u0060, and \u0060id\u0060. The origin is \u0060caller\u0060, \u0060claim\u0060, \u0060verified-claim\u0060, or \u0060derived\u0060. An \u0060id\u0060 field names the record it refers to in \u0060of\u0060, a \u0060choice\u0060 field names its allowed values in \u0060choices\u0060, a \u0060file\u0060 field names its media types in \u0060contentTypes\u0060 with its limit in \u0060maxSize\u0060, and a \u0060list\u0060 field names its row shape in \u0060of\u0060. Other types carry no \u0060of\u0060 and no \u0060choices\u0060. A \u0060verified-claim\u0060 input names the entry point or external system that validated it in \u0060verifiedBy\u0060, as [Mark Every Provider-Verified Input](#mark-every-provider-verified-input) states. The \u0060rules\u0060 field names the \u0060rule/\u0060 identifiers bounding the value, and \u0060required\u0060 states whether the caller sends the field. A money field carries an amount with an ISO 4217 currency, as [Record Language](language.md) states. A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time. Settled by [decision/0016-typed-contracts-and-privacy](decision/0016-typed-contracts-and-privacy) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
-      "example": "\u0060\u0060\u0060json\n\u0022input\u0022: [\n  { \u0022name\u0022: \u0022expenseId\u0022, \u0022type\u0022: \u0022id\u0022, \u0022of\u0022: \u0022aggregate/spending.expense\u0022, \u0022origin\u0022: \u0022caller\u0022 },\n  { \u0022name\u0022: \u0022amount\u0022, \u0022type\u0022: \u0022money\u0022, \u0022rules\u0022: [\u0022rule/spending.positive-amount\u0022], \u0022origin\u0022: \u0022caller\u0022 },\n  { \u0022name\u0022: \u0022lines\u0022, \u0022type\u0022: \u0022list\u0022, \u0022of\u0022: { \u0022fields\u0022: [{ \u0022name\u0022: \u0022amount\u0022, \u0022type\u0022: \u0022money\u0022, \u0022required\u0022: true, \u0022meaning\u0022: \u0022The line amount.\u0022 }], \u0022minItems\u0022: 1 }, \u0022origin\u0022: \u0022caller\u0022 }\n]\n\u0060\u0060\u0060"
+      "rationale": "An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type, the origin, and the classification states what arrives, what it is, and how far to trust it. The type comes from \u0060text\u0060, \u0060integer\u0060, \u0060decimal\u0060, \u0060money\u0060, \u0060boolean\u0060, \u0060date\u0060, \u0060date-time\u0060, \u0060duration\u0060, \u0060email\u0060, \u0060choice\u0060, \u0060file\u0060, \u0060list\u0060, and \u0060id\u0060. The origin is \u0060caller\u0060, \u0060claim\u0060, \u0060verified-claim\u0060, or \u0060derived\u0060. An \u0060id\u0060 field names the record it refers to in \u0060identifies\u0060, a \u0060choice\u0060 field names its allowed values in \u0060choices\u0060, a \u0060file\u0060 field names its media types in \u0060contentTypes\u0060 with its limit in \u0060maxSize\u0060, and a \u0060list\u0060 field names its row shape in \u0060identifies\u0060. Other types carry no \u0060identifies\u0060 and no \u0060choices\u0060. A \u0060verified-claim\u0060 input names the entry point or external system that validated it in \u0060verifiedBy\u0060, as [Mark Every Provider-Verified Input](#mark-every-provider-verified-input) states. The \u0060rules\u0060 field names the \u0060rule/\u0060 identifiers bounding the value, and \u0060required\u0060 states whether the caller sends the field. A money field carries an amount with an ISO 4217 currency, as [Record Language](language.md) states. A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time. Settled by [decision/0016-typed-contracts-and-privacy](decision/0016-typed-contracts-and-privacy) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "example": "\u0060\u0060\u0060json\n\u0022input\u0022: [\n  { \u0022name\u0022: \u0022expenseId\u0022, \u0022type\u0022: \u0022id\u0022, \u0022identifies\u0022: \u0022aggregate/spending.expense\u0022, \u0022origin\u0022: \u0022caller\u0022 },\n  { \u0022name\u0022: \u0022amount\u0022, \u0022type\u0022: \u0022money\u0022, \u0022rules\u0022: [\u0022rule/spending.positive-amount\u0022], \u0022origin\u0022: \u0022caller\u0022 },\n  { \u0022name\u0022: \u0022lines\u0022, \u0022type\u0022: \u0022list\u0022, \u0022identifies\u0022: { \u0022fields\u0022: [{ \u0022name\u0022: \u0022amount\u0022, \u0022type\u0022: \u0022money\u0022, \u0022required\u0022: true, \u0022meaning\u0022: \u0022The line amount.\u0022 }], \u0022minItems\u0022: 1 }, \u0022origin\u0022: \u0022caller\u0022 }\n]\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/core/use-cases#end-every-use-case-in-named-results",
@@ -13035,8 +13053,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each use case, actor, role, and external system MUST carry \u0060summary\u0060.",
-      "rationale": "A reader landing cold needs the story before its fields. One paragraph states what the use case is; its steps live under Flow in the explanation file beside a command, where they stay readable without a shape a check must parse. An actor or role \u0060summary\u0060 states in plain sentences who the party is and what the grant is for, which the fields alone do not say, so the grant reads as a decision rather than a row. An external system \u0060summary\u0060 states in plain sentences what the outside system does for the product, which the message lists alone do not say, so the dependency reads as a decision rather than a row.",
-      "example": "The submit-expense summary states that an employee files a work expense for approval. Its Flow section lists validation, storage, and the approver notice in order."
+      "rationale": "A reader landing cold needs the story before its fields. One paragraph states what the use case is; its steps live in \u0060steps\u0060 in order, and the explanation restates them under Flow. An actor or role \u0060summary\u0060 states in plain sentences who the party is and what the grant is for, which the fields alone do not say, so the grant reads as a decision rather than a row. An external system \u0060summary\u0060 states in plain sentences what the outside system does for the product, which the message lists alone do not say, so the dependency reads as a decision rather than a row.",
+      "example": "The submit-expense summary states that an employee files a work expense for approval. Its \u0060steps\u0060 list validation, storage, and the approver notice in order, and its Flow section restates them."
     },
     {
       "id": "litespec/core/use-cases#tie-every-setting-default-to-a-requirement",
@@ -13071,8 +13089,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each output field MUST carry its value type.",
-      "rationale": "An output field without a type returns whatever its author fetched. Readers and screens guess the shape from code. Carrying the value type from the input types on every field of an \u0060include\u0060 group and of a command output states the shape beside the promise, so the builder compares the records with the generated contract. A list of rows takes \u0060type: list\u0060 with its row shape in \u0060of\u0060, as the input types state. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).",
-      "example": "The list-expenses query types its amount field \u0060money\u0060. It types its lines field \u0060list\u0060 with the row shape in \u0060of\u0060."
+      "rationale": "An output field without a type returns whatever its author fetched. Readers and screens guess the shape from code. Carrying the value type from the input types on every field of an \u0060include\u0060 group and of a command output states the shape beside the promise, so the builder compares the records with the generated contract. A list of rows takes \u0060type: list\u0060 with its row shape in \u0060identifies\u0060, as the input types state. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).",
+      "example": "The list-expenses query types its amount field \u0060money\u0060. It types its lines field \u0060list\u0060 with the row shape in \u0060identifies\u0060."
     },
     {
       "id": "litespec/core/use-cases#write-every-scenario-in-given-when-then",
@@ -13143,7 +13161,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every gap waiver MUST name the records whose change closes the gap in \u0060closedBy\u0060.",
-      "rationale": "An \u0060exit\u0060 says how a gap closes in prose, but prose names no record a check can verify. Naming the closing records in \u0060closedBy\u0060 shows the reader what to change, and lets the check report an entry that names no written record. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).",
+      "rationale": "An \u0060exitWhen\u0060 says how a gap closes in prose, but prose names no record a check can verify. Naming the closing records in \u0060closedBy\u0060 shows the reader what to change, and lets the check report an entry that names no written record. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record).",
       "example": "The Claimwick waiver for the unimplemented export names \u0060use-case/spending.export-expenses\u0060 in \u0060closedBy\u0060, so the gap closes when the export use case gains its handler."
     },
     {
@@ -13178,9 +13196,9 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "An accepted gap MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060, and \u0060closedBy\u0060.",
-      "rationale": "Missing work with no date is reported by nothing. A gap waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise: its \u0060covers\u0060 findings stay covered until the date, the \u0060exit\u0060 says how the gap closes, \u0060closedBy\u0060 names the records whose change closes it, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
-      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in \u0060.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\nkind: gap\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\nclosedBy:\n  - use-case/spending.export-expenses\n\u0060\u0060\u0060\n\nUntil 2027-06-01 the \u0060use-case-unimplemented\u0060 finding is covered and the run passes, which satisfies this provision."
+      "statement": "An accepted gap MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exitWhen\u0060, and \u0060closedBy\u0060.",
+      "rationale": "Missing work with no date is reported by nothing. A gap waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise: its \u0060covers\u0060 findings stay covered until the date, the \u0060exitWhen\u0060 says how the gap closes, \u0060closedBy\u0060 names the records whose change closes it, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in \u0060.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\nkind: gap\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexitWhen: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\nclosedBy:\n  - use-case/spending.export-expenses\n\u0060\u0060\u0060\n\nUntil 2027-06-01 the \u0060use-case-unimplemented\u0060 finding is covered and the run passes, which satisfies this provision."
     },
     {
       "id": "litespec/core/waivers#state-the-kind-of-every-waiver",
@@ -13219,21 +13237,39 @@
       "example": "A Claimwick handler comment states why the approval check runs before the payout call. It names no step the code below it already shows, and holds no earlier version of the call."
     },
     {
-      "id": "litespec/core/writing#give-each-explanation-file-its-fixed-sections",
-      "heading": "Give Each Explanation File Its Fixed Sections",
+      "id": "litespec/core/writing#explain-the-same-specification-the-records-state",
+      "heading": "Explain the Same Specification the Records State",
       "page": "docs/core/writing.md",
-      "anchor": "give-each-explanation-file-its-fixed-sections",
+      "anchor": "explain-the-same-specification-the-records-state",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every explanation file use its record type\u0027s fixed sections in order, under its H1 title? Check the explanation files beside the records the change adds against the explanation-section table.",
+      "evidence": "Does any explanation file add a fact its record and the records it cites do not state, or contradict one of their fields? Compare each explanation file with its record.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.",
-      "rationale": "A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem holds its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.",
+      "statement": "Every explanation file MUST state the same specification as its record, restated and elaborated for a person, with no fact that its record and the records it cites lack and no sentence that contradicts one of their fields.",
+      "rationale": "The record is the primary source an agent builds from; the explanation is the same specification written for a person who arrives cold. Restating a field in plain words, with its reason, its context and an example, is what makes the record readable, so repetition is expected. A fact that appears only in the explanation splits the specification in two, and a sentence that contradicts a field leaves the reader unsure which to trust. When they disagree, the record wins and the explanation is corrected. Settled by [decision/0095-keep-the-whole-specification-in-the-records](../intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records.md).",
+      "example": "A Claimwick feature explanation restates the approval reminders\u0027 \u0060offering\u0060, explains why a reminder for expenses waiting past three business days ends the wait that costs employees weeks, and walks through one reminder with the cast. It names no behavior the feature\u0027s requirements do not state."
+    },
+    {
+      "id": "litespec/core/writing#give-each-explanation-file-its-fixed-sections",
+      "heading": "Give Each Explanation File Its Fixed Sections",
+      "page": "docs/core/writing.md",
+      "anchor": "give-each-explanation-file-its-fixed-sections",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a section out of order, or missing while its backing fields hold a value, and \u0060explanation-section-unbacked\u0060 for a section whose backing fields are empty on its record.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each explanation file MUST hold the fixed sections of its record type whose backing fields hold a value, in the order of the section table, each section explaining the fields the table pairs it with.",
+      "rationale": "A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem holds its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Each section is the human version of the fields the table pairs it with, so every page of a type keeps the same reading order. A section whose backing fields are all empty on its record has nothing to explain, so the file leaves it out. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.",
       "example": "The Claimwick problem explanation for waiting expenses holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page."
     },
     {
@@ -13253,24 +13289,6 @@
       "statement": "Every paragraph in an explanation file or document MUST carry one idea, on one line in Markdown, with a list only where the items are truly parallel.",
       "rationale": "A reader hunting for one fact should not have to untangle a paragraph that holds a rule, an exception, and a fallback in one block. One idea per paragraph puts each fact where a scanning reader finds it, and one line per paragraph keeps diffs readable, so a changed sentence shows as one changed line. A list drawn from prose that is not parallel hides the reasoning that connects its items: connected reasoning stays in prose, and only parallel items become a list.",
       "example": "The Claimwick decision explanation gives Revisit Conditions its own paragraph. A reader looking for what would reopen the choice finds that paragraph without reading the example above it."
-    },
-    {
-      "id": "litespec/core/writing#interpret-fields-in-explanations-never-restate-them",
-      "heading": "Interpret Fields in Explanations, Never Restate Them",
-      "page": "docs/core/writing.md",
-      "anchor": "interpret-fields-in-explanations-never-restate-them",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Does any explanation file restate a field value instead of interpreting it, or describe behavior its record\u0027s fields and cited records do not state? Check each explanation file against its record\u0027s fields and the records it cites.",
-      "stack": "any",
-      "concern": "workspace",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Every explanation file MUST interpret its record\u0027s fields in plain words, describing only what those fields and the records they cite state, without restating a field value.",
-      "rationale": "An explanation that copies a field value becomes a second copy that drifts with the next edit to the record. Interpretation says what the record means, why it matters, and how it reads beside its neighbors, with context and an example the fields cannot hold. A behavior appearing only in prose is a second commitment no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. A new behavior becomes a record or leaves the prose. Proposed by decision 0070 and [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).",
-      "example": "A Claimwick feature explanation says the approval reminders end the wait that costs employees weeks, instead of copying the feature\u0027s \u0060offering\u0060. A sentence stating a behavior no record holds becomes a record or is removed."
     },
     {
       "id": "litespec/core/writing#keep-each-record-sentence-within-twenty-five-words",
@@ -13397,6 +13415,24 @@
       "statement": "Every name, date and number in an \u0060Example\u0060 section MUST come from the example cast or from a record the explained record cites, each appears only where it shows something about that record, and the \u0060Example\u0060 states no rule of its own.",
       "rationale": "An Example that brings in a figure no record holds shows the reader a number that rests on a rule nobody states, and the reader takes the number for the rule. A fixed cast is shared across every Example, so one name means one person across the documentation. An Example that states a rule would be a second copy of a record\u0027s statement, which drifts. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).",
       "example": "A Claimwick module example uses the 48.90 EUR fare and the 25 EUR receipt threshold, both as the example cast and the policy record state them, and adds no third amount."
+    },
+    {
+      "id": "litespec/core/writing#update-a-record-and-its-explanation-together",
+      "heading": "Update a Record and Its Explanation Together",
+      "page": "docs/core/writing.md",
+      "anchor": "update-a-record-and-its-explanation-together",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does a change that edits a record field leave its explanation file stating the old value or behavior? Compare the changed records with their explanation files.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A change to a record field or to its explanation file MUST change both in the same change, so that the explanation states what the record states.",
+      "rationale": "An explanation repeats its record on purpose, so every copy drifts unless the change that edits one edits the other. Making the update part of the same change keeps the two equal at every commit, which is when people read them. Settled by [decision/0095-keep-the-whole-specification-in-the-records](../intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records.md).",
+      "example": "A Claimwick change that shortens \u0060setting/spending.approval-reminder-delay\u0060 from \u0060PT72H\u0060 to \u0060PT48H\u0060 edits the setting\u0027s \u0060default\u0060 and the sentence in its explanation that says when a manager gets a reminder, in one commit."
     },
     {
       "id": "litespec/core/writing#use-literal-words",
@@ -26949,8 +26985,8 @@
       "layer": "proof",
       "trace": false,
       "strength": "required",
-      "statement": "A browser test that proves a scenario MUST reach a screen that offers the scenario\u0027s use case by a \u0060page.goto\u0060 literal or template matching that screen\u0027s \u0060address\u0060.",
-      "rationale": "A test that only clicks through navigation names no screen where it proved the scenario, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the \u0060page.goto\u0060 target against the screen \u0060address\u0060 templates produces the deterministic reach the reader computes.",
+      "statement": "A browser test that proves a scenario MUST reach a screen that offers the scenario\u0027s use case by a \u0060page.goto\u0060 literal or template matching that screen\u0027s \u0060route\u0060.",
+      "rationale": "A test that only clicks through navigation names no screen where it proved the scenario, so proof becomes a claim instead of exercised behavior. Driving the use case through the page a person uses keeps proof on the exercised path. Matching the \u0060page.goto\u0060 target against the screen \u0060route\u0060 templates produces the deterministic reach the reader computes.",
       "example": "The evidence specification opens \u0060/expenses\u0060, the address of \u0060screen/claimwick-app.expense-list\u0060, which offers \u0060use-case/spending.list-expenses\u0060. That navigation is the reach the check reads."
     },
     {

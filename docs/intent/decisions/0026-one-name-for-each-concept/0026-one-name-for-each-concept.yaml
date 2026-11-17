@@ -1,6 +1,7 @@
 type: decision
 id: decision/0026-one-name-for-each-concept
 title: One Name for Each Concept
+context: "Several words in the standard and the tools name two things: level, rule, implemented, met, and the record identifier. Readers meet each overlap in the book and in tool output."
 options:
   - name: "One name per concept, with duplicates removed and words renamed only where they name another concept"
     pros: "Each word means one thing in every layer, and the names readers already know stay."

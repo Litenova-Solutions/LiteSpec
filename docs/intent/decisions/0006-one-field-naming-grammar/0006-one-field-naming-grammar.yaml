@@ -1,6 +1,7 @@
 type: decision
 id: decision/0006-one-field-naming-grammar
 title: One Field Naming Grammar
+context: "One field name carries two concepts, and one concept carries two names, across the record types. The 5 collisions already produce invalid or misleading data."
 options:
   - name: Rename and state the grammar
     pros: The five collisions already produce invalid or misleading data, and a stated grammar lets the validator check the mechanical half on every run.

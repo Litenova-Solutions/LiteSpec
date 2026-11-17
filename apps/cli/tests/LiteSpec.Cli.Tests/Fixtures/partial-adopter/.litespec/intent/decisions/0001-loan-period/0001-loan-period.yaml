@@ -1,6 +1,7 @@
 type: decision
 id: decision/0001-loan-period
 title: Loan period
+context: Readers asked for a longer loan, and the desk needed one loan period for every copy.
 options:
 - name: 14 days
   pros: Copies turn over fast for holds.

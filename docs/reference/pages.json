@@ -3655,6 +3655,36 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records.md",
+      "path": "intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep the Whole Specification in the Records",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0096-read-field-names-in-their-record-type/0096-read-field-names-in-their-record-type.md",
+      "path": "intent/decisions/0096-read-field-names-in-their-record-type/0096-read-field-names-in-their-record-type",
+      "style": "decision",
+      "area": "intent",
+      "title": "Read Field Names in Their Record Type",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -4314,7 +4344,7 @@
       "style": "command",
       "area": "tools",
       "title": "Context",
-      "intent": "\u0060litespec context\u0060 writes the consumer\u0027s records and explanation files as one compact plain-text file for an AI chat.",
+      "intent": "\u0060litespec context\u0060 writes the consumer\u0027s records as one compact plain-text file for an AI chat.",
       "sections": [
         "Name",
         "Synopsis",

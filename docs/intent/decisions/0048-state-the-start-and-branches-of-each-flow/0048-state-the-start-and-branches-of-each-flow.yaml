@@ -1,6 +1,7 @@
 type: decision
 id: decision/0048-state-the-start-and-branches-of-each-flow
 title: State the Start and Branches of Each Flow
+context: "A flow start sat in a Preconditions section, and its alternate paths sat in a betweenSteps prose field and a Variations section. An action could appear in a branch and never reach a step. A reader could not tell which step a branch left, or where the flow went next."
 options:
   - name: "Add startedWhen and a structured branches list"
     pros: "A check can enforce each branch, and an action hidden in a branch cannot be written, because every action is a step."

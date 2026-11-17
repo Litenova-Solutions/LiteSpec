@@ -1,6 +1,7 @@
 type: decision
 id: decision/0066-name-the-record-a-flow-exists-for
 title: Name the Record a Flow Exists For
+context: "Every flow served exactly one goal. A flow existing for shared needs or legal duty moved no measure, so authors attached such flows to the nearest goal. In one consumer most of six flows served a measure they did not move, and the goal checks carried the same defect."
 options:
   - name: "One reason per flow, in serves for a goal and answers for a problem or constraint"
     pros: "Each flow names its honest reason. Goal completion counts only the flows that move the measure. The trace from a flow to its reason stays accurate."

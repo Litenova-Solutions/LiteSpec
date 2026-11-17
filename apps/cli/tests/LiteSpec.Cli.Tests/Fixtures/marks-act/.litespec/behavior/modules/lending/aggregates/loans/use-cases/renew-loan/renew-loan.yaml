@@ -2,6 +2,9 @@ type: use-case
 id: use-case/lending.renew-loan
 title: Renew loan
 kind: command
+steps:
+  - statement: The reader sends the loan to renew.
+  - statement: Lending renews the loan.
 raises:
   - domain-event/loan.loan-renewed
 writes:

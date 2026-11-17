@@ -5,11 +5,15 @@ records:
     id: entry-point/library-app
     title: Library app
     kind: browser
-    auth:
+    authentication:
       - session
+    audience:
+      - actor/reader
   - type: entry-point
     id: entry-point/library-api
     title: Library API
     kind: api
-    auth:
+    authentication:
       - token
+    audience:
+      - actor/reader

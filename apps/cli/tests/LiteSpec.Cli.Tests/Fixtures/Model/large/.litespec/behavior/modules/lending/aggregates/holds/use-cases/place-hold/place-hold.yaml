@@ -14,6 +14,8 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/hold.hold-placed
+steps:
+- statement: The reader places a hold on the copy.
 idempotency:
   mode: none
   reason: Each call places its own hold, and placing a duplicate hold is refused.

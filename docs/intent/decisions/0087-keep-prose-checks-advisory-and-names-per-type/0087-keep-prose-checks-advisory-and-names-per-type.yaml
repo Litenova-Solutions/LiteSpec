@@ -1,6 +1,7 @@
 type: decision
 id: decision/0087-keep-prose-checks-advisory-and-names-per-type
 title: Keep Prose Checks Advisory and Names per Type
+context: "Prose and naming findings blocked beside contract findings, so a sentence risked stopping a release. Names stayed unique across the product, so actor/owner and role/owner collided though the shared name confused nothing. The writing rules broke their own examples on meaning, titles, active voice, numbers and ASCII."
 options:
   - name: "Prose and naming findings advise; blocking stays on contracts"
     pros: "Identifiers, references, required fields, ownership, and access block, wording never blocks a build, and names share across types without false collisions."

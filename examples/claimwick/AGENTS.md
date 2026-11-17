@@ -1,7 +1,7 @@
 # Claimwick Agent Context
 
 <!-- generated:agent-protocol -->
-When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them.
+When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.
 
 This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
@@ -12,7 +12,7 @@ Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#
 
 Follow one order on every task: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code. (litespec/core/agent#select-task-context, litespec/core/agent#load-applicable-provisions-before-editing, litespec/core/agent#inspect-local-examples-after-standards)
 
-`litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. Find records by text with `litespec model query --search <text>` and list every record of a type with `litespec model query --list <type>`. (litespec/core/agent#select-task-context)
+`litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. Then read the YAML record files themselves, which hold the whole specification, and their explanation files when you need the context they add. Find records by text with `litespec model query --search <text>` and list every record of a type with `litespec model query --list <type>`. (litespec/core/agent#select-task-context, litespec/core/model#keep-the-whole-specification-in-the-records, litespec/core/writing#explain-the-same-specification-the-records-state, litespec/core/writing#update-a-record-and-its-explanation-together)
 
 Run `litespec rules <path>` before editing a file. (litespec/core/agent#load-applicable-provisions-before-editing)
 
@@ -28,7 +28,7 @@ Declare every edge between use cases, reactions, jobs, notifications, module eve
 
 Every finding about a missing, unknown or unused link blocks, and planned Intent blocks in every run; only a live waiver covers one. (litespec/core/model#mark-every-check-with-its-level)
 
-A project waiver record sets a Standard aside only when it names the provision ID, states its kind, and, for a gap, names the expiry date, the exit and the closing records in `closedBy`. (litespec/core/agent#apply-guidance-precedence, litespec/core/waivers#state-the-kind-of-every-waiver, litespec/core/waivers#name-the-records-that-close-a-gap)
+A project waiver record sets a Standard aside only when it names the provision ID, states its kind, and, for a gap, names the expiry date, the `exitWhen` and the closing records in `closedBy`. (litespec/core/agent#apply-guidance-precedence, litespec/core/waivers#state-the-kind-of-every-waiver, litespec/core/waivers#name-the-records-that-close-a-gap)
 
 An explicit project convention in `.litespec/governance/conventions/` can replace a baseline Convention when it cites the Convention's ID. (litespec/core/agent#apply-guidance-precedence)
 

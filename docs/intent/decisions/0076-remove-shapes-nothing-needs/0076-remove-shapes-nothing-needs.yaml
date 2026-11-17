@@ -1,6 +1,7 @@
 type: decision
 id: decision/0076-remove-shapes-nothing-needs
 title: Remove Shapes Nothing Needs
+context: "The review read every value against live records and found modes with no field to fill them and kinds no record used. Examples ranged from a compensated mode with no undo field to prose fields duplicating typed operations and links owned elsewhere."
 options:
   - name: "Remove each shape the review found unused or unheld"
     pros: "No mode stands without a field. No kind stands without a use. No prose stays that a typed shape already holds."

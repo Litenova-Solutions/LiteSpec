@@ -1,6 +1,7 @@
 type: decision
 id: decision/0055-state-each-access-scope-once
 title: State Each Access Scope Once
+context: "Scope appeared three times, on the role, on each hold entry and on each permission, with no rule for when the three disagreed. Each hold scope repeated its role scope, and a scope level was a bare label that said nothing about what it covered."
 options:
   - name: "Keep the scope on the role only"
     pros: "The level is part of what the role is, one field holds the reach, and no hold or permission entry repeats it."

@@ -1,6 +1,7 @@
 type: decision
 id: decision/0045-keep-each-requirement-in-its-own-folder
 title: Keep Each Requirement in Its Own Folder
+context: "A feature file held the feature and every requirement under it, and a requirement had nowhere to explain what its statement leaves out. A change to one requirement rewrote the whole feature file, and a feature with many requirements grew into one long file. A use case already sits in its own folder inside its aggregate folder, and a requirement can follow the same pattern."
 options:
   - name: "Keep each requirement as an entry in its feature's record file"
     pros: "One file shows the offer with all its commitments, and nothing moves."

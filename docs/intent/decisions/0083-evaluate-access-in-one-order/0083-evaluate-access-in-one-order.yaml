@@ -1,6 +1,7 @@
 type: decision
 id: decision/0083-evaluate-access-in-one-order
 title: Evaluate Access in One Order
+context: "No page stated the evaluation order for access, and a role assignment bound a scope level but no instance. Permissions implied others by name, destructive use cases shared permissions with harmless ones, and system and device callers had no stated meaning."
 options:
   - name: "One stated algorithm over explicit permissions"
     pros: "Every access decision follows the same steps, no permission implies another by name, and destructive acts take their own permission with their risk."

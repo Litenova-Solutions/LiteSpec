@@ -7,7 +7,7 @@ covers:
 subject:
   - use-case/lending.retire-copy
 reason: Retirement waits for the weeding policy.
-exit: Retiring a copy has no handler yet. The gap closes when the weeding policy lands.
+exitWhen: Retiring a copy has no handler yet. The gap closes when the weeding policy lands.
 expiresOn: 2027-06-01
 closedBy:
 - use-case/lending.retire-copy

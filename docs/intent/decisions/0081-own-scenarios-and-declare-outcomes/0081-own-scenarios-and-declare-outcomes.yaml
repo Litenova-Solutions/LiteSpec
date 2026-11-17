@@ -1,6 +1,7 @@
 type: decision
 id: decision/0081-own-scenarios-and-declare-outcomes
 title: Own Scenarios and Declare Outcomes
+context: "A scenario's parent was its result, so scenarios of reactions and jobs sat under use-case results they never touched. An automation scenario ended in a run use case's result, so authors invented commands for send-only reactions and jobs. Effects of one reaction shared a run, so one slow effect blocked the rest and a retry reran finished work."
 options:
   - name: "Scenarios live with the behavior they exercise; reactions and jobs declare outcomes and run each effect alone"
     pros: "Every scenario has one parent file, send-only automation ends in a named outcome with no invented command, and effects retry and deduplicate on their own."

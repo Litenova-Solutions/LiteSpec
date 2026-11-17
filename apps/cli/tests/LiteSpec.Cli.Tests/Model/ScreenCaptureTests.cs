@@ -49,7 +49,7 @@ public sealed class ScreenCaptureTests
         var config = ConsumerConfig.Load(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"address": "/loans", "entryPoint": "browser"}"""));
+            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"route": "/loans", "entryPoint": "browser"}"""));
 
         ScreenshotCaptures.Compute(model);
 
@@ -71,7 +71,7 @@ public sealed class ScreenCaptureTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"address": "/loans", "entryPoint": "browser"}"""),
+            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"route": "/loans", "entryPoint": "browser"}"""),
             TestModel.Record("screen", "screen/borrowing.overlay", Path.Combine(temp.Path, "overlay.yaml"), """{"host": "screen/borrowing.list"}"""));
 
         ScreenshotCaptures.Compute(model);

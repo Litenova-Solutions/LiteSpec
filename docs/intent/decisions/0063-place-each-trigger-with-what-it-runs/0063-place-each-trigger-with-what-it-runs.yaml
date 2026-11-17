@@ -1,6 +1,7 @@
 type: decision
 id: decision/0063-place-each-trigger-with-what-it-runs
 title: Place Each Trigger with What It Runs
+context: "A use-case folder held its files flat, while event handlers sat in a fact folder and jobs sat in a module Jobs folder. A handler in a fact folder named the command of a use case in another folder. Those commands and results moved to shared folders, and one large consumer counted about 270 such files and 232 fact folders."
 options:
   - name: "Each use case owns its layer folders, its models and its triggers"
     pros: "A use-case folder shows its endpoint, its message, its handler, and every reaction and job that runs it. No use case names another use case's types."

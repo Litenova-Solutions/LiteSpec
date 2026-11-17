@@ -1,6 +1,7 @@
 type: decision
 id: decision/0022-own-schema-evaluator
 title: Own Schema Evaluator
+context: "The tools validate every schema through JsonSchema.Net 9.6.0, and every release from 9.0.0 on ships under a maintenance fee agreement instead of the MIT license. The last MIT release is 8.0.5, and the free alternatives fit Native AOT poorly or lack maintenance. LiteSpec's 7 schemas use about 25 keywords of draft 2020-12, and LiteSpec already writes every message itself."
 options:
   - name: LiteSpec's own evaluator for the keywords its schemas use
     pros: No package and no fee, Native AOT by design, and LiteSpec writes each message once where it finds the failure.

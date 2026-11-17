@@ -476,6 +476,12 @@ public sealed class OperationsCheckTests
           "offering": "Loan listings answer within 300 milliseconds at p95 during term start.",
           "solves": [
             "problem/slow-desk-loans"
+          ],
+          "successCriteria": [
+            "Readers list loans within 300 milliseconds at p95 during term start."
+          ],
+          "excludes": [
+            "The feature lists loans only, and holds no checkout."
           ]
         }
         """;
@@ -533,6 +539,7 @@ public sealed class OperationsCheckTests
           "choice": "Answer within 300 milliseconds",
           "consequences": "The listing reads from an index.",
           "reopenedWhen": "Term start load changes.",
+          "context": "Term start floods the loan listing.",
           "decides": [
             "requirement/performance.list-loans-latency"
           ]
@@ -584,6 +591,7 @@ public sealed class OperationsCheckTests
           "choice": "Search index",
           "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
+          "context": "Listings read loans one by one today.",
           "basedOn": [
             "requirement/performance.list-loans-latency"
           ]
@@ -605,6 +613,7 @@ public sealed class OperationsCheckTests
           "choice": "Search index",
           "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
+          "context": "Listings read loans one by one today.",
           "basedOn": [
             "requirement/borrowing.max-active-loans"
           ]
@@ -716,7 +725,7 @@ public sealed class OperationsCheckTests
           ],
           "expiresOn": "2027-06-01",
           "reason": "The listing alert ships with the search index.",
-          "exit": "The listing-latency-high alert ships and watches the requirement."
+          "exitWhen": "The listing-latency-high alert ships and watches the requirement."
         }
         """;
 

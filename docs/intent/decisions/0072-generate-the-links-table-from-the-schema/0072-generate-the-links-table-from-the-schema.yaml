@@ -1,6 +1,7 @@
 type: decision
 id: decision/0072-generate-the-links-table-from-the-schema
 title: Generate the Links Table from the Schema
+context: "The Links table was hand-written beside the schema it claimed to state, with missing rows, rows for non-links, and a wrong row. Verbs had diverged across target sets and meanings, and the book invented connection labels no record holds."
 options:
   - name: "Schema annotations generate the Links table and the book labels"
     pros: "One meaning and one reads-as phrase define each link. The docs and the book cannot drift from the schema. A link without phrases fails validate."

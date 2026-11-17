@@ -1,6 +1,7 @@
 type: decision
 id: decision/0056-copy-each-template-from-claimwick
 title: Copy Each Template from Claimwick
+context: "Templates cited records that did not exist, and some links proved nothing about the claims they were cited for. Sample values such as a retention period or retry attempts looked like decisions to an agent that copied them. Each prompt assumed one kind per type, though some kinds have neither a lifecycle nor a schedule."
 options:
   - name: "Copy each template from a Claimwick record, and report unchanged template values"
     pros: "The example stays coherent, and a copied number cannot pass as a decision unnoticed."

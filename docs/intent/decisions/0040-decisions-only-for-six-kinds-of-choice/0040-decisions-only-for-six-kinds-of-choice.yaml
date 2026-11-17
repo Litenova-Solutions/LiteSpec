@@ -1,6 +1,7 @@
 type: decision
 id: decision/0040-decisions-only-for-six-kinds-of-choice
 title: Require Decisions Only for Six Kinds of Choice
+context: "One large consumer has 74 decision records. The review keeps 45 of them and sets aside 29, most restating a provision, describing one class, or folding into another decision. The same consumer keeps 32 conventions outside the conventions folder, so rules returns none of them, and the book lists decisions as one flat list."
 options:
   - name: "Record a technical decision only for a choice of one of six kinds, and carry standing rules as conventions"
     pros: "A reader meets only expensive-to-reverse choices, each with its kind, its followers, and what would reopen it."

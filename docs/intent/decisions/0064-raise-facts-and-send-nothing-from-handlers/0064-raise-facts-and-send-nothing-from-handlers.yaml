@@ -1,6 +1,7 @@
 type: decision
 id: decision/0064-raise-facts-and-send-nothing-from-handlers
 title: Raise Facts and Send Nothing from Handlers
+context: "A use case declared inline runs effects with shared transactions, so one command ran another inside its own transaction. It declared emits effects for the integration events it published, and the handler or a factory built each event from the aggregate. One large consumer held 57 inline edges in 47 records, with nested dispatch needing ambient values, a message cache and reload methods."
 options:
   - name: "Handlers raise facts; reactions run what follows; the pipeline publishes"
     pros: "Every commit belongs to one use case. Every follow-on act is a reaction record with its own failure handling. No user code builds or publishes an integration event."

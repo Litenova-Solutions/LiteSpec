@@ -1,6 +1,7 @@
 type: decision
 id: decision/0060-put-child-records-in-typed-folders
 title: Put Child Records in Typed Folders
+context: "Some parents held child folders directly beside their own files, while others used a folder named for the child type. A second home for use cases existed at module level, and flat modules kept a second layout for the same records. A reader of an untyped folder could not tell a parent's own files from its children without opening each file."
 options:
   - name: "One typed folder per child type inside every parent"
     pros: "A reader sees each kind of child in its own folder, and creation, renaming and the folder checks follow one table."

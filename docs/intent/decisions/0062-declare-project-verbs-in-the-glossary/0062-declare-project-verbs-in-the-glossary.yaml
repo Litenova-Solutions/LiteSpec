@@ -1,6 +1,7 @@
 type: decision
 id: decision/0062-declare-project-verbs-in-the-glossary
 title: Declare Project Verbs in the Glossary
+context: "Project verbs lived in a Markdown convention page no tool reads, so an undeclared verb passed every check. The permission check could not accept project verbs either, so a permission opening with a declared project verb was still reported."
 options:
   - name: "Glossary verb entries"
     pros: "One home for product language, and the model check reads the verbs it declares."

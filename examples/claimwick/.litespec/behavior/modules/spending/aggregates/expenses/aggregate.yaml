@@ -3,141 +3,141 @@ id: aggregate/spending.expense
 title: Expense
 summary: An expense is one work cost an employee submitted.
 states:
-  - name: Submitted
-    meaning: The expense waits for a decision.
-  - name: Approved
-    meaning: A manager approved the expense.
-  - name: Refused
-    meaning: A manager refused the expense.
-  - name: Reimbursed
-    meaning: The reimbursed state of an expense whose payout reached the submitter.
-  - name: Erased
-    meaning: The personal data of the expense was erased after its retention.
+- name: Submitted
+  meaning: The expense waits for a decision.
+- name: Approved
+  meaning: A manager approved the expense.
+- name: Refused
+  meaning: A manager refused the expense.
+- name: Reimbursed
+  meaning: The reimbursed state of an expense whose payout reached the submitter.
+- name: Erased
+  meaning: The personal data of the expense was erased after its retention.
 transitions:
-  - from: "-"
-    to: Submitted
-    movedBy: use-case/spending.submit-expense
-  - from: Submitted
-    to: Approved
-    movedBy: use-case/spending.approve-expense
-  - from: Submitted
-    to: Refused
-    movedBy: use-case/spending.refuse-expense
-  - from: Approved
-    to: Reimbursed
-    movedBy: use-case/spending.reimburse-expense
-  - from: Reimbursed
-    to: Erased
-    after: P7Y
-    movedBy: job/spending.erase-expired-personal-data
+- from: "-"
+  to: Submitted
+  movedBy: use-case/spending.submit-expense
+- from: Submitted
+  to: Approved
+  movedBy: use-case/spending.approve-expense
+- from: Submitted
+  to: Refused
+  movedBy: use-case/spending.refuse-expense
+- from: Approved
+  to: Reimbursed
+  movedBy: use-case/spending.reimburse-expense
+- from: Reimbursed
+  to: Erased
+  after: P7Y
+  movedBy: job/spending.erase-expired-personal-data
 data:
-  - name: employee
-    meaning: The employee who submitted the expense.
-    classification: personal
-    dataClass: submitter-contact
-  - name: amount
-    meaning: The exact amount with its currency.
-    classification: internal
-    dataClass: expense-ledger
-  - name: receipt
-    meaning: The proof of payment, when one is attached.
-    classification: internal
-    dataClass: expense-ledger
-  - name: state
-    meaning: The lifecycle state of the expense.
-    classification: internal
-    dataClass: expense-ledger
+- name: employee
+  meaning: The employee who submitted the expense.
+  classification: personal
+  dataClass: submitter-contact
+- name: amount
+  meaning: The exact amount with its currency.
+  classification: internal
+  dataClass: expense-ledger
+- name: receipt
+  meaning: The proof of payment, when one is attached.
+  classification: internal
+  dataClass: expense-ledger
+- name: state
+  meaning: The lifecycle state of the expense.
+  classification: internal
+  dataClass: expense-ledger
 dataClasses:
-  - name: submitter-contact
-    classification: personal
-    fields:
-      - employee
-    onErasure: pseudonymize
-    basis:
-      - requirement/approval.erased-after-retention
-    period: P7Y
-    periodStartsAt: domain-event/expense.reimbursed
-    enforcedBy:
-      - job/spending.erase-expired-personal-data
-    purpose: Link each expense to the employee who submitted it.
-  - name: expense-ledger
-    classification: internal
-    fields:
-      - amount
-      - receipt
-      - state
-    onErasure: retain
-    basis:
-      - constraint/tax-receipt-retention
-    period: P7Y
-    periodStartsAt: domain-event/expense.reimbursed
-    enforcedBy:
-      - job/spending.erase-expired-personal-data
-    purpose: Keep the tax file defensible.
+- name: submitter-contact
+  classification: personal
+  fields:
+  - employee
+  onErasure: pseudonymize
+  basis:
+  - requirement/approval.erased-after-retention
+  period: P7Y
+  periodStartsAt: domain-event/expense.reimbursed
+  enforcedBy:
+  - job/spending.erase-expired-personal-data
+  purpose: Link each expense to the employee who submitted it.
+- name: expense-ledger
+  classification: internal
+  fields:
+  - amount
+  - receipt
+  - state
+  onErasure: retain
+  basis:
+  - constraint/tax-receipt-retention
+  period: P7Y
+  periodStartsAt: domain-event/expense.reimbursed
+  enforcedBy:
+  - job/spending.erase-expired-personal-data
+  purpose: Keep the tax file defensible.
 records:
-  - type: domain-event
-    id: domain-event/expense.submitted
-    title: Expense Submitted
-    meaning: An expense was submitted.
-    carries:
-      - name: expenseId
-        type: id
-        identifies: aggregate/spending.expense
-      - name: amount
-        type: decimal
-      - name: currency
-        type: text
-      - name: employeeId
-        type: id
-        identifies: actor/employee
-  - type: domain-event
-    id: domain-event/expense.approved
-    title: Expense Approved
-    meaning: An expense was approved.
-    carries:
-      - name: expenseId
-        type: id
-        identifies: aggregate/spending.expense
-      - name: approvedBy
-        type: id
-        identifies: actor/manager
-      - name: decidedAt
-        type: date-time
-  - type: domain-event
-    id: domain-event/expense.refused
-    title: Expense Refused
-    meaning: An expense was refused.
-    carries:
-      - name: expenseId
-        type: id
-        identifies: aggregate/spending.expense
-      - name: refusedBy
-        type: id
-        identifies: actor/manager
-      - name: decidedAt
-        type: date-time
-  - type: domain-event
-    id: domain-event/expense.reimbursed
-    title: Expense Reimbursed
-    meaning: An expense was reimbursed.
-    carries:
-      - name: expenseId
-        type: id
-        identifies: aggregate/spending.expense
-      - name: employeeId
-        type: id
-        identifies: actor/employee
-      - name: amount
-        type: decimal
-      - name: currency
-        type: text
-      - name: reimbursedAt
-        type: date-time
-  - type: domain-event
-    id: domain-event/expense.personal-data-erased
-    title: Expense Personal Data Erased
-    meaning: The personal data of a decided expense was erased.
-    carries:
-      - name: expenseId
-        type: id
-        identifies: aggregate/spending.expense
+- type: domain-event
+  id: domain-event/expense.submitted
+  title: Expense Submitted
+  meaning: An expense was submitted.
+  carries:
+  - name: expenseId
+    type: id
+    identifies: aggregate/spending.expense
+  - name: amount
+    type: decimal
+  - name: currency
+    type: text
+  - name: employeeId
+    type: id
+    identifies: actor/employee
+- type: domain-event
+  id: domain-event/expense.approved
+  title: Expense Approved
+  meaning: An expense was approved.
+  carries:
+  - name: expenseId
+    type: id
+    identifies: aggregate/spending.expense
+  - name: approvedBy
+    type: id
+    identifies: actor/manager
+  - name: decidedAt
+    type: date-time
+- type: domain-event
+  id: domain-event/expense.refused
+  title: Expense Refused
+  meaning: An expense was refused.
+  carries:
+  - name: expenseId
+    type: id
+    identifies: aggregate/spending.expense
+  - name: refusedBy
+    type: id
+    identifies: actor/manager
+  - name: decidedAt
+    type: date-time
+- type: domain-event
+  id: domain-event/expense.reimbursed
+  title: Expense Reimbursed
+  meaning: An expense was reimbursed.
+  carries:
+  - name: expenseId
+    type: id
+    identifies: aggregate/spending.expense
+  - name: employeeId
+    type: id
+    identifies: actor/employee
+  - name: amount
+    type: decimal
+  - name: currency
+    type: text
+  - name: reimbursedAt
+    type: date-time
+- type: domain-event
+  id: domain-event/expense.personal-data-erased
+  title: Expense Personal Data Erased
+  meaning: The personal data of a decided expense was erased.
+  carries:
+  - name: expenseId
+    type: id
+    identifies: aggregate/spending.expense

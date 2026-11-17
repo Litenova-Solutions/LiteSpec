@@ -1,6 +1,7 @@
 type: decision
 id: decision/0077-use-the-standard-term-for-each-concept
 title: Use the Standard Term for Each Concept
+context: "Names collided across the language: view with UI and database views, event beside integration-event, and checks using writes while the field used changes. More fields, codes, and prose words shared names with other concepts or broke the word-class rule."
 options:
   - name: "Rename every name the table lists, and keep the rest"
     pros: "One standard term names each concept across record, folder, code, book, and finding code. The collisions are removed from the language."

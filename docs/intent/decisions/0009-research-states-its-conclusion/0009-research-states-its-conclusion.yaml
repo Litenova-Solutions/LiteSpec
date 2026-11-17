@@ -1,6 +1,7 @@
 type: decision
 id: decision/0009-research-states-its-conclusion
 title: Research States Its Conclusion
+context: "Every research record states its finding in an Answer section. Beyond that section, conclusions sit under invented section names and in index tables that no tool reads."
 options:
   - name: A conclusion field plus dated sources
     pros: One sentence as data renders in the book and gives every citing decision a stable takeaway.

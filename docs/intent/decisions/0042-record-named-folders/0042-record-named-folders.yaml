@@ -1,6 +1,7 @@
 type: decision
 id: decision/0042-record-named-folders
 title: Keep Each Named Record in Its Own Folder
+context: "Each named record sits in a flat file beside every other record of its type, with its explanation file beside it under the same name. Pairing a record with its explanation means matching two names in one shared folder, and a record needing a second file has no folder to join."
 options:
   - name: "Keep one flat file per named record, with its explanation file beside it in the type's folder"
     pros: "Every type's records sit in one list, and a new record needs no folder."

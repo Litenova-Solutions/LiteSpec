@@ -1,6 +1,7 @@
 type: decision
 id: decision/0058-keep-shape-rules-in-the-schema
 title: Keep Shape Rules in the Schema
+context: "The schema and the model check disagreed on local requirements, so an editor accepted records the check rejected, such as a role without allows. The schema used uniqueItems on lists of objects, which compares whole objects, so two entries sharing one key both passed."
 options:
   - name: "Shape rules in the schema, graph rules in the model check, and a parity test"
     pros: "An editor reads the shape rules from the schema, the model check reads the graph, and a test shows that the two agree on every rule both carry."

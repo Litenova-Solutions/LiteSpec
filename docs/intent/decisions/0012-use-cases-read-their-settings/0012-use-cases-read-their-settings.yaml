@@ -1,6 +1,7 @@
 type: decision
 id: decision/0012-use-cases-read-their-settings
 title: Use Cases Read Their Settings
+context: "The setting's `readBy` field reads passively, against the verb grammar. It also repeats on the setting the settings that the use case reads."
 options:
   - name: Name readers on the use case and compute the inverse
     pros: The link lives on the record that points, reads as an active verb, and has one written side with the inverse computed.

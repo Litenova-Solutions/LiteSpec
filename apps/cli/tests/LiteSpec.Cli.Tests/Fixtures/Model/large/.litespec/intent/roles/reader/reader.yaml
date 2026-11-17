@@ -7,3 +7,6 @@ allows:
 - permission/borrow-copy
 - permission/read-loans
 - permission/place-hold
+limits:
+- The reader acts on their own loans and holds only.
+- The reader manages no copy in the catalog.

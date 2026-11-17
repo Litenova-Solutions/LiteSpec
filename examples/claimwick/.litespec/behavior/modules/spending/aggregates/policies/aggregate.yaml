@@ -8,3 +8,7 @@ states:
 transitions:
 - from: "-"
   to: Active
+data:
+- name: threshold
+  meaning: The receipt threshold, an amount in EUR.
+  classification: internal

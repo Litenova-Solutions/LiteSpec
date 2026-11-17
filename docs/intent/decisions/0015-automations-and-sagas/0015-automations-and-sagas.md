@@ -37,7 +37,7 @@ An aggregate carries no kind, a store is its own record type under `litespec/cor
 
 The provision `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` carries the 2 consistency modes. An atomic write across aggregates cites its bound rule. A reaction that undoes a committed step names the step in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states.
 
-The provision `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the entry point. The provision `litespec/core/access#authorize-every-use-case-through-a-declared-grant` keeps the grant on the use case. Four provisions in the automation page carry the reaction trigger, the job kind, and the two name forms.
+The provision `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind` keeps auth on the entry point. The provision `litespec/core/access#authorize-every-use-case-through-a-declared-grant` keeps the grant on the use case. Four provisions in the automation page carry the reaction trigger, the job kind, and the two name forms.
 
 ## Evidence
 

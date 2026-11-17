@@ -1,6 +1,7 @@
 type: decision
 id: decision/0067-cite-requirements-on-each-flow-step
 title: Cite Requirements on Each Flow Step
+context: "A flow cited its requirements as a whole, so nothing recorded which step carried which promise and steps restated requirements instead of pointing at them. In one consumer a sign-in flow restated a code rule in a failure and held two steps off its path only to carry citations."
 options:
   - name: "Each step cites the requirements it carries, and the flow citations are computed"
     pros: "Each promise is cited on the step where it applies. Numbers and limits are stated once in the cited requirement. No flow-level cites disagrees with its steps."

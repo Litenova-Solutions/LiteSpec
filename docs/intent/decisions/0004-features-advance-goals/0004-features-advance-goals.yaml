@@ -1,6 +1,7 @@
 type: decision
 id: decision/0004-features-advance-goals
 title: Features Advance Goals
+context: "A feature links to a goal with the word `serves`. The other records that use `serves` link to flow steps, not to goals. The same word therefore names two different kinds of target."
 options:
   - name: Advances for goals, solves for problems
     pros: One verb per meaning ends the three-target split of serves. Every live feature already solves exactly one problem, and the goal link is the first small step the trace needs.

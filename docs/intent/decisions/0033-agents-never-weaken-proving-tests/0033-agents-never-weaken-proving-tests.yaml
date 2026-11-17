@@ -1,6 +1,7 @@
 type: decision
 id: decision/0033-agents-never-weaken-proving-tests
 title: Agents Never Weaken Proving Tests
+context: "Agents edit tests to make them pass when a test and the specification disagree. A proof that changes with the implementation stops proving the decided behavior and starts restating the code."
 options:
   - name: "Forbid weakening, and report each changed proving test as an advisory finding"
     pros: "An agent that edits a test to pass leaves a finding for the reviewer, and the ledger already holds the hashes."

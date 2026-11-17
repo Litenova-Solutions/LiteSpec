@@ -1,6 +1,7 @@
 type: decision
 id: decision/0021-native-command-line
 title: Native Command Line
+context: "The litespec command line ships as one framework-dependent .NET tool, so every consumer needs the .NET 10 runtime and SDK to run it. A trial Native AOT build wrote the same output bytes and checked the Claimwick example in 1.32 seconds against 2.80 seconds. Each operating system builds its own executable, and the Linux build tied hashing to an OpenSSL release missing from bare images."
 options:
   - name: Native AOT executables as per-platform .NET tool packages and standalone archives
     pros: One executable serves both installs and needs no .NET runtime. It finishes a model check in half the runtime build's time and runs for a consumer without the .NET SDK.

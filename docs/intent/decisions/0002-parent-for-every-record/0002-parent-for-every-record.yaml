@@ -1,6 +1,7 @@
 type: decision
 id: decision/0002-parent-for-every-record
 title: Parent for Every Record
+context: "Above the requirements, the hierarchy is written as rationale prose, not as required links. No check reads a feature goal or a flow goal. The book teaches a second hierarchy beside the model's own, and that second hierarchy invents groupings where the model has no parent."
 options:
   - name: One parent for every record
     pros: Every reviewed tool stores the link on one side, computes the inverse, and enforces at most one parent. Identifier containment in the largest consumer already resolves everywhere it is used.

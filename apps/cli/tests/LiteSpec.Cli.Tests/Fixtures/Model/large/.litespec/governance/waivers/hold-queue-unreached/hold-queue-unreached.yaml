@@ -7,7 +7,7 @@ covers:
 subject:
 - feature/hold-queue
 reason: The hold queue ships after the borrowing flow proves out.
-exit: The hold queue holds no requirement yet. The gap closes when its first requirement lands.
+exitWhen: The hold queue holds no requirement yet. The gap closes when its first requirement lands.
 expiresOn: 2035-06-01
 closedBy:
 - feature/hold-queue

@@ -1,6 +1,7 @@
 type: decision
 id: decision/0032-one-mock-rule-for-every-stack
 title: One Mock Rule for Every Stack
+context: "The backend and frontend stacks state different mock rules, and one backend rule requires a test to substitute the project's own repositories. Agents write that kind of test often and rewrite it with each refactor."
 options:
   - name: "One mock rule for every stack, with the Application coordination test rule removed"
     pros: "Tests do not depend on how a handler loads and stages its work, and one rule holds across every stack."

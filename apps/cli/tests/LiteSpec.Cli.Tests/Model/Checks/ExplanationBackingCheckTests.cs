@@ -72,4 +72,50 @@ public sealed class ExplanationBackingCheckTests
 
         Assert.DoesNotContain("explanation-section-unbacked", TestModel.Codes(model));
     }
+
+    /// <summary>An aggregate holding no data whose explanation lacks Data and Retention reports no missing section.</summary>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
+    [Fact]
+    public void MissingDataAndRetentionWithoutDataPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var file = Path.Combine(temp.Path, "loan.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                file,
+                1,
+                """{"summary": "A loan.", "states": [{"name": "Active", "meaning": "The loan is open."}]}""",
+                Path.Combine(temp.Path, "loan.md"),
+                "# Loan\n\nA loan lends one copy to one reader.\n\n## Lifecycle\n\nA loan opens when a copy goes out.\n"));
+
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
+    }
+
+    /// <summary>An aggregate holding data whose explanation lacks Data and Retention reports the missing section.</summary>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
+    [Fact]
+    public void MissingDataAndRetentionWithDataReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var file = Path.Combine(temp.Path, "loan.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                file,
+                1,
+                """{"summary": "A loan.", "states": [{"name": "Active", "meaning": "The loan is open."}], "data": [{"name": "loanId", "meaning": "The lent copy.", "classification": "internal"}]}""",
+                Path.Combine(temp.Path, "loan.md"),
+                "# Loan\n\nA loan lends one copy to one reader.\n\n## Lifecycle\n\nA loan opens when a copy goes out.\n"));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Aggregate 'aggregate/lending.loan' holds no Data and Retention section in its explanation.", finding.Message);
+        Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
+        Assert.Equal("aggregate/lending.loan", finding.Subject);
+    }
 }

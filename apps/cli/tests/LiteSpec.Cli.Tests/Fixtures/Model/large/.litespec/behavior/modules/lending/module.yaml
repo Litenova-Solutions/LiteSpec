@@ -2,3 +2,10 @@ type: module
 id: module/lending
 title: Lending
 dependsOn: []
+responsibilities:
+- Lending registers and retires copies.
+- Lending lends copies to readers and takes returns.
+- Lending queues holds for lent copies.
+excludes:
+- Lending buys no books and catalogs no titles.
+- Lending fines no reader for an overdue loan.

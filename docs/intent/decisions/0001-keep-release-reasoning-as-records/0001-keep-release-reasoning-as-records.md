@@ -4,9 +4,9 @@ People who maintain LiteSpec and write its records need a place for the reasonin
 
 ## Context
 
-Provisions state obligations. They hold no question, no dated source and no conclusion that a later change can cite. When a change asks why a rule exists, the answer has nowhere to live.
+Provisions state obligations and hold no question, dated source or conclusion a later change cites. When a change asks why a rule exists, the answer has nowhere to live.
 
-LiteSpec needs a place for that reasoning that its tools read and that git tracks. The research and decision record shapes already exist, and the site already ingests records under `docs/intent`.
+LiteSpec needs a tracked place for that reasoning that its tools read. The research and decision record shapes already exist, and the site already ingests records under `docs/intent`.
 
 ## Options
 

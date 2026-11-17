@@ -1,6 +1,7 @@
 type: decision
 id: decision/0082-give-every-rule-one-home-and-one-strength
 title: Give Every Rule One Home and One Strength
+context: "An outside review read the core pages and found the record model, one architecture, an agent procedure and writing rules under one scope. Neighboring pages contradicted each other on context, layout, cross-module links and waivers. Strength, detection and blocking were tangled, so the level letter of a finding decided blocking."
 options:
   - name: "One home per rule, contradictions resolved, strength apart from detection"
     pros: "Each concept has one owning page, implementation rules leave the core, modals stop contradicting, findings block by strength, and contradictions are reported."

@@ -1,6 +1,7 @@
 type: decision
 id: decision/0037-generate-the-agent-protocol
 title: Generate the Agent Protocol
+context: "The consumer protocol lives in several hand-written copies that drift apart, and an agent follows a stale copy even when the code has changed. The protocol also names context that no command produces, offers 2 entry points with no order between them, and leaves several lines uncited."
 options:
   - name: "Generate the agent protocol from one template, and report drift from what the release generates"
     pros: "One template change shows up in a fresh project, an existing project, the selection page and llms.txt, and a hand edit inside the region fails the check."

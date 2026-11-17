@@ -10,6 +10,7 @@ payload:
     meaning: The loan that opened.
     classification: internal
     type: id
-    of: aggregate/lending.loan
+    identifies: aggregate/lending.loan
     required: true
 translates: domain-event/loan.loan-borrowed
+compatibility: The payload may gain a new field. No field may be removed or renamed.

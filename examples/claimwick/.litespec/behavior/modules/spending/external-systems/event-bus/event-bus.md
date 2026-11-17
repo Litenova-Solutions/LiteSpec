@@ -8,8 +8,4 @@ Spending publishes one event through the bus: `integration-event/expense-submitt
 
 ## Data Shared
 
-The bus carries what the event payload holds: the expense identity. The identity is a business fact for the tax file.
-
-## Failure Handling
-
-A redelivery never counts twice: every event carries its identity, and each reader deduplicates on it. A reader that falls behind replays from the retained events.
+The bus carries what the event payload holds: the expense identity. The identity is a business fact for the tax file. A redelivery never counts twice: every event carries its identity, and each reader deduplicates on it. A reader that falls behind replays from the retained events.

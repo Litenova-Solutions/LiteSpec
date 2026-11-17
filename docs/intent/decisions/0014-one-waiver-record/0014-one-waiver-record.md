@@ -4,7 +4,7 @@ Project teams need one record for every exception they set aside: a deviation, a
 
 ## Context
 
-Waivers are uneven and too wide. A known gap suppresses a check at level G, the gating level. A deviation suppresses every finding on its subject, not only the finding for its provision. A deferral with the frozen phase disables checks with no expiry.
+Waivers are uneven and too wide, and a known gap suppresses a check at level G, the gating level. A deviation suppresses every finding on its subject, not only the finding for its provision. A deferral with the frozen phase disables checks with no expiry.
 
 ## Options
 

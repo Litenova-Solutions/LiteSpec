@@ -1,6 +1,7 @@
 type: decision
 id: decision/0084-give-read-models-their-semantics
 title: Give Read Models Their Semantics
+context: "An earlier decision added the read-model record but left its event semantics open. No rule covered redelivery, ordering, corrections, rebuilds, staleness or erasure, so a rebuild risked restoring erased fields. No rule said whether a copy guards decisions needing current truth."
 options:
   - name: "Identity, versions, tombstones, and no guard role"
     pros: "Redelivery never counts twice, latest compares source versions, erasure survives rebuilds and replay, and current-truth decisions stay with the owning module."

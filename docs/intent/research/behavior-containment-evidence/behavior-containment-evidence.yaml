@@ -14,5 +14,228 @@ sources:
   - path: schemas/record.schema.yaml
     readOn: 2026-10-30
     key: record-schema
+    note: "The fields `readBy`, `reads`, and `serves` are missing from the record schema, while the consumer uses them."
 question: How do Behavior records find their parent, and where does a reader read the parent from a file name only or find no parent at all?
 conclusion: Containment by identifier is sound and complete in the largest consumer, while results, scenarios, domain events, and rules find their parent only through file placement or a project-wide name lookup, and several Behavior types have no parent at all.
+findings:
+  - statement: "Containment by identifier is sound and complete in the largest consumer."
+    sources:
+      - model
+      - record-schema
+  - statement: "A reader finds the parent of results, scenarios, domain events, and rules only through file placement or a project-wide name lookup."
+    sources:
+      - model
+      - record-schema
+  - statement: "Several Behavior types give a reader no parent at all."
+    sources:
+      - model
+      - behavior
+  - statement: "Containment by identifier has no gaps where it is defined."
+    sources:
+      - model
+      - record-schema
+  - statement: "On 30 October 2026, the built model of the largest consumer contained 21,548 records."
+    sources:
+      - model
+  - statement: "Zero of 181 aggregates, zero of 1,272 use cases, and zero of 256 reactions, 73 jobs, 107 notifications, and 76 settings name a missing module."
+    sources:
+      - model
+      - behavior
+      - record-schema
+  - statement: "Zero of 380 screens name a missing entry point."
+    sources:
+      - model
+      - access
+      - record-schema
+  - statement: "Name-only parentage also has no gaps."
+    sources:
+      - model
+      - record-schema
+  - statement: "All 5,413 written results, 6,517 scenarios, 806 domain events, and 2,296 rules name a parent that exists."
+    sources:
+      - model
+      - record-schema
+  - statement: "The project-wide name uniqueness checks keep those parents valid."
+    sources:
+      - model
+  - statement: "So the consumer has no parent that names a missing record."
+    sources:
+      - model
+      - record-schema
+  - statement: "A reader reads the parent of most child records from the file, not from the identifier."
+    sources:
+      - model
+      - record-schema
+  - statement: "The consumer places 5,382 of 5,413 written results (99.4 percent) and 6,395 of 6,517 scenarios (98.1 percent) on their use case's file."
+    sources:
+      - model
+      - behavior
+  - statement: "It places 805 of 806 domain events on their aggregate's file."
+    sources:
+      - model
+      - behavior
+  - statement: "A reader finds the parent by opening the file, but reads nothing from the identifier without a project-wide name lookup."
+    sources:
+      - model
+      - record-schema
+  - statement: "No check enforces which page contains which record for entries, and the consumer shows 2 leaks."
+    sources:
+      - model
+      - record-schema
+  - statement: "The consumer places 31 written results on reaction pages, although results belong only on use case pages."
+    sources:
+      - model
+      - behavior
+  - statement: "The consumer places 54 rules on module README.md pages, a third home that the specification never names."
+    sources:
+      - model
+      - record-schema
+  - statement: "The checker reports no finding for either leak, because the builder accepts entries on any page that carries a `records` array."
+    sources:
+      - model
+      - record-schema
+  - statement: "Zero of 2,296 rules govern nothing, so every rule governs something."
+    sources:
+      - model
+      - record-schema
+  - statement: "Only 243 rules carry `fulfills` and 28 carry `basedOn`, so rules govern downward and rarely cite upward."
+    sources:
+      - model
+      - record-schema
+  - statement: "The specification allows rules to govern downward while they rarely cite upward."
+    sources:
+      - model
+      - record-schema
+  - statement: "One of 806 domain events, `domain-event/contact-profile.attendance-recorded`, stands unused."
+    sources:
+      - model
+      - behavior
+  - statement: "No use case raises it, no reaction hears it, and nothing translates it."
+    sources:
+      - model
+      - behavior
+  - statement: "Zero of 107 notifications lack a sender, and the sender check exists and passes."
+    sources:
+      - behavior
+  - statement: "The specification defines no reader link for a setting, so the model shows no code that reads a setting."
+    sources:
+      - behavior
+      - record-schema
+  - statement: "The record names unread settings as the finding, because the model identifies none of them."
+    sources:
+      - behavior
+      - record-schema
+  - statement: "Still, 15 settings carry a `readBy` field that the schema forbids."
+    sources:
+      - record-schema
+  - statement: "Rules carry `reads` in 33 records, and notifications carry `serves` in 43 records."
+    sources:
+      - behavior
+      - record-schema
+  - statement: "The schema and every check ignore both fields."
+    sources:
+      - record-schema
+  - statement: "Projects need these links, and LiteSpec defines none of them."
+    sources:
+      - behavior
+      - record-schema
+  - statement: "No job names 43 of 46 runbooks, and 15 of 73 jobs name no runbook."
+    sources:
+      - behavior
+  - statement: "Several other records carry no link that the model reads."
+    sources:
+      - model
+      - behavior
+      - access
+  - statement: "One permission, `permission/synchronize-offline-check-in`, is allowed but never granted."
+    sources:
+      - behavior
+      - access
+  - statement: "One entry point, `entry-point/site`, has zero screens, while 12 use cases name it in `reachedThrough`."
+    sources:
+      - behavior
+      - access
+  - statement: "20 screens offer and serve nothing, which the navigation-screen convention allows."
+    sources:
+      - access
+  - statement: "The builder derives no aggregate for 47 use cases."
+    sources:
+      - model
+      - behavior
+  - statement: "Of them, 33 are queries that the consumer files under `reads/`, which the home table allows."
+    sources:
+      - model
+      - behavior
+  - statement: "The other 14 are commands, which the table does not cover."
+    sources:
+      - model
+      - behavior
+  - statement: "Of 27 outbound integration events, nothing publishes 3."
+    sources:
+      - behavior
+  - statement: "No reaction answers both inbound events."
+    sources:
+      - behavior
+  - statement: "Fields that the specification requires are missing, and no finding reports them."
+    sources:
+      - model
+      - record-schema
+  - statement: "Of 73 jobs, 61 lack `serviceLevel`."
+    sources:
+      - behavior
+      - record-schema
+  - statement: "Of 895 commands, 741 declare no `consistency`."
+    sources:
+      - behavior
+      - record-schema
+  - statement: "One aggregate declares an empty `exits` list, and 5 reactions lack `onFailure`."
+    sources:
+      - behavior
+      - record-schema
+  - statement: "Each finding carries a tier, and the tier sets whether the checker reports or blocks it."
+    sources:
+      - model
+  - statement: "The checker reports tier S in this consumer, which explains the absence at tier S only."
+    sources:
+      - model
+  - statement: "That explains neither the absence at tier G nor the absence in the consumer."
+    sources:
+      - model
+  - statement: "The specification uses 2 forms for result identifiers."
+    sources:
+      - record-schema
+  - statement: "The specification names a written result `result/<use-case-name>.<name>` and a derived result `result/<module>.<use-case>.forbidden`."
+    sources:
+      - record-schema
+  - statement: "The consumer follows both forms exactly in 5,413 written results and 2,062 derived results."
+    sources:
+      - record-schema
+  - statement: "The investigation proposes one parent for each type."
+    sources:
+      - model
+      - record-schema
+  - statement: "Results and scenarios take the module-qualified derived form, so a reader reads the parent from the identifier."
+    sources:
+      - model
+      - record-schema
+  - statement: "Domain events name their module in the identifier."
+    sources:
+      - model
+      - record-schema
+  - statement: "A requirement check requires a non-empty `governs` at tier G once it is staged."
+    sources:
+      - model
+      - record-schema
+  - statement: "The published set becomes the integration event's book parent, and `readBy` becomes the standard name for settings."
+    sources:
+      - model
+      - record-schema
+  - statement: "The proposal also gives the 6 list types (role, permission, entry point, external system, runbook, and term) their list or folder as the book parent."
+    sources:
+      - model
+  - statement: "It states that a module's parent is the product's bounded context."
+    sources:
+      - model
+  - statement: "Each new check starts advisory and then promotes."
+    sources:
+      - model

@@ -14,7 +14,7 @@ public sealed class ReachedThroughTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.send-due-notice", Path.Combine(temp.Path, "notice.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.send-due-notice", Path.Combine(temp.Path, "notice.yaml"), """{"kind": "command", "steps": [{"statement": "The desk sends the due notice."}]}"""));
 
         Assert.Contains(Checker.Check(model).Findings, finding =>
             finding.Code == "record-invalid" && finding.Message.Contains("has no reachedThrough", StringComparison.Ordinal));
@@ -28,7 +28,7 @@ public sealed class ReachedThroughTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.send-due-notice", Path.Combine(temp.Path, "notice.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.send-due-notice", Path.Combine(temp.Path, "notice.yaml"), """{"kind": "command", "steps": [{"statement": "The desk sends the due notice."}]}"""),
             TestModel.Record("job", "job/lending.send-due-notices", Path.Combine(temp.Path, "job.yaml"), """{"kind": "scheduled", "effects": [{"runs": "use-case/lending.send-due-notice"}]}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, finding =>

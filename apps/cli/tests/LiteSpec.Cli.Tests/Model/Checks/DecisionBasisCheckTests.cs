@@ -103,7 +103,7 @@ public sealed class DecisionBasisCheckTests
     /// <param name="basedOn">The target id placed in the decision basedOn list.</param>
     /// <returns>The decision fields as JSON.</returns>
     static string DecisionJson(string basedOn) =>
-        "{\"options\": [{\"name\": \"Documents\", \"pros\": \"Reads stay simple.\", \"cons\": \"Queries need an index.\"}], \"choice\": \"Documents\", \"reopenedWhen\": \"Queries pass one hundred a day.\", \"basedOn\": [\"" + basedOn + "\"]}";
+        "{\"options\": [{\"name\": \"Documents\", \"pros\": \"Reads stay simple.\", \"cons\": \"Queries need an index.\"}], \"choice\": \"Documents\", \"reopenedWhen\": \"Queries pass one hundred a day.\", \"context\": \"Orders live in one store today.\", \"basedOn\": [\"" + basedOn + "\"]}";
 
     /// <summary>A decision file under the implementation decisions folder, so the check reads it as technical.</summary>
     /// <param name="config">The consumer config carrying the root folder.</param>

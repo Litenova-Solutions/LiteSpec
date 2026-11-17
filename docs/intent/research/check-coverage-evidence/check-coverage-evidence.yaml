@@ -16,3 +16,298 @@ sources:
     key: suppression
 question: Which links and parents does the checker enforce, which does it only report, and which does no check read at all?
 conclusion: "The checker runs many checks below a requirement and almost none above it: no check reads a feature's goal, a requirement's origin, a rule's fulfillment, or a flow's goal, and those four unchecked links contain the largest measured gaps in the largest consumer."
+findings:
+  - statement: "The checker runs many checks below a requirement and almost none above it."
+    sources:
+      - model
+      - checker
+  - statement: "No check reads a feature's goal, a requirement's origin, a rule's `fulfills` link, or a flow's goal."
+    sources:
+      - model
+      - checker
+  - statement: "Those 4 unchecked links contain the largest measured gaps in the largest consumer."
+    sources:
+      - model
+      - checker
+  - statement: "On 30 October 2026, the consumer's built model contained 2,711 open findings and 328 known findings."
+    sources:
+      - checker
+      - finding
+  - statement: "This record counts a check when its predicate tests a written link, its containment, its reverse orphan direction, or a computed trace."
+    sources:
+      - model
+      - checker
+  - statement: "For a written link, the predicate tests existence, resolution, target type, or reachability."
+    sources:
+      - model
+      - checker
+  - statement: "For containment, it tests identifier or folder."
+    sources:
+      - model
+      - checker
+  - statement: "Checks fully cover resolution below a requirement."
+    sources:
+      - model
+      - checker
+  - statement: "Dangling record citations, body Markdown links, link target types, identifier homes, and step and operation fragments each have a tier G code."
+    sources:
+      - checker
+      - finding
+  - statement: "All of them show no findings."
+    sources:
+      - checker
+      - finding
+  - statement: "Requirement and flow checks cover fulfillment (105 known, none open), measurement, reach, state reachability, and transitions."
+    sources:
+      - model
+      - checker
+  - statement: "Containment checks cover success results, scenario results, calculation tables, and reaction triggers, and all show no findings."
+    sources:
+      - model
+      - checker
+  - statement: "Orphan checks cover the 5 Behavior types that have neither parent, unserved steps, screened steps (91 known), screen serve mismatches, and effect loops."
+    sources:
+      - model
+      - checker
+  - statement: "Data and governance checks cover consistency rules, widening justification (6 open), erasure, retention, setting defaults, reservation releases, notification senders, exception fallbacks, and quality alerts."
+    sources:
+      - model
+      - checker
+  - statement: "The code, screen, store, and operations traces also run many checks."
+    sources:
+      - model
+      - checker
+  - statement: "They cover marks and their resolution, followed decisions (8 open and unfollowed, 15 advisory without a basis), and unimplemented aggregates (21 open)."
+    sources:
+      - model
+      - checker
+  - statement: "They cover reactions, jobs, and external systems, unexposed use cases (60 open), and unimplemented use cases (8 open)."
+    sources:
+      - model
+      - checker
+  - statement: "They also cover declared effects that no dispatch takes (412 advisory), uncalled aggregate methods (165 open), and unreached use cases (182 advisory)."
+    sources:
+      - model
+      - checker
+  - statement: "The checker reports advisory findings without blocking."
+    sources:
+      - checker
+      - finding
+  - statement: "The same traces cover unshown refusals (911 advisory), unconfirmed proofs (90 open, with 50 known), duplicated proofs (237 advisory), unthrown refusals, and contract mismatches."
+    sources:
+      - model
+      - checker
+  - statement: "They also cover alerts, settings, templates, and dependencies."
+    sources:
+      - model
+      - checker
+  - statement: "A clean result has 4 possible causes, and only the first means the rule holds."
+    sources:
+      - checker
+      - finding
+  - statement: "Satisfied checks have complete data."
+    sources:
+      - model
+      - checker
+  - statement: "No in-scope record lacks both parents, no step is unserved, and every reaction trigger resolves."
+    sources:
+      - model
+      - checker
+  - statement: "The sender, fallback, reservation, and serve checks agree with independent counts."
+    sources:
+      - model
+      - checker
+  - statement: "Covered checks emit findings, and named waivers suppress those findings."
+    sources:
+      - checker
+      - finding
+      - suppression
+  - statement: "A waiver suppresses findings only while it stays unexpired."
+    sources:
+      - suppression
+  - statement: "The covered checks are the unfulfilled requirements, the unscreened steps, the unmeasured requirements, and the undeclared and unconfirmed families."
+    sources:
+      - checker
+      - suppression
+  - statement: "Gated or scoped checks never run their predicate."
+    sources:
+      - model
+      - checker
+  - statement: "Flow reach exempts background-only use cases."
+    sources:
+      - model
+      - checker
+  - statement: "Of the checks, 2 run only at large size."
+    sources:
+      - model
+      - checker
+  - statement: "The transition check skips stores that have no transitions."
+    sources:
+      - model
+      - checker
+  - statement: "The checker exempts decision codes by folder in opposite directions."
+    sources:
+      - model
+      - checker
+  - statement: "`record-link-missing` covers only 5 Behavior types, and screen checks skip screens without a route."
+    sources:
+      - model
+      - checker
+  - statement: "Dependency and template checks return without a finding when they are not configured, so their clean tallies hide whether each check passed or never ran."
+    sources:
+      - model
+      - checker
+  - statement: "The checker lacks some checks."
+    sources:
+      - model
+      - checker
+  - statement: "Only the analyzer emits `partial-missing`, so a waiver that names it draws `gap-finding-unknown`."
+    sources:
+      - checker
+      - finding
+      - suppression
+  - statement: "One working check passes more than its standard allows."
+    sources:
+      - model
+      - checker
+  - statement: "`state-unreached` passes a state that is a transition source or target."
+    sources:
+      - model
+      - checker
+  - statement: "The standard means a state that no transition reaches, so the check hides 9 states that have no incoming transition."
+    sources:
+      - model
+      - checker
+  - statement: "Almost no check runs above a requirement."
+    sources:
+      - model
+      - checker
+  - statement: "No check reads a feature's goal link, and 28 of 40 features name no goal."
+    sources:
+      - model
+      - checker
+  - statement: "No check reads a requirement's origin, and 719 of 925 live requirements name neither `feature` nor `basedOn`."
+    sources:
+      - model
+      - checker
+  - statement: "No check reads a rule's `fulfills` link."
+    sources:
+      - model
+      - checker
+  - statement: "Of 2,295 rules, 2,052 have no direct links, and 79 still have none even when transitive fulfillment through governed use cases and aggregates counts."
+    sources:
+      - model
+      - checker
+  - statement: "No check reads a flow's goal, and all 112 goals are prose sentences."
+    sources:
+      - model
+      - checker
+  - statement: "Other unchecked links each have a measured size."
+    sources:
+      - model
+      - checker
+  - statement: "No check reads flow `fulfills`, although all 112 flows carry it."
+    sources:
+      - model
+      - checker
+  - statement: "The reverse orphan of `solves` covers 1 unsolved problem."
+    sources:
+      - model
+      - checker
+  - statement: "Of 3 product decisions, 2 lack `basedOn`."
+    sources:
+      - model
+      - checker
+  - statement: "Bare-code rule refusals match no result code in 206 of 1,631 cases."
+    sources:
+      - model
+      - checker
+  - statement: "No use case raises one domain event, and one permission is allowed but never granted."
+    sources:
+      - model
+      - checker
+  - statement: "The record also measures more unchecked links."
+    sources:
+      - model
+      - checker
+  - statement: "The reverse of `scenario.result` covers 2,330 written results, of which 62 are success results and 2,268 are refusals."
+    sources:
+      - model
+      - checker
+  - statement: "Of 49 outbound operations, nothing calls 9."
+    sources:
+      - model
+      - checker
+  - statement: "Of the outbound integration events, 8 translate nothing, and nothing consumes 2 inbound integration events."
+    sources:
+      - model
+      - checker
+  - statement: "Of the notification claims, 33 stand on 28 notifications without a requirement."
+    sources:
+      - model
+      - checker
+  - statement: "Of 73 jobs, 15 have no runbook."
+    sources:
+      - model
+      - checker
+  - statement: "The reverse orphan of `basedOn` covers 4 constraints and 15 of 29 research records."
+    sources:
+      - model
+      - checker
+  - statement: "Containment by identifier is otherwise complete."
+    sources:
+      - model
+      - checker
+  - statement: "The one empty parent, `module/hosting`, follows a recorded exception, not unrecorded drift."
+    sources:
+      - model
+      - checker
+  - statement: "3 populations look orphaned but need no check."
+    sources:
+      - model
+      - checker
+  - statement: "They are orchestration use cases with no aggregate, store aggregates that only code reads, and uncited glossary terms, whose home is the glossary itself."
+    sources:
+      - model
+      - checker
+  - statement: "The investigation proposes new finding codes in the existing naming pattern."
+    sources:
+      - model
+      - checker
+      - finding
+  - statement: "Each code starts advisory."
+    sources:
+      - checker
+      - finding
+  - statement: "The codes are `feature-goal-missing` (28), `requirement-without-basis` (719), `rule-fulfills-nothing` (2,052 direct and 79 transitive), `flow-goal-unlinked` (112, after the field change), and `problem-unsolved` (1)."
+    sources:
+      - checker
+      - finding
+  - statement: "They also include `result-scenario-missing` (2,330, with the 62 success results as the first slice), `rule-refusal-unresolved` (206), and `domain-event-unraised` (1)."
+    sources:
+      - checker
+      - finding
+  - statement: "The remaining proposed codes are `permission-unused` (1), `operation-uncalled` (9), `integration-event-untranslated` (8), `integration-event-unconsumed` (2), `claim-unlinked` (33 entries), and `job-without-runbook` (15)."
+    sources:
+      - checker
+      - finding
+  - statement: "The record also proposes that `record-link-missing` extend to flows, which covers none."
+    sources:
+      - model
+      - checker
+  - statement: "It proposes that `decision-basis-missing` extend to product decisions (2 more), and that `state-unreached` become incoming-only, starting advisory (9)."
+    sources:
+      - model
+      - checker
+  - statement: "The recommendation has 2 refinements."
+    sources:
+      - model
+      - checker
+  - statement: "The cheap measurable form of requirement origin is the union of `feature` and `basedOn`, because `feature` alone is deliberately narrow."
+    sources:
+      - model
+      - checker
+  - statement: "The flow goal link needs a LiteSpec field change before a check, because no field exists for a checker to read."
+    sources:
+      - model
+      - checker

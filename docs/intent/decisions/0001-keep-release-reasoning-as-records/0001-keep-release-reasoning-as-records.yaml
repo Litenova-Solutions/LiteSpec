@@ -1,6 +1,7 @@
 type: decision
 id: decision/0001-keep-release-reasoning-as-records
 title: Keep Release Reasoning as Records
+context: "Provisions state obligations and hold no question, dated source or conclusion a later change cites. When a change asks why a rule exists, the answer has nowhere to live. LiteSpec needs a tracked place for that reasoning that its tools read."
 options:
   - name: Consumer homes under docs/intent
     pros: Comparable projects keep rationale in numbered records beside the normative text, and the specification stays the only normative surface. The consumer research and decision shapes already exist with an exercised example.

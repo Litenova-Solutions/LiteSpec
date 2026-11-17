@@ -1,6 +1,7 @@
 type: decision
 id: decision/0049-literal-flow-words-concrete-consequences
 title: Use Literal Flow Words and Concrete Consequences
+context: "The word walk stood for a flow in several places, and in some said nothing about the act. The phrase why it matters produced openings naming no consequence and no party. Both phrases sat in guidance for goals, actors, notifications, products and the glossary, not only for flows and constraints."
 options:
   - name: "Replace walk and why it matters in every provision, template and glossary entry"
     pros: "One mechanical replacement covers every record type, and the rule reads the same in each file."

@@ -116,7 +116,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"steps": [{"id": "s1", "statement": "A ghost borrows a copy.", "cites": ["requirement/borrowing.max-loans"]}]}"""));
+            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"steps": [{"id": "s1", "statement": "A ghost borrows a copy.", "carries": ["requirement/borrowing.max-loans"]}]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
     }
@@ -391,7 +391,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("waiver", "waiver/ghost-pain-parked", Path.Combine(temp.Path, "ghost-pain-parked.yaml"), """{"kind": "gap", "covers": ["intent-unreached"], "subject": ["problem/ghost-pain"], "reason": "Ghost work waits.", "closedBy": ["problem/ghost-pain"], "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/ghost-pain-parked", Path.Combine(temp.Path, "ghost-pain-parked.yaml"), """{"kind": "gap", "covers": ["intent-unreached"], "subject": ["problem/ghost-pain"], "reason": "Ghost work waits.", "closedBy": ["problem/ghost-pain"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 

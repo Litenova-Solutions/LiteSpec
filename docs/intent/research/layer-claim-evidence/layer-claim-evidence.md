@@ -4,20 +4,22 @@ LiteSpec sorts its records into 4 layers: Intent, Behavior, Implementation, and 
 
 ## Findings
 
-A project can leave out Implementation or Proof on its own, because neither depends on the other. Behavior needs Intent, and each of Implementation and Proof needs Behavior. So a project keeps Intent, and it may add Behavior, then either or both of the other 2 layers.
+Implementation and Proof depend on Behavior, and Behavior depends on Intent [completion calculator][completion-calculator] [proof checks][proof-checks]. A project keeps Intent and adds Behavior before Implementation, Proof, or both [completion calculator][completion-calculator] [proof checks][proof-checks].
 
-A use case counts as verified from its scenarios' passing proofs alone. `UseCaseVerified` checks the proof links and the stale set, and it never reads code marks. The record cites lines 437 to 452 of the completion calculator. The record gives no confidence for this claim.
+A use case counts as verified from its scenarios' passing proofs alone [completion calculator][completion-calculator]. `UseCaseVerified` checks proof links and the stale set, never code marks [completion calculator][completion-calculator].
 
-A fulfiller counts as coded when it is verified, or when the calculator finds code for it. The record cites lines 403 to 407 of the completion calculator for this rule. Implementation and Proof therefore each point at Behavior, and removing one does not break the other. The record gives no confidence for this claim.
+A fulfiller counts as coded when verified or when the calculator finds code [completion calculator][completion-calculator]. Implementation and Proof each point at Behavior, so removing one breaks nothing in the other [completion calculator][completion-calculator].
 
-A claim can take 5 shapes. It names Intent alone, Intent and Behavior, Intent and Behavior with Implementation, Intent and Behavior with Proof, or all 4 layers. No other shape keeps every link whole, because Behavior needs Intent and each of the other 2 layers needs Behavior. The record states that this is its own reading of the links the code checks, and it cites no outside source for it. The record gives no confidence for this claim.
+A claim names Intent alone, Intent and Behavior, Intent and Behavior with Implementation, Intent and Behavior with Proof, or all 4 layers [completion calculator][completion-calculator] [proof checks][proof-checks]. No other shape keeps every link whole [completion calculator][completion-calculator] [proof checks][proof-checks]. The five-shape reading is the record's own and cites no outside source [completion calculator][completion-calculator] [proof checks][proof-checks].
 
-The `use-case-unverified` finding fires on any use case that has scenarios and no passing proof. It fires whether or not the use case carries code marks. The record cites lines 165 to 171 of the proof checks. A team that marks code and proves no scenarios therefore cannot reach the verified stage. The record gives no confidence for this claim.
+The `use-case-unverified` finding fires on any use case with scenarios and no passing proof [proof checks][proof-checks]. It fires whether or not the use case carries code marks [proof checks][proof-checks]. A team that marks code and proves no scenarios never reaches the verified stage [proof checks][proof-checks].
 
-The record schema makes `expiresOn` optional in the waiver record. It requires `exitWhen` only when `expiresOn` is set. The record cites lines 2823 to 2835 of the record schema. The record gives no confidence for this claim.
+The record schema leaves `expiresOn` optional in the waiver record [record schema][record-schema]. It requires `exitWhen` only when `expiresOn` is set [record schema][record-schema].
 
 ## Source Notes
 
-The record names 3 repository sources, all read on 10 November 2026. They are the completion calculator (`apps/cli/src/LiteSpec.Cli/Model/CompletionStages/CompletionCalculator.cs`), the proof checks (`apps/cli/src/LiteSpec.Cli/Model/Checks/Proof/ProofChecks.cs`), and the record schema (`schemas/record.schema.yaml`). Each citation gives the line range that was read.
+The completion calculator [completion calculator][completion-calculator] was read at lines 403 to 407 and lines 437 to 452.
 
-The record reads no outside source for the layer claims. It states that the question concerns links between LiteSpec's own layers, and that the code is the evidence for them. The record names no disagreement between sources and no claim it could not confirm.
+The proof checks [proof checks][proof-checks] were read at lines 165 to 171.
+
+The record schema [record schema][record-schema] was read at lines 2823 to 2835.

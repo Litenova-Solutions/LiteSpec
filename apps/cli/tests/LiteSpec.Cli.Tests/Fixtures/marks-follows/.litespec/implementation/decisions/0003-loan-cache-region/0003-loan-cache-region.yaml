@@ -1,6 +1,7 @@
 type: decision
 id: decision/0003-loan-cache-region
 title: Loan cache region
+context: Loan reads needed one cache region with simple eviction.
 options:
   - name: One region
     pros: Eviction stays simple

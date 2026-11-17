@@ -4,7 +4,7 @@ Everyone who reads LiteSpec proof needs one meaning for each proof word: a word 
 
 ## Context
 
-The word verified does not mean what it says. Browser-proved scenarios can never pass. A git-ignored cache holds the staleness data, and it is empty in CI. Nothing blocks on an unverified scenario, and finding codes use synonyms for one problem.
+The word verified does not mean what it says, and browser-proved scenarios never pass. A git-ignored cache holds the staleness data, and it is empty in CI. Nothing blocks on an unverified scenario, and finding codes use synonyms for one problem.
 
 ## Options
 

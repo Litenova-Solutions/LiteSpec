@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/use-cases#mark-every-provider-verified-input</follows>
 /// <follows>litespec/core/use-cases#type-every-output-field</follows>
 /// <follows>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</follows>
-/// <follows>litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind</follows>
+/// <follows>litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind</follows>
 internal static class ContractChecks
 {
     /// <summary>The contract field types a use-case input or an integration-event payload field may carry.</summary>

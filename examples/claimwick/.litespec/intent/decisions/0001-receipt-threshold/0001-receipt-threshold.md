@@ -26,13 +26,9 @@ That amount is the threshold in `requirement/approval.above-threshold-receipt`. 
 
 ## Consequences
 
-Small expenses stay light to submit: expenses at or below 25 EUR need no receipt, so the submitter does not have to find one for them.
+Small expenses stay light to submit: expenses at or below 25 EUR need no receipt, so the submitter does not have to find one for them. Finance stands behind 25 EUR.
 
 Some fraud slips under the line. The choice accepts that cost to keep small submissions light.
-
-## Evidence
-
-Finance reviewed the filing cost against the fraud risk in February 2026, and it stands behind 25 EUR.
 
 ## Revisit Conditions
 

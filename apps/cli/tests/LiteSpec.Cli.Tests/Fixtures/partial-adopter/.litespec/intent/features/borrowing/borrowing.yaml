@@ -4,3 +4,7 @@ title: Borrowing
 offering: Readers borrow and return copies, and every copy keeps one home shelf.
 solves:
 - problem/slow-desk-loans
+successCriteria:
+- Readers borrow and return copies with every copy on one home shelf.
+excludes:
+- Borrowing places no holds.

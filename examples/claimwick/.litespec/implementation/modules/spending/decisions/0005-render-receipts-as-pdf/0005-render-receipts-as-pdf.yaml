@@ -3,7 +3,6 @@ id: decision/0005-render-receipts-as-pdf
 title: Render Receipts as PDF
 summary: Finance keeps each receipt as a file next to the expense.
 kind: package
-context: Finance kept each receipt as a file next to its expense for the tax file.
 options:
 - name: PDF library
   pros: Receipts download as files finance keeps.
@@ -22,3 +21,4 @@ admits:
   failureBehavior: the receipt download fails and the expense stays readable
 basedOn:
 - constraint/tax-receipt-retention
+context: Finance kept each receipt as a file next to its expense for the tax file.

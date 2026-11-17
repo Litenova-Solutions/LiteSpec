@@ -3,6 +3,9 @@ id: use-case/lending.borrow-copy
 title: Borrow copy
 exposure: Any signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong loan keeps a copy off the shelf until it is returned.
 kind: command
+steps:
+  - statement: The reader sends the copy to borrow.
+  - statement: Lending lends the copy and raises the borrowed event.
 access:
   grant: permission/borrow-copy
   tenant: own

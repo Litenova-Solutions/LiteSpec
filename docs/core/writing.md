@@ -68,7 +68,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 | notification | Content, Delivery, Example | Content: template, parameters, locale; Delivery: channel, deliveredThrough, frequency; Example: none, illustration only |
 | module-event | Consumers, Compatibility, Example (optional) | Consumers: the records that read the event (computed); Compatibility: compatibility; Example: none, illustration only |
 | integration-event | Consumers, Compatibility, Example | Consumers: the records that read the event (computed); Compatibility: compatibility; Example: none, illustration only |
-| external-system | Use, Data Shared, Failure Handling | Use: summary; Data Shared: processes; Failure Handling: operations |
+| external-system | Use, Data Shared, Failure Handling | Use: summary; Data Shared: processes, erasure; Failure Handling: operations |
 | entry-point | Audience, Authentication, Limits (optional) | Audience: audience; Authentication: authentication, session, reauthenticationTriggers; Limits: limits |
 | screen | Task, States, Example | Task: task; States: states; Example: none, illustration only |
 | permission-set | Risk, Boundaries (optional) | Risk: the risk of each permission; Boundaries: excludes |
@@ -271,13 +271,13 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Applies to:** artifact: any
 
-**Statement:** Each explanation file MUST hold the fixed sections of its record type in the order of the section table, and each section MUST explain the fields the table pairs it with.
+**Statement:** Each explanation file MUST hold the fixed sections of its record type whose backing fields hold a value, in the order of the section table, each section explaining the fields the table pairs it with.
 
-**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem holds its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Each section is the human version of the fields the table pairs it with, so every page of a type keeps the same reading order. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
+**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to, and what good looks like. A problem holds its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Each section is the human version of the fields the table pairs it with, so every page of a type keeps the same reading order. A section whose backing fields are all empty on its record has nothing to explain, so the file leaves it out. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
 
 **Example:** The Claimwick problem explanation for waiting expenses holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page.
 
-**Checked by:** `litespec model check` reports `explanation-missing` for a missing or out-of-order section and `explanation-section-unbacked` for a section whose backing fields are empty on its record.
+**Checked by:** `litespec model check` reports `explanation-missing` for a section out of order, or missing while its backing fields hold a value, and `explanation-section-unbacked` for a section whose backing fields are empty on its record.
 
 ### Open Each Explanation File with a Paragraph
 
@@ -303,7 +303,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Applies to:** artifact: any
 
-**Statement:** Every explanation file MUST state the same specification as its record, restated and elaborated for a person, and MUST NOT add a fact or contradict a field of its record or of a record it cites.
+**Statement:** Every explanation file MUST state the same specification as its record, restated and elaborated for a person, with no fact that its record and the records it cites lack and no sentence that contradicts one of their fields.
 
 **Rationale:** The record is the primary source an agent builds from; the explanation is the same specification written for a person who arrives cold. Restating a field in plain words, with its reason, its context and an example, is what makes the record readable, so repetition is expected. A fact that appears only in the explanation splits the specification in two, and a sentence that contradicts a field leaves the reader unsure which to trust. When they disagree, the record wins and the explanation is corrected. Settled by [decision/0095-keep-the-whole-specification-in-the-records](../intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records.md).
 
@@ -319,7 +319,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Applies to:** artifact: any
 
-**Statement:** A change to a record field MUST update the record's explanation file in the same change, and a change to an explanation file MUST leave it stating what its record states.
+**Statement:** A change to a record field or to its explanation file MUST change both in the same change, so that the explanation states what the record states.
 
 **Rationale:** An explanation repeats its record on purpose, so every copy drifts unless the change that edits one edits the other. Making the update part of the same change keeps the two equal at every commit, which is when people read them. Settled by [decision/0095-keep-the-whole-specification-in-the-records](../intent/decisions/0095-keep-the-whole-specification-in-the-records/0095-keep-the-whole-specification-in-the-records.md).
 

@@ -1,6 +1,7 @@
 type: decision
 id: decision/0023-every-handwritten-file-in-yaml
 title: Every Hand-Written File in YAML
+context: "The release manifest, project file, pattern catalog, UI source lock, and schemas are JSON, while record pages are YAML. A person edits two syntaxes in one project, and JSON holds no comments and no place for a reason beside a value."
 options:
   - name: "YAML for every file a person edits, JSON for machine output"
     pros: "One syntax with comments for every file a person reviews, and JSON stays for the files programs exchange."

@@ -8,3 +8,6 @@ allows:
 - permission/read-loans
 - permission/manage-copies
 - permission/place-hold
+limits:
+- The librarian manages the library collection and no other collection.
+- The librarian grants no permission to another person.

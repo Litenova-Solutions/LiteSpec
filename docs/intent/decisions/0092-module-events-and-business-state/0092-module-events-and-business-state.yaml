@@ -1,6 +1,7 @@
 type: decision
 id: decision/0092-module-events-and-business-state
 title: Module Events, Business State in Aggregates, and Proof Freshness from the Run Commit
+context: "Two modules of one product shared facts only through an external system, so one module reading another needed an invented message bus. State with no lifecycle stayed an aggregate with a store flag, while a proposed store type invited filing business data without its rules. A proof went stale only when the scenario, its test body or marked files changed, so an unmarked change left caller proofs verified."
 options:
   - name: "Module events between modules, business state only in aggregates, freshness from the run commit"
     pros: "Modules share facts without an invented external system; every piece of business state carries its rules; a code change after a green run shows stale."

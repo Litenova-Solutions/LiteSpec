@@ -2,6 +2,9 @@ type: use-case
 id: use-case/lending.return-copy
 title: Return copy
 kind: command
+steps:
+  - statement: The reader sends the copy to return.
+  - statement: Lending returns the copy and raises the returned event.
 access:
   grant: permission/borrow-copy
   tenant: own

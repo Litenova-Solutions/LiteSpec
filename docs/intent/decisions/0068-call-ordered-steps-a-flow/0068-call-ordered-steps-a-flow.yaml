@@ -1,6 +1,7 @@
 type: decision
 id: decision/0068-call-ordered-steps-a-flow
 title: Call Ordered Steps a Flow
+context: "The record held a trigger, ordered steps, alternative paths, step failures, and an end state, yet carried the customer journey name. Every other type used a standard engineering name, while prose used flow only loosely."
 options:
   - name: "flow"
     pros: "The standard user-flow term fits any actor. Steps are the main flow and branches are the alternative flows. No record type uses the word."

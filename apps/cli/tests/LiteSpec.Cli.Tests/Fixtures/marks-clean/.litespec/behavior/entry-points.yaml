@@ -5,5 +5,7 @@ records:
     id: entry-point/library-api
     title: Library API
     kind: api
-    auth:
+    authentication:
       - token
+    audience:
+      - actor/reader

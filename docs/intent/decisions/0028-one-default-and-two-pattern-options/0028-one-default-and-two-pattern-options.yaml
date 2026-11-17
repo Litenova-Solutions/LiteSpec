@@ -1,6 +1,7 @@
 type: decision
 id: decision/0028-one-default-and-two-pattern-options
 title: One Default and Two Options per Pattern
+context: "Pattern pages offered long option lists for one decision, with 107 options before the cut. A reader cannot compare that many, and a building agent has no basis to choose among them."
 options:
   - name: "The Default and at most two options, enforced by validate"
     pros: "A reader compares three options at most, and validate stops a fourth from entering the catalog."

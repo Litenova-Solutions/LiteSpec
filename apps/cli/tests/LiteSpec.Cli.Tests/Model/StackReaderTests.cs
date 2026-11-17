@@ -367,9 +367,6 @@ public sealed class StackReaderTests
           "status": "reviewed",
           "kind": "query",
           "access": {
-            "auth": [
-              "session"
-            ],
             "grant": "permission/read-loans",
             "tenant": "own"
           },
@@ -378,6 +375,12 @@ public sealed class StackReaderTests
           ],
           "serves": [
             "flow/borrow-and-return#s4"
+          ],
+          "steps": [
+            {
+              "statement": "The reader opens the loan review and reads each loan.",
+              "cites": ["result/review-loans.reviewed"]
+            }
           ],
           "records": [
             {
@@ -426,7 +429,18 @@ public sealed class StackReaderTests
           "owner": "lending-team",
           "status": "reviewed",
           "entryPoint": "entry-point/library-app",
-          "address": "/loans",
+          "route": "/loans",
+          "task": "The reader reviews their loans and opens one to read it.",
+          "states": [
+            {
+              "name": "Empty",
+              "shows": "The screen says there are no loans to review."
+            },
+            {
+              "name": "Listed",
+              "shows": "The screen lists each loan with its due date."
+            }
+          ],
           "offers": ["use-case/lending.review-loans"],
           "summary": "A reader reviews their loans."
         }
