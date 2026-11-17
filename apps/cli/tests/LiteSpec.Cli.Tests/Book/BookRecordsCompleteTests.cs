@@ -53,8 +53,8 @@ public sealed class BookRecordsCompleteTests
         Assert.Equal("Coverage", BookLexicon.FieldLabel("scope", "constraint"));
         Assert.Equal("Scope", BookLexicon.FieldLabel("scope", "unknown-type"));
 
-        Assert.Equal("States", lexicon.Fields["screen.states"]);
-        Assert.Equal("States", BookLexicon.FieldLabel("states", "screen"));
+        Assert.Equal("Screen states", lexicon.Fields["screen.states"]);
+        Assert.Equal("Screen states", BookLexicon.FieldLabel("states", "screen"));
         Assert.Equal("Carries", lexicon.Fields["domain-event.carries"]);
         Assert.Equal("Carries", BookLexicon.FieldLabel("carries", "domain-event"));
 

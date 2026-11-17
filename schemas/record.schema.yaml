@@ -1616,7 +1616,11 @@ $defs:
       claim:
         $ref: '#/$defs/nonEmptyString'
       source:
-        $ref: '#/$defs/nonEmptyString'
+        anyOf:
+        - $ref: '#/$defs/researchId'
+        - $ref: '#/$defs/nonEmptyString'
+        x-reads-as: cites as evidence
+        x-read-back-as: is cited as evidence by
       readOn:
         $ref: '#/$defs/isoDate'
       kind:

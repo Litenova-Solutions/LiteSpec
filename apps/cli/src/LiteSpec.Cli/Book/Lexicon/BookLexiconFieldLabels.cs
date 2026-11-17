@@ -74,7 +74,7 @@ static class BookLexiconFieldLabels
             ["responsibilities"] = "Responsibilities", ["knowledge"] = "Knowledge", ["limits"] = "Limits", ["context"] = "Context",
             ["edgeCases"] = "Edge cases", ["compatibility"] = "Compatibility", ["session"] = "Session", ["reauthenticationTriggers"] = "Reauthentication triggers",
             ["task"] = "Task", ["consentRule"] = "Consent rule", ["recentSignInLimit"] = "Recent sign-in limit",
-            ["constraint.scope"] = "Coverage", ["role.scope"] = "Scope", ["screen.states"] = "States",
+            ["constraint.scope"] = "Coverage", ["role.scope"] = "Scope", ["screen.states"] = "Screen states", ["research.findings"] = "Research findings",
             ["aggregate.states"] = "States", ["flow.carries"] = "Carries", ["domain-event.carries"] = "Carries",
         };
 

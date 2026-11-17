@@ -278,6 +278,16 @@ Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
+### Audience
+
+The actors using an entry point, named as actor identifiers on the entry point record.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
 ### Automation
 
 Work that runs without a request, stated as reactions and jobs.
@@ -362,6 +372,16 @@ Home: docs/core/use-cases.md
 
 Source: CQRS.
 
+### Compatibility
+
+How a module or integration event stays compatible with its consumers.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
 ### Compensation
 
 Work a reaction does to undo a committed step after a later step fails. It names the undone use case in `compensates`.
@@ -403,6 +423,36 @@ Layer: Intent.
 Home: docs/core/intent.md
 
 Source: plain English.
+
+### Context
+
+The situation that forced a decision, stated on the decision record. It says what held when the choice had to be made.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Cost
+
+What a problem costs its sufferer, with time, money, and risk kept apart. Each is stated in the sufferer's own units, or as unknown where nobody priced it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Coverage
+
+Which subjects, transactions, and periods a constraint's rule covers. It states whom the rule covers; it is separate from applies, which says whether the rule binds the product at all.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
 
 ### Creation
 
@@ -470,6 +520,16 @@ Home: docs/backend/domain.md
 
 Source: DDD.
 
+### Edge Case
+
+One case a command does not follow its steps for, stated as a plain sentence on the use case.
+
+Layer: Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
 ### Effect
 
 One declared edge from a use case, reaction, or job to a command, a notification, an integration event, or an outside call.
@@ -477,6 +537,16 @@ One declared edge from a use case, reaction, or job to a command, a notification
 Layer: Behavior.
 
 Home: docs/core/automation.md
+
+Source: LiteSpec.
+
+### Effect on the Product
+
+What a constraint's rule changes in the product, naming each requirement that holds it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
@@ -536,9 +606,9 @@ Source: BDD.
 
 ### Excludes
 
-The product-level list of plain-sentence exclusions. These are the only statements that override a requirement.
+The list of plain-sentence exclusions on a product, feature, module, or permission set, stating what each leaves out. On the product these are the only statements that override a requirement.
 
-Layer: Intent.
+Layer: Intent or Behavior.
 
 Home: docs/core/intent.md
 
@@ -551,6 +621,16 @@ One outside system the product exchanges messages with. It stands alone and name
 Layer: Behavior.
 
 Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Failure Case
+
+One failure a problem's sufferer can meet on its own, stated as a plain sentence. It names what is missing or wrong, how the sufferer finds it, and what follows when they miss it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
@@ -734,6 +814,16 @@ Home: docs/core/automation.md
 
 Source: LiteSpec.
 
+### Knowledge
+
+What the product assumes an actor knows, stated as an assumption of the product. It names the product and the actor it applies to, never a fact about every user.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
 ### Language
 
 One language an entry point serves, named by its BCP 47 tag. The first tag listed is the default.
@@ -751,6 +841,16 @@ One waiver for a choice the project keeps. It carries the consequences the proje
 Layer: Intent or Behavior.
 
 Home: docs/core/waivers.md
+
+Source: LiteSpec.
+
+### Limit
+
+One thing a role, aggregate, or entry point does not do, stated as a plain sentence. A role limit names an act inside the role's scope that the grant does not allow.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/access.md
 
 Source: LiteSpec.
 
@@ -800,6 +900,16 @@ Home: docs/tools/book.md
 
 Source: LiteSpec.
 
+### Note
+
+One remark on a research source, holding what a later reader needs about that source.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
 ### Notification
 
 One person-facing message with its audience, channel, consent rule, and claims. It is delivered through one external system.
@@ -810,9 +920,39 @@ Home: docs/core/edges.md
 
 Source: LiteSpec.
 
+### Obligation
+
+One outside rule a constraint states as a sourced statement, with the keys of the sources that support it. It keeps the condition under which it holds and states no product effect.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
 ### Observation
 
 One dated measured value on a goal, with its source. It shows the outcome reached, apart from delivery.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Open Point
+
+One open question about how a constraint applies, held on the constraint record until it is settled.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Open Question
+
+One thing a research record's sources do not establish, held until it is answered.
 
 Layer: Intent.
 
@@ -1000,6 +1140,16 @@ Home: docs/core/use-cases.md
 
 Source: CQRS.
 
+### Rationale
+
+The reason behind a requirement or a rule, stated beside the commitment. It completes "because" without the word and adds no behavior.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
 ### Reaction
 
 One record stating work that runs when a domain, module, or integration event arrives. It declares the outcomes each run ends in.
@@ -1007,6 +1157,16 @@ One record stating work that runs when a domain, module, or integration event ar
 Layer: Behavior.
 
 Home: docs/core/automation.md
+
+Source: LiteSpec.
+
+### Reauthentication Trigger
+
+One situation in which an entry point requires a fresh sign-in, stated as a plain sentence.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
 
 Source: LiteSpec.
 
@@ -1092,6 +1252,36 @@ Source: plain English.
 
 Rejected: decision evidence, which states where the fact is used instead of what it is.
 
+### Research Finding
+
+One claim a research record states with its sources, saying whether the source states the claim or the writer infers it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Resolution Criteria
+
+The observable outcomes that would end a problem, one per failure case. Each states what the sufferer can do once the failure is gone, naming no product, feature, or solution.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Responsibility
+
+One act the product holds an actor to, or one thing a business area covers, stated as a plain sentence.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
 ### Result
 
 One way a use case ends: success or a named refusal. Refusals read in precedence order, and a success may carry codes for recorded outcomes inside it. A refusal result carries a code from its module's refusal set, and its identifier is `result/<use-case>.<name>`.
@@ -1164,6 +1354,16 @@ Home: docs/core/edges.md
 
 Source: LiteSpec.
 
+### Screen State
+
+One state a screen can show, with what the screen shows in it.
+
+Layer: Behavior.
+
+Home: docs/frontend/ui.md
+
+Source: LiteSpec.
+
 ### Send
 
 The action of an integration event or an external-system operation that the product starts: the product emits the fact or makes the call.
@@ -1177,6 +1377,16 @@ Source: LiteSpec.
 The classification of personal data that needs more care than other personal data. A sensitive data class kept with `pseudonymize`, `retain` or `exempt` names the requirement or decision that accepts it.
 
 Home: docs/core/privacy.md
+
+Source: LiteSpec.
+
+### Session
+
+How long a signed-in session on an entry point lasts, as a lifetime and an idle timeout in ISO 8601 durations.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
 
 Source: LiteSpec.
 
@@ -1218,11 +1428,41 @@ Home: docs/core/domain-model.md
 
 Source: LiteSpec.
 
+### Step
+
+One ordered step of a flow or a use case. A flow step states what its performer experiences; a use-case step states who acts and the rules, results, settings, or events it applies.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
 ### Storyboard
 
 The drawing of one flow as a strip of its steps' screens in step order. The book draws it.
 
 Home: docs/tools/book.md
+
+Source: LiteSpec.
+
+### Success Criteria
+
+The outcomes a feature brings about on its own, each stated so a tester can check it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Task
+
+What a person does on a screen, stated in one to three sentences on the screen record.
+
+Layer: Behavior.
+
+Home: docs/frontend/ui.md
 
 Source: LiteSpec.
 
@@ -1349,6 +1589,16 @@ One text drawing of a screen's structure in the wireframe language. It sits in t
 Layer: Behavior.
 
 Home: docs/frontend/patterns.md
+
+Source: LiteSpec.
+
+### Workaround
+
+What a problem's sufferer does instead today, with the burden that work carries. It states the time the work takes, what the sufferer repeats or has to remember, and what it still misses.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 

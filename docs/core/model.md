@@ -386,6 +386,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `basedOn` | decision | constraint, research, direction, requirement | is based on | is a basis for |
 | `supersedes` | decision | decision | supersedes | is superseded by |
 | `affects` | problem | actor | affects | is affected by |
+| `evidence.source` | problem | research | cites as evidence | is cited as evidence by |
 | `solves` | feature | problem | solves | is solved by |
 | `advances` | feature | goal | advances | is advanced by |
 | `cites` | requirement | goal, direction, problem, feature, constraint, research, decision | cites | is cited by |
