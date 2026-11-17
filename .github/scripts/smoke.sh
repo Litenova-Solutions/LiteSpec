@@ -66,8 +66,20 @@ prepare
 # The installed CLI must report the release the manifest names.
 test "$(litespec --version)" = "$version"
 
-litespec model check
-litespec model check --format json > "$work/check.json"
+# Claimwick's web frontend is read through Node. A bare distribution image has no Node, so
+# there the check reports the reader missing and exits 3 (incomplete, nothing blocking);
+# wherever Node is present the check must pass outright.
+if command -v node >/dev/null 2>&1; then
+  litespec model check
+  litespec model check --format json > "$work/check.json"
+else
+  status=0
+  litespec model check || status=$?
+  test "$status" -eq 3
+  status=0
+  litespec model check --format json > "$work/check.json" || status=$?
+  test "$status" -eq 3
+fi
 grep -q '"findings"' "$work/check.json"
 
 # A fresh consumer starts with init, which reads the templates inside the install.
