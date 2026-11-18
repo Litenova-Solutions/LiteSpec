@@ -296,6 +296,7 @@ The new rules are `litespec/workspace/design#give-each-class-one-responsibility`
 - The manifest pins every LiteBus package at `7.2.0` and adds `LiteBus.Outbox.Storage.Marten`.
 - The agent protocol points at the local docs of the carried release through `__LITESPEC_DOCS__` and tells the agent to read this release only, never substituting another version. The path is written relative to the project when the docs sit in the same repository, or under `~/` when they sit in the home folder, so a committed `AGENTS.md` matches on every machine.
 - A marked external-system interface in a module `Infrastructure/` folder reads as a port, so module-shared ports keep their adapters and edges.
+- `LS2018` lets a WebApi file name platform types, such as the endpoint contract, the session principal and the mediation settings, and `LS1014` reads an input record the root takes inside a list or from a sub-namespace of the aggregate.
 - A hosted sign-in is modeled as use cases that start and complete the sign-in, with the provider as an external system declaring its authorize, token, and logout operations.
 - An unreleased analyzer build is consumed through a local feed, never through a project reference.
 - The complete-sign-in command of a hosted sign-in is the one command that declares a `calls` edge with `inline` timing, for the token exchange whose result the session needs; `effect-timing-invalid` exempts that edge.

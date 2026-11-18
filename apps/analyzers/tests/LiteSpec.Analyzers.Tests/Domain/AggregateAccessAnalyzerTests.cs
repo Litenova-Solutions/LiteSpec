@@ -96,6 +96,50 @@ public sealed class AggregateAccessAnalyzerTests
             ],
             assemblyName: "Claimwick.Spending");
 
+    /// <summary>LS1014 accepts a handler constructing input records the root takes as a list, in a sub-namespace of the aggregate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    [Fact(DisplayName = "LS1014 accepts input records the root takes as a list")]
+    public Task AcceptsInputRecordsTheRootTakesAsAList() =>
+        Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Domain/Expense/Expense.cs", """
+                    namespace Claimwick.Spending.Domain.Expense;
+
+                    public sealed class Expense : AggregateRoot<ExpenseId>
+                    {
+                        public Expense(ExpenseId id)
+                        {
+                        }
+
+                        public static Expense Submit(ExpenseId id, System.Collections.Generic.IReadOnlyList<Inputs.ExpenseLineInput> lines)
+                        {
+                            return new Expense(id);
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Domain/Expense/Inputs/ExpenseLineInput.cs", """
+                    namespace Claimwick.Spending.Domain.Expense.Inputs;
+
+                    public sealed record ExpenseLineInput(int Quantity);
+                    """),
+                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                    using Claimwick.Spending.Domain.Expense.Inputs;
+
+                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+
+                    internal sealed class SubmitExpenseCommandHandler
+                    {
+                        internal ExpenseLineInput[] Handle()
+                        {
+                            return [new ExpenseLineInput(1)];
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
     /// <summary>LS1014 reports a handler constructing the aggregate root itself.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>

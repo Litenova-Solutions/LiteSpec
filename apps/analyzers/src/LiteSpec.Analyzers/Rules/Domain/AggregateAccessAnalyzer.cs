@@ -90,6 +90,38 @@ public sealed class AggregateAccessAnalyzer : LayerAnalyzer
         return IsInputType(created, aggregate);
     }
 
+    /// <summary>Returns true when the parameter type is the created type, or carries it as a type argument or array element.</summary>
+    /// <param name="parameter">The parameter type.</param>
+    /// <param name="created">The created type.</param>
+    /// <returns>True when the parameter takes the created type.</returns>
+    private static bool Names(ITypeSymbol parameter, INamedTypeSymbol created)
+    {
+        if (parameter is IArrayTypeSymbol array)
+        {
+            return Names(array.ElementType, created);
+        }
+
+        if (parameter is not INamedTypeSymbol named)
+        {
+            return false;
+        }
+
+        if (SymbolEqualityComparer.Default.Equals(named.OriginalDefinition, created.OriginalDefinition))
+        {
+            return true;
+        }
+
+        foreach (var argument in named.TypeArguments)
+        {
+            if (Names(argument, created))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>Returns true when the type implements the strongly typed identifier contract; otherwise false.</summary>
     /// <param name="created">The constructed type.</param>
     /// <returns>True when an implemented contract is the strongly typed identifier.</returns>
@@ -113,23 +145,25 @@ public sealed class AggregateAccessAnalyzer : LayerAnalyzer
     private static bool IsInputType(INamedTypeSymbol created, string aggregate)
     {
         var rootName = CodeMap.FolderName(aggregate);
-        foreach (var candidate in created.ContainingNamespace.GetTypeMembers(rootName))
+        for (var space = created.ContainingNamespace; space is not null && !space.IsGlobalNamespace; space = space.ContainingNamespace)
         {
-            if (!Aggregates.IsRoot(candidate))
+            foreach (var candidate in space.GetTypeMembers(rootName))
             {
-                continue;
-            }
-
-            foreach (var member in candidate.GetMembers())
-            {
-                if (member is IMethodSymbol method && !method.IsImplicitlyDeclared)
+                if (!Aggregates.IsRoot(candidate))
                 {
-                    foreach (var parameter in method.Parameters)
+                    continue;
+                }
+
+                foreach (var member in candidate.GetMembers())
+                {
+                    if (member is IMethodSymbol method && !method.IsImplicitlyDeclared)
                     {
-                        if (parameter.Type is INamedTypeSymbol input
-                            && SymbolEqualityComparer.Default.Equals(input.OriginalDefinition, created.OriginalDefinition))
+                        foreach (var parameter in method.Parameters)
                         {
-                            return true;
+                            if (Names(parameter.Type, created))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }

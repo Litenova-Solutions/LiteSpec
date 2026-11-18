@@ -104,6 +104,12 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
             return null;
         }
 
+        if (IsPlatform(type))
+        {
+            // WebApi compiles against the platform: the endpoint contract, the session principal and the mediation settings.
+            return null;
+        }
+
         if (type.Name.EndsWith("Repository", StringComparison.Ordinal))
         {
             return "which is a repository";
