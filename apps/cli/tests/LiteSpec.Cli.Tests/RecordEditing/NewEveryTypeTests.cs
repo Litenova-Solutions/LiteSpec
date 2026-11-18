@@ -37,8 +37,8 @@ public sealed class NewEveryTypeTests
 
         var explanation = Path.ChangeExtension(record, ".md");
 
-        // A requirement takes no explanation file, a waiver sits on the governance layer, which explanations.layers does not name, and the product stands above the record layers.
-        if (type is "requirement" or "waiver" or "product")
+        // A requirement takes no explanation file, and the product stands above the record layers. A waiver sits on the governance layer, which this consumer lists, so it takes its explanation file like any listed type.
+        if (type is "requirement" or "product")
         {
             Assert.False(File.Exists(explanation), $"A {type} takes no explanation file.");
             return;

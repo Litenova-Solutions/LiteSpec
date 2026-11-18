@@ -9,7 +9,7 @@ Employees submit work expenses with receipts. Managers approve or refuse them. F
 Records live under `.litespec/`, grouped by layer:
 
 - `.litespec/product.yaml` is the product record, standing above the record layers.
-- `.litespec/intent/` holds Intent records: standalone features under `.litespec/intent/features/`, flows under `.litespec/intent/flows/`, and roles under `.litespec/intent/roles/`.
+- `.litespec/intent/` holds Intent records: features under the problem they answer in `.litespec/intent/problems/<problem>/features/`, flows under `.litespec/intent/flows/`, and roles under `.litespec/intent/roles/`.
 - `.litespec/behavior/` holds Behavior records: read models under `.litespec/behavior/modules/<module>/read-models/`, domain events in the aggregate files, and screens under `.litespec/behavior/entry-points/claimwick-app/screens/`.
 - `.litespec/implementation/patterns/` holds the UI pattern catalog, `.litespec/implementation/modules/spending/runbooks/` the runbooks, and `.litespec/governance/` the governance records.
 - `.litespec/glossary.yaml` is the glossary.

@@ -6,7 +6,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves a requirement is a page of its own in its feature's folder: it is refused inside a feature file, its identifier names its folder's feature, its explanation stays optional, and it reaches Behavior and its feature.</summary>
+/// <summary>Proves a requirement is a page of its own in its feature's folder: it is refused inside a feature file, its identifier names its folder's feature, it needs its explanation file on a listed layer, and it reaches Behavior and its feature.</summary>
 public sealed class RequirementPageTests
 {
     const string Requirement = ".litespec/intent/features/pricing/requirements/flat-fee/flat-fee.yaml";
@@ -53,15 +53,31 @@ public sealed class RequirementPageTests
         Assert.Contains("Requirement 'requirement/other.flat-fee' names feature 'other', but its folder sits in feature 'pricing'.", result.Output);
     }
 
-    /// <summary>A requirement with no explanation file raises no explanation-missing on an explained layer.</summary>
-    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
-    [Fact(DisplayName = "requirement without an explanation is not missing one")]
-    public void RequirementWithoutExplanationIsNotMissingOne()
+    /// <summary>A requirement with no explanation file on a listed layer reports the missing file.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact(DisplayName = "requirement without an explanation on a listed layer reports")]
+    public void RequirementWithoutExplanationOnAListedLayerReports()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project => project["explanations"] = new JsonObject
         {
             ["layers"] = new JsonArray("intent"),
+        });
+
+        var result = TestCli.Run("model", "check", "--root", folder.Path, "--all");
+
+        Assert.Contains("Requirement 'requirement/pricing.flat-fee' holds no explanation file", result.Output);
+    }
+
+    /// <summary>A requirement with no explanation file on an unlisted layer needs none.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact(DisplayName = "requirement without an explanation on an unlisted layer needs none")]
+    public void RequirementWithoutExplanationOnAnUnlistedLayerNeedsNone()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateProject(folder.Path, project => project["explanations"] = new JsonObject
+        {
+            ["layers"] = new JsonArray("behavior"),
         });
 
         var result = TestCli.Run("model", "check", "--root", folder.Path, "--all");

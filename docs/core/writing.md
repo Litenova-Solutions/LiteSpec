@@ -40,7 +40,7 @@ Identifiers, acronyms, and words with inner capitals keep their written form, an
 
 ### Explanation Sections
 
-An explanation file holds the prose beside a record file: it says what the record means, why it matters, and how it reads beside its neighbors. It opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order.
+An explanation file holds the prose beside a record file: it says what the record means, why it matters, and how it reads beside its neighbors. It opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order. A project lists in `explanations.layers` the layers whose every record file carries one: `intent`, `behavior` and `governance`. Entries stored inside a parent file carry no explanation file of their own.
 
 A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. Each section restates and elaborates its backing fields, and an `Example` section may only use details from the cast or from cited records (`litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record`). An Example section holds at most 120 words. A direction's explanation file is free-form: an H1 with the record title, a lead paragraph, then any body the owner wants, with or without H2 sections.
 
@@ -56,7 +56,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 | research | Findings, Open Questions (optional), Source Notes (optional) | Findings: findings; Open Questions: openQuestions; Source Notes: sources (their `note`) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions | Context: context; Options: options; Decision: choice; Consequences: consequences; Evidence: basedOn; Revisit Conditions: reopenedWhen |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) | Capabilities: the feature's requirements; Success Criteria: successCriteria; Boundaries: excludes; Example: none, illustration only |
-| requirement | Example (optional); the explanation file itself is optional | Example: none, illustration only |
+| requirement | Example (optional) | Example: none, illustration only |
 | flow | Example, Branches (optional) | Example: none, illustration only; Branches: branches |
 | module | Responsibilities, Boundaries, Example (optional) | Responsibilities: responsibilities; Boundaries: excludes; Example: none, illustration only |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) | Lifecycle: states, transitions; Data and Retention: data, dataClasses; Example: none, illustration only; Limits: limits |

@@ -8,7 +8,7 @@ namespace LiteSpec.Model;
 ///     <c>explanations.layers</c> in the project file. A project that names none keeps
 ///     explanation files optional, except the article types, which always require one.
 /// </summary>
-/// <param name="Layers">The required layers, in declaration order, each intent or behavior, the layers that hold record pages.</param>
+/// <param name="Layers">The required layers, in declaration order, each intent, behavior or governance.</param>
 /// <follows>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</follows>
 public sealed record ExplanationClaims(IReadOnlyList<string> Layers)
 {
@@ -16,7 +16,7 @@ public sealed record ExplanationClaims(IReadOnlyList<string> Layers)
     public static ExplanationClaims None { get; } = new([]);
 
     /// <summary>The layer names <c>explanations.layers</c> allows.</summary>
-    private static readonly HashSet<string> Known = new(StringComparer.Ordinal) { "intent", "behavior" };
+    private static readonly HashSet<string> Known = new(StringComparer.Ordinal) { "intent", "behavior", "governance" };
 
     /// <summary>
     ///     Reads the claim from the project file mapping. A file without <c>explanations</c>, or with

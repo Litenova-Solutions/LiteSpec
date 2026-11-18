@@ -32,7 +32,7 @@ public sealed class ExplanationClaimsTests
     [Fact]
     public void UnknownLayersAreDropped()
     {
-        Assert.True(ProjectSettings.TryParse("explanations:\n  layers:\n  - intent\n  - governance\n", out var settings, out var error));
+        Assert.True(ProjectSettings.TryParse("explanations:\n  layers:\n  - intent\n  - implementation\n", out var settings, out var error));
 
         Assert.Equal(["intent"], settings.Explanations.Layers);
         Assert.Null(error);

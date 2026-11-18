@@ -319,6 +319,44 @@ public sealed class ExplanationCheckTests
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
 
+    /// <summary>A waiver on the listed governance layer without its explanation file reports the missing file.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void ListedGovernanceLayerWithoutExplanationReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - governance\n");
+        var file = Path.Combine(temp.Path, "hold-queue.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("waiver", "waiver/hold-queue", file, """{"covers": ["litespec/core/model#require-explanation-files-on-the-layers-a-project-names"], "reason": "The queue ships next week."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Waiver 'waiver/hold-queue' holds no explanation file 'hold-queue.md'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+        Assert.Equal(1, finding.Line);
+        Assert.Equal("waiver/hold-queue", finding.Subject);
+    }
+
+    /// <summary>A waiver needs no explanation file when governance is not listed.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void WaiverOnUnlistedGovernanceLayerNeedsNoExplanation()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - intent\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("waiver", "waiver/hold-queue", Path.Combine(temp.Path, "hold-queue.yaml"), """{"covers": ["litespec/core/model#require-explanation-files-on-the-layers-a-project-names"], "reason": "The queue ships next week."}"""));
+
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
+    }
+
     /// <summary>A feature with no explanations field needs no explanation file.</summary>
     /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
     [Fact]
