@@ -3,7 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-A page-frame pattern fixes the layout for one kind of page: which parts sit where, in what order, and which action is primary. This page defines the frame for each kind: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, and error. Each pattern names the question it answers, the default option a project builds, and how that default behaves on a narrow screen, and shows every option as a wireframe. An owner picks an option from the wireframes, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One frame per kind keeps every screen predictable: the reader knows where the heading, actions, and content sit before reading. This page belongs to the Page Frames category. Its patterns are tested layouts a team chooses from, not required rules.
+A page-frame pattern fixes the layout for one kind of page: which parts sit where, in what order, and which action is primary. This page defines the frame for each kind: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, entry, and error. Each pattern names the question it answers, the default option a project builds, and how that default behaves on a narrow screen, and shows every option as a wireframe. An owner picks an option from the wireframes, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One frame per kind keeps every screen predictable: the reader knows where the heading, actions, and content sit before reading. This page belongs to the Page Frames category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
@@ -1103,6 +1103,78 @@ page
 **Rationale:** Starting from a template names what the first trip is before anything else, and the template sets the lines to match. The client visit template brings hotel and train lines for one scheduled trip, Skip stays beside Continue, and everything stays editable after the choice.
 
 **Cost:** A template guesses what the trip is, and a wrong guess sets lines nobody reads. Templates must stay visibly editable, never silently applied behind the Continue button.
+
+### Entry Page
+
+**ID:** `litespec/frontend/patterns/page-frames#entry-page`
+
+**Strength:** default
+
+**Question:** What a page outside the application shell shows: sign-in, workspace choice, invitation acceptance, or session end. It shows no work and no record, and it holds no command with inputs; it holds one card with a choice or a notice. The decision is how much product surrounds the card: nothing, a panel beside it, or the product behind it.
+
+**Default:** `single-centered-card`
+
+**Compact:** On a narrow screen the card takes the full width, and the product panel drops away on the options that have one.
+
+**Rationale:** The default builds the single centered card. A reader who came to sign in meets the methods and nothing else, and the note on what the product stores answers the one question such a page raises. The split with a product panel is the runner-up: choose it where the product story earns half the screen, such as a first sign-in after an invitation. The floating card over a full panel is the other runner-up for a page that leads with the product. An entry page shows no navigation shell: there is no session to navigate with.
+
+**Reviewed for:** Does the built entry screen match the wireframe its catalog entry chose? Open the built cards, splits, and panels beside the catalog entry recording the chosen option and its reason.
+
+#### `single-centered-card`: Single Centered Card
+
+```wireframe
+page
+  card
+    text muted "Harbor and Pine"
+    heading "Sign in to Claimwick"
+    text "Expenses, payouts, and budgets for your company."
+    action primary "Continue with Google"
+    action "Continue with email"
+    text muted "Claimwick stores your name and work email. No password: sign-in runs through your provider."
+```
+
+**Rationale:** The page is one card: the product name, the title, one sentence on what the product does, the method buttons, and the note on what the product stores. A reader who came to sign in meets the methods and nothing else.
+
+**Cost:** The card says nothing about the product beyond one sentence, so a reader arriving from an invitation learns nothing before signing in. The split option exists for that reader.
+
+#### `split-with-a-product-panel`: Split with a Product Panel
+
+```wireframe
+page
+  split 1:1
+    card
+      image "Harbor and Pine paying out expenses, product panel"
+      heading small "Every expense, paid and accounted"
+      text "268 expenses this month, EUR 57,506 paid out."
+    card
+      text muted "Harbor and Pine"
+      heading "Accept the invitation"
+      text "Priya Shah invited you to file expenses for Amsterdam sales."
+      action primary "Accept and sign in"
+      action quiet "Decline"
+      text muted "Claimwick stores your name and work email."
+```
+
+**Rationale:** The product panel carries the story beside the card: what the product does, with its figures. The invitation reader learns the product before accepting, and the card keeps the choice itself small.
+
+**Cost:** Half the screen serves a reader who already knows the product. On a narrow screen the panel drops away, so the story must never carry the only statement of what accepting means.
+
+#### `card-floating-over-a-full-panel`: Card Floating over a Full Panel
+
+```wireframe
+page
+  image "Expense payouts across Harbor and Pine, full product panel"
+  card
+    text muted "Harbor and Pine"
+    heading "Sign in to Claimwick"
+    text "Expenses, payouts, and budgets for your company."
+    action primary "Continue with Google"
+    action "Continue with email"
+```
+
+**Rationale:** The product panel fills the page behind a floating card: the marketing shape. A first-time reader meets the product at full size with the sign-in beside it.
+
+**Cost:** Text over imagery risks contrast, and the panel competes with the action it surrounds. Reserve it for a page that leads with the product; a returning reader meets the single card.
 
 ### Error or Not-Found Page
 

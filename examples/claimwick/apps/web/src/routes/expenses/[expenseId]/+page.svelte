@@ -18,6 +18,7 @@
     type ListExpensesResponse,
   } from "@claimwick/api";
   import { ListPage } from "@claimwick/ui/floorplans";
+  import { formatMoney } from "#lib/app/money.ts";
   import { sentenceFor } from "./refusals.ts";
 
   const expenseId = page.params.expenseId ?? "";
@@ -170,7 +171,7 @@
 
     <section aria-label="The expense">
       <h2>The expense</h2>
-      <p>Amount: {expense.currency} {expense.amount}</p>
+      <p>Amount: {formatMoney(expense)}</p>
     </section>
 
     {#if expense.state === "Submitted"}

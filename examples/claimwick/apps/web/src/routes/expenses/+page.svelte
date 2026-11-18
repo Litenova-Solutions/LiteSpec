@@ -5,8 +5,10 @@
 </script>
 
 <script lang="ts">
-  import { listExpenses } from "@claimwick/api";
+  import { createQuery } from "@tanstack/svelte-query";
   import { DataTable, ListPage } from "@claimwick/ui/floorplans";
+  import { formatMoney } from "#lib/app/money.ts";
+  import { listExpensesQueryFn, listExpensesQueryKey } from "#lib/modules/spending/expenses/list-expenses-query.ts";
 
   const columns = [
     { key: "submittedAt", label: "Submitted" },
@@ -14,23 +16,26 @@
     { key: "state", label: "State" },
   ];
 
-  const request = listExpenses({ throwOnError: true });
+  const expenses = createQuery(() => ({ queryKey: listExpensesQueryKey, queryFn: listExpensesQueryFn }));
+  const rows = $derived(
+    (expenses.data?.expenses ?? []).map((expense) => ({
+      submittedAt: expense.submittedAt,
+      amount: formatMoney(expense),
+      state: expense.state,
+    })),
+  );
 </script>
 
 <ListPage title="Expenses">
-  {#await request}
+  {#if expenses.isPending}
     <p role="status">Loading expenses.</p>
-  {:then result}
+  {:else if expenses.isError}
+    <p role="alert">The expenses could not be loaded. Try again in a moment.</p>
+  {:else}
     <DataTable
       caption="Your expenses, newest first"
       {columns}
-      rows={result.expenses.map((expense) => ({
-        submittedAt: expense.submittedAt,
-        amount: `${expense.amount} ${expense.currency}`,
-        state: expense.state,
-      }))}
+      {rows}
     />
-  {:catch}
-    <p role="alert">The expenses could not be loaded. Try again in a moment.</p>
-  {/await}
+  {/if}
 </ListPage>

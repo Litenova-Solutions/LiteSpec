@@ -368,6 +368,75 @@ page
 
 **Cost:** A scrim over the page is neither a shared component nor a page slot. It hides a page the reader may want to scroll.
 
+### Route Loading Frame
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#route-loading-frame`
+
+**Strength:** default
+
+**Question:** The route waits for its first read. Page code declares no layout of its own, so the wait renders within the route's floorplan: the frame stays in place and the content slots hold the wait. The decision is what the slots hold, and what the header shows when its own copy depends on the read.
+
+**Default:** `skeletons-in-the-floorplan-slots`
+
+**Compact:** Below the md breakpoint the default option reflows: the toolbar stacks above the skeleton rows, which keep the row height.
+
+**Rationale:** The default is skeletons in the floorplan slots. The header and toolbar render with their real copy, the content slots show skeletons at the real row height, and nothing moves when the data lands. The runner-up is the skeleton header with skeleton content; prefer it on a record route whose title names the read. The spinner in the slots is the other alternative for a rare read where skeleton heights cost more than they are worth. A bare loading page outside the floorplan stays out: the route keeps its frame while it waits.
+
+**Reviewed for:** Does every built waiting route match the wireframe its catalog entry chose? Open the built slot skeletons, skeleton headers, and slot spinners beside the catalog entry recording the chosen option and its reason.
+
+#### `skeletons-in-the-floorplan-slots`: Skeletons in the Floorplan Slots
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every expense, newest first."
+  toolbar
+    field "Search expenses" search
+  region "Expenses"
+    image "Seven skeleton rows shaped like expense rows"
+  footer
+    text "Reading 268 expenses"
+```
+
+**Rationale:** The floorplan renders with its real header and toolbar, and the content slots show skeletons shaped like the rows they become. Nothing moves when the data lands.
+
+**Cost:** The header, toolbar, and pagination match the row size. A skeleton page gets four heights right, or the page jumps.
+
+#### `skeleton-header-with-skeleton-content`: Skeleton Header with Skeleton Content
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses" "EXP-1042"
+  header
+    image "Skeleton title bar shaped like the record heading"
+    text muted "Reading the expense."
+  region "The expense"
+    image "Four skeleton facts shaped like expense facts"
+```
+
+**Rationale:** On a record route the title names the read, so the header shows a skeleton bar where the title lands. The breadcrumb keeps the address, which the route knows before the read.
+
+**Cost:** Two skeleton shapes to size instead of one, and the title bar must match the heading it becomes, or the header jumps on arrival.
+
+#### `spinner-in-the-floorplan-slots`: Spinner in the Floorplan Slots
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every expense, newest first."
+  region "Expenses"
+    image "Centered spinner"
+    text "Reading the expenses."
+```
+
+**Rationale:** The floorplan renders with its real header, and the content slots show a centered spinner with one line. No skeleton heights to size, so a rare read stays cheap.
+
+**Cost:** The page jumps when the rows arrive, and the spinner says nothing about what shape is coming. A route read daily earns skeletons instead.
+
 ### Command the API Refused
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#command-the-api-refused`
@@ -1217,6 +1286,76 @@ page
 **Rationale:** The money section fails into its retry while the spender section stays readable. One failed read does not take the page.
 
 **Cost:** Two sections can fail two different ways on one page. Past one failure the page is a list of retries, and the outcome page takes over.
+
+### Route Error Frame
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#route-error-frame`
+
+**Strength:** default
+
+**Question:** The route's read failed. Page code declares no layout of its own, so the failure renders within the route's floorplan: the frame stays in place and the content slots hold the error state. The decision is what the slots hold, and what the page shows when the failure takes the header copy too.
+
+**Default:** `error-state-in-the-floorplan-slots`
+
+**Compact:** Below the md breakpoint the default option reflows: the failure, its retry, and its trace stack in one column under the header.
+
+**Rationale:** The default is the error state in the floorplan slots. The header renders with its real copy, and the slots show what failed, `Try again`, and the trace identifier in copyable form. The runner-up is the error state as the whole content; prefer it on a record route whose title the failed read would have named. The bare status outside the floorplan is the other alternative for a failure that takes the frame itself, and it names the freestyle decision behind it. A retry that cannot help stays out: a failure the reader cannot fix names the next step instead.
+
+**Reviewed for:** Does every built failed route match the wireframe its catalog entry chose? Open the built slot errors, content errors, and bare statuses beside the catalog entry recording the chosen option and its reason.
+
+#### `error-state-in-the-floorplan-slots`: Error State in the Floorplan Slots
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every expense, newest first."
+  region "Expenses"
+    heading small "The expenses could not be read"
+    text "Check the connection and try again. Nothing changed."
+    fact "Trace" "tr_8f3a2c1e"
+    action quiet "Copy"
+    action primary "Try again"
+```
+
+**Rationale:** The floorplan renders with its real header, and the content slots show the failure: what did not happen, `Try again`, and the trace identifier the reader quotes to support. The money sentence says what did not move.
+
+**Cost:** The header promises a page the slots cannot show. Where the failure takes the header copy too, the whole-content option takes over.
+
+#### `error-state-as-the-whole-content`: Error State as the Whole Content
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  region
+    heading "This expense could not be read"
+    text "Check the connection and try again. Nothing changed."
+    fact "Trace" "tr_8f3a2c1e"
+    action quiet "Copy"
+    action primary "Try again"
+    action "Back to expenses"
+```
+
+**Rationale:** The failed read would have named the title, so no header renders: the whole content is the error state, with the way back beside the retry. The breadcrumb keeps the address the route knows.
+
+**Cost:** The page loses its title, so a reader arriving from a link cannot tell which record failed to load. The trace identifier is what support reads back.
+
+#### `bare-status-outside-the-floorplan`: Bare Status Outside the Floorplan
+
+```wireframe
+page
+  header
+    heading "Expenses"
+  region
+    message "The expenses could not be read. Try again." critical
+    fact "Trace" "tr_8f3a2c1e"
+    action primary "Try again"
+```
+
+**Rationale:** The failure takes the frame itself, so no floorplan renders: the page is one main landmark with the failure message, its retry, and its trace. The route names the freestyle decision behind the bare shape, as a freestyle route must.
+
+**Cost:** The page loses the header, the breadcrumb, and the way back. Reserve it for a failure that leaves nothing to frame; anything less keeps the floorplan.
 
 ### Back Office Is Down for a Short While
 

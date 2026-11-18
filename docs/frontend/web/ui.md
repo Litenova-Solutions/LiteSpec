@@ -92,6 +92,22 @@ The shared UI rules live on [Controlled UI Governance](../ui.md): the baseline, 
 
 **Checked by:** `shadcn build` on React or `shadcn-svelte build` on Svelte exits zero, and `registry.json` lists one item per declared floorplan.
 
+### Draw Platform Composites with Native Elements
+
+**ID:** `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`
+
+**Strength:** required
+
+**Applies to:** artifact: component
+
+**Statement:** A dialog, popover, or details composite MUST build on the platform dialog, popover, or details element.
+
+**Rationale:** The platform dialog carries focus handling, dismissal, and layering; the popover carries anchoring and light dismissal; details carries disclosure. A composite rebuilding any of them on generic elements reimplements that behavior, usually worse, and each page then tunes the copy for itself. Composites the platform lacks, such as a combobox and a date picker, stay on the pinned baseline, which exists for what the platform does not provide. Each native element still meets the declared browser support tier under `litespec/frontend/web/ui#build-within-the-browser-support-target`. Settled by [decision/0102-draw-platform-composites-with-native-elements](decision/0102-draw-platform-composites-with-native-elements).
+
+**Example:** The Claimwick shared package builds its confirmation dialog on the platform dialog element, and takes its expense-category combobox from the pinned baseline.
+
+**Reviewed for:** Does every dialog, popover, and details composite build on its native element? Look in the shared package composites.
+
 ### Mark the Route Suite and Goldens with What They Prove
 
 **ID:** `litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove`

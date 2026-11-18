@@ -63,12 +63,11 @@ apps/{frontend}/
     unit/      logic tests
     routes/    the route contract suite
     e2e/       evidence specifications
-  svelte.config.js
   vite.config.ts
   package.json
 ```
 
-The generated route artifacts, build output, and dependency folders stay untracked.
+The generated route artifacts, build output, and dependency folders stay untracked. SvelteKit configuration lives in `vite.config.ts`: SvelteKit 3 reads no `svelte.config.js`.
 
 **Reviewed for:** Does every frontend tree follow the frame, routes, and modules layout its stack page states? Check the frontend tree.
 
@@ -116,7 +115,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Statement:** A frontend's generated `litespec-records.ts` MUST sit in its frame folder and hold only the use cases and screens of that frontend's own entry points.
 
-**Rationale:** The records file is a cross-route value every module and route imports, which is what the frame holds. On both stacks it lives in the frame folder: `src/app/` on React and `src/lib/app/` on Svelte, so no stack-specific folder is needed. A union holding every browser use case of the project would let one frontend mark a use case only another frontend reaches, and the type check would pass; a union per frontend makes that mistake a type error. The file exports the `UseCaseId` and `ScreenId` unions, the `LiteSpecMark` type, and the `proves` helper that browser tests annotate with.
+**Rationale:** The records file is a cross-route value every module and route imports, which is what the frame holds. On both stacks it lives in the frame folder: `src/app/` on React and `src/lib/app/` on Svelte, so no stack-specific folder is needed. A union holding every browser use case of the project would let one frontend mark a use case only another frontend reaches, and the type check would pass; a union per frontend makes that mistake a type error. The file exports the `UseCaseId` and `ScreenId` unions, the `LiteSpecMark` type, and the `proves` helper that browser tests annotate with. The render reads the screens and use cases of the frontend's entry points, not the code marks, so it writes the file before any screen exists: run `litespec model render` once when the web app is created. A frontend holding no marked route yet reads every browser entry point.
 
 **Example:** `litespec model render` writes `apps/web/src/lib/app/litespec-records.ts` for the Claimwick web frontend, whose `UseCaseId` holds the use cases its entry point reaches and nothing else.
 

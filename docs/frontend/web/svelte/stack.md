@@ -16,6 +16,16 @@ A Svelte frontend holds its parts in folders: `src/lib/app` holds the frame, `sr
 
 Imports resolve through the `#lib` alias, which the frontend declares in the `imports` field of its `package.json` as `"#lib/*": "./src/lib/*"`. Shared files use the `.svelte` extension.
 
+Three files agree on how imports resolve. The `imports` field is the one alias declaration: Vite, TypeScript under bundler resolution, and Node resolve it natively, so the frontend declares no SvelteKit alias and no TypeScript paths. The Claimwick web frontend ships all three.
+
+| File | It carries |
+|:---|:---|
+| `package.json` | `"imports": { "#lib/*": "./src/lib/*" }`, the one alias declaration |
+| `tsconfig.json` | Extends `./.svelte-kit/tsconfig.json`, with bundler resolution and extension imports allowed |
+| `vite.config.ts` | The SvelteKit configuration through `sveltekit()`, with the adapter the rendering mode needs |
+
+The TypeScript configuration sets `moduleResolution: bundler` with `allowImportingTsExtensions` and `noEmit`, so `#lib/app/words.ts` typechecks with its extension. SvelteKit 3 reads no `svelte.config.js`: its configuration lives in `vite.config.ts`.
+
 Route groups are folders under `src/routes` whose names stay in parentheses, such as `(console)`. The parentheses are router syntax: the folder groups routes under one layout without adding an address. For example, the Claimwick expense console keeps its frame in `src/lib/app`, its expense list page in `src/routes/expenses/+page.svelte`, and its expense use-case code in `src/lib/modules/spending/expenses`, importing frame code through `#lib/app/words.ts`.
 
 The layout follows `litespec/frontend/web/structure#use-the-frontend-application-tree`, and shared files use the extension in `litespec/frontend/web/structure#use-the-stack-file-extension`.
@@ -26,9 +36,9 @@ Svelte routes are folders under `src/routes`, each holding a page. A shell is a 
 
 A route loads its data before it draws. In Svelte terms, the page is a route file, the load is a loader, and the query creator is a suspense query: the load prefetches the route's reads into the query cache, and the page reads back the key the load filled, so it renders the data the load fetched.
 
-For example, the Claimwick expense list folder holds its page number schema, its load, and its page component: the load fetches the expense page for the checked page number, and the page reads it back with a query creator over the same key. Intent preloading extends the same idea to links: hovering or focusing a link fills the target's cache key before the click, so the target draws from data it already holds.
+For example, the Claimwick expense list is wired end to end: the root layout builds the query client and provides it, `+page.ts` prefetches the expense list into the cache, the page reads it back with a query creator over the same key, and the new-expense submit invalidates the list query. Intent preloading extends the same idea to links: hovering or focusing a link fills the target's cache key before the click, so the target draws from data it already holds.
 
-Routes hold their parts together under `litespec/frontend/structure#keep-a-route-entry-thin`, declare parameters under `litespec/frontend/rendering#validate-address-parameters-with-a-schema`, prefetch under `litespec/frontend/rendering#load-route-data-before-rendering`, read under `litespec/frontend/rendering#read-route-data-from-the-route-cache`, and preload intent under `litespec/frontend/rendering#prefetch-a-route-on-intent`.
+Routes hold their parts together under `litespec/frontend/structure#keep-a-route-entry-thin`, declare parameters under `litespec/frontend/rendering#validate-address-parameters-with-a-schema`, prefetch under `litespec/frontend/rendering#load-route-data-before-rendering`, read under `litespec/frontend/rendering#read-route-data-from-the-route-cache`, and preload intent under `litespec/frontend/rendering#prefetch-a-route-on-intent`. The layout builds its server cache per request under `litespec/frontend/rendering#build-the-server-data-cache-per-request`.
 
 ### Which Files Declare an Address
 

@@ -301,6 +301,22 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Reviewed for:** Does every date with no time of day travel and display as a calendar date? Look in the date sends and renders beside the trip, payout, and billing reads.
 
+### Hold Every Monetary Amount in the Frame Money Type
+
+**ID:** `litespec/frontend/data#hold-every-monetary-amount-in-the-frame-money-type`
+
+**Strength:** required
+
+**Applies to:** artifact: component, route
+
+**Statement:** A frontend MUST hold every monetary amount in the frame Money type, carrying the amount as a decimal string and computing on scaled integers.
+
+**Rationale:** A monetary amount carried as a JSON number loses cents to binary floating point before any code runs, and a second Money shape per use case drifts from the wire shape, which carries the amount as a decimal string beside its three-letter code. One Money type in the frame holds that wire shape for every screen, and arithmetic on scaled integers keeps every total exact. A screen converts the value to display text only at the presentation boundary, as `litespec/frontend/components#keep-domain-values-typed-until-display` states.
+
+**Example:** The Claimwick frame holds Money in `src/lib/app/money.ts`: the expense list renders EUR 125.00 from `{ amount: "125.00", currency: "EUR" }`, and totals add scaled integers.
+
+**Reviewed for:** Does every monetary amount travel in the frame Money type with a string amount, with arithmetic on scaled integers and no Number? Look in the frame money type and the amount call sites.
+
 ### Keep Secrets Out of Browser Storage
 
 **ID:** `litespec/frontend/data#keep-secrets-out-of-browser-storage`

@@ -8,7 +8,11 @@
   import { goto } from "$app/navigation";
   import { submitExpense } from "@claimwick/api";
   import { ListPage } from "@claimwick/ui/floorplans";
+  import { useQueryClient } from "@tanstack/svelte-query";
+  import { listExpensesQueryKey } from "#lib/modules/spending/expenses/list-expenses-query.ts";
   import { sentenceFor } from "./refusals.ts";
+
+  const queryClient = useQueryClient();
 
   let amount = $state("");
   let currency = $state("EUR");
@@ -25,6 +29,7 @@
         throwOnError: true,
         body: { amount, currency, receiptId: attached ? crypto.randomUUID() : null },
       });
+      await queryClient.invalidateQueries({ queryKey: listExpensesQueryKey });
       await goto(`/expenses/${result.expenseId}`);
     } catch (error) {
       refusal = sentenceFor("submit", error, "The expense could not be submitted. Try again.");
