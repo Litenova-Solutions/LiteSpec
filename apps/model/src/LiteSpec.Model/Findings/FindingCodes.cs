@@ -651,6 +651,18 @@ public static class FindingCodes
         new("compensation-trigger-invalid", "G", RecordLayer.Behavior, trace: false,
             "A compensating reaction answers an event that the compensated use case itself raises.",
             "Answer the event that reports the later step's failure instead."),
+        new("rule-sibling-uncited", "G", RecordLayer.Behavior, trace: false,
+            "A command writes an aggregate without citing an invariant rule that most commands writing the same aggregate cite.",
+            "Cite the rule from the command's steps, inputs, or results and name the command in governs, or narrow the rule so it no longer governs the aggregate."),
+        new("exercises-uncited", "A", RecordLayer.Behavior, trace: false,
+            "A scenario exercises a rule that its use case cites nowhere in its steps, inputs, or results.",
+            "Cite the rule from the use case, or remove it from the scenario's exercises."),
+        new("refusal-next-step-unknown", "A", RecordLayer.Behavior, trace: false,
+            "A refusal sentence names a record id that nothing holds, or promises another way out with instead, alternatively, you can also, or or you can.",
+            "Point the sentence at a use case, screen, setting, or input that exists, or rewrite it without the way out."),
+        new("guard-module-foreign", "G", RecordLayer.Behavior, trace: false,
+            "A command guards on an aggregate of another module, whose rule cannot hold when the command commits.",
+            "Decide the guard in the owning module, or compare owner-written timestamps instead of locking."),
     ];
 
 

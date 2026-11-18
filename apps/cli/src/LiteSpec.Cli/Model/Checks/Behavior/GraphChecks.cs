@@ -7,12 +7,13 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The record-graph checks: every behavior record links up to intent, every flow step and notification has a record serving or sending it, every setting default has a requirement behind it, and every scenario exercises a rule.</summary>
+/// <summary>The record-graph checks: every behavior record links up to intent, every flow step and notification has a record serving or sending it, every setting default has a requirement behind it, every scenario exercises a rule its use case applies, and every command cites the invariants most writers of its aggregate cite.</summary>
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/model#serve-every-flow-step</follows>
 /// <follows>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</follows>
 /// <follows>litespec/core/use-cases#tie-every-setting-default-to-a-requirement</follows>
 /// <follows>litespec/core/use-cases#exercise-rules-from-scenarios</follows>
+/// <follows>litespec/core/use-cases#cite-the-invariants-most-writers-cite</follows>
 internal static class GraphChecks
 {
     /// <summary>Reports a use case, reaction, job, notification or setting naming neither serves nor fulfills.</summary>
@@ -173,7 +174,9 @@ internal static class GraphChecks
 
     /// <summary>
     ///     Reports a scenario exercise naming no rule, a refusal scenario that leaves out the rule
-    ///     refusing with its result's code, and an input rule that no scenario of its use case exercises.
+    ///     refusing with its result's code, an input rule that no scenario of its use case exercises,
+    ///     a scenario exercising a rule its use case applies nowhere, and a command missing an
+    ///     invariant most writers of its aggregate cite.
     /// </summary>
     /// <param name="model">The loaded project model that holds every scenario record and rule.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -247,6 +250,180 @@ internal static class GraphChecks
         }
 
         CheckGoverns(model, findings);
+        CheckExercisesUnrelated(model, findings);
+        CheckSiblingRule(model, findings);
+    }
+
+    /// <summary>
+    ///     Reports a scenario exercising a rule its use case applies nowhere: not in its steps' cites,
+    ///     its input rules, its consistency boundBy, or a result carrying the rule's refusal code.
+    ///     An exercise naming no rule or no rule record is owned by the exercise loop above.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every scenario, use case and rule.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckExercisesUnrelated(ProjectModel model, List<Finding> findings)
+    {
+        var applied = AppliedByUseCase(model);
+
+        foreach (var scenario in model.Records
+            .Where(record => record.Type == RecordTypes.Scenario)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (UseCaseOfScenario(model, scenario) is not { } useCase
+                || !applied.TryGetValue(useCase.Id, out var rules))
+            {
+                continue;
+            }
+
+            foreach (var exercised in scenario.Ids(RecordFields.Exercises).Order(StringComparer.Ordinal))
+            {
+                if (!model.ById.TryGetValue(exercised, out var target) || target.Type != RecordTypes.Rule)
+                {
+                    continue;
+                }
+
+                if (!rules.Contains(exercised))
+                {
+                    findings.Add(new Finding("exercises-uncited", $"Scenario '{scenario.Id}' exercises '{exercised}', which use case '{useCase.Id}' cites nowhere in its steps, inputs, or results.", scenario.File, scenario.Line, SubjectOf(scenario)));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports a command writing an aggregate without citing an invariant governing that aggregate
+    ///     when fewer writers miss the rule than cite it. Only invariants qualify: any other kind is
+    ///     cited per command by nature, while an invariant holds on every change.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every use case, rule and aggregate.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSiblingRule(ProjectModel model, List<Finding> findings)
+    {
+        var applied = AppliedByUseCase(model);
+        var writers = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
+
+        foreach (var useCase in model.Records.Where(record =>
+            record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "command"))
+        {
+            foreach (var written in useCase.Ids(RecordFields.Writes))
+            {
+                if (!writers.TryGetValue(written, out var commands))
+                {
+                    commands = [];
+                    writers[written] = commands;
+                }
+
+                commands.Add(useCase);
+            }
+        }
+
+        foreach (var rule in model.Records
+            .Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Kind) == "invariant")
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            foreach (var aggregate in GovernedOfType(model, rule, RecordTypes.Aggregate).Order(StringComparer.Ordinal))
+            {
+                if (!writers.TryGetValue(aggregate, out var commands))
+                {
+                    continue;
+                }
+
+                var citing = commands
+                    .Where(command => applied.TryGetValue(command.Id, out var rules) && rules.Contains(rule.Id))
+                    .OrderBy(command => command.Id, StringComparer.Ordinal)
+                    .ToList();
+                var missing = commands
+                    .Where(command => !applied.TryGetValue(command.Id, out var rules) || !rules.Contains(rule.Id))
+                    .OrderBy(command => command.Id, StringComparer.Ordinal)
+                    .ToList();
+
+                if (missing.Count == 0 || missing.Count >= citing.Count)
+                {
+                    continue;
+                }
+
+                foreach (var command in missing)
+                {
+                    findings.Add(new Finding("rule-sibling-uncited", $"Command '{command.Id}' writes '{aggregate}' without citing invariant '{rule.Id}', which {citing.Count} of {commands.Count} commands writing '{aggregate}' cite.", command.File, command.Line, SubjectOf(command)));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     The rules each use case applies: its steps' cites, its input rules, its consistency boundBy,
+    ///     and the rules refused as its results' codes. A scenario's exercises claims the rule without
+    ///     applying it, so exercises never count here.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every use case, result and rule.</param>
+    /// <returns>Each use case identifier with the rule identifiers it applies.</returns>
+    private static Dictionary<string, HashSet<string>> AppliedByUseCase(ProjectModel model)
+    {
+        var refusing = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+        foreach (var rule in model.Records.Where(record =>
+            record.Type == RecordTypes.Rule && record.Field(RecordFields.Refusal) is { Length: > 0 }))
+        {
+            var code = rule.Field(RecordFields.Refusal)!;
+
+            if (!refusing.TryGetValue(code, out var rules))
+            {
+                rules = [];
+                refusing[code] = rules;
+            }
+
+            rules.Add(rule.Id);
+        }
+
+        var applied = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
+        {
+            var rules = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var cited in useCase.AppliedCitations().Where(id => id.StartsWith("rule/", StringComparison.Ordinal)))
+            {
+                rules.Add(Identifiers.BaseId(cited));
+            }
+
+            foreach (var cited in InputRules(useCase))
+            {
+                rules.Add(Identifiers.BaseId(cited));
+            }
+
+            if (useCase.Raw.ValueKind == JsonValueKind.Object
+                && useCase.Raw.TryGetProperty(RecordFields.Consistency, out var consistency)
+                && consistency.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var cited in LinkStrings(consistency, RecordFields.BoundBy))
+                {
+                    rules.Add(Identifiers.BaseId(cited));
+                }
+            }
+
+            applied[useCase.Id] = rules;
+        }
+
+        foreach (var result in model.Records.Where(record =>
+            record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal"))
+        {
+            if (result.Field(RecordFields.Code) is not { Length: > 0 } code
+                || !refusing.TryGetValue(code, out var rules)
+                || !Identifiers.TrySplit(result.Id, out _, out var home, out _)
+                || home is not { Length: > 0 }
+                || ModelBuilder.UseCaseOf(model, home) is not { } owner
+                || !applied.TryGetValue(owner.Id, out var appliedRules))
+            {
+                continue;
+            }
+
+            foreach (var rule in rules)
+            {
+                appliedRules.Add(rule);
+            }
+        }
+
+        return applied;
     }
 
     /// <summary>

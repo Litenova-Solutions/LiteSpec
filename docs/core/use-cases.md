@@ -345,6 +345,22 @@ A type on each field lets the builder compare the records with the generated con
 
 **Checked by:** `litespec model check` reports `write-undeclared` for a write outside `writes` and `reference-unknown` for an unknown aggregate.
 
+### Cite the Invariants Most Writers Cite
+
+**ID:** `litespec/core/use-cases#cite-the-invariants-most-writers-cite`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case; when: command
+
+**Statement:** Each command MUST cite every invariant rule that governs an aggregate it writes when most commands writing that aggregate cite the rule.
+
+**Rationale:** A command that writes an aggregate can break every invariant governing it, and the sibling commands writing the same aggregate show which invariants those writes meet. When most of them cite an invariant, the outlier posts without the checks the others apply. A command cites a rule in its steps' cites, its input rules, its consistency boundBy, or a result carrying the rule's refusal code. Only invariants qualify, since any other kind constrains single commands, while an invariant holds on every change.
+
+**Example:** Three library commands write the loan aggregate. Two cite the one-hold-per-copy invariant, and the third does not, so the third is reported.
+
+**Checked by:** `litespec model check` reports `rule-sibling-uncited` for a command writing an aggregate without citing an invariant most commands writing that aggregate cite.
+
 ### Declare Consistency on Multi-Aggregate Commands
 
 **ID:** `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`
@@ -371,13 +387,13 @@ An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each command whose `boundBy` rule governs an aggregate the command reads but does not write MUST name that aggregate in `consistency.guards`.
+**Statement:** Each command whose `boundBy` rule governs an aggregate of its own module that the command reads but does not write MUST name that aggregate in `consistency.guards`.
 
-**Rationale:** A guard read at the start of a command can change before the command commits: submit-expense reads the report as open, close-report closes it and commits, and submit-expense then commits an expense on a closed report. Naming the guarding aggregate in `guards` states that the rule must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. The stack page states how the guarded read holds the guard, by a lock, a version check, or serializable isolation.
+**Rationale:** A guard read at the start of a command can change before the command commits: submit-expense reads the report as open, close-report closes it and commits, and submit-expense then commits an expense on a closed report. Naming the guarding aggregate in `guards` states that the rule must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. The stack page states how the guarded read holds the guard, by a lock, a version check, or serializable isolation. No guard reaches into another module: the guard holds at commit, and no commit spans modules. A command bound by a rule over another module's aggregate is reported, and [Edges and Screens](edges.md) states how the two modules keep the fact consistent without a lock.
 
 **Example:** The submit-expense command reads the report and writes the expense, with the open-report rule in `boundBy`. It names the report in `guards`, so a racing close-report commit either waits or makes submit-expense refuse.
 
-**Checked by:** `litespec model check` reports `guard-undeclared` (level G) for a command whose `boundBy` rule governs an aggregate the command reads but does not write, and whose `consistency.guards` does not name that aggregate.
+**Checked by:** `litespec model check` reports `guard-undeclared` (level G) for a command whose `boundBy` rule governs an aggregate the command reads but does not write, and whose `consistency.guards` does not name that aggregate, and `guard-module-foreign` for a guard naming an aggregate of another module, or a bound rule over one the command reads but does not write.
 
 ### Prove Every Guard Against a Competing Command
 
@@ -687,6 +703,24 @@ The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `asyn
 
 **Checked by:** `litespec model check` reports `refusal-generic-written` for a use case writing a generic refusal as a record.
 
+### Name Only a Provided Way Out in Each Refusal Sentence
+
+**ID:** `litespec/core/use-cases#name-only-a-provided-way-out-in-each-refusal-sentence`
+
+**Strength:** advisory
+
+**Applies to:** artifact: record:result
+
+**Statement:** Each refusal sentence that names a next step SHOULD name a use case, screen, setting, or input that exists.
+
+**Deviation:** A way out the product cannot provide, such as visiting a bank branch, stays as prose naming the place.
+
+**Rationale:** The refusal sentence is what the user reads. When it promises a way out the product lacks, the user follows the advice into the same refusal: the sentence says to submit the expense to the next open report instead, but the command takes no report. Naming only a use case, screen, setting, or input that exists keeps every promised step one the user can take.
+
+**Example:** Claimwick's closed-report refusal carries "This expense falls in a closed report. Reopen the report and submit again." only when the reopen use case exists; otherwise it carries "This expense falls in a closed report, so it cannot be submitted."
+
+**Checked by:** `litespec model check` reports `refusal-next-step-unknown` (level A) for a refusal sentence naming a `use-case/`, `screen/`, or `setting/` id no record holds, or carrying `instead`, `alternatively`, `you can also`, or `or you can`.
+
 ### Name the Result Each Scenario Ends In
 
 **ID:** `litespec/core/use-cases#name-the-result-each-scenario-ends-in`
@@ -755,11 +789,11 @@ The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `asyn
 
 **Statement:** A scenario MUST name the rules it shows in `exercises`.
 
-**Rationale:** A rule proved only through a test mark hides which example walks it: readers open the rule and find no scenario showing it. Naming the shown rules in `exercises` ties each example to the rules it walks, and every rule meets its scenarios. A refusal scenario names the rule behind its result. The scenarios of a use case together walk every rule its inputs cite.
+**Rationale:** A rule proved only through a test mark hides which example walks it: readers open the rule and find no scenario showing it. Naming the shown rules in `exercises` ties each example to the rules it walks, and every rule meets its scenarios. A refusal scenario names the rule behind its result. The scenarios of a use case together walk every rule its inputs cite. An `exercises` entry naming a rule the use case never applies inflates coverage and sends a test author looking for behavior the scenario never shows.
 
 **Example:** In the library product, a scenario walking a second hold on one copy names `rule/lending.one-hold-per-copy` in `exercises`.
 
-**Checked by:** `litespec model check` reports `scenario-rule-unexercised` for a refusal scenario whose result's rule is not in `exercises`, or an input rule no scenario of the use case exercises.
+**Checked by:** `litespec model check` reports `scenario-rule-unexercised` for a refusal scenario whose result's rule is not in `exercises`, or an input rule no scenario of the use case exercises, and `exercises-uncited` (level A) for a scenario exercising a rule its use case cites nowhere in its steps, inputs, or results.
 
 ### Keep Each Scenario Inside Its Operation
 

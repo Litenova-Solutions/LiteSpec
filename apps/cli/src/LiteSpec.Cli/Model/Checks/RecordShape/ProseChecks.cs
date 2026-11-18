@@ -5,14 +5,25 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The prose checks, advisory: every record except a requirement or a direction holds a summary, every goal, direction, problem, requirement and rule holds a statement, and a Behavior statement names what happens rather than a vague word.</summary>
+/// <summary>The prose checks, advisory: every record except a requirement or a direction holds a summary, every goal, direction, problem, requirement and rule holds a statement, a Behavior statement names what happens rather than a vague word, and a refusal sentence names only a way out the records provide.</summary>
 /// <follows>litespec/core/use-cases#summarize-every-use-case</follows>
 /// <follows>litespec/core/model#state-what-happens-in-every-behavior-statement</follows>
+/// <follows>litespec/core/use-cases#name-only-a-provided-way-out-in-each-refusal-sentence</follows>
 internal static class ProseChecks
 {
     /// <summary>The words that say something happens without saying what, as the Behavior page lists them.</summary>
     private static readonly Regex VagueWord = new(
         @"\b(handles?|handled|processes|process|manages?|various|appropriately|appropriate|properly)\b|\bas needed\b|\band so on\b|\betc\.",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>The record identifiers a refusal sentence names as its way out: a use case, a screen, or a setting. The match ends in a word character, so a sentence-ending period stays outside it.</summary>
+    private static readonly Regex NamedRecord = new(
+        @"\b(use-case|screen|setting)/[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>The phrases promising another way out: instead, alternatively, you can also, or or you can. An instead of names a form, not a way out.</summary>
+    private static readonly Regex AlternativeCue = new(
+        @"\binstead\b(?!\s+of\b)|\balternatively\b|\byou can also\b|\bor you can\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>The Behavior record fields a vague word is judged in.</summary>
@@ -40,6 +51,47 @@ internal static class ProseChecks
             }
 
             CheckVagueWords(record, findings);
+            CheckNextStep(model, record, findings);
+        }
+    }
+
+    /// <summary>
+    ///     Reports a refusal sentence naming a use case, screen, or setting no record holds, or
+    ///     promising another way out with an alternative cue. The cue is a heuristic: the sentence
+    ///     names the way out in prose no check can resolve, so a person confirms the records provide it.
+    /// </summary>
+    /// <param name="model">The loaded project model that resolves the named records.</param>
+    /// <param name="record">The result record whose refusal sentence is read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckNextStep(ProjectModel model, Record record, List<Finding> findings)
+    {
+        if (record.Type != RecordTypes.Result
+            || record.Field(RecordFields.Outcome) != "refusal"
+            || record.Field(RecordFields.Sentence) is not { Length: > 0 } sentence)
+        {
+            return;
+        }
+
+        var named = new SortedSet<string>(StringComparer.Ordinal);
+
+        foreach (Match match in NamedRecord.Matches(sentence))
+        {
+            named.Add(match.Value);
+        }
+
+        foreach (var id in named)
+        {
+            if (!model.ById.ContainsKey(id))
+            {
+                findings.Add(new Finding("refusal-next-step-unknown", $"Result '{record.Id}' names '{id}' in its refusal sentence, which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+
+        var cue = AlternativeCue.Match(sentence);
+
+        if (cue.Success)
+        {
+            findings.Add(new Finding("refusal-next-step-unknown", $"Result '{record.Id}' carries a refusal sentence promising another way out with '{cue.Value}'.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

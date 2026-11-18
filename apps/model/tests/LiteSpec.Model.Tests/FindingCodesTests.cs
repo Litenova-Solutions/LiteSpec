@@ -112,6 +112,10 @@ public sealed class FindingCodesTests
     [InlineData("job-unimplemented", "S")]
     [InlineData("atomicity-drift", "G")]
     [InlineData("atomicity-invalid", "A")]
+    [InlineData("rule-sibling-uncited", "G")]
+    [InlineData("exercises-uncited", "A")]
+    [InlineData("refusal-next-step-unknown", "A")]
+    [InlineData("guard-module-foreign", "G")]
     public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -149,6 +153,10 @@ public sealed class FindingCodesTests
     [InlineData("audit-missing", RecordLayer.Behavior, false, "audit")]
     [InlineData("field-extension-unselected", RecordLayer.Behavior, false, null)]
     [InlineData("statement-measure-missing", RecordLayer.Proof, false, null)]
+    [InlineData("rule-sibling-uncited", RecordLayer.Behavior, false, null)]
+    [InlineData("exercises-uncited", RecordLayer.Behavior, false, null)]
+    [InlineData("refusal-next-step-unknown", RecordLayer.Behavior, false, null)]
+    [InlineData("guard-module-foreign", RecordLayer.Behavior, false, null)]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);

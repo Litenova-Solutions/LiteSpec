@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LiteSpec.Cli.Model.Checks.Implementation;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -6,7 +7,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The consistency checks: each use case states a known consistency mode, a command writing several aggregates states its consistency, an atomic command writes the group its rule binds, a command states its replay and any conflict, each reservation names its release, and a command bound by a rule over an aggregate it only reads names that aggregate in its guards.</summary>
+/// <summary>The consistency checks: each use case states a known consistency mode, a command writing several aggregates states its consistency, an atomic command writes the group its rule binds, a command states its replay and any conflict, each reservation names its release, a command bound by a rule over an aggregate it only reads names that aggregate in its guards, and a guard never reaches into another module.</summary>
 /// <follows>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</follows>
 /// <follows>litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit</follows>
 /// <follows>litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule</follows>
@@ -329,14 +330,16 @@ internal static class ConsistencyChecks
         }
     }
 
-    /// <summary>Reports a command bound by a rule over an aggregate it reads but does not write, and whose guards name no such aggregate.</summary>
-    /// <param name="model">The loaded project model that holds every use case and rule record.</param>
+    /// <summary>Reports a command bound by a rule over an aggregate it reads but does not write, and whose guards name no such aggregate; a guard reaching into another module reports instead, since no guard holds across modules.</summary>
+    /// <param name="model">The loaded project model that holds every use case, rule and aggregate record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunGuard(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record =>
             record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "command"))
         {
+            CheckForeignGuards(model, useCase, findings);
+
             var bound = BoundByOf(useCase);
 
             if (bound.Count == 0)
@@ -374,10 +377,47 @@ internal static class ConsistencyChecks
                 }
             }
 
+            var home = LocalityChecks.ModuleOf(model, useCase);
+
             foreach (var (aggregate, ruleId) in missing)
             {
+                if (home is { Length: > 0 }
+                    && model.ById.TryGetValue(Identifiers.BaseId(aggregate), out var target)
+                    && target.Type == RecordTypes.Aggregate
+                    && LocalityChecks.ModuleOf(model, target) is { Length: > 0 } foreign
+                    && !foreign.Equals(home, StringComparison.Ordinal))
+                {
+                    findings.Add(new Finding("guard-module-foreign", $"Command '{useCase.Id}' reads '{aggregate}' in module '{foreign}' under rule '{ruleId}', which cannot hold when the command commits.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    continue;
+                }
+
                 findings.Add(new Finding("guard-undeclared", $"Command '{useCase.Id}' is bound by rule '{ruleId}' over '{aggregate}' and names no guard on '{aggregate}'.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
+        }
+    }
+
+    /// <summary>Reports a command whose guards name an aggregate of another module, whose rule cannot hold when the command commits.</summary>
+    /// <param name="model">The loaded project model that holds every use case and aggregate record.</param>
+    /// <param name="useCase">The command whose guards are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckForeignGuards(ProjectModel model, Record useCase, List<Finding> findings)
+    {
+        if (LocalityChecks.ModuleOf(model, useCase) is not { Length: > 0 } home)
+        {
+            return;
+        }
+
+        foreach (var guard in GuardsOf(useCase).Order(StringComparer.Ordinal))
+        {
+            if (!model.ById.TryGetValue(Identifiers.BaseId(guard), out var target)
+                || target.Type != RecordTypes.Aggregate
+                || LocalityChecks.ModuleOf(model, target) is not { Length: > 0 } foreign
+                || foreign.Equals(home, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("guard-module-foreign", $"Command '{useCase.Id}' guards on '{guard}' in module '{foreign}', whose rule cannot hold when the command commits.", useCase.File, useCase.Line, SubjectOf(useCase)));
         }
     }
 }

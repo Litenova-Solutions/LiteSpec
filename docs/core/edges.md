@@ -35,6 +35,22 @@ Every integration event names the external system it travels through in `through
 | `arrivesThrough` | How an inbound event arrives, required on an inbound event: an `entry-point/...` of kind `webhook` or an `external-system/...` whose broker or stream the module subscribes to. |
 | `compatibility` | How the event stays compatible with its consumers, required. |
 
+### Facts Two Modules Keep
+
+One module owns each fact, and any other module keeps only a copy. The owning module publishes a module event, and the reading module keeps a read model from it, as [Automation](automation.md) states. A decision that needs the owner's current value is decided in the owning module instead, as `litespec/core/automation#decide-current-truth-in-the-owning-module` states.
+
+A copy lags behind its owner: state one module derives from another module's event is eventually consistent. A command that refuses or gates on a derived copy decides on stale state, since the event moving the fact can arrive after the command commits.
+
+Where two modules need to agree on what arrived late, each compares timestamps the owning modules wrote themselves. Claimwick closes each month for new reimbursements. Each expense carries the approved moment spending wrote, and each close carries the moment the close was recorded. An approval stamped after the month's recorded close counts toward the next month, even when its event arrives late:
+
+```text
+close of March recorded at 2026-04-02 09:00
+expense A approved at 2026-03-30 14:00 -> counted in March as closed
+expense B approved at 2026-04-03 10:00 -> counted in April, although its event arrives with late March events
+```
+
+This removes both the lock and the race: each arrival classifies itself against owner-written moments. Where comparing moments leaves the act unsettled, the acting module confirms with the owner before it commits, through a decision port, as [Automation](automation.md) states.
+
 ### Notifications
 
 A notification is one message to a person, with its template, audience, channel, and consent. A call to a system is not a notification: it is an outbound integration event or an external-system operation.
@@ -428,6 +444,40 @@ Its `summary` states what the system does for the product and who operates it. I
 **Example:** Claimwick's payout-bank charge operation names `rejected` for a refused charge, `accepted` for a queued payout, and `unknown` with `onUnknown: dedupe-key` for a timeout retried with the provider key.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an external-system operation without separated `rejected`, `accepted`, and `unknown` outcomes or with an `unknown` case naming no `onUnknown` handling.
+
+### Resolve Late Arrivals Against Owner-Written Facts
+
+**ID:** `litespec/core/edges#resolve-late-arrivals-against-owner-written-facts`
+
+**Strength:** advisory
+
+**Applies to:** artifact: record:use-case, record:read-model
+
+**Statement:** Each module that acts on a fact another module owns SHOULD resolve late arrivals against facts the owning modules wrote themselves, or confirm with the owner before acting.
+
+**Deviation:** A fact whose owner answers every read through a decision port needs no separate resolution, since each act already confirms.
+
+**Rationale:** The owner's event can arrive after the reader acts, so an arrival the reader takes at face value lands in the wrong period. Comparing moments each owner wrote, such as an approval moment against a recorded close, classifies each arrival without a lock. Where moments cannot settle the act, confirming with the owner before committing keeps the decision on current truth, as `litespec/core/automation#decide-current-truth-in-the-owning-module` states.
+
+**Example:** Claimwick counts an expense approved after the recorded March close toward April, even when its event arrives with late March events.
+
+**Reviewed for:** Does every module acting on another module's fact resolve late arrivals against owner-written facts or confirm with the owner? Check the timestamps and decision ports beside each cross-module read.
+
+### State Every Boundary Check as a Rule of Its Module
+
+**ID:** `litespec/core/edges#state-every-boundary-check-as-a-rule-of-its-module`
+
+**Strength:** required
+
+**Applies to:** artifact: record:rule
+
+**Statement:** A module that confirms work for another module MUST state the receiving module's preconditions as its own rules at its boundary.
+
+**Rationale:** Each module refuses at its own boundary: the confirming module states the receiving module's preconditions as its own rules and names the receiving rules in prose, and the receiving module checks again when it acts. The second check guards against changes between the two acts, so the pair is two boundaries, not one rule written twice. A rule governs another module's records only through a declared dependency, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states; without one, each module states the check at its own boundary.
+
+**Example:** Claimwick's payout module confirms each transfer before calling the bank. It states its own rule that a transfer settles only a payable reimbursement, naming spending's reimbursed-once rule in prose, and spending checks the rule again when it posts the settlement.
+
+**Reviewed for:** Does every module confirming work for another state the receiving preconditions as its own rules? Check the rules at each module boundary against the receiving module's rules.
 
 ## Conventions
 
