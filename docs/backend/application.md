@@ -11,11 +11,11 @@ Each use case owns one folder with its message, result, handler, and endpoint. C
 
 ### The Use Case Folder
 
-Application code lives in layer folders named `Application/`. Each one belongs to a product, module, aggregate, or use case, or to a notification, external system, or read model that a module trigger serves.
+Application code lives in layer folders named `Application/`: one in each use case folder, one beside each notification, external system, and read model that a module trigger serves, and one holding the product pipeline machinery.
 
-One use case folder holds everything a reviewer needs to judge that use case: an `Application/` folder and, when the use case has an endpoint, a `WebApi/` folder. No `WebApi/` folder means no endpoint reaches the use case.
+One use case folder holds everything a reviewer needs to judge that use case: an `Application/` folder, a `WebApi/` folder when the use case has an endpoint, and an `Infrastructure/` folder when the use case has its own port. No `WebApi/` folder means no endpoint reaches the use case.
 
-The `Application/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/` folder holds the endpoint with its request and response models.
+The `Application/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/` folder holds the endpoint with its request and response models. The `Infrastructure/` folder holds the adapters that implement the use case's own ports.
 
 Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder, grouped by kind into identifiers, integration events, module events, and ports. The pipeline machinery itself lives in the product `Application/` folder.
 
@@ -74,13 +74,29 @@ In Claimwick, the submit-expense command declares a `sends` edge to the approver
 
 **Applies to:** artifact: any
 
-**Statement:** Each command or query MUST own one use case folder inside the `UseCases/` folder of its module and aggregate holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
+**Statement:** Each command or query MUST own one use case folder inside the `UseCases/` folder of its module holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
 
 **Rationale:** When handlers live in one folder, validators in another, and endpoints in a third, a single behavior spreads across the module. A change then touches six folders, and review misses one.
 
 One folder per use case keeps the message, result, validator, handler, mapping, and pipeline-read values together, with the endpoint and transport models beside them, so a reviewer judges the whole behavior from one place. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`, and pipeline-read values sit beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
 
-**Reviewed for:** Does every command and query own one use case folder inside the `UseCases/` folder of its module and aggregate, with its message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
+**Reviewed for:** Does every command and query own one use case folder inside the `UseCases/` folder of its module, with its message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
+
+### Keep Use Case Folders Small
+
+**ID:** `litespec/backend/application#keep-use-case-folders-small`
+
+**Strength:** advisory
+
+**Applies to:** artifact: use-case
+
+**Statement:** A use case folder SHOULD hold its message, handler, validator, definitions, and result with at most a few helpers, and no file over 200 lines.
+
+**Deviation:** Only when a helper serves only the use case and splitting it would scatter one act across folders.
+
+**Rationale:** A use case folder reads as the use case. More files, or a file over the line bound, signals work that belongs in the slice `Infrastructure/` folder behind a port, or in the module: production of a file format, rendering, and parsing live in Infrastructure under `litespec/backend/architecture#produce-file-formats-in-infrastructure`.
+
+**Reviewed for:** Does any use case folder hold more than its message, handler, validator, definitions, result, and a few helpers, or a file over 200 lines? Look at the file counts and sizes in each use case folder.
 
 ### Dispatch Commands and Queries Through Separate Entry Points
 
@@ -173,6 +189,8 @@ A conflict refuses the same input the same way until the caller rereads the reso
 
 **Rationale:** Authorization decided in each handler is decided differently in each handler. The guard decides once from what the record declares: the `authentication` kinds the caller presents, the `grant` naming a permission, a `self` scope over one, `anonymous`, or `system`, and the `tenant` scope naming the tenants the call reaches. Ownership, tenant, role, state, or delegated access resolves against the target data through a scope owner lookup for the record the message names.
 
+The guard evaluates one composable policy per access condition the record cites: `Permission(id)`, `RecentSignIn(id)`, `Self(id)`, or `System`, declared in the use case's authorization definition. It evaluates in order: the caller is signed in, then each declared condition holds, then the permission holds. A stale sign-in is refused with the recorded code and sentence before the permission check. An access condition shared by several use cases is one policy under `litespec/backend/application#declare-shared-access-conditions-as-composable-policies`, and a use case adds no guard of its own for it.
+
 A handler never compares the caller with a target, and never throws the forbidden refusal itself. Code names no permitted action outside that grant, so the record stays the one list of who may run a use case. Where the stack generates code, it generates one constant per `permission/` record from the records.
 
 Declaring `access` beside the message also lets composition refuse to start when a message states no position at all. The guard reports a refusal as a denial rather than raising it, so a refused attempt reaches the audit trail beside the ones that succeeded. The audit extension records the denial under `litespec/ext/audit#record-refused-authorization`.
@@ -182,6 +200,22 @@ A collection query has no single target record, so a scope owner lookup has noth
 WebApi enforces coarse authenticated, role, or scope policies first under `litespec/backend/api#apply-only-coarse-policies-at-the-endpoint`, which replaces no decision that depends on business data.
 
 **Reviewed for:** Does every message reach the guard with the `access` its record declares, with no handler throwing a forbidden refusal or taking the authorization guard? Look at each handler body and the `access` on each message.
+
+### Declare Shared Access Conditions as Composable Policies
+
+**ID:** `litespec/backend/application#declare-shared-access-conditions-as-composable-policies`
+
+**Strength:** required
+
+**Applies to:** artifact: use-case
+
+**Statement:** An access condition shared by several use cases MUST be one composable authorization policy declared in each use case's authorization definition and evaluated by the one authorization guard.
+
+**Rationale:** A security rule written once per use case drifts: one copy checks before the permission and one after, one lets anonymous callers through and one does not, and a new sensitive use case silently gets none. One policy factory beside the permission policy holds the condition, each use case whose record cites the rule declares the policy in its authorization definition, and the one guard evaluates it for all of them. A use case adds no guard of its own for a condition a policy covers. Settled by [decision/0108-composable-access-policies](decision/0108-composable-access-policies).
+
+**Example:** Policies are composable values: `Permission(id)`, `RecentSignIn(id)`, `Self(id)`, and `System`. Sensitive spending use cases such as reimburse-expense declare `RecentSignIn(permission)` in their authorization definitions. The guard evaluates in order: the sign-in is present, then the sign-in is younger than the recent sign-in window, then the permission holds. A missing sign-in keeps its refusal, a stale sign-in is refused with the recorded code and sentence before the permission check, and the window comes from the identity contract.
+
+**Reviewed for:** Does every use case whose record cites a rule governing an access condition declare the matching policy, with no use case guard of its own for it? Look at each authorization definition beside the guard implementations.
 
 ### Keep Command Handlers to Load, Call and Stage
 
@@ -209,7 +243,7 @@ The handler body reads as three steps: it loads the expense through its domain r
 
 The handler loads or creates, calls once, stages, and returns. Validation, authorization, idempotency, audit, the timestamp, holds, commit, and fault classification belong to their owners, so none appears in the handler.
 
-**Checked by:** `dotnet build` reports `LS2021` for a mediator a handler, validator, step or domain type holds, and `LS2022` for an event published outside the shared kernel.
+**Checked by:** `dotnet build` reports `LS2021` for a mediator a handler, validator, step or domain type holds, and `LS2022` for an event published outside the platform.
 
 ### Write Only Aggregates the Record Names
 
@@ -371,9 +405,9 @@ Mirroring the Domain shape in the result keeps the layers aligned, so the data o
 
 **Statement:** A port MUST be declared at the lowest folder holding every consumer that names it, following `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
 
-**Rationale:** A port in a product-wide folder is reviewed by nobody. A port declared beside the aggregate it serves is reviewed with that aggregate's specification.
+**Rationale:** A port in a product-wide folder is reviewed by nobody. A port declared beside the use case it serves is reviewed with that use case's specification.
 
-A port whose consumers sit in one module is declared in that module's layer folder beside the aggregate it serves, and only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers. Collecting every port in one folder because they share the word "port" is grouping by technical type, and `litespec/backend/application#organize-application-by-use-case` rejects that grouping one level down for the same reason.
+A port one use case calls is declared in that slice's `Application/` folder. A port several use cases of one module call is declared in the module `Infrastructure/` folder beside its implementation. Only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers. Collecting every port in one folder because they share the word "port" is grouping by technical type, and `litespec/backend/application#organize-application-by-use-case` rejects that grouping one level down for the same reason.
 
 Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.
 
@@ -473,7 +507,7 @@ One global step, running in the command pipeline before the commit, stages each 
 
 **Example:** The expense raises its reimbursed fact, and the staging step stages it, `module-event/spending.expense-reimbursed`, and the outbound `integration-event/expense-reimbursed`, each built from that fact, in the same commit. The reimburse handler publishes nothing.
 
-**Checked by:** `dotnet build` reports `LS2022` for an event published outside the shared kernel, and `litespec model check` reports `effect-undeclared` for an event a handler, event handler or job publishes itself.
+**Checked by:** `dotnet build` reports `LS2022` for an event published outside the platform, and `litespec model check` reports `effect-undeclared` for an event a handler, event handler or job publishes itself.
 
 ### Read Settings Through Typed Options
 
@@ -741,23 +775,23 @@ A message that leaves before its transaction commits promises work even when the
 
 **Applies to:** artifact: any
 
-**Default:** Place each use case in a folder named for it inside the `UseCases/` folder of its module and aggregate, holding an `Application/` folder with its message, result, handler, validator, pipeline definitions, own steps and triggers, and a `WebApi/` folder with its endpoint and transport models when it has an endpoint.
+**Default:** Place each use case in a folder named for it inside the `UseCases/` folder of its module, holding an `Application/` folder with its message, result, handler, validator, pipeline definitions, own steps and triggers, a `WebApi/` folder with its endpoint and transport models when it has an endpoint, and an `Infrastructure/` folder with the adapters for its own ports when it has its own port.
 
 **Replacement:** A project names its own Application folder layout in its documentation.
 
 **Rationale:** One folder per use case inside its `UseCases/` folder holds everything a reviewer needs to judge it in one place, and the module tree lets a reader move from a handler to its endpoint without a map.
 
-Two layer folders inside it state each file's layer in the path, keep a large use case's listing readable, and show by their presence whether the use case has an endpoint. The reactions and job that run the use case sit in its `Application/` folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
+Three layer folders inside it state each file's layer in the path, keep a large use case's listing readable, and show by their presence whether the use case has an endpoint or its own port. The reactions and job that run the use case sit in its `Application/` folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
 **Example:** The layout reads as follows:
 
 ```text
 {Product}/
   Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else
-  Posts/                                  single aggregate whose name matches the module: use cases sit in the module UseCases folder
+  Posts/                                  single aggregate whose name matches the module: Domain holds the aggregate directly
     Contracts/
       Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
-    Application/                          a port several Posts use cases name sits here
+    Domain/                               Post, PostState, and the post repository contract directly
     UseCases/
       CreateDraft/
         Application/                      Command, Result, Handler, Validator, mapping
@@ -773,22 +807,27 @@ Two layer folders inside it state each file's layer in the path, keep a large us
         Application/                      no WebApi folder: no endpoint reaches this use case
           ArchiveStalePostsJob            the job that runs this use case once per stale post
           ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case
+      ExportPosts/
+        Application/                      query, handler, definitions, result, IPostsArchiveWriter
+        Infrastructure/                   PostsArchiveWriter, one writer per section
+        WebApi/                           endpoint
+    Infrastructure/
+      Persistence/                        PostRepository, store contributions, read models
+      ExternalSystems/                    adapters for systems the module calls
     Notifications/
       NewPost/
         NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification
-  Customers/                              two aggregates: use cases nest under each aggregate UseCases folder
+  Customers/                              two aggregates: Domain holds one folder per aggregate
     Contracts/
       Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
-    CustomerAccounts/
-      Application/                        aggregate-owned behavior sits in the aggregate layer folder
-      UseCases/
-        RestrictAccount/
-          Application/  WebApi/
-    Consents/
-      UseCases/
-        GrantConsent/
-          Application/  WebApi/
-    UseCases/                             use cases no single aggregate owns
+    Domain/
+      CustomerAccount/
+      Consent/
+    UseCases/
+      RestrictAccount/
+        Application/  WebApi/
+      GrantConsent/
+        Application/  WebApi/
     ReadModels/
       OrderHistories/                     a read model of another module's published facts
 ```
@@ -813,7 +852,7 @@ A use case's own models stay in its folder under `litespec/backend/architecture#
 
 **Replacement:** A project names its own message-shape rules in its documentation.
 
-**Rationale:** Immutable values give commands, queries, results, and validation errors a shape no handler mutates mid-pipeline. Typed identifiers and shared-kernel value objects cross the boundary; an aggregate-owned value object does not, so the message carries a primitive and the handler reconstructs it.
+**Rationale:** Immutable values give commands, queries, results, and validation errors a shape no handler mutates mid-pipeline. Typed identifiers and Kernel values cross the boundary; an aggregate-owned value object does not, so the message carries a primitive and the handler reconstructs it.
 
 **Reviewed for:** Do any commands, queries, results, or validation errors mutate? Look at each message declaration.
 

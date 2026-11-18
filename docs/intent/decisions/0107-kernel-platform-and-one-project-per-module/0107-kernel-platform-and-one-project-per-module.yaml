@@ -1,0 +1,14 @@
+type: decision
+id: decision/0107-kernel-platform-and-one-project-per-module
+title: Kernel, Platform, and One Project per Module
+context: "A full backend built on the two-project layout mixed business values with technical wiring in one shared kernel. Module registration lived in a shared composition folder that reached module internals. Use case infrastructure had no home and landed in Application folders. Module boundaries held as analyzer rules only, use cases sat five levels deep under one aggregate, and aggregate types hid behind folder namespaces."
+options:
+  - name: "Separate the Kernel, the Platform, and one project per module"
+    pros: "Module boundaries hold by project reference and visibility. Each use case sits two levels under its module, and every use case layer gets its own folder."
+    cons: "A solution holds more projects, and small products carry the same shape as large ones."
+  - name: "Keep the shared kernel and modules projects and fix each symptom alone"
+    pros: "No project moves files, and each fix stays small."
+    cons: "Module boundaries stay analyzer rules, use cases stay five levels deep, and each fix leaves the layout that caused it."
+choice: "Separate the Kernel, the Platform, and one project per module"
+consequences: "The Kernel holds the business values every module speaks with no dependency on any library. The Platform holds the technical capabilities with no business words and references no module. Each module is one project with its entry type, Contracts, Domain, UseCases, and Infrastructure. Aggregates live under Domain with one folder each, and use cases sit directly under the module with one folder per layer. Only Contracts and the entry type are public, and hosts compose modules through AddModules. The record tree stays, with use case records mapping to UseCases and aggregate records to Domain. A single modules project stays allowed with LS2020 as its boundary."
+reopenedWhen: "A module outgrows the layout, or project-per-module costs outweigh compiler-enforced boundaries."

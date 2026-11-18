@@ -94,10 +94,17 @@ This informative example demonstrates `litespec/backend/dotnet/naming#match-c-fi
 ```csharp
 namespace Example.Posts.UseCases.CreateDraft;
 
-internal sealed class CreateDraftCommandHandler(
-    IPostRepository postRepository,
-    IClock clock)
+internal sealed class CreateDraftCommandHandler
 {
+    private readonly IPostRepository _postRepository;
+    private readonly IClock _clock;
+
+    public CreateDraftCommandHandler(IPostRepository postRepository, IClock clock)
+    {
+        _postRepository = postRepository;
+        _clock = clock;
+    }
+
     public async Task<CreateDraftCommandResult> HandleAsync(
         CreateDraftCommand command,
         CancellationToken cancellationToken)

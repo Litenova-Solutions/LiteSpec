@@ -10,7 +10,7 @@ This page defines how the shared [Workspace Structure](../../workspace/structure
 
 ### Solutions and Project Homes
 
-The API solution sits directly under `apps/api/`. It remains the solution builds and test runs name. Production projects live under `src/` and test projects under `tests/`, so a test dependency reaching production shows in the path.
+The API solution sits directly under `apps/api/`. It remains the solution builds and test runs name. Production projects live under `src/` and test projects under `tests/`, so a test dependency reaching production shows in the path. Module projects group under `src/Modules/` and host projects under `src/Hosts/`, beside the Kernel and Platform projects.
 
 When the workspace holds a second .NET deployable, such as a command-line tool, a root solution lists both project sets for editors that open across them. The root solution adds an editor-wide view. Builds, test runs, and configuration still name the API solution.
 
@@ -50,7 +50,7 @@ An AppHost that runs the API alone stays under `apps/api/src/` with the projects
 apps/
   api/
     src/
-      {Product}.WebApi/
+      Hosts/{Product}.WebApi/
     tests/
       {Product}.Architecture.Tests/   references the AppHost for its model tests
   apphost/

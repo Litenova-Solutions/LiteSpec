@@ -12,7 +12,7 @@ In a .NET backend, each HTTP operation runs through one small endpoint class in 
 
 A WebApi endpoint is a small class that serves one route operation. It converts HTTP input to an Application command or query, sends that message through the mediator, and maps the result back to HTTP.
 
-Each endpoint implements the product-owned `IEndpoint` contract, which has one method that maps the route on the route builder. At startup, the host finds every endpoint and maps each one exactly once, in type-name order.
+Each endpoint implements the platform-owned `IEndpoint` contract, which has one method that maps the route on the route builder. At startup, the platform discovers every endpoint in the module assemblies the host adds, and the host maps each one exactly once, in type-name order.
 
 One global handler maps each thrown failure to its HTTP status and Problem Details body. Endpoints carry no error mapping of their own.
 
@@ -42,7 +42,7 @@ Comments on route lambdas do not reach the contract, so this metadata is declare
 
 **Rationale:** When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route silently affects another, and a second routing pattern grows beside the first unnoticed. This provision binds `litespec/backend/api#map-one-operation-per-endpoint` for .NET.
 
-**Example:** The WebApi project owns this contract:
+**Example:** The platform owns this contract:
 
 ```csharp
 internal interface IEndpoint
@@ -51,7 +51,7 @@ internal interface IEndpoint
 }
 ```
 
-At startup, the host scans the modules assembly through its one public marker for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so no extra scanning package is needed.
+At startup, the platform scans every module assembly the host adds through its entry type for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and the host calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so no extra scanning package is needed.
 
 **Reviewed for:** Does every mapped route run through one `IEndpoint` type that converts input, dispatches, and maps the result? Look at the endpoints in the use case folders.
 
@@ -116,6 +116,47 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Reviewed for:** Does every refusal code map to its outcome-table status in the one `IExceptionHandler`? Look at the WebApi global handler.
 
+### Convert Money with the Platform Converter
+
+**ID:** `litespec/backend/dotnet/api#convert-money-with-the-platform-converter`
+
+**Strength:** required
+
+**Applies to:** artifact: endpoint
+
+**Statement:** WebApi MUST convert `Money` through the platform converter, which writes the amount as an invariant decimal string, reads only a string amount with a three-letter currency code, and registers once through `AddPlatform`.
+
+**Rationale:** A `decimal` property serializes as a JSON number, breaking the wire shape `{ "amount": "12.50", "currency": "EUR" }` that `litespec/backend/domain#model-money-with-exact-decimal-values` fixes. One converter in `Platform/Http`, registered once for the host, keeps every serializer producing the contracted shape, including a test client using default options. It reads only a string amount with a three-letter code, so a number amount or a code of another length is refused instead of parsed.
+
+**Example:**
+
+```csharp
+internal sealed class MoneyJsonConverter : JsonConverter<Money>
+{
+    public override Money? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using var document = JsonDocument.ParseValue(ref reader);
+        var amount = document.RootElement.GetProperty("amount").GetString();
+        var currency = document.RootElement.GetProperty("currency").GetString();
+        if (amount is null || currency is null || currency.Length != 3)
+        {
+            throw new JsonException("A monetary value carries a string amount with a three-letter currency code.");
+        }
+        return Money.Create(decimal.Parse(amount, CultureInfo.InvariantCulture), currency);
+    }
+
+    public override void Write(Utf8JsonWriter writer, Money value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("amount", value.Amount.ToString(CultureInfo.InvariantCulture));
+        writer.WriteString("currency", value.Currency);
+        writer.WriteEndObject();
+    }
+}
+```
+
+**Reviewed for:** Does every `Money` value on the wire pass through the platform converter, with a string amount and a three-letter code in both directions? Look at the converters registered for the host and the monetary fields in the contract.
+
 ## Conventions
 
 ### Compose the Host in Program.cs
@@ -126,12 +167,12 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Applies to:** artifact: any
 
-**Default:** `Program.cs` holds module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup, ending with an empty partial `Program` class.
+**Default:** `Program.cs` calls `AddPlatform` and `AddModules`, then holds middleware order, endpoint mapping, health endpoints, OpenAPI, and host startup, ending with an empty partial `Program` class.
 
 **Replacement:** A project names its startup layout in its WebApi documentation.
 
 **Rationale:** Middleware runs in registration order, so authentication registered after endpoints does not run. When one file shows the whole sequence, a reviewer sees the order at a glance; when registration scatters across files, a misplaced call is hard to spot. This file binds `litespec/backend/architecture#compose-each-process-explicitly` for WebApi.
 
-**Example:** The visible order is trusted forwarded headers, exception handling, transport security, authentication, authorization, endpoints, and then health. Forwarded headers appear only when the deployment boundary requires trusted proxies. OpenAPI and Scalar map only in Development.
+**Example:** The visible order is the `AddPlatform` and `AddModules` calls, then trusted forwarded headers, exception handling, transport security, authentication, authorization, endpoints, and then health. Forwarded headers appear only when the deployment boundary requires trusted proxies. OpenAPI and Scalar map only in Development.
 
 **Reviewed for:** Does `Program.cs` hold the recorded composition order with every step present? Look at `Program.cs`.

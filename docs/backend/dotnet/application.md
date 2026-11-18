@@ -13,7 +13,7 @@ A command is a message that changes business state, and a query reads from a rea
 
 A reaction answers a domain event of its own module, a module event, or an inbound integration event in one class that carries one mark naming its reaction record, and it sends at most one command. A scheduled or one-off job selects its items and sends its one command once per item.
 
-Only an endpoint, an event handler, and a job hold a mediator. A command handler, query handler, validator, step, or domain type sends nothing, and no type in the modules project publishes an event.
+Only an endpoint, an event handler, and a job hold a mediator. A command handler, query handler, validator, step, or domain type sends nothing, and no type in a module project publishes an event.
 
 In Claimwick, approving an expense sends `ApproveExpenseCommand` through `ICommandMediator`: validators check the input, the pipeline authorizes the approver, the handler records the approval, and one commit stores it.
 
@@ -44,14 +44,21 @@ A use case whose record declares `consistency: atomic` over several aggregates i
 **Example:**
 
 ```csharp
-internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRepository)
+internal sealed class ApproveExpenseCommandHandler
     : ICommandHandler<ApproveExpenseCommand, ApproveExpenseCommandResult>
 {
+    private readonly IExpenseRepository _expenseRepository;
+
+    public ApproveExpenseCommandHandler(IExpenseRepository expenseRepository)
+    {
+        _expenseRepository = expenseRepository;
+    }
+
     public async Task<ApproveExpenseCommandResult> HandleAsync(ApproveExpenseCommand command, CancellationToken cancellationToken)
     {
-        var expense = await expenseRepository.GetByIdAsync(command.ExpenseId, cancellationToken);
+        var expense = await _expenseRepository.GetByIdAsync(command.ExpenseId, cancellationToken);
         expense.Approve(command.ApproverId, command.HandledAt);
-        expenseRepository.Store(expense);
+        _expenseRepository.Store(expense);
         return new ApproveExpenseCommandResult(expense.Id);
     }
 }
@@ -101,7 +108,7 @@ A read that writes makes retries and caching unsafe: repeating the query would r
 
 **Statement:** An event handler or job MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and its one declared `runs` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the pipeline stages each raised domain event, each module event translating it, and each outbound integration event translating it in the same commit.
 
-**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). The same commit stages each module event and each outbound integration event whose record translates a raised domain event. The shared kernel collects each one beside its domain event. Each is built by its static `From` method from that domain event alone, so no module code publishes.
+**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). The same commit stages each module event and each outbound integration event whose record translates a raised domain event. The platform collects each one beside its domain event. Each is built by its static `From` method from that domain event alone, so no module code publishes.
 
 After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs`, sending one command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#give-each-handler-its-own-delivery`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision binds `litespec/backend/application#dispatch-only-declared-effect-edges` for .NET.
 
@@ -119,7 +126,7 @@ public sealed record ExpenseReimbursed(ExpenseId ExpenseId, EmployeeId EmployeeI
 }
 ```
 
-**Checked by:** `litespec model check` reports `effect-undeclared` for a dispatch no record declares, and `dotnet build` reports `LS2021` for a mediator held outside an endpoint, event handler or job and `LS2022` for an event published outside the shared kernel.
+**Checked by:** `litespec model check` reports `effect-undeclared` for a dispatch no record declares, and `dotnet build` reports `LS2021` for a mediator held outside an endpoint, event handler or job and `LS2022` for an event published outside the platform.
 
 ### Run Reactions in Dedicated Handlers
 
@@ -140,7 +147,7 @@ It never writes an aggregate directly: a reaction that needs a write sends one c
 ```csharp
 // Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler.cs
 /// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
-internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
+internal sealed class SendDueNoticeOnLoanBorrowedHandler
 {
     // Answers domain-event/loan.loan-borrowed by sending notification/lending.loan-due.
 }
@@ -212,9 +219,9 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 
 ```csharp
 /// <implements>job/spending.erase-expired-personal-data</implements>
-internal sealed class EraseExpiredPersonalDataHost(...)
+internal sealed class EraseExpiredPersonalDataHost
 {
-    // Lives in Spending/Expenses/UseCases/ErasePersonalData/Application/.
+    // Lives in Spending/UseCases/ErasePersonalData/Application/.
     // Selects the expired expenses and sends one erase command per expense, resuming from its cursor.
 }
 ```
@@ -229,18 +236,37 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **Applies to:** artifact: any
 
-**Statement:** An Application MUST compose its command pipeline through the LiteBus APIs this provision names for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp.
+**Statement:** An Application MUST compose its command pipeline through the LiteBus APIs this provision names for commit, authorization, audit, idempotency, fault classification, delivery, event staging, immediate dispatch, and the timestamp.
 
 **Rationale:** One pinned binding per position keeps every project's pipeline identical:
 
 - The commit runs through `commands.UseMartenUnitOfWork()`, which registers the LiteBus `IUnitOfWork` at `HandlerPriorities.UnitOfWork`, so the pipeline commits once under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`.
-- Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message definition under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
-- Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in an `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`.
+- Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message's `{Message}AuthorizationDefinition`, which implements `IAuthorizationDefinition<TMessage>` beside the message under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
+- Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in the message's `{Message}AuditDefinition`, which implements `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`.
+- Idempotency runs through the message's `{Message}IdempotencyDefinition`, which implements `IIdempotencyDefinition<TMessage>`, declaring the message's idempotency beside the message.
 - Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
 - Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately, one envelope per subscribed handler so one failing handler retries alone, under `litespec/ext/outbox#give-each-handler-its-own-delivery`.
 - Event staging runs through `outbox.StageCollectedEvents()`, staging the facts `IDomainEventCollector` collected in the same commit as the aggregate change.
-- In-process dispatch runs through `outbox.UseInProcessDispatch()` with `outbox.EnableOutboxProcessor()`, delivering module events and domain-event reactions inside the process against the product's PostgreSQL database (`LiteBus.Outbox.Storage.PostgreSql`, or `LiteBus.Outbox.Storage.EntityFrameworkCore` when the project uses that). Envelopes commit with the business work; the processor retries a failed handler with the configured backoff and dead-letters at the bound. No broker is needed for anything inside the bounded context. An outbound integration event uses a transport dispatcher (`LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`) toward the external system its record names in `through`.
+- In-process dispatch runs through `outbox.UseInProcessDispatch()` with `outbox.EnableOutboxProcessor()`, delivering module events and domain-event reactions inside the process against the product's PostgreSQL database. A Marten project stores outbox rows in its own session and transaction through `LiteBus.Outbox.Storage.Marten` (`outbox.UsePostgreSqlStorage(postgres => postgres.UseDataSource(dataSource).UseMartenTransactionalOutbox())`), and a project that persists through Entity Framework Core uses `LiteBus.Outbox.Storage.EntityFrameworkCore`. Envelopes commit with the business work; the processor retries a failed handler with the configured backoff and dead-letters at the bound. No broker is needed for anything inside the bounded context. An outbound integration event uses a transport dispatcher (`LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`) toward the external system its record names in `through`. The in-process dispatch this binding names arrived in LiteBus 7.2, at the manifest pin.
+- Immediate dispatch runs through `outbox.EnableImmediateDispatch(...)` with `[DispatchImmediately]` on the handlers the caller reads when the command returns, under `litespec/backend/dotnet/application#dispatch-read-model-projections-immediately`.
 - The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock`.
+
+Each message declares its pipeline positions in definition classes in its use case `Application/` folder: `{Message}AuthorizationDefinition`, `{Message}AuditDefinition`, and `{Message}IdempotencyDefinition`, each in its own file and implementing exactly one definition interface. LiteBus verifies at composition through `RequireDeclaration` that every message carries them. A definition carries no LiteSpec mark; the handler carries the use case mark. A project declares authorization, audit, and idempotency only through definitions, never through attributes or custom guards.
+
+**Example:** A Marten project composes its pipeline as follows:
+
+```csharp
+commands.UseMartenUnitOfWork();
+outbox.UsePostgreSqlStorage(postgres => postgres
+    .UseDataSource(dataSource)
+    .UseMartenTransactionalOutbox());
+outbox.UseInProcessDispatch();
+outbox.EnableOutboxProcessor();
+outbox.EnablePerHandlerDelivery();
+outbox.StageCollectedEvents();
+```
+
+Claimwick's reimburse-expense command carries `ReimburseExpenseCommandAuthorizationDefinition`, `ReimburseExpenseCommandAuditDefinition`, and `ReimburseExpenseCommandIdempotencyDefinition` in its use case `Application/` folder, each implementing its one definition interface.
 
 **Reviewed for:** Does every pipeline position use its pinned LiteBus API? Check the command pipeline composition.
 
@@ -301,9 +327,16 @@ public sealed record CreateDraftCommand(
 
 public sealed record CreateDraftCommandResult(PostId PostId);
 
-internal sealed class CreateDraftCommandHandler(
-    IPostRepository postRepository) : ICommandHandler<CreateDraftCommand, CreateDraftCommandResult>
+internal sealed class CreateDraftCommandHandler
+    : ICommandHandler<CreateDraftCommand, CreateDraftCommandResult>
 {
+    private readonly IPostRepository _postRepository;
+
+    public CreateDraftCommandHandler(IPostRepository postRepository)
+    {
+        _postRepository = postRepository;
+    }
+
     public async Task<CreateDraftCommandResult> HandleAsync(
         CreateDraftCommand command,
         CancellationToken cancellationToken)
@@ -314,7 +347,7 @@ internal sealed class CreateDraftCommandHandler(
             PostTitle.Create(command.Title),
             command.HandledAt);
 
-        postRepository.Store(post);
+        _postRepository.Store(post);
 
         return new CreateDraftCommandResult(post.Id);
     }
@@ -326,11 +359,17 @@ The pinned LiteBus package signatures take precedence over illustrative example 
 ### Change Another Aggregate from an Event Handler
 
 ```csharp
-// Lending/Loans/UseCases/BorrowBook/Application/BorrowBookCommandHandler.cs
-internal sealed class BorrowBookCommandHandler(
-    ILoanRepository loanRepository)
+// Lending/UseCases/BorrowBook/Application/BorrowBookCommandHandler.cs
+internal sealed class BorrowBookCommandHandler
     : ICommandHandler<BorrowBookCommand, BorrowBookCommandResult>
 {
+    private readonly ILoanRepository _loanRepository;
+
+    public BorrowBookCommandHandler(ILoanRepository loanRepository)
+    {
+        _loanRepository = loanRepository;
+    }
+
     public async Task<BorrowBookCommandResult> HandleAsync(
         BorrowBookCommand command,
         CancellationToken cancellationToken)
@@ -341,7 +380,7 @@ internal sealed class BorrowBookCommandHandler(
             command.ReaderId,
             command.HandledAt);
 
-        loanRepository.Store(loan);
+        _loanRepository.Store(loan);
 
         return new BorrowBookCommandResult(loan.Id);
     }
@@ -349,15 +388,22 @@ internal sealed class BorrowBookCommandHandler(
 ```
 
 ```csharp
-// Lending/Books/UseCases/MarkBookLent/Application/MarkBookLentOnLoanBorrowedHandler.cs
+// Lending/UseCases/MarkBookLent/Application/MarkBookLentOnLoanBorrowedHandler.cs
 /// <implements>reaction/lending.mark-book-lent-on-loan-borrowed</implements>
-internal sealed class MarkBookLentOnLoanBorrowedHandler(ICommandMediator commandMediator)
+internal sealed class MarkBookLentOnLoanBorrowedHandler
     : IEventHandler<LoanBorrowedEvent>
 {
+    private readonly ICommandMediator _commandMediator;
+
+    public MarkBookLentOnLoanBorrowedHandler(ICommandMediator commandMediator)
+    {
+        _commandMediator = commandMediator;
+    }
+
     public Task HandleAsync(
         LoanBorrowedEvent @event,
         CancellationToken cancellationToken) =>
-        commandMediator.SendAsync(
+        _commandMediator.SendAsync(
             new MarkBookLentCommand(@event.BookId, @event.LoanId),
             cancellationToken);
 }

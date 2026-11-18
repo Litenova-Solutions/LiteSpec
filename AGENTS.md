@@ -123,14 +123,14 @@ Sources: `litespec/core/authoring#publish-each-release-as-a-complete-contract`, 
 
 Read the full provision before you apply any of these:
 
-- Use the shared kernel and modules projects ordered module, then aggregate, then `UseCases/`, then use case. (`litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`)
+- Use the Kernel, the Platform, and one project per module, with use cases directly under the module. (`litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`)
 - Put a type that is not a use case's own model in the lowest folder that holds every consumer naming it, and give each use case its own messages, results and transport models. (`litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, `litespec/backend/architecture#give-each-use-case-its-own-models`)
 - Keep Domain free of persistence, web, mediator, logging and dependency injection. (`litespec/backend/architecture#point-dependencies-inward`)
 - Model each aggregate lifecycle with an abstract state and sealed state records. (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`)
 - Model each closed set in Domain as a record hierarchy instead of an enum. (`litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`)
 - Give each architecture layer its own messages, results and transport models. (`litespec/backend/architecture#own-each-layers-contract-types`)
 - Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`)
-- Organize code by module, aggregate and use case, with `Application/` and `WebApi/` inside each use case, and place each reaction and job with the use case it runs. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#place-each-trigger-with-what-it-runs`)
+- Organize code by module, aggregate and use case, with `Application/`, `WebApi/` and `Infrastructure/` inside each use case, and place each reaction and job with the use case it runs. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#place-each-trigger-with-what-it-runs`)
 - Write commands through repositories, send no message from a handler, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
 - Publish integration events only from the domain events they translate, never from user code. (`litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`)
 - Read another module's state through the module's own read model, or ask one question through a decision port. (`litespec/backend/application#read-another-modules-state-through-a-read-model`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`)

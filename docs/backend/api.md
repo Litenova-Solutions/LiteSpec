@@ -13,7 +13,7 @@ That thinness keeps HTTP as replaceable transport, so the API evolves without to
 
 An endpoint does three things and nothing else: it converts HTTP input to an Application message, dispatches that message through its mediator, and maps the result to the HTTP response. A mediator here means the Application-facing entry point for commands or queries.
 
-One endpoint class serves one route operation and sits in its use case folder, and the host maps the endpoints through the one public assembly marker.
+One endpoint class serves one route operation and sits in its use case folder, and the host maps the endpoints the platform discovered in every module assembly the host adds.
 
 Business rules, persistence access, provider calls, and error mapping all live outside endpoints: the handler owns behavior, the guard owns target authorization, and one global handler owns error responses.
 
@@ -575,7 +575,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** When each endpoint sits in the `WebApi/` folder of its use case, the folder path matches the specification path, and a reader locates an operation from its use-case identifier without searching. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. The host keeps the endpoints that belong to no use case: protocol endpoints, static assets, and development-only tooling.
 
-**Example:** The endpoints sit in the `WebApi/` folder of their use case inside the `UseCases/` folder of their module and aggregate:
+**Example:** The endpoints sit in the `WebApi/` folder of their use case inside the `UseCases/` folder of their module:
 
 ```text
 {Product}/
@@ -587,20 +587,17 @@ An operation requiring a control header declares it as a required parameter, for
       GetPost/
         Application/
         WebApi/
-  Customers/                        two aggregates: operations nest under each aggregate UseCases folder
-    CustomerAccounts/
-      UseCases/
-        RestrictAccount/
-          Application/
-          WebApi/
-    Consents/
-      UseCases/
-        GrantConsent/
-          Application/
-          WebApi/
+  Customers/                        two aggregates: every use case sits in the module UseCases folder
+    UseCases/
+      RestrictAccount/
+        Application/
+        WebApi/
+      GrantConsent/
+        Application/
+        WebApi/
 ```
 
-Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
+Module nesting follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
 **Reviewed for:** Does every endpoint sit in the `WebApi/` folder of its use case or in the host? Look at the endpoints beside the use case folders.
 
@@ -694,15 +691,15 @@ POST   /api/holds/{holdId}/cancel
 
 **Applies to:** artifact: endpoint
 
-**Default:** Carry a monetary value as one `Money` object in a response model and in a request where the caller chooses the currency.
+**Default:** Carry a monetary value as one `Money` object in a response model and in a request where the caller chooses the currency, with `amount` as an invariant decimal string and `currency` as an ISO 4217 code.
 
 **Replacement:** A project names its money wire shape in its backend documentation.
 
-**Rationale:** Split sibling fields pair only by a server invariant invisible to the schema, so a report reads the two independently and mismatches them. One `Money` object holding `amount` and an ISO 4217 `currency` mirrors the Domain shape on the wire under `litespec/backend/domain#model-money-with-exact-decimal-values`. A caller with no currency choice carries `amount` alone, because a fixed currency arrives from the account, not the caller.
+**Rationale:** Split sibling fields pair only by a server invariant invisible to the schema, so a report reads the two independently and mismatches them. One `Money` object holding `amount` and an ISO 4217 `currency` mirrors the Domain shape on the wire under `litespec/backend/domain#model-money-with-exact-decimal-values`. The amount travels as a string, never a JSON number, so no reader parses it as binary floating point. A caller with no currency choice carries `amount` alone, because a fixed currency arrives from the account, not the caller.
 
-**Example:** `unitPrice` and `currencyCode` become `price` of type `Money`. A request that references an account with a fixed currency carries `amount` alone.
+**Example:** `unitPrice` and `currencyCode` become `price` of type `Money`, traveling as `{ "amount": "12.50", "currency": "EUR" }`. A request that references an account with a fixed currency carries `amount` alone.
 
-**Reviewed for:** Does every monetary value travel as one Money object, with currency only where the caller chooses it? Look at the monetary fields in the contract.
+**Reviewed for:** Does every monetary value travel as one Money object with a string amount, with currency only where the caller chooses it? Look at the monetary fields in the contract.
 
 ### Name Boolean Fields as Conditions
 
