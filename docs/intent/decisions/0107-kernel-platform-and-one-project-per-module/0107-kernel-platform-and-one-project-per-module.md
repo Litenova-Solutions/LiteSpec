@@ -39,6 +39,8 @@ Aggregates live under Domain with one folder each, and use cases sit directly un
 
 The record tree stays, with use case records mapping to UseCases and aggregate records to Domain. A single modules project stays allowed with LS2020 as its boundary.
 
+The names come from two established patterns. The Kernel takes its name from the Shared Kernel pattern in Eric Evans's *Domain-Driven Design* (2003), a small shared part of the model that changes only by agreement, without the word Shared, because everything in it is shared and one product is one bounded context. The Platform follows the Microservice Chassis pattern Chris Richardson describes on microservices.io, the technical base that handles cross-cutting concerns so each service holds only business code; it is named Platform because modules contribute to it and hosts call `AddPlatform`. The [.NET Architecture](../../../backend/dotnet/architecture.md) page lists the other names considered.
+
 The new provisions are `litespec/backend/dotnet/architecture#keep-business-values-in-the-kernel`, `litespec/backend/dotnet/architecture#keep-technical-capabilities-in-the-platform`, `litespec/backend/dotnet/architecture#register-each-module-through-its-entry-point`, `litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions`, `litespec/backend/dotnet/architecture#hold-each-use-case-layer-in-its-own-folder`, `litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point`, `litespec/backend/architecture#produce-file-formats-in-infrastructure`, `litespec/backend/application#keep-use-case-folders-small`, and `litespec/backend/dotnet/api#convert-money-with-the-platform-converter`.
 
 ## Revisit Conditions

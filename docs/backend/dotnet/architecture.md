@@ -67,6 +67,27 @@ The WebApi host holds `Program.cs` composition, and the Worker host exists only 
 
 The host also keeps the endpoints that have no use case folder to sit in: protocol endpoints such as sign-out and device callbacks, static assets such as scripts it serves, and development-only tooling. Each such endpoint still carries its mark.
 
+### Why the Names Kernel and Platform
+
+The two shared projects take their names from established patterns, each trimmed to what the project holds.
+
+**Kernel** comes from the Shared Kernel pattern in Eric Evans's *Domain-Driven Design* (2003): a small part of the domain model that several parts of a system agree to share and change only together. Here the shared part is the business vocabulary every module speaks, such as money, typed identifiers, dates, the aggregate root, and the domain exception, so the same rule applies: it stays small, it holds no technical code, and a change to it is a change to every module. The word "Shared" is dropped because everything in the project is shared by definition, and because Evans's pattern names an agreement between bounded contexts, while a LiteSpec product is one bounded context whose modules share one vocabulary.
+
+**Platform** names what Chris Richardson calls a microservice chassis (microservices.io, the Microservice Chassis pattern): the technical base that handles the cross-cutting concerns every service needs, such as persistence setup, messaging, security, auditing, HTTP conventions, and health, so each service holds only its business code. The modules of one product play the part of those services, and they plug into the base by contributing data to it. "Platform" is used instead of "Chassis" because it reads plainly in that sentence (a module contributes to the platform, a host calls `AddPlatform`), and because it matches the platform-team sense of a base other teams build on.
+
+Other names were set aside:
+
+| Name | Why not |
+|:---|:---|
+| `SharedKernel` | The full pattern name; "Shared" adds nothing and the pattern describes an agreement between bounded contexts. |
+| `Core`, `Common`, `Shared` | Too vague: each invites technical and business code into one project, the mix the split exists to prevent. |
+| `BuildingBlocks` | Common in modular monolith samples, where it holds both business and technical pieces. |
+| `Primitives` | Accurate for money and identifiers, but it undersells the aggregate root and the domain exception. |
+| `Infrastructure` | Collides with the `Infrastructure/` layer folder inside every module. |
+| `Framework` | Suggests code reused across products, while the platform serves one product. |
+| `Hosting`, `Runtime` | `Hosting` collides with `Hosts/`; `Runtime` fits messaging but not persistence setup or authorization. |
+| `Chassis` | Kept as the pattern the platform follows, not as the project name. |
+
 ### The Module Tree and Its Layers
 
 Every node of the tree allows a closed set of folder names, so any other folder is refused. Inside one of those folders, subfolders stay free except where the closed set table states Files only: the folder already states the layer, and the lowest-folder rule already placed the type. The layer of a file is its folder.
@@ -472,7 +493,7 @@ A module publishes no command and no refusal: another module triggers its acts t
 
 **Replacement:** A project records its own project layout in its host documentation.
 
-**Rationale:** Each module project then holds one complete business capability: a reader opening it sees the module's domain, use cases, infrastructure, and entry points, and one use case stays in one tree instead of spreading across layer projects. The compiler enforces the boundaries: the Kernel references only the base class library, the Platform references no module, and each module exposes only its `Contracts/` and its entry type. Hosts stay separate projects, because two hosts can run the same modules.
+**Rationale:** Each module project then holds one complete business capability: a reader opening it sees the module's domain, use cases, infrastructure, and entry points, and one use case stays in one tree instead of spreading across layer projects. The compiler enforces the boundaries: the Kernel references only the base class library, the Platform references no module, and each module exposes only its `Contracts/` and its entry type. Hosts stay separate projects, because two hosts can run the same modules. The names come from the Shared Kernel pattern of domain-driven design and the microservice chassis pattern, as "Why the Names Kernel and Platform" above explains.
 
 A project that keeps one modules project holding every module is an allowed deviation; `LS2020` then enforces the `Contracts/` boundary that project references otherwise enforce. Settled by [decision/0107-kernel-platform-and-one-project-per-module](decision/0107-kernel-platform-and-one-project-per-module).
 
