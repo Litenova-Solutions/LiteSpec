@@ -5,8 +5,9 @@ When this file disagrees with `__LITESPEC_COMMAND__ rules`, `__LITESPEC_COMMAND_
 
 This project follows LiteSpec __LITESPEC_PACKAGE_VERSION__: size __SIZE__, shape __SHAPE__, stacks __STACKS__, extensions __EXTENSIONS__.
 Layers: __LAYERS__.
-Before a task, read https://litespec.dev/__LITESPEC_VERSION__/select/__SELECTION_KEY__/llms.txt and fetch only the pages the task touches.
-UI work: the pattern pages listed in that index.
+Before a task, read the LiteSpec pages of this release at __LITESPEC_DOCS__ and open only the pages the task touches.
+Read this release only: never substitute another version when a page is missing.
+UI work: the pattern pages of this release.
 
 Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#select-task-context)
 

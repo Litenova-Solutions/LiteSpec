@@ -16,7 +16,7 @@ The LiteSpec analyzers report a breach of a .NET provision where it happens, wit
 
 ### Outbox and Test Modules
 
-The outbox provisions need LiteBus 7.2.0 or later within the `7.x` pin. Module events and domain-event reactions travel through the LiteBus outbox in process, backed by `LiteBus.Outbox.Storage.PostgreSql` or `LiteBus.Outbox.Storage.EntityFrameworkCore`, with outbound integration events leaving through `LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`. Acceptance tests drain the outbox through `LiteBus.Testing.DurableMessaging`, as `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests` states, and outbox telemetry arrives through `LiteBus.Outbox.Extensions.OpenTelemetry`. Each resolves at its manifest pin.
+The outbox provisions need LiteBus 7.2 at the `7.2.0` pin. Module events and domain-event reactions travel through the LiteBus outbox in process: a Marten project stores outbox rows in its own session through `LiteBus.Outbox.Storage.Marten`, and a project that persists through Entity Framework Core uses `LiteBus.Outbox.Storage.EntityFrameworkCore`, with outbound integration events leaving through `LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`. Acceptance tests drain the outbox through `LiteBus.Testing.DurableMessaging`, as `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests` states, and outbox telemetry arrives through `LiteBus.Outbox.Extensions.OpenTelemetry`. Each resolves at its manifest pin.
 
 ## Standards
 
@@ -57,6 +57,27 @@ None.
   <PackageReference Include="LiteSpec.Analyzers" PrivateAssets="all" />
 </ItemGroup>
 ```
+
+An unreleased build is consumed the same way, through a local feed. Pack the analyzers from the LiteSpec checkout, so the package carries the analyzer, rule library, and mark reader assemblies in its analyzer folder:
+
+```sh
+dotnet pack apps/analyzers/src/LiteSpec.Analyzers
+```
+
+Then point a local source at the packages folder, with source mapping for `LiteSpec.*`:
+
+```xml
+<packageSources>
+  <add key="litespec-local" value="../LiteSpec/artifacts/packages" />
+</packageSources>
+<packageSourceMapping>
+  <packageSource key="litespec-local">
+    <package pattern="LiteSpec.*" />
+  </packageSource>
+</packageSourceMapping>
+```
+
+A project reference to the analyzer project does not carry its dependency assemblies with it, so the analyzers fail to load. Use the local feed instead.
 
 **Reviewed for:** Does every shared kernel, modules, and host project file reference `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each business and host project file.
 

@@ -50,7 +50,7 @@ static partial class AgentProtocol
                 FormatStacks(config.Stacks),
                 FormatExtensions(config.Extensions),
                 FormatLayers(config.Layers),
-                SelectionKey(config.Shape, config.Stacks),
+                release.Docs,
                 CommandFor(config.Root));
             File.WriteAllText(file, fresh);
 
@@ -73,7 +73,7 @@ static partial class AgentProtocol
             FormatStacks(config.Stacks),
             FormatExtensions(config.Extensions),
             FormatLayers(config.Layers),
-            SelectionKey(config.Shape, config.Stacks),
+            release.Docs,
             CommandFor(config.Root));
         var expected = BuildRegion(filled, newline);
 
@@ -241,15 +241,15 @@ static partial class AgentProtocol
             FormatStacks(config.Stacks),
             FormatExtensions(config.Extensions),
             FormatLayers(config.Layers),
-            SelectionKey(config.Shape, config.Stacks),
+            release.Docs,
             CommandFor(config.Root));
 
         return BuildRegion(filled, "\n");
     }
 
-    /// <summary>The release version, the package version and the agent context template text, or null when the release carries no readable template.</summary>
-    /// <returns>The release, the package version and the template text, or null.</returns>
-    private static (string Release, string Package, string Template)? ReleaseTemplate()
+    /// <summary>The release version, the package version, the docs folder and the agent context template text, or null when the release carries no readable template.</summary>
+    /// <returns>The release, the package version, the docs folder and the template text, or null.</returns>
+    private static (string Release, string Package, string Docs, string Template)? ReleaseTemplate()
     {
         var home = LiteSpecHome.Root;
         var release = LiteSpecHome.Version;
@@ -268,7 +268,7 @@ static partial class AgentProtocol
 
         try
         {
-            return (release, ReleaseVersion.PackageOf(release), File.ReadAllText(templatePath));
+            return (release, ReleaseVersion.PackageOf(release), Path.Combine(home, "docs"), File.ReadAllText(templatePath));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -389,10 +389,10 @@ static partial class AgentProtocol
     /// <param name="stacks">The selected stack keys, comma and space separated, or none.</param>
     /// <param name="extensions">The selected extension keys, comma and space separated, or none.</param>
     /// <param name="layers">The claimed layers with their practices.</param>
-    /// <param name="selectionKey">The site's selection key for the selection page URL.</param>
+    /// <param name="docs">The docs of the carried release the protocol points at.</param>
     /// <param name="command">The command that runs the CLI in the project: dotnet litespec or litespec.</param>
     /// <returns>The text with each placeholder replaced by its value.</returns>
-    internal static string Fill(string text, string version, string packageVersion, string size, string shape, string stacks, string extensions, string layers, string selectionKey, string command) =>
+    internal static string Fill(string text, string version, string packageVersion, string size, string shape, string stacks, string extensions, string layers, string docs, string command) =>
         text.Replace("__LITESPEC_PACKAGE_VERSION__", packageVersion, StringComparison.Ordinal)
             .Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
             .Replace("__SIZE__", size, StringComparison.Ordinal)
@@ -400,7 +400,7 @@ static partial class AgentProtocol
             .Replace("__STACKS__", stacks, StringComparison.Ordinal)
             .Replace("__EXTENSIONS__", extensions, StringComparison.Ordinal)
             .Replace("__LAYERS__", layers, StringComparison.Ordinal)
-            .Replace("__SELECTION_KEY__", selectionKey, StringComparison.Ordinal)
+            .Replace("__LITESPEC_DOCS__", docs, StringComparison.Ordinal)
             .Replace("__LITESPEC_COMMAND__", command, StringComparison.Ordinal);
 
     /// <summary>The stacks as the region names them: none, or the keys comma and space separated.</summary>
@@ -470,13 +470,6 @@ static partial class AgentProtocol
 
         return parts.Count == 0 ? null : string.Join(", ", parts);
     }
-
-    /// <summary>The site's selection key: the shape alone when no stack is selected, else the shape and the stacks joined by dots.</summary>
-    /// <param name="shape">The project shape, server or client-only.</param>
-    /// <param name="stacks">The stack keys in list order.</param>
-    /// <returns>The selection key for the selection page URL.</returns>
-    internal static string SelectionKey(string shape, IReadOnlyList<string> stacks) =>
-        stacks.Count == 0 ? shape : $"{shape}.{string.Join(".", stacks)}";
 
     /// <summary>The command that runs the CLI in the project: dotnet litespec with a tool manifest, else litespec.</summary>
     /// <param name="root">The consumer root.</param>

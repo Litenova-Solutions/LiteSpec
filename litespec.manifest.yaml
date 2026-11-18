@@ -200,29 +200,30 @@ packages:
     EFCore.NamingConventions: 10.x
     FsCheck: 3.x
     LightBDD.XUnit3: 3.x
-    LiteBus.Analyzers: 7.x
-    LiteBus.Commands: 7.x
-    LiteBus.Commands.Abstractions: 7.x
-    LiteBus.Commands.Recurring: 7.x
-    LiteBus.Events: 7.x
-    LiteBus.Events.Abstractions: 7.x
-    LiteBus.Extensions.Microsoft.DependencyInjection: 7.x
-    LiteBus.Messaging: 7.x
-    LiteBus.Messaging.Abstractions: 7.x
-    # The outbox provisions need LiteBus 7.2.0 or later within the 7.x pins below, including the dispatch, storage, extensions, and durable-messaging test pins.
-    LiteBus.Outbox: 7.x
-    LiteBus.Outbox.Abstractions: 7.x
-    LiteBus.Outbox.Dispatch.Amqp: 7.x
-    LiteBus.Outbox.Dispatch.InProcess: 7.x
-    LiteBus.Outbox.Dispatch.Kafka: 7.x
-    LiteBus.Outbox.Extensions.OpenTelemetry: 7.x
-    LiteBus.Outbox.Storage.EntityFrameworkCore: 7.x
-    LiteBus.Outbox.Storage.PostgreSql: 7.x
-    LiteBus.Queries: 7.x
-    LiteBus.Queries.Abstractions: 7.x
-    LiteBus.Storage.PostgreSql: 7.x
-    LiteBus.Testing.DurableMessaging: 7.x
-    LiteBus.Testing.Mediation: 7.x
+    LiteBus.Analyzers: 7.2.0
+    LiteBus.Commands: 7.2.0
+    LiteBus.Commands.Abstractions: 7.2.0
+    LiteBus.Commands.Recurring: 7.2.0
+    LiteBus.Events: 7.2.0
+    LiteBus.Events.Abstractions: 7.2.0
+    LiteBus.Extensions.Microsoft.DependencyInjection: 7.2.0
+    LiteBus.Messaging: 7.2.0
+    LiteBus.Messaging.Abstractions: 7.2.0
+    # The pinned pipeline binding needs the LiteBus 7.2 APIs, including the dispatch, storage, extensions, and durable-messaging test pins.
+    LiteBus.Outbox: 7.2.0
+    LiteBus.Outbox.Abstractions: 7.2.0
+    LiteBus.Outbox.Dispatch.Amqp: 7.2.0
+    LiteBus.Outbox.Dispatch.InProcess: 7.2.0
+    LiteBus.Outbox.Dispatch.Kafka: 7.2.0
+    LiteBus.Outbox.Extensions.OpenTelemetry: 7.2.0
+    LiteBus.Outbox.Storage.EntityFrameworkCore: 7.2.0
+    LiteBus.Outbox.Storage.Marten: 7.2.0
+    LiteBus.Outbox.Storage.PostgreSql: 7.2.0
+    LiteBus.Queries: 7.2.0
+    LiteBus.Queries.Abstractions: 7.2.0
+    LiteBus.Storage.PostgreSql: 7.2.0
+    LiteBus.Testing.DurableMessaging: 7.2.0
+    LiteBus.Testing.Mediation: 7.2.0
     LiteSpec.Analyzers: 7.0.0
     Marten: 9.x
     Microsoft.AspNetCore.Authentication.JwtBearer: 10.x

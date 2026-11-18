@@ -99,7 +99,7 @@ A mark is the link between a code element and the record it implements, proves, 
 /// <summary>Reimburses an approved expense.</summary>
 /// <implements>use-case/spending.reimburse-expense</implements>
 /// <follows>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</follows>
-internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseRepository)
+internal sealed class ReimburseExpenseCommandHandler
 ```
 
 In the `attribute` style, the same handler carries them as attributes:
@@ -107,7 +107,7 @@ In the `attribute` style, the same handler carries them as attributes:
 ```csharp
 [Implements("use-case/spending.reimburse-expense")]
 [Follows("litespec/backend/application#keep-command-handlers-to-load-call-and-stage")]
-internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseRepository)
+internal sealed class ReimburseExpenseCommandHandler
 ```
 
 **Checked by:** `litespec model check` reports `mark-style-invalid` (level S), and `dotnet build` reports `LS5004`, for a mark written in the style the project did not declare.

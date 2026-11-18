@@ -5,6 +5,7 @@
 // same placeholders, replaced verbatim.
 import fs from "node:fs";
 import path from "node:path";
+import { SITE_ORIGIN } from "./origin.ts";
 import { backendStacks, frontendStacks, root, version } from "./spec.ts";
 
 /** The opening fence of the generated region, on its own line. */
@@ -29,8 +30,8 @@ export interface AgentProtocolValues {
   extensions: string;
   /** The claimed layers, such as intent and behavior: litespec, implementation and proof: own. */
   layers: string;
-  /** The selection key of the shape and stacks, such as server.dotnet.react. */
-  selectionKey: string;
+  /** The docs of the release: the local docs folder from the tool, or the selection index URL on the site. */
+  docs: string;
   /** dotnet litespec or litespec. */
   command: string;
 }
@@ -44,7 +45,7 @@ export const AGENT_PROTOCOL_PLACEHOLDERS: { placeholder: string; field: keyof Ag
   { placeholder: "__STACKS__", field: "stacks", takes: "the selected stack keys, comma and space separated, or none" },
   { placeholder: "__EXTENSIONS__", field: "extensions", takes: "the selected extension keys, comma and space separated, or none" },
   { placeholder: "__LAYERS__", field: "layers", takes: "the claimed layers, such as intent and behavior: litespec, implementation and proof: own" },
-  { placeholder: "__SELECTION_KEY__", field: "selectionKey", takes: "the selection key of the shape and stacks, such as server.dotnet.react" },
+  { placeholder: "__LITESPEC_DOCS__", field: "docs", takes: "the docs of the release the project reads" },
   { placeholder: "__LITESPEC_COMMAND__", field: "command", takes: "dotnet litespec or litespec" },
 ];
 
@@ -114,7 +115,7 @@ export function selectionValues(input: {
     stacks: input.stacks.length === 0 ? "none" : input.stacks.join(", "),
     extensions: input.extensions.length === 0 ? "none" : input.extensions.join(", "),
     layers: SITE_DEFAULT_LAYERS,
-    selectionKey: input.selectionKey,
+    docs: `${SITE_ORIGIN}/${version}/select/${input.selectionKey}/llms.txt`,
     command: SITE_DEFAULT_COMMAND,
   };
 }

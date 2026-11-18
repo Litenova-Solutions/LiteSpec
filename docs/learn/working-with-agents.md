@@ -42,7 +42,9 @@ When this file disagrees with `dotnet litespec rules`, `dotnet litespec model qu
 
 This project follows LiteSpec 7.0.0: size small, shape server, stacks dotnet, react, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
-Before a task, read https://litespec.dev/7.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
+Before a task, read the LiteSpec pages of this release at https://litespec.dev/7.0.0/select/server.dotnet.react/llms.txt and open only the pages the task touches.
+Read this release only: never substitute another version when a page is missing.
+UI work: the pattern pages of this release.
 ...
 <!-- /generated:agent-protocol -->
 ```

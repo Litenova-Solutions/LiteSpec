@@ -27,7 +27,7 @@ public sealed class AgentProtocolTests
         Assert.DoesNotContain("__STACKS__", text, StringComparison.Ordinal);
         Assert.DoesNotContain("__EXTENSIONS__", text, StringComparison.Ordinal);
         Assert.DoesNotContain("__LAYERS__", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("__SELECTION_KEY__", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_DOCS__", text, StringComparison.Ordinal);
         Assert.DoesNotContain("__LITESPEC_COMMAND__", text, StringComparison.Ordinal);
 
         var checkedResult = TestCli.Run("model", "check", "--root", fixture.Path);

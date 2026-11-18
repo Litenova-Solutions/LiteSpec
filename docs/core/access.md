@@ -89,6 +89,12 @@ An external system is one system outside the bounded context that the product ex
 
 It declares each operation the product may call in `operations`, with its action, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there does not run, with the Intent decision that accepts the limit.
 
+### Hosted Sign-In
+
+A hosted sign-in moves authentication to an identity provider outside the product: the product redirects the browser to the provider, the provider authenticates the person, and the product exchanges the returned code for tokens through its backend for frontend. The protocol is OpenID Connect with PKCE, so the browser never holds provider tokens.
+
+The sign-in is behavior like any other: one use case starts it and one completes it, and the provider is an external system with its operations. The start use case builds the redirect with its PKCE challenge. The complete use case exchanges the code, validates the tokens, finds or creates the person, and starts the session. Each declares the provider operations it calls, so the sign-in shows the same declared edges as any use case that calls an outside system.
+
 ### Where Access Records Live
 
 Each access record lives in the home its type names, as `litespec/core/model#write-every-record-in-its-home` states. The [project model](model.md) states the shared identifier and ownership rules.
@@ -412,6 +418,22 @@ The assignment binds the scope instance the deputy reaches, the tenant or team, 
 **Example:** A payout archive declares `{"mode": "unsupported", "reason": "settled payouts belong to the bank"}` with the decision that accepts the limit, plus the sentence employees see.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an external system without `erasure` and `reference-unknown` for an unsupported, manual or not-applicable erasure without an Intent decision.
+
+### Model a Hosted Sign-In as Use Cases
+
+**ID:** `litespec/core/access#model-a-hosted-sign-in-as-use-cases`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case, record:external-system
+
+**Statement:** A sign-in through a hosted identity provider MUST be modeled as use cases that start and complete the sign-in, with the provider as an external system.
+
+**Rationale:** A product that signs people in through a hosted identity provider runs OpenID Connect with PKCE through its backend for frontend: the browser never holds provider tokens. The start use case builds the provider redirect with its PKCE challenge, and the complete use case exchanges the returned code, validates the tokens, finds or creates the person, and starts the session. The provider is an external system declaring its authorize, token, and logout operations, and the two use cases declare `calls` edges to the operations they use, under `litespec/backend/application#dispatch-only-declared-effect-edges`. Both use cases carry the `anonymous` grant, since the caller is not signed in yet, and arrive through the browser entry point whose `authentication` declares the session.
+
+**Example:** Claimwick signs employees through its hosted provider: `use-case/identity.start-sign-in` builds the redirect, `use-case/identity.complete-sign-in` exchanges the code and starts the session, and `external-system/identity-provider` declares the authorize, token, and logout operations the two use cases call.
+
+**Reviewed for:** Does every hosted sign-in run as start and complete use cases against the provider external system, with anonymous grants and declared provider calls? Check the sign-in use cases beside the provider system.
 
 ### Define Each Scope Level in the Glossary
 

@@ -58,13 +58,13 @@ public sealed class ReleaseCandidateTests
         Assert.Equal("6.0.0-rc.1", (string?)manifest["tools"]!["LiteSpec.Cli"]!["version"]);
     }
 
-    /// <summary>The agent protocol names the package version and links the release.</summary>
+    /// <summary>The agent protocol names the package version and points at the carried docs.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact(DisplayName = "agent protocol names the package and links the release")]
     public void AgentProtocolNamesThePackageAndLinksTheRelease()
     {
         var text = AgentProtocol.Fill(
-            "follows __LITESPEC_PACKAGE_VERSION__; read https://litespec.dev/__LITESPEC_VERSION__/select/__SELECTION_KEY__/llms.txt",
+            "follows __LITESPEC_PACKAGE_VERSION__; read __LITESPEC_DOCS__",
             version: "6.0.0",
             packageVersion: "6.0.0-rc.1",
             size: "small",
@@ -72,10 +72,10 @@ public sealed class ReleaseCandidateTests
             stacks: "dotnet",
             extensions: "none",
             layers: "intent and behavior: litespec",
-            selectionKey: "server.dotnet",
+            docs: "/opt/litespec/7.0.0/docs",
             command: "dotnet litespec");
 
-        Assert.Equal("follows 6.0.0-rc.1; read https://litespec.dev/6.0.0/select/server.dotnet/llms.txt", text);
+        Assert.Equal("follows 6.0.0-rc.1; read /opt/litespec/7.0.0/docs", text);
     }
 
     /// <summary>Generated text from a candidate and from its final release compares equal apart from the suffix.</summary>

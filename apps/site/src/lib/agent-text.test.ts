@@ -114,7 +114,7 @@ describe("agent protocol region", () => {
       stacks: "dotnet, react",
       extensions: "audit",
       layers: "intent and behavior: litespec, implementation and proof: own",
-      selectionKey: "server.dotnet.react",
+      docs: "https://litespec.dev/7.0.0/select/server.dotnet.react/llms.txt",
       command: "litespec",
     });
     assert.ok(out.includes("$&1.0=$&1.0"), out);
