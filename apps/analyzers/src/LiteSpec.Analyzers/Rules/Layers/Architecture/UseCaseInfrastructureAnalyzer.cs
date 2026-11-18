@@ -92,7 +92,7 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
         return null;
     }
 
-    /// <summary>Returns the types the adapter may name through its ports: every type the interfaces of the ports it implements name in their member signatures, followed one level into the types they name.</summary>
+    /// <summary>Returns the types the adapter may name through its ports: every type the interfaces of the ports it implements name in their member signatures, and every type reachable from those through member signatures.</summary>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The named types by original definition.</returns>
@@ -108,16 +108,28 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
             AddInterfaceSignatureTypes(port, direct);
         }
 
-        // A named type keeps its own parts: the rule follows the port signatures one level
-        // into the types they name, so a part the port names only through its result stays allowed.
-        // Only the port's own names open the second level; names found there open no third.
-        // The second level reads source types only, so library generics such as Task open nothing.
+        // An adapter reads whatever the port hands it: a port that passes an aggregate lets the adapter
+        // read the aggregate's values, and the values' values. The rule follows the member signatures of
+        // every source type the port names, transitively. Only source types open further types, so
+        // library generics such as Task or List open nothing.
         var allowed = new HashSet<INamedTypeSymbol>(direct, SymbolEqualityComparer.Default);
-        foreach (var named in direct)
+        var pending = new Queue<INamedTypeSymbol>(direct);
+        while (pending.Count > 0)
         {
-            if (CodeMap.SourceFileOf(named, compilation) is not null)
+            var named = pending.Dequeue();
+            if (CodeMap.SourceFileOf(named, compilation) is null)
             {
-                AddMemberSignatureTypes(named, allowed);
+                continue;
+            }
+
+            var reached = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            AddMemberSignatureTypes(named, reached);
+            foreach (var next in reached)
+            {
+                if (allowed.Add(next))
+                {
+                    pending.Enqueue(next);
+                }
             }
         }
 
@@ -256,6 +268,10 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
         {
             switch (member)
             {
+                // A nested type is part of its container: the cases of a closed set (VatTreatment.Domestic21) come with the set.
+                case INamedTypeSymbol nested:
+                    into.Add(nested.OriginalDefinition);
+                    break;
                 case IMethodSymbol method when method.AssociatedSymbol is null:
                     AddSignatureTypes(method.ReturnType, into);
                     foreach (var parameter in method.Parameters)

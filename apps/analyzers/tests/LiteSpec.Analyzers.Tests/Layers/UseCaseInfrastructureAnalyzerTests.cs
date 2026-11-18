@@ -210,6 +210,54 @@ public sealed class UseCaseInfrastructureAnalyzerTests
             ],
             assemblyName: "Claimwick.Export");
 
+    /// <summary>LS2025 accepts an adapter reading a value of the aggregate its port hands it.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2025 accepts an adapter reading a value of the aggregate its port hands it")]
+    public Task AcceptsAnAdapterReadingAValueOfTheAggregateItsPortHandsIt() =>
+        Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Expenses/Amount.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
+
+                    internal sealed record Amount(decimal Value);
+                    """),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
+
+                    internal sealed class Expense
+                    {
+                        public Amount Total { get; } = new Amount(0m);
+                    }
+                    """),
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    using Claimwick.Spending.Domain.Expenses;
+
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
+
+                    internal interface IReceiptPdf
+                    {
+                        byte[] Render(Expense expense);
+                    }
+                    """),
+                ("Claimwick.Spending/Infrastructure/ReceiptPdf/ReceiptPdfRenderer.cs", """
+                    using Claimwick.Spending.Domain.Expenses;
+                    using Claimwick.Spending.Ports.ReceiptPdf;
+
+                    namespace Claimwick.Spending.Infrastructure.ReceiptPdf;
+
+                    internal sealed class ReceiptPdfRenderer : IReceiptPdf
+                    {
+                        public byte[] Render(Expense expense)
+                        {
+                            Amount total = expense.Total;
+                            return System.Text.Encoding.UTF8.GetBytes(total.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
     /// <summary>LS2025 stays silent in a module Infrastructure folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
