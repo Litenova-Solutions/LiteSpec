@@ -30,7 +30,7 @@ A [module](../reference/glossary.md) is one business area: it organizes the lang
 
 Every module organizes its code as the module tree: one `Contracts/` folder for its public surface, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per port of the module, and the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it, plus one folder per module-level use case, with `Infrastructure/` holding `Persistence/` and one adapter folder per port. A use case that touches two aggregates sits in the aggregate folder its record names: the record tree already groups use cases by aggregate, and the code mirrors the records.
 
-A module publishes its public surface in its `Contracts/` folder, sorted by kind into `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, and `Ports/`. Other modules reference nothing outside it.
+A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, the facts another module consumes, and one folder per public query with its message and result. Other modules reference nothing outside it.
 
 ### The Module Tree
 
@@ -45,7 +45,8 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
   Domain/  Application/  Infrastructure/  WebApi/     Kernel values, pipeline positions, store setup and outbox
   Organizations/                                      module
     Contracts/
-      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
+      Teams/             TeamId, TeamMemberAdded, ReadTeam/ (query and result)
+      ReadTeamDirectory/ a public module-level query
     Domain/
       Teams/             Team, TeamState, TeamRepository (contract), Events/, Exceptions/
     Application/
@@ -73,7 +74,9 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 |:---|:---|
 | Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/` |
-| Module `Contracts/` | `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, `Ports/` |
+| Module `Contracts/` | one folder per aggregate with anything public, in the plural, and one folder per public module-level query; no files |
+| Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, the facts another module consumes, and one folder per public query of that aggregate |
+| Module `Contracts/{Aggregates}/{UseCase}/` and each public module-level query folder | the query message, its result, and the result parts; no other files |
 | Module `Domain/` | one folder per declared aggregate, in the plural |
 | Module `Domain/{Aggregates}/` | `Events/`, `Exceptions/`, files |
 | Module `Application/` | one folder per declared aggregate that has use cases, one folder per declared module-level use case, `Notifications/`, `ExternalSystems/`, `ReadModels/` |
@@ -87,9 +90,9 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 | Module `Application/ReadModels/` | one per declared read model of the module |
 | Each use case folder and each folder under `Notifications/`, `ExternalSystems/` and `ReadModels/` | Files only |
 
-A module shares with other modules only through its `Contracts/` folder. A typed identifier another module references lives in its owner's `Contracts/Identifiers/` folder, so the one rule covers identifiers too.
+A module shares with other modules only through its `Contracts/` folder. A typed identifier another module carries lives in the aggregate folder of its owner's `Contracts/` folder, so the one rule covers identifiers too; an identifier no other module carries lives in the aggregate's `Domain/` folder.
 
-A module publishes no command and no refusal. To trigger an act on another module's aggregate, a module raises its own fact, and the owning module's reaction answers the published module event; each module refuses with its own refusals.
+A module publishes no command, no refusal, and no interface. To trigger an act on another module's aggregate, a module raises its own fact, and the owning module's reaction answers the published module event; each module refuses with its own refusals. To read another module's current value, a module asks through its port to that module, answered by the provider's public query.
 
 Kernel values stay in the product `Domain/`. Product-wide technical capabilities stay in the product `Application/`, `Infrastructure/`, and `WebApi/` folders: persistence setup, messaging, authorization, auditing, and HTTP conventions. The product `WebApi/` folder holds only what endpoints of two or more modules compile against, such as the endpoint contract and the current actor.
 
@@ -126,8 +129,8 @@ Publishing a post runs a `PublishPostCommand` through the handler and the domain
 
 Across modules, each read takes one of three paths:
 
-- A module that needs another module's state keeps its own read model of it, built from the owner's published module events.
-- A command whose decision needs the owner's current value asks one question through a decision port in the owner's `Contracts/Ports/` folder.
+- A module that needs another module's current value asks through its port to that module, answered by the provider's public query.
+- A module that needs another module's data reshaped and kept locally keeps its own read model of it, built from the owner's published module events.
 - A screen that only shows another module's data calls the owner's own query.
 
 A module loads the other module's aggregate or repository in no case.
@@ -172,7 +175,7 @@ Nothing above Implementation is computed from code: code points up to the record
 
 **Rationale:** When each layer defines its own outward contracts, a change to an inner shape stops at the boundary instead of forcing changes in every outer layer. Kernel values cross layer boundaries because the Kernel is shared by definition, and aggregate typed identifiers cross them because messages need to identify their targets.
 
-The module boundary works the same way: a use case maps another module's port answer at its edge and returns it in no result or transport model of its own, so the owner can change its answer without changing the reader's contract.
+The module boundary works the same way: the adapter in `Infrastructure/{Provider}/` maps the provider's public query answer into the consumer's own types, and a use case returns it in no result or transport model of its own, so the owner can change its answer without changing the reader's contract.
 
 **Reviewed for:** Is any inner layer's type reused as an outward contract, or any other module's port answer returned as-is, outside Kernel values and aggregate typed identifiers? Look at the results and transport models in each layer's folders.
 
@@ -204,7 +207,7 @@ The module boundary works the same way: a use case maps another module's port an
 
 **Rationale:** One plural folder per declared aggregate under `Domain/`, one folder per port under `Ports/` with its adapter in `Infrastructure/`, and one plural aggregate folder with one folder per use case inside each layer that serves it fix every type's address: a reader moves from a Domain aggregate to its handler, its repository, and its endpoint without a map. The closed folder names at each level keep that reading exact, because a folder outside the allowed set is refused and no second organization grows beside the tree.
 
-A module publishes what other modules may reference in its `Contracts/` folder sorted by kind, every use case sits in the aggregate folder its record names or directly in the layer folders when its record is module-level, and each reaction and job sits in the folder of the use case it runs. A folder named for a fact would reference the commands of other use cases and pull them out of their folders, and a fact's reactions span modules, so no fact folder could ever show them all.
+A module publishes what other modules may reference in its `Contracts/` folder grouped by aggregate, every use case sits in the aggregate folder its record names or directly in the layer folders when its record is module-level, and each reaction and job sits in the folder of the use case it runs. A folder named for a fact would reference the commands of other use cases and pull them out of their folders, and a fact's reactions span modules, so no fact folder could ever show them all.
 
 An aggregate stays flat only when its plural name equals the single module name. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
@@ -218,7 +221,7 @@ A folder named for a technical grouping rather than a module defeats the rule: t
 # single-aggregate module whose aggregate name matches the module: Domain stays flat, layer folders nest under the plural aggregate folder
 Organizations/
   Contracts/
-    Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
+    Organizations/            the identifier, the facts, and the public queries of the organization aggregate
   Domain/                     the organization aggregate directly: Organization, OrganizationState
   Application/
     Organizations/
@@ -230,7 +233,8 @@ Organizations/
 # multi-aggregate module: Domain holds one plural folder per aggregate, each layer holds one plural aggregate folder with one folder per use case inside it
 Spending/
   Contracts/
-    Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
+    Expenses/                 ExpenseId, ExpenseReimbursed, ReadExpense/ (query and result)
+    Policies/                 the identifier, the facts, and the public queries of the policy aggregate
   Domain/
     Expenses/                 Expense, ExpenseState, the expense repository contract
     Policies/
@@ -371,15 +375,31 @@ Queries project read results without loading an aggregate and write nothing, fol
 
 **Applies to:** artifact: command-handler, port, query-handler
 
-**Statement:** A module needing another module's data MUST read it through its own read model built from the owner's module events, through a decision port in the owner's `Contracts/Ports/` folder, or, on a screen, through the owner's own query.
+**Statement:** A module needing another module's data MUST read it through its port to that module answered by the provider's public query, through its own read model built from the owner's module events, or, on a screen, through the owner's own query.
 
 **Rationale:** A module that loaded another module's aggregate or repository would couple its reads to the owner's consistency boundary and storage. A general reader in the owner's `Contracts/` is the same coupling one step removed: it grows a method per caller, and no record says which fields cross.
 
-The three allowed paths each state what crosses. A read model states each field it copies from a published event, under `litespec/backend/application#read-another-modules-state-through-a-read-model`. A decision port answers one current-value question, under `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`. A screen joins each owner's query, under `litespec/frontend/data#compose-a-screen-from-each-owners-query`.
+The three allowed paths each state what crosses. The consumer port states what one consumer needs in its own types, and the provider's public query answers with the owner's current value, under `litespec/backend/application#reach-another-module-through-one-port-per-provider`. A read model states each field it copies from a published event, under `litespec/backend/application#read-another-modules-state-through-a-read-model`. A screen joins each owner's query, under `litespec/frontend/data#compose-a-screen-from-each-owners-query`.
 
-**Example:** In the Claimwick product, the reporting module reads reimbursed expenses through its own `read-model/reporting.reimbursed-expense`, filled from the spending module's expense-reimbursed module event. It loads no spending aggregate, no spending repository, and no spending reader.
+**Example:** In the Claimwick product, the reporting module reads the current expense through its port to the spending module, answered by spending's public read-expense query. It keeps its own `read-model/reporting.reimbursed-expense`, filled from the spending module's expense-reimbursed module event, only for the reshaped rows its lists show. It loads no spending aggregate, no spending repository, and no spending reader.
 
-**Reviewed for:** Does any cross-module read load another module's aggregate or repository, or call a general reader instead of a read model, a decision port, or a screen joining owner queries? Look at the cross-module reads beside the `Contracts/Ports/` folders.
+**Reviewed for:** Does any cross-module read load another module's aggregate or repository, or call a general reader instead of a consumer port, a read model, or a screen joining owner queries? Look at the cross-module reads beside the consumer ports.
+
+### Send Only Queries Across Modules
+
+**ID:** `litespec/backend/architecture#send-only-queries-across-modules`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, query-handler, reaction, job
+
+**Statement:** A module MUST send only public queries across a module boundary, so a command is never public and a change in one module reaches another through a fact and a reaction there.
+
+**Rationale:** A synchronous cross-module write couples the caller to the provider's consistency boundary, storage, and uptime: the caller commits only when the provider commits, and the provider's rules run inside the caller's transaction. A public query only reads: the provider answers with its current value and nothing else, and its record lists the consuming modules in `reachedThrough`, so every synchronous edge is declared. A change the caller needs in the owning module is a fact that module's reaction answers, under `litespec/backend/architecture#restrict-commands-to-their-own-module-aggregates`. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+
+**Example:** In the Claimwick product, the reporting module sends spending's public read-expense query through its port to the spending module. When reporting needs an expense changed, spending's reaction to reporting's published fact runs the spending use case; reporting sends no spending command.
+
+**Reviewed for:** Does any module send another module's command, or publish a command in its Contracts? Look at the cross-module sends beside the Contracts projects.
 
 ### Restrict Commands to Their Own Module Aggregates
 

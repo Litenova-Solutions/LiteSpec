@@ -553,6 +553,30 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls2029.md",
+      "path": "analyzers/rules/ls2029",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2029: File Names a Contract Type Outside Its Layer",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2030.md",
+      "path": "analyzers/rules/ls2030",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2030: Contracts Project Declares an Interface",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/analyzers/rules/ls3001.md",
       "path": "analyzers/rules/ls3001",
       "style": "reference",
@@ -3960,6 +3984,37 @@
       "style": "decision",
       "area": "intent",
       "title": "Composable Policies for Shared Access Conditions",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0109-module-contracts-publish-data/0109-module-contracts-publish-data.md",
+      "path": "intent/decisions/0109-module-contracts-publish-data/0109-module-contracts-publish-data",
+      "style": "decision",
+      "area": "intent",
+      "title": "Module Contracts Publish Data",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0110-module-dependencies-form-a-dag/0110-module-dependencies-form-a-dag.md",
+      "path": "intent/decisions/0110-module-dependencies-form-a-dag/0110-module-dependencies-form-a-dag",
+      "style": "decision",
+      "area": "intent",
+      "title": "Module Dependencies Form a DAG",
       "intent": "",
       "sections": [
         "Context",

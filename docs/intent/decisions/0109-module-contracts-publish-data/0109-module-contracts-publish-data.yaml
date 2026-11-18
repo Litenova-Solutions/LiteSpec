@@ -1,0 +1,28 @@
+type: decision
+id: decision/0109-module-contracts-publish-data
+title: Module Contracts Publish Data
+context: "A module published reader interfaces in its Contracts folder for every other module to call. One large consumer named 86 such readers in 741 files of other modules, and the busiest reader had 18 methods, several named for their one caller. No record said which fields crossed the boundary. The word port named two directions at once: the driven ports a module declares in its Ports folder for work it does not compute, and the reader interfaces a module published in Contracts/Ports for other modules to call. Two modules of the owner's product referenced each other's identifiers, so neither Contracts project could state what it owned. A microservice backend whose internal contracts project published request and response models per operation showed the shape that works: data only, grouped by aggregate and operation, with each consumer declaring its own port."
+options:
+  - name: "Contracts publish data grouped by aggregate; each consumer declares one port per provider"
+    pros: "The provider states its public queries, facts, and carried identifiers as data beside the use cases that produce them. Each consumer port states what one consumer needs in its own types. No interface crosses a module boundary."
+    cons: "Each consumer writes a port and an adapter per provider module it reads. A public query needs its record, its message, and its result in Contracts."
+  - name: "Consumers call the provider's public query directly"
+    pros: "No consumer port and no adapter: the handler sends the provider query itself."
+    cons: "Provider types leak into the consumer's application layer, and no port states what the consumer needs. Replacing the provider rewrites every calling handler."
+  - name: "Contracts publish public commands beside public queries"
+    pros: "A consumer triggers a provider act with one call and reads its result at once."
+    cons: "A synchronous cross-module write couples the caller to the provider's consistency boundary and uptime. A change in one module reaches another without a fact the records can follow."
+  - name: "Facts stay in a ModuleEvents folder apart from their aggregate"
+    pros: "One folder lists every fact the module publishes."
+    cons: "The fact sits apart from the aggregate and the use cases that produce it. A reader cannot tell what one aggregate publishes without searching every kind folder."
+  - name: "Identifiers shared modules carry live in the Kernel"
+    pros: "Every module references one shared identifier without a Contracts reference."
+    cons: "The Kernel fills with business identifiers owned by no module. A shared identifier hides which module owns the aggregate it names."
+  - name: "Modules carry foreign identifiers as plain Guids in the Platform"
+    pros: "No Contracts reference is needed to carry another module's identifier."
+    cons: "The type no longer says which aggregate the value names. A caller passes any Guid where an ExpenseId belongs, and the compiler stays silent."
+choice: "Contracts publish data grouped by aggregate; each consumer declares one port per provider. Only queries cross modules: a change in one module reaches another through a fact and a reaction there. Facts sit in their aggregate folder beside the identifier and the public queries of that aggregate. An identifier another module carries lives in Contracts of the module that owns the aggregate; one no other module carries lives in Domain. The Kernel holds an identifier only with a decision record naming the Contracts cycle it breaks. The Platform names no business identifier."
+consequences: "A Contracts project holds data only: no interface anywhere in the project. Its root holds one folder per aggregate with anything public, in the plural, and one folder per public module-level query. Each aggregate folder holds the aggregate identifier when another module carries it, the facts about the aggregate another module consumes, and one folder per public query of that aggregate with its message and result. A public use case is a query use case whose record lists consuming modules in reachedThrough. A consumer reaches another module only through its port to that module, one port per provider named for the provider in Ports/{Provider}/, with one adapter in Infrastructure/{Provider}/ that sends the provider's public queries and maps their results. The consuming use case, reaction, or job declares the edge as effects.queries. A read model stays the answer when a consumer needs another module's data reshaped and kept locally; it is the exception now, not the rule. The Platform speaks the tenant and the actor, and the owner of each identifier converts at the module edge."
+reopenedWhen: "A consumer shows a current-value read no public query can answer. Or a module shows an identifier two modules must own at once."
+basedOn:
+  - research/cross-module-coupling-practice

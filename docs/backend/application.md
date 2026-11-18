@@ -17,7 +17,7 @@ Application code lives in the `Application/` layer folder of each module: one fo
 
 The `Application/{Aggregates}/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{Aggregates}/{UseCase}/` folder holds the endpoint with its request and response models. The `Ports/{Port}/` folder holds the interface `I{Port}` and only the types its signatures name, and the `Infrastructure/{Port}/` folder holds the adapter implementing it.
 
-Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder, grouped by kind into identifiers, integration events, module events, and ports. The pipeline machinery itself lives in the product `Application/` folder.
+Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder: data only, grouped by aggregate into identifiers, facts, and public queries with their messages and results. The pipeline machinery itself lives in the product `Application/` folder.
 
 Each event handler class carries a mark naming the reaction it implements, and sits with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 
@@ -41,7 +41,7 @@ In Claimwick, the approve-expense command flows from validation through the auth
 
 A port is a narrow interface that the module declares for work it does not compute in memory: an external system, a file format it reads or writes, a platform service the Platform does not already expose as an abstraction, or the clock. Each port names one business capability in project-owned types, types the project defines rather than types a provider or transport defines. Infrastructure implements the port.
 
-Every port of the module lives in its own `Ports/{Port}/` folder, whether one use case or many call it, so `Ports/` is the complete list of what the module needs from outside. A port that another module calls is published in the owning module's `Contracts/Ports/` folder instead. Such a port only reads: a write another module needs arrives as a fact that its reaction answers.
+Every port of the module lives in its own `Ports/{Port}/` folder, whether one use case or many call it, so `Ports/` is the complete list of what the module needs from outside. A consumer port to another module is an ordinary port in the consumer's `Ports/` folder: one port per provider module, named for the provider, with its adapter sending the provider's public queries. Such a port only reads: a write another module needs arrives as a fact that its reaction answers.
 
 Four kinds of port belong in `Ports/`:
 
@@ -50,13 +50,13 @@ Four kinds of port belong in `Ports/`:
 - A platform-service port keeps a platform service the Platform does not already expose as an abstraction behind an adapter.
 - The clock keeps time behind an adapter.
 
-A general reader that returns the owner's state to any caller is not one of them: a module keeps its own read model, its own stored copy of the fields it needs from another module, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, and a messenger port carries the notifications `sends` effects name.
+A general reader that returns the owner's state to any caller is not one of them: a module asks through its port to the provider, answered by the provider's public query, and a screen joins each owner's query. A read model stays the answer when the module needs another module's data reshaped and kept locally. An external-system port carries the operations one `calls` effect names, and a messenger port carries the notifications `sends` effects name.
 
 In Claimwick, the payout provider sits behind an external-system port: an event handler calls the port operation after the commit, and Infrastructure adapts the provider behind it. If the provider changes, only the adapter changes.
 
 ### Declared Effects
 
-Every edge between use cases, reactions, jobs, notifications, module events, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`, where `sends` names a notification and `calls` names an external-system operation. A reaction or job also declares `runs`, naming the one use case it runs.
+Every edge between use cases, reactions, jobs, notifications, module events, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`, where `sends` names a notification, `calls` names an external-system operation, and `queries` names a public query use case of another module. A reaction or job also declares `runs`, naming the one use case it runs, and declares `queries` the same way when it needs another module's current value.
 
 An edge the records do not declare is behavior the specification hides. The effect checks report it as `effect-undeclared`.
 
@@ -405,17 +405,15 @@ Mirroring the Domain shape in the result keeps the layers aligned, so the data o
 
 **Applies to:** artifact: port
 
-**Statement:** Every port of a module MUST live in its own `Ports/{Port}/` folder holding the interface `I{Port}` and only the types its signatures name, directly or through one named type, with its adapter in its `Infrastructure/{Port}/` folder, and a port another module calls in the owning module's `Contracts/Ports/` folder.
+**Statement:** Every port of a module MUST live in its own `Ports/{Port}/` folder holding the interface `I{Port}` and only the types its signatures name, directly or through one named type, with its adapter in its `Infrastructure/{Port}/` folder.
 
-**Rationale:** `Ports/` is the complete list of what the module needs from outside: every port of the module lives there, whether one use case or many call it, each in its own folder with its adapter beside it in `Infrastructure/`. A reader opening `Ports/` sees each outside dependency once, instead of hunting use case folders for interfaces.
+**Rationale:** `Ports/` is the complete list of what the module needs from outside: every port of the module lives there, whether one use case or many call it, each in its own folder with its adapter beside it in `Infrastructure/`. A reader opening `Ports/` sees each outside dependency once, instead of hunting use case folders for interfaces. A consumer port to another module is an ordinary port there, under `litespec/backend/application#reach-another-module-through-one-port-per-provider`.
 
 The folder holds two levels of types: the types the interface signatures name, and the types those types name in their own signatures, such as a result part the interface reaches only through its result. Names found at the second level open no third.
 
-Only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers.
-
 Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.
 
-**Reviewed for:** Does every port of the module live in its own `Ports/{Port}/` folder holding only its interface and the types its signatures name through at most one named type, with its adapter in `Infrastructure/{Port}/`, and every cross-module port in the owning module's `Contracts/Ports/` folder? Look at each port folder beside its callers and its adapter.
+**Reviewed for:** Does every port of the module live in its own `Ports/{Port}/` folder holding only its interface and the types its signatures name through at most one named type, with its adapter in `Infrastructure/{Port}/`? Look at each port folder beside its callers and its adapter.
 
 ### Declare a Port Only for What the Module Does Not Compute
 
@@ -443,19 +441,19 @@ A `Ports/` folder that accepts in-process helpers becomes the place for whatever
 
 **Applies to:** artifact: command-handler, query-handler, reaction
 
-**Statement:** A use case MUST read another module's state through a read model its own module keeps, named in its `reads`, unless its decision needs the owner's current value and asks for it through a decision port.
+**Statement:** A use case that needs another module's data reshaped and kept locally MUST read it through a read model its own module keeps, named in its `reads`.
 
-**Rationale:** A general reader in the owner's `Contracts/Ports/` folder couples every reading module to the owner's storage, uptime, and release cadence. It grows a method per caller until one interface returns one profile shape to every module.
+**Rationale:** A read model is the reading module's own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner's module events. Reads through the model lag by up to the read model's declared `freshness`.
 
-A read model is the reading module's own copy: its record names each field and the published field it comes from, a personal field names the event that erases it, and its projections keep it current from the owner's module events. Reads through the model lag by up to the read model's declared `freshness`, which most decisions accept.
+A read model is the exception now, not the rule. A use case that needs another module's current value asks through its port to that module, answered by the provider's public query, under `litespec/backend/application#reach-another-module-through-one-port-per-provider`. The read model stays for data the consumer reshapes and keeps locally: rows its lists show, figures it accumulates, and copies its screens read without calling the owner.
 
 This is the practice known as event-carried state transfer, declared as a record so a check can prove every field has a source. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model).
 
 **Example:** The reporting module's list-reimbursed-expenses query reads `read-model/reporting.reimbursed-expense`, which its projections fill from the spending module's expense-reimbursed module event. It calls no spending reader.
 
-**Reviewed for:** Does any use case call another module's reader for state a read model could hold, and does every read model have a use case naming it in `reads`? Look at each cross-module port call beside the module's read models.
+**Reviewed for:** Does every read model hold data its module reshaped and keeps locally, and does every read model have a use case naming it in `reads`? Look at each read model beside the use cases that read it.
 
-### Ask Another Module One Question Through a Decision Port
+### Ask Another Module Through Its Public Query
 
 **ID:** `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 
@@ -463,15 +461,37 @@ This is the practice known as event-carried state transfer, declared as a record
 
 **Applies to:** artifact: port, command-handler
 
-**Statement:** A command whose decision needs another module's current value MUST ask for it through a decision port with one read-only method and one answer type named for its question, with the use case record stating why a read model's freshness is not enough.
+**Statement:** A command whose decision needs another module's current value MUST ask for it through its port to the owning module, answered by the owning module's public query, with the use case declaring the edge in `effects.queries`.
 
-**Rationale:** Some decisions cannot accept a copy that lags: money that may still move, or capacity that may still sell. A decision port answers that one question with the owner's current value and nothing else, so it cannot grow into a general reader, and its name says what it decides.
+**Rationale:** Some decisions cannot accept a copy that lags: money that may still move, or capacity that may still sell. The consumer port states what one consumer needs in its own types, and the provider's public query answers with the owner's current value and nothing else, so the port cannot grow into a general reader, and its name says what it decides.
 
-It only reads: a change the caller needs in the owning module is a fact that module's reaction answers. A query never needs one, because a screen accepts the lag or calls the owner's own query.
+It only reads: a change the caller needs in the owning module is a fact that module's reaction answers. The provider's public use case lists the consuming module in `reachedThrough`, and the consumer's `queries` edge names the public use case, so the edge is declared on both sides. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
 
-**Example:** A sale asks a capacity module `IRemainingCapacity.FindAsync(variantId)` and receives a `RemainingCapacity` with the units left and the time it was read, instead of loading a whole event profile through a general reader.
+**Example:** In the Claimwick product, a reimbursement command asks spending for the current expense through reporting's port to the spending module, answered by spending's public read-expense query, instead of reading a whole event profile through a general reader.
 
-**Reviewed for:** Does every port in `Contracts/Ports/` hold one method, read only, serve a command, and sit beside a use case stating why a read model is not enough? Look at each decision port beside its callers.
+**Reviewed for:** Does every command needing another module's current value ask through its port to the owning module with a `queries` edge to the provider's public query? Look at each cross-module port call beside its use case record.
+
+### Reach Another Module Through One Port per Provider
+
+**ID:** `litespec/backend/application#reach-another-module-through-one-port-per-provider`
+
+**Strength:** required
+
+**Applies to:** artifact: port, command-handler, query-handler
+
+**Statement:** A module MUST reach another module only through one port per provider module, named for the provider in `Ports/{Provider}/`, with one adapter in `Infrastructure/{Provider}/` that sends the provider's public queries.
+
+**Rationale:** The port states what one consumer needs from one provider in the consumer's own types and identifiers, never the provider's queries or results. The adapter is the only code that sends another module's public query and the only code that names the provider's query and result types. Handlers keep sending nothing: they call the port, and the adapter sends. The consuming use case, reaction, or job declares the edge as `effects.queries` naming the provider's public use case. One port per provider keeps every read of one provider in one folder with one adapter, so replacing the provider rewrites one adapter. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+
+**Example:**
+
+```text
+Claimwick.Reporting/
+  Ports/Spending/ISpending.cs                 what reporting needs from spending, in reporting's own types
+  Infrastructure/Spending/SpendingAdapter.cs  sends spending's public queries and maps their results
+```
+
+**Reviewed for:** Does every cross-module read pass through the consumer's port to the provider module, with only the adapter in `Infrastructure/{Provider}/` naming the provider's queries and results? Look at each cross-module read beside the consumer's ports and adapters.
 
 ### Call External Systems Through Their Ports
 
@@ -633,7 +653,7 @@ One execution host runs the job under `litespec/backend/architecture#name-the-ho
 
 Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails `effect-undeclared` on any dispatch the record does not declare.
 
-A module event or an outbound integration event is no effect: the pipeline stages each from the domain event it translates under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`. `sends`, `calls`, and `runs` effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one.
+A module event or an outbound integration event is no effect: the pipeline stages each from the domain event it translates under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`. `sends`, `calls`, and `runs` effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one. A `queries` edge is the one effect a handler answers inline: the handler calls its port to the provider, and the adapter in `Infrastructure/{Provider}/` sends the provider's public query.
 
 A `sends` or `calls` effect on a command is `after-commit` or `async`, never `inline`, and `consistency: atomic` never reaches past the use case's own writes. The complete-sign-in command of a hosted sign-in is the one command that declares a `calls` edge with `inline` timing, for the token exchange whose result the session needs; `effect-timing-invalid` exempts that edge. The effect graph holds no cycles except through domain events with a stated end condition.
 
@@ -812,7 +832,7 @@ The layer folders state each file's layer in the path and show by their presence
   Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else
   Posts/                                  single aggregate whose name matches the module: Domain holds the aggregate directly
     Contracts/
-      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
+      Posts/          PostId, PostPublished, ReadPost/ (query and result)
     Domain/                               Post, PostState, and the post repository contract directly
     Application/
       Posts/
@@ -840,7 +860,8 @@ The layer folders state each file's layer in the path and show by their presence
         ExportPosts/                      endpoint
   Customers/                              two aggregates: Domain holds one plural folder per aggregate
     Contracts/
-      Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
+      CustomerAccounts/  CustomerAccountId, the facts, and the public queries of the account aggregate
+      Consents/          ConsentId, the facts, and the public queries of the consent aggregate
     Domain/
       CustomerAccounts/
       Consents/

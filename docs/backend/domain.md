@@ -479,7 +479,7 @@ A flow that finds a record or creates it is two use cases that the boundary owni
 
 **Rationale:** A part serves no record of its own: it belongs to its aggregate, whose record states the states, transitions, and data the part holds. A mark on each part would write that fact a second time, and the two copies would drift. The folder shows which aggregate a part belongs to, so the builder derives the link from it.
 
-A type in a folder that holds no aggregate root, and that is not the product `Domain/` folder, is the one place the derivation fails. A domain service that holds one rule calculation is not a part: it carries its `rule/` mark. A row or projection a read port returns is not a part either: it is the port's answer, shaped for a reader, and it sits with its port in Application.
+A type in a folder that holds no aggregate root, and that is not the product `Domain/` folder, is the one place the derivation fails. A domain service that holds one rule calculation is not a part: it carries its `rule/` mark. A row or projection a port returns is not a part either: it is the port's answer, shaped for a reader, and it sits with its port.
 
 **Example:** In the Claimwick product, `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Domain/Expenses/` and carry no mark; the builder lists them as parts of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
 

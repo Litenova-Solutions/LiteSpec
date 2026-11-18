@@ -171,7 +171,7 @@ The book groups a use case's scenarios by result, and it groups each feature und
 
 `fulfilledBy` does not exist: a use case keeps `fulfills` pointing up to the requirement, and the book computes the inverse. `role.allows` is a declared down-link, like `decides` and `holds`.
 
-Module `dependsOn` may not form a cycle; a `module-dependency-invalid` finding reports one.
+Module dependencies form a directed acyclic graph over Contracts references, `queries` edges, and reactions to facts, beside the `dependsOn` links; a `module-dependency-invalid` finding reports a cycle.
 
 Decision numbers come from one sequence across every home, allocated by `litespec new decision`, which takes the next free number. A repeated number is a `record-key-duplicate` finding.
 
@@ -411,7 +411,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `access.recentSignInLimit` | use case | setting | is limited by | limits |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
 | `computedBy` | use case | rule | is computed by | computes |
-| `reachedThrough` | use case | entry point | is reached through | reaches |
+| `reachedThrough` | use case | entry point, module | is reached through | reaches |
 | `raises` | use case | domain event | raises | is raised by |
 | `writes` | use case | aggregate | writes | is written by |
 | `reads` | use case, reaction, job | aggregate, setting, read model, reference data | reads | is read by |
@@ -419,6 +419,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `consistency.guards` | use case | aggregate | holds the guard of | is guarded by |
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
 | `effects.calls` | use case, reaction, job | external operation | calls | is called by |
+| `effects.queries` | use case, reaction, job | use case | queries | is queried by |
 | `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
 | `consentRule` | use case, notification | rule | needs consent under | sets consent for |
@@ -457,7 +458,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 
 Links point up a layer by default, from the behavior to the promise it keeps. Intent links point up: `serves`, `answers`, `fulfills`, `cites` and `advances` connect Behavior to Intent or Intent to the promise above it.
 
-Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources.
+Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `queries`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources.
 
 The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, `holds`, which names the roles an actor holds, and `steps.system`, which names the external system that performs a flow step: a flow names no use case, and a requirement names no rule.
 
@@ -549,7 +550,7 @@ A runtime value a record already states, such as an event classification or a re
 
 ### Where Code and Tests Sit
 
-Backend code follows the module layout: one `Contracts/` folder, one `Domain/` folder holding one folder per aggregate in the plural, and the `Application/`, `Infrastructure/`, and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level use case, in one tree. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout` sits in `{Product}/Finance/Application/Payouts/RequestPayout/`.
+Backend code follows the module layout: one `Contracts/` folder holding data only grouped by aggregate, one `Domain/` folder holding one folder per aggregate in the plural, and the `Application/`, `Infrastructure/`, and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level use case, in one tree. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout` sits in `{Product}/Finance/Application/Payouts/RequestPayout/`.
 
 Tests mirror the code they prove, with the same check: a test marking a scenario sits under the folder path of the scenario's use case, so acceptance tests mirror `{Module}/{Aggregates}/{UseCase}/`.
 
@@ -1059,11 +1060,11 @@ Two findings cover the two gaps: `step-use-case-missing` names a step no use cas
 
 **Applies to:** artifact: record:module
 
-**Statement:** Module `dependsOn` links MUST NOT form a cycle.
+**Statement:** Module dependencies MUST NOT form a cycle.
 
-**Rationale:** A dependency cycle says each module builds on the other, so neither has a seam to split along. The module order stays a directed graph with no cycle, like the effect edges.
+**Rationale:** A dependency cycle says each module builds on the other, so neither has a seam to split along. The graph runs over Contracts project references, `queries` edges, and reactions to another module's facts, beside the `dependsOn` links. A cycle means a concept is split across two modules, and the fix moves the concept into one module, never through a shared identifier. Settled by [decision/0110-module-dependencies-form-a-dag](decision/0110-module-dependencies-form-a-dag).
 
-**Example:** Spending depends on finance and finance depends on spending, so the cycle is reported.
+**Example:** Spending depends on finance and finance depends on spending, so the cycle is reported naming both modules and the edges that close it.
 
 **Checked by:** `litespec model check` reports `module-dependency-invalid` for a module dependency cycle.
 

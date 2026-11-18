@@ -22,7 +22,7 @@ The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md
 | `triggeredBy` | The `domain-event/...`, `module-event/...`, or `integration-event/...` ids the reaction answers, as one id or a list: a domain event of its own module, a module event of any module of the product, or an inbound integration event. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
 | `compensates` | The `use-case/...` id the reaction undoes, for a reaction answering a later step's failure, optional. |
-| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A reaction may omit `timing`, which means `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
+| `effects` | `{ runs / sends / calls / queries, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A reaction may omit `timing`, which means `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
@@ -64,7 +64,7 @@ The name follows `<verb>-<what>`, using the verb of the use case it runs, or its
 | `kind` | `scheduled` or `one-off`. |
 | `schedule` | The schedule, required with `scheduled`: `{ "every": "PT1M" }`, `{ "cron": "0 3 * * *", "timezone": "..." }`, or `{ "at": "startup" }` for a run once at deployment start. The timezone is a literal IANA zone, or `{ "setting": "setting/<module>.<name>" }` or `{ "field": "aggregate/<module>.<aggregate>#<field>" }` naming where the zone is stored. |
 | `selection`, `batchSize`, `lease`, `cursor`, `runbook`, `runsWhen`, `serviceLevel`, `evidence` | What each run selects, how many items per batch, the lock with its duration, where resume state lives, the runbook answering the run, the condition it runs under, the promised service level, and the evidence the run leaves. |
-| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A job states `timing` on each entry. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
+| `effects` | `{ runs / sends / calls / queries, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A job states `timing` on each entry. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
@@ -99,11 +99,11 @@ A use case that needs state from another module has three options:
 
 | Need | Use |
 |:---|:---|
-| The reading module accepts a lag up to a stated freshness | A read model its own module keeps, named in `reads` |
-| The decision needs the owner's current value | A decision port the command calls, with the use case stating why the lag is not enough |
+| The decision needs the owner's current value | The consumer port to the owning module, answered by the owner's public query, with the behavior declaring the edge in `effects.queries` |
+| The reading module needs the data reshaped and kept locally | A read model its own module keeps, named in `reads` |
 | A person sees figures from several owners on one page | A screen composing each owner's query, with no module reading another |
 
-The read model is the normal choice. A decision port answers one question with the owner's current value and nothing else. A composed screen joins each owner's query at display time.
+The public query is the normal choice. The consumer port states what one consumer needs in its own types, and the provider's public query answers with the owner's current value and nothing else. The read model stays for data the consumer reshapes and keeps locally. A composed screen joins each owner's query at display time.
 
 ### Long-Running Processes
 
@@ -193,7 +193,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction and each job MUST declare its edges in `effects`, with exactly one verb per entry.
 
-**Rationale:** A reaction or job with no declared edge observes and never acts, and an edge written outside `effects` hides behavior the checks never see. Declaring each edge in `effects`, with exactly one verb of `runs`, `sends`, or `calls`, keeps every consequence beside the trigger or schedule, in the one grammar every record with edges shares, as the [use cases](use-cases.md) page defines.
+**Rationale:** A reaction or job with no declared edge observes and never acts, and an edge written outside `effects` hides behavior the checks never see. Declaring each edge in `effects`, with exactly one verb of `runs`, `sends`, `calls`, or `queries`, keeps every consequence beside the trigger or schedule, in the one grammar every record with edges shares, as the [use cases](use-cases.md) page defines.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a reaction or job with no `effects` or with a top-level effect verb.
 
@@ -315,11 +315,11 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** A decision that needs current truth MUST be decided in the owning module, never from a read model.
 
-**Rationale:** A read model lags by its freshness. Revoked permissions, available funds, reservations, and period locks move after the copy was taken, so deciding from a copy accepts a stale answer where the business needs the current one. The owning module decides instead, through a decision port the command calls and revalidates within its own commit, or by its own invariant. A read model serves reads that accept the lag.
+**Rationale:** A read model lags by its freshness. Revoked permissions, available funds, reservations, and period locks move after the copy was taken, so deciding from a copy accepts a stale answer where the business needs the current one. The owning module decides instead, through its public query the command reads through its port to the owner, or by its own invariant. A read model serves reads the consumer reshapes and keeps locally.
 
-**Example:** The library refuses a hold on a lent copy by asking the lending module for current availability instead of reading a reporting copy.
+**Example:** The library refuses a hold on a lent copy by asking the lending module for current availability through its public query instead of reading a reporting copy.
 
-**Reviewed for:** Is every decision that needs current truth decided in the owning module? Check the reads beside the decision ports.
+**Reviewed for:** Is every decision that needs current truth decided in the owning module? Check the reads beside the consumer ports.
 
 ### Move a State by Time with a Timed Transition
 

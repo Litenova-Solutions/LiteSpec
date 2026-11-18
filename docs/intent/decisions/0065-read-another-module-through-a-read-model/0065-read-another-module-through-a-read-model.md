@@ -1,6 +1,6 @@
 # Read Another Module Through a Read Model
 
-A module often needs to know something another module owns, such as what an order cost when a refund decides how much to return. This decision adds the read-model record. The record is a module's own copy of what it needs, filled from the integration events the owner publishes. Read models, screens that call each owner's query, and decision ports replace cross-module readers that return the owner's current state for any caller.
+A module often needs to know something another module owns, such as what an order cost when a refund decides how much to return. This decision adds the read-model record. The record is a module's own copy of what it needs, filled from the integration events the owner publishes. Public queries answered through each consumer's port to the provider replace cross-module readers that return the owner's current state for any caller, with screens that call each owner's query beside them. Read models stay for data a module reshapes and keeps locally.
 
 ## Context
 
@@ -20,7 +20,7 @@ A `read-model` is a Behavior record at `behavior/modules/<module>/read-models/<n
 
 Each field names its source as `integration-event/<name>#<field>`. It may accumulate with `sum` or `count`. A personal or sensitive field names the event that erases it in `erasedBy`. `removedBy` names the events that remove a row. `freshness` states how stale a reader may see it. A use case names the read model in `reads`.
 
-Three other answers cover what a read model does not. A screen that only shows another module's data calls each owner's own query and joins the answers. A command whose decision needs another module's current value asks one question through a decision port. Repositories, outside-system ports, and rule calculators stay ports.
+Two other answers cover what a read model does not. A screen that only shows another module's data calls each owner's own query and joins the answers. A command whose decision needs another module's current value asks through its port to the owning module, answered by the owning module's public query. The public query is the rule for current-value reads; the read model is the exception for data the consumer reshapes and keeps locally. Repositories, outside-system ports, and rule calculators stay ports.
 
 ## Consequences
 
@@ -38,4 +38,4 @@ With the outbox extension, every integration event a read model names is kept fo
 
 ## Revisit Conditions
 
-A consumer shows a read model whose freshness no decision can accept and no decision port can answer. Or a consumer shows a rebuild that cannot replay the kept events.
+A consumer shows a read model whose freshness no decision can accept and no public query can answer. Or a consumer shows a rebuild that cannot replay the kept events.

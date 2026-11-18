@@ -11,7 +11,7 @@ Use Cases states the system's commands and queries: their verbs, inputs, effects
 
 A use case is one goal that a single test proves through the public boundary. It is a page beside its aggregate, with one kind: command or query. A command changes the product. A query reads without changing it.
 
-Each use case links back to the Intent it carries, as `litespec/core/model#connect-every-behavior-record-to-intent` states: the flow steps it serves in `serves`, and the requirements it carries in `fulfills`. It states who may act in `access`, and the entry points reaching it in `reachedThrough`. It names the aggregates and read models it touches in `writes` and `reads`, and the events it raises in `raises`. Its results state how it ends.
+Each use case links back to the Intent it carries, as `litespec/core/model#connect-every-behavior-record-to-intent` states: the flow steps it serves in `serves`, and the requirements it carries in `fulfills`. It states who may act in `access`, and the entry points and modules reaching it in `reachedThrough`. It names the aggregates and read models it touches in `writes` and `reads`, and the events it raises in `raises`. Its results state how it ends. A public query lists its consuming modules in `reachedThrough`, and each consumer declares the edge in `effects.queries`.
 
 | Field | Meaning |
 |:---|:---|
@@ -19,7 +19,7 @@ Each use case links back to the Intent it carries, as `litespec/core/model#conne
 | `input` | Entries of `{ name, meaning, type, identifies, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `identifies` field names the record an `id` refers to, or the row shape of a `list`. The `choices` field names the allowed values of a `choice`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `identifies` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
 | `writes`, `reads` | The ids of aggregates written, and the ids of aggregates, read models, and settings read. A read model is the module's own copy of another module's state, as [Automation](automation.md) states. |
 | `consistency` | `{ mode, boundBy, guards }`, on a command writing two or more aggregates or reading an aggregate whose rule guards its write. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`. The `guards` field lists the aggregates the command reads, and does not write, whose rule named in `boundBy` must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. A query carries no `consistency`. |
-| `effects` | Entries of `{ sends / calls, timing, onFailure, onExhausted, before, forEach }` with exactly one verb. The timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A use case runs no other use case and declares no integration event. A reaction runs the follow-on work, and an outbound integration event names the event it translates. The effect graph holds no cycle except through a domain event with a stated end condition, as `litespec/core/principles#end-every-effect-cycle-in-a-domain-event` states. |
+| `effects` | Entries of `{ sends / calls / queries, timing, onFailure, onExhausted, before, forEach }` with exactly one verb. The timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A `queries` entry names the public query use case of another module the behavior reads and carries `inline` timing: the read runs within the handling. A use case runs no other use case and declares no integration event. A reaction runs the follow-on work, and an outbound integration event names the event it translates. The effect graph holds no cycle except through a domain event with a stated end condition, as `litespec/core/principles#end-every-effect-cycle-in-a-domain-event` states. |
 | `idempotency` | `{ mode, key, scope, reason, replay, recognizedBy }`, on a command only. The mode is `key`, `state`, or `none`. The `key` templates `{field}` placeholders over the input field names. The `scope` is `tenant`, `account`, `login`, or `global`. The `replay` is `returns-first-result`, `refuses`, or `acts-again`. Mode `state` also carries `recognizedBy` naming the state checked. A query carries no `idempotency`. |
 | `audit` | `{ level, target }` with level `required`, `optional`, or `none`, or `{ exemptBecause }` with its justification. The `audit` extension owns this field: a command declares it only when the project selects that extension. A level of `none` is not audited. Async work audits at request time. |
 | `background` | The optional Given shared by every scenario of the use case. A use case carrying `background` holds at least two scenarios. |
@@ -56,6 +56,14 @@ A command may declare its output as a list of `{ name, meaning, type }`.
 | `output.include` | Named groups of `{ fields, classification, reads, freshness, visibleWhen, widenedBy }`. Each field carries `name`, `meaning`, and `type`. |
 | `visibleWhen`, `widenedBy` | The optional visibility condition, and the requirement widening visibility beyond the aggregates in `reads`. |
 | `paging` | `{ "mode": "pages", order, cursor | offset, defaultLimit, maxLimit }`, or `{ "mode": "none", "reason": "..." }`. |
+
+### Public Queries
+
+A public query is a query use case another module reads. Its record lists the consuming modules in `reachedThrough` beside or instead of entry points, and each consuming use case, reaction, or job declares the edge in `effects.queries` naming the public query use case. Only a query is ever public: a command is never public, and a change in one module reaches another through a fact and a reaction there.
+
+The provider answers with its current value and nothing else. Its message and result sit in Contracts at the same `{Aggregates}/{UseCase}/` path the use case has in the provider's `Application/` folder, and the provider handles it with an ordinary query handler. A `queries` edge to a use case whose `reachedThrough` does not name the calling module is undeclared on the provider side, and a public query no module reads is published for no reader.
+
+In Claimwick, spending's read-expense query lists the reporting module in `reachedThrough`, and reporting's reimbursement command declares `effects.queries` naming `use-case/spending.read-expense`.
 
 ### Use-Case Verbs
 
@@ -241,7 +249,7 @@ A use case, reaction, or job names the settings it reads in `reads`.
 
 **Reviewed for:** Does every aggregate method a command handler calls start with the use-case verb or `Request`? Look at the methods each command handler calls.
 
-### Name the Entry Points That Reach Each Use Case
+### Name the Entry Points and Modules That Reach Each Use Case
 
 **ID:** `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`
 
@@ -251,9 +259,25 @@ A use case, reaction, or job names the settings it reads in `reads`.
 
 **Statement:** Each use case a caller reaches from outside MUST name the entry points that reach it in `reachedThrough`.
 
-**Rationale:** A use case with no named entry point is reachable from anywhere or nowhere. Readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction or a job runs has no entry point of its own, and the `runs` edge of that reaction or job already shows how it is reached.
+**Rationale:** A use case with no named entry point is reachable from anywhere or nowhere. Readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A public query names the consuming modules beside or instead of entry points, under `litespec/core/use-cases#list-the-consumer-modules-of-a-public-query`, so the provider side of every synchronous cross-module edge is declared. A use case that only a reaction or a job runs has no entry point of its own, and the `runs` edge of that reaction or job already shows how it is reached.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a live use case that names no entry point and that nothing runs, and `reference-unknown` for a `reachedThrough` entry naming no entry point.
+**Checked by:** `litespec model check` reports `record-invalid` for a live use case that names no entry point and that nothing runs, and `reference-unknown` for a `reachedThrough` entry naming no entry point or module.
+
+### List the Consumer Modules of a Public Query
+
+**ID:** `litespec/core/use-cases#list-the-consumer-modules-of-a-public-query`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case; when: query
+
+**Statement:** Each public query MUST list every consuming module in `reachedThrough`.
+
+**Rationale:** A `queries` edge names the public query use case it reads, and the public query names the modules allowed to read it. When the two lists disagree, the edge is declared on one side only: a `queries` edge to a use case whose `reachedThrough` does not name the calling module reads a query that names no such reader, and a public query no module reads is published for no reader. Only a query is ever public: a command lists no module in `reachedThrough`. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+
+**Example:** Spending's read-expense query lists `module/reporting` in `reachedThrough`, and reporting's reimbursement command declares `effects.queries` naming `use-case/spending.read-expense`. A second consumer joins by adding its module to the list.
+
+**Checked by:** `litespec model check` reports `reference-unknown` for a `queries` edge naming no written use case.
 
 ### State the Exposure of Every Use Case
 
@@ -423,7 +447,7 @@ An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `
 
 **Rationale:** An edge no record declares stays hidden: calls between use cases, reactions, jobs, notifications, integration events, and external systems that no reader can see. Declaring each edge with exactly one verb, its timing, and its failure handling turns every coupling into data.
 
-The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `async`, and timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. A use case declares no `runs` and no `emits`. A reaction to its raised fact runs the follow-on work, and the integration events it publishes follow from `raises` and the `translates` field of each outbound integration event. The `effect-undeclared` check reports an edge the records never declared.
+The verb is `sends`, `calls`, or `queries`. The timing is `inline`, `after-commit`, or `async`, and timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. A `queries` entry names the public query use case of another module the behavior reads and carries `inline` timing: the read runs within the handling. A use case declares no `runs` and no `emits`. A reaction to its raised fact runs the follow-on work, and the integration events it publishes follow from `raises` and the `translates` field of each outbound integration event. The `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The reimburse-expense command declares no effect. It raises its reimbursed fact, the expense-reimbursed integration event translates that fact, and the reporting module's read model answers the published event.
 
@@ -439,7 +463,7 @@ The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `asyn
 
 **Statement:** A use case MUST NOT run another use case, so each follow-on act runs from a reaction to the fact the use case raised, or from a job.
 
-**Rationale:** A use case that runs another use case nests one command inside another. The inner command runs inside the outer commit. Its failure rolls back work that had no reason to fail, and its record no longer states what it commits. A reaction to the raised fact runs the follow-on act in its own transaction, with its own failure handling and retry, so each record states one unit of work. The caller learns the outcome from the later fact instead of from the call. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
+**Rationale:** A use case that runs another use case nests one command inside another. The inner command runs inside the outer commit. Its failure rolls back work that had no reason to fail, and its record no longer states what it commits. A reaction to the raised fact runs the follow-on act in its own transaction, with its own failure handling and retry, so each record states one unit of work. The caller learns the outcome from the later fact instead of from the call. A `queries` edge reads another module's public query; it runs no use case. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
 
 **Example:** In the library product, borrowing a copy raises the loan-borrowed fact. The send-due-notice reaction answers it in its own transaction, instead of the borrow command sending the notice.
 

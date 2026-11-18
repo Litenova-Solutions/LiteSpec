@@ -49,7 +49,7 @@ expense A approved at 2026-03-30 14:00 -> counted in March as closed
 expense B approved at 2026-04-03 10:00 -> counted in April, although its event arrives with late March events
 ```
 
-This removes both the lock and the race: each arrival classifies itself against owner-written moments. Where comparing moments leaves the act unsettled, the acting module confirms with the owner before it commits, through a decision port, as [Automation](automation.md) states.
+This removes both the lock and the race: each arrival classifies itself against owner-written moments. Where comparing moments leaves the act unsettled, the acting module confirms with the owner before it commits, through its port to the owner answered by the owner's public query, as [Automation](automation.md) states.
 
 ### Notifications
 
@@ -455,13 +455,13 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Statement:** Each module that acts on a fact another module owns SHOULD resolve late arrivals against facts the owning modules wrote themselves, or confirm with the owner before acting.
 
-**Deviation:** A fact whose owner answers every read through a decision port needs no separate resolution, since each act already confirms.
+**Deviation:** A fact whose owner answers every read through its public query needs no separate resolution, since each act already confirms.
 
 **Rationale:** The owner's event can arrive after the reader acts, so an arrival the reader takes at face value lands in the wrong period. Comparing moments each owner wrote, such as an approval moment against a recorded close, classifies each arrival without a lock. Where moments cannot settle the act, confirming with the owner before committing keeps the decision on current truth, as `litespec/core/automation#decide-current-truth-in-the-owning-module` states.
 
 **Example:** Claimwick counts an expense approved after the recorded March close toward April, even when its event arrives with late March events.
 
-**Reviewed for:** When one module acts on a fact another module owns, which owner-written moment or decision port settles a late arrival? Check the timestamps and decision ports beside each cross-module read.
+**Reviewed for:** When one module acts on a fact another module owns, which owner-written moment or public query settles a late arrival? Check the timestamps and consumer ports beside each cross-module read.
 
 ### State Every Boundary Check as a Rule of Its Module
 
