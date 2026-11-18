@@ -364,7 +364,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2029 = Create("LS2029", LayersCategory, RespectLayerDirection,
         "File names a contract type outside its layer",
         "{0} uses '{1}', {2}",
-        "A Domain, Application, Ports, WebApi, or Infrastructure file outside a provider adapter names no public query or result of another module's Contracts project: only the adapter in 'Infrastructure/{Provider}/' sends another module's public queries. A Platform file names no module identifier.");
+        "A Domain, Application, Ports, WebApi, or Infrastructure file outside a provider adapter names no public query, public command or result of another module's Contracts project: only the adapter in 'Infrastructure/{Provider}/' sends another module's public queries and public commands. A Platform file names no module identifier.");
 
     /// <summary>The LS2030 descriptor: Contracts project declares an interface.</summary>
     public static readonly DiagnosticDescriptor LS2030 = Create("LS2030", LayersCategory, ContractsData,

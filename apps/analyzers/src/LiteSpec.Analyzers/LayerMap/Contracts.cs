@@ -3,23 +3,24 @@ using System;
 namespace LiteSpec.Analyzers.LayerMap;
 
 /// <summary>
-///     The public queries of one compilation: which Contracts file declares a public query
-///     or result. A Contracts project publishes data grouped by aggregate: each top folder
-///     below the Contracts root is an aggregate folder holding identifiers and facts, and a
-///     type in a <c>{UseCase}/</c> folder below one is a public query or result. A module-level
-///     public query sits in its own folder directly below the root, so a type directly in a
-///     top folder whose name ends in <c>Query</c> or contains <c>Result</c> is a public query
-///     or result too. The Contracts root is the nested <c>Contracts/</c> folder or the sibling
-///     <c>{Product}.{Module}.Contracts</c> project folder, whichever the path holds.
+///     The public queries and public commands of one compilation: which Contracts file declares
+///     a public query, public command or result. A Contracts project publishes data grouped by
+///     aggregate: each top folder below the Contracts root is an aggregate folder holding
+///     identifiers and facts, and a type in a <c>{UseCase}/</c> folder below one is a public
+///     query, public command or result. A module-level public query or public command sits in
+///     its own folder directly below the root, so a type directly in a top folder whose name
+///     ends in <c>Query</c> or <c>Command</c> or contains <c>Result</c> is a public query,
+///     public command or result too. The Contracts root is the nested <c>Contracts/</c> folder
+///     or the sibling <c>{Product}.{Module}.Contracts</c> project folder, whichever the path holds.
 /// </summary>
 /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
 internal static class Contracts
 {
-    /// <summary>Returns true when the file declares a public query or result of a Contracts project; otherwise false.</summary>
+    /// <summary>Returns true when the file declares a public query, public command or result of a Contracts project; otherwise false.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <param name="typeName">The simple name of the type the file declares.</param>
-    /// <returns>True when the file sits in a use case folder below an aggregate folder, or directly in a top folder with a query or result name.</returns>
-    public static bool IsPublicQuery(string? filePath, string typeName)
+    /// <returns>True when the file sits in a use case folder below an aggregate folder, or directly in a top folder with a query, command or result name.</returns>
+    public static bool IsPublicQueryOrCommand(string? filePath, string typeName)
     {
         if (DepthBelowRootOf(filePath) is not int depth || depth < 1)
         {
@@ -31,7 +32,9 @@ internal static class Contracts
             return true;
         }
 
-        return typeName.EndsWith("Query", StringComparison.Ordinal) || typeName.Contains("Result");
+        return typeName.EndsWith("Query", StringComparison.Ordinal)
+            || typeName.EndsWith("Command", StringComparison.Ordinal)
+            || typeName.Contains("Result");
     }
 
     /// <summary>Returns how many folders below the Contracts root hold the file, or null when no Contracts root does.</summary>

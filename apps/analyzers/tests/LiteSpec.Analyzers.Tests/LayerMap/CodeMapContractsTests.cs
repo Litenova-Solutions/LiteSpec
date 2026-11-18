@@ -76,37 +76,43 @@ public sealed class CodeMapContractsTests
         Assert.Null(MapFor("Claimwick.Spending", path).UseCaseOf(path));
     }
 
-    /// <summary>A type in a use case folder below an aggregate folder is a public query or result.</summary>
+    /// <summary>A type in a use case folder below an aggregate folder is a public query, public command or result.</summary>
     /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void ContractsUseCaseFileIsAPublicQuery()
+    public void ContractsUseCaseFileIsAPublicQueryOrCommand()
     {
-        Assert.True(Contracts.IsPublicQuery(
+        Assert.True(Contracts.IsPublicQueryOrCommand(
             "Modules/Claimwick.Books.Contracts/Books/ReadBook/ReadBookQuery.cs", "ReadBookQuery"));
-        Assert.True(Contracts.IsPublicQuery(
+        Assert.True(Contracts.IsPublicQueryOrCommand(
             "Claimwick.Modules/Books/Contracts/Books/ReadBook/ReadBookResult.cs", "ReadBookResult"));
+        Assert.True(Contracts.IsPublicQueryOrCommand(
+            "Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommand.cs", "LendBookCommand"));
+        Assert.True(Contracts.IsPublicQueryOrCommand(
+            "Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommandResult.cs", "LendBookCommandResult"));
     }
 
-    /// <summary>A type directly in an aggregate folder is an identifier or a fact, never a public query.</summary>
+    /// <summary>A type directly in an aggregate folder is an identifier or a fact, never a public query or public command.</summary>
     /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void ContractsAggregateFileIsNoPublicQuery()
+    public void ContractsAggregateFileIsNoPublicQueryOrCommand()
     {
-        Assert.False(Contracts.IsPublicQuery(
+        Assert.False(Contracts.IsPublicQueryOrCommand(
             "Modules/Claimwick.Books.Contracts/Books/BookId.cs", "BookId"));
-        Assert.False(Contracts.IsPublicQuery(
+        Assert.False(Contracts.IsPublicQueryOrCommand(
             "Claimwick.Modules/Books/Contracts/Books/BookLent.cs", "BookLent"));
     }
 
-    /// <summary>A query or result directly in a Contracts top folder is a module-level public query.</summary>
+    /// <summary>A query, command or result directly in a Contracts top folder is a module-level public query or public command.</summary>
     /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void ContractsModuleLevelQueryFileIsAPublicQuery()
+    public void ContractsModuleLevelQueryOrCommandFileIsAPublicQueryOrCommand()
     {
-        Assert.True(Contracts.IsPublicQuery(
+        Assert.True(Contracts.IsPublicQueryOrCommand(
             "Modules/Claimwick.Books.Contracts/SearchCatalog/SearchCatalogQuery.cs", "SearchCatalogQuery"));
-        Assert.True(Contracts.IsPublicQuery(
+        Assert.True(Contracts.IsPublicQueryOrCommand(
             "Claimwick.Modules/Books/Contracts/SearchCatalog/SearchCatalogResult.cs", "SearchCatalogResult"));
+        Assert.True(Contracts.IsPublicQueryOrCommand(
+            "Claimwick.Modules/Books/Contracts/RegisterMember/RegisterMemberCommand.cs", "RegisterMemberCommand"));
     }
 
     /// <summary>A file in the Platform project reads as one by assembly or by path segment.</summary>

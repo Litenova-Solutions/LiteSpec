@@ -313,6 +313,91 @@ public sealed class ModuleContractsAnalyzerTests
             ],
             assemblyName: "Claimwick.Modules");
 
+    /// <summary>LS2029 reports a handler naming another module's public command.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 reports a handler naming another module's public command")]
+    public Task ReportsAHandlerNamingAnotherModulesCommand() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookCommandHandler.cs", """
+                    using Claimwick.Books.Contracts.Books.LendBook;
+
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    internal sealed class BorrowBookCommandHandler
+                    {
+                        internal void Handle({|LS2029:LendBookCommand|} command)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommand.cs", """
+                    namespace Claimwick.Books.Contracts.Books.LendBook;
+
+                    internal sealed class LendBookCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2029 accepts an adapter naming the provider's public command.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 accepts an adapter naming the provider's public command")]
+    public Task AcceptsAnAdapterNamingTheProviderCommand() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Infrastructure/Books/BooksAdapter.cs", """
+                    using Claimwick.Books.Contracts.Books.LendBook;
+
+                    namespace Claimwick.Reading.Infrastructure.Books;
+
+                    internal sealed class BooksAdapter
+                    {
+                        internal LendBookCommand Command() => new();
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommand.cs", """
+                    namespace Claimwick.Books.Contracts.Books.LendBook;
+
+                    internal sealed class LendBookCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2029 reports a module-level public command named outside an adapter.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 reports a module-level public command named outside an adapter")]
+    public Task ReportsAModuleLevelCommandNamedOutsideAnAdapter() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookCommandHandler.cs", """
+                    using Claimwick.Books.Contracts.RegisterMember;
+
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    internal sealed class BorrowBookCommandHandler
+                    {
+                        internal void Handle({|LS2029:RegisterMemberCommand|} command)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/RegisterMember/RegisterMemberCommand.cs", """
+                    namespace Claimwick.Books.Contracts.RegisterMember;
+
+                    internal sealed class RegisterMemberCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
     /// <summary>LS2030 reports an interface declared in a Contracts project and accepts data beside it.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>

@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
-/// <summary>LS2029: a module file outside a provider adapter names no public query of another module, and a Platform file names no module identifier. LS2030: a Contracts project declares no interface.</summary>
+/// <summary>LS2029: a module file outside a provider adapter names no public query or public command of another module, and a Platform file names no module identifier. LS2030: a Contracts project declares no interface.</summary>
 /// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
 /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -62,7 +62,7 @@ public sealed class ModuleContractsAnalyzer : LayerAnalyzer
             return;
         }
 
-        if (!References.TryResolve(context, node, type => IsPublicQueryOf(type, context.Compilation), out var name, out var type)
+        if (!References.TryResolve(context, node, type => IsPublicQueryOrCommandOf(type, context.Compilation), out var name, out var type)
             || type is null
             || CodeMap.SourceFileOf(type, context.Compilation) is not string file
             || map.ModuleOf(file) is not string other
@@ -77,7 +77,7 @@ public sealed class ModuleContractsAnalyzer : LayerAnalyzer
             node.Identifier.GetLocation(),
             Where(scope, node, module),
             name,
-            "which is a public query or result of module '" + provider + "'; only the adapter in 'Infrastructure/" + provider + "/' may name it"));
+            "which is a public query, public command or result of module '" + provider + "'; only the adapter in 'Infrastructure/" + provider + "/' may name it"));
     }
 
     /// <summary>Analyzes the name in a Platform file.</summary>
@@ -140,12 +140,12 @@ public sealed class ModuleContractsAnalyzer : LayerAnalyzer
         return layer == ArchitectureLayer.None ? "Module '" + CodeMap.FolderName(module) + "'" : layer.ToString();
     }
 
-    /// <summary>Returns true when the type is a public query or result declared in a Contracts project; otherwise false.</summary>
+    /// <summary>Returns true when the type is a public query, public command or result declared in a Contracts project; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <returns>True when a Contracts use case folder declares the type.</returns>
-    private static bool IsPublicQueryOf(INamedTypeSymbol type, Compilation compilation) =>
-        CodeMap.SourceFileOf(type, compilation) is string file && Contracts.IsPublicQuery(file, type.Name);
+    private static bool IsPublicQueryOrCommandOf(INamedTypeSymbol type, Compilation compilation) =>
+        CodeMap.SourceFileOf(type, compilation) is string file && Contracts.IsPublicQueryOrCommand(file, type.Name);
 
     /// <summary>Returns true when the type is a module identifier: a type ending in Id declared in a module; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
