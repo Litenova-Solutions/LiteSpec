@@ -10016,16 +10016,16 @@
       "anchor": "connect-across-modules-only-through-declared-dependencies",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060link-locality-invalid\u0060 for a record under a module that is linked from another module with no declared dependency, module event, or integration event.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060link-locality-invalid\u0060 for a record under a module that is linked from another module with no declared dependency, module event, or integration event. A queries edge to a public query that lists the consuming module passes; a queries edge to a query use case whose \u0060reachedThrough\u0060 does not name the consuming module is reported as \u0060query-target-invalid\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, or through an integration event.",
-      "rationale": "A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.",
-      "example": "A spending rule cited from the finance module with no \u0060dependsOn\u0060 tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie."
+      "statement": "Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, through an integration event, or through a queries edge to a public query that lists the consuming module in \u0060reachedThrough\u0060.",
+      "rationale": "A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. A queries edge to a public query that lists the consuming module names its own tie: the consuming module\u0027s \u0060queries\u0060 edge names the query, and the query\u0027s \u0060reachedThrough\u0060 names the consuming module back. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.",
+      "example": "A spending rule cited from the finance module with no \u0060dependsOn\u0060 tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie. Reporting\u0027s reimbursement command declares a \u0060queries\u0060 edge to spending\u0027s read-expense query, which lists \u0060module/reporting\u0060 in \u0060reachedThrough\u0060, so the edge passes with no \u0060dependsOn\u0060 tie."
     },
     {
       "id": "litespec/core/model#connect-every-behavior-record-to-intent",

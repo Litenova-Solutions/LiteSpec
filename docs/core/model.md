@@ -91,7 +91,7 @@ Placement is the choice of where a record lives. Ten principles place every reco
 - **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, an aggregate, or an entry point. No record writes an up-link that its location already states.
 - **Four kinds of scope node, and only four.** Product, module, aggregate, and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
 - **The lowest scope node that holds every user.** A record sits under the lowest scope node that holds every record linking to it within its layer. The author places it, and the tool validates it.
-- **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency, through a module event, or through an integration event. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
+- **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency, through a module event, through an integration event, or through a queries edge to a public query that lists the consuming module. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
 - **One identifier.** The identifier is short, unique in its record type, and what every link and citation uses. Placement shows as the folder path and the `module` field, never as a second name.
 - **One name per module in every layer and in code.** `behavior/modules/finance/`, the backend source trees, the test projects, and the frontend modules all use the declared module name.
 - **Code and tests follow the identifier.** The folder and namespace of code and tests that mark a record match that record's identifier and module.
@@ -1044,13 +1044,13 @@ Two findings cover the two gaps: `step-use-case-missing` names a step no use cas
 
 **Applies to:** artifact: any
 
-**Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, or through an integration event.
+**Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, through an integration event, or through a queries edge to a public query that lists the consuming module in `reachedThrough`.
 
-**Rationale:** A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.
+**Rationale:** A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. A queries edge to a public query that lists the consuming module names its own tie: the consuming module's `queries` edge names the query, and the query's `reachedThrough` names the consuming module back. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.
 
-**Example:** A spending rule cited from the finance module with no `dependsOn` tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie.
+**Example:** A spending rule cited from the finance module with no `dependsOn` tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie. Reporting's reimbursement command declares a `queries` edge to spending's read-expense query, which lists `module/reporting` in `reachedThrough`, so the edge passes with no `dependsOn` tie.
 
-**Checked by:** `litespec model check` reports `link-locality-invalid` for a record under a module that is linked from another module with no declared dependency, module event, or integration event.
+**Checked by:** `litespec model check` reports `link-locality-invalid` for a record under a module that is linked from another module with no declared dependency, module event, or integration event. A queries edge to a public query that lists the consuming module passes; a queries edge to a query use case whose `reachedThrough` does not name the consuming module is reported as `query-target-invalid`.
 
 ### Keep Module Dependencies Free of Cycles
 

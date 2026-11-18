@@ -72,6 +72,44 @@ public sealed class LocalityCheckTests
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Queries Edge To Listed Public Query Passes.</summary>
+    /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
+    [Fact]
+    public void QueriesEdgeToListedPublicQueryPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/finance"]}"""),
+            TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
+
+        Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
+        Assert.DoesNotContain("query-target-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Queries Edge To Unlisted Query Reports Once.</summary>
+    /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
+    [Fact]
+    public void QueriesEdgeToUnlistedQueryReportsOnce()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/reporting", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""),
+            TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
+
+        var findings = Checker.Check(model).Findings
+            .Where(found => found.Subject == "use-case/finance.record-repayment"
+                && found.Code is "link-locality-invalid" or "query-target-invalid");
+        var finding = Assert.Single(findings);
+        Assert.Equal("query-target-invalid", finding.Code);
+    }
+
     /// <summary>Link Across Layers May Cross Modules.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]

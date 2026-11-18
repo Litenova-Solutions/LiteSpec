@@ -150,6 +150,16 @@ internal static class LocalityChecks
                         continue;
                     }
 
+                    // A queries edge crosses modules by design: the provider's
+                    // reachedThrough names the consuming module, and the query-edge
+                    // checks own the edge when it does not, so each edge reports once.
+                    if (target.Type == RecordTypes.UseCase
+                        && source.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job
+                        && IsQueriesEdge(source, property.Name, targetId))
+                    {
+                        continue;
+                    }
+
                     if (depends.TryGetValue(sourceModule, out var edges)
                         && edges.Contains(targetModule))
                     {
@@ -176,6 +186,31 @@ internal static class LocalityChecks
                 }
             }
         }
+    }
+
+    /// <summary>Whether the link is a queries edge, which crosses modules by design and the query-edge checks own.</summary>
+    /// <param name="source">The record the link starts from.</param>
+    /// <param name="property">The top-level link field carrying the target.</param>
+    /// <param name="targetId">The link target as written.</param>
+    /// <returns>True when a queries verb names the target through the field.</returns>
+    private static bool IsQueriesEdge(Record source, string property, string targetId)
+    {
+        if (property == RecordFields.Queries)
+        {
+            return true;
+        }
+
+        if (property != RecordFields.Effects)
+        {
+            return false;
+        }
+
+        var wanted = Identifiers.BaseId(targetId);
+
+        return RecordEntries.EffectEntries(source)
+            .Select(entry => RecordEntries.Str(entry, RecordFields.Queries))
+            .Where(id => id is { Length: > 0 })
+            .Any(id => Identifiers.BaseId(id!).Equals(wanted, StringComparison.Ordinal));
     }
 
     /// <summary>Reports a module dependency cycle, as the effect-cycle rule does for edges.</summary>
