@@ -1,5 +1,5 @@
 type: decision
-id: decision/0103-settle-the-dotnet-stack-binding-protocol-and-sign-in
+id: decision/0103-dotnet-stack-binding
 title: Settle the .NET Stack Binding, Protocol, and Sign-In
 context: "A consumer product built a whole application on the 7.0.0 pre-release and reported five gaps in the .NET stack: the pinned binding named no Marten outbox storage and the manifest pinned LiteBus at 7.x, which can resolve below the 7.2 the binding needs; it named only the audit definition, leaving authorization and idempotency definitions unnamed and unplaced; the agent protocol pointed at an online release that is not published, so agents followed an older published release; nothing said where a hosted sign-in fits, so each protocol step became a command calling the provider inline; and the analyzers failed to load when referenced by project, because their dependencies do not travel with the reference."
 options:

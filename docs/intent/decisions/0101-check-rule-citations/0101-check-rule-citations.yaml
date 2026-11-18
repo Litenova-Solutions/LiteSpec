@@ -1,5 +1,5 @@
 type: decision
-id: decision/0101-check-rule-citations-across-sibling-commands-and-scenarios
+id: decision/0101-check-rule-citations
 title: Check Rule Citations Across Sibling Commands and Scenarios
 context: "A consumer review found a command posting entry lines without the rules its five sibling commands obeyed, so one form posted without the checks the others applied. It also found scenarios exercising rules their use cases never apply, which inflates coverage and misleads test authors. The model check saw neither gap: governs matched the written links, and no check compared an exercises entry with the use case holding its scenario."
 options:
