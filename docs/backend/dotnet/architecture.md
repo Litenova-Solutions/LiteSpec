@@ -461,7 +461,7 @@ A module publishes no command and no refusal: another module triggers its acts t
 
 ### Separate the Kernel, the Platform, and the Modules
 
-**ID:** `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`
+**ID:** `litespec/backend/dotnet/architecture#separate-the-kernel-the-platform-and-the-modules`
 
 **Strength:** default
 
@@ -515,7 +515,7 @@ MapEndpoints(...)    the endpoints the platform discovered
 
 ### Expose One Public Entry Type per Module
 
-**ID:** `litespec/backend/dotnet/architecture#use-one-public-assembly-marker`
+**ID:** `litespec/backend/dotnet/architecture#expose-one-public-entry-type-per-module`
 
 **Strength:** default
 

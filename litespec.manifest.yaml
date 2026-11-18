@@ -124,7 +124,7 @@ extensions:
     activationScope: project
     replaces:
     - 'litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case'
-    - 'litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules'
+    - 'litespec/backend/dotnet/architecture#separate-the-kernel-the-platform-and-the-modules'
     - 'litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts'
     - 'litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree'
     - 'litespec/workspace/dependencies#follow-the-declared-dependency-graph'

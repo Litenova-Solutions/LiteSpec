@@ -123,7 +123,7 @@ Sources: `litespec/core/authoring#publish-each-release-as-a-complete-contract`, 
 
 Read the full provision before you apply any of these:
 
-- Use the Kernel, the Platform, and one project per module, with use cases directly under the module. (`litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`)
+- Use the Kernel, the Platform, and one project per module, with use cases directly under the module. (`litespec/backend/dotnet/architecture#separate-the-kernel-the-platform-and-the-modules`)
 - Put a type that is not a use case's own model in the lowest folder that holds every consumer naming it, and give each use case its own messages, results and transport models. (`litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, `litespec/backend/architecture#give-each-use-case-its-own-models`)
 - Keep Domain free of persistence, web, mediator, logging and dependency injection. (`litespec/backend/architecture#point-dependencies-inward`)
 - Model each aggregate lifecycle with an abstract state and sealed state records. (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`)
