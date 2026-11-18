@@ -28,7 +28,11 @@ dataClasses:
   basis:
   - <constraint, requirement or decision id>
   period: <how long the class is kept, such as P7Y>
-  periodStartsAt: <domain event starting the period, or a range such as creation to erasure>
+  periodStartsAt: <domain event, module event, integration event or aggregate date field starting the period, or a range such as creation to erasure>
+  # A start counted from a calendar end names its event and rounding instead:
+  # periodStartsAt:
+  #   event: domain-event/<aggregate>.<name>
+  #   rounding: <financial-year-end|calendar-year-end>
   enforcedBy:
   - <job/<module>.<name> or use-case/<module>.<name>>
   purpose: <why the data is kept>
@@ -37,6 +41,10 @@ dataClasses:
   exceptions:
   - field: <field name>
     onErasure: <erase|pseudonymize|anonymize|retain|exempt>
+  holds:
+  - reason: <why deletion pauses>
+    heldOn: <date the hold starts, such as 2026-03-02>
+    liftedOn: <date the hold ends, or remove this line>
 limits:
 - <one thing the aggregate does not hold, in one sentence, or remove this line>
 records:

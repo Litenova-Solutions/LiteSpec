@@ -48,7 +48,7 @@ output:
         type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
       classification: <public|internal|personal|sensitive>
       reads:
-      - <aggregate/<module>.<name>, setting/<module>.<name> or read-model/<module>.<name>>
+      - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>>
       freshness:
         mode: <immediate|snapshot|eventual>
         within: <how old a reading may be, such as PT5S, or remove this line>
@@ -64,7 +64,7 @@ paging:
 writes:
 - aggregate/<module>.<name, or remove this line>
 reads:
-- <aggregate/<module>.<name>, setting/<module>.<name> or read-model/<module>.<name>, or remove this line>
+- <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
 effects:
 - sends: notification/<module>.<name>
   timing: <inline|after-commit|async>

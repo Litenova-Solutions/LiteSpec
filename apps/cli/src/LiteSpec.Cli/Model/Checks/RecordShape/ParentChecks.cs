@@ -12,7 +12,7 @@ internal static class ParentChecks
     /// <summary>Types whose parent is the identifier home, so a missing home is reported here.</summary>
     private static readonly HashSet<string> HomeParentedTypes = new(StringComparer.Ordinal)
     {
-        "use-case", "reaction", "job", "notification", "setting", "read-model", "aggregate",
+        "use-case", "reaction", "job", "notification", "setting", "read-model", "reference-data", "aggregate",
         "rule", "domain-event", "result", "scenario", "screen",
     };
 
@@ -68,6 +68,7 @@ internal static class ParentChecks
                 case "notification":
                 case "setting":
                 case "read-model":
+                case "reference-data":
                 case "aggregate":
                     CheckModuleHome(model, record, unreadableModules, findings);
                     break;
@@ -302,6 +303,7 @@ internal static class ParentChecks
             RecordTypes.Notification => "Notification",
             RecordTypes.Setting => "Setting",
             RecordTypes.ReadModel => "Read model",
+            RecordTypes.ReferenceData => "Reference data",
             _ => "Aggregate",
         };
 

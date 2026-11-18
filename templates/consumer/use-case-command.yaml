@@ -65,7 +65,7 @@ paging:
 writes:
 - aggregate/<module>.<name, or remove this line>
 reads:
-- <aggregate/<module>.<name>, setting/<module>.<name> or read-model/<module>.<name>, or remove this line>
+- <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
 consistency:
   mode: <atomic|per-record>
   boundBy:

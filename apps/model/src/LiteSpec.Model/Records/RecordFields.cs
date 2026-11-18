@@ -231,6 +231,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `effectiveFrom` field.</summary>
     public const string EffectiveFrom = "effectiveFrom";
 
+    /// <summary>Gets the name of the `effectiveTo` field.</summary>
+    public const string EffectiveTo = "effectiveTo";
+
     /// <summary>Gets the name of the `effects` field.</summary>
     public const string Effects = "effects";
 
@@ -617,6 +620,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `role` field.</summary>
     public const string Role = "role";
 
+    /// <summary>Gets the name of the `rounding` field.</summary>
+    public const string Rounding = "rounding";
+
     /// <summary>Gets the name of the `rows` field.</summary>
     public const string Rows = "rows";
 
@@ -664,6 +670,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `setBy` field.</summary>
     public const string SetBy = "setBy";
+
+    /// <summary>Gets the name of the `setting` field.</summary>
+    public const string Setting = "setting";
 
     /// <summary>Gets the name of the `severity` field.</summary>
     public const string Severity = "severity";

@@ -1,0 +1,12 @@
+type: reference-data
+id: reference-data/module.name
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what values the table holds and who reads them>
+unit: <the unit of each value, such as EUR, or remove this line>
+rows:
+- value: <the value in force>
+  effectiveFrom: <date the value takes effect, such as 2026-01-01>
+  effectiveTo: <date the value stops applying, or remove this line>
+  source: <constraint, research or decision id behind the value>

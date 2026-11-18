@@ -68,8 +68,8 @@ export function isScenarioType(type: string): boolean {
   return SCENARIO_TYPES.some((scenarioType) => scenarioType === type);
 }
 
-/** The record types that live under a module member: use cases, rules, reactions, jobs, notifications, settings and read models. */
-export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting", "read-model"];
+/** The record types that live under a module member: use cases, rules, reactions, jobs, notifications, settings, read models, and reference data. */
+export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting", "read-model", "reference-data"];
 
 /** One parked child: a record a live waiver holds out of its parent's stage, with that waiver and its expiry. */
 export interface ParkedChild {

@@ -20,6 +20,9 @@ records:
   refusal: <module>.<reason, or remove this line>
   basedOn:
   - <constraint or research id, or remove this line>
+  source: <law|product-choice|contract, or remove this line>
+  cites:
+  - <constraint or research id restated by a law rule, or remove this line>
   fulfills:
   - requirement/<feature>.<name, or remove this line>
   releasedBy: <use-case/<module>.<name>, or remove this line>

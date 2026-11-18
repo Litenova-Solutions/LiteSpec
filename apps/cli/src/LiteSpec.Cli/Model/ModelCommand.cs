@@ -19,7 +19,7 @@ static class ModelCommand
     /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof]
+          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof] [--verbose]
           litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
@@ -47,7 +47,7 @@ static class ModelCommand
             args[1..],
             command switch
             {
-                "check" => ["--release", "--all", "--record-proof"],
+                "check" => ["--release", "--all", "--record-proof", "--verbose"],
                 "format" => ["--check"],
                 _ => [],
             },
@@ -100,7 +100,7 @@ static class ModelCommand
 
                 try
                 {
-                    (findings, covered) = Collect(model, root);
+                    (findings, covered) = Collect(model, root, parsed.Has("--verbose"));
                 }
                 catch (FailFast fail)
                 {
@@ -507,12 +507,14 @@ static class ModelCommand
     /// </summary>
     /// <param name="model">The built project model to check.</param>
     /// <param name="root">The absolute consumer root the consumer pass reads.</param>
+    /// <param name="verbose">Whether schema errors list every rejected shape instead of the selected one.</param>
     /// <returns>The standing findings, consumer findings included, and the covered findings.</returns>
     /// <exception cref="FailFast">The consumer pass stopped the run with its own exit code.</exception>
-    internal static (List<Finding> Findings, IReadOnlyList<Finding> Covered) Collect(ProjectModel model, string root)
+    internal static (List<Finding> Findings, IReadOnlyList<Finding> Covered) Collect(ProjectModel model, string root, bool verbose = false)
     {
         // The consumer pass reads the project from disk and not the model, so it runs beside the checks.
         var consumerRun = new ConsumerRun(root);
+        consumerRun.Verbose = verbose;
         var consumerPass = Task.Run(consumerRun.Execute);
 
         var (modelFindings, covered) = Checker.Check(model);

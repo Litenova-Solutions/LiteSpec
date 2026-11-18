@@ -41,7 +41,7 @@ static class BookOutline
     /// <summary>The record types that top the intent layer under their type groups, in display order.</summary>
     static readonly IReadOnlyList<string> IntentTopOrder = ["direction", "goal", "problem", "feature", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
     /// <summary>The record types under a module, in display order: aggregates with their use cases first, then the module's other records by type.</summary>
-    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "job", "read-model", "notification", "setting", "permission"];
+    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "job", "read-model", "reference-data", "notification", "setting", "permission"];
     /// <summary>The record types under an aggregate, in display order.</summary>
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "domain-event"];
     /// <summary>The list record types in the behavior layer, in display order: entry points with their screens, then external systems.</summary>
@@ -588,7 +588,7 @@ static class BookOutline
             "runbook" => "implementation",
             "term" => IsBehaviorTerm(record) ? "behavior" : "intent",
             "goal" or "direction" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" or "role" => "intent",
-            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
+            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
             _ => "intent",
         };
 

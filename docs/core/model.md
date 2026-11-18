@@ -17,7 +17,7 @@ Each layer answers one question, each layer is written from the layer above it a
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | people and agents | goal, direction, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
+| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, reference-data, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
@@ -61,6 +61,7 @@ A record type is one kind of statement a project can write, and each type answer
 | `read-model` | behavior | What does a module keep of another module's published facts? |
 | `notification` | behavior | Which person-facing messages go out? |
 | `setting` | behavior | Which operator configuration does the running system read? |
+| `reference-data` | behavior | Which dated values does the running system look up? |
 | `permission` | behavior | Which single actions are allowed? |
 | `refusal-set` | behavior | Which refusal codes does a module declare? |
 | `entry-point` | behavior | How do people reach the product? |
@@ -139,6 +140,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `read-model` | Behavior | module | `behavior/modules/<m>/read-models/<name>/<name>.yaml` | module | `read-model/<module>.<name>` |
 | `notification` | Behavior | module | `behavior/modules/<m>/notifications/<name>/<name>.yaml` | module | `notification/<module>.<name>` |
 | `setting` | Behavior | module | setting-set pages under `behavior/modules/<m>/settings/` | module | `setting/<module>.<name>` |
+| `reference-data` | Behavior | module | `behavior/modules/<m>/reference-data/<name>/<name>.yaml` | module | `reference-data/<module>.<name>` |
 | `module-event` | Behavior | module | `behavior/modules/<m>/module-events/<name>/<name>.yaml` | module | `module-event/<module>.<name>` |
 | `integration-event` | Behavior | module | `behavior/modules/<m>/integration-events/<name>/<name>.yaml` | module | `integration-event/<name>` |
 | `permission` | Behavior | module | `behavior/modules/<m>/permissions.yaml` | module | `permission/<name>` |
@@ -149,7 +151,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `waiver` | Governance | product, module | `governance/waivers/<name>/<name>.yaml`, `governance/modules/<m>/waivers/<name>/<name>.yaml` | product or module | `waiver/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
 
 A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
 
@@ -315,6 +317,7 @@ An identifier is the one name every link and citation uses for a record. It name
 | `read-model` | `read-model/<module>.<name>` | `read-model/reporting.reimbursed-expense` |
 | `notification` | `notification/<module>.<name>` | `notification/spending.approval-reminder` |
 | `setting` | `setting/<module>.<name>` | `setting/spending.max-open-expenses` |
+| `reference-data` | `reference-data/<module>.<name>` | `reference-data/spending.decision-target` |
 | `actor` | `actor/<name>` | `actor/employee` |
 | `role` | `role/<name>` | `role/approver` |
 | `permission` | `permission/<name>` | `permission/approve-expense` |
@@ -372,6 +375,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `governs` | rule | aggregate, use case | governs | is governed by |
 | `binds` | rule | aggregate | binds | is bound by |
 | `basedOn` | rule | constraint, research | is based on | is a basis for |
+| `cites` | rule | constraint, research | cites | is cited by |
 | `fulfills` | rule, setting, use case, reaction, job, notification, screen | requirement | fulfills | is fulfilled by |
 | `releasedBy` | rule | use case | is released by | releases |
 | `result` | scenario | result, derived result | ends in | is shown by |
@@ -402,7 +406,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `dependsOn` | module | module | depends on | is depended on by |
 | `transitions.movedBy` | aggregate | use case, job | is moved by | moves |
 | `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
-| `dataClasses.periodStartsAt` | aggregate | domain event | starts at | starts the period of |
+| `dataClasses.periodStartsAt` | aggregate | domain event, module event, integration event, aggregate field | starts at | starts the period of |
 | `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
 | `access.recentSignInLimit` | use case | setting | is limited by | limits |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
@@ -410,7 +414,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `reachedThrough` | use case | entry point | is reached through | reaches |
 | `raises` | use case | domain event | raises | is raised by |
 | `writes` | use case | aggregate | writes | is written by |
-| `reads` | use case, reaction, job | aggregate, setting, read model | reads | is read by |
+| `reads` | use case, reaction, job | aggregate, setting, read model, reference data | reads | is read by |
 | `consistency.boundBy` | use case | rule | is kept by | keeps |
 | `consistency.guards` | use case | aggregate | holds the guard of | is guarded by |
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
@@ -418,12 +422,14 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
 | `consentRule` | use case, notification | rule | needs consent under | sets consent for |
-| `steps.cites` | use case | rule, result, setting, domain event, read model, external system, aggregate | applies | is applied in |
+| `steps.cites` | use case | rule, result, setting, domain event, read model, external system, aggregate, reference data | applies | is applied in |
 | `triggeredBy` | reaction | domain event, module event, integration event | is triggered by | triggers |
 | `compensates` | reaction | use case | compensates | is compensated by |
 | `effects.runs` | reaction, job | use case | runs | is run by |
 | `onFailure.surfacesIn` | reaction, job | entry point | surfaces in | surfaces |
 | `onFailure.runbook` | reaction, job | runbook | is answered by | answers |
+| `schedule.timezone.setting` | job | setting | takes its time zone from | is the time zone of |
+| `schedule.timezone.field` | job | aggregate field | takes its time zone from | is the time zone of |
 | `runbook` | job | runbook | is answered by | answers |
 | `audience` | notification | actor | is sent to | is the audience of |
 | `deliveredThrough` | notification | external system | is delivered through | delivers |
@@ -446,6 +452,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `host` | screen | screen | opens on | hosts |
 | `offers` | screen | use case | offers | is offered by |
 | `leadsTo` | screen | screen | leads to | is reached from |
+| `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
 <!-- /generated:links -->
 
 Links point up a layer by default, from the behavior to the promise it keeps. Intent links point up: `serves`, `answers`, `fulfills`, `cites` and `advances` connect Behavior to Intent or Intent to the promise above it.
@@ -942,7 +949,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:direction, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver
+**Applies to:** artifact: record:product, record:goal, record:direction, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:reference-data, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver
 
 **Statement:** Every page record MUST take its identifier name, and so its folder and file names, from the words of its title in title order.
 
@@ -1472,6 +1479,38 @@ title: Submit Expense
 
 **Checked by:** `litespec model check` reports `record-invalid` for each record file and document frontmatter block that fails the record schema.
 
+### Report One Shape in Schema Errors
+
+**ID:** `litespec/core/model#report-one-shape-in-schema-errors`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A schema error on a value matching no allowed shape MUST report only the errors of the one shape its discriminating field selects, falling back to the closest shape by error count, with the full list behind the `--verbose` flag.
+
+**Rationale:** A record declares its shape in `type`, so listing every shape the value is not wastes the reader's time: the cause sits in one shape's errors, buried under missing-property notes from shapes that never applied. Reporting only the selected shape's errors shows the cause first. The discriminating field is the `type` field, or the field the value carries that only one shape declares. The closest shape by error count is the best guess when neither selects one, and `--verbose` keeps the full list for the case the guess is wrong.
+
+**Example:** A rule record with a misspelled field reports that field under its rule shape, not under every other shape in the schema.
+
+**Checked by:** `litespec model check` reports `record-invalid` naming only the errors of the selected shape, and the full shape list with `--verbose`.
+
+### Name the Field to Use Instead in Schema Errors
+
+**ID:** `litespec/core/model#name-the-field-to-use-instead-in-schema-errors`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A schema error on a rejected field or a link in the wrong field MUST name the field to use instead.
+
+**Rationale:** Some fields read naturally but belong elsewhere: `heldBy` on a permission, `required` on an output field, a notification under a step's `cites`. The record schema lists each rejected field with the field to use instead, and the link checks name the field for a misplaced link, so the error moves the author forward instead of leaving them to guess which of the many shapes they broke.
+
+**Example:** `heldBy` on a permission reports that the permission belongs on the role's `allows` list in `intent/roles/`.
+
+**Checked by:** `litespec model check` reports `record-invalid` naming the field to use instead.
+
 ### Classify Every Specification File
 
 **ID:** `litespec/core/model#classify-every-specification-file`
@@ -1601,6 +1640,24 @@ The figures below render from the retention schedule at build time.
 **Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
 
 **Reviewed for:** Does any rule statement, scenario step, result meaning, or result sentence hide its behavior behind a vague word? Look at the statements the change adds.
+
+### Cite Reference Data Instead of Literal Values
+
+**ID:** `litespec/core/model#cite-reference-data-instead-of-literal-values`
+
+**Strength:** advisory
+
+**Applies to:** artifact: record:rule
+
+**Statement:** A rule SHOULD cite the reference-data table holding a value instead of stating the value in its statement.
+
+**Deviation:** A value held by no table stays literal until a table holds it.
+
+**Rationale:** A value written into prose drifts: each statement holding it needs its own edit when the value changes, and no check sees which statements hold it. One table with dated rows keeps each value once with its source, and the model checks that every cited table exists.
+
+**Example:** The approval rule cites `reference-data/spending.decision-target` instead of stating five business days.
+
+**Reviewed for:** Does any rule statement state a value a reference-data table holds? Check the rule statements beside the reference-data tables.
 
 ## Conventions
 

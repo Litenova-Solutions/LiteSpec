@@ -127,6 +127,7 @@ const facts: Record<string, FactFn> = {
     return out;
   },
   "read-model": (f) => [{ key: "Keeps", text: pluralize(objectList(f, "fields").length, "field") }],
+  "reference-data": (f) => [{ key: "Holds", text: pluralize(objectList(f, "rows").length, "row") }],
   "external-system": (_f, r) => {
     const t = testedFact(r);
     return t ? [t] : [];

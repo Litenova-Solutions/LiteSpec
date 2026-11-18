@@ -5,10 +5,15 @@ terms:
 - <term id, or remove this line>
 summary: <what the job does and when it runs, or remove this line>
 kind: <scheduled|one-off>
-# A schedule carries every, cron or at, with an optional timezone.
+# A schedule carries every, cron or at, with an optional timezone: a literal IANA zone, or the setting or tenant field holding the zone.
 schedule:
   every: <how often the job runs, such as P1D>
   timezone: <IANA timezone, such as Europe/Amsterdam, or remove this line>
+# A zone read from elsewhere names its setting or tenant field instead of a literal zone:
+# timezone:
+#   setting: setting/<module>.<name>
+# timezone:
+#   field: aggregate/<module>.<aggregate>#<field>
 selection: <which rows the run selects, or remove this line>
 batchSize: <rows per batch, or remove this line>
 lease:
@@ -55,7 +60,7 @@ idempotency:
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this job needs no idempotency, or remove this line>
 reads:
-- <aggregate/<module>.<name>, setting/<module>.<name> or read-model/<module>.<name>, or remove this line>
+- <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
 records:
 - type: scenario
   id: scenario/<job>.<name>

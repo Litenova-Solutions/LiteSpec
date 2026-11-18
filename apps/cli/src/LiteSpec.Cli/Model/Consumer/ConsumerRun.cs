@@ -31,6 +31,9 @@ sealed class ConsumerRun
     /// <summary>Gets the findings the checks reported.</summary>
     public List<Finding> Errors { get; } = [];
 
+    /// <summary>Gets or sets a value indicating whether schema errors list every rejected shape instead of the selected one.</summary>
+    public bool Verbose { get; set; }
+
     /// <summary>Gets the file texts read so far, by file.</summary>
     public Dictionary<string, string> TextCache { get; } = new(StringComparer.Ordinal);
 

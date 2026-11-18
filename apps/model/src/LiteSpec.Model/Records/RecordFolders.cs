@@ -20,7 +20,7 @@ public static class RecordFolders
     public static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
     {
         "aggregates", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
-        "module-events", "integration-events", "external-systems", "read-models",
+        "module-events", "integration-events", "external-systems", "read-models", "reference-data",
     };
 
     /// <summary>The typed folders an aggregate holds beside its aggregate record: its use cases, its events and its rules.</summary>
@@ -80,6 +80,7 @@ public static class RecordFolders
         Scaffold("module-event", "behavior/modules/{module}/module-events/{name}", "{name}.yaml"),
         Scaffold("integration-event", "behavior/modules/{module}/integration-events/{name}", "{name}.yaml"),
         Scaffold("read-model", "behavior/modules/{module}/read-models/{name}", "{name}.yaml"),
+        Scaffold("reference-data", "behavior/modules/{module}/reference-data/{name}", "{name}.yaml"),
         At("permission", "behavior/modules/{module}", "permissions.yaml"),
         At("refusal-set", "behavior/modules/{module}", "refusals.yaml"),
         At("entry-point", "behavior/entry-points/{entry-point}", "entry-point.yaml"),

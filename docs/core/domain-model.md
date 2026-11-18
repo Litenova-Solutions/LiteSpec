@@ -56,7 +56,8 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 | `purpose` | Why the data is kept. |
 | `onErasure` | `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`. |
 | `basis` | The constraint, requirement, and decision identifiers behind the retention. |
-| `period`, `periodStartsAt` | The retention period as an ISO 8601 duration, or `{ "mode": "none", "reason": "..." }`, with the date it counts from: a `domain-event/` identifier, a state transition written `<state> to <state>`, or `financial-year-end` or `calendar-year-end`. |
+| `period`, `periodStartsAt` | The retention period as an ISO 8601 duration, or `{ "mode": "none", "reason": "..." }`, with the date it counts from: a `domain-event/`, `module-event/`, or `integration-event/` identifier, an aggregate date field as `aggregate/<module>.<aggregate>#<field>`, a state transition written `<state> to <state>`, `financial-year-end` or `calendar-year-end`, or `{ "event": ..., "rounding": ... }` counting from an event or field rounded up to a calendar end. |
+| `holds` | Pauses to deletion, each with its `reason`, the `heldOn` date the hold starts, and the `liftedOn` date the hold ends, left out while the hold stands. |
 | `enforcedBy` | The `job/` or `use-case/` identifiers carrying out the erasure. |
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
 | `exceptions` | Per-field erasure positions differing from the class, and the retention conflicts with the winning duty and its basis. |
@@ -64,7 +65,7 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 
 ### Rules
 
-A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. Its optional `rationale` states why the rule holds. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
+A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. It states whether it restates the law, a contract, or a product choice in `source`, and a rule restating the law names the restated constraint or research record in `cites`. Its optional `rationale` states why the rule holds. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
 
 A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules.
 
@@ -82,6 +83,17 @@ State one rule per condition: one rule states one condition and names its refusa
 | `frozen-value` | Freezes a commercial value, with `frozenWhen` and `retainedIn`. |
 
 When a query shows a value and a command records it, both cite the same calculation rule in `computedBy`. Code carries a mark naming the rule; the rule never names code.
+
+### Reference Data
+
+Reference data is a table of dated business values the running system looks up: rates, thresholds, deadlines, and time zones with the dates each row takes effect. It carries the identifier `reference-data/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml`, under the module that owns the values. A setting holds one operator configuration value, aggregate data holds what the business changes while the system runs, and reference data holds the dated tables rules look up.
+
+Rules cite the table instead of stating its values: a use case names it in `reads` and a step cites it in `cites`, and a rule statement names it by its identifier. The model checks that every cited table exists and that no two rows overlap in time.
+
+| Field | Meaning |
+|:---|:---|
+| `summary`, `unit` | What values the table holds and who reads them, and the unit of each value, such as EUR. |
+| `rows` | One entry per dated value, each with its `value`, the `effectiveFrom` date it takes effect, the `effectiveTo` date it stops applying left out while the row stands, and the `source` naming the constraint, research, or decision behind the value. |
 
 ### Domain Events
 
@@ -266,6 +278,40 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Reviewed for:** Does every guarded rule name its refusal code in `refusal`? Check the rule entries beside the results citing their code.
 
+### State Each Rule's Source
+
+**ID:** `litespec/core/domain-model#state-each-rules-source`
+
+**Strength:** advisory
+
+**Applies to:** artifact: record:rule
+
+**Statement:** Each rule SHOULD state in `source` whether it restates the law, a contract, or a product choice.
+
+**Deviation:** A rule whose statement already states its origin keeps no `source`.
+
+**Rationale:** A product simplification later gets mistaken for law: a future maintainer reads a rule that claims legal backing and will not change it, even when the product owner could, or changes a real legal rule believing it is a product choice. Stating the source keeps each kind changeable on its own terms: the law changes with the statute, and a product choice changes with the owner.
+
+**Example:** Claimwick's erased-after-retention rule states `law` and cites the tax constraint. A rule making a product choice states `product-choice` with no `cites`.
+
+**Reviewed for:** Does each rule that restates an outside rule or makes a product choice state its source? Check `source` on the rule entries.
+
+### Name the Record Each Law Rule Restates
+
+**ID:** `litespec/core/domain-model#name-the-record-each-law-rule-restates`
+
+**Strength:** required
+
+**Applies to:** artifact: record:rule
+
+**Statement:** A rule with `source: law` MUST name the restated constraint or research record in `cites`.
+
+**Rationale:** A law claim without its record cannot be checked: no reader can tell which outside rule the statement restates, so a change to the outside rule never reaches the rule. Naming the restated record ties each law rule to the constraint or research it carries, and the model checks the link resolves.
+
+**Example:** Claimwick's erased-after-retention rule cites `constraint/tax-receipt-retention`, the tax rule its seven years restate.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a rule with `source: law` and no `cites`.
+
 ### Release Every Reservation by a Named Use Case
 
 **ID:** `litespec/core/domain-model#release-every-reservation-by-a-named-use-case`
@@ -379,6 +425,38 @@ A domain event is an immutable statement that a business fact completed. It is n
 **Rationale:** A setting tunes and a rule holds. An invariant filed as a setting reads as tunable, and a later operator tunes away what the model guaranteed. Keeping invariants in rules keeps what holds apart from what varies.
 
 **Reviewed for:** Does any setting page hold a model invariant? Check the settings beside the rules.
+
+### Date Every Reference-Data Row
+
+**ID:** `litespec/core/domain-model#date-every-reference-data-row`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Each reference-data row MUST state the date its value takes effect in `effectiveFrom` and the record behind its value in `source`.
+
+**Rationale:** A value without its date cannot be looked up for a past moment, and a value without its source cannot be defended or updated when the outside rule moves. The table keeps each value once with both, so every lookup answers with the value in force and the record behind it.
+
+**Example:** Claimwick's decision-target row states five business days from 2026-02-10 with `research/approval-time-benchmarks` as its source.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a reference-data row without `effectiveFrom` or `source`.
+
+### Keep Reference-Data Rows from Overlapping
+
+**ID:** `litespec/core/domain-model#keep-reference-data-rows-from-overlapping`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** The validity periods of the rows of one reference-data table MUST NOT overlap.
+
+**Rationale:** Two rows in force on one date give two answers to one lookup, and the reader guesses which holds. One row in force per date keeps every lookup single-valued. A row without `effectiveTo` stays in force, so it overlaps any later row until it gains an end date.
+
+**Example:** A second decision-target row starting 2027-01-01 needs the first row to end with `effectiveTo: 2026-12-31`.
+
+**Checked by:** `litespec model check` reports `reference-data-period-invalid` for rows whose validity periods overlap, or whose `effectiveTo` is no later than `effectiveFrom`.
 
 ## Conventions
 

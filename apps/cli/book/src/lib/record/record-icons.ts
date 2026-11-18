@@ -2,7 +2,7 @@ import type { Component } from "svelte";
 import {
   Activity, ArrowRight, ArrowUp, Bell, BookA, BookOpen, Boxes, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown,
   Circle, CircleAlert, CircleCheck, CircleDot, CircleQuestionMark, CircleSlash, CircleX, Clock, Compass,
-  Code, Copy, DoorOpen, Eye, ExternalLink, Fence, FileCheck, FlaskConical, Folder, Funnel, Gauge, GitBranch, Globe, Hourglass, IdCard, Info,
+  Code, Copy, Database, DoorOpen, Eye, ExternalLink, Fence, FileCheck, FlaskConical, Folder, Funnel, Gauge, GitBranch, Globe, Hourglass, IdCard, Info,
   KeyRound, Keyboard, Layers, Link, ListChecks, ListTree, LocateFixed, Lock, Menu, Microscope, Minus, Monitor, Moon, Network, Package,
   Plug, Plus, Quote, Radio, Route, Scale, Search, Server, Settings, Shield, ShieldOff, Signpost, Sun, Table2, Target,
   Timer, TriangleAlert, User, Waypoints, Workflow, X, Zap,
@@ -12,7 +12,7 @@ import {
 const ICONS: Record<string, Component> = {
   product: Package, problem: TriangleAlert, goal: Target, direction: Compass, feature: Boxes, requirement: FileCheck, decision: Scale,
   constraint: Fence, research: Microscope, flow: Route, actor: User, module: Folder,
-  aggregate: Table2, rule: Shield, "domain-event": Activity, "module-event": Network, "integration-event": Radio, "read-model": Eye, "use-case": Zap, scenario: ListChecks,
+  aggregate: Table2, rule: Shield, "domain-event": Activity, "module-event": Network, "integration-event": Radio, "read-model": Eye, "reference-data": Database, "use-case": Zap, scenario: ListChecks,
   result: CircleDot, reaction: Workflow, job: Timer, notification: Bell, setting: Settings, screen: Monitor,
   role: IdCard, permission: KeyRound, "entry-point": DoorOpen, "external-system": Plug, limit: Gauge, runbook: BookOpen,
   waiver: ShieldOff, term: BookA, code: Code, test: FlaskConical, route: Signpost, layer: Layers,

@@ -67,6 +67,8 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `integration-event.md` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.md` | Explains the integration event beside its record file. |
 | `read-model.yaml` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml` | Defines one read model a module keeps from the events another module publishes, with its key, fields and freshness. |
 | `read-model.md` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.md` | Explains the read model beside its record file. |
+| `reference-data.yaml` | `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml` | Defines one table of dated business values a module looks up, with the dates each row takes effect and the record behind each value. |
+| `reference-data.md` | `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.md` | Explains the reference data beside its record file. |
 | `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one entry point into the system: its kind, authentication, density, voice, and the content a browser entry point serves. |
 | `entry-point.md` | `.litespec/behavior/entry-points/<entry-point>/entry-point.md` | Explains the entry point beside its entry-point file. |
 | `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | Records one page a person sees through an entry point: what it offers, the steps it serves, the interface requirements it fulfills, its page frame, and the screens it leads to. |
@@ -126,6 +128,7 @@ An explanation file lives in the record's folder beside its record file, sharing
 | module-event | Consumers, Compatibility |
 | integration-event | Consumers, Compatibility, Example |
 | read-model | Sources, Freshness, Example (optional) |
+| reference-data | Values, Example (optional) |
 | external-system | Use, Data Shared, Failure Handling |
 | entry-point | Audience, Authentication, Limits (optional) |
 | screen | Task, States, Example |

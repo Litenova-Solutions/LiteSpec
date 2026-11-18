@@ -49,6 +49,22 @@ Ordinary queries stay under `litespec/backend/persistence#query-through-the-read
 
 **Checked by:** `litespec model check` reports `schedule-invalid` (level G) for a job schedule that is neither an `every` duration nor a `cron` expression; each scheduled job record states its timezone.
 
+### Name a Varying Time Zone by Its Source
+
+**ID:** `litespec/ext/jobs#name-a-varying-time-zone-by-its-source`
+
+**Strength:** required
+
+**Applies to:** artifact: job
+
+**Statement:** A scheduled job MUST state its time zone as a literal IANA zone or as the setting or aggregate field holding the zone.
+
+**Rationale:** A literal zone on every job freezes one country into each schedule: tenants in other countries run on the wrong day boundary, and a second country arrives as edits to every job. Naming the setting or the tenant field holding the zone keeps the schedule once while each run reads its own zone. A job with one zone keeps its literal.
+
+**Example:** Claimwick's nightly close names `setting/reporting.close-time-zone` instead of a literal zone, so the operator moves the close with one setting.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a schedule timezone that is neither a zone name nor a setting or field reference.
+
 ### Run One Command per Selected Item
 
 **ID:** `litespec/ext/jobs#run-one-command-per-selected-item`

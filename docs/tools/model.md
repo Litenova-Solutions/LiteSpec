@@ -7,7 +7,7 @@
 ## Synopsis
 
 ```bash
-litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof]
+litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof] [--verbose]
 litespec model format [--root <consumer>] [--check]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
@@ -101,6 +101,7 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 | `--list <type>` | off | Only `query` reads it. Lists every written record of the type, one line each with identifier, title and path, ordered by identifier. With `--module` it lists only the records of that module. An unknown type is a usage error. |
 | `--module <module>` | off | Only `check`, `query --list` and `edges` read it. `check` prints only the findings on the records and files of the module, and the exit code follows those findings alone. `edges` prints only that module with the mutual pairs it belongs to. An unknown module is a usage error. |
 | `--record-proof` | off | Only `check` reads it. Writes `.litespec/proof/proofs.json` from the run, holding for each scenario the run commit and the outcome of the last passing run. Without it, `check` writes nothing. |
+| `--verbose` | off | Only `check` reads it. Lists every rejected shape behind each schema error instead of the selected one. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes

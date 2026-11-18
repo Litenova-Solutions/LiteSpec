@@ -38,7 +38,7 @@ The command matches each `$id` against the manifest version, validates the manif
 
 ### Record Schema
 
-`record.schema.yaml` owns the record file of every consumer record page: 39 page shapes, from the product brief to reference, including feature, requirement, aggregate, use case, reaction, job, notification, setting, screen, and integration event. A requirement is a page of its own inside its feature's folder. The remaining entry records, for permissions, rules, results, scenarios, domain events, entry points, and settings, live on the page that holds them. A refusal set page holds one module's refusal codes. `litespec model check` validates each record file through this schema and then checks the sections the schema cannot see.
+`record.schema.yaml` owns the record file of every consumer record page: 40 page shapes, from the product brief to reference, including feature, requirement, aggregate, use case, reaction, job, notification, setting, reference data, screen, and integration event. A requirement is a page of its own inside its feature's folder. The remaining entry records, for permissions, rules, results, scenarios, domain events, entry points, and settings, live on the page that holds them. A refusal set page holds one module's refusal codes. `litespec model check` validates each record file through this schema and then checks the sections the schema cannot see.
 
 ### Glossary Schema
 

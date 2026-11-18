@@ -56,6 +56,7 @@ static class BookParents
             ["reaction"] = new("reaction", ["module"], "module"),
             ["job"] = new("job", ["module"], "module"),
             ["read-model"] = new("read-model", ["module"], "module"),
+            ["reference-data"] = new("reference-data", ["module"], "module"),
             ["notification"] = new("notification", ["module"], "module"),
             ["setting"] = new("setting", ["module"], "module"),
             ["screen"] = new("screen", ["entry-point"], "entry point"),
@@ -226,7 +227,7 @@ static class BookParents
             "scenario" => ScenarioParent(index, record, id),
             "rule" => RuleParent(index, record, id),
             "domain-event" => AggregateFromFile(index, record) ?? AggregateNameParent(index, id),
-            "reaction" or "job" or "notification" or "setting" or "read-model" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
+            "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "screen" => EntryPointFromFile(index, record) ?? ScreenParent(index, id),
             _ => null,
         };

@@ -788,7 +788,7 @@ public sealed partial class StandardsValidatorTests
     {
         var error = Assert.Single(ValidateJson("{\"oneOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]}", "1.5"));
 
-        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 1: expected string; shape 2: expected integer)", error);
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 1: expected string)", error);
     }
 
     /// <summary>AnyOf names its shapes.</summary>
@@ -798,7 +798,75 @@ public sealed partial class StandardsValidatorTests
     {
         var error = Assert.Single(ValidateJson("{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"boolean\"}]}", "1"));
 
+        Assert.Equal("value.json: value matches none of the 2 allowed shapes (shape 1: expected string)", error);
+    }
+
+    /// <summary>OneOf lists every shape behind verbose.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf lists every shape behind verbose")]
+    public void OneOfListsEveryShapeBehindVerbose()
+    {
+        var error = Assert.Single(ValidateJson("{\"oneOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]}", "1.5", true));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 1: expected string; shape 2: expected integer)", error);
+    }
+
+    /// <summary>AnyOf lists every shape behind verbose.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "anyOf lists every shape behind verbose")]
+    public void AnyOfListsEveryShapeBehindVerbose()
+    {
+        var error = Assert.Single(ValidateJson("{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"boolean\"}]}", "1", true));
+
         Assert.Equal("value.json: value matches none of the 2 allowed shapes (shape 1: expected string; shape 2: expected boolean)", error);
+    }
+
+    /// <summary>OneOf reports the shape the type names.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf reports the shape the type names")]
+    public void OneOfReportsTheShapeTheTypeNames()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"oneOf\":[{\"$ref\":\"#/$defs/a\"},{\"$ref\":\"#/$defs/b\"}],\"$defs\":{\"a\":{\"type\":\"object\",\"properties\":{\"type\":{\"const\":\"a\"},\"x\":{\"type\":\"string\"}},\"required\":[\"x\"],\"additionalProperties\":false},\"b\":{\"type\":\"object\",\"properties\":{\"type\":{\"const\":\"b\"},\"y\":{\"type\":\"string\"}},\"required\":[\"y\"],\"additionalProperties\":false}}}",
+            "{\"type\":\"b\"}"));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 2: missing required property 'y')", error);
+    }
+
+    /// <summary>OneOf reports the shape a unique field names.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf reports the shape a unique field names")]
+    public void OneOfReportsTheShapeAUniqueFieldNames()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"oneOf\":[{\"type\":\"object\",\"properties\":{\"p\":{}},\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"q\":{}},\"additionalProperties\":false}]}",
+            "{\"q\":1,\"z\":2}"));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 2: unknown property 'z')", error);
+    }
+
+    /// <summary>OneOf reports the shape with the fewest errors.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf reports the shape with the fewest errors")]
+    public void OneOfReportsTheShapeWithTheFewestErrors()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"oneOf\":[{\"type\":\"object\",\"required\":[\"a\",\"b\",\"c\"]},{\"type\":\"object\",\"required\":[\"a\",\"d\"]}]}",
+            "{\"a\":1}"));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 2: missing required property 'd')", error);
+    }
+
+    /// <summary>A rejected field names its replacement.</summary>
+    /// <proves>litespec/core/model#name-the-field-to-use-instead-in-schema-errors</proves>
+    [Fact(DisplayName = "rejected field names its replacement")]
+    public void RejectedFieldNamesItsReplacement()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"type\":\"object\",\"properties\":{\"a\":{}},\"additionalProperties\":false,\"x-rejected-fields\":{\"b\":\"Put b on the c record.\"}}",
+            "{\"a\":1,\"b\":2}"));
+
+        Assert.Equal("value.json/b: unknown property 'b'. Put b on the c record.", error);
     }
 
     /// <summary>Problems prefix the gate before the validation.</summary>
@@ -974,12 +1042,13 @@ public sealed partial class StandardsValidatorTests
     /// <summary>Validates one JSON value against one JSON schema.</summary>
     /// <param name="schemaJson">The schema text.</param>
     /// <param name="valueJson">The value text.</param>
+    /// <param name="verbose">Whether union failures list every rejected shape instead of the selected one.</param>
     /// <returns>The schema errors.</returns>
-    static List<string> ValidateJson(string schemaJson, string valueJson)
+    static List<string> ValidateJson(string schemaJson, string valueJson, bool verbose = false)
     {
         var schema = JsonNode.Parse(schemaJson)!;
         var errors = new List<string>();
-        JsonSchema.Validate(JsonNode.Parse(valueJson), schema, schema, "value.json", errors);
+        JsonSchema.Validate(JsonNode.Parse(valueJson), schema, schema, "value.json", errors, verbose);
         return errors;
     }
 }

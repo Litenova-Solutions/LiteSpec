@@ -116,6 +116,7 @@ static class Checker
         CompensationChecks.Run,
         MeasuredChecks.Run,
         GraphChecks.RunOrphaned,
+        GraphChecks.RunReferenceOverlap,
         ParentChecks.Run,
         IntentChecks.Run,
         GraphChecks.RunStepUnserved,

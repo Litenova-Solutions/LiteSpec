@@ -68,6 +68,7 @@ internal sealed record PathContext(
         ["external-system"] = "external-system",
         ["integration-event"] = "integration-event",
         ["read-model"] = "read-model",
+        ["reference-data"] = "reference-data",
         ["refusal-set"] = "refusal-set",
         ["domain-event"] = "domain-event",
         ["migration"] = "migration",

@@ -62,7 +62,7 @@ The name follows `<verb>-<what>`, using the verb of the use case it runs, or its
 | Field | Meaning |
 |:---|:---|
 | `kind` | `scheduled` or `one-off`. |
-| `schedule` | The schedule, required with `scheduled`: `{ "every": "PT1M" }`, `{ "cron": "0 3 * * *", "timezone": "..." }`, or `{ "at": "startup" }` for a run once at deployment start. |
+| `schedule` | The schedule, required with `scheduled`: `{ "every": "PT1M" }`, `{ "cron": "0 3 * * *", "timezone": "..." }`, or `{ "at": "startup" }` for a run once at deployment start. The timezone is a literal IANA zone, or `{ "setting": "setting/<module>.<name>" }` or `{ "field": "aggregate/<module>.<aggregate>#<field>" }` naming where the zone is stored. |
 | `selection`, `batchSize`, `lease`, `cursor`, `runbook`, `runsWhen`, `serviceLevel`, `evidence` | What each run selects, how many items per batch, the lock with its duration, where resume state lives, the runbook answering the run, the condition it runs under, the promised service level, and the evidence the run leaves. |
 | `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A job states `timing` on each entry. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |

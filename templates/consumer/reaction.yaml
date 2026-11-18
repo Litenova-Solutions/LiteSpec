@@ -58,7 +58,7 @@ idempotency:
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this reaction needs no idempotency, or remove this line>
 reads:
-- <aggregate/<module>.<name>, setting/<module>.<name> or read-model/<module>.<name>, or remove this line>
+- <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
 records:
 - type: scenario
   id: scenario/<reaction>.<name>

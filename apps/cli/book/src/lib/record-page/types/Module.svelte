@@ -11,7 +11,7 @@
   let { id, r }: Props = $props();
   const responsibilities = $derived(stringList(r.fields ?? {}, "responsibilities"));
   const excludes = $derived(stringList(r.fields ?? {}, "excludes"));
-  const KINDS = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "permission", "job", "notification", "setting", "read-model"];
+  const KINDS = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "permission", "job", "notification", "setting", "read-model", "reference-data"];
   const all = $derived(KINDS.flatMap((t) => book.descByType(id, t, 6)));
   const rows = $derived(
     KINDS.map((t) => ({ t, n: all.filter((x) => book.typeOf(x) === t).length }))

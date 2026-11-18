@@ -109,6 +109,19 @@ public sealed class PermissionScopeTests
         AssertProblem(RunConsumer(folder.Path), "unknown property 'scope'");
     }
 
+    /// <summary>A permission entry carrying heldBy names the role allows list.</summary>
+    /// <proves>litespec/core/model#name-the-field-to-use-instead-in-schema-errors</proves>
+    [Fact(DisplayName = "permission entry carrying heldBy")]
+    public void PermissionEntryCarryingHeldBy()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            ".litespec/behavior/modules/orders/permissions.yaml",
+            meta => FirstPermission(meta)["heldBy"] = "role/owner");
+        AssertProblem(RunConsumer(folder.Path), "unknown property 'heldBy'. Add the permission to the role's `allows` list in `intent/roles/`.");
+    }
+
     /// <summary>Permission entry with an unknown property.</summary>
     /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "permission entry with an unknown property")]

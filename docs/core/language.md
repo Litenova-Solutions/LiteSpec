@@ -95,6 +95,7 @@ Each record type takes the name form its row states, in the word class that fits
 | aggregate state | past participle or adjective | `withdrawn`, `Listed` |
 | notification | `<subject>-<event>` noun phrase | `order-confirmation` |
 | setting | noun phrase naming the value | `checkout-hold-window` |
+| reference-data | noun phrase naming the values the table holds | `decision-target` |
 | data class | noun phrase naming the data | `buyer-contact` |
 | entry point, external system | noun naming the entry point or system | `webshop`, `payout-bank` |
 | external operation | verb first | `create-charge` |
@@ -115,7 +116,7 @@ Names an outside standard fixes stay exactly as that standard spells them. Gherk
 
 An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row.
 
-A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and a domain-event home is an aggregate name. A reaction, job, read-model, notification, or setting takes the module that owns it as its home. An integration event has no module home.
+A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and a domain-event home is an aggregate name. A reaction, job, read-model, notification, setting, or reference-data table takes the module that owns it as its home. An integration event has no module home.
 
 A use-case name is unique among use cases, so a result cites only that name; an aggregate name is unique among aggregates, so a rule cites only that name. Names are unique per record type, not across the product, so `actor/owner` and `role/owner` coexist.
 

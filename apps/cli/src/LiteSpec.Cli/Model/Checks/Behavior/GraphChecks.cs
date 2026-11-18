@@ -7,13 +7,14 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The record-graph checks: every behavior record links up to intent, every flow step and notification has a record serving or sending it, every setting default has a requirement behind it, every scenario exercises a rule its use case applies, and every command cites the invariants most writers of its aggregate cite.</summary>
+/// <summary>The record-graph checks: every behavior record links up to intent, every flow step and notification has a record serving or sending it, every setting default has a requirement behind it, every scenario exercises a rule its use case applies, every command cites the invariants most writers of its aggregate cite, and every reference-data table holds disjoint row periods.</summary>
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/model#serve-every-flow-step</follows>
 /// <follows>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</follows>
 /// <follows>litespec/core/use-cases#tie-every-setting-default-to-a-requirement</follows>
 /// <follows>litespec/core/use-cases#exercise-rules-from-scenarios</follows>
 /// <follows>litespec/core/use-cases#cite-the-invariants-most-writers-cite</follows>
+/// <follows>litespec/core/domain-model#keep-reference-data-rows-from-overlapping</follows>
 internal static class GraphChecks
 {
     /// <summary>Reports a use case, reaction, job, notification or setting naming neither serves nor fulfills.</summary>
@@ -143,6 +144,86 @@ internal static class GraphChecks
             findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds a default that does not take its valueType {valueType}.", setting.File, setting.Line, SubjectOf(setting)));
         }
     }
+
+    /// <summary>Reports a reference-data table whose rows overlap in time or end no later than they start.</summary>
+    /// <param name="model">The loaded project model that holds every reference-data record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunReferenceOverlap(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var table in model.Records
+            .Where(record => record.Type == RecordTypes.ReferenceData)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (table.Raw.ValueKind != JsonValueKind.Object
+                || !table.Raw.TryGetProperty(RecordFields.Rows, out var rows)
+                || rows.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            var spans = new List<(string From, string? To, int Index)>();
+            var index = 0;
+
+            foreach (var row in rows.EnumerateArray())
+            {
+                if (row.ValueKind == JsonValueKind.Object)
+                {
+                    spans.Add((Str(row, RecordFields.EffectiveFrom) ?? "", Str(row, RecordFields.EffectiveTo), index));
+                }
+
+                index++;
+            }
+
+            foreach (var span in spans)
+            {
+                if (Inverted(span))
+                {
+                    findings.Add(new Finding(
+                        "reference-data-period-invalid",
+                        $"Reference data '{table.Id}' holds row {span.Index} ending '{span.To}' no later than its start '{span.From}'.",
+                        table.File,
+                        table.Line,
+                        SubjectOf(table)));
+                }
+            }
+
+            for (var left = 0; left < spans.Count; left++)
+            {
+                for (var right = left + 1; right < spans.Count; right++)
+                {
+                    // An inverted row already draws its own finding, so one defect draws one finding.
+                    if (Inverted(spans[left]) || Inverted(spans[right]))
+                    {
+                        continue;
+                    }
+
+                    if (Overlap(spans[left], spans[right]))
+                    {
+                        findings.Add(new Finding(
+                            "reference-data-period-invalid",
+                            $"Reference data '{table.Id}' holds rows {spans[left].Index} and {spans[right].Index} overlapping in time.",
+                            table.File,
+                            table.Line,
+                            SubjectOf(table)));
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>Whether a period ends no later than it starts: an end date on or before its start date.</summary>
+    /// <param name="span">The period.</param>
+    /// <returns>True when the period carries an end no later than its start.</returns>
+    private static bool Inverted((string From, string? To, int Index) span) =>
+        span.To is not null && string.Compare(span.To, span.From, StringComparison.Ordinal) <= 0;
+
+    /// <summary>Whether two effective periods overlap: each starts before the other ends, with a missing end open. Dates compare as ISO text.</summary>
+    /// <param name="left">The first period.</param>
+    /// <param name="right">The second period.</param>
+    /// <returns>True when the periods overlap.</returns>
+    private static bool Overlap((string From, string? To, int Index) left, (string From, string? To, int Index) right) =>
+        (right.To is null || string.Compare(left.From, right.To, StringComparison.Ordinal) < 0)
+        && (left.To is null || string.Compare(right.From, left.To, StringComparison.Ordinal) < 0);
 
     /// <summary>Reports a notification sent by no reaction, job or use case.</summary>
     /// <param name="model">The loaded project model that holds every notification and holder record.</param>

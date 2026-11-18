@@ -6,7 +6,7 @@ const CODES: Record<string, string> = {
   actor: "A", role: "Ro", constraint: "C", decision: "D", research: "Rs", waiver: "Dp", term: "T",
   module: "M", aggregate: "Ag", "use-case": "U", result: "Rt", scenario: "S", rule: "Ru",
   "domain-event": "E", "module-event": "ME", "integration-event": "IE", "read-model": "RM", reaction: "Re", job: "J",
-  notification: "N", setting: "St", permission: "Pm", "entry-point": "EP", screen: "Sc",
+  notification: "N", setting: "St", "reference-data": "RD", permission: "Pm", "entry-point": "EP", screen: "Sc",
   "external-system": "X", limit: "L", runbook: "Rb", code: "Cd", test: "Ts", route: "Pa",
 };
 

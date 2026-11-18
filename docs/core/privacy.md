@@ -9,7 +9,7 @@ Privacy and Retention states how the product handles personal data: each data cl
 
 ### Retention on the Data Class
 
-Each aggregate data class declares how long its fields are kept. The declaration holds the `period` with the date it counts from in `periodStartsAt`, the `basis` for keeping the fields, the `purpose`, the `enforcedBy` naming what carries out the erasure, and any `exceptions`, as the [Domain Model page](domain-model.md) states.
+Each aggregate data class declares how long its fields are kept. The declaration holds the `period` with the date it counts from in `periodStartsAt`, the `basis` for keeping the fields, the `purpose`, the `enforcedBy` naming what carries out the erasure, any `exceptions`, and any `holds` pausing deletion, as the [Domain Model page](domain-model.md) states.
 
 The book renders the retention schedule from the data classes: one row per class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. The schedule states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record, and the project's counsel confirms the wording.
 
@@ -52,6 +52,38 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 **Example:** In Claimwick, the submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its accepting requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years from the financial year end, and the finance expiry job.
 
 **Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position, `retention-enforcement-missing` for a class nothing enforces, and `data-class-fields-drift` for a data class `fields` list differing from the fields naming the class.
+
+### Pause Deletion While a Hold Stands
+
+**ID:** `litespec/core/privacy#pause-deletion-while-a-hold-stands`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** A data class MUST pause deletion while a retention hold stands, with each hold's reason and the date the hold starts on record.
+
+**Rationale:** A tax audit, an objection, or a dispute stops deletion: a product that deletes records during an audit breaks the law even though it followed its retention period exactly. The hold states its reason with the date it starts in `heldOn`, and deletion resumes only when the hold lifts with its date in `liftedOn`. The enforcement named in `enforcedBy` skips held rows, so the hold pauses every erasure path of the class.
+
+**Example:** Claimwick's finance team places a hold on the expense ledger while the tax office audits the year, and the expiry job leaves held rows until the hold lifts.
+
+**Reviewed for:** Does every data class under audit, objection, or dispute carry its hold with its reason and start date, with deletion paused until the hold lifts? Check `holds` on each data class beside the enforcement runs.
+
+### Round an Event Start to a Calendar End
+
+**ID:** `litespec/core/privacy#round-an-event-start-to-a-calendar-end`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** A retention period that rounds an event start up to a calendar end MUST name its event and its rounding in `periodStartsAt`.
+
+**Rationale:** The law starts counting when a record stops being current: an asset invoice when the asset leaves, a lease when it ends. The start then rounds up to the end of the year, so every record of one year shares one expiry. Naming the event with its rounding states both halves: the event that starts the count and the calendar end it rounds to. A start naming only the event expires each record on its own date.
+
+**Example:** Claimwick keeps a receipt seven years from the end of the year its expense was reimbursed: `periodStartsAt` names `domain-event/expense.reimbursed` with `rounding: financial-year-end`.
+
+**Reviewed for:** Does every retention period counted from a rounded event name its event and rounding? Check `periodStartsAt` on each data class.
 
 ### Accept Every Retained Personal Data Class in Intent
 

@@ -34,6 +34,7 @@ oneOf:
 - $ref: '#/$defs/settingPage'
 - $ref: '#/$defs/settingSetPage'
 - $ref: '#/$defs/ruleSetPage'
+- $ref: '#/$defs/referenceDataPage'
 - $ref: '#/$defs/refusalSetPage'
 - $ref: '#/$defs/indexPage'
 - $ref: '#/$defs/tutorialPage'
@@ -122,6 +123,9 @@ $defs:
   externalOperationRef:
     type: string
     pattern: '^external-system/[a-z0-9][a-z0-9-]*#[a-z0-9][a-z0-9-]*$'
+  aggregateFieldRef:
+    type: string
+    pattern: '^aggregate/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*#[A-Za-z0-9]+$'
   reactionId:
     type: string
     pattern: '^reaction/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
@@ -137,6 +141,9 @@ $defs:
   settingId:
     type: string
     pattern: '^setting/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
+  referenceDataId:
+    type: string
+    pattern: '^reference-data/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
   integrationEventId:
     type: string
     pattern: '^integration-event/[a-z0-9][a-z0-9-]*$'
@@ -234,6 +241,7 @@ $defs:
       - $ref: '#/$defs/readModelId'
       - $ref: '#/$defs/externalSystemId'
       - $ref: '#/$defs/aggregateId'
+      - $ref: '#/$defs/referenceDataId'
   screenState:
     description: One state a screen can show, and what the screen shows in it.
     type: object
@@ -403,6 +411,7 @@ $defs:
       - $ref: '#/$defs/aggregateId'
       - $ref: '#/$defs/settingId'
       - $ref: '#/$defs/readModelId'
+      - $ref: '#/$defs/referenceDataId'
   scenarioResultValue:
     anyOf:
     - $ref: '#/$defs/resultId'
@@ -719,6 +728,8 @@ $defs:
   outputField:
     type: object
     additionalProperties: false
+    x-rejected-fields:
+      required: "Output fields take no `required` key: every output field is always present. Put `required` on input fields and on list-row fields under `identifies`."
     required:
     - name
     - meaning
@@ -1118,11 +1129,45 @@ $defs:
   periodStart:
     anyOf:
     - $ref: '#/$defs/domainEventId'
+    - $ref: '#/$defs/moduleEventId'
+    - $ref: '#/$defs/integrationEventId'
+    - $ref: '#/$defs/aggregateFieldRef'
     - type: string
       pattern: '^.+ to .+$'
     - enum:
       - financial-year-end
       - calendar-year-end
+    - $ref: '#/$defs/periodStartRounded'
+  periodStartRounded:
+    type: object
+    additionalProperties: false
+    required:
+    - event
+    - rounding
+    properties:
+      event:
+        anyOf:
+        - $ref: '#/$defs/domainEventId'
+        - $ref: '#/$defs/moduleEventId'
+        - $ref: '#/$defs/integrationEventId'
+        - $ref: '#/$defs/aggregateFieldRef'
+      rounding:
+        enum:
+        - financial-year-end
+        - calendar-year-end
+  retentionHold:
+    type: object
+    additionalProperties: false
+    required:
+    - reason
+    - heldOn
+    properties:
+      reason:
+        $ref: '#/$defs/nonEmptyString'
+      heldOn:
+        $ref: '#/$defs/isoDate'
+      liftedOn:
+        $ref: '#/$defs/isoDate'
   enforcedByArray:
     type: array
     minItems: 1
@@ -1204,6 +1249,11 @@ $defs:
         minItems: 1
         items:
           $ref: '#/$defs/dataClassException'
+      holds:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/retentionHold'
     allOf:
     - if:
         required:
@@ -1268,7 +1318,26 @@ $defs:
       at:
         const: startup
       timezone:
-        $ref: '#/$defs/nonEmptyString'
+        anyOf:
+        - $ref: '#/$defs/nonEmptyString'
+        - type: object
+          additionalProperties: false
+          required:
+          - setting
+          properties:
+            setting:
+              $ref: '#/$defs/settingId'
+              x-reads-as: takes its time zone from
+              x-read-back-as: is the time zone of
+        - type: object
+          additionalProperties: false
+          required:
+          - field
+          properties:
+            field:
+              $ref: '#/$defs/aggregateFieldRef'
+              x-reads-as: takes its time zone from
+              x-read-back-as: is the time zone of
     allOf:
     - anyOf:
       - required:
@@ -2017,6 +2086,8 @@ $defs:
   permissionEntry:
     type: object
     additionalProperties: false
+    x-rejected-fields:
+      heldBy: Add the permission to the role's `allows` list in `intent/roles/`.
     required:
     - type
     - id
@@ -2086,6 +2157,15 @@ $defs:
         $ref: '#/$defs/basedOnArray'
         x-reads-as: is based on
         x-read-back-as: is a basis for
+      source:
+        enum:
+        - law
+        - product-choice
+        - contract
+      cites:
+        $ref: '#/$defs/basedOnArray'
+        x-reads-as: cites
+        x-read-back-as: is cited by
       fulfills:
         $ref: '#/$defs/requirementIdArray'
         x-reads-as: fulfills
@@ -2129,6 +2209,15 @@ $defs:
       then:
         required:
         - binds
+    - if:
+        required:
+        - source
+        properties:
+          source:
+            const: law
+      then:
+        required:
+        - cites
   resultEntry:
     type: object
     additionalProperties: false
@@ -4191,6 +4280,58 @@ $defs:
         x-read-back-as: is used by
       records:
         $ref: '#/$defs/recordsArray'
+  referenceDataRow:
+    type: object
+    additionalProperties: false
+    required:
+    - value
+    - effectiveFrom
+    - source
+    properties:
+      value:
+        anyOf:
+        - $ref: '#/$defs/nonEmptyString'
+        - type: number
+        - type: boolean
+      effectiveFrom:
+        $ref: '#/$defs/isoDate'
+      effectiveTo:
+        $ref: '#/$defs/isoDate'
+      source:
+        anyOf:
+        - $ref: '#/$defs/constraintId'
+        - $ref: '#/$defs/researchId'
+        - $ref: '#/$defs/decisionId'
+        x-reads-as: rests on
+        x-read-back-as: is the source for
+  referenceDataPage:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - rows
+    properties:
+      type:
+        const: reference-data
+      id:
+        $ref: '#/$defs/referenceDataId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      terms:
+        $ref: '#/$defs/termIdArray'
+        x-reads-as: uses
+        x-read-back-as: is used by
+      summary:
+        $ref: '#/$defs/nonEmptyString'
+      unit:
+        $ref: '#/$defs/nonEmptyString'
+      rows:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/referenceDataRow'
   refusalSetPage:
     type: object
     additionalProperties: false

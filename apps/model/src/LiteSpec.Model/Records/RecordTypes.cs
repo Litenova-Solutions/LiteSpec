@@ -41,6 +41,9 @@ public static class RecordTypes
     /// <summary>Gets the `read-model` record type name.</summary>
     public const string ReadModel = "read-model";
 
+    /// <summary>Gets the `reference-data` record type name.</summary>
+    public const string ReferenceData = "reference-data";
+
     /// <summary>Gets the `direction` record type name.</summary>
     public const string Direction = "direction";
 
@@ -153,7 +156,7 @@ public static class RecordTypes
         "product", "goal", "direction", "constraint", "research", "decision", "requirement", "problem",
         "feature", "actor", "role", "permission", "flow", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
-        "reaction", "job", "notification", "setting", "read-model",
+        "reaction", "job", "notification", "setting", "read-model", "reference-data",
         "entry-point", "screen", "external-system", "runbook", "waiver", "term",
     };
 
@@ -173,7 +176,7 @@ public static class RecordTypes
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
             ["domain-event"] = "behavior", ["module-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
-            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior",
+            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior", ["reference-data"] = "behavior",
             ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
             ["waiver"] = "governance",
@@ -197,7 +200,7 @@ public static class RecordTypes
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
         "requirement", "aggregate", "rule", "use-case", "result",
-        "scenario", "domain-event", "module-event", "reaction", "job", "notification", "setting", "screen", "read-model",
+        "scenario", "domain-event", "module-event", "reaction", "job", "notification", "setting", "screen", "read-model", "reference-data",
     };
 
     /// <summary>Types the small size requires.</summary>
@@ -250,7 +253,7 @@ public static class RecordTypes
             ["from"] = new HashSet<string> { "module-event", "integration-event" },
             ["erasedBy"] = new HashSet<string> { "module-event", "integration-event" },
             ["removedBy"] = new HashSet<string> { "module-event", "integration-event" },
-            ["reads"] = new HashSet<string> { "aggregate", "setting", "read-model" },
+            ["reads"] = new HashSet<string> { "aggregate", "setting", "read-model", "reference-data" },
             ["guards"] = new HashSet<string> { "aggregate" },
             ["competesWith"] = new HashSet<string> { "use-case" },
             ["supersedes"] = new HashSet<string> { "decision" },
