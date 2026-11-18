@@ -104,6 +104,34 @@ public sealed class AccessCheckTests
         Assert.Equal(verbs.OrderBy(verb => verb, StringComparer.Ordinal), UseCaseVerbs.Baseline.OrderBy(verb => verb, StringComparer.Ordinal));
     }
 
+    /// <summary>A system grant reached only through modules passes.</summary>
+    /// <proves>litespec/core/access#authorize-every-use-case-through-a-declared-grant</proves>
+    [Fact(DisplayName = "A system grant reached only through modules passes")]
+    public void SystemGrantReachedOnlyThroughModulesPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "steps": [{"statement": "Spending reads the expense."}], "reachedThrough": ["module/reporting"], "access": {"grant": "system", "tenant": "none"}}"""));
+
+        Assert.DoesNotContain(Checker.Check(model).Findings, finding =>
+            finding.Code == "record-invalid" && finding.Message.Contains("grants system", StringComparison.Ordinal));
+    }
+
+    /// <summary>A system grant reached through an entry point is reported.</summary>
+    /// <proves>litespec/core/access#authorize-every-use-case-through-a-declared-grant</proves>
+    [Fact(DisplayName = "A system grant reached through an entry point is reported")]
+    public void SystemGrantReachedThroughEntryPointIsReported()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "steps": [{"statement": "Spending reads the expense."}], "reachedThrough": ["entry-point/web"], "access": {"grant": "system", "tenant": "none"}}"""));
+
+        Assert.Contains(Checker.Check(model).Findings, finding =>
+            finding.Code == "record-invalid" && finding.Message.Contains("grants system", StringComparison.Ordinal));
+    }
+
     /// <summary>Builds a role record with its scope and one allowed permission.</summary>
     /// <param name="root">The consumer root the role file sits under.</param>
     /// <param name="name">The role name, which names its folder and file.</param>

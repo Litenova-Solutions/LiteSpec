@@ -1,6 +1,6 @@
 using Claimwick.Spending.Domain.Expenses.Events;
 
-namespace Claimwick.Spending.Contracts.ModuleEvents;
+namespace Claimwick.Spending.Contracts.Expenses;
 
 /// <summary>The expense-personal-data-erased event announces that the personal data of a decided expense was erased.</summary>
 /// <implements>module-event/spending.expense-personal-data-erased</implements>

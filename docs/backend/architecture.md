@@ -373,7 +373,7 @@ Queries project read results without loading an aggregate and write nothing, fol
 
 **Strength:** required
 
-**Applies to:** artifact: command-handler, port, query-handler
+**Applies to:** artifact: command-handler, port, query-handler; when: cross-module
 
 **Statement:** A module needing another module's data MUST read it through its port to that module answered by the provider's public query, through its own read model built from the owner's module events, or, on a screen, through the owner's own query.
 
@@ -391,7 +391,7 @@ The three allowed paths each state what crosses. The consumer port states what o
 
 **Strength:** required
 
-**Applies to:** artifact: command-handler, query-handler, reaction, job
+**Applies to:** artifact: command-handler, query-handler, reaction, job; when: cross-module
 
 **Statement:** A module MUST send only public queries across a module boundary, so a command is never public and a change in one module reaches another through a fact and a reaction there.
 

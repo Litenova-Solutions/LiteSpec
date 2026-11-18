@@ -12,8 +12,7 @@ internal static class NamespacePlacement
     internal static readonly HashSet<string> PlacelessSegments = new(StringComparer.OrdinalIgnoreCase)
     {
         "Domain", "Application", "Abstractions", "Infrastructure", "WebApi", "Worker",
-        "Persistence", "Endpoints", "Contracts", "Events", "Exceptions",
-        "Identifiers", "IntegrationEvents", "ModuleEvents", "Ports",
+        "Persistence", "Endpoints", "Contracts", "Events", "Exceptions", "Ports",
         "Notifications", "ExternalSystems", "ReadModels", "Composition", "Tests", "Test", "Acceptance", "Integration", "Unit",
     };
 

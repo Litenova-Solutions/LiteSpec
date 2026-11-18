@@ -464,6 +464,8 @@ export type ProofTargetId =
   | "scenario/export-expenses.exporting-with-nothing-approved-is-refused"
   | "scenario/list-expenses.listing-own-expenses-succeeds"
   | "scenario/list-reimbursed-expenses.listing-reimbursed-expenses-succeeds"
+  | "scenario/read-expense.reading-a-reimbursed-expense-succeeds"
+  | "scenario/read-expense.reading-an-unknown-expense-finds-nothing"
   | "scenario/refuse-expense.rejecting-a-decided-expense-is-refused"
   | "scenario/refuse-expense.rejecting-a-submitted-expense-succeeds"
   | "scenario/reimburse-expense.reimbursing-a-reimbursed-expense-is-refused"

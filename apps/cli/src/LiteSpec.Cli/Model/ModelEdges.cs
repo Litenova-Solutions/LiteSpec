@@ -146,7 +146,7 @@ static class ModelEdges
             }
         }
 
-        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Calls })
+        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Calls, RecordFields.Queries })
         {
             foreach (var target in EffectsVerbIds(record, verb))
             {
@@ -157,7 +157,7 @@ static class ModelEdges
 
     /// <summary>The targets of the verb in the record's effect entries, such as every use case a reaction runs.</summary>
     /// <param name="record">The record whose effect entries are read.</param>
-    /// <param name="verb">The edge verb to read: runs, sends or calls.</param>
+    /// <param name="verb">The edge verb to read: runs, sends, calls or queries.</param>
     /// <returns>The target ids the verb names in the effect entries.</returns>
     static List<string> EffectsVerbIds(Record record, string verb)
     {

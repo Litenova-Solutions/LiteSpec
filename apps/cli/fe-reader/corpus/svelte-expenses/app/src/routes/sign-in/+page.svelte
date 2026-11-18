@@ -23,3 +23,4 @@
 <form action="/auth/login">
   <button type="submit">Go</button>
 </form>
+<Button variant="outline" href={`/auth/login?next=/home`}>Sign in</Button>

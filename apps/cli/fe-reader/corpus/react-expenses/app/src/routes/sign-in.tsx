@@ -14,6 +14,8 @@ export function SignInPage(next: string): unknown {
       <form action="/auth/login">
         <button type="submit">Go</button>
       </form>
+      <Link href="/auth/login">Sign in with link</Link>
+      <Button href={`/auth/callback?code=${next}`}>Continue</Button>
     </main>
   );
 }

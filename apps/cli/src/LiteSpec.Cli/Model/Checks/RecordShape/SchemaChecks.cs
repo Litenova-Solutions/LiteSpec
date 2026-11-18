@@ -291,8 +291,9 @@ internal static class SchemaChecks
                     RequireIds(record, RecordFields.ReachedThrough, 1, findings);
                 }
 
-                // Exposure states the stake of an entry point use case in plain words.
-                if (record.Has(RecordFields.ReachedThrough) && !record.Has(RecordFields.Exposure))
+                // Exposure states the stake of an entry point use case in plain words. A use
+                // case reached only through other modules states none.
+                if (record.Has(RecordFields.ReachedThrough) && !record.Has(RecordFields.Exposure) && ReachedThroughEntryPoint(record))
                 {
                     findings.Add(new Finding("exposure-missing", $"Use case '{record.Id}' is reached through an entry point and states no exposure.", record.File, record.Line, SubjectOf(record)));
                 }
@@ -971,6 +972,18 @@ internal static class SchemaChecks
             findings.Add(new Finding("record-invalid", $"Read model '{record.Id}' holds freshness within '{within}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
         }
     }
+
+    /// <summary>Whether the use case is reached through an entry point rather than only through other modules.</summary>
+    /// <param name="record">The use case record whose reachedThrough is read.</param>
+    /// <returns>True when reachedThrough names an identifier that is no module id.</returns>
+    private static bool ReachedThroughEntryPoint(Record record) =>
+        record.Ids(RecordFields.ReachedThrough).Any(id => !IsModuleId(id));
+
+    /// <summary>Whether the identifier names a module.</summary>
+    /// <param name="id">The identifier under test.</param>
+    /// <returns>True when the identifier opens with the module prefix.</returns>
+    private static bool IsModuleId(string id) =>
+        Identifiers.TrySplit(id, out var prefix, out _, out _) && prefix == RecordTypes.Module;
 
     /// <summary>Reports each permission or entry point a use case's exposure names that its reachedThrough or access does not hold.</summary>
     /// <param name="record">The use case record whose exposure is judged.</param>

@@ -65,7 +65,7 @@ internal static class AccessChecks
                     }
                 }
 
-                if (grant == "system" && reached.Count > 0)
+                if (grant == "system" && reached.Any(id => !IsModuleId(id)))
                 {
                     findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' grants system, which authorizes no outside caller, yet it is reached through an entry point.", useCase.File, useCase.Line, SubjectOf(useCase)));
                 }
@@ -89,6 +89,12 @@ internal static class AccessChecks
             }
         }
     }
+
+    /// <summary>Whether the identifier names a module.</summary>
+    /// <param name="id">The identifier under test.</param>
+    /// <returns>True when the identifier opens with the module prefix.</returns>
+    private static bool IsModuleId(string id) =>
+        Identifiers.TrySplit(id, out var prefix, out _, out _) && prefix == RecordTypes.Module;
 
     /// <summary>Reports each role whose scope has no glossary term titled with the level and Scope.</summary>
     /// <param name="model">The loaded project model that holds every record and the glossary terms.</param>

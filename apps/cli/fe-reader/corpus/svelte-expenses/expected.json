@@ -138,6 +138,11 @@
               "path": "/auth/login",
               "file": "src/routes/sign-in/+page.svelte",
               "line": 23
+            },
+            {
+              "path": "/auth/login?next=/home",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 26
             }
           ]
         }

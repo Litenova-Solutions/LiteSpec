@@ -540,6 +540,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `provision` field.</summary>
     public const string Provision = "provision";
 
+    /// <summary>Gets the name of the `queries` field.</summary>
+    public const string Queries = "queries";
+
     /// <summary>Gets the name of the `raises` field.</summary>
     public const string Raises = "raises";
 

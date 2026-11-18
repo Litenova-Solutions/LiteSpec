@@ -1,6 +1,6 @@
 using Claimwick.Spending.Domain.Expenses.Events;
 
-namespace Claimwick.Spending.Contracts.ModuleEvents;
+namespace Claimwick.Spending.Contracts.Expenses;
 
 /// <summary>The expense-reimbursed event announces a reimbursed expense and the employee it was paid to.</summary>
 /// <implements>module-event/spending.expense-reimbursed</implements>

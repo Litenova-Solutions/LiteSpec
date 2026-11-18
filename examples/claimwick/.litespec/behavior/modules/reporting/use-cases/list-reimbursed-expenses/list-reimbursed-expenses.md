@@ -1,11 +1,12 @@
 # List Reimbursed Expenses
 
-List Reimbursed Expenses gives finance a list of the expenses that were paid, with the employee each one was paid to. Finance checks the payouts against the employees with it. The list reads the reimbursed expense read model, so it shows what the spending module announced and changes nothing.
+List Reimbursed Expenses gives finance a list of the expenses that were paid, with the employee each one was paid to. Finance checks the payouts against the employees with it. The list reads the reimbursed expense read model, so it shows what the spending module announced and changes nothing. Before it returns the rows, Reporting confirms each reimbursed expense still exists in the spending module.
 
 ## Flow
 
 1. Finance asks for the reimbursed expenses.
-2. Reporting returns one row per reimbursed expense newest first.
+2. Reporting confirms each reimbursed expense still exists in Spending.
+3. Reporting returns one row per reimbursed expense newest first.
 
 A row holds the expense identity, the employee, the amount, the currency and the reimbursement time. The rows may lag the spending module by up to five seconds, which the read model's freshness allows. The list pages at 25 rows by default and 100 at most.
 

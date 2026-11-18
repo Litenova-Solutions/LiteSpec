@@ -467,8 +467,8 @@ internal static class BackendPlacementChecks
     ///     Reports the folder a port interface or adapter misses: the module Ports folder named for the port for
     ///     an interface, and the same-named Infrastructure folder for an adapter, whether one use case or many
     ///     call the port. The port folder takes the interface name; an adapter takes the folder of the port
-    ///     it implements. A cross-module port in its module contracts sits where the module tree keeps it.
-    ///     The finding names the expected folder.
+    ///     it implements. An interface in module contracts is reported by the closed-folder check, so it is
+    ///     left out here. The finding names the expected folder.
     /// </summary>
     /// <param name="model">The loaded project model whose configuration names the module roots.</param>
     /// <param name="element">The marked port interface or adapter whose folder is checked.</param>

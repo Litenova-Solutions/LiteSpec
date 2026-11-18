@@ -76,9 +76,18 @@ public sealed class RecordTypesTests
         Assert.True(RecordTypes.LinkTargets["runs"].SetEquals(["use-case"]));
         Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(["notification"]));
         Assert.True(RecordTypes.LinkTargets["calls"].SetEquals(["external-system"]));
+        Assert.True(RecordTypes.LinkTargets["queries"].SetEquals(["use-case"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("emits"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("issues"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
+    }
+
+    /// <summary>A use case is reached through entry points and consumer modules.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void ReachedThroughLinksEntryPointsAndModules()
+    {
+        Assert.True(RecordTypes.LinkTargets["reachedThrough"].SetEquals(["entry-point", "module"]));
     }
 
     /// <summary>A read model links the aggregate it is keyed by, the integration events it takes fields from and removes rows on, and the use cases that read it.</summary>

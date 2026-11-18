@@ -57,6 +57,21 @@ public sealed class LocalityCheckTests
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Public Query Reached Through Module Passes.</summary>
+    /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
+    [Fact]
+    public void PublicQueryReachedThroughModulePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/finance"]}"""));
+
+        Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
+    }
+
     /// <summary>Link Across Layers May Cross Modules.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
@@ -102,7 +117,7 @@ public sealed class LocalityCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Module 'module/finance' holds a dependency cycle: module/finance -> module/lending -> module/finance.", finding.Message);
+        Assert.Equal("Module 'module/finance' holds a dependency cycle: module/finance -> module/lending -> module/finance. The edges are: 'module/finance' declares 'dependsOn' 'module/lending'; 'module/lending' declares 'dependsOn' 'module/finance'.", finding.Message);
         Assert.Equal("module/finance", finding.Subject);
     }
 
@@ -132,8 +147,126 @@ public sealed class LocalityCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Module 'module/lending' holds a dependency cycle: module/lending -> module/lending.", finding.Message);
+        Assert.Equal("Module 'module/lending' holds a dependency cycle: module/lending -> module/lending. The edges are: 'module/lending' declares 'dependsOn' 'module/lending'.", finding.Message);
         Assert.Equal("module/lending", finding.Subject);
+    }
+
+    /// <summary>Queries Cycle Reports.</summary>
+    /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
+    [Fact]
+    public void QueriesCycleReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "effects": [{"queries": "use-case/finance.read-fine", "timing": "inline"}]}"""),
+            TestModel.Record("use-case", "use-case/finance.read-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "read-fine.yaml"), """{"kind": "query", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module 'module/finance' holds a dependency cycle: module/finance -> module/lending -> module/finance. The edges are: 'module/finance' queries 'use-case/lending.read-loan'; 'module/lending' queries 'use-case/finance.read-fine'.", finding.Message);
+        Assert.Equal("module/finance", finding.Subject);
+    }
+
+    /// <summary>Contracts Reference Cycle Reports.</summary>
+    /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
+    [Fact]
+    public void ContractsReferenceCycleReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        WriteContractsProject(temp.Path, "Library.Lending.Contracts", "Library.Finance.Contracts");
+        WriteContractsProject(temp.Path, "Library.Finance.Contracts", "Library.Lending.Contracts");
+        WriteModulesConfig(temp.Path);
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module 'module/finance' holds a dependency cycle: module/finance -> module/lending -> module/finance. The edges are: 'module/finance' references the Contracts project of 'module/lending'; 'module/lending' references the Contracts project of 'module/finance'.", finding.Message);
+        Assert.Equal("module/finance", finding.Subject);
+    }
+
+    /// <summary>Trigger Cycle Reports.</summary>
+    /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
+    [Fact]
+    public void TriggerCycleReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module-events.yaml"), """{"summary": "A copy was lent."}"""),
+            TestModel.Record("module-event", "module-event/finance.fine-paid", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module-events.yaml"), """{"summary": "A fine was paid."}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-on-fine-paid", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "reactions.yaml"), """{"triggeredBy": ["module-event/finance.fine-paid"]}"""),
+            TestModel.Record("reaction", "reaction/finance.notify-on-loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "reactions.yaml"), """{"triggeredBy": ["module-event/lending.loan-borrowed"]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module 'module/finance' holds a dependency cycle: module/finance -> module/lending -> module/finance. The edges are: 'module/finance' reacts to 'module-event/lending.loan-borrowed'; 'module/lending' reacts to 'module-event/finance.fine-paid'.", finding.Message);
+        Assert.Equal("module/finance", finding.Subject);
+    }
+
+    /// <summary>Mixed DependsOn And Queries Cycle Names Each Edge.</summary>
+    /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
+    [Fact]
+    public void MixedDependsOnAndQueriesCycleNamesEachEdge()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": ["module/finance"]}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query"}"""),
+            TestModel.Record("use-case", "use-case/finance.read-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "read-fine.yaml"), """{"kind": "query", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module 'module/finance' holds a dependency cycle: module/finance -> module/lending -> module/finance. The edges are: 'module/finance' queries 'use-case/lending.read-loan'; 'module/lending' declares 'dependsOn' 'module/finance'.", finding.Message);
+        Assert.Equal("module/finance", finding.Subject);
+    }
+
+    /// <summary>One Way Queries Edge Passes.</summary>
+    /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
+    [Fact]
+    public void OneWayQueriesEdgePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query"}"""),
+            TestModel.Record("use-case", "use-case/finance.read-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "read-fine.yaml"), """{"kind": "query", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
+
+        Assert.DoesNotContain("module-dependency-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Writes one Contracts project referencing another Contracts project.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="project">The Contracts project folder name.</param>
+    /// <param name="referenced">The referenced Contracts project folder name.</param>
+    static void WriteContractsProject(string root, string project, string referenced)
+    {
+        var folder = Path.Combine(root, "apps", "api", "src", "Modules", project);
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, project + ".csproj"),
+            "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <ItemGroup>\n    <ProjectReference Include=\"../" + referenced + "/" + referenced + ".csproj\" />\n  </ItemGroup>\n</Project>\n");
+    }
+
+    /// <summary>Writes the project file declaring the two Contracts projects as the module roots.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    static void WriteModulesConfig(string root)
+    {
+        Directory.CreateDirectory(Path.Combine(root, ".litespec"));
+        File.WriteAllText(
+            Path.Combine(root, ".litespec", "project.yaml"),
+            """{"stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": ["apps/api/src/Modules/Library.Lending.Contracts", "apps/api/src/Modules/Library.Finance.Contracts"]}}}""");
     }
 
     /// <summary>Event With Two Publishers Reports.</summary>

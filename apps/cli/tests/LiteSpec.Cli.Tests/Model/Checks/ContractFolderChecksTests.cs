@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Checks.Implementation.Placement;
 using LiteSpec.Cli.Model.Configuration;
@@ -7,58 +8,151 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the module-event contract handling: Contracts/ModuleEvents/ is a Contracts kind folder, ModuleEvents is a placeless namespace segment, and a module-event contract record reads technical by its mark.</summary>
+/// <summary>Proves the Contracts closed set: aggregate folders with the identifier, facts and public query folders, no interface, no command, and each public query message at its Contracts path.</summary>
 public sealed class ContractFolderChecksTests
 {
-    /// <summary>A ModuleEvents Contracts Kind Folder Reports Nothing.</summary>
+    /// <summary>An Aggregate Folder With Identifier Facts And Public Query Reports Nothing.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void ModuleEventsContractsKindFolderReportsNothing()
+    public void AggregateFolderWithIdentifierFactsAndPublicQueryReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
-        var folder = ContractsFolder(temp.Path, "ModuleEvents");
-        Directory.CreateDirectory(folder);
-        File.WriteAllText(Path.Combine(folder, "ExpenseReimbursed.cs"), "namespace Library.Lending.Contracts.ModuleEvents;\n\npublic sealed record ExpenseReimbursed(Guid ExpenseId);\n");
+        var loans = ContractsFolder(temp.Path, "Loans");
+        Directory.CreateDirectory(loans);
+        File.WriteAllText(Path.Combine(loans, "LoanId.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic readonly record struct LoanId(Guid Value);\n");
+        File.WriteAllText(Path.Combine(loans, "LoanBorrowed.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic sealed record LoanBorrowed(Guid LoanId);\n");
+        var readLoan = Path.Combine(loans, "ReadLoan");
+        Directory.CreateDirectory(readLoan);
+        File.WriteAllText(Path.Combine(readLoan, "ReadLoanQuery.cs"), "namespace Library.Lending.Contracts.Loans.ReadLoan;\n\npublic sealed record ReadLoanQuery(Guid LoanId);\n");
+        File.WriteAllText(Path.Combine(readLoan, "ReadLoanResult.cs"), "namespace Library.Lending.Contracts.Loans.ReadLoan;\n\npublic sealed record ReadLoanResult(Guid LoanId);\n");
+        var readLedger = ContractsFolder(temp.Path, "ReadLedger");
+        Directory.CreateDirectory(readLedger);
+        File.WriteAllText(Path.Combine(readLedger, "ReadLedgerQuery.cs"), "namespace Library.Lending.Contracts.ReadLedger;\n\npublic sealed record ReadLedgerQuery();\n");
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>An Unknown Contracts Kind Folder Reports Drift.</summary>
+    /// <summary>An Unknown Contracts Folder Reports Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void UnknownContractsKindFolderReportsDrift()
+    public void UnknownContractsFolderReportsDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
         Directory.CreateDirectory(ContractsFolder(temp.Path, "DomainEvents"));
 
         var finding = Assert.Single(Run(model));
-        Assert.Contains("names no Contracts kind folder", finding.Message);
+        Assert.Contains("names no declared aggregate or public module-level query", finding.Message);
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>A File Directly In Contracts Beside ModuleEvents Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <summary>A Non Public Use Case Folder Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void FileDirectlyInContractsBesideModuleEventsReportsDrift()
+    public void NonPublicUseCaseFolderReportsDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
-        Directory.CreateDirectory(ContractsFolder(temp.Path, "ModuleEvents"));
-        File.WriteAllText(Path.Combine(ContractsFolder(temp.Path), "ExpenseContracts.cs"), "namespace Library.Lending.Contracts;\n\npublic static class ExpenseContracts\n{\n}\n");
+        var loans = ContractsFolder(temp.Path, "Loans");
+        Directory.CreateDirectory(loans);
+        Directory.CreateDirectory(Path.Combine(loans, "RetireCopy"));
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("which is no public query", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A File Directly In Contracts Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void FileDirectlyInContractsReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        Directory.CreateDirectory(ContractsFolder(temp.Path, "Loans"));
+        File.WriteAllText(Path.Combine(ContractsFolder(temp.Path), "LendingContracts.cs"), "namespace Library.Lending.Contracts;\n\npublic static class LendingContracts\n{\n}\n");
 
         var finding = Assert.Single(Run(model));
         Assert.Contains("sits directly in Contracts/", finding.Message);
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>ModuleEvents Between Expected Segments Matches.</summary>
+    /// <summary>An Interface In Contracts Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void InterfaceInContractsReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        var loans = ContractsFolder(temp.Path, "Loans");
+        Directory.CreateDirectory(loans);
+        File.WriteAllText(Path.Combine(loans, "ILoanReader.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic interface ILoanReader\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("sits in Contracts, which publishes data only", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A Command In Contracts Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void CommandInContractsReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        var loans = ContractsFolder(temp.Path, "Loans");
+        Directory.CreateDirectory(loans);
+        File.WriteAllText(Path.Combine(loans, "BorrowCopyCommand.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("holds a command; only public queries sit in Contracts", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A Public Query Message In The Module Project Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void PublicQueryMessageInModuleProjectReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        var useCase = Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Application", "Loans", "ReadLoan");
+        Directory.CreateDirectory(useCase);
+        File.WriteAllText(Path.Combine(useCase, "ReadLoanQuery.cs"), "namespace Library.Lending.Application.Loans.ReadLoan;\n\npublic sealed record ReadLoanQuery(Guid LoanId);\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("it belongs in 'Lending/Contracts/Loans/ReadLoan/'", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A Public Query Message In A Sibling Module Project Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void SiblingPublicQueryMessageReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        File.WriteAllText(
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": [\"apps/api/src/Modules/Library.Lending\", \"apps/api/src/Modules/Library.Lending.Contracts\"], \"kernel\": \"apps/api/src/Library.Kernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+        var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
+        AddLendingRecords(model, temp.Path);
+        var useCase = Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending", "Application", "Loans", "ReadLoan");
+        Directory.CreateDirectory(useCase);
+        File.WriteAllText(Path.Combine(useCase, "ReadLoanQuery.cs"), "namespace Library.Lending.Application.Loans.ReadLoan;\n\npublic sealed record ReadLoanQuery(Guid LoanId);\n");
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending.Contracts"));
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("it belongs in 'Library.Lending.Contracts/Loans/ReadLoan/'", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>Contracts Aggregate Between Expected Segments Matches.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void ModuleEventsBetweenExpectedSegmentsMatches()
+    public void ContractsAggregateBetweenExpectedSegmentsMatches()
     {
-        Assert.True(NamespacePlacement.NamespaceMatches(["Lending", "Contracts", "ModuleEvents", "Loans"], ["Lending", "Loans"]));
+        Assert.True(NamespacePlacement.NamespaceMatches(["Lending", "Contracts", "Loans"], ["Lending", "Loans"]));
     }
 
     /// <summary>An Unknown Folder Between Expected Segments Mismatches.</summary>
@@ -69,12 +163,12 @@ public sealed class ContractFolderChecksTests
         Assert.False(NamespacePlacement.NamespaceMatches(["Lending", "Contracts", "DomainEvents", "Loans"], ["Lending", "Loans"]));
     }
 
-    /// <summary>ModuleEvents Matching Ignores Case.</summary>
+    /// <summary>A ModuleEvents Folder Between Expected Segments Mismatches.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void ModuleEventsMatchingIgnoresCase()
+    public void ModuleEventsFolderBetweenExpectedSegmentsMismatches()
     {
-        Assert.True(NamespacePlacement.NamespaceMatches(["Lending", "Contracts", "moduleevents", "Loans"], ["Lending", "Loans"]));
+        Assert.False(NamespacePlacement.NamespaceMatches(["Lending", "Contracts", "ModuleEvents", "Loans"], ["Lending", "Loans"]));
     }
 
     /// <summary>A Module Event Contract Record Reads Technical.</summary>
@@ -84,8 +178,8 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("reader");
         WriteReaderProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "ModuleEvents"), "ExpenseReimbursed.cs", """
-            namespace Library.Spending.Contracts.ModuleEvents;
+        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "Expenses"), "ExpenseReimbursed.cs", """
+            namespace Library.Spending.Contracts.Expenses;
 
             /// <implements>module-event/spending.expense-reimbursed</implements>
             public sealed record ExpenseReimbursed(Guid ExpenseId);
@@ -128,8 +222,8 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("reader");
         WriteReaderProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "ModuleEvents"), "ExpenseContracts.cs", """
-            namespace Library.Spending.Contracts.ModuleEvents;
+        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "Expenses"), "ExpenseContracts.cs", """
+            namespace Library.Spending.Contracts.Expenses;
 
             public static class ExpenseContracts
             {
@@ -156,18 +250,56 @@ public sealed class ContractFolderChecksTests
         return findings.Where(finding => finding.Code == "code-placement-drift").ToList();
     }
 
-    /// <summary>A model with the modules root and the declared lending module.</summary>
+    /// <summary>A model with the modules root and the declared lending module, aggregate and use cases.</summary>
     /// <param name="root">The fixture root folder.</param>
-    /// <returns>The project model holding the module record.</returns>
+    /// <returns>The project model holding the records.</returns>
     static ProjectModel FolderModel(string root)
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"kernel\": \"apps/api/src/Library.Kernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
-        model.Records.Add(TestModel.Record("module", "module/lending", Path.Combine(root, ".litespec", "lending.yaml"), """{"summary": "Lending lends copies to readers."}"""));
+        AddLendingRecords(model, root);
 
         return model;
+    }
+
+    /// <summary>Adds the lending module, the loan aggregate, two public queries and one command to the model.</summary>
+    /// <param name="model">The project model receiving the records.</param>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    static void AddLendingRecords(ProjectModel model, string root)
+    {
+        model.Records.Add(Rec("module", "module/lending", "lending", "", """{"summary": "Lending lends copies to readers."}""", root));
+        model.Records.Add(Rec("aggregate", "aggregate/lending.loan", "lending", "aggregates/loans", """{"summary": "A lent copy."}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.read-loan", "lending", "aggregates/loans/use-cases/read-loan", """{"kind": "query", "reachedThrough": ["module/finance"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.read-ledger", "lending", "use-cases/read-ledger", """{"kind": "query", "reachedThrough": ["module/finance"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.retire-copy", "lending", "aggregates/loans/use-cases/retire-copy", """{"kind": "command"}""", root));
+    }
+
+    /// <summary>One record with its module and folder.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="id">The record id.</param>
+    /// <param name="module">The module name, or empty outside a module.</param>
+    /// <param name="under">The folder segments under the module folder, or empty.</param>
+    /// <param name="json">The record fields as a JSON object.</param>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <returns>The record.</returns>
+    static LiteSpec.Cli.Model.Records.Record Rec(string type, string id, string module, string under, string json, string root)
+    {
+        using var document = JsonDocument.Parse(json);
+        var folder = module.Length == 0 ? "" : $".litespec/behavior/modules/{module}" + (under.Length == 0 ? "" : "/" + under);
+
+        return new LiteSpec.Cli.Model.Records.Record
+        {
+            Type = type,
+            Id = id,
+            Folder = folder,
+            Module = module.Length == 0 ? null : module,
+            Title = id,
+            File = Path.Combine(root, ".litespec", "lending.yaml"),
+            Line = 1,
+            Raw = document.RootElement.Clone(),
+        };
     }
 
     /// <summary>One folder under the lending module Contracts folder.</summary>

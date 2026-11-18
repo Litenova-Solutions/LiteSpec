@@ -459,7 +459,7 @@ This is the practice known as event-carried state transfer, declared as a record
 
 **Strength:** required
 
-**Applies to:** artifact: port, command-handler
+**Applies to:** artifact: port, command-handler; when: cross-module
 
 **Statement:** A command whose decision needs another module's current value MUST ask for it through its port to the owning module, answered by the owning module's public query, with the use case declaring the edge in `effects.queries`.
 
@@ -477,7 +477,7 @@ It only reads: a change the caller needs in the owning module is a fact that mod
 
 **Strength:** required
 
-**Applies to:** artifact: port, command-handler, query-handler
+**Applies to:** artifact: port, command-handler, query-handler; when: cross-module
 
 **Statement:** A module MUST reach another module only through one port per provider module, named for the provider in `Ports/{Provider}/`, with one adapter in `Infrastructure/{Provider}/` that sends the provider's public queries.
 

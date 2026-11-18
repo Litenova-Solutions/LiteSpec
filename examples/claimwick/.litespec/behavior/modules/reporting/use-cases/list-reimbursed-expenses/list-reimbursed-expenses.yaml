@@ -59,8 +59,14 @@ paging:
   maxLimit: 100
 reads:
 - read-model/reporting.reimbursed-expense
+effects:
+- queries: use-case/spending.read-expense
+  timing: inline
 steps:
 - statement: Finance asks for the reimbursed expenses.
+  cites:
+  - read-model/reporting.reimbursed-expense
+- statement: Reporting confirms each reimbursed expense still exists in Spending before it lists the payout.
   cites:
   - read-model/reporting.reimbursed-expense
 - statement: Reporting returns one row per reimbursed expense newest first.

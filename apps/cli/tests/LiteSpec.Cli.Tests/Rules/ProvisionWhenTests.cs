@@ -36,7 +36,7 @@ public sealed class ProvisionWhenTests
 
         Assert.Equal(0, result.Status);
 
-        var conditional = ConditionalIds("query", "upload", "document-number", "erasure");
+        var conditional = ConditionalIds("query", "upload", "document-number", "erasure", "cross-module");
 
         Assert.NotEmpty(conditional);
 
@@ -132,6 +132,42 @@ public sealed class ProvisionWhenTests
         Assert.True(
             CollapsedCount(erasure.Output, "use-case/spending.erase-personal-data") > CollapsedCount(plain.Output, "use-case/spending.approve-expense"),
             "The erasure handler collapses its erasure provisions while the plain command leaves them out.");
+    }
+
+    /// <summary>A command whose use case declares a queries edge keeps the cross-module provisions.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesCrossModuleCommandKeepsCrossModuleProvisions()
+    {
+        using var root = CopyCrossModuleFixture(withQueries: true);
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("- litespec/backend/application#ask-another-module-one-question-through-a-decision-port:", result.Output);
+        Assert.Contains("- litespec/backend/application#reach-another-module-through-one-port-per-provider:", result.Output);
+        Assert.Contains("- litespec/backend/architecture#read-another-module-only-through-its-contracts:", result.Output);
+        Assert.Contains("- litespec/backend/architecture#send-only-queries-across-modules:", result.Output);
+    }
+
+    /// <summary>A command whose use case declares no queries edge omits the cross-module provisions.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesPlainCommandOmitsCrossModuleProvisions()
+    {
+        using var root = CopyCrossModuleFixture(withQueries: false);
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain("litespec/backend/application#ask-another-module-one-question-through-a-decision-port", result.Output);
+        Assert.DoesNotContain("litespec/backend/application#reach-another-module-through-one-port-per-provider", result.Output);
+        Assert.DoesNotContain("litespec/backend/architecture#read-another-module-only-through-its-contracts", result.Output);
+        Assert.DoesNotContain("litespec/backend/architecture#send-only-queries-across-modules", result.Output);
     }
 
     /// <summary>A record identifier prints conditional provisions with their condition shown.</summary>
@@ -290,6 +326,52 @@ public sealed class ProvisionWhenTests
             /// <summary>Renders the invoice choice.</summary>
             /// <follows>decision/0008-render-invoices-as-pdf</follows>
             internal sealed class InvoiceRenderer;
+            """);
+
+        return temp;
+    }
+
+    /// <summary>Copies the rules-basic fixture with a command use case and a handler marking it.</summary>
+    /// <param name="withQueries">Whether the use case declares a queries edge to another module's public query.</param>
+    /// <returns>The temporary consumer root.</returns>
+    static TempFolder CopyCrossModuleFixture(bool withQueries)
+    {
+        var source = TestCli.Fixture("rules-basic");
+        var temp = TestCli.Temp("rules-cross-module");
+
+        foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(temp.Path, Path.GetRelativePath(source, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target, overwrite: true);
+        }
+
+        var record = """
+            type: use-case
+            id: use-case/billing.reimburse-expense
+            title: Reimburse Expense
+            kind: command
+            """;
+
+        if (withQueries)
+        {
+            record += """
+
+                effects:
+                - queries: use-case/billing.read-invoice
+                  timing: inline
+                """;
+        }
+
+        AddFixtureFile(temp, ".litespec/behavior/invoicing/reimburse-expense.yaml", record);
+        AddFixtureFile(
+            temp,
+            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs",
+            """
+            namespace Demo.Billing.Invoicing.ReimburseExpense;
+
+            /// <implements>use-case/billing.reimburse-expense</implements>
+            internal sealed class ReimburseExpenseCommandHandler;
             """);
 
         return temp;

@@ -37,36 +37,36 @@ public sealed class PathContextTests
         Assert.Contains("concern: domain, artifact: repository", result.Output);
     }
 
-    /// <summary>A port file under a Ports folder derives the port artifact.</summary>
+    /// <summary>A public query message in a nested Contracts folder derives the use-case artifact.</summary>
     /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void RulesPortFileDerivesPortArtifact()
+    public void RulesContractsQueryFileDerivesUseCaseArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs", "interface IPayoutBank;\n");
+            "apps/api/src/Demo/Billing/Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", "sealed record ReadInvoiceQuery;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs");
+            "apps/api/src/Demo/Billing/Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("concern: application, artifact: port", result.Output);
+        Assert.Contains("concern: application, artifact: use-case", result.Output);
     }
 
-    /// <summary>A port file in a sibling Contracts project derives the application concern with the port artifact.</summary>
+    /// <summary>A public query message in a sibling Contracts project derives the application concern with the use-case artifact.</summary>
     /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void RulesSiblingContractsPortFileDerivesPortArtifact()
+    public void RulesSiblingContractsQueryFileDerivesUseCaseArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Modules/Demo.Billing.Contracts/Ports/IPayoutBank.cs", "interface IPayoutBank;\n");
+            "apps/api/src/Modules/Demo.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", "sealed record ReadInvoiceQuery;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Modules/Demo.Billing.Contracts/Ports/IPayoutBank.cs");
+            "apps/api/src/Modules/Demo.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("concern: application, artifact: port", result.Output);
+        Assert.Contains("concern: application, artifact: use-case", result.Output);
     }
 
     /// <summary>A port file in a module Ports folder derives the ports concern with the port artifact.</summary>

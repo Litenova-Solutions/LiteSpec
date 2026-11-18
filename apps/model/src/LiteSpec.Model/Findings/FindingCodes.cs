@@ -172,7 +172,7 @@ public static class FindingCodes
             "The effect graph contains a cycle that does not pass through a domain event with a stated end condition.",
             "Break the cycle, or route it through a domain event with a stated end condition."),
         new("module-dependency-invalid", "G", RecordLayer.Any, trace: false,
-            "Module `dependsOn` links form a cycle.",
+            "Module dependencies form a cycle, through `dependsOn` links, Contracts project references, `queries` edges or reaction triggers.",
             "Break the cycle so one module stops depending on the other."),
         new("link-locality-invalid", "G", RecordLayer.Any, trace: false,
             "Within one layer, a record in one module is linked from another module without a declared `dependsOn` link, a module event or an integration event.",
@@ -274,7 +274,7 @@ public static class FindingCodes
             "A handler, endpoint, event handler, job host, or aggregate root marks a use case, reaction, job, or aggregate outside the module folder it sits in, or a handler or endpoint marks a use case outside the use-case folder it sits in.",
             "Move the element to the folder its mark names, or point the mark at the record its folder holds."),
         new("code-placement-drift", "S", RecordLayer.Implementation, trace: false,
-            "A code element, test, or folder sits outside the code folder its record's placement names, a reaction or job sits outside the folder its effects name, a read model sits outside its Application ReadModels folder, a use case file sits in the wrong layer folder, or a folder names a record that is not declared.",
+            "A code element, test, or folder sits outside the code folder its record's placement names, a reaction or job sits outside the folder its effects name, a read model sits outside its Application ReadModels folder, a use case file sits in the wrong layer folder, a folder names a record that is not declared, or a Contracts project holds an interface, a command or a query outside its use case folder.",
             "Move the element to the folder its mark or effects name, or point the mark at the record its folder holds."),
         new("runtime-value-drift", "S", RecordLayer.Implementation, trace: true,
             "A hand-written event `Classification` or exception `Code` differs from what its record states.",
@@ -672,6 +672,12 @@ public static class FindingCodes
         new("guard-module-foreign", "G", RecordLayer.Behavior, trace: false,
             "A command guards on an aggregate of another module, whose rule cannot hold when the command commits.",
             "Decide the guard in the owning module, or compare owner-written timestamps instead of locking."),
+        new("query-target-invalid", "G", RecordLayer.Behavior, trace: false,
+            "A `queries` edge names a use case that is not a query, or a query whose `reachedThrough` does not name the calling module.",
+            "Query a query use case that lists the calling module in `reachedThrough`."),
+        new("query-consumer-missing", "G", RecordLayer.Behavior, trace: false,
+            "A use case names a module in `reachedThrough` that queries it from no record.",
+            "Query the use case from the module, or remove the module from `reachedThrough`."),
     ];
 
 

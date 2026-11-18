@@ -56,6 +56,10 @@ public sealed class BookLexiconTests
         Assert.Equal("sends", forward);
         Assert.Equal("is sent by", inverse);
 
+        Assert.True(lexicon.TryPhrase("use-case.effects.queries", "use-case", out forward, out inverse));
+        Assert.Equal("queries", forward);
+        Assert.Equal("is queried by", inverse);
+
         Assert.True(lexicon.TryPhrase("access.grant", "use-case", out forward, out inverse));
         Assert.Equal("is granted through", forward);
         Assert.Equal("grants", inverse);

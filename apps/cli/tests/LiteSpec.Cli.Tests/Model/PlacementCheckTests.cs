@@ -365,10 +365,11 @@ public sealed class PlacementCheckTests
         Assert.Contains(placed, finding => finding.Message.EndsWith("Lending/Jobs' names no module folder.", StringComparison.Ordinal));
     }
 
-    /// <summary>A Contracts Commands folder reports that it names no Contracts kind folder.</summary>
+    /// <summary>A Contracts Commands folder reports that it names no aggregate, and its command file reports too.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void ModuleLayoutContractsCommandsFolderReportsKindDrift()
+    public void ModuleLayoutContractsCommandsFolderReportsDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
@@ -377,10 +378,9 @@ public sealed class PlacementCheckTests
 
         var placed = Run(model);
 
-        // The command file is also a message outside its use case folder.
         Assert.Equal(2, placed.Count);
-        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Commands' names no Contracts kind folder.");
-        Assert.Contains(placed, finding => finding.Message.EndsWith("it belongs in 'Lending/Application/Loans/BorrowCopy'.", StringComparison.Ordinal));
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Commands' names no declared aggregate or public module-level query of module 'Lending'.");
+        Assert.Contains(placed, finding => finding.Message.EndsWith("holds a command; only public queries sit in Contracts.", StringComparison.Ordinal));
     }
 
     /// <summary>An aggregate WebApi folder reports that it names no Events or Exceptions folder.</summary>
@@ -928,10 +928,11 @@ public sealed class PlacementCheckTests
         Assert.Contains("Ports/CountryPack/", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>A cross-module port in its module contracts reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <summary>A port in its module contracts reports the Contracts folder and the interface.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void PortInModuleContractsReportsNothing()
+    public void PortInModuleContractsReportsDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
@@ -940,7 +941,11 @@ public sealed class PlacementCheckTests
         WriteSource(file, "namespace Library.Lending.Contracts.Ports;\n\npublic interface ITextGateway\n{\n}\n");
         model.Code.Elements.Add(Element(CodeKind.Port, "ITextGateway", file, "external-system/text-gateway"));
 
-        Assert.Empty(Run(model));
+        var placed = Run(model);
+
+        Assert.Equal(2, placed.Count);
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Ports' names no declared aggregate or public module-level query of module 'Lending'.");
+        Assert.Contains(placed, finding => finding.Message == "Interface 'ITextGateway' sits in Contracts, which publishes data only.");
     }
 
     /// <summary>An acceptance test flat under its module reports that it belongs in its aggregate folder.</summary>

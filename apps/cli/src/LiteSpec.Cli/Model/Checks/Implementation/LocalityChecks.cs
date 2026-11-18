@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Xml.Linq;
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -139,6 +141,15 @@ internal static class LocalityChecks
                         continue;
                     }
 
+                    // A public query lists its consumer modules in reachedThrough; the
+                    // consumer's queries edge and dependsOn carry the forward dependency,
+                    // so the back-link needs none.
+                    if (property.Name == RecordFields.ReachedThrough
+                        && target.Type == RecordTypes.Module)
+                    {
+                        continue;
+                    }
+
                     if (depends.TryGetValue(sourceModule, out var edges)
                         && edges.Contains(targetModule))
                     {
@@ -173,11 +184,45 @@ internal static class LocalityChecks
     private static void CheckCycles(ProjectModel model, List<Finding> findings)
     {
         var graph = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var edges = new Dictionary<(string From, string To), HashSet<string>>();
 
         foreach (var record in model.Records.Where(record => record.Type == RecordTypes.Module))
         {
-            var targets = new List<string>();
+            graph[record.Id] = [];
+        }
 
+        AddDependsOnEdges(model, graph, edges);
+        AddContractsReferenceEdges(model, graph, edges);
+        AddQueriesEdges(model, graph, edges);
+        AddTriggerEdges(model, graph, edges);
+
+        foreach (var targets in graph.Values)
+        {
+            targets.Sort(StringComparer.Ordinal);
+        }
+
+        var reported = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var start in graph.Keys.Order(StringComparer.Ordinal))
+        {
+            var path = new List<string> { start };
+            var inPath = new HashSet<string>(StringComparer.Ordinal) { start };
+
+            WalkCycle(model, graph, edges, start, path, inPath, reported, findings);
+        }
+    }
+
+    /// <summary>Adds one edge per declared module dependency.</summary>
+    /// <param name="model">The loaded project model that holds every module record.</param>
+    /// <param name="graph">The module graph by module identifier, receiving each target.</param>
+    /// <param name="edges">The edge labels by hop, receiving each label.</param>
+    private static void AddDependsOnEdges(
+        ProjectModel model,
+        Dictionary<string, List<string>> graph,
+        Dictionary<(string From, string To), HashSet<string>> edges)
+    {
+        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.Module))
+        {
             foreach (var depended in record.Ids(RecordFields.DependsOn))
             {
                 var baseId = Identifiers.BaseId(depended);
@@ -188,30 +233,271 @@ internal static class LocalityChecks
                     continue;
                 }
 
-                if (!targets.Contains(baseId, StringComparer.Ordinal))
-                {
-                    targets.Add(baseId);
-                }
+                AddEdge(graph, edges, record.Id, baseId, $"'{record.Id}' declares 'dependsOn' '{baseId}'");
+            }
+        }
+    }
+
+    /// <summary>Adds one edge per Contracts project reference to another module's Contracts project.</summary>
+    /// <param name="model">The loaded project model that holds every module record and the module roots.</param>
+    /// <param name="graph">The module graph by module identifier, receiving each target.</param>
+    /// <param name="edges">The edge labels by hop, receiving each label.</param>
+    private static void AddContractsReferenceEdges(
+        ProjectModel model,
+        Dictionary<string, List<string>> graph,
+        Dictionary<(string From, string To), HashSet<string>> edges)
+    {
+        foreach (var root in model.Config.ModulesRoots)
+        {
+            if (!Readers.Dotnet.SourceRoots.IsContractsProject(root)
+                || Readers.Dotnet.SourceRoots.ModuleNameOf(root) is not { Length: > 0 } owner
+                || ModuleIdOf(model, owner) is not { } from)
+            {
+                continue;
             }
 
-            targets.Sort(StringComparer.Ordinal);
-            graph[record.Id] = targets;
+            foreach (var referenced in ContractsReferences(root))
+            {
+                if (ModuleIdOf(model, referenced) is not { } to)
+                {
+                    continue;
+                }
+
+                AddEdge(graph, edges, from, to, $"'{from}' references the Contracts project of '{to}'");
+            }
         }
+    }
 
-        var reported = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var start in graph.Keys.Order(StringComparer.Ordinal))
+    /// <summary>The module identifier a folder name states: the declared module it spells with case, hyphens and underscores ignored.</summary>
+    /// <param name="model">The loaded project model that holds every module record.</param>
+    /// <param name="name">The folder name as written on disk.</param>
+    /// <returns>The module identifier, or null when no declared module spells it.</returns>
+    private static string? ModuleIdOf(ProjectModel model, string name)
+    {
+        foreach (var record in model.Records)
         {
-            var path = new List<string> { start };
-            var inPath = new HashSet<string>(StringComparer.Ordinal) { start };
+            if (record.Type != RecordTypes.Module)
+            {
+                continue;
+            }
 
-            WalkCycle(model, graph, start, path, inPath, reported, findings);
+            if (Identifiers.TrySplit(record.Id, out _, out _, out var idName)
+                && Placement.PlacementPath.SameName(idName, name))
+            {
+                return record.Id;
+            }
         }
+
+        return null;
+    }
+
+    /// <summary>The modules whose Contracts project the Contracts project references.</summary>
+    /// <param name="contracts">The Contracts project root.</param>
+    /// <returns>Each owner module name of a referenced Contracts project, once.</returns>
+    private static HashSet<string> ContractsReferences(string contracts)
+    {
+        var referenced = new HashSet<string>(StringComparer.Ordinal);
+        List<string> projects;
+
+        try
+        {
+            if (!Directory.Exists(contracts))
+            {
+                return referenced;
+            }
+
+            projects = Directory.EnumerateFiles(contracts, "*.csproj", SearchOption.TopDirectoryOnly)
+                .Order(StringComparer.Ordinal)
+                .ToList();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return referenced;
+        }
+
+        foreach (var project in projects)
+        {
+            System.Xml.Linq.XDocument document;
+
+            try
+            {
+                document = System.Xml.Linq.XDocument.Load(project);
+            }
+            catch (Exception exception) when (exception is System.Xml.XmlException or IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            var folder = Path.GetDirectoryName(project) ?? project;
+
+            foreach (var element in document.Descendants())
+            {
+                if (!string.Equals(element.Name.LocalName, "ProjectReference", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var include = element.Attribute("Include")?.Value;
+
+                if (include is not { Length: > 0 })
+                {
+                    continue;
+                }
+
+                string? target;
+
+                try
+                {
+                    target = Path.GetFileName(Path.GetDirectoryName(
+                        Path.GetFullPath(Path.Combine(folder, include.Replace('\\', Path.DirectorySeparatorChar)))));
+                }
+                catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
+                {
+                    continue;
+                }
+
+                if (target is { Length: > 0 }
+                    && Readers.Dotnet.SourceRoots.IsContractsProject(Path.Combine(folder, target))
+                    && Readers.Dotnet.SourceRoots.ModuleNameOf(Path.Combine(folder, target)) is { Length: > 0 } module)
+                {
+                    referenced.Add(module);
+                }
+            }
+        }
+
+        return referenced;
+    }
+
+    /// <summary>Adds one edge per queries edge from a record in one module to a use case in another.</summary>
+    /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
+    /// <param name="graph">The module graph by module identifier, receiving each target.</param>
+    /// <param name="edges">The edge labels by hop, receiving each label.</param>
+    private static void AddQueriesEdges(
+        ProjectModel model,
+        Dictionary<string, List<string>> graph,
+        Dictionary<(string From, string To), HashSet<string>> edges)
+    {
+        foreach (var holder in model.Records.Where(record =>
+            !record.Derived && record.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job))
+        {
+            if (ModuleOf(model, holder) is not { Length: > 0 } from
+                || ModuleIdOf(model, from) is not { } source)
+            {
+                continue;
+            }
+
+            foreach (var target in holder.EdgeIds(RecordFields.Queries))
+            {
+                if (!model.ById.TryGetValue(Identifiers.BaseId(target), out var resolved)
+                    || resolved.Type != RecordTypes.UseCase
+                    || ModuleOf(model, resolved) is not { Length: > 0 } to
+                    || to.Equals(from, StringComparison.Ordinal)
+                    || ModuleIdOf(model, to) is not { } provider)
+                {
+                    continue;
+                }
+
+                AddEdge(graph, edges, source, provider, $"'{source}' queries '{resolved.Id}'");
+            }
+        }
+    }
+
+    /// <summary>Adds one edge per reaction triggered by a fact another module owns.</summary>
+    /// <param name="model">The loaded project model that holds every reaction and published fact.</param>
+    /// <param name="graph">The module graph by module identifier, receiving each target.</param>
+    /// <param name="edges">The edge labels by hop, receiving each label.</param>
+    private static void AddTriggerEdges(
+        ProjectModel model,
+        Dictionary<string, List<string>> graph,
+        Dictionary<(string From, string To), HashSet<string>> edges)
+    {
+        var publishers = PublishersByEvent(model);
+
+        foreach (var reaction in model.Records.Where(record => !record.Derived && record.Type == RecordTypes.Reaction))
+        {
+            if (ModuleOf(model, reaction) is not { Length: > 0 } from
+                || ModuleIdOf(model, from) is not { } source)
+            {
+                continue;
+            }
+
+            foreach (var trigger in reaction.Ids(RecordFields.TriggeredBy))
+            {
+                if (!model.ById.TryGetValue(Identifiers.BaseId(trigger), out var fact)
+                    || fact.Type is not (RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent))
+                {
+                    continue;
+                }
+
+                foreach (var owner in OwnerModulesOf(model, fact, publishers))
+                {
+                    if (owner.Equals(from, StringComparison.Ordinal)
+                        || ModuleIdOf(model, owner) is not { } provider)
+                    {
+                        continue;
+                    }
+
+                    AddEdge(graph, edges, source, provider, $"'{source}' reacts to '{fact.Id}'");
+                }
+            }
+        }
+    }
+
+    /// <summary>The modules owning a published fact: its module folder, else its publishing modules.</summary>
+    /// <param name="model">The loaded project model that resolves the fact's module folder.</param>
+    /// <param name="fact">The module event or integration event whose owners are wanted.</param>
+    /// <param name="publishers">The publishing modules by published event identifier.</param>
+    /// <returns>Each owner module name, once.</returns>
+    private static HashSet<string> OwnerModulesOf(
+        ProjectModel model, Record fact, Dictionary<string, HashSet<string>> publishers)
+    {
+        if (ModuleOf(model, fact) is { Length: > 0 } folder)
+        {
+            return [folder];
+        }
+
+        return publishers.TryGetValue(fact.Id, out var owned)
+            ? new HashSet<string>(owned, StringComparer.Ordinal)
+            : [];
+    }
+
+    /// <summary>Adds one labeled hop to the module graph.</summary>
+    /// <param name="graph">The module graph by module identifier, receiving the target.</param>
+    /// <param name="edges">The edge labels by hop, receiving the label.</param>
+    /// <param name="from">The source module identifier.</param>
+    /// <param name="to">The target module identifier.</param>
+    /// <param name="label">The edge label naming the hop.</param>
+    private static void AddEdge(
+        Dictionary<string, List<string>> graph,
+        Dictionary<(string From, string To), HashSet<string>> edges,
+        string from,
+        string to,
+        string label)
+    {
+        if (!graph.TryGetValue(from, out var targets))
+        {
+            targets = [];
+            graph[from] = targets;
+        }
+
+        if (!targets.Contains(to, StringComparer.Ordinal))
+        {
+            targets.Add(to);
+        }
+
+        if (!edges.TryGetValue((from, to), out var labels))
+        {
+            labels = new HashSet<string>(StringComparer.Ordinal);
+            edges[(from, to)] = labels;
+        }
+
+        labels.Add(label);
     }
 
     /// <summary>Walks the module graph depth-first from one node, reporting each loop back to the start.</summary>
     /// <param name="model">The loaded project model that resolves each module in a found cycle.</param>
     /// <param name="graph">The module graph by module identifier.</param>
+    /// <param name="edges">The edge labels by hop.</param>
     /// <param name="current">The node the walk stands on.</param>
     /// <param name="path">The nodes on the current walk, starting with the start node.</param>
     /// <param name="inPath">The nodes on the current walk, for constant-time membership.</param>
@@ -220,6 +506,7 @@ internal static class LocalityChecks
     private static void WalkCycle(
         ProjectModel model,
         Dictionary<string, List<string>> graph,
+        Dictionary<(string From, string To), HashSet<string>> edges,
         string current,
         List<string> path,
         HashSet<string> inPath,
@@ -235,25 +522,30 @@ internal static class LocalityChecks
         {
             if (next == path[0] && path.Count >= 1)
             {
-                ReportCycle(model, path, reported, findings);
+                ReportCycle(model, path, edges, reported, findings);
             }
             else if (inPath.Add(next))
             {
                 path.Add(next);
-                WalkCycle(model, graph, next, path, inPath, reported, findings);
+                WalkCycle(model, graph, edges, next, path, inPath, reported, findings);
                 path.RemoveAt(path.Count - 1);
                 inPath.Remove(next);
             }
         }
     }
 
-    /// <summary>Reports one found module cycle once, in canonical order starting at the smallest identifier.</summary>
+    /// <summary>Reports one found module cycle once, in canonical order starting at the smallest identifier, naming the edges that close it.</summary>
     /// <param name="model">The loaded project model that resolves the module holding the cycle.</param>
     /// <param name="path">The nodes on the walk that closes the cycle.</param>
+    /// <param name="edges">The edge labels by hop.</param>
     /// <param name="reported">The cycle keys already reported, so each cycle reports once.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportCycle(
-        ProjectModel model, List<string> path, HashSet<string> reported, List<Finding> findings)
+        ProjectModel model,
+        List<string> path,
+        Dictionary<(string From, string To), HashSet<string>> edges,
+        HashSet<string> reported,
+        List<Finding> findings)
     {
         var turn = path.IndexOf(path.Min(StringComparer.Ordinal)!);
         var rotated = path.Skip(turn).Concat(path.Take(turn)).ToList();
@@ -265,10 +557,22 @@ internal static class LocalityChecks
         }
 
         var holder = model.ById[rotated[0]];
+        var hops = new List<string>();
+
+        for (var at = 0; at < rotated.Count; at++)
+        {
+            var from = rotated[at];
+            var to = rotated[(at + 1) % rotated.Count];
+
+            if (edges.TryGetValue((from, to), out var labels))
+            {
+                hops.AddRange(labels.Order(StringComparer.Ordinal));
+            }
+        }
 
         findings.Add(new Finding(
             "module-dependency-invalid",
-            $"Module '{holder.Id}' holds a dependency cycle: {key} -> {rotated[0]}.",
+            $"Module '{holder.Id}' holds a dependency cycle: {key} -> {rotated[0]}. The edges are: {string.Join("; ", hops)}.",
             holder.File,
             holder.Line,
             SubjectOf(holder)));
@@ -284,6 +588,48 @@ internal static class LocalityChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</follows>
     private static void CheckPublishers(ProjectModel model, List<Finding> findings)
+    {
+        var publishers = PublishersByEvent(model);
+
+        foreach (var eventId in publishers.Keys.Order(StringComparer.Ordinal))
+        {
+            var modules = publishers[eventId].Order(StringComparer.Ordinal).ToList();
+            var holder = model.ById[eventId];
+            var label = holder.Type == RecordTypes.ModuleEvent ? "Module event" : "Integration event";
+
+            if (modules.Count > 1)
+            {
+                var listed = string.Join(", ", modules.Select(module => $"'module/{module}'"));
+
+                findings.Add(new Finding(
+                    "event-publisher-invalid",
+                    $"{label} '{holder.Id}' is published from {modules.Count} modules: {listed}.",
+                    holder.File,
+                    holder.Line,
+                    SubjectOf(holder)));
+
+                continue;
+            }
+
+            if (holder.Type == RecordTypes.ModuleEvent && modules.Count == 1
+                && Identifiers.TrySplit(holder.Id, out _, out var home, out _)
+                && home is { Length: > 0 }
+                && modules[0] != home)
+            {
+                findings.Add(new Finding(
+                    "event-publisher-invalid",
+                    $"Module event '{holder.Id}' is published from module '{modules[0]}' instead of its own module '{home}'.",
+                    holder.File,
+                    holder.Line,
+                    SubjectOf(holder)));
+            }
+        }
+    }
+
+    /// <summary>The publishing modules by published event identifier: the modules of the use cases raising the domain event the fact translates.</summary>
+    /// <param name="model">The loaded project model that holds every module event, integration event and use case.</param>
+    /// <returns>Each published event identifier with its publishing module names.</returns>
+    private static Dictionary<string, HashSet<string>> PublishersByEvent(ProjectModel model)
     {
         var publishers = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var translators = new Dictionary<string, List<string>>(StringComparer.Ordinal);
@@ -333,39 +679,7 @@ internal static class LocalityChecks
             }
         }
 
-        foreach (var eventId in publishers.Keys.Order(StringComparer.Ordinal))
-        {
-            var modules = publishers[eventId].Order(StringComparer.Ordinal).ToList();
-            var holder = model.ById[eventId];
-            var label = holder.Type == RecordTypes.ModuleEvent ? "Module event" : "Integration event";
-
-            if (modules.Count > 1)
-            {
-                var listed = string.Join(", ", modules.Select(module => $"'module/{module}'"));
-
-                findings.Add(new Finding(
-                    "event-publisher-invalid",
-                    $"{label} '{holder.Id}' is published from {modules.Count} modules: {listed}.",
-                    holder.File,
-                    holder.Line,
-                    SubjectOf(holder)));
-
-                continue;
-            }
-
-            if (holder.Type == RecordTypes.ModuleEvent && modules.Count == 1
-                && Identifiers.TrySplit(holder.Id, out _, out var home, out _)
-                && home is { Length: > 0 }
-                && modules[0] != home)
-            {
-                findings.Add(new Finding(
-                    "event-publisher-invalid",
-                    $"Module event '{holder.Id}' is published from module '{modules[0]}' instead of its own module '{home}'.",
-                    holder.File,
-                    holder.Line,
-                    SubjectOf(holder)));
-            }
-        }
+        return publishers;
     }
 
     /// <summary>The declared module dependencies by module name.</summary>

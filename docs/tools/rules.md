@@ -28,6 +28,7 @@ A provision applies when its scope meets the target. An artifact-scoped provisio
 - `upload` for a use case taking a file from the caller.
 - `document-number` for a use case issuing a legal document number.
 - `erasure` for a use case or job erasing personal data.
+- `cross-module` for a use case, reaction or job declaring a `queries` edge to another module's public query.
 - `audit-adoption` for the decision the audit extension selection names in its `decision` field.
 - `project` meets no record, so a project provision never returns on a code path.
 
@@ -126,6 +127,6 @@ litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Infras
 
 The command reads the provisions, with each provision's layer, trace and verification mark, from the generated `docs/reference/provisions.json` in the carried release when it exists, and parses the standards pages themselves otherwise, so it works with or without the generated file. The claimed layers come from `.litespec/project.yaml` through the consumer configuration the model builder reads. The applied pages and provisions resolve through the manifest's stack folders, shape pages, and selected extensions, the same selection `litespec model check` enforces. Project conventions come from `.litespec/governance/conventions/` and waiver records from the waivers folders under `.litespec/governance/`.
 
-Each `when` condition is evaluated against the marked record file: the use-case kind for `query` and `command`, a caller input naming a file for upload (file, upload, photo, image, picture, attachment, receipt, scan, pdf or document, without naming a number), an invoice, payout, reimbursement, voucher, document number or legal number for document-number, erasure, pseudonymizing or anonymizing for erasure, and the decision the audit selection in `.litespec/project.yaml` names in its `decision` field for audit-adoption. Project holds for no record. The Decided group reads each followed decision's `choice` and `reopenedWhen` from its record file.
+Each `when` condition is evaluated against the marked record file: the use-case kind for `query` and `command`, a caller input naming a file for upload (file, upload, photo, image, picture, attachment, receipt, scan, pdf or document, without naming a number), an invoice, payout, reimbursement, voucher, document number or legal number for document-number, erasure, pseudonymizing or anonymizing for erasure, a `queries` edge to another module's public query for cross-module, and the decision the audit selection in `.litespec/project.yaml` names in its `decision` field for audit-adoption. Project holds for no record. The Decided group reads each followed decision's `choice` and `reopenedWhen` from its record file.
 
 Change-set mode runs the git reading `model check --since` uses. Identifier lookup reads every provision from the carried provisions file without selection filtering, so it works offline. Nothing beneath this command is separately runnable.

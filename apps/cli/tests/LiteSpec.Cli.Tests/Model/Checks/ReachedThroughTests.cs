@@ -34,4 +34,30 @@ public sealed class ReachedThroughTests
         Assert.DoesNotContain(Checker.Check(model).Findings, finding =>
             finding.Code == "record-invalid" && finding.Message.Contains("has no reachedThrough", StringComparison.Ordinal));
     }
+
+    /// <summary>Use Case Reached Only Through Modules States No Exposure.</summary>
+    /// <proves>litespec/core/use-cases#state-the-exposure-of-every-use-case</proves>
+    [Fact]
+    public void UseCaseReachedOnlyThroughModulesStatesNoExposure()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+
+        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "exposure-missing");
+    }
+
+    /// <summary>Use Case Reached Through Entry Point States Exposure.</summary>
+    /// <proves>litespec/core/use-cases#state-the-exposure-of-every-use-case</proves>
+    [Fact]
+    public void UseCaseReachedThroughEntryPointStatesExposure()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/web"]}"""));
+
+        Assert.Contains(Checker.Check(model).Findings, finding => finding.Code == "exposure-missing");
+    }
 }

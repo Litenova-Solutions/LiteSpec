@@ -25,20 +25,6 @@ public sealed class ModuleLayoutReaderTests
         Assert.Equal(CodeKind.Handler, element.Kind);
     }
 
-    /// <summary>A marked interface under Contracts reads as a port.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
-    [Fact]
-    public void InterfaceInContractsReadsAsPort()
-    {
-        using var temp = TestCli.Temp("readers");
-        WriteModuleProject(temp.Path);
-        var code = ReadBackend(temp.Path);
-
-        var element = Assert.Single(code.Elements, element => element.Class == "ITextGateway");
-
-        Assert.Equal(CodeKind.Port, element.Kind);
-    }
-
     /// <summary>A marked interface in a module Ports folder reads as a port.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
@@ -102,7 +88,7 @@ public sealed class ModuleLayoutReaderTests
         WriteModuleProject(temp.Path);
         var config = ConsumerConfig.Load(temp.Path);
 
-        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Contracts", "Ports", "ITextGateway.cs")));
+        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Contracts", "Loans", "LoanBorrowed.cs")));
         Assert.Equal("Ports", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Ports", "PayoutBank", "IPayoutBank.cs")));
         Assert.Equal("Domain", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Domain", "Loans", "LoanPricing.cs")));
         Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs")));
@@ -178,13 +164,11 @@ public sealed class ModuleLayoutReaderTests
             {
             }
             """);
-        WriteSource(ProductFile(root, "Lending", "Contracts", "Ports", "ITextGateway.cs"), """
-            namespace Library.Lending.Contracts.Ports;
+        WriteSource(ProductFile(root, "Lending", "Contracts", "Loans", "LoanBorrowed.cs"), """
+            namespace Library.Lending.Contracts.Loans;
 
-            /// <implements>external-system/lending.text-gateway</implements>
-            public interface ITextGateway
-            {
-            }
+            /// <implements>module-event/lending.loan-borrowed</implements>
+            public sealed record LoanBorrowed(Guid LoanId);
             """);
         WriteSource(ProductFile(root, "Lending", "Ports", "PayoutBank", "IPayoutBank.cs"), """
             namespace Library.Lending.Ports.PayoutBank;

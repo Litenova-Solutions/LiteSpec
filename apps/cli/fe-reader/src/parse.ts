@@ -257,11 +257,13 @@ export function collectGotoNames(sourceFile: ts.SourceFile): Set<string> {
   return names;
 }
 
-// The navigation target of a JSX anchor or form opening: the `href` or
-// `action` attribute initializer, or null for any other tag or attribute.
+// The navigation target of a JSX anchor, link, button or form opening: the
+// `href` or `action` attribute initializer, or null for any other tag or
+// attribute. A `Link` or `Button` component counts like an anchor.
 function jsxNavigationTarget(opening: ts.JsxOpeningLikeElement): ts.Expression | null {
   if (!ts.isIdentifier(opening.tagName)) return null;
-  const wanted = opening.tagName.text === "a" ? "href" : opening.tagName.text === "form" ? "action" : null;
+  const tag = opening.tagName.text;
+  const wanted = tag === "a" || tag === "Link" || tag === "Button" ? "href" : tag === "form" ? "action" : null;
   if (wanted === null) return null;
   for (const attribute of opening.attributes.properties) {
     if (!ts.isJsxAttribute(attribute) || !ts.isIdentifier(attribute.name) || attribute.name.text !== wanted) continue;
@@ -277,8 +279,9 @@ function jsxNavigationTarget(opening: ts.JsxOpeningLikeElement): ts.Expression |
 // Every full-page navigation of a source in source order: an assignment to a
 // location `href`, a `location.assign` or `location.replace` call, a call to a
 // `goto` imported from SvelteKit's navigation module, and a literal `href` on
-// an anchor or `action` on a form. Only literal paths or template literals
-// with a literal path prefix count; anything dynamic is never a navigation.
+// an anchor, `Link` or `Button`, or `action` on a form. Only literal paths or
+// template literals with a literal path prefix count; anything dynamic is
+// never a navigation.
 export function collectNavigations(sourceFile: ts.SourceFile, lineOffset: number, gotoNames: Set<string>): NavigationSite[] {
   const navigations: NavigationSite[] = [];
   const push = (target: ts.Expression | null, node: ts.Node): void => {
@@ -412,12 +415,12 @@ function expressionTagPath(expression: unknown): string | null {
 }
 
 // The leading static text of a Svelte attribute value: the Text data before
-// any expression, or the literal the single expression holds. A value
-// starting with a dynamic expression is never a navigation.
+// any expression, or the literal the single expression holds. A lone value in
+// braces arrives unwrapped, so it reads like the first entry of a list. A
+// value starting with a dynamic expression is never a navigation.
 function svelteAttributePath(value: unknown): string | null {
-  if (!Array.isArray(value) || value.length === 0) return null;
-  const first = value[0];
-  if (!isRecord(first)) return null;
+  const first = Array.isArray(value) ? value[0] : value;
+  if (first === undefined || !isRecord(first)) return null;
   if (first["type"] === "Text") {
     const data = first["data"];
     return typeof data === "string" ? data : null;
@@ -427,9 +430,10 @@ function svelteAttributePath(value: unknown): string | null {
 }
 
 // Every markup navigation of a Svelte fragment in document order: a literal
-// `href` on an anchor or `action` on a form. Only literal paths or template
-// literals with a literal path prefix count; anything dynamic is never a
-// navigation. The walk visits every nested node once, whatever block holds it.
+// `href` on an anchor or a `Button` component, or `action` on a form. Only
+// literal paths or template literals with a literal path prefix count;
+// anything dynamic is never a navigation. The walk visits every nested node
+// once, whatever block holds it.
 export function collectSvelteMarkupNavigations(fragment: unknown, text: string): NavigationSite[] {
   const navigations: NavigationSite[] = [];
   const seen = new Set<object>();
@@ -440,8 +444,10 @@ export function collectSvelteMarkupNavigations(fragment: unknown, text: string):
     }
     if (!isRecord(node) || seen.has(node)) return;
     seen.add(node);
-    if (node["type"] === "RegularElement" && (node["name"] === "a" || node["name"] === "form")) {
-      const wanted = node["name"] === "a" ? "href" : "action";
+    const isLink = node["type"] === "RegularElement" && (node["name"] === "a" || node["name"] === "form");
+    const isButton = node["type"] === "Component" && node["name"] === "Button";
+    if (isLink || isButton) {
+      const wanted = node["name"] === "form" ? "action" : "href";
       const attributes = node["attributes"];
       if (Array.isArray(attributes)) {
         for (const attribute of attributes) {

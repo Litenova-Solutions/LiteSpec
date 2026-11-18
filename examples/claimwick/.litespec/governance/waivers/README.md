@@ -11,5 +11,11 @@
 | [Export Expenses Unexposed](export-expenses-unexposed/export-expenses-unexposed.yaml) | - | 2027-06-01 | `use-case-endpoint-missing` | `use-case/spending.export-expenses` |
 | [Export Expenses Unimplemented](export-expenses-unimplemented/export-expenses-unimplemented.yaml) | - | 2027-06-01 | `use-case-unimplemented` | `use-case/spending.export-expenses` |
 | [Reimbursed List Unserved](reimbursed-list-unserved/reimbursed-list-unserved.yaml) | - | 2027-06-01 | `use-case-flow-missing` | `use-case/reporting.list-reimbursed-expenses` |
-| [Use Cases Unverified](use-cases-unverified/use-cases-unverified.yaml) | - | 2027-06-01 | `use-case-unverified` | `use-case/reporting.list-reimbursed-expenses`, `use-case/spending.approve-expense`, `use-case/spending.attach-receipt`, `use-case/spending.change-receipt-threshold`, `use-case/spending.change-reminder-preference`, `use-case/spending.erase-personal-data`, `use-case/spending.export-expenses`, `use-case/spending.list-expenses`, `use-case/spending.refuse-expense`, `use-case/spending.reimburse-expense`, `use-case/spending.submit-expense` |
+| [Use Cases Unverified](use-cases-unverified/use-cases-unverified.yaml) | - | 2027-06-01 | `use-case-unverified` | `use-case/reporting.list-reimbursed-expenses`, `use-case/spending.approve-expense`, `use-case/spending.attach-receipt`, `use-case/spending.change-receipt-threshold`, `use-case/spending.change-reminder-preference`, `use-case/spending.erase-personal-data`, `use-case/spending.export-expenses`, `use-case/spending.list-expenses`, `use-case/spending.read-expense`, `use-case/spending.refuse-expense`, `use-case/spending.reimburse-expense`, `use-case/spending.submit-expense` |
+
+### Lasting
+
+| Waiver | Module | Covers | Consequences |
+|:---|:---|:---|:---|
+| [Read Expense Unserved](read-expense-unserved/read-expense-unserved.yaml) | - | `use-case-flow-missing` | No flow shows the query, so a reader finds its caller through the queries edge on the reporting list. |
 <!-- /generated:waiver-index -->

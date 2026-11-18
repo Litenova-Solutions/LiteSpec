@@ -118,10 +118,10 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Empty(Run(model));
     }
 
-    /// <summary>A rule exception in its module Contracts folder reports that Contracts holds no Exceptions kind folder.</summary>
+    /// <summary>A rule exception in its module Contracts folder reports that the folder names no declared aggregate.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void RuleExceptionInModuleContractsReportsKindFolderDrift()
+    public void RuleExceptionInModuleContractsReportsFolderDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
@@ -129,7 +129,7 @@ public sealed class PlacementDriftModuleLayoutTests
         WriteCode(file, "Library.Lending.Contracts.Exceptions", "LoanNotFoundException");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
 
-        Assert.Contains(Run(model), finding => finding.Message.Contains("names no Contracts kind folder", StringComparison.Ordinal));
+        Assert.Contains(Run(model), finding => finding.Message.Contains("names no declared aggregate or public module-level query", StringComparison.Ordinal));
     }
 
     /// <summary>A product rule exception in the Kernel reports nothing, wherever its record file sits.</summary>
@@ -196,9 +196,9 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Contracts", "IntegrationEvents", "LoanBorrowedEvent.cs");
-        WriteCode(file, "Library.Lending.Contracts.IntegrationEvents", "LoanBorrowedEvent");
-        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "domain-event/loan.loan-borrowed"));
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "Loans", "LoanBorrowed.cs");
+        WriteCode(file, "Library.Lending.Contracts.Loans", "LoanBorrowed");
+        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowed", file, "domain-event/loan.loan-borrowed"));
 
         Assert.Empty(Run(model));
     }
@@ -370,10 +370,10 @@ public sealed class PlacementDriftModuleLayoutTests
         };
     }
 
-    /// <summary>A file directly in a module Contracts folder reports the kind folders.</summary>
+    /// <summary>A file directly in a module Contracts folder reports the aggregate folders.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void FileDirectlyInContractsReportsContractsKindFolders()
+    public void FileDirectlyInContractsReportsDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
@@ -383,11 +383,11 @@ public sealed class PlacementDriftModuleLayoutTests
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only its kind folders.", finding.Message);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only one folder per aggregate and public module-level query.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>The Contracts project file in a module Contracts folder reports nothing, while a type beside it still reports the kind folders.</summary>
+    /// <summary>The Contracts project file in a module Contracts folder reports nothing, while a type beside it still reports the aggregate folders.</summary>
     /// <proves>litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
     [Fact]
     public void ContractsProjectFileReportsNothing()
@@ -403,7 +403,7 @@ public sealed class PlacementDriftModuleLayoutTests
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only its kind folders.", finding.Message);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only one folder per aggregate and public module-level query.", finding.Message);
     }
 
     /// <summary>A nested model and a row in a use case WebApi folder report nothing, a handler there still reports, and a row in Application stays a result part.</summary>

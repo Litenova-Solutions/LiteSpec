@@ -4,6 +4,7 @@ excludes:
 - The request-expense permission does not cover approving or refusing an expense.
 - The post-reimbursement permission does not cover exporting approved expenses.
 - The list-expenses permission reads expenses and changes none of them.
+- The read-expense permission reads one expense and changes none of them.
 - The manage-reminder-preference permission does not let a manager change another preference.
 - The remove-personal-data permission does not remove the expense.
 records:
@@ -43,3 +44,7 @@ records:
   meaning: The right to erase the personal data of a decided expense.
   risk:
   - personal-data
+- type: permission
+  id: permission/read-expense
+  title: Read Expense
+  meaning: The right to read one expense with its current state.

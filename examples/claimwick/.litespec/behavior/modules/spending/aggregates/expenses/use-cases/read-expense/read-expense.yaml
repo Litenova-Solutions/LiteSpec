@@ -1,0 +1,81 @@
+type: use-case
+id: use-case/spending.read-expense
+title: Read Expense
+summary: Spending returns one expense with its current state so a calling module can confirm the expense before it uses its own copy.
+exposure: The reporting module reaches this query in process when finance lists the reimbursed expenses. The caller holds the read-expense permission, so only finance staff listing payouts read another employee's expense.
+kind: query
+access:
+  grant: permission/read-expense
+  tenant: own
+fulfills:
+- requirement/approval.reimbursed-expenses-listed
+reachedThrough:
+- module/reporting
+raises: []
+input:
+- name: expense
+  meaning: The expense to read.
+  type: id
+  identifies: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+output:
+  include:
+    expense:
+      fields:
+      - name: expenseId
+        meaning: The read expense.
+        type: id
+        identifies: aggregate/spending.expense
+      - name: state
+        meaning: The latest lifecycle state of the expense.
+        type: text
+      classification: internal
+      reads:
+      - aggregate/spending.expense
+      freshness:
+        mode: immediate
+paging:
+  mode: none
+  reason: one expense answers the query
+reads:
+- aggregate/spending.expense
+steps:
+- statement: Reporting names one expense.
+  cites:
+  - aggregate/spending.expense
+- statement: Spending returns the expense with its current state.
+  cites:
+  - result/read-expense.read
+  - aggregate/spending.expense
+- statement: Spending answers that no expense matches when the identity is unknown.
+  cites:
+  - result/read-expense.unknown
+records:
+- type: result
+  id: result/read-expense.read
+  title: Read
+  outcome: success
+  meaning: The expense is read.
+- type: result
+  id: result/read-expense.unknown
+  title: Unknown
+  outcome: success
+  meaning: No expense answers the identity.
+- type: scenario
+  id: scenario/read-expense.reading-a-reimbursed-expense-succeeds
+  title: Reading a Reimbursed Expense Succeeds
+  given: Finance reimbursed an expense.
+  when: Reporting reads the expense.
+  then: The expense is read with its reimbursed state.
+  result: result/read-expense.read
+  exercises: []
+- type: scenario
+  id: scenario/read-expense.reading-an-unknown-expense-finds-nothing
+  title: Reading an Unknown Expense Finds Nothing
+  given: No expense carries the named identity.
+  when: Reporting reads the expense.
+  then: The read answers that no expense matches.
+  result: result/read-expense.unknown
+  exercises: []

@@ -7,6 +7,7 @@ Spending is the Claimwick module that handles work expenses: it tracks each expe
 - Spending submits, decides, reimburses and exports work expenses.
 - Spending tracks receipts and the receipt threshold policy.
 - Spending holds the receipt threshold for submission checks.
+- Spending answers the public read-expense query for the reporting module.
 
 Submission starts each expense, and a manager's decision moves it on. Finance then reimburses the approved expenses and exports them in one batch.
 

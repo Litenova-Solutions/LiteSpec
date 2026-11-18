@@ -14,7 +14,7 @@ public sealed class ContractsProjectMappingTests
     {
         using var temp = TestCli.Temp("readers");
         WriteProject(temp.Path);
-        var file = WriteSource(temp.Path, "Library.Lending.Contracts", "ModuleEvents", "LoanBorrowed.cs");
+        var file = WriteSource(temp.Path, "Library.Lending.Contracts", "Loans", "LoanBorrowed.cs");
         var config = ConsumerConfig.Load(temp.Path);
         var contractsRoot = Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending.Contracts");
 

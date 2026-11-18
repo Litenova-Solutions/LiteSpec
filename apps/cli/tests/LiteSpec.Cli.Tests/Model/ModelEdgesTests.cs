@@ -88,6 +88,27 @@ public sealed class ModelEdgesTests
         Assert.Contains("catalog <-> lending", result.Stdout, StringComparison.Ordinal);
     }
 
+    /// <summary>Edges reports a queries edge under its verb.</summary>
+    /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
+    [Fact]
+    public void EdgesReportsQueriesEdgeUnderItsVerb()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+        TestRecords.Write(fixture.Path, ".litespec/behavior/modules/catalog/use-cases/read-shelf/read-shelf.yaml", """
+            {
+              "type": "use-case",
+              "id": "use-case/catalog.read-shelf",
+              "title": "Read shelf",
+              "kind": "query",
+              "effects": [{"queries": "use-case/lending.list-loans", "timing": "inline"}]
+            }
+            """);
+        var result = TestCli.Run("model", "edges", "--root", fixture.Path, "--module", "catalog");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("queries: 1 (lending: 1)", result.Stdout, StringComparison.Ordinal);
+    }
+
     /// <summary>Edges with a module prints only that module with the mutual pairs it belongs to.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]

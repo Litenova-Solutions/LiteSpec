@@ -14,6 +14,7 @@ subject:
 - use-case/spending.erase-personal-data
 - use-case/spending.export-expenses
 - use-case/spending.list-expenses
+- use-case/spending.read-expense
 - use-case/spending.refuse-expense
 - use-case/spending.reimburse-expense
 - use-case/spending.submit-expense
@@ -29,6 +30,7 @@ closedBy:
 - use-case/spending.erase-personal-data
 - use-case/spending.export-expenses
 - use-case/spending.list-expenses
+- use-case/spending.read-expense
 - use-case/spending.refuse-expense
 - use-case/spending.reimburse-expense
 - use-case/spending.submit-expense

@@ -31,7 +31,7 @@ static class BookLexiconFieldLabels
             ["writes"] = "Writes", ["reads"] = "Reads", ["consistency"] = "Consistency", ["effects"] = "Effects",
             ["idempotency"] = "Idempotency", ["audit"] = "Audit", ["level"] = "Level", ["access"] = "Access", ["computedBy"] = "Computed by",
             ["triggeredBy"] = "Triggered by", ["skippedWhen"] = "Skipped when", ["compensates"] = "Compensates", ["runs"] = "Runs", ["sends"] = "Sends", ["publishes"] = "Publishes",
-            ["calls"] = "Calls", ["forEach"] = "For each", ["onFailure"] = "On failure", ["onExhausted"] = "On exhausted",
+            ["calls"] = "Calls", ["queries"] = "Queries", ["forEach"] = "For each", ["onFailure"] = "On failure", ["onExhausted"] = "On exhausted",
             ["mode"] = "Mode", ["within"] = "Within", ["useCase"] = "Use case", ["operation"] = "Operation", ["event"] = "Event",
             ["retry"] = "Retry", ["maxAttempts"] = "Max attempts", ["initialDelay"] = "Initial delay", ["maxDelay"] = "Max delay",
             ["backoff"] = "Backoff", ["deadLetter"] = "Dead letter", ["after"] = "After", ["action"] = "Action",

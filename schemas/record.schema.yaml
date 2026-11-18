@@ -304,12 +304,14 @@ $defs:
     uniqueItems: true
     items:
       $ref: '#/$defs/domainEventId'
-  entryPointIdArray:
+  reachedThroughArray:
     type: array
     minItems: 1
     uniqueItems: true
     items:
-      $ref: '#/$defs/entryPointId'
+      anyOf:
+      - $ref: '#/$defs/entryPointId'
+      - $ref: '#/$defs/moduleId'
   screenIdArray:
     type: array
     uniqueItems: true
@@ -934,6 +936,10 @@ $defs:
         $ref: '#/$defs/externalOperationRef'
         x-reads-as: calls
         x-read-back-as: is called by
+      queries:
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: queries
+        x-read-back-as: is queried by
       timing:
         enum:
         - inline
@@ -952,6 +958,8 @@ $defs:
       - sends
     - required:
       - calls
+    - required:
+      - queries
   triggeredEffectEntry:
     type: object
     additionalProperties: false
@@ -968,6 +976,10 @@ $defs:
         $ref: '#/$defs/externalOperationRef'
         x-reads-as: calls
         x-read-back-as: is called by
+      queries:
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: queries
+        x-read-back-as: is queried by
       timing:
         enum:
         - inline
@@ -988,6 +1000,8 @@ $defs:
       - sends
     - required:
       - calls
+    - required:
+      - queries
   isoDuration:
     type: string
     pattern: '^P(?=.*\d)(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$'
@@ -3193,7 +3207,7 @@ $defs:
         x-reads-as: is computed by
         x-read-back-as: computes
       reachedThrough:
-        $ref: '#/$defs/entryPointIdArray'
+        $ref: '#/$defs/reachedThroughArray'
         x-reads-as: is reached through
         x-read-back-as: reaches
       raises:

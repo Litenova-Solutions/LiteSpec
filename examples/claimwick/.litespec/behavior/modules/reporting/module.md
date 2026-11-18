@@ -6,11 +6,12 @@ Reporting is the Claimwick module that lists what the business paid out. It keep
 
 - Reporting keeps one row for each reimbursed expense.
 - Reporting reads reimbursement and erasure events from the spending module.
+- Reporting confirms each listed expense still exists in the spending module.
 - Reporting lists the rows for finance.
 
 ## Boundaries
 
-- Reporting reads the spending module only through announced events.
+- Reporting reads the spending module only through announced events and the public read-expense query.
 - Reporting does not read the expense tables of the spending module.
 - Reporting changes no expense.
 

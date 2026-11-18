@@ -177,7 +177,7 @@ public sealed class MarkFolderDriftTests
     {
         using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
-        var file = ProductFile(temp.Path, "Booking", "Contracts", "ModuleEvents", "Money.cs");
+        var file = ProductFile(temp.Path, "Booking", "Contracts", "Invoices", "Money.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
