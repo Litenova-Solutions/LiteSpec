@@ -6,7 +6,7 @@
 // The address is the createFileRoute argument when present, else derived from
 // the file name with groups, pathless segments and index files removed.
 
-import { collectRouteCalls, CallScope } from "./calls";
+import { collectRouteCalls, collectRouteNavigations, CallScope } from "./calls";
 import { baseName, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
 import { firstMarkLine, markValues, readFacts } from "./parse";
 import { ReaderContext, RouteFacts } from "./protocol";
@@ -77,7 +77,8 @@ export function readReactRoutes(
     const line = facts === null ? 1 : firstMarkLine(facts.marks);
     const address = facts !== null && facts.route !== null ? visibleAddress(facts.route) : derivedAddress(routesAbs, fileAbs);
     const calls = collectRouteCalls([{ absPath: fileAbs, dirAbs }], { ...scope, routeDirAbs: dirAbs, modulesAbs }, context);
-    routes.push({ file, line, address, marks, calls });
+    const navigations = collectRouteNavigations([{ absPath: fileAbs, dirAbs }], { ...scope, routeDirAbs: dirAbs, modulesAbs }, context);
+    routes.push({ file, line, address, marks, calls, navigations });
   }
   routes.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : 0));
   return routes;

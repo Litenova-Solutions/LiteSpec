@@ -13,6 +13,7 @@ The frontend reader is a small TypeScript program that reports the facts the CLI
 - Use-case module marks.
 - Route marks with addresses.
 - The generated-client operations each route reaches.
+- The full-page navigations each route takes.
 - The annotations, navigation targets and assertions of browser tests.
 
 It parses every file in syntax-only mode, never executes anything, and answers one JSON request on standard input with one JSON facts document on standard output.

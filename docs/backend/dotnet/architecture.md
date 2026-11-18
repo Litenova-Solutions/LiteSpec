@@ -258,9 +258,9 @@ Modules/{Product}.Organizations.Contracts/
 
 **Applies to:** artifact: any
 
-**Statement:** The Kernel project MUST hold only the business values every module uses, with no reference outside the base class library.
+**Statement:** The Kernel project MUST hold only the business values and the refusal exceptions every module uses, with no reference outside the base class library.
 
-**Rationale:** Only the values every module speaks live here: money, typed identifiers, dates, the aggregate root, the domain exception, and closed sets every module uses. The Kernel takes no package reference and no project reference, so a type a domain model may use is separated from a type only a host touches by the project boundary itself. A technical capability in the Kernel would drag its libraries into every module.
+**Rationale:** Only the values every module speaks live here: money, typed identifiers, dates, the aggregate root, the domain exception, the refusal exceptions of product rules, and closed sets every module uses. The Kernel takes no package reference and no project reference, so a type a domain model may use is separated from a type only a host touches by the project boundary itself. A technical capability in the Kernel would drag its libraries into every module.
 
 **Example:**
 
@@ -269,7 +269,7 @@ Modules/{Product}.Organizations.Contracts/
   Money.cs  TypedId.cs  AggregateRoot.cs  DomainException.cs  BusinessDate.cs
 ```
 
-**Reviewed for:** Does the Kernel project hold only shared business values, with no package reference and no project reference? Look at the Kernel project file and its files.
+**Reviewed for:** Does the Kernel project hold only shared business values and the refusal exceptions of product rules, with no package reference and no project reference? Look at the Kernel project file and its files.
 
 ### Keep Technical Capabilities in the Platform
 

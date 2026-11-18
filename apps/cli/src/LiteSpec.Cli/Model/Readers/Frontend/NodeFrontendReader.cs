@@ -383,7 +383,8 @@ static class NodeFrontendReader
                 Text(element, "folder"), Text(element, "file"), Line(element), Strings(element, "marks"))),
             Routes: ArrayOf(entry, "routes", element => new RouteFact(
                 Text(element, "file"), Line(element), Text(element, "address"), Strings(element, "marks"),
-                ArrayOf(element, "calls", call => new CallFact(Text(call, "operation"), Text(call, "file"), Line(call))))),
+                ArrayOf(element, "calls", call => new CallFact(Text(call, "operation"), Text(call, "file"), Line(call))),
+                Navigations: ArrayOf(element, "navigations", navigation => new NavigationFact(Text(navigation, "path"), Text(navigation, "file"), Line(navigation))))),
             Tests: ArrayOf(entry, "tests", element => new BrowserTestFact(
                 Text(element, "file"), Line(element), Text(element, "title"), Strings(element, "proves"),
                 element.TryGetProperty("flow", out var flow) && flow.ValueKind == JsonValueKind.String

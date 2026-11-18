@@ -7,7 +7,7 @@
 
 import { absolute, baseName, canonical, isFile, isWithin, joinPath, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
 import { FileFacts, FileKind, readFacts } from "./parse";
-import { CallFacts, ReaderContext } from "./protocol";
+import { CallFacts, NavigationFacts, ReaderContext } from "./protocol";
 
 export function toPascalCase(name: string): string {
   return name
@@ -117,40 +117,33 @@ export interface CallScope {
   aliases: Record<string, string>;
 }
 
-// Every operation call reached from the route entries, following imports within
-// the route folder and the modules root: a route reaches its modules, and a module
-// may compose another use case's module, which the screen then offers too. The
-// frame and shared packages are never followed. Files are visited once; entries
-// come out sorted by file and line.
-export function collectRouteCalls(entries: RouteEntry[], scope: CallScope, context: ReaderContext): CallFacts[] {
-  const entryFacts: { absPath: string; facts: FileFacts; dirAbs: string }[] = [];
-  for (const entry of entries) {
-    const facts = readFacts(entry.absPath, kindOf(entry.absPath), context);
-    if (facts !== null) entryFacts.push({ absPath: entry.absPath, facts, dirAbs: entry.dirAbs });
-  }
+interface VisitedFile {
+  absPath: string;
+  dirAbs: string;
+  facts: FileFacts;
+}
 
+// Every file reached from the route entries, following imports within the
+// route folder and the modules root: a route reaches its modules, and a module
+// may compose another use case's module, which the screen then offers too. The
+// frame and shared packages are never followed. Files are visited once.
+function walkRouteFiles(entries: RouteEntry[], scope: CallScope, context: ReaderContext): VisitedFile[] {
+  const found: VisitedFile[] = [];
   const inScope = (absPath: string): boolean =>
     isWithin(scope.routeDirAbs, absPath) || isWithin(scope.modulesAbs, absPath);
 
-  const calls: CallFacts[] = [];
   const visited = new Set<string>();
-  const queue: { absPath: string; dirAbs: string; facts: FileFacts }[] = [];
-  for (const entry of entryFacts) {
+  const queue: VisitedFile[] = [];
+  for (const entry of entries) {
     if (visited.has(canonical(entry.absPath))) continue;
     visited.add(canonical(entry.absPath));
-    queue.push({ absPath: entry.absPath, dirAbs: entry.dirAbs, facts: entry.facts });
+    const facts = readFacts(entry.absPath, kindOf(entry.absPath), context);
+    if (facts !== null) queue.push({ absPath: entry.absPath, dirAbs: entry.dirAbs, facts });
   }
-  for (const entry of entries) visited.add(canonical(entry.absPath));
   while (queue.length > 0) {
     const current = queue.shift();
     if (current === undefined) break;
-    const rel = relativeTo(context.root, current.absPath) ?? toPosix(current.absPath);
-    for (const site of current.facts.calls) {
-      const operation = scope.operations.get(operationKey(site.name));
-      if (operation !== undefined && operation !== "") {
-        calls.push({ operation, file: rel, line: site.line });
-      }
-    }
+    found.push(current);
     for (const specifier of current.facts.imports) {
       const target = resolveImport(specifier, current.dirAbs, scope.aliases);
       if (target === null || visited.has(canonical(target)) || !inScope(target)) continue;
@@ -159,6 +152,37 @@ export function collectRouteCalls(entries: RouteEntry[], scope: CallScope, conte
       if (facts !== null) queue.push({ absPath: target, dirAbs: parentDir(target), facts });
     }
   }
+  return found;
+}
+
+// Every operation call reached from the route entries, in file and line
+// order. A call names its operation through the generated client map.
+export function collectRouteCalls(entries: RouteEntry[], scope: CallScope, context: ReaderContext): CallFacts[] {
+  const calls: CallFacts[] = [];
+  for (const current of walkRouteFiles(entries, scope, context)) {
+    const rel = relativeTo(context.root, current.absPath) ?? toPosix(current.absPath);
+    for (const site of current.facts.calls) {
+      const operation = scope.operations.get(operationKey(site.name));
+      if (operation !== undefined && operation !== "") {
+        calls.push({ operation, file: rel, line: site.line });
+      }
+    }
+  }
   calls.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
   return calls;
+}
+
+// Every full-page navigation reached from the route entries, in file and
+// line order. The CLI matches each path against the discovered endpoint
+// routes and counts a match as a call of that endpoint's operation.
+export function collectRouteNavigations(entries: RouteEntry[], scope: CallScope, context: ReaderContext): NavigationFacts[] {
+  const navigations: NavigationFacts[] = [];
+  for (const current of walkRouteFiles(entries, scope, context)) {
+    const rel = relativeTo(context.root, current.absPath) ?? toPosix(current.absPath);
+    for (const site of current.facts.navigations) {
+      navigations.push({ path: site.path, file: rel, line: site.line });
+    }
+  }
+  navigations.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
+  return navigations;
 }

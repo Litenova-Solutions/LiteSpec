@@ -405,15 +405,17 @@ Mirroring the Domain shape in the result keeps the layers aligned, so the data o
 
 **Applies to:** artifact: port
 
-**Statement:** Every port of a module MUST live in its own `Ports/{Port}/` folder holding the interface `I{Port}` and only the types its signatures name, with its adapter in its `Infrastructure/{Port}/` folder, and a port another module calls in the owning module's `Contracts/Ports/` folder.
+**Statement:** Every port of a module MUST live in its own `Ports/{Port}/` folder holding the interface `I{Port}` and only the types its signatures name, directly or through one named type, with its adapter in its `Infrastructure/{Port}/` folder, and a port another module calls in the owning module's `Contracts/Ports/` folder.
 
 **Rationale:** `Ports/` is the complete list of what the module needs from outside: every port of the module lives there, whether one use case or many call it, each in its own folder with its adapter beside it in `Infrastructure/`. A reader opening `Ports/` sees each outside dependency once, instead of hunting use case folders for interfaces.
+
+The folder holds two levels of types: the types the interface signatures name, and the types those types name in their own signatures, such as a result part the interface reaches only through its result. Names found at the second level open no third.
 
 Only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers.
 
 Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.
 
-**Reviewed for:** Does every port of the module live in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`, and every cross-module port in the owning module's `Contracts/Ports/` folder? Look at each port folder beside its callers and its adapter.
+**Reviewed for:** Does every port of the module live in its own `Ports/{Port}/` folder holding only its interface and the types its signatures name through at most one named type, with its adapter in `Infrastructure/{Port}/`, and every cross-module port in the owning module's `Contracts/Ports/` folder? Look at each port folder beside its callers and its adapter.
 
 ### Declare a Port Only for What the Module Does Not Compute
 

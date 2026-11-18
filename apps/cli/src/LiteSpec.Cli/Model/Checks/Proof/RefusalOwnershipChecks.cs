@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.Checks.Proof;
@@ -19,7 +20,7 @@ internal static class RefusalOwnershipChecks
             owners.TryAdd(entry.Code, entry.Module);
         }
 
-        var firstCarrier = new Dictionary<string, string>(StringComparer.Ordinal);
+        var firstCarrier = new Dictionary<string, (string Class, string File)>(StringComparer.Ordinal);
         var seen = new HashSet<(string Code, string Class)>();
 
         foreach (var literal in model.Code.Literals
@@ -60,16 +61,94 @@ internal static class RefusalOwnershipChecks
             {
                 findings.Add(new Finding(
                     "refusal-code-duplicate",
-                    $"Code '{literal.Value}' is carried by '{first}' and '{carrier}'.",
+                    DuplicateMessage(model, literal.Value, first, (carrier, literal.File)),
                     literal.File,
                     literal.Line,
                     null));
             }
             else
             {
-                firstCarrier[literal.Value] = carrier;
+                firstCarrier[literal.Value] = (carrier, literal.File);
             }
         }
+    }
+
+    /// <summary>
+    ///     The duplicate message: when both carriers are rule exceptions marking one rule whose refusal is the code,
+    ///     the message names that rule and the one-type-per-rule provision, so the reader fixes the rule instead of
+    ///     hand-written constants; otherwise it names the two carriers.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds the marked rule exceptions and the rule records.</param>
+    /// <param name="code">The refusal code both carriers carry.</param>
+    /// <param name="first">The class and file of the first carrier.</param>
+    /// <param name="second">The class and file of the second carrier.</param>
+    /// <returns>The finding message for the duplicate code.</returns>
+    private static string DuplicateMessage(ProjectModel model, string code, (string Class, string File) first, (string Class, string File) second)
+    {
+        var shared = SharedRule(model, code, first, second);
+
+        return shared is not null
+            ? $"Code '{code}' is carried by '{first.Class}' and '{second.Class}', which both mark '{shared}'. Keep one exception type per rule, as litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions states."
+            : $"Code '{code}' is carried by '{first.Class}' and '{second.Class}'.";
+    }
+
+    /// <summary>The rule both carriers mark whose refusal is the code, or null when they mark no one such rule.</summary>
+    /// <param name="model">The loaded project model that holds the marked rule exceptions and the rule records.</param>
+    /// <param name="code">The refusal code both carriers carry.</param>
+    /// <param name="first">The class and file of the first carrier.</param>
+    /// <param name="second">The class and file of the second carrier.</param>
+    /// <returns>The shared rule id, or null when the carriers mark no one rule refusing with the code.</returns>
+    private static string? SharedRule(ProjectModel model, string code, (string Class, string File) first, (string Class, string File) second)
+    {
+        var firstRules = RulesOf(model, code, first);
+        var secondRules = RulesOf(model, code, second);
+
+        foreach (var rule in firstRules)
+        {
+            if (secondRules.Contains(rule, StringComparer.Ordinal))
+            {
+                return rule;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The rules the carrier marks whose refusal is the code: its rule marks resolved through the records.</summary>
+    /// <param name="model">The loaded project model that holds the marked rule exceptions and the rule records.</param>
+    /// <param name="code">The refusal code the carrier carries.</param>
+    /// <param name="carrier">The class and file of the carrier.</param>
+    /// <returns>The marked rule ids refusing with the code, in mark order.</returns>
+    private static List<string> RulesOf(ProjectModel model, string code, (string Class, string File) carrier)
+    {
+        var rules = new List<string>();
+
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.Kind != CodeKind.RuleException
+                || !string.Equals(element.Class, carrier.Class, StringComparison.Ordinal)
+                || !string.Equals(element.File, carrier.File, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var mark in element.Marks)
+            {
+                if (mark.Verb == MarkVerb.Follows
+                    || !mark.RecordId.StartsWith("rule/", StringComparison.Ordinal)
+                    || !model.ById.TryGetValue(mark.RecordId, out var rule)
+                    || rule.Type != RecordTypes.Rule
+                    || Model.Proof.RefusalCodes.ResultCode(model, rule) != code
+                    || rules.Contains(mark.RecordId, StringComparer.Ordinal))
+                {
+                    continue;
+                }
+
+                rules.Add(mark.RecordId);
+            }
+        }
+
+        return rules;
     }
 
     /// <summary>Whether the class carries refusal codes as an exception type: its name ends with Exception, Failure or Refusal.</summary>

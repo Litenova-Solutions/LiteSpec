@@ -1,0 +1,7 @@
+type: product
+id: product/library
+title: Library
+summary: The library lends copies to readers and tracks holds.
+boundary: The library lends copies to readers and tracks holds.
+users:
+- actor/reader

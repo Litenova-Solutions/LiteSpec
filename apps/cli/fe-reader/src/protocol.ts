@@ -38,12 +38,19 @@ export interface CallFacts {
   line: number;
 }
 
+export interface NavigationFacts {
+  path: string;
+  file: string;
+  line: number;
+}
+
 export interface RouteFacts {
   file: string;
   line: number;
   address: string;
   marks: string[];
   calls: CallFacts[];
+  navigations: NavigationFacts[];
 }
 
 export interface TestFacts {

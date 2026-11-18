@@ -216,7 +216,7 @@ sealed class ConsumerConfig
             return fallbackResolved;
         }
 
-        IReadOnlyList<string> DeclaredRoots(string field, string fallback)
+        IReadOnlyList<string> DeclaredRoots(string field, params string[] fallbacks)
         {
             if (dotnet is not null && dotnet[field] is { } value)
             {
@@ -266,7 +266,22 @@ sealed class ConsumerConfig
                 }
             }
 
-            return Expand(config.Root, fallback);
+            // A default pattern that matches no folder contributes nothing: a missing
+            // default stays silent, so only folders on disk become roots.
+            var found = new List<string>();
+
+            foreach (var fallback in fallbacks)
+            {
+                foreach (var resolved in Expand(config.Root, fallback))
+                {
+                    if (Directory.Exists(resolved) && !found.Contains(resolved, StringComparer.OrdinalIgnoreCase))
+                    {
+                        found.Add(resolved);
+                    }
+                }
+            }
+
+            return found;
         }
 
         // Records live under the record roots that paths.docs names, which default
@@ -289,8 +304,8 @@ sealed class ConsumerConfig
             ReportMissing("modules", modulesFallback, resolved, declared: false);
         }
 
-        config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi");
-        config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker");
+        config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi", "apps/api/src/Hosts/*.WebApi");
+        config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker", "apps/api/src/Hosts/*.Worker");
         config.KernelRoot = DeclaredRoot("kernel", "apps/api/src/*.Kernel", reportDefault: false);
         config.PlatformRoot = DeclaredRoot("platform", "apps/api/src/*.Platform", reportDefault: false);
 

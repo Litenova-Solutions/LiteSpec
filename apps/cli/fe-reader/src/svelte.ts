@@ -7,7 +7,7 @@
 // holding a +page.svelte; its mark comes from the module script of the
 // +page.svelte, because SvelteKit refuses any other export from a +page.ts.
 
-import { collectRouteCalls, CallScope } from "./calls";
+import { collectRouteCalls, collectRouteNavigations, CallScope } from "./calls";
 import { baseName, canonical, isFile, joinPath, listDirsRecursive, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
 import { firstMarkLine, markValues, readFacts } from "./parse";
 import { ModuleFacts, ReaderContext, RouteFacts } from "./protocol";
@@ -92,12 +92,14 @@ export function readSvelteRoutes(
       ]
       : [{ absPath: pageAbs, dirAbs }];
     const calls = collectRouteCalls(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs }, context);
+    const navigations = collectRouteNavigations(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs }, context);
     routes.push({
       file,
       line,
       address: routeAddress(routesAbs, dirAbs),
       marks,
       calls,
+      navigations,
     });
   }
   routes.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : 0));

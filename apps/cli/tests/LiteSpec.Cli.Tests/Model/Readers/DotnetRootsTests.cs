@@ -184,6 +184,88 @@ public sealed class DotnetRootsTests
         Assert.Contains(jobs, job => job.RecordId == "job/lending.due-reminder");
     }
 
+    /// <summary>Default Hosts Folder Hosts Are Read Without Declared Roots.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    [Fact]
+    public void DefaultHostsFolderHostsAreReadWithoutDeclaredRoots()
+    {
+        using var temp = TestCli.Temp("dotnet-roots");
+        WriteProject(temp.Path, """{"stacks": ["dotnet"]}""");
+        var webHost = Path.Combine(temp.Path, "apps", "api", "src", "Hosts", "Shop.WebApi");
+        var workerHost = Path.Combine(temp.Path, "apps", "api", "src", "Hosts", "Shop.Worker");
+        Directory.CreateDirectory(webHost);
+        Directory.CreateDirectory(workerHost);
+        File.WriteAllText(Path.Combine(webHost, "BorrowCopyEndpoint.cs"), """
+            namespace Library.Lending.Loans.BorrowCopy;
+
+            /// <implements>use-case/lending.borrow-copy</implements>
+            public sealed class BorrowCopyEndpoint : IEndpoint
+            {
+                public void MapEndpoint(object endpoints)
+                {
+                }
+            }
+            """);
+        File.WriteAllText(Path.Combine(workerHost, "NightlyScanJob.cs"), """
+            namespace Library.Lending;
+
+            /// <implements>job/lending.nightly-scan</implements>
+            public sealed class NightlyScanJob : BackgroundService
+            {
+                protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
+            }
+            """);
+
+        var config = ConsumerConfig.Load(temp.Path);
+
+        Assert.Contains(Path.GetFullPath(webHost), config.WebApiRoots);
+        Assert.Contains(Path.GetFullPath(workerHost), config.WorkerRoots);
+        Assert.DoesNotContain(
+            config.Problems,
+            found => found.Code == "reader-missing"
+                && (found.Message.Contains("webapi", StringComparison.Ordinal) || found.Message.Contains("worker", StringComparison.Ordinal)));
+
+        var code = new DotnetBackendReader().Read(config);
+
+        Assert.Contains(code.Elements, element => element.Class == "BorrowCopyEndpoint" && element.Kind == CodeKind.Endpoint);
+        Assert.Contains(code.Jobs, job => job.RecordId == "job/lending.nightly-scan");
+    }
+
+    /// <summary>Declared WebApi Replaces The Default Hosts Folder.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    [Fact]
+    public void DeclaredWebApiReplacesTheDefaultHostsFolder()
+    {
+        using var temp = TestCli.Temp("dotnet-roots");
+        var declared = Path.Combine(temp.Path, "src", "Only.WebApi");
+        var fallback = Path.Combine(temp.Path, "apps", "api", "src", "Hosts", "Shop.WebApi");
+        Directory.CreateDirectory(declared);
+        Directory.CreateDirectory(fallback);
+        File.WriteAllText(Path.Combine(fallback, "BorrowCopyEndpoint.cs"), """
+            namespace Library.Lending.Loans.BorrowCopy;
+
+            /// <implements>use-case/lending.borrow-copy</implements>
+            public sealed class BorrowCopyEndpoint : IEndpoint
+            {
+                public void MapEndpoint(object endpoints)
+                {
+                }
+            }
+            """);
+        WriteProject(temp.Path, """
+            {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
+              "modules": "src/App", "webapi": "src/Only.WebApi"}}}
+            """);
+
+        var config = ConsumerConfig.Load(temp.Path);
+
+        Assert.Equal([Path.GetFullPath(declared)], config.WebApiRoots);
+
+        var code = new DotnetBackendReader().Read(config);
+
+        Assert.DoesNotContain(code.Elements, element => element.Class == "BorrowCopyEndpoint");
+    }
+
     /// <summary>Configured WebApi Host That Does Not Exist Reports Reader Missing.</summary>
     /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]

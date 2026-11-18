@@ -642,6 +642,8 @@ public async Task<Post> GetByIdAsync(PostId id, CancellationToken cancellationTo
 
 **Rationale:** One exception type per rule puts the stable code and the message in the type. The call site passes only domain values. Two rules never share a type by accident. A shared rule exception with caller-supplied codes lets any caller invent a code and lets unrelated rules merge silently. Its `Code` comes from the refusal result its rule names, under `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`. Each exception's code equals the refusal `code` on the result record it answers. The root's factory and methods check an invariant rule. The use-case validator or the root's method checks a precondition rule. Names lead with the aggregate root and follow `litespec/workspace/naming#name-exceptions-by-failed-rule`. This provision owns the one-type-per-rule shape and the code each type carries. Domain throws no `InvalidOperationException`, `ArgumentException`, validation, HTTP, or provider exception for a business rejection. It carries no transport status. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
 
+One type per rule still holds when every module refuses with one code: the product holds one product rule with the product name as its home, and the Kernel holds the one exception that marks it.
+
 **Example:**
 
 ```csharp
@@ -680,6 +682,36 @@ public sealed partial class RefundAllocationRequiredException : DomainException
 ```
 
 From the refusal result the rule names, the generator writes `public override string Code => "refunds.allocation-required";`.
+
+A named record that is absent refuses the same way from every module, so the product holds one product rule in `behavior/rules/`:
+
+```yaml
+type: rule-set
+title: Claimwick Rules
+summary: A named record that is absent is refused the same way from every module.
+records:
+- type: rule
+  id: rule/claimwick.unknown-record
+  title: Unknown Record Refused
+  kind: precondition
+  statement: A lookup for a named record that is absent is refused.
+  refusal: claimwick.unknown-record
+```
+
+and the Kernel holds its one exception:
+
+```csharp
+/// <implements>rule/claimwick.unknown-record</implements>
+public sealed partial class UnknownRecordException : DomainException
+{
+    public UnknownRecordException(string recordKind, string name)
+        : base($"No {recordKind} record names '{name}'.")
+    {
+    }
+}
+```
+
+From the rule's `refusal`, the generator writes `public override string Code => "claimwick.unknown-record";`, and the global handler answers 404 through the operation's 404 policy for a named record that is absent.
 
 Two rules that a boundary maps to one response still get two exception types, each carrying its own refusal code. The boundary maps both codes to the one response. The two codes live in the two types, not in strings the aggregate passes. Reuse a single exception type only when one rule can fail from more than one input, with the differing values carried as constructor parameters.
 

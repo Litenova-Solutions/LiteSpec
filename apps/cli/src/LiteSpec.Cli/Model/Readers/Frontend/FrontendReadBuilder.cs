@@ -10,10 +10,11 @@ namespace LiteSpec.Cli.Model.Readers.Frontend;
 /// <summary>
 ///     Turns one frontend's facts into screens, mark elements and browser tests:
 ///     each route's calls map through the endpoints' <c>.WithName</c> operations
-///     to their use cases, keeping each operation paired with the use case it
-///     reaches, an operation two endpoints map to different use cases is a
-///     <c>behavior-unrecorded</c> diagnostic, and an operation no endpoint names
-///     stays on the screen as the unmatched-call fact.
+///     to their use cases, and each route's full-page navigations map through
+///     the endpoints' routes to the same use cases, keeping each operation paired
+///     with the use case it reaches, an operation or a path two endpoints map to
+///     different use cases is a <c>behavior-unrecorded</c> diagnostic, and an
+///     operation no endpoint names stays on the screen as the unmatched-call fact.
 /// </summary>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 static class FrontendReadBuilder
@@ -47,6 +48,31 @@ static class FrontendReadBuilder
             useCases.Add(endpoint.UseCaseId);
         }
 
+        var byRoute = new Dictionary<string, List<EndpointRow>>(StringComparer.Ordinal);
+
+        foreach (var endpoint in code.Endpoints)
+        {
+            if (endpoint.Route.Length == 0 || endpoint.UseCaseId.Length == 0)
+            {
+                continue;
+            }
+
+            var path = NormalizePath(endpoint.Route);
+
+            if (path.Length == 0)
+            {
+                continue;
+            }
+
+            if (!byRoute.TryGetValue(path, out var rows))
+            {
+                rows = [];
+                byRoute[path] = rows;
+            }
+
+            rows.Add(new EndpointRow(endpoint.Operation, endpoint.UseCaseId, endpoint.Method, endpoint.Route, endpoint.File));
+        }
+
         var screens = new List<CodeScreen>();
         var findings = new List<Finding>();
 
@@ -55,6 +81,7 @@ static class FrontendReadBuilder
             var file = Absolute(frontend, route.File);
             var useCases = new SortedSet<string>(StringComparer.Ordinal);
             var operations = new SortedSet<string>(StringComparer.Ordinal);
+            var navigated = new HashSet<GeneratedOperation>();
             var paired = new List<ScreenCall>();
             var pairedSet = new HashSet<(string Operation, string UseCase)>();
 
@@ -88,11 +115,51 @@ static class FrontendReadBuilder
                 }
             }
 
+            foreach (var navigation in route.Navigations ?? [])
+            {
+                var path = NormalizePath(navigation.Path);
+
+                if (path.Length == 0 || !byRoute.TryGetValue(path, out var rows))
+                {
+                    continue;
+                }
+
+                var mapped = new SortedSet<string>(rows.Select(row => row.UseCaseId), StringComparer.Ordinal);
+
+                if (mapped.Count > 1)
+                {
+                    findings.Add(new Finding(
+                        "behavior-unrecorded",
+                        $"Route '{frontend.Name} {route.Address}' navigates to '{navigation.Path}', which endpoints map to different use cases ('{string.Join("', '", mapped)}'); delete the code, or write its parent record from a requirement, drafting the requirement if none exists.",
+                        Absolute(frontend, navigation.File), navigation.Line, null)
+                    {
+                        Reader = facts.Reader,
+                        ReaderIsQualified = facts.Qualified,
+                    });
+                    continue;
+                }
+
+                var reached = mapped.Min!;
+                useCases.Add(reached);
+
+                var operation = OperationFor(code, reached, rows);
+                navigated.Add(new GeneratedOperation(operation, rows[0].Method, rows[0].Route));
+
+                if (pairedSet.Add((operation, reached)))
+                {
+                    paired.Add(new ScreenCall(operation, reached));
+                }
+            }
+
             screens.Add(new CodeScreen(
                 frontend.Name,
                 route.Address,
                 PathText.Relative(config.Root, file),
-                [.. operations.Select(operation => new GeneratedOperation(operation, "", ""))],
+                [.. operations.Select(operation => new GeneratedOperation(operation, "", ""))
+                    .Concat(navigated)
+                    .OrderBy(operation => operation.Name, StringComparer.Ordinal)
+                    .ThenBy(operation => operation.Method, StringComparer.Ordinal)
+                    .ThenBy(operation => operation.Path, StringComparer.Ordinal)],
                 [.. useCases],
                 route.Marks.Count > 0 ? route.Marks[0] : null,
                 facts.Reader,
@@ -130,6 +197,60 @@ static class FrontendReadBuilder
             Findings = findings,
             TypeScriptQualified = facts.Reader == Finding.TypeScriptReader && facts.Qualified,
         };
+    }
+
+    /// <summary>One endpoint row that maps a route: its operation, use case, method, route and file.</summary>
+    /// <param name="Operation">The <c>.WithName</c> operation, or empty when the row maps only a route.</param>
+    /// <param name="UseCaseId">The use case the endpoint marks.</param>
+    /// <param name="Method">The HTTP method, or empty when the row maps only an operation.</param>
+    /// <param name="Route">The route template, or empty when the row maps only an operation.</param>
+    /// <param name="File">The endpoint file.</param>
+    private sealed record EndpointRow(string Operation, string UseCaseId, string Method, string Route, string File);
+
+    /// <summary>The operation a navigation to the use case counts as: the endpoint's <c>.WithName</c> operation in the matched file, else the first operation the use case names, else empty.</summary>
+    /// <param name="code">The code model holding the endpoint operations.</param>
+    /// <param name="useCaseId">The use case the navigation reaches.</param>
+    /// <param name="rows">The endpoint rows the navigation path matched.</param>
+    /// <returns>The operation name, or empty when the use case names none.</returns>
+    private static string OperationFor(CodeFacts code, string useCaseId, IReadOnlyList<EndpointRow> rows)
+    {
+        var files = new HashSet<string>(rows.Select(row => row.File), StringComparer.OrdinalIgnoreCase);
+
+        var sameFile = code.Endpoints
+            .Where(endpoint => endpoint.UseCaseId == useCaseId
+                && endpoint.Operation.Length > 0
+                && files.Contains(endpoint.File))
+            .Select(endpoint => endpoint.Operation)
+            .Order(StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        if (sameFile is not null)
+        {
+            return sameFile;
+        }
+
+        return code.Endpoints
+            .Where(endpoint => endpoint.UseCaseId == useCaseId && endpoint.Operation.Length > 0)
+            .Select(endpoint => endpoint.Operation)
+            .Order(StringComparer.Ordinal)
+            .FirstOrDefault() ?? "";
+    }
+
+    /// <summary>The path a route or a navigation is matched by: without its query and fragment, without a trailing slash, or empty when it names no path from the root.</summary>
+    /// <param name="route">The route template or navigation path as written.</param>
+    /// <returns>The normalized path, or empty when it names no path from the root.</returns>
+    private static string NormalizePath(string route)
+    {
+        var end = route.IndexOfAny(['?', '#']);
+
+        var path = end >= 0 ? route[..end] : route;
+
+        if (path.Length > 1 && path.EndsWith('/'))
+        {
+            path = path.TrimEnd('/');
+        }
+
+        return path.StartsWith('/') ? path : "";
     }
 
     /// <summary>One marked element per use-case module folder in the facts, in file and line order.</summary>
