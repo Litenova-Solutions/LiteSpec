@@ -63,7 +63,7 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Statement:** A data class MUST pause deletion while a retention hold stands, with each hold's reason and the date the hold starts on record.
 
-**Rationale:** A tax audit, an objection, or a dispute stops deletion: a product that deletes records during an audit breaks the law even though it followed its retention period exactly. The hold states its reason with the date it starts in `heldOn`, and deletion resumes only when the hold lifts with its date in `liftedOn`. The enforcement named in `enforcedBy` skips held rows, so the hold pauses every erasure path of the class.
+**Rationale:** A tax audit, an objection, or a dispute stops deletion: a product that deletes records during an audit breaks the law even though it followed its retention period exactly. The hold states its reason with the date it starts in `heldOn`, and deletion resumes only when the hold lifts with its date in `liftedOn`. The enforcement named in `enforcedBy` skips held rows, so the hold pauses every erasure path of the class. Settled by [decision/0100-retention-holds-and-rounded-starts](decision/0100-retention-holds-and-rounded-starts).
 
 **Example:** Claimwick's finance team places a hold on the expense ledger while the tax office audits the year, and the expiry job leaves held rows until the hold lifts.
 
@@ -79,7 +79,7 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Statement:** A retention period that rounds an event start up to a calendar end MUST name its event and its rounding in `periodStartsAt`.
 
-**Rationale:** The law starts counting when a record stops being current: an asset invoice when the asset leaves, a lease when it ends. The start then rounds up to the end of the year, so every record of one year shares one expiry. Naming the event with its rounding states both halves: the event that starts the count and the calendar end it rounds to. A start naming only the event expires each record on its own date.
+**Rationale:** The law starts counting when a record stops being current: an asset invoice when the asset leaves, a lease when it ends. The start then rounds up to the end of the year, so every record of one year shares one expiry. Naming the event with its rounding states both halves: the event that starts the count and the calendar end it rounds to. A start naming only the event expires each record on its own date. Settled by [decision/0100-retention-holds-and-rounded-starts](decision/0100-retention-holds-and-rounded-starts).
 
 **Example:** Claimwick keeps a receipt seven years from the end of the year its expense was reimbursed: `periodStartsAt` names `domain-event/expense.reimbursed` with `rounding: financial-year-end`.
 

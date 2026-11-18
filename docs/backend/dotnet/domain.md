@@ -77,7 +77,7 @@ Each aggregate root gets one repository interface that loads and stages that agg
 
 **Statement:** A file outside an aggregate's `Domain/` folder MUST NOT construct a type from that folder other than the root's input records and typed identifiers.
 
-**Rationale:** The root's factories and methods are the one entry point to the aggregate, under `litespec/backend/domain#reach-an-aggregate-only-through-its-root`. A caller that constructs an entity or value object of the aggregate builds a part the root never validated, and a caller that constructs a part to pass it in takes over behavior the root should own. Callers pass plain inputs instead. Input records and typed identifiers carry no aggregate behavior, so constructing them stays outside this rule. This provision binds `litespec/backend/domain#reach-an-aggregate-only-through-its-root` for .NET.
+**Rationale:** The root's factories and methods are the one entry point to the aggregate, under `litespec/backend/domain#reach-an-aggregate-only-through-its-root`. A caller that constructs an entity or value object of the aggregate builds a part the root never validated, and a caller that constructs a part to pass it in takes over behavior the root should own. Callers pass plain inputs instead. Input records and typed identifiers carry no aggregate behavior, so constructing them stays outside this rule. This provision binds `litespec/backend/domain#reach-an-aggregate-only-through-its-root` for .NET. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
 
 **Example:** In the Claimwick product, the submit-expense handler constructs no expense line and no allocation. It passes the identifiers, the line inputs, and the submitted time to `Expense.Submit`, and the root builds its lines and its allocation inside the factory.
 
@@ -123,7 +123,7 @@ public void Approve(ApproverId approverId, DateTimeOffset decidedAt)
 
 **Statement:** A child entity MUST be a sealed class deriving from the project-owned `Entity<TId>`, with no public setter, mutating method, or constructor.
 
-**Rationale:** Deriving from the project-owned `Entity<TId>` gives the child typed identity and identity equality, so it declares only its own data and behavior. The root creates, finds, and changes its children through business methods. A child exposes no mutable state outside the root. Construction and mutation stay internal or private, so only the root reaches them. A child is a design choice inside its aggregate: it appears in code and the glossary, never as a record. This provision binds `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary` for .NET.
+**Rationale:** Deriving from the project-owned `Entity<TId>` gives the child typed identity and identity equality, so it declares only its own data and behavior. The root creates, finds, and changes its children through business methods. A child exposes no mutable state outside the root. Construction and mutation stay internal or private, so only the root reaches them. A child is a design choice inside its aggregate: it appears in code and the glossary, never as a record. This provision binds `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary` for .NET. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
 
 **Example:**
 
@@ -245,7 +245,7 @@ When order is not part of the value, creation normalizes the values to the docum
 
 **Statement:** A domain service MUST be a stateless sealed class holding only a calculation that spans aggregates with no owning aggregate, accepting and returning Domain values.
 
-**Rationale:** Some calculations span concepts with no natural aggregate owner, such as pricing an order from its lines. A stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. A calculation one aggregate owns stays in that aggregate's root. The root calls the service inside its own method, or Application passes the service's plain result into a root method as an input. The service carries a mark naming its rule. The builder links it to the rule it computes. This provision binds `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` for .NET.
+**Rationale:** Some calculations span concepts with no natural aggregate owner, such as pricing an order from its lines. A stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. A calculation one aggregate owns stays in that aggregate's root. The root calls the service inside its own method, or Application passes the service's plain result into a root method as an input. The service carries a mark naming its rule. The builder links it to the rule it computes. This provision binds `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` for .NET. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
 
 **Example:** An order pricing service takes the lines and returns the total:
 
@@ -484,7 +484,7 @@ The `IParsable<TId>` implementation supports Minimal API route and query binding
 
 **Statement:** An aggregate MUST reference another aggregate only through a property typed as its typed identifier, never through a property typed as its root or entity.
 
-**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A property typed as the other aggregate's typed identifier keeps each aggregate loadable on its own. This provision binds `litespec/backend/domain#reference-other-aggregates-by-id` for .NET.
+**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A property typed as the other aggregate's typed identifier keeps each aggregate loadable on its own. This provision binds `litespec/backend/domain#reference-other-aggregates-by-id` for .NET. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
 
 **Example:** In the Claimwick product, an expense holds the submitting employee as `EmployeeId`, never as an `Employee` object. Application loads the employee through its own repository when a command needs both sides.
 
@@ -823,7 +823,7 @@ Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while
 
 **Replacement:** A project names its own large-root layout in its Domain documentation.
 
-**Rationale:** A root grows with every business action it owns, and one file holding every action reads as one long listing. Splitting the root into one partial file per action keeps each action readable on its own while the root stays the one entry point to its aggregate. The action's rules stay private to the root, as private members or private nested types, so no caller reaches them past the root's methods.
+**Rationale:** A root grows with every business action it owns, and one file holding every action reads as one long listing. Splitting the root into one partial file per action keeps each action readable on its own while the root stays the one entry point to its aggregate. The action's rules stay private to the root, as private members or private nested types, so no caller reaches them past the root's methods. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
 
 **Example:** In the Claimwick product, the expense root keeps its identity and state in `Expense.cs`, its submission factory and allocation rules in `Expense.Submit.cs`, and its approval in `Expense.Approve.cs`:
 

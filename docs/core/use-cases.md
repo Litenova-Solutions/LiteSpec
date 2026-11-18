@@ -355,7 +355,7 @@ A type on each field lets the builder compare the records with the generated con
 
 **Statement:** Each command MUST cite every invariant rule that governs an aggregate it writes when most commands writing that aggregate cite the rule.
 
-**Rationale:** A command that writes an aggregate can break every invariant governing it, and the sibling commands writing the same aggregate show which invariants those writes meet. When most of them cite an invariant, the outlier posts without the checks the others apply. A command cites a rule in its steps' cites, its input rules, its consistency boundBy, or a result carrying the rule's refusal code. Only invariants qualify, since any other kind constrains single commands, while an invariant holds on every change.
+**Rationale:** A command that writes an aggregate can break every invariant governing it, and the sibling commands writing the same aggregate show which invariants those writes meet. When most of them cite an invariant, the outlier posts without the checks the others apply. A command cites a rule in its steps' cites, its input rules, its consistency boundBy, or a result carrying the rule's refusal code. Only invariants qualify, since any other kind constrains single commands, while an invariant holds on every change. Settled by [decision/0101-check-rule-citations](decision/0101-check-rule-citations).
 
 **Example:** Three library commands write the loan aggregate. Two cite the one-hold-per-copy invariant, and the third does not, so the third is reported.
 
@@ -789,7 +789,7 @@ The verb is `sends` or `calls`. The timing is `inline`, `after-commit`, or `asyn
 
 **Statement:** A scenario MUST name the rules it shows in `exercises`.
 
-**Rationale:** A rule proved only through a test mark hides which example walks it: readers open the rule and find no scenario showing it. Naming the shown rules in `exercises` ties each example to the rules it walks, and every rule meets its scenarios. A refusal scenario names the rule behind its result. The scenarios of a use case together walk every rule its inputs cite. An `exercises` entry naming a rule the use case never applies inflates coverage and sends a test author looking for behavior the scenario never shows.
+**Rationale:** A rule proved only through a test mark hides which example walks it: readers open the rule and find no scenario showing it. Naming the shown rules in `exercises` ties each example to the rules it walks, and every rule meets its scenarios. A refusal scenario names the rule behind its result. The scenarios of a use case together walk every rule its inputs cite. An `exercises` entry naming a rule the use case never applies inflates coverage and sends a test author looking for behavior the scenario never shows. Settled by [decision/0101-check-rule-citations](decision/0101-check-rule-citations).
 
 **Example:** In the library product, a scenario walking a second hold on one copy names `rule/lending.one-hold-per-copy` in `exercises`.
 

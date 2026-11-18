@@ -290,7 +290,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Deviation:** A rule whose statement already states its origin keeps no `source`.
 
-**Rationale:** A product simplification later gets mistaken for law: a future maintainer reads a rule that claims legal backing and will not change it, even when the product owner could, or changes a real legal rule believing it is a product choice. Stating the source keeps each kind changeable on its own terms: the law changes with the statute, and a product choice changes with the owner.
+**Rationale:** A product simplification later gets mistaken for law: a future maintainer reads a rule that claims legal backing and will not change it, even when the product owner could, or changes a real legal rule believing it is a product choice. Stating the source keeps each kind changeable on its own terms: the law changes with the statute, and a product choice changes with the owner. Settled by [decision/0099-rule-sources](decision/0099-rule-sources).
 
 **Example:** Claimwick's erased-after-retention rule states `law` and cites the tax constraint. A rule making a product choice states `product-choice` with no `cites`.
 
@@ -306,7 +306,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** A rule with `source: law` MUST name the restated constraint or research record in `cites`.
 
-**Rationale:** A law claim without its record cannot be checked: no reader can tell which outside rule the statement restates, so a change to the outside rule never reaches the rule. Naming the restated record ties each law rule to the constraint or research it carries, and the model checks the link resolves.
+**Rationale:** A law claim without its record cannot be checked: no reader can tell which outside rule the statement restates, so a change to the outside rule never reaches the rule. Naming the restated record ties each law rule to the constraint or research it carries, and the model checks the link resolves. Settled by [decision/0099-rule-sources](decision/0099-rule-sources).
 
 **Example:** Claimwick's erased-after-retention rule cites `constraint/tax-receipt-retention`, the tax rule its seven years restate.
 

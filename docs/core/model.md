@@ -1653,7 +1653,7 @@ The figures below render from the retention schedule at build time.
 
 **Deviation:** A value held by no table stays literal until a table holds it.
 
-**Rationale:** A value written into prose drifts: each statement holding it needs its own edit when the value changes, and no check sees which statements hold it. One table with dated rows keeps each value once with its source, and the model checks that every cited table exists.
+**Rationale:** A value written into prose drifts: each statement holding it needs its own edit when the value changes, and no check sees which statements hold it. One table with dated rows keeps each value once with its source, and the model checks that every cited table exists. Settled by [decision/0098-reference-data-tables](decision/0098-reference-data-tables).
 
 **Example:** The approval rule cites `reference-data/spending.decision-target` instead of stating five business days.
 

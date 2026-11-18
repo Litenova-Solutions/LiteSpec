@@ -29,7 +29,7 @@ Each position of the command pipeline, such as authorization, audit, and idempot
 
 **Statement:** A class MUST have one responsibility.
 
-**Rationale:** A class with one responsibility has one reason to change, so a reader reviews one job and a change risks one job. Without this rule, an author optimizes for fewer files and merges unrelated concerns wherever an interface allows it. The test stays plain: the class's job reads in one sentence without "and".
+**Rationale:** A class with one responsibility has one reason to change, so a reader reviews one job and a change risks one job. Without this rule, an author optimizes for fewer files and merges unrelated concerns wherever an interface allows it. The test stays plain: the class's job reads in one sentence without "and". Settled by [decision/0106-state-class-design-rules](decision/0106-state-class-design-rules).
 
 **Example:** In the Claimwick product, an expense repository that also renders the spending report splits into the repository and a report renderer. Each is read by different people and changes for different reasons.
 
@@ -45,7 +45,7 @@ Each position of the command pipeline, such as authorization, audit, and idempot
 
 **Statement:** A class MUST implement more than one interface only when the interfaces describe one capability.
 
-**Rationale:** Interfaces that describe one capability offer callers one thing, so they belong together. Interfaces for unrelated concerns, such as authorization, audit, idempotency, persistence, and rendering, change for different reasons and are read by different people. One class implementing two of them merges those concerns into one file, and a later reader cannot review one without the other.
+**Rationale:** Interfaces that describe one capability offer callers one thing, so they belong together. Interfaces for unrelated concerns, such as authorization, audit, idempotency, persistence, and rendering, change for different reasons and are read by different people. One class implementing two of them merges those concerns into one file, and a later reader cannot review one without the other. Settled by [decision/0106-state-class-design-rules](decision/0106-state-class-design-rules).
 
 **Example:** A class implementing `IReadOnlyList<T>` with `IEnumerable<T>` offers one capability. A class implementing an authorization contract with an audit contract merges two concerns, and splits into two classes.
 
@@ -61,7 +61,7 @@ Each position of the command pipeline, such as authorization, audit, and idempot
 
 **Statement:** Each pipeline declaration MUST sit in its own class, implementing exactly one pipeline contract.
 
-**Rationale:** Who may send a message and how the audit trail records it change for different reasons, and are read by different people: an access review reads the authorization declaration, and an audit review reads the audit declaration. One class per concern keeps each review to its own file.
+**Rationale:** Who may send a message and how the audit trail records it change for different reasons, and are read by different people: an access review reads the authorization declaration, and an audit review reads the audit declaration. One class per concern keeps each review to its own file. Settled by [decision/0106-state-class-design-rules](decision/0106-state-class-design-rules).
 
 **Example:** In the Claimwick product, the submit-expense authorization and audit declarations sit in two classes: `SubmitExpenseCommandAuthorizationDefinition` and `SubmitExpenseCommandAuditDefinition`. Each implements its own pipeline contract, and neither names the other concern.
 
@@ -77,7 +77,7 @@ Each position of the command pipeline, such as authorization, audit, and idempot
 
 **Statement:** A class MUST take shared behavior through composition rather than through a base class that collects unrelated helpers.
 
-**Rationale:** A base class that collects unrelated helpers gives every derived class behavior most of them never use, and each addition to the base reaches every derived class. Taking the behavior through a constructor parameter keeps each class beside only the behavior it uses. A base that defines one shared contract, such as the aggregate root base, is no helper collection.
+**Rationale:** A base class that collects unrelated helpers gives every derived class behavior most of them never use, and each addition to the base reaches every derived class. Taking the behavior through a constructor parameter keeps each class beside only the behavior it uses. A base that defines one shared contract, such as the aggregate root base, is no helper collection. Settled by [decision/0106-state-class-design-rules](decision/0106-state-class-design-rules).
 
 **Example:** In the Claimwick product, an expense validator takes its receipt checker as a constructor parameter instead of deriving from a validation base that also formats currencies.
 
@@ -97,6 +97,6 @@ Each position of the command pipeline, such as authorization, audit, and idempot
 
 **Replacement:** A project names its own pipeline declaration naming in its project documentation.
 
-**Rationale:** The message leads, so every declaration for one message lists beside it, and the concern trails, so each review finds its own file. One naming shape lets a reader move from the message to each of its declarations without searching.
+**Rationale:** The message leads, so every declaration for one message lists beside it, and the concern trails, so each review finds its own file. One naming shape lets a reader move from the message to each of its declarations without searching. Settled by [decision/0106-state-class-design-rules](decision/0106-state-class-design-rules).
 
 **Reviewed for:** Does every pipeline declaration class carry its message and concern in `{Message}{Concern}Definition` form? Read each declaration beside its message.

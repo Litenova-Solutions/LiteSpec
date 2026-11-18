@@ -550,7 +550,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An audit deployment MUST run retention deletion and tenant data erasure through a separate audited operator process under its own account.
 
-**Rationale:** The application account holds only `INSERT` and `SELECT`, so it cannot delete what retention ends. The operator process holds `DELETE` under its own account, deletes closed segments on schedule, and writes one deletion record per deleted segment. Tenant data erasure runs through the same process, so no application path deletes or removes audit data.
+**Rationale:** The application account holds only `INSERT` and `SELECT`, so it cannot delete what retention ends. The operator process holds `DELETE` under its own account, deletes closed segments on schedule, and writes one deletion record per deleted segment. Tenant data erasure runs through the same process, so no application path deletes or removes audit data. Settled by [decision/0097-one-audit-chain-segment-per-category-and-year](decision/0097-one-audit-chain-segment-per-category-and-year).
 
 **Example:** Claimwick keeps sign-in denials for two years and expense records for seven. A nightly operator job deletes the closed segments whose retention ended and writes one deletion record per deleted segment, while the application account keeps only `INSERT` and `SELECT`.
 
@@ -566,7 +566,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An audit store MUST hold one hash chain segment per audited category and calendar year, each with its own genesis record and checkpoints.
 
-**Rationale:** Deleting one category's expired records from a shared chain breaks every later link, so verification fails from the first expiry on. One segment per category and year lets the deployment delete a whole closed segment while the remaining segments still verify from their own anchors. The segment is closed with a final checkpoint before it is deleted as a whole.
+**Rationale:** Deleting one category's expired records from a shared chain breaks every later link, so verification fails from the first expiry on. One segment per category and year lets the deployment delete a whole closed segment while the remaining segments still verify from their own anchors. The segment is closed with a final checkpoint before it is deleted as a whole. Settled by [decision/0097-one-audit-chain-segment-per-category-and-year](decision/0097-one-audit-chain-segment-per-category-and-year).
 
 **Example:** Claimwick holds its 2026 sign-in denials in one segment. When their two years end, the deployment deletes that segment whole, and the expense segments keep verifying from their own genesis records.
 
@@ -582,7 +582,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An audit deployment MUST record each deleted chain segment as an audit record in the following segment of the same category.
 
-**Rationale:** A deleted segment leaves no rows, so without a record the trail cannot show what it removed. The deletion record states which segment was deleted with its record count and final checkpoint. The following year segment is still live, because it expires a year later, so it holds the record.
+**Rationale:** A deleted segment leaves no rows, so without a record the trail cannot show what it removed. The deletion record states which segment was deleted with its record count and final checkpoint. The following year segment is still live, because it expires a year later, so it holds the record. Settled by [decision/0097-one-audit-chain-segment-per-category-and-year](decision/0097-one-audit-chain-segment-per-category-and-year).
 
 **Example:** Deleting the 2026 sign-in denial segment writes one record into the 2027 denial segment, naming the deleted segment with its count and final checkpoint.
 
