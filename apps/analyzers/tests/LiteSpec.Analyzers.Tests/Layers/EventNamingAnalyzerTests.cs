@@ -38,11 +38,11 @@ public sealed class EventNamingAnalyzerTests
     [Fact(DisplayName = "LS2031 reports a module event without its suffix")]
     public Task ReportsAModuleEventWithoutItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
-            namespace Shop.Orders.Contracts.Orders;
+            namespace Shop.Orders.Contracts.Orders.Events;
 
             /// <implements>module-event/orders.order-placed</implements>
             public sealed record {|LS2031:OrderPlaced|}(int OrderId);
-            """, path: "Shop.Orders/Contracts/Orders/OrderPlaced.cs");
+            """, path: "Shop.Orders/Contracts/Orders/Events/OrderPlaced.cs");
 
     /// <summary>LS2031 accepts a module event with its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -50,11 +50,11 @@ public sealed class EventNamingAnalyzerTests
     [Fact(DisplayName = "LS2031 accepts a module event with its suffix")]
     public Task AcceptsAModuleEventWithItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
-            namespace Shop.Orders.Contracts.Orders;
+            namespace Shop.Orders.Contracts.Orders.Events;
 
             /// <implements>module-event/orders.order-placed</implements>
             public sealed record OrderPlacedModuleEvent(int OrderId);
-            """, path: "Shop.Orders/Contracts/Orders/OrderPlacedModuleEvent.cs");
+            """, path: "Shop.Orders/Contracts/Orders/Events/OrderPlacedModuleEvent.cs");
 
     /// <summary>LS2031 reports an integration event without its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -62,11 +62,11 @@ public sealed class EventNamingAnalyzerTests
     [Fact(DisplayName = "LS2031 reports an integration event without its suffix")]
     public Task ReportsAnIntegrationEventWithoutItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
-            namespace Shop.Orders.Contracts.Orders;
+            namespace Shop.Orders.Contracts.Orders.Events;
 
             /// <implements>integration-event/order-placed</implements>
             public sealed record {|LS2031:OrderPlaced|}(int OrderId);
-            """, path: "Shop.Orders/Contracts/Orders/OrderPlaced.cs");
+            """, path: "Shop.Orders/Contracts/Orders/Events/OrderPlaced.cs");
 
     /// <summary>LS2031 accepts an integration event with its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -74,11 +74,11 @@ public sealed class EventNamingAnalyzerTests
     [Fact(DisplayName = "LS2031 accepts an integration event with its suffix")]
     public Task AcceptsAnIntegrationEventWithItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
-            namespace Shop.Orders.Contracts.Orders;
+            namespace Shop.Orders.Contracts.Orders.Events;
 
             /// <implements>integration-event/order-placed</implements>
             public sealed record OrderPlacedIntegrationEvent(int OrderId);
-            """, path: "Shop.Orders/Contracts/Orders/OrderPlacedIntegrationEvent.cs");
+            """, path: "Shop.Orders/Contracts/Orders/Events/OrderPlacedIntegrationEvent.cs");
 
     /// <summary>LS2031 reports a module event in a sibling Contracts project.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -86,11 +86,11 @@ public sealed class EventNamingAnalyzerTests
     [Fact(DisplayName = "LS2031 reports a module event in a sibling Contracts project")]
     public Task ReportsAModuleEventInASiblingContractsProject() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
-            namespace Shop.Orders.Contracts.Orders;
+            namespace Shop.Orders.Contracts.Orders.Events;
 
             /// <implements>module-event/orders.order-placed</implements>
             public sealed record {|LS2031:OrderPlaced|}(int OrderId);
-            """, assemblyName: "Shop.Orders.Contracts", path: "Shop.Orders.Contracts/Orders/OrderPlaced.cs");
+            """, assemblyName: "Shop.Orders.Contracts", path: "Shop.Orders.Contracts/Orders/Events/OrderPlaced.cs");
 
     /// <summary>LS2031 ignores a Contracts type with no event mark.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

@@ -34,8 +34,8 @@ Start with:
 | Request and response models | The `WebApi/{Aggregates}/{UseCase}/` folder beside the endpoint | None; the folder places them | Review the transport models |
 | Reaction handler class | The `Application/{Aggregates}/{UseCase}/` folder when the reaction runs a use case; otherwise the `Application/Notifications/<Name>/` folder when it sends a notification, or `Application/ExternalSystems/<Name>/` when it calls one | `implements` naming `reaction/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Scheduled job | The `Application/{Aggregates}/{UseCase}/` folder of the use case the job runs | `implements` naming `job/<module>.<name>` | See the [finding table](../tools/model.md) |
-| Integration event | The `Contracts/{Aggregates}/` folder of the owning module's Contracts project | `implements` naming `integration-event/<name>` | See the [finding table](../tools/model.md) |
-| Module event | The `Contracts/{Aggregates}/` folder of the owning module's Contracts project | `implements` naming `module-event/<module>.<name>` | See the [finding table](../tools/model.md) |
+| Integration event | The `Contracts/{Aggregates}/Events/` folder of the owning module's Contracts project | `implements` naming `integration-event/<name>` | See the [finding table](../tools/model.md) |
+| Module event | The `Contracts/{Aggregates}/Events/` folder of the owning module's Contracts project | `implements` naming `module-event/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Public query message and result | The `Contracts/{Aggregates}/{UseCase}/` folder of the owning module's Contracts project | None; the handler folder places them | See the [finding table](../tools/model.md) |
 | Public command message and result | The `Contracts/{Aggregates}/{UseCase}/` folder of the owning module's Contracts project | None; the handler folder places them | See the [finding table](../tools/model.md) |
 | External-system port | The module `Ports/{Port}/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |

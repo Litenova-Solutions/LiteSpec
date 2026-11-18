@@ -118,7 +118,7 @@ After that commit, an event handler answers each fact through its entry point: t
 // The commit step stores the changed aggregate and stages the facts it raised in one transaction.
 outbox.StageCollectedEvents();
 
-// Claimwick.Spending.Contracts/Expenses/ExpenseReimbursedModuleEvent.cs: built from its domain event alone.
+// Claimwick.Spending.Contracts/Expenses/Events/ExpenseReimbursedModuleEvent.cs: built from its domain event alone.
 public sealed record ExpenseReimbursedModuleEvent(ExpenseId ExpenseId, EmployeeId EmployeeId, Money Amount, DateTimeOffset ReimbursedAt)
 {
     public static ExpenseReimbursedModuleEvent From(ExpenseReimbursedDomainEvent fact) =>

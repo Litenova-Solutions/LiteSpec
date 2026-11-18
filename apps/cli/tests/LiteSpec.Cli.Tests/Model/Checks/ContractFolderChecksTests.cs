@@ -8,7 +8,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the Contracts closed set: aggregate folders with the identifier, facts and public use case folders, no interface, no stray command, and each public use case message at its Contracts path.</summary>
+/// <summary>Proves the Contracts closed set: aggregate folders with the identifier, an Events folder with the facts, and public use case folders, no interface, no stray command, and each public use case message at its Contracts path.</summary>
 public sealed class ContractFolderChecksTests
 {
     /// <summary>An Aggregate Folder With Identifier Facts And Public Query Reports Nothing.</summary>
@@ -18,10 +18,14 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
+        AddFactRecords(model, temp.Path);
         var loans = ContractsFolder(temp.Path, "Loans");
         Directory.CreateDirectory(loans);
         File.WriteAllText(Path.Combine(loans, "LoanId.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic readonly record struct LoanId(Guid Value);\n");
-        File.WriteAllText(Path.Combine(loans, "LoanBorrowed.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic sealed record LoanBorrowed(Guid LoanId);\n");
+        var events = Path.Combine(loans, "Events");
+        Directory.CreateDirectory(events);
+        File.WriteAllText(Path.Combine(events, "LoanBorrowedModuleEvent.cs"), "namespace Library.Lending.Contracts.Loans.Events;\n\npublic sealed record LoanBorrowedModuleEvent(Guid LoanId);\n");
+        File.WriteAllText(Path.Combine(events, "LoanLentIntegrationEvent.cs"), "namespace Library.Lending.Contracts.Loans.Events;\n\npublic sealed record LoanLentIntegrationEvent(Guid LoanId);\n");
         var readLoan = Path.Combine(loans, "ReadLoan");
         Directory.CreateDirectory(readLoan);
         File.WriteAllText(Path.Combine(readLoan, "ReadLoanQuery.cs"), "namespace Library.Lending.Contracts.Loans.ReadLoan;\n\npublic sealed record ReadLoanQuery(Guid LoanId);\n");
@@ -31,6 +35,60 @@ public sealed class ContractFolderChecksTests
         File.WriteAllText(Path.Combine(readLedger, "ReadLedgerQuery.cs"), "namespace Library.Lending.Contracts.ReadLedger;\n\npublic sealed record ReadLedgerQuery();\n");
 
         Assert.Empty(Run(model));
+    }
+
+    /// <summary>A Fact Beside Its Contracts Aggregate Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void FactBesideItsContractsAggregateReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        AddFactRecords(model, temp.Path);
+        var loans = ContractsFolder(temp.Path, "Loans");
+        Directory.CreateDirectory(loans);
+        File.WriteAllText(Path.Combine(loans, "LoanBorrowedModuleEvent.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic sealed record LoanBorrowedModuleEvent(Guid LoanId);\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("holds a fact outside its Events/ folder", finding.Message);
+        Assert.Contains("it belongs in 'Loans/Events/'", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A Non Fact File In Events Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void NonFactFileInEventsReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        AddFactRecords(model, temp.Path);
+        var events = ContractsFolder(temp.Path, "Loans", "Events");
+        Directory.CreateDirectory(events);
+        File.WriteAllText(Path.Combine(events, "LoanNotes.cs"), "namespace Library.Lending.Contracts.Loans.Events;\n\npublic sealed record LoanNotes(string Text);\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("sits in Events/, which holds only module and integration events", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A Fact In The Wrong Aggregate Events Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void FactInWrongAggregateEventsReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        AddFactRecords(model, temp.Path);
+        model.Records.Add(Rec("aggregate", "aggregate/lending.copy", "lending", "aggregates/copies", """{"summary": "A physical copy."}""", temp.Path));
+        var events = ContractsFolder(temp.Path, "Copies", "Events");
+        Directory.CreateDirectory(events);
+        File.WriteAllText(Path.Combine(events, "LoanBorrowedModuleEvent.cs"), "namespace Library.Lending.Contracts.Copies.Events;\n\npublic sealed record LoanBorrowedModuleEvent(Guid LoanId);\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("holds the fact 'module-event/lending.loan-borrowed'", finding.Message);
+        Assert.Contains("it belongs in 'Loans/Events/'", finding.Message);
+        Assert.Null(finding.Subject);
     }
 
     /// <summary>An Unknown Contracts Folder Reports Drift.</summary>
@@ -207,6 +265,14 @@ public sealed class ContractFolderChecksTests
         Assert.True(NamespacePlacement.NamespaceMatches(["Lending", "Contracts", "Loans"], ["Lending", "Loans"]));
     }
 
+    /// <summary>Contracts Events After Expected Segments Matches.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void ContractsEventsAfterExpectedSegmentsMatches()
+    {
+        Assert.True(NamespacePlacement.NamespaceMatches(["Lending", "Contracts", "Loans", "Events"], ["Lending", "Loans"]));
+    }
+
     /// <summary>An Unknown Folder Between Expected Segments Mismatches.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
@@ -230,8 +296,8 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("reader");
         WriteReaderProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "Expenses"), "ExpenseReimbursed.cs", """
-            namespace Library.Spending.Contracts.Expenses;
+        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "Expenses", "Events"), "ExpenseReimbursed.cs", """
+            namespace Library.Spending.Contracts.Expenses.Events;
 
             /// <implements>module-event/spending.expense-reimbursed</implements>
             public sealed record ExpenseReimbursed(Guid ExpenseId);
@@ -274,8 +340,8 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("reader");
         WriteReaderProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "Expenses"), "ExpenseContracts.cs", """
-            namespace Library.Spending.Contracts.Expenses;
+        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "Expenses", "Events"), "ExpenseContracts.cs", """
+            namespace Library.Spending.Contracts.Expenses.Events;
 
             public static class ExpenseContracts
             {
@@ -326,6 +392,17 @@ public sealed class ContractFolderChecksTests
         model.Records.Add(Rec("use-case", "use-case/lending.read-loan", "lending", "aggregates/loans/use-cases/read-loan", """{"kind": "query", "reachedThrough": ["module/finance"]}""", root));
         model.Records.Add(Rec("use-case", "use-case/lending.read-ledger", "lending", "use-cases/read-ledger", """{"kind": "query", "reachedThrough": ["module/finance"]}""", root));
         model.Records.Add(Rec("use-case", "use-case/lending.retire-copy", "lending", "aggregates/loans/use-cases/retire-copy", """{"kind": "command"}""", root));
+    }
+
+    /// <summary>Adds two loan domain events with the module event and integration event translating them.</summary>
+    /// <param name="model">The project model receiving the records.</param>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    static void AddFactRecords(ProjectModel model, string root)
+    {
+        model.Records.Add(Rec("domain-event", "domain-event/loan.borrowed", "lending", "aggregates/loans", """{}""", root));
+        model.Records.Add(Rec("domain-event", "domain-event/loan.lent", "lending", "aggregates/loans", """{}""", root));
+        model.Records.Add(Rec("module-event", "module-event/lending.loan-borrowed", "lending", "module-events/loan-borrowed", """{"translates": "domain-event/loan.borrowed"}""", root));
+        model.Records.Add(Rec("integration-event", "integration-event/loan-lent", "lending", "integration-events/loan-lent", """{"translates": "domain-event/loan.lent"}""", root));
     }
 
     /// <summary>One record with its module and folder.</summary>

@@ -17,7 +17,7 @@ Application code lives in the `Application/` layer folder of each module: one fo
 
 The `Application/{Aggregates}/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{Aggregates}/{UseCase}/` folder holds the endpoint with its request and response models. The `Ports/{Port}/` folder holds the interface `I{Port}` and only the types its signatures name, and the `Infrastructure/{Port}/` folder holds the adapter implementing it.
 
-Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder: data only, grouped by aggregate into identifiers, facts, and public queries and public commands with their messages and results. The pipeline machinery itself lives in the product `Application/` folder.
+Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder: data only, grouped by aggregate, with each aggregate folder holding its identifier, an `Events/` folder with its facts, and its public queries and public commands with their messages and results. The pipeline machinery itself lives in the product `Application/` folder.
 
 Each event handler class carries a mark naming the reaction it implements, and sits with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 
@@ -880,7 +880,7 @@ The layer folders state each file's layer in the path and show by their presence
   Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else
   Posts/                                  single aggregate whose name matches the module: Domain holds the aggregate directly
     Contracts/
-      Posts/          PostId, PostPublishedModuleEvent, ReadPost/ (query and result)
+      Posts/          PostId, Events/PostPublishedModuleEvent, ReadPost/ (query and result)
     Domain/                               Post, PostState, and the post repository contract directly
     Application/
       Posts/
@@ -908,8 +908,8 @@ The layer folders state each file's layer in the path and show by their presence
         ExportPosts/                      endpoint
   Customers/                              two aggregates: Domain holds one plural folder per aggregate
     Contracts/
-      CustomerAccounts/  CustomerAccountId, the facts, and the public queries and public commands of the account aggregate
-      Consents/          ConsentId, the facts, and the public queries and public commands of the consent aggregate
+      CustomerAccounts/  CustomerAccountId, the Events/ folder with the facts, and the public queries and public commands of the account aggregate
+      Consents/          ConsentId, the Events/ folder with the facts, and the public queries and public commands of the consent aggregate
     Domain/
       CustomerAccounts/
       Consents/

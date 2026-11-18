@@ -75,6 +75,9 @@ internal static class ClosedFolderChecks
     /// <summary>The file name suffixes of a use case query message and result, which sit in the use case folder of their Contracts aggregate.</summary>
     static readonly string[] QuerySuffixes = ["QueryResult.cs", "Query.cs"];
 
+    /// <summary>The file name suffixes of a fact: a module event or an integration event, which sit in the Events folder of their Contracts aggregate.</summary>
+    static readonly string[] FactSuffixes = ["ModuleEvent.cs", "IntegrationEvent.cs"];
+
     /// <summary>
     ///     Reports every backend and frontend folder outside the closed folder sets, and every module and
     ///     aggregate folder that names no declared record. A host holds its endpoints and plumbing without
@@ -90,6 +93,7 @@ internal static class ClosedFolderChecks
         var useCases = DeclaredUseCases(model);
         var homes = DeclaredTriggerHomes(model);
         var publicUseCases = DeclaredPublicUseCases(model);
+        var facts = DeclaredFacts(model);
 
         foreach (var modulesRoot in model.Config.ModulesRoots)
         {
@@ -100,11 +104,11 @@ internal static class ClosedFolderChecks
 
             if (SourceRoots.IsSingleModulesProject(modulesRoot))
             {
-                CheckSingleModulesRoot(model.Config, modulesRoot, modules, aggregates, useCases, publicUseCases, homes, findings);
+                CheckSingleModulesRoot(model.Config, modulesRoot, modules, aggregates, useCases, publicUseCases, homes, facts, findings);
             }
             else
             {
-                CheckModuleProject(model.Config, modulesRoot, modules, aggregates, useCases, publicUseCases, homes, findings);
+                CheckModuleProject(model.Config, modulesRoot, modules, aggregates, useCases, publicUseCases, homes, facts, findings);
             }
 
             CheckMessageFiles(model.Config, modulesRoot, aggregates, useCases, findings);
@@ -164,8 +168,9 @@ internal static class ClosedFolderChecks
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
+    /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckSingleModulesRoot(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    private static void CheckSingleModulesRoot(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
     {
         foreach (var module in ChildFolders(modulesRoot))
         {
@@ -177,7 +182,7 @@ internal static class ClosedFolderChecks
                 continue;
             }
 
-            CheckModuleLevel(config, module, name, aggregates, useCases, publicUseCases, homes, nestedContracts: true, findings);
+            CheckModuleLevel(config, module, name, aggregates, useCases, publicUseCases, homes, facts, nestedContracts: true, findings);
         }
     }
 
@@ -189,12 +194,13 @@ internal static class ClosedFolderChecks
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
+    /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckModuleProject(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    private static void CheckModuleProject(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
     {
         if (SourceRoots.IsContractsProject(modulesRoot))
         {
-            CheckContractsProject(config, modulesRoot, modules, aggregates, useCases, publicUseCases, findings);
+            CheckContractsProject(config, modulesRoot, modules, aggregates, useCases, publicUseCases, facts, findings);
             return;
         }
 
@@ -206,7 +212,7 @@ internal static class ClosedFolderChecks
             return;
         }
 
-        CheckModuleLevel(config, modulesRoot, name, aggregates, useCases, publicUseCases, homes, nestedContracts: false, findings);
+        CheckModuleLevel(config, modulesRoot, name, aggregates, useCases, publicUseCases, homes, facts, nestedContracts: false, findings);
     }
 
     /// <summary>Reports the Contracts project whose owner names no declared module, and every folder under it that breaks the Contracts closed set.</summary>
@@ -216,8 +222,9 @@ internal static class ClosedFolderChecks
     /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
+    /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckContractsProject(ConsumerConfig config, string contracts, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, List<Finding> findings)
+    private static void CheckContractsProject(ConsumerConfig config, string contracts, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
     {
         var owner = SourceRoots.ModuleNameOf(contracts) ?? Path.GetFileName(contracts);
 
@@ -227,7 +234,7 @@ internal static class ClosedFolderChecks
             return;
         }
 
-        CheckContractsLevel(config, contracts, owner, aggregates, useCases, publicUseCases, findings);
+        CheckContractsLevel(config, contracts, owner, aggregates, useCases, publicUseCases, facts, findings);
     }
 
     /// <summary>Reports every folder under one module that breaks the module level's closed set.</summary>
@@ -238,9 +245,10 @@ internal static class ClosedFolderChecks
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
+    /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="nestedContracts">Whether a nested Contracts folder is allowed: only in the one-modules-project deviation.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckModuleLevel(ConsumerConfig config, string module, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, bool nestedContracts, List<Finding> findings)
+    private static void CheckModuleLevel(ConsumerConfig config, string module, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, bool nestedContracts, List<Finding> findings)
     {
         // Each port pairs with one adapter folder of the same name, so both folder
         // names are read before either level is checked.
@@ -298,7 +306,7 @@ internal static class ClosedFolderChecks
 
             if (nestedContracts && string.Equals(name, "Contracts", StringComparison.OrdinalIgnoreCase))
             {
-                CheckContractsLevel(config, child, moduleName, aggregates, useCases, publicUseCases, findings);
+                CheckContractsLevel(config, child, moduleName, aggregates, useCases, publicUseCases, facts, findings);
                 continue;
             }
 
@@ -306,16 +314,17 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under the module contracts that names no declared aggregate or public module-level use case of the owner, every file directly beside them, every interface, and every command of no public use case.</summary>
+    /// <summary>Reports every folder under the module contracts that names no declared aggregate or public module-level use case of the owner, every file directly beside them, every interface, every fact outside its Events folder, and every command of no public use case.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="contracts">The absolute Contracts project or Contracts folder of one module.</param>
     /// <param name="owner">The owner module folder name as written on disk.</param>
     /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
+    /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
-    private static void CheckContractsLevel(ConsumerConfig config, string contracts, string owner, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, List<Finding> findings)
+    private static void CheckContractsLevel(ConsumerConfig config, string contracts, string owner, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
     {
         foreach (var child in ChildFolders(contracts))
         {
@@ -323,7 +332,7 @@ internal static class ClosedFolderChecks
 
             if (aggregates.Any(aggregate => SameName(owner, aggregate.Module) && SameName(name, aggregate.Expected)))
             {
-                CheckContractsAggregate(config, child, owner, name, aggregates, useCases, publicUseCases, findings);
+                CheckContractsAggregate(config, child, owner, name, aggregates, useCases, publicUseCases, facts, findings);
                 continue;
             }
 
@@ -374,7 +383,7 @@ internal static class ClosedFolderChecks
         CheckContractsTypes(config, contracts, owner, aggregates, publicUseCases, findings);
     }
 
-    /// <summary>Reports every folder under one Contracts aggregate folder that names no public use case of that aggregate, and every query or command message or result directly beside them.</summary>
+    /// <summary>Reports every folder under one Contracts aggregate folder that names no public use case of that aggregate and no Events folder, every fact directly beside them, and every query or command message or result directly beside them.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="aggregate">The absolute aggregate folder under Contracts.</param>
     /// <param name="owner">The owner module folder name as written on disk.</param>
@@ -382,9 +391,10 @@ internal static class ClosedFolderChecks
     /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
+    /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
-    private static void CheckContractsAggregate(ConsumerConfig config, string aggregate, string owner, string name, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, List<Finding> findings)
+    private static void CheckContractsAggregate(ConsumerConfig config, string aggregate, string owner, string name, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
     {
         var owned = publicUseCases
             .Where(useCase => SameName(owner, useCase.Module)
@@ -395,6 +405,12 @@ internal static class ClosedFolderChecks
         foreach (var child in ChildFolders(aggregate))
         {
             var childName = Path.GetFileName(child);
+
+            if (childName.Equals("Events", StringComparison.OrdinalIgnoreCase))
+            {
+                CheckContractsEvents(config, child, owner, name, aggregates, facts, findings);
+                continue;
+            }
 
             if (owned.Any(useCase => SameName(childName, useCase.Name)))
             {
@@ -429,6 +445,24 @@ internal static class ClosedFolderChecks
         foreach (var file in ChildFiles(aggregate))
         {
             var fileName = Path.GetFileName(file);
+            var factSuffix = FactSuffixes.FirstOrDefault(candidate => fileName.EndsWith(candidate, StringComparison.Ordinal));
+
+            if (factSuffix is not null)
+            {
+                var factKind = factSuffix.StartsWith("Module", StringComparison.Ordinal) ? "module" : "integration";
+                var factPrefix = fileName[..^factSuffix.Length];
+                var factMatch = facts.FirstOrDefault(fact =>
+                    SameName(owner, fact.Module)
+                    && fact.Kind == factKind
+                    && SameName(factPrefix, fact.Name));
+                var expected = factMatch.Id is not null && factMatch.Aggregate is not null
+                    ? ExpectedOf(aggregates, owner, factMatch.Aggregate)
+                    : name;
+
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds a fact outside its Events/ folder; it belongs in '{expected}/Events/'.", file, 1, null));
+                continue;
+            }
+
             var querySuffix = QuerySuffixes.FirstOrDefault(candidate => fileName.EndsWith(candidate, StringComparison.Ordinal));
             var commandSuffix = querySuffix is null
                 ? CommandSuffixes.FirstOrDefault(candidate => fileName.EndsWith(candidate, StringComparison.Ordinal))
@@ -451,6 +485,50 @@ internal static class ClosedFolderChecks
             }
 
             findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds the message of public {kind} '{match.Id}'; it belongs in '{Naming.Pascal(match.Name)}/'.", file, 1, null));
+        }
+    }
+
+    /// <summary>Reports every folder under one Contracts Events folder, which holds files only, every file in it that is no fact, and every fact outside the aggregate of the domain event it translates.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="events">The absolute Events folder under Contracts.</param>
+    /// <param name="owner">The owner module folder name as written on disk.</param>
+    /// <param name="aggregate">The aggregate folder name as written on disk.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
+    /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+    private static void CheckContractsEvents(ConsumerConfig config, string events, string owner, string aggregate, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(events))
+        {
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' sits in '{aggregate}/Events/', which holds files only.", child, 1, null));
+        }
+
+        foreach (var file in ChildFiles(events))
+        {
+            var fileName = Path.GetFileName(file);
+            var suffix = FactSuffixes.FirstOrDefault(candidate => fileName.EndsWith(candidate, StringComparison.Ordinal));
+
+            if (suffix is null)
+            {
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits in Events/, which holds only module and integration events.", file, 1, null));
+                continue;
+            }
+
+            var kind = suffix.StartsWith("Module", StringComparison.Ordinal) ? "module" : "integration";
+            var prefix = fileName[..^suffix.Length];
+            var match = facts.FirstOrDefault(fact =>
+                SameName(owner, fact.Module)
+                && fact.Kind == kind
+                && SameName(prefix, fact.Name));
+
+            if (match.Id is null || match.Aggregate is null || SameAggregate(aggregate, match.Aggregate))
+            {
+                continue;
+            }
+
+            var expected = ExpectedOf(aggregates, owner, match.Aggregate);
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds the fact '{match.Id}'; it belongs in '{expected}/Events/'.", file, 1, null));
         }
     }
 
@@ -523,9 +601,11 @@ internal static class ClosedFolderChecks
         var relative = PathText.Relative(config.Root, file);
 
         // The folder checks own a file directly in Contracts/, a file directly in an
-        // aggregate folder, and a file nested past a use case folder, so those stay silent here.
+        // aggregate folder, a file under an Events folder, and a file nested past a use
+        // case folder, so those stay silent here.
         if (segments.Length == 1
             || (segments.Length == 2 && aggregates.Any(aggregate => SameName(owner, aggregate.Module) && SameName(segments[0], aggregate.Expected)))
+            || segments.Any(segment => segment.Equals("Events", StringComparison.OrdinalIgnoreCase))
             || segments.Length > 3)
         {
             return null;
@@ -774,6 +854,43 @@ internal static class ClosedFolderChecks
         }
 
         return useCases;
+    }
+
+    /// <summary>The declared facts by module, aggregate, name, identifier and kind: each module event and each integration event with the aggregate of the domain event it translates, or none when it translates none.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <returns>The module, aggregate folder, name, identifier and kind of each fact placed in a module folder.</returns>
+    private static List<(string Module, string? Aggregate, string Name, string Id, string Kind)> DeclaredFacts(ProjectModel model)
+    {
+        var facts = new List<(string Module, string? Aggregate, string Name, string Id, string Kind)>();
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type != RecordTypes.ModuleEvent && record.Type != RecordTypes.IntegrationEvent)
+            {
+                continue;
+            }
+
+            var path = PathOf(record);
+
+            if (path.Module is null || path.Name is null)
+            {
+                continue;
+            }
+
+            string? aggregate = null;
+
+            if (record.Field(RecordFields.Translates) is { } translated
+                && model.ById.TryGetValue(translated, out var domainEvent)
+                && domainEvent.Type == RecordTypes.DomainEvent)
+            {
+                aggregate = PathOf(domainEvent).Aggregate;
+            }
+
+            var kind = record.Type == RecordTypes.ModuleEvent ? "module" : "integration";
+            facts.Add((path.Module, aggregate, path.Name, record.Id, kind));
+        }
+
+        return facts;
     }
 
     /// <summary>Whether the identifier names a module.</summary>

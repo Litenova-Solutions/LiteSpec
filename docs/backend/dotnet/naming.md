@@ -79,7 +79,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Rationale:** A codebase holds all three kinds at once: the domain event an aggregate raises for its own module, the module event other modules consume, and the integration event that leaves the product. A bare `Event` suffix, or no suffix, never says which contract the type carries: whether the fact stays inside its module, is versioned for other modules, or has external consumers. The kind suffix puts that answer in the name, beside the `Command`, `Query`, `Result`, and `Id` suffixes the Role Suffixes table assigns. eShopOnContainers names its events `DomainEvent` and `IntegrationEvent` the same way.
 
-**Example:** In the Claimwick product, the expense aggregate raises `ExpenseApprovedDomainEvent` from `Domain/Expenses/Events/`, and the spending Contracts project publishes `ExpenseReimbursedModuleEvent` for the reporting module. A reaction keeps the fact without the suffix: `SubmitPayoutOnExpenseApprovedHandler` answers the approval.
+**Example:** In the Claimwick product, the expense aggregate raises `ExpenseApprovedDomainEvent` from `Domain/Expenses/Events/`, and the spending Contracts project publishes `ExpenseReimbursedModuleEvent` from `Contracts/Expenses/Events/` for the reporting module. A reaction keeps the fact without the suffix: `SubmitPayoutOnExpenseApprovedHandler` answers the approval.
 
 **Checked by:** `dotnet build` reports `LS2031` for an event type whose name does not end in the suffix of its kind.
 

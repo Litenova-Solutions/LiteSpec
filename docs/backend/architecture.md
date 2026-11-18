@@ -30,7 +30,7 @@ A [module](../reference/glossary.md) is one business area: it organizes the lang
 
 Every module organizes its code as the module tree: one `Contracts/` folder for its public surface, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per port of the module, and the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it, plus one folder per module-level use case, with `Infrastructure/` holding `Persistence/` and one adapter folder per port. A use case that touches two aggregates sits in the aggregate folder its record names: the record tree already groups use cases by aggregate, and the code mirrors the records.
 
-A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, the facts another module consumes, and one folder per public query or public command with its message and result. Other modules reference nothing outside it.
+A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, an `Events/` folder with the facts another module consumes, and one folder per public query or public command with its message and result. Other modules reference nothing outside it.
 
 ### The Module Tree
 
@@ -45,7 +45,7 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
   Domain/  Application/  Infrastructure/  WebApi/     Kernel values, pipeline positions, store setup and outbox
   Organizations/                                      module
     Contracts/
-      Teams/             TeamId, TeamMemberAddedModuleEvent, ReadTeam/ (query and result)
+      Teams/             TeamId, Events/TeamMemberAddedModuleEvent, ReadTeam/ (query and result)
       ReadTeamDirectory/ a public module-level query
     Domain/
       Teams/             Team, TeamState, TeamRepository (contract), Events/, Exceptions/
@@ -75,7 +75,8 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 | Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/` |
 | Module `Contracts/` | one folder per aggregate with anything public, in the plural, and one folder per public module-level use case; no files |
-| Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, the facts another module consumes, and one folder per public query or public command of that aggregate |
+| Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, an `Events/` folder with the facts, and one folder per public query or public command of that aggregate; no other files |
+| Module `Contracts/{Aggregates}/Events/` | the module events and integration events of that aggregate; no other files |
 | Module `Contracts/{Aggregates}/{UseCase}/` and each public module-level use case folder | the message, its result, and the result parts; no other files |
 | Module `Domain/` | one folder per declared aggregate, in the plural |
 | Module `Domain/{Aggregates}/` | `Events/`, `Exceptions/`, files |
@@ -229,7 +230,7 @@ A folder named for a technical grouping rather than a module defeats the rule: t
 # single-aggregate module whose aggregate name matches the module: Domain stays flat, layer folders nest under the plural aggregate folder
 Organizations/
   Contracts/
-    Organizations/            the identifier, the facts, and the public queries and public commands of the organization aggregate
+    Organizations/            the identifier, the Events/ folder with the facts, and the public queries and public commands of the organization aggregate
   Domain/                     the organization aggregate directly: Organization, OrganizationState
   Application/
     Organizations/
@@ -241,8 +242,8 @@ Organizations/
 # multi-aggregate module: Domain holds one plural folder per aggregate, each layer holds one plural aggregate folder with one folder per use case inside it
 Spending/
   Contracts/
-    Expenses/                 ExpenseId, ExpenseReimbursedModuleEvent, ReadExpense/ (query and result)
-    Policies/                 the identifier, the facts, and the public queries and public commands of the policy aggregate
+    Expenses/                 ExpenseId, Events/ExpenseReimbursedModuleEvent, ReadExpense/ (query and result)
+    Policies/                 the identifier, the Events/ folder with the facts, and the public queries and public commands of the policy aggregate
   Domain/
     Expenses/                 Expense, ExpenseState, the expense repository contract
     Policies/

@@ -1,4 +1,4 @@
-using Claimwick.Spending.Contracts.Expenses;
+using Claimwick.Spending.Contracts.Expenses.Events;
 using Marten;
 
 namespace Claimwick.Reporting.Application.ReadModels.ReimbursedExpenses;

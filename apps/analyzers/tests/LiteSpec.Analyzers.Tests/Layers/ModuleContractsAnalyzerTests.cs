@@ -211,21 +211,21 @@ public sealed class ModuleContractsAnalyzerTests
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
             [
                 ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookQueryHandler.cs", """
-                    using Claimwick.Books.Contracts.Books;
+                    using Claimwick.Books.Contracts.Books.Events;
 
                     namespace Claimwick.Reading.Application.BorrowBook;
 
                     internal sealed class BorrowBookQueryHandler
                     {
-                        internal void On(BookLent lent)
+                        internal void On(BookLentModuleEvent lent)
                         {
                         }
                     }
                     """),
-                ("Claimwick.Modules/Books/Contracts/Books/BookLent.cs", """
-                    namespace Claimwick.Books.Contracts.Books;
+                ("Claimwick.Modules/Books/Contracts/Books/Events/BookLentModuleEvent.cs", """
+                    namespace Claimwick.Books.Contracts.Books.Events;
 
-                    internal sealed record BookLent(System.Guid Book);
+                    internal sealed record BookLentModuleEvent(System.Guid Book);
                     """),
             ],
             assemblyName: "Claimwick.Modules");
@@ -419,10 +419,17 @@ public sealed class ModuleContractsAnalyzerTests
                     {
                     }
                     """),
-                ("Claimwick.Modules/Books/Contracts/Books/BookLent.cs", """
-                    namespace Claimwick.Books.Contracts.Books;
+                ("Claimwick.Modules/Books/Contracts/Books/Events/IBookLent.cs", """
+                    namespace Claimwick.Books.Contracts.Books.Events;
 
-                    internal sealed record BookLent(System.Guid Book);
+                    internal interface {|LS2030:IBookLent|}
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/Events/BookLentModuleEvent.cs", """
+                    namespace Claimwick.Books.Contracts.Books.Events;
+
+                    internal sealed record BookLentModuleEvent(System.Guid Book);
                     """),
                 ("Claimwick.Modules/Reading/Ports/Books/IBooks.cs", """
                     namespace Claimwick.Reading.Ports.Books;
