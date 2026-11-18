@@ -11,7 +11,10 @@ namespace LiteSpec.Analyzers.Rules.Layers.Application;
 /// <summary>
 ///     LS2021: a type that is not an endpoint, reaction or job holds no command, query or event mediator,
 ///     so only the three entry points send a use case message. The platform composes the pipeline and is exempt,
-///     with the shared kernel of a one-modules-project solution.
+///     with the shared kernel of a one-modules-project solution. A provider adapter in
+///     <c>Infrastructure/{Provider}/</c>, where the compilation references the provider module's Contracts
+///     project, may hold the query and command mediators: it is the one place that sends another module's public
+///     queries and public commands.
 /// </summary>
 /// <follows>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -47,13 +50,15 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
         }
 
         var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
-        context.RegisterSymbolAction(c => AnalyzeSymbol(c, scope), SymbolKind.Parameter, SymbolKind.Field, SymbolKind.Property);
+        var providers = ProviderModules(context.Compilation);
+        context.RegisterSymbolAction(c => AnalyzeSymbol(c, scope, providers), SymbolKind.Parameter, SymbolKind.Field, SymbolKind.Property);
     }
 
     /// <summary>Analyzes a constructor parameter, field or property holding a mediator.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="scope">Whether the rule applies to each file.</param>
-    private static void AnalyzeSymbol(SymbolAnalysisContext context, FileScope scope)
+    /// <param name="providers">The modules whose Contracts project the compilation references.</param>
+    private static void AnalyzeSymbol(SymbolAnalysisContext context, FileScope scope, ImmutableHashSet<string> providers)
     {
         var symbol = context.Symbol;
         if (symbol.IsImplicitlyDeclared || !scope.AppliesTo(symbol))
@@ -82,6 +87,11 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
         }
 
         if (owner is null || !IsMediator(held) || IsEntryPoint(owner) || TypeLocation(symbol) is not Location location)
+        {
+            return;
+        }
+
+        if (held.Name != "IEventMediator" && ProviderAdapterFolder(location.SourceTree?.FilePath) is string provider && providers.Contains(provider))
         {
             return;
         }
@@ -126,6 +136,64 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
         }
 
         return false;
+    }
+
+    /// <summary>The module names whose Contracts project the compilation references or compiles: `{Product}.{Module}.Contracts` gives `{Module}`.</summary>
+    /// <param name="compilation">The compilation under analysis.</param>
+    /// <returns>The referenced provider module names.</returns>
+    private static ImmutableHashSet<string> ProviderModules(Compilation compilation)
+    {
+        var names = ImmutableHashSet.CreateBuilder<string>(StringComparer.Ordinal);
+        foreach (var reference in compilation.ReferencedAssemblyNames)
+        {
+            const string Suffix = ".Contracts";
+            if (!reference.Name.EndsWith(Suffix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var stem = reference.Name.Substring(0, reference.Name.Length - Suffix.Length);
+            var dot = stem.LastIndexOf('.');
+            names.Add(dot < 0 ? stem : stem.Substring(dot + 1));
+        }
+
+        foreach (var tree in compilation.SyntaxTrees)
+        {
+            foreach (var segment in tree.FilePath.Replace('\\', '/').Split('/'))
+            {
+                const string Suffix = ".Contracts";
+                if (segment.EndsWith(Suffix, StringComparison.Ordinal))
+                {
+                    var stem = segment.Substring(0, segment.Length - Suffix.Length);
+                    var dot = stem.LastIndexOf('.');
+                    names.Add(dot < 0 ? stem : stem.Substring(dot + 1));
+                }
+            }
+        }
+
+        return names.ToImmutable();
+    }
+
+    /// <summary>The adapter folder a file sits in under `Infrastructure/`, or null when it sits in no adapter folder.</summary>
+    /// <param name="filePath">The file path.</param>
+    /// <returns>The folder name after `Infrastructure/`, or null.</returns>
+    private static string? ProviderAdapterFolder(string? filePath)
+    {
+        if (!CodeMap.IsAdapter(filePath))
+        {
+            return null;
+        }
+
+        var segments = filePath!.Replace('\\', '/').Split('/');
+        for (var index = 0; index + 2 < segments.Length; index++)
+        {
+            if (segments[index].Equals("Infrastructure", StringComparison.Ordinal))
+            {
+                return segments[index + 1];
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Returns true when the assembly holds the pipeline: the platform, or the shared kernel of a one-modules-project solution; otherwise false.</summary>

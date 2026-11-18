@@ -286,4 +286,66 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     """),
             ],
             assemblyName: "Shop.Platform");
+
+    [Fact(DisplayName = "LS2021 accepts a provider adapter holding the query and command mediators")]
+    public Task AcceptsAProviderAdapterHoldingTheQueryAndCommandMediators() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", """
+                    namespace Shop.Billing.Contracts.Invoices.ReadInvoice;
+
+                    public sealed record ReadInvoiceQuery;
+                    """),
+                ("Shop.Orders/Infrastructure/Billing/BillingAdapter.cs", """
+                    using LiteBus.Commands.Abstractions;
+                    using LiteBus.Queries.Abstractions;
+
+                    namespace Shop.Orders.Infrastructure.Billing;
+
+                    internal sealed class BillingAdapter(IQueryMediator queries, ICommandMediator commands)
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    [Fact(DisplayName = "LS2021 reports a port adapter holding the query mediator")]
+    public Task ReportsAPortAdapterHoldingTheQueryMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Infrastructure/PaymentGateway/PaymentGatewayAdapter.cs", """
+                    using LiteBus.Queries.Abstractions;
+
+                    namespace Shop.Orders.Infrastructure.PaymentGateway;
+
+                    internal sealed class PaymentGatewayAdapter({|LS2021:IQueryMediator|} queries)
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    [Fact(DisplayName = "LS2021 reports a provider adapter holding the event mediator")]
+    public Task ReportsAProviderAdapterHoldingTheEventMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", """
+                    namespace Shop.Billing.Contracts.Invoices.ReadInvoice;
+
+                    public sealed record ReadInvoiceQuery;
+                    """),
+                ("Shop.Orders/Infrastructure/Billing/BillingAdapter.cs", """
+                    using LiteBus.Events.Abstractions;
+
+                    namespace Shop.Orders.Infrastructure.Billing;
+
+                    internal sealed class BillingAdapter({|LS2021:IEventMediator|} events)
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
 }
