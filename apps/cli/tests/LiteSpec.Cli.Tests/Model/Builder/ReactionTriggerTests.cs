@@ -35,10 +35,10 @@ public sealed class ReactionTriggerTests
         Assert.Contains("[S]", missing);
     }
 
-    /// <summary>An unmarked job links nothing, whatever its name names.</summary>
+    /// <summary>An unmarked job with no job record links nothing and reports job-unrecorded, whatever its name names.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void JobWithoutAMarkLinksNothingAndReportsMarkMissing()
+    public void JobWithoutAMarkOrRecordLinksNothingAndReportsJobUnrecorded()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/ListLoans/ListLoansJob.cs", JobFile);
@@ -48,11 +48,12 @@ public sealed class ReactionTriggerTests
         Assert.DoesNotContain(document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Modules/Library.Lending/Application/ListLoans/ListLoansJob.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
-        var missing = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("mark-missing") && candidate.Contains("ListLoansJob.cs"));
+        var unrecorded = check.Output.Split('\n').Single(candidate =>
+            candidate.Contains("job-unrecorded") && candidate.Contains("ListLoansJob.cs"));
 
         Assert.Equal(1, check.Status);
-        Assert.Contains("[S]", missing);
+        Assert.Contains("[G]", unrecorded);
+        Assert.DoesNotContain(check.Output.Split('\n'), candidate => candidate.Contains("mark-missing") && candidate.Contains("ListLoansJob.cs"));
     }
 
     static JsonDocument Build(string root)

@@ -238,10 +238,46 @@ internal sealed class UnrecordedCode
                 continue;
             }
 
+            // An unmarked event handler beside an unimplemented reaction to the same fact is that reaction
+            // missing its mark: mark-missing names that fix, so this finding stays out of the way.
+            if (!isJob
+                && element?.Marks.Any(mark => mark.Verb == MarkVerb.Implements) != true
+                && module is not null
+                && HasUnimplementedReactionToFact(model, module, name))
+            {
+                continue;
+            }
+
             triggers.Add(TriggerOf(model, element, cls, file, line, type, isJob, module, name));
         }
 
         return triggers;
+    }
+
+    /// <summary>Whether the module holds a reaction to the same fact that no implements mark names.</summary>
+    /// <param name="model">The loaded project model that holds every record and mark.</param>
+    /// <param name="module">The module the handler file sits in.</param>
+    /// <param name="name">The record name derived from the handler class, `{act}-on-{fact}`.</param>
+    /// <returns>True when such a reaction exists; otherwise false.</returns>
+    private static bool HasUnimplementedReactionToFact(ProjectModel model, string module, string name)
+    {
+        var at = name.LastIndexOf("-on-", StringComparison.Ordinal);
+        if (at < 0)
+        {
+            return false;
+        }
+
+        var fact = name.Substring(at);
+        var prefix = RecordTypes.Reaction + "/" + module + ".";
+        var implemented = model.Code.Elements
+            .SelectMany(element => element.Marks)
+            .Where(mark => mark.Verb == MarkVerb.Implements)
+            .Select(mark => mark.RecordId)
+            .ToHashSet(StringComparer.Ordinal);
+        return model.ById.Keys.Any(id =>
+            id.StartsWith(prefix, StringComparison.Ordinal)
+            && id.EndsWith(fact, StringComparison.Ordinal)
+            && !implemented.Contains(id));
     }
 
     /// <summary>The module and name the record would carry: from the mark when one names the id, else from the file's module and the class stem.</summary>
