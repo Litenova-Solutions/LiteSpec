@@ -14,7 +14,7 @@ Marten is the baseline provider: it supplies the session, the read session, and 
 
 ### How a Command Reaches the Store
 
-Every command runs inside one scoped session: a Marten `IDocumentSession` that the host resolves once per WebApi request or Worker operation. The handler loads and stages aggregates through Domain repositories, the interfaces Domain owns for storing and loading each aggregate.
+Every command runs inside one scoped session: a Marten `IDocumentSession` that the host resolves once per WebApi request or Worker operation. The handler loads and stages aggregates through Domain repositories, the interfaces Domain owns for storing and loading each aggregate. The stored document is the aggregate root itself: Marten persists each root as its own document, and the project writes no parallel document type for an aggregate.
 
 Exactly one command post-handler commits the session with `SaveChangesAsync`. Only that post-handler commits, so a failed command leaves nothing stored.
 
@@ -24,7 +24,7 @@ Events leave through the LiteBus outbox in process: the staging step commits eac
 
 ### How a Query Reads
 
-A query handler never loads aggregates. It projects through the read session, `IQuerySession`, which filters, orders, pages, and shapes records. The handler applies filter, scope, ordering, and limit before materialization.
+A query handler never loads aggregates. It queries the aggregate type through the read session, `IQuerySession`, which filters, orders, pages, and shapes records. The handler applies filter, scope, ordering, and limit before materialization.
 
 ## Standards
 
@@ -41,6 +41,47 @@ A query handler never loads aggregates. It projects through the read session, `I
 **Rationale:** Infrastructure implements each Domain repository with the scoped session, so the handler stages work without naming a provider type. A repository that exposed the session, a generic query, or a save operation would hand the handler the provider surface the layer exists to hide. This provision binds `litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories` for .NET.
 
 **Checked by:** `dotnet build` reports `LS2004` for a command handler writing through a document session or database context.
+
+### Store Each Aggregate Root as Its Own Document
+
+**ID:** `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** Marten MUST store each aggregate root as its own document, with no parallel document type for an aggregate.
+
+**Rationale:** A parallel document type duplicates the aggregate shape in Infrastructure, forces mapping code between the two, and splits reads between two models of one thing. Storing the root keeps one shape from the handler to the disk. Infrastructure owns the JSON contract that makes it work: the store serializer handles non-public members and constructors, one registered discriminator per closed-set case, and converters for values such as `Money` and typed identifiers, while Domain carries no serialization attribute. Query handlers query the aggregate type through `IQuerySession`. This provision covers the stored aggregate; a query-shaped read document under `litespec/backend/persistence#add-read-documents-for-query-shaped-data` serves queries and is no parallel aggregate document. This provision binds `litespec/backend/persistence#keep-serialization-behavior-out-of-domain` for .NET.
+
+**Example:** The product `Infrastructure/` store setup registers the expense aggregate with its stable alias and typed-identifier mapping, and a serializer carrying the converters and discriminator registrations:
+
+```csharp
+options.Schema.For<Expense>().Identity(x => x.Id);
+options.Serializer(new ClaimwickSerializer());
+```
+
+```csharp
+internal sealed class ClaimwickSerializer : MartenSerializer
+{
+    public override JsonSerializerOptions JsonSerializerOptions { get; } = CreateOptions();
+
+    private static JsonSerializerOptions CreateOptions()
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        options.Converters.Add(new MoneyJsonConverter());
+        options.Converters.Add(new StronglyTypedIdJsonConverterFactory());
+        options.TypeInfoResolver = JsonTypeInfoResolver.Combine(
+            ExpensePolymorphism.Resolver,
+            new DefaultJsonTypeInfoResolver());
+        return options;
+    }
+}
+```
+
+The resolver registers one discriminator per closed-set case, the converters read and write `Money` and typed identifiers, and a modifier on the same resolver exposes the non-public members and constructors the aggregate shape needs. Domain carries no serialization attribute.
+
+**Reviewed for:** Is any aggregate stored through a parallel document type instead of as its own document? Look at the stored document types beside the aggregates.
 
 ### Keep Pipeline-Owned Collaborators Out of Handlers
 
@@ -125,7 +166,7 @@ The obligation is one commit per pipeline, not one named method. Under the basel
 **Example:** The payout number is unique per spending owner:
 
 ```csharp
-options.Schema.For<PayoutDocument>().UniqueIndex(
+options.Schema.For<Payout>().UniqueIndex(
     UniqueIndexType.Computed,
     "uq_payout_owner_number",
     x => x.PayoutNumber);
@@ -135,7 +176,8 @@ A payout exists at most once per expense, so its document id is the expense id:
 
 ```csharp
 // The payout document id equals the expense id: one payout per expense.
-session.Store(new PayoutDocument(expense.Id, payoutNumber));
+var payout = Payout.Issue(expense.Id, payoutNumber);
+session.Store(payout);
 ```
 
 **Reviewed for:** Does every Marten aggregate document with a uniqueness rule carry a unique index or an owner-derived identity? Look at the store configuration.
@@ -205,7 +247,7 @@ services.UseFaultRefusalClassifierInstance(
 **Example:** The expense document enables the check on its own type:
 
 ```csharp
-options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
+options.Schema.For<Expense>().UseOptimisticConcurrency(true);
 ```
 
 **Reviewed for:** Does every Marten aggregate document type enable optimistic concurrency? Look at each document type and the document policy.
@@ -279,22 +321,29 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 This informative example demonstrates `litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`.
 
 ```csharp
-internal sealed class PostRepository(
-    IDocumentSession session,
-    DomainEventBuffer eventBuffer) : IPostRepository
+internal sealed class PostRepository : IPostRepository
 {
+    private readonly IDocumentSession _session;
+    private readonly DomainEventBuffer _eventBuffer;
+
+    public PostRepository(IDocumentSession session, DomainEventBuffer eventBuffer)
+    {
+        _session = session;
+        _eventBuffer = eventBuffer;
+    }
+
     public async Task<Post> GetByIdAsync(
         PostId id,
         CancellationToken cancellationToken)
     {
-        var post = await session.LoadAsync<Post>(id, cancellationToken);
+        var post = await _session.LoadAsync<Post>(id, cancellationToken);
         return post ?? throw new PostNotFoundException();
     }
 
     public void Store(Post post)
     {
-        session.Store(post);
-        eventBuffer.Track(post);
+        _session.Store(post);
+        _eventBuffer.Track(post);
     }
 }
 ```

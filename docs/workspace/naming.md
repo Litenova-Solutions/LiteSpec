@@ -194,9 +194,41 @@ The transport name drops the aggregate prefix of the Domain union, such as `Orde
 
 **Deviation:** Code that targets an older runtime or generated output keeps the construct its target needs.
 
-**Rationale:** A pinned language version gives every writer the same constructs. Using the current construct over its older equivalent keeps one idiom across the codebase instead of one per author. In the dotnet stack that means collection expressions, pattern matching, and primary constructors, which express the same intent with less incidental code.
+**Rationale:** A pinned language version gives every writer the same constructs. Using the current construct over its older equivalent keeps one idiom across the codebase instead of one per author. In the dotnet stack that means collection expressions and pattern matching, which express the same intent with less incidental code.
 
 **Reviewed for:** Does production code target the pinned language version and use its current constructs? Read the toolchain pins and the language idioms in `apps/api/src`.
+
+### Avoid Primary Constructors on Classes and Structs
+
+**ID:** `litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs`
+
+**Strength:** advisory
+
+**Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
+
+**Statement:** A class or struct SHOULD NOT declare a primary constructor.
+
+**Deviation:** A positional record keeps its positional parameters, which define immutable data rather than captured state.
+
+**Rationale:** A primary constructor parameter is captured, mutable, and visible in the whole class body. Nothing marks it read-only, so a method can reassign it and every later call sees the new value. A private read-only field states the intent the parameter hides. Inside the body, the parameter name reads the same as a local, so the reader loses the cue that something is class state. Copying a parameter into a property while also using the parameter elsewhere stores it twice. Validation, guard clauses, and derived fields have no home: they need either field initializers with side effects or a second constructor that chains to the primary one. Documentation for the parameters moves to the type, where tools show it less well than on a constructor. A type with several dependencies puts them all on the type line, which wraps badly and hides the type's name and role. Positional records look the same but behave differently, with generated read-only properties, which misleads readers who know records. An explicit constructor with private read-only fields avoids every one of these.
+
+**Example:**
+
+```csharp
+internal sealed class ApproveExpenseCommandHandler : ICommandHandler<ApproveExpenseCommand, ApproveExpenseCommandResult>
+{
+    private readonly IExpenseRepository _expenseRepository;
+
+    public ApproveExpenseCommandHandler(IExpenseRepository expenseRepository)
+    {
+        _expenseRepository = expenseRepository;
+    }
+}
+```
+
+Positional records keep their positional form.
+
+**Reviewed for:** Does any class or struct declare a primary constructor? Look at the type declarations in `apps/api/src`.
 
 ### Use Predictable Frontend Names
 

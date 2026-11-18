@@ -67,6 +67,22 @@ Each aggregate root gets one repository interface that loads and stages that agg
 
 **Reviewed for:** Does every aggregate root stay a sealed class derived from the project-owned `AggregateRoot<TId>`? Check each root declaration.
 
+### Construct Aggregate Parts Only Inside the Root
+
+**ID:** `litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** A file outside an aggregate's `Domain/` folder MUST NOT construct a type from that folder other than the root's input records and typed identifiers.
+
+**Rationale:** The root's factories and methods are the one entry point to the aggregate, under `litespec/backend/domain#reach-an-aggregate-only-through-its-root`. A caller that constructs an entity or value object of the aggregate builds a part the root never validated, and a caller that constructs a part to pass it in takes over behavior the root should own. Callers pass plain inputs instead. Input records and typed identifiers carry no aggregate behavior, so constructing them stays outside this rule. This provision binds `litespec/backend/domain#reach-an-aggregate-only-through-its-root` for .NET.
+
+**Example:** In the Claimwick product, the submit-expense handler constructs no expense line and no allocation. It passes the identifiers, the line inputs, and the submitted time to `Expense.Submit`, and the root builds its lines and its allocation inside the factory.
+
+**Checked by:** `dotnet build` reports `LS1014` for a file outside an aggregate's `Domain/` folder that constructs a type from that folder other than the root's input records and typed identifiers.
+
 ### Mark Each State-Changing Root Method with Its Use Case
 
 **ID:** `litespec/backend/dotnet/domain#mark-each-state-changing-root-method-with-its-use-case`
@@ -105,9 +121,9 @@ public void Approve(ApproverId approverId, DateTimeOffset decidedAt)
 
 **Applies to:** artifact: aggregate, value-object
 
-**Statement:** A child entity MUST be a sealed class deriving from the project-owned `Entity<TId>`.
+**Statement:** A child entity MUST be a sealed class deriving from the project-owned `Entity<TId>`, with no public setter, mutating method, or constructor.
 
-**Rationale:** Deriving from the project-owned `Entity<TId>` gives the child typed identity and identity equality, so it declares only its own data and behavior. The root creates, finds, and changes its children through business methods. A child exposes no mutable state outside the root. A child is a design choice inside its aggregate: it appears in code and the glossary, never as a record. This provision binds `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary` for .NET.
+**Rationale:** Deriving from the project-owned `Entity<TId>` gives the child typed identity and identity equality, so it declares only its own data and behavior. The root creates, finds, and changes its children through business methods. A child exposes no mutable state outside the root. Construction and mutation stay internal or private, so only the root reaches them. A child is a design choice inside its aggregate: it appears in code and the glossary, never as a record. This provision binds `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary` for .NET.
 
 **Example:**
 
@@ -137,7 +153,7 @@ public sealed class OrderLine : Entity<OrderLineId>
 
 `Order.AddLine` creates the line, and `Order.ChangeLineQuantity` checks its invariant before calling `ChangeQuantity`.
 
-**Reviewed for:** Does every child entity stay a sealed class derived from `Entity<TId>`, created only through its root's methods? Check each child entity.
+**Checked by:** `dotnet build` reports `LS1015` for a public setter, constructor, or mutable public collection on a non-root type of an aggregate.
 
 ### Model Value Objects as Records
 
@@ -227,9 +243,9 @@ When order is not part of the value, creation normalizes the values to the docum
 
 **Applies to:** artifact: value-object
 
-**Statement:** A domain service MUST be a stateless sealed class accepting and returning Domain values.
+**Statement:** A domain service MUST be a stateless sealed class holding only a calculation that spans aggregates with no owning aggregate, accepting and returning Domain values.
 
-**Rationale:** Some calculations span concepts with no natural aggregate owner, such as pricing an order from its lines. A stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior. The service carries a mark naming its rule. The builder links it to the rule it computes. This provision binds `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` for .NET.
+**Rationale:** Some calculations span concepts with no natural aggregate owner, such as pricing an order from its lines. A stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. A calculation one aggregate owns stays in that aggregate's root. The root calls the service inside its own method, or Application passes the service's plain result into a root method as an input. The service carries a mark naming its rule. The builder links it to the rule it computes. This provision binds `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` for .NET.
 
 **Example:** An order pricing service takes the lines and returns the total:
 
@@ -247,7 +263,7 @@ public sealed class OrderPricingDomainService
 }
 ```
 
-Application supplies the lines and passes the returned `Money` to `Order.ConfirmPrice`, while the service itself holds no repository, clock, logger, or provider client.
+The order root calls it inside `Order.ConfirmPrice`, or Application supplies the lines and passes the returned `Money` to `Order.ConfirmPrice` as an input. The service itself holds no repository, clock, logger, or provider client, and returns no order line.
 
 **Reviewed for:** Does every domain service stay stateless, take only Domain values, and avoid provider calls? Check each domain service.
 
@@ -458,6 +474,22 @@ The `IParsable<TId>` implementation supports Minimal API route and query binding
 
 **Checked by:** `dotnet build` reports `LS1012` for an `Id` struct outside the strongly typed form, or a raw `Guid` as an aggregate identity.
 
+### Reference Other Aggregates by Typed Identifier
+
+**ID:** `litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** An aggregate MUST reference another aggregate only through a property typed as its typed identifier, never through a property typed as its root or entity.
+
+**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A property typed as the other aggregate's typed identifier keeps each aggregate loadable on its own. This provision binds `litespec/backend/domain#reference-other-aggregates-by-id` for .NET.
+
+**Example:** In the Claimwick product, an expense holds the submitting employee as `EmployeeId`, never as an `Employee` object. Application loads the employee through its own repository when a command needs both sides.
+
+**Checked by:** `dotnet build` reports `LS1016` for a property of one aggregate whose type is another aggregate's root or entity.
+
 ### Keep Clock Reads and Random Values Out of Domain
 
 **ID:** `litespec/backend/dotnet/domain#keep-clock-reads-and-random-values-out-of-domain`
@@ -638,8 +670,13 @@ if (allocation.Any(line => line.Quantity <= 0))
 
 ```csharp
 /// <implements>rule/refunds.allocation-required</implements>
-public sealed partial class RefundAllocationRequiredException()
-    : DomainException("A refund requires at least one allocation line.");
+public sealed partial class RefundAllocationRequiredException : DomainException
+{
+    public RefundAllocationRequiredException()
+        : base("A refund requires at least one allocation line.")
+    {
+    }
+}
 ```
 
 From the refusal result the rule names, the generator writes `public override string Code => "refunds.allocation-required";`.
@@ -666,8 +703,13 @@ Malformed caller input stays with Application validators, which report it as val
 
 ```csharp
 /// <implements>rule/expense.receipt-required-above-threshold</implements>
-public sealed partial class ExpenseReceiptMissingException()
-    : DomainException("An expense above the receipt threshold carries no receipt.");
+public sealed partial class ExpenseReceiptMissingException : DomainException
+{
+    public ExpenseReceiptMissingException()
+        : base("An expense above the receipt threshold carries no receipt.")
+    {
+    }
+}
 ```
 
 From the refusal result the rule names, the generator writes `public override string Code => "spending.receipt-missing";`. A receipt exception in the reporting module carrying `spending.receipt-missing`, or a second spending exception carrying the same code, breaks this rule.
@@ -690,15 +732,20 @@ From the refusal result the rule names, the generator writes `public override st
 
 **Replacement:** A project names its shared contract home in its Domain documentation.
 
-**Rationale:** Every module raises events, throws domain exceptions, and identifies aggregates. A shared contract declared twice becomes two contracts that drift. Declaring `IDomainEvent`, `DomainException`, `IStronglyTypedId`, `Entity<TId>`, `IAggregateRoot`, and `AggregateRoot<TId>` once in the shared kernel Domain folder gives every module the same mechanics. Generic handling constrains its parameters with `IAggregateRoot`, as in `IRepository<T> where T : IAggregateRoot`. This provision binds `litespec/backend/domain#reuse-the-shared-domain-contracts-across-modules` for .NET.
+**Rationale:** Every module raises events, throws domain exceptions, and identifies aggregates. A shared contract declared twice becomes two contracts that drift. Declaring `IDomainEvent`, `DomainException`, `IStronglyTypedId`, `Entity<TId>`, `IAggregateRoot`, and `AggregateRoot<TId>` once in the shared kernel Domain folder gives every module the same mechanics. `DomainException` takes only the message in its constructor and declares `Code` abstract, so the generator writes each refusal code as an override in the partial exception; a base that declares a non-virtual `Code` is reported instead of overridden. Generic handling constrains its parameters with `IAggregateRoot`, as in `IRepository<T> where T : IAggregateRoot`. This provision binds `litespec/backend/domain#reuse-the-shared-domain-contracts-across-modules` for .NET.
 
 **Example:**
 
 ```csharp
 public interface IDomainEvent;
 
-public abstract class DomainException(string message) : Exception(message)
+public abstract class DomainException : Exception
 {
+    protected DomainException(string message)
+        : base(message)
+    {
+    }
+
     public abstract string Code { get; }
 }
 
@@ -762,7 +809,47 @@ In the example, `ClearDomainEvents` is event-delivery mechanics, not a business 
 
 Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while calling the base constructor, so the base stays free of aggregate-specific exceptions.
 
-**Reviewed for:** Is every shared Domain contract declared once, with `DomainException` and `AggregateRoot<TId>` in their declared shapes? Check the shared contracts.
+**Reviewed for:** Is every shared Domain contract declared once, with `DomainException` and `AggregateRoot<TId>` in their declared shapes? Check the shared contracts; `dotnet build` reports `LS5013` for a base that declares a non-virtual `Code`.
+
+### Split a Large Root into One File per Action
+
+**ID:** `litespec/backend/dotnet/domain#split-a-large-root-into-one-file-per-action`
+
+**Strength:** default
+
+**Applies to:** artifact: aggregate
+
+**Default:** Declare a root whose file passes 500 lines as a partial class with one file per business action named `{Root}.{Action}.cs`, holding the action's rules in private members or private nested types.
+
+**Replacement:** A project names its own large-root layout in its Domain documentation.
+
+**Rationale:** A root grows with every business action it owns, and one file holding every action reads as one long listing. Splitting the root into one partial file per action keeps each action readable on its own while the root stays the one entry point to its aggregate. The action's rules stay private to the root, as private members or private nested types, so no caller reaches them past the root's methods.
+
+**Example:** In the Claimwick product, the expense root keeps its identity and state in `Expense.cs`, its submission factory and allocation rules in `Expense.Submit.cs`, and its approval in `Expense.Approve.cs`:
+
+```csharp
+// Expense.Submit.cs
+public sealed partial class Expense
+{
+    public static Expense Submit(
+        ExpenseId id,
+        EmployeeId employeeId,
+        IReadOnlyList<ExpenseLineInput> lines,
+        DateTimeOffset submittedAt)
+    {
+        // Builds the lines and the cost-center allocation, selects the submitted state,
+        // and records the submitted event.
+        ...
+    }
+
+    private static class Allocation
+    {
+        // Holds the cost-center allocation rules for Submit.
+    }
+}
+```
+
+**Reviewed for:** Does any root file hold more than one business action or run past 500 lines without following this layout? Look at each root file beside its actions.
 
 ### Keep ID Representations Aligned at Every Boundary
 

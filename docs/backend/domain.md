@@ -49,7 +49,7 @@ Not every business concept is an aggregate. A value object is an immutable value
 
 Money gets one shared value object carrying an exact decimal amount and an ISO 4217 currency code, because exact arithmetic and an explicit currency belong on every monetary value.
 
-Some rules span concepts with no natural owning aggregate, such as pricing an order from its lines. A domain service holds that calculation: a stateless type that accepts and returns Domain values and calls no persistence, messaging, logging, clock, authorization, or provider. Application loads the aggregates, calls the service, and passes the result into aggregate behavior.
+Some rules span concepts with no natural owning aggregate, such as pricing an order from its lines. A domain service holds that calculation: a stateless type that accepts and returns Domain values and calls no persistence, messaging, logging, clock, authorization, or provider. The root calls the service inside its own method, or Application passes the service's plain result into a root method as an input.
 
 A domain repository is the contract that loads and stages one aggregate. It serves exactly one aggregate root, speaks only aggregate and Domain types, and offers no composable query, session, or generic CRUD surface. Infrastructure implements it, and the command pipeline commits the staged aggregates.
 
@@ -104,6 +104,22 @@ The project glossary is the record that defines each business term: its meaning,
 **Rationale:** If outside code could set properties or call child mutations directly, it would change data around the root's checks. With the root as the only public mutation entry point, every change passes the invariant its transaction protects. A command with `consistency: atomic` changes every aggregate listed in its `writes` in one transaction, citing the rule in `boundBy` when it changes more than one.
 
 **Reviewed for:** Can any invariant be changed through a public mutation outside its aggregate root? Look at the public mutation entry points of each aggregate.
+
+### Reach an Aggregate Only Through Its Root
+
+**ID:** `litespec/backend/domain#reach-an-aggregate-only-through-its-root`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** Code outside an aggregate MUST reach the aggregate only through its root's named factories and methods, passing plain inputs.
+
+**Rationale:** The root is the one entry point to its aggregate: it alone decides how the aggregate's state changes. When a caller builds an entity or value object of the aggregate, or calls a service that produces part of the aggregate's state, the aggregate's behavior splits across layers. The caller chooses which rule applies and in which order, and a later caller can skip a step. Passing plain inputs, such as typed identifiers, values, and input records, keeps that knowledge inside the root. The root alone records the aggregate's domain events, following `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`. The parts of this rule that own their own provision stay there: one repository per root under `litespec/backend/domain#limit-each-repository-to-one-aggregate`, typed-identifier references under `litespec/backend/domain#reference-other-aggregates-by-id`, and child entities with no mutable surface under `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary`.
+
+**Example:** In the Claimwick product, the submit-expense handler calls `Expense.Submit` with the expense and employee identifiers, the lines, and the submitted time. The root computes the cost-center allocation inside its own method and records the submitted event. No handler builds an allocation line, and no service produces part of the expense.
+
+**Reviewed for:** Does every caller reach the aggregate only through its root? Look at the callers of each aggregate beside its root's factories and methods.
 
 ### Reference Other Aggregates by ID
 
@@ -421,13 +437,13 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **Applies to:** artifact: value-object
 
-**Statement:** A domain service MUST be stateless, accept and return Domain values, and perform no persistence, messaging, logging, clock, authorization, or provider call.
+**Statement:** A domain service MUST be stateless, hold only a calculation that spans aggregates with no owning aggregate, accept and return Domain values, and perform no persistence, messaging, logging, clock, authorization, or provider call.
 
-**Rationale:** Some calculations span concepts with no natural aggregate owner. Forcing one into an aggregate couples that aggregate to another's data. A stateless service holds the calculation instead, accepting and returning Domain values with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior.
+**Rationale:** Some calculations span concepts with no natural aggregate owner. Forcing one into an aggregate couples that aggregate to another's data. A stateless service holds the calculation instead, accepting and returning Domain values with no persistence, messaging, logging, clock, authorization, or provider call. A calculation one aggregate owns stays in that aggregate's root. The root calls the service inside its own method, or Application passes the service's plain result into a root method as an input. A result that carries part of an aggregate's state never crosses that boundary: the aggregate's parts are built inside the root.
 
 A domain service takes no port and holds no state, so its tests are Domain tests: they sit beside the aggregate tests in the unit tests mirroring the module tree, with no harness, no substitute, and no fixture.
 
-**Example:** An order-pricing service takes order lines and a currency and returns their total as `Money`, with no domain repository, clock, logger, or provider client. Application supplies the lines and passes the returned total into aggregate behavior.
+**Example:** An order-pricing service takes order lines and a currency and returns their total as `Money`, with no domain repository, clock, logger, or provider client. The order root calls it inside `ConfirmPrice`, or Application supplies the lines and passes the returned total into `ConfirmPrice` as an input. The service returns no order line and no other part of the order.
 
 **Reviewed for:** Is any domain service stateful, taking or returning non-Domain values, or calling persistence, messaging, logging, clock, authorization, or a provider? Look at each domain service and its calls.
 

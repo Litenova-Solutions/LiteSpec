@@ -1,0 +1,14 @@
+type: decision
+id: decision/0106-state-class-design-rules
+title: State Class Design Rules
+context: "LiteSpec covered naming, layers, folders, and file-to-type matching, but no provision stated the design principles under them. Without one, an author optimizes for fewer files and merges unrelated concerns wherever an interface allows it. At the same time the pages recommended primary constructors on classes and structs and used them in examples, while that shape hides state, captures mutable parameters, and leaves constructor logic without a home."
+options:
+  - name: "Add the class design page and advise against primary constructors on classes and structs"
+    pros: "One responsibility, one capability, one pipeline concern per class, and composition over helper bases become reviewable rules, and every example shows explicit fields and constructors."
+    cons: "More, smaller classes with longer constructor declarations, and every .NET example is rewritten once."
+  - name: "Leave class design unstated and keep recommending primary constructors"
+    pros: "No new page and no example rewrites."
+    cons: "Unrelated concerns keep merging into one class, and the examples keep teaching the less readable shape."
+choice: "Add the class design page and advise against primary constructors on classes and structs"
+consequences: "The workspace gains the Class Design page with `litespec/workspace/design#give-each-class-one-responsibility`, `litespec/workspace/design#implement-one-capability-per-class`, `litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class`, `litespec/workspace/design#take-shared-behavior-through-composition`, and the `{Message}{Concern}Definition` naming convention. `litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs` advises against primary constructors on classes and structs, with positional records allowed; every .NET example uses explicit fields and constructors, the scaffold ships `csharp_style_prefer_primary_constructors = false`, and an info-level analyzer reports a class or struct primary constructor."
+reopenedWhen: "Reviews cannot apply the one-responsibility test plainly, or a language change removes the stated costs of primary constructors."
