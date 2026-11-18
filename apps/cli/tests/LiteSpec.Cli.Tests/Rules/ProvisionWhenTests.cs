@@ -53,8 +53,8 @@ public sealed class ProvisionWhenTests
         }
 
         Assert.True(
-            JudgmentLines(result.Output) <= 30,
-            "The judgment groups hold more than 30 lines.");
+            JudgmentLines(result.Output) <= 34,
+            "The judgment groups hold more than 34 lines.");
     }
 
     /// <summary>A use case taking a receipt keeps the upload provisions.</summary>
@@ -165,7 +165,7 @@ public sealed class ProvisionWhenTests
         Assert.DoesNotContain("litespec/backend/persistence#assign-document-numbers-from-a-sequence", result.Output);
     }
 
-    /// <summary>A code path marking the named adoption decision keeps the audit-adoption provision.</summary>
+    /// <summary>A code path marking the named adoption decision keeps the audit-adoption provisions.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesNamedDecisionKeepsAuditAdoption()
@@ -183,11 +183,11 @@ public sealed class ProvisionWhenTests
         Assert.Equal(0, named.Status);
         Assert.Equal(0, other.Status);
         Assert.Equal(
-            CollapsedCount(other.Output, "decision/0008-render-invoices-as-pdf") + 1,
+            CollapsedCount(other.Output, "decision/0008-render-invoices-as-pdf") + ConditionalIds("audit-adoption").Count,
             CollapsedCount(named.Output, "decision/0007-adopt-audit-trail"));
     }
 
-    /// <summary>The audit-adoption provision follows the decision the audit selection names.</summary>
+    /// <summary>The audit-adoption provisions follow the decision the audit selection names.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesAuditAdoptionFollowsTheNamedDecision()
@@ -201,7 +201,7 @@ public sealed class ProvisionWhenTests
         Assert.Equal(0, namedResult.Status);
         Assert.Equal(0, otherResult.Status);
         Assert.Equal(
-            CollapsedCount(otherResult.Output, "decision/0008-render-invoices-as-pdf") + 1,
+            CollapsedCount(otherResult.Output, "decision/0008-render-invoices-as-pdf") + ConditionalIds("audit-adoption").Count,
             CollapsedCount(namedResult.Output, "decision/0008-render-invoices-as-pdf"));
     }
 

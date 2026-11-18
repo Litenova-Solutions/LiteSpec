@@ -179,7 +179,7 @@ public sealed class BookLexiconTests
                 "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
                 "reaction", "job", "notification", "external-system", "module-event", "integration-event",
                 "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
-                "setting-set", "rule-set", "refusal-set", "index", "tutorial", "how-to", "reference",
+                "setting-set", "rule-set", "reference-data", "refusal-set", "index", "tutorial", "how-to", "reference",
                 "command", "configuration", "glossary", "example-cast",
             },
             terms.Carriers.ToList());

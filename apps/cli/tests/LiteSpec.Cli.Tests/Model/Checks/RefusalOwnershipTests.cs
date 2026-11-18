@@ -17,7 +17,7 @@ public sealed class RefusalOwnershipTests
         var model = OwnershipModel(temp.Path);
         model.Code.Literals.Add(new CodeLiteral(
             "spending.receipt-missing",
-            Path.Combine(temp.Path, "src", "App", "Reporting", "Domain", "Exceptions", "ReportReceiptMissingException.cs"),
+            Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Reporting", "Domain", "Reports", "Exceptions", "ReportReceiptMissingException.cs"),
             11,
             "ReportReceiptMissingException"));
 
@@ -39,12 +39,12 @@ public sealed class RefusalOwnershipTests
         var model = OwnershipModel(temp.Path);
         model.Code.Literals.Add(new CodeLiteral(
             "spending.receipt-missing",
-            Path.Combine(temp.Path, "src", "App", "Spending", "Domain", "Exceptions", "ExpenseReceiptMissingException.cs"),
+            Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Spending", "Domain", "Expenses", "Exceptions", "ExpenseReceiptMissingException.cs"),
             11,
             "ExpenseReceiptMissingException"));
         model.Code.Literals.Add(new CodeLiteral(
             "spending.receipt-missing",
-            Path.Combine(temp.Path, "src", "App", "Spending", "Receipts", "Domain", "Exceptions", "ReceiptMissingException.cs"),
+            Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Spending", "Domain", "Receipts", "Exceptions", "ReceiptMissingException.cs"),
             11,
             "ReceiptMissingException"));
 
@@ -65,7 +65,7 @@ public sealed class RefusalOwnershipTests
         var model = OwnershipModel(temp.Path);
         model.Code.Literals.Add(new CodeLiteral(
             "spending.receipt-missing",
-            Path.Combine(temp.Path, "src", "App", "Spending", "Domain", "Exceptions", "ExpenseReceiptMissingException.cs"),
+            Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Spending", "Domain", "Expenses", "Exceptions", "ExpenseReceiptMissingException.cs"),
             11,
             "ExpenseReceiptMissingException"));
 
@@ -82,10 +82,10 @@ public sealed class RefusalOwnershipTests
     {
         Directory.CreateDirectory(Path.Combine(root, ".litespec"));
         File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), """
-            {"stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": "src/App"}}}
+            {"stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": "apps/api/src/Library.Modules"}}}
             """);
-        Directory.CreateDirectory(Path.Combine(root, "src", "App", "Spending"));
-        Directory.CreateDirectory(Path.Combine(root, "src", "App", "Reporting"));
+        Directory.CreateDirectory(Path.Combine(root, "apps", "api", "src", "Library.Modules", "Spending"));
+        Directory.CreateDirectory(Path.Combine(root, "apps", "api", "src", "Library.Modules", "Reporting"));
 
         var model = TestModel.Model(TestModel.Config(root));
         model.RefusalSets.Add(new RefusalEntry(

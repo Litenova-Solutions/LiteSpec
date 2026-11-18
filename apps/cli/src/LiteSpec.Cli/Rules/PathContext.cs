@@ -379,7 +379,9 @@ internal sealed record PathContext(
         {
             foreach (var segment in segments)
             {
-                if (segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase))
+                if (segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase)
+                    || segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(segment, "Kernel", StringComparison.Ordinal))
                 {
                     layer = "domain";
                     break;
@@ -501,7 +503,9 @@ internal sealed record PathContext(
             return "reaction";
         }
 
-        if (HasSegment(segments, "Domain") || segments.Any(segment => segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase)))
+        if (HasSegment(segments, "Domain") || HasSegment(segments, "Kernel")
+            || segments.Any(segment => segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase)
+                || segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)))
         {
             if (text.Contains("AggregateRoot<", StringComparison.Ordinal))
             {

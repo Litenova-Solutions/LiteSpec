@@ -1422,6 +1422,34 @@
           "domain-event/loan.loan-borrowed"
         ]
       }
+    },
+    {
+      "type": "reference-data",
+      "id": "reference-data/lending.max-renewals",
+      "title": "Max Renewals",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/behavior/modules/lending/reference-data/max-renewals/max-renewals.yaml",
+      "line": 3,
+      "fields": {
+        "type": "reference-data",
+        "id": "reference-data/lending.max-renewals",
+        "title": "Max Renewals",
+        "owner": "lending-team",
+        "status": "reviewed",
+        "summary": "How many times a member renews one loan.",
+        "rows": [
+          {
+            "value": 2,
+            "effectiveFrom": "2026-01-01",
+            "source": "research/member-survey"
+          }
+        ]
+      },
+      "links": {}
     }
   ],
   "code": {
