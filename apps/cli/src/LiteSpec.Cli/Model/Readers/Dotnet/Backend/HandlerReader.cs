@@ -144,6 +144,15 @@ static class HandlerReader
         HashSet<string> holders,
         QualifiedKinds qualified)
     {
+        var dispatches = DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified);
+
+        // A registration host names no mediator: it registers the command for the runtime to run,
+        // so each message it constructs is the runs edge it takes.
+        if (!dispatches.Any(dispatch => dispatch.Verb == "runs"))
+        {
+            dispatches.AddRange(ConstructedMessages(declared, tree, file));
+        }
+
         model.Jobs.Add(new CodeJob(
             declared.Identifier.ValueText,
             file,
@@ -153,10 +162,44 @@ static class HandlerReader
             ClassDetailsReader.RepositoriesOf(declared, tree, file),
             ClassDetailsReader.RefusalsOf(declared, tree, file),
             ClassDetailsReader.ThrownOf(declared, tree, file),
-            DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified),
+            dispatches,
             ClassDetailsReader.DependencyCountOf(declared),
             ClassActivityReader.CollaboratorsOf(declared, tree, file, holders),
             ClassActivityReader.LoopReadsOf(declared, tree, file)));
+    }
+
+    /// <summary>The messages a job host constructs: each <c>*Command</c> or <c>*Query</c> it builds, as a runs edge.</summary>
+    /// <param name="declared">The job host declaration.</param>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <param name="file">The file.</param>
+    /// <returns>The runs dispatches the constructed messages take, in line order.</returns>
+    static List<CodeDispatch> ConstructedMessages(TypeDeclarationSyntax declared, SyntaxTree tree, string file)
+    {
+        var found = new List<CodeDispatch>();
+
+        foreach (var creation in declared.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+        {
+            var message = DotnetNames.SimpleName(DotnetNames.SimpleTypeName(creation.Type));
+            var stem = message.EndsWith("Command", StringComparison.Ordinal)
+                ? message[..^"Command".Length]
+                : message.EndsWith("Query", StringComparison.Ordinal)
+                    ? message[..^"Query".Length]
+                    : null;
+
+            if (stem is { Length: > 0 } && !found.Any(dispatch => dispatch.Target == message))
+            {
+                found.Add(new CodeDispatch(
+                    "runs",
+                    message,
+                    "",
+                    file,
+                    tree.GetLineSpan(creation.Span).StartLinePosition.Line + 1));
+            }
+        }
+
+        found.Sort((left, right) => left.Line.CompareTo(right.Line));
+
+        return found;
     }
 
     /// <summary>The message stem: the message type name without its Command or Query suffix.</summary>

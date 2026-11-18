@@ -31,7 +31,7 @@ litespec model query --list use-case --module spending
 `litespec rules <path>` lists the provisions governing a file or folder before it is edited. The target is a path under the consumer root or a record identifier. Add `--full` to print each provision with its rationale and example.
 
 ```bash
-litespec rules apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs
+litespec rules apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs
 ```
 
 ## Read One Provision

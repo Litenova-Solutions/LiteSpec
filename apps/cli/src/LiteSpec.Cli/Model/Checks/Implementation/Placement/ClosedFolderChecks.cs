@@ -53,6 +53,9 @@ internal static class ClosedFolderChecks
     /// <summary>The file name suffixes of transport types, which sit in a use case WebApi folder and no other.</summary>
     static readonly string[] TransportSuffixes = ["Endpoint.cs", "RequestModel.cs", "ResponseModel.cs", "ResponseItemModel.cs", "PaginationModel.cs"];
 
+    /// <summary>The file name suffixes a use case WebApi folder accepts: its endpoint and any model or row shaping the wire contract.</summary>
+    static readonly string[] WebApiSuffixes = ["Endpoint.cs", "Model.cs", "Row.cs"];
+
     /// <summary>The file name suffixes of a use case's own message, result and transport models. The longer suffix comes first, so CommandResult is matched before Command.</summary>
     static readonly string[] UseCaseModelSuffixes = ["CommandResult.cs", "QueryResult.cs", "Command.cs", "Query.cs", "RequestModel.cs", "ResponseModel.cs"];
 
@@ -272,6 +275,12 @@ internal static class ClosedFolderChecks
 
         foreach (var file in ChildFiles(contracts))
         {
+            // The Contracts project file lives here: each Contracts folder compiles as its own project.
+            if (Path.GetFileName(file).EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Contracts/, which holds only its kind folders.", file, 1, null));
         }
     }
@@ -391,7 +400,8 @@ internal static class ClosedFolderChecks
     /// <summary>
     ///     Reports each file in a use case layer folder that sits in the wrong one: a transport type, such as an
     ///     endpoint or a request or response model, belongs in WebApi, and every other file belongs in Application
-    ///     or in Infrastructure for the slice's own adapters.
+    ///     or in Infrastructure for the slice's own adapters. The folder decides what a model or row is: beside the
+    ///     endpoint it shapes the wire contract, while in Application it is a result part the query projects.
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="layer">The use case layer folder: Application, WebApi or Infrastructure.</param>
@@ -404,7 +414,10 @@ internal static class ClosedFolderChecks
 
         foreach (var file in ChildFiles(layer))
         {
-            var transport = TransportSuffixes.Any(suffix => Path.GetFileName(file).EndsWith(suffix, StringComparison.Ordinal));
+            var fileName = Path.GetFileName(file);
+            var transport = inWebApi
+                ? WebApiSuffixes.Any(suffix => fileName.EndsWith(suffix, StringComparison.Ordinal))
+                : TransportSuffixes.Any(suffix => fileName.EndsWith(suffix, StringComparison.Ordinal));
 
             if (transport && !inWebApi)
             {

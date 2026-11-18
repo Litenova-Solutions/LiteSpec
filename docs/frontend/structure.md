@@ -15,9 +15,9 @@ A frontend has three parts. The frame holds the cross-route values: client confi
 
 ### How Modules Mirror the Backend
 
-The module tree mirrors the backend module tree in kebab case: `{module}/{aggregate}/{use-case}/`, where module, aggregate, and use case are the backend's three grouping names. Kebab case means lowercase words joined by hyphens, so `ListExpenses` becomes `list-expenses`.
+The module tree mirrors the backend module tree in kebab case: `{module}/{use-case}/`, where module and use case are the backend's two grouping names. Kebab case means lowercase words joined by hyphens, so `ListExpenses` becomes `list-expenses`.
 
-A reader translates the three backend names to lowercase folders to find the frontend code that serves the use case.
+A reader translates the two backend names to lowercase folders to find the frontend code that serves the use case.
 
 ### How Imports Point Between Layers
 
@@ -45,7 +45,7 @@ That direction keeps four concerns separate: addresses in routes, use-case code 
 {frontend}/
   frame/     client configuration, session, language, permissions, formatting, shell data
   routes/    one entry per address
-  modules/   one folder per backend module, aggregate, and use case
+  modules/   one folder per backend module and use case
 ```
 
 **Reviewed for:** Does every frontend file sit in the frame, routes, or use-case modules? Check the frontend folder roots.
@@ -58,33 +58,33 @@ That direction keeps four concerns separate: addresses in routes, use-case code 
 
 **Applies to:** artifact: any
 
-**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, or at `{module}/use-cases/{use-case}/` for a query describing no one aggregate, resolving to the one backend use case folder of the same names inside its `UseCases/` folder.
+**Statement:** A use-case folder MUST sit under the modules root at `{module}/{use-case}/` in kebab case, resolving to the one backend use case folder of the same names inside its `UseCases/` folder.
 
-**Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one folder per use case, so the mirror names one folder. The frontend structure test checks the mirror on every build, under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
+**Rationale:** A reader holding a specification page finds the frontend code by translating two names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one folder per use case, so the mirror names one folder. The frontend structure test checks the mirror on every build, under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
 
 **Example:** One backend folder and its frontend counterpart are the same path in two spellings:
 
 ```text
-<backend>/Orders/Orders/UseCases/SearchMerchantOrders/
-<frontend>/modules/orders/orders/search-merchant-orders/
+<backend>/Orders/UseCases/SearchMerchantOrders/
+<frontend>/modules/orders/search-merchant-orders/
 ```
 
-In Claimwick, `use-case/spending.list-expenses` lists expenses. The backend implements it under `Spending/Expenses/UseCases/ListExpenses`, and the web frontend serves it from the same path in kebab case, `lib/modules/spending/expenses/list-expenses`, beside the screen record `screen/claimwick-app.expense-list`.
+In Claimwick, `use-case/spending.list-expenses` lists expenses. The backend implements it under `Spending/UseCases/ListExpenses`, and the web frontend serves it from the same path in kebab case, `lib/modules/spending/list-expenses`, beside the screen record `screen/claimwick-app.expense-list`.
 
 ```text
-<backend>/Spending/Expenses/UseCases/ListExpenses/
-<frontend>/modules/spending/expenses/list-expenses/
+<backend>/Spending/UseCases/ListExpenses/
+<frontend>/modules/spending/list-expenses/
 ```
 
-The three backend names become three lowercase folder names, while the `UseCases/` segment has no counterpart in the frontend path.
+The two backend names become two lowercase folder names, while the `UseCases/` segment has no counterpart in the frontend path.
 
-A query that describes no one aggregate keeps its record home under `use-cases/` beside its module, so its folder mirrors that home with two names instead of three. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/use-cases/read-spending-summary/` and `<backend>/Spending/UseCases/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
+A query that describes no one aggregate keeps its record home under `use-cases/` beside its module, but its folder mirrors the backend like any other use case. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/read-spending-summary/` and `<backend>/Spending/UseCases/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 
-![The backend folder Spending, Expenses, ListExpenses beside the frontend folders spending, expenses, list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
+![The backend folders Spending and ListExpenses beside the frontend folders spending and list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
 
-**Reviewed for:** Does every use-case folder sit at `{module}/{aggregate}/{use-case}/`, or at `{module}/use-cases/{use-case}/` for a module-level use case, in kebab case and resolve to the backend folder of the same names? Check the module tree and the structure test proving the mirror.
+**Reviewed for:** Does every use-case folder sit at `{module}/{use-case}/` in kebab case and resolve to the backend folder of the same names? Check the module tree and the structure test proving the mirror.
 
 ### Keep a Use Case Folder Flat
 
@@ -108,13 +108,13 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Applies to:** artifact: any
 
-**Statement:** A file read by several use cases of one aggregate MUST sit flat in that aggregate's folder.
+**Statement:** A file read by several use cases of one module MUST sit flat in that module's folder.
 
-**Rationale:** A file read by several use cases of one aggregate belongs flat in that aggregate's folder: the lowest folder holding every consumer. There it sits beside its consumers, found by browsing rather than through an index, and moving it changes nothing outside the aggregate. A file read by several aggregates rises one more level, to the module folder, by the same rule.
+**Rationale:** A file read by several use cases of one module belongs flat in that module's folder: the lowest folder holding every consumer. There it sits beside its consumers, found by browsing rather than through an index, and moving it changes nothing outside the module.
 
-**Example:** Three expense queries share one tab strip, so the tab strip sits flat in the aggregate folder. A file read by several aggregates sits flat in the module folder.
+**Example:** Three expense queries share one tab strip, so the tab strip sits flat in the module folder.
 
-**Reviewed for:** Does every file read by several use cases sit in the narrowest folder holding every consumer? Check the aggregate and module folders.
+**Reviewed for:** Does every file read by several use cases sit in the narrowest folder holding every consumer? Check the module folders.
 
 ### Reject a Folder Name That Owns Nothing
 
@@ -128,7 +128,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Rationale:** A folder named `shared`, `utils`, or `components` accepts anything. Every author with a file of unclear ownership puts it there, so the folder collects unrelated code that escapes review against the use cases it serves. Finding a file then means searching mixed code instead of translating a use case path. Refusing these names forces each file into the folder that owns it. The rule covers an application's `src`, not a shared package's internals, which the package owns.
 
-**Example:** A shared query three use cases read sits flat in the aggregate folder, not in a `shared/` folder beside them.
+**Example:** A shared query three use cases read sits flat in the module folder, not in a `shared/` folder beside them.
 
 **Reviewed for:** Does any folder under an application's `src` carry a refused name? Check the application folder tree.
 
@@ -270,4 +270,4 @@ That direction rules out three imports: a module reaching a route, a shared pack
 
 This informative example demonstrates `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`, `litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it`, and `litespec/frontend/structure#reject-a-folder-name-that-owns-nothing`.
 
-A search use case folder holds its query definition and its table at `{module}/{aggregate}/{use-case}/` in kebab case. The aggregate folder holds the tab strip its three sibling use cases share. Nothing sits in a `shared/` folder, because that name owns nothing.
+A search use case folder holds its query definition and its table at `{module}/{use-case}/` in kebab case. The module folder holds the tab strip its three sibling use cases share. Nothing sits in a `shared/` folder, because that name owns nothing.

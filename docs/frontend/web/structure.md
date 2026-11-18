@@ -41,7 +41,7 @@ apps/{frontend}/
   src/
     app/       the frame: client configuration, session, language, permissions, formatting, shell data
     routes/    one file per address, compiled into a typed route tree
-    modules/   one folder per backend module, aggregate, and use case
+    modules/   one folder per backend module and use case
   tests/
     unit/      logic tests
     routes/    the route contract suite
@@ -58,7 +58,7 @@ apps/{frontend}/
     routes/    one folder per address, with a page per folder
     lib/
       app/       the frame: client configuration, session, language, permissions, formatting, shell data
-      modules/   one folder per backend module, aggregate, and use case
+      modules/   one folder per backend module and use case
   tests/
     unit/      logic tests
     routes/    the route contract suite
@@ -81,14 +81,14 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **Statement:** A frontend use-case folder MUST export one `litespec` constant whose `implements` names its use case, typed against the generated union of use-case identifiers.
 
-**Rationale:** The folder path mirrors the backend use case, which shows a reader where to look, but a path alone gives a tool nothing to check. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran. The route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves. A query folder at `{module}/use-cases/{use-case}/` mirrors a use case that belongs to no single aggregate, so its expected mark still names `use-case/<module>.<use-case>`, from the module and use-case segments alone.
+**Rationale:** The folder path mirrors the backend use case, which shows a reader where to look, but a path alone gives a tool nothing to check. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran. The route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves.
 
 **Example:** The list-expenses module in the Claimwick web frontend exports its mark.
 
 Svelte:
 
 ```ts
-// src/lib/modules/spending/expenses/list-expenses/litespec.ts
+// src/lib/modules/spending/list-expenses/litespec.ts
 import type { LiteSpecMark } from "#lib/app/litespec-records.ts";
 
 export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;
@@ -97,13 +97,13 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 React:
 
 ```ts
-// src/modules/spending/expenses/list-expenses/litespec.ts
+// src/modules/spending/list-expenses/litespec.ts
 import type { LiteSpecMark } from "src/app/litespec-records";
 
 export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;
 ```
 
-**Checked by:** `litespec model check` reports `mark-missing` (level S) for a use-case folder exporting no `litespec` constant, and `mark-unknown` (level S) for one naming a use case its path does not mirror; for a folder at `{module}/use-cases/{use-case}/` the mirrored use case is the one its module and use-case segments name, with no aggregate segment.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a use-case folder exporting no `litespec` constant, and `mark-unknown` (level S) for one naming a use case its path does not mirror.
 
 ### Generate the Records File into the Frame
 

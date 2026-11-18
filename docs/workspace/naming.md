@@ -118,7 +118,7 @@ The transport name drops the aggregate prefix of the Domain union, such as `Orde
 
 **Rationale:** A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names the command of that use case from inside the folder of the use case, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact would gather the commands of several use cases under one name instead, and it would never show every reaction to the fact, because those reactions span modules. The question of what happens when a fact is recorded is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
-**Example:** `Lending/Holds/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler` runs the expire-hold use case when a loan is returned, and `Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler` only sends the due notice.
+**Example:** `Lending/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler` runs the expire-hold use case when a loan is returned, and `Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler` only sends the due notice.
 
 **Checked by:** `litespec model check` reports `code-placement-drift` (level S) for an event handler or job class outside the folder its record's effects name.
 

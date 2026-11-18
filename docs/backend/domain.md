@@ -481,7 +481,7 @@ A flow that finds a record or creates it is two use cases that the boundary owni
 
 A type in a folder that holds no aggregate root, and that is not the product `Domain/` folder, is the one place the derivation fails. A domain service that holds one rule calculation is not a part: it carries its `rule/` mark. A row or projection a read port returns is not a part either: it is the port's answer, shaped for a reader, and it sits with its port in Application.
 
-**Example:** In the Claimwick product, `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Expenses/Domain/` and carry no mark; the builder lists them as parts of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
+**Example:** In the Claimwick product, `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Domain/Expense/` and carry no mark; the builder lists them as parts of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
 
 **Checked by:** `litespec model check` reports `part-parent-missing` (level S) for an unmarked Domain type whose folder holds no aggregate root and is not the product `Domain/` folder, and the model output lists each part under its aggregate.
 

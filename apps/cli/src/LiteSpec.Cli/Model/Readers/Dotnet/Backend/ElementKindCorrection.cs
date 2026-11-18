@@ -246,6 +246,67 @@ static class ElementKindCorrection
     }
 
     /// <summary>
+    ///     Merges the partial parts of one aggregate root into one element: parts
+    ///     count as one root and a mark on any part counts. The merged element
+    ///     keeps the earliest part's file and line and carries every part's marks.
+    ///     Parts group by class and folder, so two roots sharing a simple name in
+    ///     different modules never merge.
+    /// </summary>
+    /// <param name="elements">The marked elements.</param>
+    /// <returns>The elements with the partial parts of one aggregate root merged.</returns>
+    public static List<MarkedElement> MergeAggregateRootPartials(List<MarkedElement> elements)
+    {
+        if (elements.All(element => element.Kind != CodeKind.AggregateRoot))
+        {
+            return elements;
+        }
+
+        var merged = new List<MarkedElement>();
+        var parts = new Dictionary<string, List<MarkedElement>>(StringComparer.Ordinal);
+
+        foreach (var element in elements)
+        {
+            if (element.Kind != CodeKind.AggregateRoot)
+            {
+                merged.Add(element);
+                continue;
+            }
+
+            var key = element.Class + "\0" + (Path.GetDirectoryName(element.File) ?? "");
+
+            if (!parts.TryGetValue(key, out var group))
+            {
+                group = [];
+                parts[key] = group;
+            }
+
+            group.Add(element);
+        }
+
+        foreach (var group in parts.Values)
+        {
+            var first = group
+                .OrderBy(part => part.File, StringComparer.Ordinal)
+                .ThenBy(part => part.Line)
+                .First();
+            var marks = group
+                .SelectMany(part => part.Marks)
+                .OrderBy(mark => mark.File, StringComparer.Ordinal)
+                .ThenBy(mark => mark.Line)
+                .ToList();
+
+            merged.Add(first with { Marks = marks });
+        }
+
+        return merged
+            .OrderBy(element => element.File, StringComparer.Ordinal)
+            .ThenBy(element => element.Line)
+            .ThenBy(element => element.Class, StringComparer.Ordinal)
+            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>
     ///     Merges the partial parts of one technical class into one element: parts
     ///     count as one class and a mark on any part counts. The merged element
     ///     keeps the earliest part's file and line and carries every part's marks.

@@ -6,8 +6,8 @@
       "name": "web",
       "modules": [
         {
-          "folder": "src/modules/spending/expenses/list-expenses",
-          "file": "src/modules/spending/expenses/list-expenses/litespec.ts",
+          "folder": "src/modules/spending/list-expenses",
+          "file": "src/modules/spending/list-expenses/litespec.ts",
           "line": 3,
           "marks": ["use-case/spending.list-expenses"]
         }
@@ -56,7 +56,7 @@
           "calls": [
             {
               "operation": "listExpenses",
-              "file": "src/modules/spending/expenses/list-expenses/client.ts",
+              "file": "src/modules/spending/list-expenses/client.ts",
               "line": 4
             }
           ]

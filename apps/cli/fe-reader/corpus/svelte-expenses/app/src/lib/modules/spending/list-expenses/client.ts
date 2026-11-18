@@ -1,5 +1,5 @@
 import { listExpenses, fetchExpenses } from "../../../../api-client/client.gen";
-import { loadReceipt } from "#lib/modules/spending/reads/list-receipts/reader.ts";
+import { loadReceipt } from "#lib/modules/spending/list-receipts/reader.ts";
 
 export async function loadExpenses(): Promise<unknown> {
   const rows = await listExpenses();

@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Model.Code;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
@@ -32,6 +33,7 @@ static class AggregateCallReader
 
         var receivers = ClassDetailsReader.ReceiverTypes(declared);
         var fields = FieldTypes(declared);
+        var aliases = UsingAliases(tree);
 
         foreach (var invocation in declared.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
@@ -57,7 +59,7 @@ static class AggregateCallReader
             if (!receivers.TryGetValue(receiver, out var type)
                 && !fields.TryGetValue(receiver, out type))
             {
-                if (AggregateLocalType(invocation, receiver, receivers) is not { } local)
+                if (AggregateLocalType(invocation, receiver, receivers, aliases, aggregateRoots) is not { } local)
                 {
                     continue;
                 }
@@ -65,7 +67,7 @@ static class AggregateCallReader
                 type = local;
             }
 
-            if (aggregateRoots.Contains(DotnetNames.SimpleName(type)))
+            if (aggregateRoots.Contains(ResolveAlias(aliases, DotnetNames.SimpleName(type))))
             {
                 found.Add(new CodeCall(
                     receiver,
@@ -105,6 +107,7 @@ static class AggregateCallReader
 
         var receivers = ClassDetailsReader.ReceiverTypes(declared);
         var fields = FieldTypes(declared);
+        var aliases = UsingAliases(tree);
 
         foreach (var invocation in declared.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
@@ -120,14 +123,14 @@ static class AggregateCallReader
             // aggregate; only a bare root type name is a static factory call.
             if (receivers.ContainsKey(name)
                 || fields.ContainsKey(name)
-                || AggregateLocalType(invocation, name, receivers) is not null
-                || !aggregateRoots.Contains(name))
+                || AggregateLocalType(invocation, name, receivers, aliases, aggregateRoots) is not null
+                || !aggregateRoots.Contains(ResolveAlias(aliases, name)))
             {
                 continue;
             }
 
             found.Add(new CodeCall(
-                name,
+                ResolveAlias(aliases, name),
                 member.Name.Identifier.ValueText,
                 file,
                 tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1));
@@ -167,8 +170,9 @@ static class AggregateCallReader
     }
 
     /// <summary>
-    ///     The type a local holds: what it builds with <c>new</c>, its declared type, or
-    ///     the aggregate a repository load returns, inferred from the repository interface.
+    ///     The type a local holds: what it builds with <c>new</c>, its declared type, the
+    ///     aggregate a repository load returns, inferred from the repository interface, the
+    ///     element a loop variable takes from what it enumerates, or a method parameter's type.
     /// </summary>
     /// <param name="invocation">The invocation on the local.</param>
     /// <param name="name">The local's name.</param>
@@ -177,8 +181,50 @@ static class AggregateCallReader
     public static string? AggregateLocalType(
         InvocationExpressionSyntax invocation,
         string name,
-        Dictionary<string, string> receivers)
+        Dictionary<string, string> receivers) =>
+        AggregateLocalType(invocation, name, receivers, new Dictionary<string, string>(), new HashSet<string>(), []);
+
+    /// <summary>
+    ///     The type a local holds: what it builds with <c>new</c>, its declared type, the
+    ///     aggregate a repository load returns, inferred from the repository interface, the
+    ///     root a static call on a root type returns, the element a loop variable takes from
+    ///     what it enumerates, or a method parameter's type.
+    /// </summary>
+    /// <param name="invocation">The invocation on the local.</param>
+    /// <param name="name">The local's name.</param>
+    /// <param name="receivers">The injected names the class may call, each with its type.</param>
+    /// <param name="aliases">The file's using aliases, each with the simple name it names.</param>
+    /// <param name="aggregateRoots">The simple names of known aggregate roots.</param>
+    /// <returns>The type the local holds, or null when it holds none the reader names.</returns>
+    public static string? AggregateLocalType(
+        InvocationExpressionSyntax invocation,
+        string name,
+        Dictionary<string, string> receivers,
+        Dictionary<string, string> aliases,
+        HashSet<string> aggregateRoots) =>
+        AggregateLocalType(invocation, name, receivers, aliases, aggregateRoots, []);
+
+    /// <summary>The type a local holds, following loop variables through what they enumerate.</summary>
+    /// <param name="invocation">The invocation on the local.</param>
+    /// <param name="name">The local's name.</param>
+    /// <param name="receivers">The injected names the class may call, each with its type.</param>
+    /// <param name="aliases">The file's using aliases, each with the simple name it names.</param>
+    /// <param name="aggregateRoots">The simple names of known aggregate roots.</param>
+    /// <param name="seen">The names already followed, so a loop enumerating itself ends.</param>
+    /// <returns>The type the local holds, or null when it holds none the reader names.</returns>
+    static string? AggregateLocalType(
+        InvocationExpressionSyntax invocation,
+        string name,
+        Dictionary<string, string> receivers,
+        Dictionary<string, string> aliases,
+        HashSet<string> aggregateRoots,
+        HashSet<string> seen)
     {
+        if (!seen.Add(name))
+        {
+            return null;
+        }
+
         var scope = invocation.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault();
 
         if (scope is null)
@@ -198,8 +244,8 @@ static class AggregateCallReader
                 return DotnetNames.SimpleTypeName(creation.Type);
             }
 
-            if (declarator.Initializer?.Value is AwaitExpressionSyntax awaited
-                && awaited.Expression is InvocationExpressionSyntax load
+            if (LoadTarget(declarator.Initializer?.Value) is AwaitExpressionSyntax awaited
+                && UnwrapAwaited(awaited.Expression) is InvocationExpressionSyntax load
                 && load.Expression is MemberAccessExpressionSyntax member
                 && member.Expression is IdentifierNameSyntax repository
                 && receivers.TryGetValue(repository.Identifier.ValueText, out var repoType)
@@ -209,7 +255,8 @@ static class AggregateCallReader
                 && (method.StartsWith("Get", StringComparison.Ordinal)
                     || method.StartsWith("Find", StringComparison.Ordinal)
                     || method.StartsWith("Load", StringComparison.Ordinal)
-                    || method.StartsWith("Single", StringComparison.Ordinal))
+                    || method.StartsWith("Single", StringComparison.Ordinal)
+                    || method.StartsWith("List", StringComparison.Ordinal))
                 && RepositoryAggregateName(DotnetNames.KindOf(repoType)) is { } aggregate)
             {
                 return aggregate;
@@ -220,9 +267,118 @@ static class AggregateCallReader
             {
                 return DotnetNames.SimpleTypeName(declaration.Type);
             }
+
+            if (declarator.Initializer?.Value is InvocationExpressionSyntax factory
+                && factory.Expression is MemberAccessExpressionSyntax factoryMember
+                && factoryMember.Expression is IdentifierNameSyntax factoryType
+                && aggregateRoots.Contains(ResolveAlias(aliases, factoryType.Identifier.ValueText)))
+            {
+                return ResolveAlias(aliases, factoryType.Identifier.ValueText);
+            }
+        }
+
+        foreach (var loop in scope.DescendantNodes().OfType<ForEachStatementSyntax>())
+        {
+            if (loop.Identifier.ValueText == name
+                && loop.Expression is IdentifierNameSyntax enumerated
+                && AggregateLocalType(invocation, enumerated.Identifier.ValueText, receivers, aliases, aggregateRoots, seen) is { } element)
+            {
+                return ElementType(element);
+            }
+        }
+
+        if (scope is MethodDeclarationSyntax methodScope)
+        {
+            foreach (var parameter in methodScope.ParameterList.Parameters)
+            {
+                if (parameter.Identifier.ValueText == name && parameter.Type is not null)
+                {
+                    return DotnetNames.SimpleTypeName(parameter.Type);
+                }
+            }
         }
 
         return null;
+    }
+
+    /// <summary>The using aliases the file declares, each with the simple name it names.</summary>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <returns>The alias name with its target's simple name.</returns>
+    static Dictionary<string, string> UsingAliases(SyntaxTree tree)
+    {
+        var aliases = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var directive in tree.GetRoot().DescendantNodes().OfType<UsingDirectiveSyntax>())
+        {
+            if (directive.Alias is null || directive.Name is null)
+            {
+                continue;
+            }
+
+            var target = directive.Name.ToString();
+            var generic = target.IndexOf('<');
+
+            if (generic >= 0)
+            {
+                target = target[..generic];
+            }
+
+            var dot = target.LastIndexOf('.');
+
+            aliases[directive.Alias.Name.Identifier.ValueText] = dot >= 0 ? target[(dot + 1)..] : target;
+        }
+
+        return aliases;
+    }
+
+    /// <summary>The simple name a file name means: its alias target, or itself when the file aliases nothing by it.</summary>
+    /// <param name="aliases">The file's using aliases, each with the simple name it names.</param>
+    /// <param name="name">The name as written.</param>
+    /// <returns>The alias target's simple name, or the name itself.</returns>
+    static string ResolveAlias(Dictionary<string, string> aliases, string name) =>
+        aliases.TryGetValue(name, out var target) ? target : name;
+
+    /// <summary>The loaded value of an initializer: the left side of a null-coalescing fallback, or the value itself.</summary>
+    /// <param name="value">The local's initializer value.</param>
+    /// <returns>The loaded value, or null when the local has no initializer.</returns>
+    static ExpressionSyntax? LoadTarget(ExpressionSyntax? value) =>
+        value is BinaryExpressionSyntax coalesce && coalesce.IsKind(SyntaxKind.CoalesceExpression)
+            ? coalesce.Left
+            : value;
+
+    /// <summary>The awaited call without its <c>ConfigureAwait</c>, so an awaited load reads through it.</summary>
+    /// <param name="awaited">The awaited expression.</param>
+    /// <returns>The repository load call, or the expression itself when it configures no await.</returns>
+    static ExpressionSyntax UnwrapAwaited(ExpressionSyntax awaited)
+    {
+        if (awaited is InvocationExpressionSyntax configured
+            && configured.Expression is MemberAccessExpressionSyntax configuredMember
+            && configuredMember.Name.Identifier.ValueText == "ConfigureAwait"
+            && configuredMember.Expression is InvocationExpressionSyntax inner)
+        {
+            return inner;
+        }
+
+        return awaited;
+    }
+
+    /// <summary>The element type a loop variable takes: the type itself, or its first type argument for a collection.</summary>
+    /// <param name="enumerated">The resolved type of what the loop enumerates.</param>
+    /// <returns>The element type the loop variable holds.</returns>
+    static string ElementType(string enumerated)
+    {
+        var open = enumerated.IndexOf('<');
+        var close = enumerated.LastIndexOf('>');
+
+        if (open < 0 || close < open)
+        {
+            return enumerated;
+        }
+
+        var first = enumerated[(open + 1)..close].Split(',')[0].Trim();
+        var dot = first.LastIndexOf('.');
+
+        return dot >= 0 ? first[(dot + 1)..] : first;
     }
 
     /// <summary>The aggregate a repository interface serves, or null when it names none.</summary>

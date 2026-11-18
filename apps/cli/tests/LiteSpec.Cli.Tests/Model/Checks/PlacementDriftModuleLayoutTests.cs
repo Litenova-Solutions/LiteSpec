@@ -387,6 +387,47 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Null(finding.Subject);
     }
 
+    /// <summary>The Contracts project file in a module Contracts folder reports nothing, while a type beside it still reports the kind folders.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
+    [Fact]
+    public void ContractsProjectFileReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var project = ProductFile(temp.Path, "Lending", "Contracts", "Library.Lending.Contracts.csproj");
+        Directory.CreateDirectory(Path.GetDirectoryName(project)!);
+        File.WriteAllText(project, "<Project Sdk=\"Microsoft.NET.Sdk\" />\n");
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "LoanId.cs");
+        WriteCode(file, "Library.Lending.Contracts", "LoanId");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only its kind folders.", finding.Message);
+    }
+
+    /// <summary>A nested model and a row in a use case WebApi folder report nothing, a handler there still reports, and a row in Application stays a result part.</summary>
+    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    [Fact]
+    public void WebApiNestedModelAndRowReportNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var nested = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "WebApi", "BorrowCopyLineModel.cs");
+        WriteCode(nested, "Library.Lending.UseCases.BorrowCopy.WebApi", "BorrowCopyLineModel");
+        var row = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "WebApi", "BorrowCopyRow.cs");
+        WriteCode(row, "Library.Lending.UseCases.BorrowCopy.WebApi", "BorrowCopyRow");
+        var handler = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "WebApi", "BorrowCopyCommandHandler.cs");
+        WriteCode(handler, "Library.Lending.UseCases.BorrowCopy.WebApi", "BorrowCopyCommandHandler");
+        var resultRow = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyResultRow.cs");
+        WriteCode(resultRow, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyResultRow");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/UseCases/BorrowCopy/WebApi/BorrowCopyCommandHandler.cs' is not a transport type, which sits in Application/, not WebApi/.", finding.Message);
+    }
+
     /// <summary>A folder in the Kernel reports that the Kernel holds files only.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]

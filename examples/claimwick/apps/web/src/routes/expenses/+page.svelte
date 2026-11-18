@@ -8,7 +8,7 @@
   import { createQuery } from "@tanstack/svelte-query";
   import { DataTable, ListPage } from "@claimwick/ui/floorplans";
   import { formatMoney } from "#lib/app/money.ts";
-  import { listExpensesQueryFn, listExpensesQueryKey } from "#lib/modules/spending/expenses/list-expenses-query.ts";
+  import { listExpensesQueryFn, listExpensesQueryKey } from "#lib/modules/spending/list-expenses-query.ts";
 
   const columns = [
     { key: "submittedAt", label: "Submitted" },

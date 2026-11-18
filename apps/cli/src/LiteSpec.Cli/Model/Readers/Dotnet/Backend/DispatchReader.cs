@@ -93,7 +93,18 @@ static class DispatchReader
                 _ => null,
             };
 
-            if (receiver is null || !receivers.TryGetValue(receiver, out var type))
+            if (receiver is null)
+            {
+                continue;
+            }
+
+            // A per-record unit of work resolves its own mediator from a scope it opens, so a
+            // receiver the class neither injects nor holds may still be a local it resolved.
+            var type = receivers.TryGetValue(receiver, out var injected)
+                ? injected
+                : CalledMethodDispatchReader.LocalType(invocation, receiver);
+
+            if (type is null)
             {
                 continue;
             }

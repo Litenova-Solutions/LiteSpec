@@ -285,7 +285,7 @@ A copied shape costs a few lines and cannot drift into a wrong answer, because a
 
 Kernel values are the exception: money, typed identifiers, dates, and closed sets the Kernel owns are referenced directly from any layer the layer table allows, and copying one into a use case folder breaks the rule.
 
-**Example:** The submit-expense and approve-expense use cases each return the expense they acted on. Each declares its own result with the fields its caller needs, and neither result lives in `Expenses/Application/`.
+**Example:** The submit-expense and approve-expense use cases each return the expense they acted on. Each declares its own result with the fields its caller needs, and neither result lives in `Domain/Expense/`.
 
 **Checked by:** `dotnet build` reports `LS2019` for a use case folder referencing a type in another use case folder, and `litespec model check` reports `code-placement-drift` for a message, result or transport-model file outside a use-case folder.
 

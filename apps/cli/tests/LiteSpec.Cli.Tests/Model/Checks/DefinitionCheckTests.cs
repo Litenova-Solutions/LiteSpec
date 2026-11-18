@@ -88,6 +88,36 @@ public sealed class DefinitionCheckTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <summary>An authorization definition naming the record's permission through its constant reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AuthorizationPermissionConstantReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(LendingPermissions.ApproveExpense)");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An authorization definition naming another permission's constant reports definition-drift.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AuthorizationPermissionConstantDriftReportsDefinitionDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(LendingPermissions.RefuseExpense)");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("definition-drift", finding.Code);
+        Assert.Equal("Authorization definition 'BorrowCopyCommandAuthorizationDefinition' declares no permission 'approve-expense' for 'use-case/lending.borrow-copy'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
     /// <summary>An authorization definition without an exemption for an anonymous grant reports definition-drift.</summary>
     /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
@@ -97,6 +127,49 @@ public sealed class DefinitionCheckTests
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized()");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("definition-drift", finding.Code);
+        Assert.Equal("Authorization definition 'BorrowCopyCommandAuthorizationDefinition' declares no exemption for the anonymous grant of 'use-case/lending.borrow-copy'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>An authorization definition authorizing the anonymous policy for an anonymous grant reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AnonymousGrantWithAnonymousPolicyReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Anonymous)");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An authorization definition exempting an anonymous grant reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AnonymousGrantWithExemptionReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Exempt(\"The catalog is open to every caller.\")");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An authorization definition authorizing another policy than the anonymous grant reports definition-drift.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AnonymousGrantWithPermissionPolicyReportsDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
 
         var finding = Assert.Single(Run(model));
 
@@ -187,6 +260,54 @@ public sealed class DefinitionCheckTests
 
         Assert.Equal("definition-drift", finding.Code);
         Assert.Equal("Audit definition 'BorrowCopyCommandAuditDefinition' declares no target for 'use-case/lending.borrow-copy'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>An audit definition without a target extraction reports nothing when the handler adds the target it learns.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AuditTargetAddedByHandlerReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
+        WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\", TargetKind = \"copy\" }");
+        File.WriteAllText(Path.Combine(folder, "BorrowCopyCommandHandler.cs"), "internal sealed class BorrowCopyCommandHandler\n{\n    private void Handle() => _audit.WithTarget(copy.Id);\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An audit exemption naming the use case reports nothing when a sibling definition audits its action.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AuditExemptCoveredBySiblingReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
+        WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"The hold only prepares use-case/lending.borrow-copy; the borrowing records the change once it completes.\")");
+        WriteDefinition(folder, "ReserveCopyCommandAuditDefinition.cs", "(AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\" }).WithTargetFrom<ReserveCopyCommand>(command => command.CopyId)");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An audit exemption naming the use case reports definition-drift when no sibling audits its action.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void AuditExemptWithoutAuditingSiblingReportsDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
+        WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"The hold only prepares use-case/lending.borrow-copy; the borrowing records the change once it completes.\")");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("definition-drift", finding.Code);
+        Assert.Equal("Audit definition 'BorrowCopyCommandAuditDefinition' declares an audit exemption, but 'use-case/lending.borrow-copy' requires audit.", finding.Message);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 

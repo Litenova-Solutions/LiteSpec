@@ -1,5 +1,5 @@
 import { listExpensesAsync } from "../../../api-client/client.gen";
-import { loadExpenses } from "#lib/modules/spending/expenses/list-expenses/client.ts";
+import { loadExpenses } from "#lib/modules/spending/list-expenses/client.ts";
 import { formatMoney } from "#lib/app/helpers.ts";
 
 export async function load(): Promise<unknown> {

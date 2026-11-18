@@ -6,10 +6,8 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Screens;
 
 /// <summary>
-///     The use-case id a frontend module folder mirrors: three segments
-///     <c>{module}/{aggregate}/{use-case}</c> name <c>use-case/&lt;module&gt;.&lt;use-case&gt;</c>,
-///     and two segments under <c>reads/</c> name the same from the module and
-///     use-case segments alone.
+///     The use-case id a frontend module folder mirrors: two segments
+///     <c>{module}/{use-case}</c> name <c>use-case/&lt;module&gt;.&lt;use-case&gt;</c>.
 /// </summary>
 /// <follows>litespec/frontend/web/structure#mark-each-use-case-module-with-its-use-case</follows>
 static class FrontendModuleMirror
@@ -34,12 +32,7 @@ static class FrontendModuleMirror
 
         var parts = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-        if (parts.Length == 3 && parts[1] == "reads")
-        {
-            return $"use-case/{parts[0]}.{parts[2]}";
-        }
-
-        return parts.Length >= 3 ? $"use-case/{parts[0]}.{parts[2]}" : null;
+        return parts.Length >= 2 ? $"use-case/{parts[0]}.{parts[1]}" : null;
     }
 
     /// <summary>

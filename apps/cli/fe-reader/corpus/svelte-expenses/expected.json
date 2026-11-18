@@ -6,28 +6,28 @@
       "name": "web",
       "modules": [
         {
-          "folder": "src/lib/modules/spending/expenses/archived",
-          "file": "src/lib/modules/spending/expenses/archived/litespec.ts",
+          "folder": "src/lib/modules/spending/archived",
+          "file": "src/lib/modules/spending/archived/litespec.ts",
           "line": 1,
           "marks": []
         },
         {
-          "folder": "src/lib/modules/spending/expenses/drafts",
-          "file": "src/lib/modules/spending/expenses/drafts/litespec.ts",
+          "folder": "src/lib/modules/spending/drafts",
+          "file": "src/lib/modules/spending/drafts/litespec.ts",
           "line": 1,
           "marks": []
         },
         {
-          "folder": "src/lib/modules/spending/expenses/list-expenses",
-          "file": "src/lib/modules/spending/expenses/list-expenses/litespec.ts",
+          "folder": "src/lib/modules/spending/list-expenses",
+          "file": "src/lib/modules/spending/list-expenses/litespec.ts",
           "line": 3,
           "marks": [
             "use-case/spending.list-expenses"
           ]
         },
         {
-          "folder": "src/lib/modules/spending/reads/list-receipts",
-          "file": "src/lib/modules/spending/reads/list-receipts/litespec.ts",
+          "folder": "src/lib/modules/spending/list-receipts",
+          "file": "src/lib/modules/spending/list-receipts/litespec.ts",
           "line": 3,
           "marks": [
             "use-case/spending.list-receipts"
@@ -45,17 +45,17 @@
           "calls": [
             {
               "operation": "listExpenses",
-              "file": "src/lib/modules/spending/expenses/list-expenses/client.ts",
+              "file": "src/lib/modules/spending/list-expenses/client.ts",
               "line": 5
             },
             {
               "operation": "fetchExpenses",
-              "file": "src/lib/modules/spending/expenses/list-expenses/client.ts",
+              "file": "src/lib/modules/spending/list-expenses/client.ts",
               "line": 6
             },
             {
               "operation": "getExpense",
-              "file": "src/lib/modules/spending/reads/list-receipts/reader.ts",
+              "file": "src/lib/modules/spending/list-receipts/reader.ts",
               "line": 4
             },
             {
@@ -80,7 +80,7 @@
           "calls": [
             {
               "operation": "getExpense",
-              "file": "src/lib/modules/spending/reads/list-receipts/reader.ts",
+              "file": "src/lib/modules/spending/list-receipts/reader.ts",
               "line": 4
             }
           ]

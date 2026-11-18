@@ -90,7 +90,14 @@ internal static class DefinitionChecks
 
         if (grant == "anonymous")
         {
-            if (!text.Contains("Exempt", StringComparison.Ordinal))
+            // An anonymous grant is a grant like any other: the definition either exempts
+            // the message or authorizes the anonymous policy, as it authorizes the system
+            // policy for a system grant.
+            var authorizesAnonymous = text.Contains("Authorized", StringComparison.Ordinal)
+                && (text.Contains("Anonymous", StringComparison.Ordinal)
+                    || text.Contains("anonymous", StringComparison.Ordinal));
+
+            if (!text.Contains("Exempt", StringComparison.Ordinal) && !authorizesAnonymous)
             {
                 findings.Add(new Finding(
                     "definition-drift",
@@ -161,7 +168,11 @@ internal static class DefinitionChecks
         {
             var permission = grant["permission/".Length..];
 
-            if (!text.Contains("Authorized", StringComparison.Ordinal) || !text.Contains(permission, StringComparison.Ordinal))
+            // A definition may name the permission through its constant, such as BooksPermissions.PostEntry
+            // for permission/post-entry, rather than writing the literal.
+            if (!text.Contains("Authorized", StringComparison.Ordinal)
+                || (!text.Contains(permission, StringComparison.Ordinal)
+                    && !text.Contains(Naming.Pascal(permission), StringComparison.Ordinal)))
             {
                 findings.Add(new Finding(
                     "definition-drift",
@@ -240,12 +251,18 @@ internal static class DefinitionChecks
         if (text.Contains("NotAudited", StringComparison.Ordinal)
             || text.Contains(".Exempt(", StringComparison.Ordinal))
         {
-            findings.Add(new Finding(
-                "definition-drift",
-                $"Audit definition '{definition}' declares an audit exemption, but '{record.Id}' requires audit.",
-                file,
-                1,
-                record.Id));
+            // A preparatory command of a use case may exempt itself with a reason naming
+            // the use case, when a sibling definition audits that use case's action.
+            if (!CoveredBySiblingAudit(folder, file, text, record))
+            {
+                findings.Add(new Finding(
+                    "definition-drift",
+                    $"Audit definition '{definition}' declares an audit exemption, but '{record.Id}' requires audit.",
+                    file,
+                    1,
+                    record.Id));
+            }
+
             return;
         }
 
@@ -260,7 +277,9 @@ internal static class DefinitionChecks
             return;
         }
 
-        if (!text.Contains("WithTargetFrom", StringComparison.Ordinal))
+        // The handler adds the target it learns while running through the audit
+        // scope, so a definition without a target extraction reads beside it.
+        if (!text.Contains("WithTargetFrom", StringComparison.Ordinal) && !HandlerAddsTarget(handler))
         {
             findings.Add(new Finding(
                 "definition-drift",
@@ -361,6 +380,79 @@ internal static class DefinitionChecks
                 1,
                 record.Id));
         }
+    }
+
+    /// <summary>Whether the handler adds the audit target it learns while running through the audit scope.</summary>
+    /// <param name="handler">The handler whose file is read.</param>
+    /// <returns>True when the handler file calls WithTarget; otherwise false.</returns>
+    private static bool HandlerAddsTarget(CodeHandler handler)
+    {
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(handler.File);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+
+        return text.Contains("WithTarget(", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///     Whether a reasoned exemption stands beside a sibling definition that audits the same use case:
+    ///     the exemption names the use case it prepares, and another audit definition in the folder audits that action.
+    /// </summary>
+    /// <param name="folder">The Application folder holding the definitions.</param>
+    /// <param name="file">The exempting definition file, skipped among the siblings.</param>
+    /// <param name="text">The exempting definition text.</param>
+    /// <param name="record">The use case record holding the audited action.</param>
+    /// <returns>True when a sibling audits the named action; otherwise false.</returns>
+    private static bool CoveredBySiblingAudit(string folder, string file, string text, Record record)
+    {
+        if (!text.Contains(record.Id, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        string[] siblings;
+
+        try
+        {
+            siblings = Directory.GetFiles(folder, "*AuditDefinition.cs");
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+
+        foreach (var sibling in siblings)
+        {
+            if (string.Equals(sibling, file, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            string siblingText;
+
+            try
+            {
+                siblingText = File.ReadAllText(sibling);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            if (siblingText.Contains("Audited(\"" + record.Id + "\"", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>The grant the use case record states in access.grant, or null when it states none.</summary>

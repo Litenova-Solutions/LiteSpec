@@ -105,12 +105,13 @@ sealed class DotnetBackendReader : IBackendReader
 
         model.Handlers.AddRange(merged.Handlers
             .OrderBy(handler => handler.UseCaseId, StringComparer.Ordinal));
-        model.Elements.AddRange(ElementKindCorrection.MergeTechnicalPartials(merged.Elements
-            .OrderBy(element => element.File, StringComparer.Ordinal)
-            .ThenBy(element => element.Line)
-            .ThenBy(element => element.Class, StringComparer.Ordinal)
-            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
-            .ToList()));
+        model.Elements.AddRange(ElementKindCorrection.MergeTechnicalPartials(
+            ElementKindCorrection.MergeAggregateRootPartials(merged.Elements
+                .OrderBy(element => element.File, StringComparer.Ordinal)
+                .ThenBy(element => element.Line)
+                .ThenBy(element => element.Class, StringComparer.Ordinal)
+                .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+                .ToList())));
         model.StrayMarks.AddRange(merged.StrayMarks
             .OrderBy(stray => stray.File, StringComparer.Ordinal)
             .ThenBy(stray => stray.Line)

@@ -75,6 +75,127 @@ public sealed class MarkFindingTests
         Assert.Contains("takes one", finding.Message);
     }
 
+    /// <summary>A partial root marked on one part reports no mark missing, while an unmarked root still reports.</summary>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact]
+    public void PartialRootMarkedOnOnePartReportsNothing()
+    {
+        using var temp = WritePartialConsumer();
+        var missing = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-missing");
+
+        var finding = Assert.Single(missing);
+        Assert.Contains("Hold", finding.Message);
+    }
+
+    /// <summary>Writes a consumer in the module layout where one root splits into a marked and an unmarked part, and one root carries no mark.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WritePartialConsumer()
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            WriteFile(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  }
+                }
+                """);
+            WriteFile(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            foreach (var (folder, id, title) in new[] { ("loans", "aggregate/lending.loan", "Loan"), ("holds", "aggregate/lending.hold", "Hold") })
+            {
+                TestRecords.Write(temp.Path, $".litespec/behavior/modules/lending/aggregates/{folder}/aggregate.yaml", """
+                    {
+                      "type": "aggregate",
+                      "id": "ID",
+                      "title": "TITLE",
+                      "states": [
+                        {
+                          "name": "Active",
+                          "meaning": "The record is open."
+                        }
+                      ]
+                    }
+                    """.Replace("ID", id).Replace("TITLE", title));
+                TestRecords.Explain(temp.Path, $".litespec/behavior/modules/lending/aggregates/{folder}/aggregate.md", $"""
+                    # {title}
+
+                    A record stays open.
+                    """);
+            }
+
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loan/Loan.cs", """
+                namespace Library.Lending.Domain.Loan;
+
+                /// <implements>aggregate/lending.loan</implements>
+                public sealed partial class Loan : AggregateRoot<LoanId>
+                {
+                    public string State { get; private set; } = "active";
+                }
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loan/Loan.Renew.cs", """
+                namespace Library.Lending.Domain.Loan;
+
+                public sealed partial class Loan
+                {
+                    private string RenewalNote() => "renewed";
+                }
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Hold/Hold.cs", """
+                namespace Library.Lending.Domain.Hold;
+
+                public sealed class Hold : AggregateRoot<HoldId>
+                {
+                    public string State { get; private set; } = "active";
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    static void WriteFile(string root, string relative, string text)
+    {
+        var destination = Path.Combine(root, relative);
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        File.WriteAllText(destination, text);
+    }
+
     /// <summary>A model with the screen record the route marks name.</summary>
     /// <param name="root">The fixture root folder the record files sit under.</param>
     /// <returns>The project model holding the records.</returns>

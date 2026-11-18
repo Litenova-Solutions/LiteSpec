@@ -82,7 +82,7 @@ internal static class EffectEdges
             _ => true,
         };
 
-    /// <summary>The use cases a dispatched message names, by its operation stem, in identifier order.</summary>
+    /// <summary>The use cases a dispatched message names, by its operation stem and its handler's mark, in identifier order.</summary>
     /// <param name="model">The loaded project model that holds every use case record.</param>
     /// <param name="message">The dispatched message type name.</param>
     /// <returns>The use case identifiers the message names, in identifier order.</returns>
@@ -103,6 +103,20 @@ internal static class EffectEdges
             .Where(record => record.Type == RecordTypes.UseCase)
             .Select(record => record.Id)
             .ToList();
+
+        // The mark is the link: a message whose handler marks a use case runs
+        // that use case even when the message name says otherwise.
+        foreach (var handler in model.Code.Handlers)
+        {
+            if (handler.MessageType == message
+                && handler.UseCaseId.Length > 0
+                && model.ById.TryGetValue(handler.UseCaseId, out var record)
+                && record.Type == RecordTypes.UseCase
+                && !found.Contains(handler.UseCaseId, StringComparer.Ordinal))
+            {
+                found.Add(handler.UseCaseId);
+            }
+        }
 
         found.Sort(StringComparer.Ordinal);
 

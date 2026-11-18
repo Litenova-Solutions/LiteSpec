@@ -9,7 +9,7 @@
   import { submitExpense } from "@claimwick/api";
   import { ListPage } from "@claimwick/ui/floorplans";
   import { useQueryClient } from "@tanstack/svelte-query";
-  import { listExpensesQueryKey } from "#lib/modules/spending/expenses/list-expenses-query.ts";
+  import { listExpensesQueryKey } from "#lib/modules/spending/list-expenses-query.ts";
   import { sentenceFor } from "./refusals.ts";
 
   const queryClient = useQueryClient();

@@ -5,7 +5,7 @@
 </script>
 
 <script>
-  import { loadExpenses } from "#lib/modules/spending/expenses/list-expenses/client.ts";
+  import { loadExpenses } from "#lib/modules/spending/list-expenses/client.ts";
   import ExpenseTable from "./expense-table.svelte";
 
   const rowsPromise = loadExpenses();
