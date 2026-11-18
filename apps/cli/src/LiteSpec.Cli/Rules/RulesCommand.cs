@@ -400,7 +400,7 @@ static class RulesCommand
     /// <param name="files">How many changed files were queried.</param>
     /// <param name="union">The judgment provisions in print order.</param>
     /// <param name="counts">How many changed files each provision governs, by provision id.</param>
-    static void PrintSince(string sinceRef, int files, List<ProvisionMatch> union, IReadOnlyDictionary<string, int> counts)
+    static void PrintSince(string sinceRef, int files, List<ProvisionMatch> union, Dictionary<string, int> counts)
     {
         CliHost.Out.WriteLine($"Rules since {sinceRef} ({files} files, {union.Count} judgment provisions):");
 

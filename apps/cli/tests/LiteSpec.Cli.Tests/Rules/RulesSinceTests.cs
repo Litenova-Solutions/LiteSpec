@@ -129,7 +129,7 @@ public sealed class RulesSinceTests
     {
         var open = line.IndexOf(" (", StringComparison.Ordinal);
         var close = line.IndexOf(" file", StringComparison.Ordinal);
-        return int.Parse(line.Substring(open + 2, close - open - 2), System.Globalization.CultureInfo.InvariantCulture);
+        return int.Parse(line.AsSpan(open + 2, close - open - 2), System.Globalization.CultureInfo.InvariantCulture);
     }
 
     /// <summary>Appends a comment line to the fixture file, so git sees it changed.</summary>
