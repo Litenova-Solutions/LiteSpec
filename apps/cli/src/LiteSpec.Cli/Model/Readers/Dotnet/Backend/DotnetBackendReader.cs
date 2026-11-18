@@ -196,7 +196,9 @@ sealed class DotnetBackendReader : IBackendReader
         var project = SourceRoots.ProjectOf(config, file);
         var layer = SourceRoots.LayerOf(config, file);
         var readElements = MarkedElementReader.Read(tree, context, project, layer);
+        // A C# 14 extension block is a type declaration with no name, so it has no identifier to key on.
         var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
+            .Where(static type => !type.Identifier.IsMissing && type.Identifier.Span.Length > 0)
             .ToDictionary(type => type.Identifier.Span, type => type);
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
             .ToDictionary(method => method.Identifier.Span, method => method);
