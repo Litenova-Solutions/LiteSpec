@@ -41,7 +41,7 @@ internal sealed class Expense : AggregateRoot<Guid>
         }
 
         var expense = new Expense(id, employeeId, total, receiptId);
-        expense.RaiseDomainEvent(new ExpenseSubmittedEvent(id, total.Amount, total.Currency, employeeId));
+        expense.RaiseDomainEvent(new ExpenseSubmittedDomainEvent(id, total.Amount, total.Currency, employeeId));
         return expense;
     }
 
@@ -55,7 +55,7 @@ internal sealed class Expense : AggregateRoot<Guid>
         }
 
         ReceiptId = receiptId;
-        RaiseDomainEvent(new ReceiptAttachedEvent(receiptId, Id));
+        RaiseDomainEvent(new ReceiptAttachedDomainEvent(receiptId, Id));
     }
 
     /// <summary>Approves a submitted expense from another employee.</summary>
@@ -73,7 +73,7 @@ internal sealed class Expense : AggregateRoot<Guid>
         }
 
         State = new ExpenseApprovedState(approverId, decidedAt);
-        RaiseDomainEvent(new ExpenseApprovedEvent(Id, approverId, decidedAt));
+        RaiseDomainEvent(new ExpenseApprovedDomainEvent(Id, approverId, decidedAt));
     }
 
     /// <summary>Refuses a submitted expense with a reason.</summary>
@@ -86,7 +86,7 @@ internal sealed class Expense : AggregateRoot<Guid>
         }
 
         State = new ExpenseRefusedState(approverId, decidedAt, reason);
-        RaiseDomainEvent(new ExpenseRefusedEvent(Id, approverId, decidedAt));
+        RaiseDomainEvent(new ExpenseRefusedDomainEvent(Id, approverId, decidedAt));
     }
 
     /// <summary>Reimburses an approved expense once.</summary>
@@ -104,7 +104,7 @@ internal sealed class Expense : AggregateRoot<Guid>
         }
 
         State = new ExpenseReimbursedState(reimbursedAt);
-        RaiseDomainEvent(new ExpenseReimbursedEvent(Id, EmployeeId, Total.Amount, Total.Currency, reimbursedAt));
+        RaiseDomainEvent(new ExpenseReimbursedDomainEvent(Id, EmployeeId, Total.Amount, Total.Currency, reimbursedAt));
     }
 
     /// <summary>Erases the personal data of a decided expense past its retention.</summary>
@@ -113,7 +113,7 @@ internal sealed class Expense : AggregateRoot<Guid>
     {
         ReceiptId = null;
         State = new ExpenseErasedState();
-        RaiseDomainEvent(new ExpensePersonalDataErasedEvent(Id));
+        RaiseDomainEvent(new ExpensePersonalDataErasedDomainEvent(Id));
     }
 
     /// <summary>Refuses an export with no approved expense.</summary>

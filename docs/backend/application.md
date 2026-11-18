@@ -880,7 +880,7 @@ The layer folders state each file's layer in the path and show by their presence
   Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else
   Posts/                                  single aggregate whose name matches the module: Domain holds the aggregate directly
     Contracts/
-      Posts/          PostId, PostPublished, ReadPost/ (query and result)
+      Posts/          PostId, PostPublishedModuleEvent, ReadPost/ (query and result)
     Domain/                               Post, PostState, and the post repository contract directly
     Application/
       Posts/

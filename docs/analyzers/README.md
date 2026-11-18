@@ -1,6 +1,6 @@
 # Overview
 
-The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 55 rules, each with its own reference page.
+The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 56 rules, each with its own reference page.
 
 ## How the Pages Fit Together
 
@@ -33,7 +33,7 @@ Each rule runs only in the layers its provision covers:
 - `LS2018` runs on Application, Ports, and WebApi files.
 - `LS2019` and `LS2020` run on every layer except Test.
 - `LS2021` runs on Domain, Application, and Infrastructure files of the modules project, and `LS2022` on every layer except Test.
-- `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a port adapter folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test. `LS2029` runs on every module layer except Test and on the Platform, and `LS2030` on Contracts projects.
+- `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a port adapter folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test. `LS2029` runs on every module layer except Test and on the Platform, and `LS2030` on Contracts projects. `LS2031` runs on Domain files and Contracts projects.
 - Style rules run in every production layer.
 - `LS4001` runs in test projects.
 - `LS5003` and `LS5004` run in every layer, checking the kinds each layer holds.
@@ -107,6 +107,7 @@ The other name-based checks work the same way:
 - A child entity is any class that derives from a class named `Entity` with one type argument, in any namespace.
 - A Domain exception is any exception that derives from a class named `DomainException`, which itself derives from `System.Exception`.
 - A domain event is any type that implements an interface named `IDomainEvent`.
+- A module event is any type in a Contracts project carrying a mark that names a `module-event/` record, and an integration event is any type in a Contracts project carrying a mark that names an `integration-event/` record.
 - A command handler is any class whose name ends in `CommandHandler` or that implements an interface named `ICommandHandler`.
 - A query handler is any class that implements an interface named `IQueryHandler`.
 - An endpoint is any class that implements an interface named `IEndpoint`.

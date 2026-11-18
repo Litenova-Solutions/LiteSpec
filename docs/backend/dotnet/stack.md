@@ -126,7 +126,7 @@ internal sealed class ReimburseExpenseCommandHandler
 
 ```csharp
 /// <implements>domain-event/expense.submitted</implements>
-public sealed partial record ExpenseSubmittedEvent(ExpenseId ExpenseId, Money Amount) : IDomainEvent;
+public sealed partial record ExpenseSubmittedDomainEvent(ExpenseId ExpenseId, Money Amount) : IDomainEvent;
 ```
 
 The generated part holds `public const string Classification = "domain-event/expense.submitted";`.
@@ -157,7 +157,7 @@ The generated part holds `public const string Classification = "domain-event/exp
 
 **Rationale:** The source generator adds the runtime value as a second part of the type. A type that is not `partial` cannot take one. The generator writes a value only where no member of that name is declared in source, so a hand-written value is compared with the record rather than duplicated. A code fix adds `partial` and deletes a hand-written value that equals the record.
 
-**Example:** The declaration `public sealed partial record ExpenseSubmittedEvent(...)` takes its generated `Classification`, while the same record without `partial` is reported.
+**Example:** The declaration `public sealed partial record ExpenseSubmittedDomainEvent(...)` takes its generated `Classification`, while the same record without `partial` is reported.
 
 **Checked by:** `dotnet build` reports `LS5006` for a marked domain event or rule exception that is not `partial`, in every project that references the analyzer package.
 

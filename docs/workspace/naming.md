@@ -9,7 +9,7 @@ This page defines how code is named in a LiteSpec codebase: a fixed suffix per a
 
 ### Anchored Names
 
-An aggregate root is the single type through which outside code changes an aggregate. Every type the aggregate owns starts its qualified name with the full name of the root, so the name reveals its owner without folder context. `PostPublishedEvent` and `PostState.Published` both lead with `Post`, while a namespace-level `PublishedState` does not.
+An aggregate root is the single type through which outside code changes an aggregate. Every type the aggregate owns starts its qualified name with the full name of the root, so the name reveals its owner without folder context. `PostPublishedDomainEvent` and `PostState.Published` both lead with `Post`, while a namespace-level `PublishedState` does not.
 
 ### Role Suffixes
 
@@ -30,7 +30,9 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 | Aggregate state base | `{Aggregate}State` | `PostState` |
 | Aggregate state case, flat | `{Aggregate}{State}State` | `PostPublishedState` |
 | Aggregate state case, nested | `{Aggregate}State.{State}` | `PostState.Published` |
-| Domain event | `{Aggregate}{PastFact}Event` | `PostPublishedEvent` |
+| Domain event | `{Aggregate}{PastFact}DomainEvent` | `PostPublishedDomainEvent` |
+| Module event | `{Fact}ModuleEvent` | `ExpenseReimbursedModuleEvent` |
+| Integration event | `{Fact}IntegrationEvent` | `ExpenseSubmittedIntegrationEvent` |
 | Event handler | `{Action}On{Fact}Handler` | `NotifySubscribersOnPostPublishedHandler` |
 | Read model projection | `{ReadModel}On{Fact}Projection` | `ReimbursedExpenseOnExpenseReimbursedProjection` |
 | Repository implementation | `{Aggregate}Repository` | `PostRepository` |
@@ -60,7 +62,7 @@ Full suffixes keep coordination apart from projection, and boundary data apart f
 
 **Rationale:** Leading with the root name reveals the owner without folder context. The rule covers events, states, child entities, values, and discriminated unions. A type nested inside a declaring type inherits the prefix of that type through its qualified name, so `PostState.Published` satisfies the rule, while a flat `PostStatePublishedState` repeats the anchor twice.
 
-**Example:** `PostPublishedEvent` and `PostState.Published` both lead with `Post`. `PublishedState` declared at namespace level does not.
+**Example:** `PostPublishedDomainEvent` and `PostState.Published` both lead with `Post`. `PublishedState` declared at namespace level does not.
 
 **Reviewed for:** Does each aggregate-owned type name in `apps/api/src` begin with its aggregate root name, through nesting or prefix? Read the type names beside their aggregates.
 
@@ -78,7 +80,7 @@ Full suffixes keep coordination apart from projection, and boundary data apart f
 
 **Example:**
 
-An event handler names its act and the business fact without the `Event` suffix. `NotifySubscribersOnPostPublishedHandler` answers `PostPublishedEvent` and lives in the folder of the use case it runs (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The name carries no technical suffix for the fact, so `NotifySubscribersOnPostPublishedEventHandler` is wrong, while the event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
+An event handler names its act and the business fact without the kind suffix. `NotifySubscribersOnPostPublishedHandler` answers `PostPublishedDomainEvent` and lives in the folder of the use case it runs (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The name carries no technical suffix for the fact, so `NotifySubscribersOnPostPublishedDomainEventHandler` is wrong, while the event type keeps its kind suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
 
 Application types keep their full suffix. The short forms `{UseCase}Result`, `{UseCase}Handler`, and `{UseCase}Validator` drop the command-or-query distinction the full name carries. A result part carries the full name of its result, as `litespec/workspace/naming#name-result-parts-after-their-result` states, not a bare summary name like `PostSummary`. The full role suffix distinguishes command coordination from query projection without opening the file.
 

@@ -283,7 +283,7 @@ One method per act keeps each path readable on its own; logic the acts share mov
 
 Each raised event carries every field its module and integration events publish, because each module and integration event is built from its domain event alone under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`.
 
-**Example:** `use-case/spending.submit-expense` lists `domain-event/expense.submitted` in `raises`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
+**Example:** `use-case/spending.submit-expense` lists `domain-event/expense.submitted` in `raises`, and the `Submit` method marked with it raises `ExpenseSubmittedDomainEvent` and nothing else.
 
 **Checked by:** `litespec model check` reports `act-event-undeclared` (level S) for a marked method raising an event its use case does not list, and `act-event-unimplemented` (level S) for a listed event no marked method raises.
 
@@ -588,8 +588,8 @@ A part is a data group the aggregate record declares with dotted field names, su
         PostPublishedState
         PostArchivedState
       Events/
-        PostCreatedEvent
-        PostPublishedEvent
+        PostCreatedDomainEvent
+        PostPublishedDomainEvent
       Exceptions/
         PostIdentityRequired
         PostAlreadyPublished
@@ -610,7 +610,7 @@ A part is a data group the aggregate record declares with dotted field names, su
           ShipmentDispatchedState
           ShipmentDeliveredState
         Events/
-          ShipmentOutcomeRecordedEvent
+          ShipmentOutcomeRecordedDomainEvent
   Customers/                      more than one aggregate: one plural folder per aggregate
     CustomerAccounts/
       Domain/
@@ -621,7 +621,7 @@ A part is a data group the aggregate record declares with dotted field names, su
           CustomerAccountState
           CustomerAccountClaimedState
         Events/
-          CustomerAccountRestrictedEvent
+          CustomerAccountRestrictedDomainEvent
     Consents/
       Domain/
         Consent
@@ -631,7 +631,7 @@ A part is a data group the aggregate record declares with dotted field names, su
           ConsentState
           ConsentGrantedState
         Events/
-          ConsentGrantedEvent
+          ConsentGrantedDomainEvent
 ```
 
 Each aggregate's domain repository stays with the aggregate it loads. The module, aggregate, and use case order follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. Each stack page states the file names and extensions that carry this layout.

@@ -577,6 +577,18 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls2031.md",
+      "path": "analyzers/rules/ls2031",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2031: Event Name Lacks Its Kind Suffix",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/analyzers/rules/ls3001.md",
       "path": "analyzers/rules/ls3001",
       "style": "reference",

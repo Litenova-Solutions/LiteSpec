@@ -97,7 +97,7 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Example:** Claimwick's submit-expense handler returns a code no result declares. The run fails `result-undeclared`, and the fix declares the result or removes the code. A record sentence saying a country pack may add a national audit file specifies no feature: the code builds no audit file provider for it, and the national audit file arrives as its own specified feature.
 
-**Checked by:** `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-unimplemented` finding across the implementation.
+**Checked by:** `litespec model check` emits no `behavior-unrecorded`, `use-case-unrecorded`, `reaction-unrecorded`, `job-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-unimplemented` finding across the implementation.
 
 ### Prove Each Scenario Through the Public Boundary
 

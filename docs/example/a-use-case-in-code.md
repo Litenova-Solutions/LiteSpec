@@ -51,12 +51,12 @@ public static Expense Submit(Guid id, Guid employeeId, Money total, Guid? receip
     }
 
     var expense = new Expense(id, employeeId, total, receiptId);
-    expense.RaiseDomainEvent(new ExpenseSubmittedEvent(id, total.Amount, total.Currency, employeeId));
+    expense.RaiseDomainEvent(new ExpenseSubmittedDomainEvent(id, total.Amount, total.Currency, employeeId));
     return expense;
 }
 ```
 
-The aggregate refuses the expense before it exists, and raises `ExpenseSubmittedEvent` only when the expense is valid. The `<implements>use-case/spending.submit-expense</implements>` tag on the same method ties that code to the record.
+The aggregate refuses the expense before it exists, and raises `ExpenseSubmittedDomainEvent` only when the expense is valid. The `<implements>use-case/spending.submit-expense</implements>` tag on the same method ties that code to the record.
 
 ## The Endpoint
 
@@ -90,7 +90,7 @@ expenses.Store(expense);
 return new SubmitExpenseCommandResult(expense.Id);
 ```
 
-The handler is marked `<implements>use-case/spending.submit-expense</implements>`. It holds no mediator and publishes no event. `Expense.Submit` raises `ExpenseSubmittedEvent`, and the pipeline stages the event with the expense. The repository interfaces it uses are in `Domain/Expenses/IExpenseRepository.cs` and `Domain/Policies/IPolicyRepository.cs`.
+The handler is marked `<implements>use-case/spending.submit-expense</implements>`. It holds no mediator and publishes no event. `Expense.Submit` raises `ExpenseSubmittedDomainEvent`, and the pipeline stages the event with the expense. The repository interfaces it uses are in `Domain/Expenses/IExpenseRepository.cs` and `Domain/Policies/IPolicyRepository.cs`.
 
 ## The Acceptance Tests
 

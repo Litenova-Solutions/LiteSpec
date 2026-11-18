@@ -247,7 +247,7 @@ A use case, reaction, or job names the settings it reads in `reads`.
 
 **Rationale:** A different word in the use-case name and in the act means two meanings have merged, or the use case is misnamed. Each reader then guesses which word to trust. The use case names one aggregate act, so the two share their verb. A handler calling no aggregate method answers to no act, so queries and ports stay out of this rule. A command that records a request for work an event handler finishes after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires, performs the request, so its method starts with `Request` and passes.
 
-**Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported. The project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedEvent`.
+**Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported. The project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedDomainEvent`.
 
 **Reviewed for:** Does every aggregate method a command handler calls start with the use-case verb or `Request`? Look at the methods each command handler calls.
 

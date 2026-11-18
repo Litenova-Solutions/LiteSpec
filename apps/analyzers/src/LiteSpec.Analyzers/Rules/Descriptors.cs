@@ -65,6 +65,8 @@ internal static class Descriptors
     private static readonly Provision FileTypeNames = Provision.Of("backend/dotnet/naming", "match-c-files-and-primary-types");
     /// <summary>The provision the related descriptors enforce: use architectural suffixes (litespec/workspace/naming#use-architectural-suffixes).</summary>
     private static readonly Provision RoleSuffixes = Provision.Of("workspace/naming", "use-architectural-suffixes");
+    /// <summary>The provision the related descriptors enforce: name every event type by its kind (litespec/backend/dotnet/naming#name-every-event-type-by-its-kind).</summary>
+    private static readonly Provision EventKindSuffixes = Provision.Of("backend/dotnet/naming", "name-every-event-type-by-its-kind");
     /// <summary>The provision the related descriptors enforce: name result parts after their result (litespec/workspace/naming#name-result-parts-after-their-result).</summary>
     private static readonly Provision ResultParts = Provision.Of("workspace/naming", "name-result-parts-after-their-result");
     /// <summary>The provision the related descriptors enforce: name repository variables after their interface (litespec/workspace/naming#name-repository-variables-after-their-interface).</summary>
@@ -152,8 +154,8 @@ internal static class Descriptors
     /// <summary>The LS1007 descriptor: Domain event is not an immutable record.</summary>
     public static readonly DiagnosticDescriptor LS1007 = Create("LS1007", DomainCategory, DomainEvents,
         "Domain event is not an immutable record",
-        "Domain event '{0}' must be a record named '{{Aggregate}}{{PastFact}}Event' with no settable members",
-        "A domain event is a public immutable record named {Aggregate}{PastFact}Event implementing IDomainEvent and carrying business data only.");
+        "Domain event '{0}' must be a record named '{{Aggregate}}{{PastFact}}DomainEvent' with no settable members",
+        "A domain event is a public immutable record named {Aggregate}{PastFact}DomainEvent implementing IDomainEvent and carrying business data only.");
 
     /// <summary>The LS1008 descriptor: Domain uses binary floating point.</summary>
     public static readonly DiagnosticDescriptor LS1008 = Create("LS1008", DomainCategory, ExactQuantities,
@@ -315,7 +317,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2021 = Create("LS2021", LayersCategory, CommandHandlerStages,
         "Message Sent Outside an Entry Point",
         "'{0}' holds '{1}', which only an endpoint, reaction, or job may hold",
-        "A type that is not an endpoint, reaction, or job holds no command, query, or event mediator. A use case handler loads, calls one act, and stages; follow-on work runs from an endpoint, a reaction, or a job after the commit.");
+        "A type that is not an endpoint, reaction, or job holds no command, query, or event mediator, except a provider adapter in Infrastructure/{Provider}/, which holds the query and command mediators to send that module's public queries and public commands. A use case handler loads, calls one act, and stages; follow-on work runs from an endpoint, a reaction, or a job after the commit.");
 
     /// <summary>The LS2022 descriptor: User code publishes an event.</summary>
     public static readonly DiagnosticDescriptor LS2022 = Create("LS2022", LayersCategory, EmitAfterCommit,
@@ -371,6 +373,12 @@ internal static class Descriptors
         "Contracts project declares an interface",
         "'{0}' is an interface in a Contracts project; a Contracts project publishes data only",
         "A Contracts project publishes data only: identifiers, facts, and public queries grouped by aggregate. It declares no interface.");
+
+    /// <summary>The LS2031 descriptor: Event name lacks its kind suffix.</summary>
+    public static readonly DiagnosticDescriptor LS2031 = Create("LS2031", LayersCategory, EventKindSuffixes,
+        "Event name lacks its kind suffix",
+        "'{0}' is a {1} and must end in '{2}'",
+        "A domain event ends in DomainEvent, a module event in ModuleEvent, and an integration event in IntegrationEvent, so the name states which contract the type carries.");
 
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,

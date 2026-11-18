@@ -6,7 +6,7 @@ namespace Claimwick.Reporting.Application.ReadModels.ReimbursedExpenses;
 /// <summary>Adds each reimbursed expense to the read model when the spending module announces it.</summary>
 /// <implements>read-model/reporting.reimbursed-expense</implements>
 /// <follows>litespec/core/automation#declare-each-read-model-field-from-a-published-field</follows>
-internal sealed class ReimbursedExpenseOnExpenseReimbursedProjection : IEventHandler<ExpenseReimbursed>
+internal sealed class ReimbursedExpenseOnExpenseReimbursedProjection : IEventHandler<ExpenseReimbursedModuleEvent>
 {
     private readonly IDocumentSession _session;
 
@@ -15,7 +15,7 @@ internal sealed class ReimbursedExpenseOnExpenseReimbursedProjection : IEventHan
         _session = session;
     }
 
-    public async Task HandleAsync(ExpenseReimbursed moduleEvent, CancellationToken cancellationToken)
+    public async Task HandleAsync(ExpenseReimbursedModuleEvent moduleEvent, CancellationToken cancellationToken)
     {
         _session.Store(new ReimbursedExpense(
             moduleEvent.ExpenseId,

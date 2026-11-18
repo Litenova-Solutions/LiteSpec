@@ -118,10 +118,10 @@ After that commit, an event handler answers each fact through its entry point: t
 // The commit step stores the changed aggregate and stages the facts it raised in one transaction.
 outbox.StageCollectedEvents();
 
-// Claimwick.Spending.Contracts/Expenses/ExpenseReimbursed.cs: built from its domain event alone.
-public sealed record ExpenseReimbursed(ExpenseId ExpenseId, EmployeeId EmployeeId, Money Amount, DateTimeOffset ReimbursedAt)
+// Claimwick.Spending.Contracts/Expenses/ExpenseReimbursedModuleEvent.cs: built from its domain event alone.
+public sealed record ExpenseReimbursedModuleEvent(ExpenseId ExpenseId, EmployeeId EmployeeId, Money Amount, DateTimeOffset ReimbursedAt)
 {
-    public static ExpenseReimbursed From(ExpenseReimbursedEvent fact) =>
+    public static ExpenseReimbursedModuleEvent From(ExpenseReimbursedDomainEvent fact) =>
         new(fact.ExpenseId, fact.EmployeeId, fact.Amount, fact.ReimbursedAt);
 }
 ```
@@ -167,7 +167,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler
 
 **Rationale:** The reaction record states the facts its handlers answer, and each handler subscribes by implementing its event-handler interface for one event type. A handler subscribed to an event the record does not name answers a fact nobody reviewed, while a named trigger with no subscribed handler is a promise the code does not keep. The check resolves each subscribed type through the event's own mark, so the mark on the event class is the link the reader follows. This provision binds `litespec/backend/application#answer-each-reaction-in-one-marked-class` for .NET, where the subscription is the event type of the handler's event-handler interface.
 
-**Example:** Claimwick's reaction `reaction/spending.send-approver-reminders-on-expense-submitted` names `domain-event/expense.submitted` in `triggeredBy`: `SendApproverRemindersOnExpenseSubmittedHandler` implements `IEventHandler<ExpenseSubmittedEvent>`, and `ExpenseSubmittedEvent` carries the mark `domain-event/expense.submitted`.
+**Example:** Claimwick's reaction `reaction/spending.send-approver-reminders-on-expense-submitted` names `domain-event/expense.submitted` in `triggeredBy`: `SendApproverRemindersOnExpenseSubmittedHandler` implements `IEventHandler<ExpenseSubmittedDomainEvent>`, and `ExpenseSubmittedDomainEvent` carries the mark `domain-event/expense.submitted`.
 
 **Checked by:** `litespec model check` reports `reaction-subscription-drift` (level S) for a marked handler subscribed to an event outside its reaction's `triggeredBy`, and `reaction-trigger-unhandled` (level S) for a declared trigger with no marked handler subscribed to it.
 
@@ -391,7 +391,7 @@ internal sealed class BorrowBookCommandHandler
 // Lending/Application/Books/MarkBookLent/MarkBookLentOnLoanBorrowedHandler.cs
 /// <implements>reaction/lending.mark-book-lent-on-loan-borrowed</implements>
 internal sealed class MarkBookLentOnLoanBorrowedHandler
-    : IEventHandler<LoanBorrowedEvent>
+    : IEventHandler<LoanBorrowedDomainEvent>
 {
     private readonly ICommandMediator _commandMediator;
 
@@ -401,7 +401,7 @@ internal sealed class MarkBookLentOnLoanBorrowedHandler
     }
 
     public Task HandleAsync(
-        LoanBorrowedEvent @event,
+        LoanBorrowedDomainEvent @event,
         CancellationToken cancellationToken) =>
         _commandMediator.SendAsync(
             new MarkBookLentCommand(@event.BookId, @event.LoanId),
@@ -409,4 +409,4 @@ internal sealed class MarkBookLentOnLoanBorrowedHandler
 }
 ```
 
-The command handler stages only the loan. Borrowing raises `LoanBorrowedEvent`, and after the commit the event handler sends the one command of the mark-book-lent use case. That use case's own handler loads the book, records the lent state, and stages it in its own pipeline and commit. The event handler sits in that use case's `Application/` folder and writes no aggregate itself.
+The command handler stages only the loan. Borrowing raises `LoanBorrowedDomainEvent`, and after the commit the event handler sends the one command of the mark-book-lent use case. That use case's own handler loads the book, records the lent state, and stages it in its own pipeline and commit. The event handler sits in that use case's `Application/` folder and writes no aggregate itself.

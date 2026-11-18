@@ -4,7 +4,7 @@ using Claimwick.Spending.Ports.EmailMessenger;
 namespace Claimwick.Spending.Application.Notifications.ApprovalReminder;
 
 /// <implements>reaction/spending.send-approver-reminders-on-expense-submitted</implements>
-internal sealed class SendApproverRemindersOnExpenseSubmittedHandler : IEventHandler<ExpenseSubmittedEvent>
+internal sealed class SendApproverRemindersOnExpenseSubmittedHandler : IEventHandler<ExpenseSubmittedDomainEvent>
 {
     private readonly IEmailMessenger _messenger;
 
@@ -13,7 +13,7 @@ internal sealed class SendApproverRemindersOnExpenseSubmittedHandler : IEventHan
         _messenger = messenger;
     }
 
-    public async Task HandleAsync(ExpenseSubmittedEvent domainEvent, CancellationToken cancellationToken)
+    public async Task HandleAsync(ExpenseSubmittedDomainEvent domainEvent, CancellationToken cancellationToken)
     {
         await _messenger.SendAsync("approval-reminder-manager", domainEvent.ExpenseId, cancellationToken);
     }

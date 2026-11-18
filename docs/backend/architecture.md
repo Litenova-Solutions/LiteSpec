@@ -45,7 +45,7 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
   Domain/  Application/  Infrastructure/  WebApi/     Kernel values, pipeline positions, store setup and outbox
   Organizations/                                      module
     Contracts/
-      Teams/             TeamId, TeamMemberAdded, ReadTeam/ (query and result)
+      Teams/             TeamId, TeamMemberAddedModuleEvent, ReadTeam/ (query and result)
       ReadTeamDirectory/ a public module-level query
     Domain/
       Teams/             Team, TeamState, TeamRepository (contract), Events/, Exceptions/
@@ -241,7 +241,7 @@ Organizations/
 # multi-aggregate module: Domain holds one plural folder per aggregate, each layer holds one plural aggregate folder with one folder per use case inside it
 Spending/
   Contracts/
-    Expenses/                 ExpenseId, ExpenseReimbursed, ReadExpense/ (query and result)
+    Expenses/                 ExpenseId, ExpenseReimbursedModuleEvent, ReadExpense/ (query and result)
     Policies/                 the identifier, the facts, and the public queries and public commands of the policy aggregate
   Domain/
     Expenses/                 Expense, ExpenseState, the expense repository contract

@@ -69,6 +69,20 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Checked by:** `dotnet build` reports `LS3004` for a concrete class with no derived type that is not sealed.
 
+### Name Every Event Type by Its Kind
+
+**ID:** `litespec/backend/dotnet/naming#name-every-event-type-by-its-kind`
+
+**Strength:** required
+
+**Statement:** An event type MUST end in the suffix of its kind: `DomainEvent` for a domain event, `ModuleEvent` for a module event, and `IntegrationEvent` for an integration event.
+
+**Rationale:** A codebase holds all three kinds at once: the domain event an aggregate raises for its own module, the module event other modules consume, and the integration event that leaves the product. A bare `Event` suffix, or no suffix, never says which contract the type carries: whether the fact stays inside its module, is versioned for other modules, or has external consumers. The kind suffix puts that answer in the name, beside the `Command`, `Query`, `Result`, and `Id` suffixes the Role Suffixes table assigns. eShopOnContainers names its events `DomainEvent` and `IntegrationEvent` the same way.
+
+**Example:** In the Claimwick product, the expense aggregate raises `ExpenseApprovedDomainEvent` from `Domain/Expenses/Events/`, and the spending Contracts project publishes `ExpenseReimbursedModuleEvent` for the reporting module. A reaction keeps the fact without the suffix: `SubmitPayoutOnExpenseApprovedHandler` answers the approval.
+
+**Checked by:** `dotnet build` reports `LS2031` for an event type whose name does not end in the suffix of its kind.
+
 ## Conventions
 
 ### Name Every Folder and Type for Its Reason

@@ -62,7 +62,7 @@ apps/api/src/
     {Product}.Spending.Contracts/      the module public surface beside its project: data only, grouped by aggregate
       Expenses/
         ExpenseId.cs                   the identifier, when another module carries it
-        ExpenseReimbursed.cs           a fact another module consumes
+        ExpenseReimbursedModuleEvent.cs           a fact another module consumes
         ReadExpense/                   a public query: ReadExpenseQuery and ReadExpenseResult
       ReadExpenseDirectory/            a public module-level query
     {Product}.Reporting/  ...
@@ -252,7 +252,7 @@ Modules/{Product}.Organizations/
       CreateTeam/      CreateTeamEndpoint.cs  CreateTeamRequestModel.cs  CreateTeamResponseModel.cs
 Modules/{Product}.Organizations.Contracts/
   Teams/
-    TeamId.cs  TeamMemberAdded.cs  ReadTeam/  (ReadTeamQuery and ReadTeamResult)
+    TeamId.cs  TeamMemberAddedModuleEvent.cs  ReadTeam/  (ReadTeamQuery and ReadTeamResult)
   ReadTeamDirectory/  (a public module-level query)
 ```
 
@@ -533,7 +533,7 @@ A module publishes no refusal and no interface: another module triggers its acts
 Modules/Claimwick.Spending.Contracts/
   Expenses/
     ExpenseId.cs
-    ExpenseReimbursed.cs
+    ExpenseReimbursedModuleEvent.cs
     ReadExpense/
       ReadExpenseQuery.cs
       ReadExpenseResult.cs
@@ -689,7 +689,7 @@ Modules/Claimwick.Spending/
 Modules/Claimwick.Spending.Contracts/
   Claimwick.Spending.Contracts.csproj       references Kernel and the Contracts projects its public types name
   Expenses/
-    ExpenseId.cs  ExpenseReimbursed.cs  ReadExpense/
+    ExpenseId.cs  ExpenseReimbursedModuleEvent.cs  ReadExpense/
 ```
 
 The Contracts project sits beside the module project: a nested project would need the outer project to exclude its files item by item, would put its build output inside the module tree, and shows awkwardly in IDEs.

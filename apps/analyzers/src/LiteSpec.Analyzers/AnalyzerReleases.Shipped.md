@@ -72,6 +72,7 @@ LS2027 | LiteSpec.Layers | Error | Descriptors
 LS2028 | LiteSpec.Layers | Error | Descriptors
 LS2029 | LiteSpec.Layers | Error | Descriptors
 LS2030 | LiteSpec.Layers | Error | Descriptors
+LS2031 | LiteSpec.Layers | Error | Descriptors
 LS3002 | LiteSpec.Style | Error | Descriptors
 LS3003 | LiteSpec.Style | Error | Descriptors
 LS3005 | LiteSpec.Style | Info | Descriptors
