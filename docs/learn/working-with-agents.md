@@ -27,7 +27,7 @@ The project's `AGENTS.md` carries a generated agent protocol region that names t
 Before editing a file, the agent asks which provisions govern it:
 
 ```bash
-dotnet litespec rules apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs
+dotnet litespec rules apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs
 ```
 
 The command lists the provisions grouped by strength, as one-line statements, with the project's conventions and waivers merged in. When a statement is not enough, `--full` adds rationale and example.

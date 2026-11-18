@@ -613,7 +613,7 @@ Each declared entry names exactly one verb, its timing, and its failure handling
 
 A module event or an outbound integration event is no effect: the pipeline stages each from the domain event it translates under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`. `sends`, `calls`, and `runs` effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one.
 
-A `sends` or `calls` effect on a command is `after-commit` or `async`, never `inline`, and `consistency: atomic` never reaches past the use case's own writes. The effect graph holds no cycles except through domain events with a stated end condition.
+A `sends` or `calls` effect on a command is `after-commit` or `async`, never `inline`, and `consistency: atomic` never reaches past the use case's own writes. The complete-sign-in command of a hosted sign-in is the one command that declares a `calls` edge with `inline` timing, for the token exchange whose result the session needs; `effect-timing-invalid` exempts that edge. The effect graph holds no cycles except through domain events with a stated end condition.
 
 A message that leaves before its transaction commits promises work even when the transaction then fails. The aggregate raises its fact, and an event handler for that fact sends, so no message leaves for a write that never landed.
 

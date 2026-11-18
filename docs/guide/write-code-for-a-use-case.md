@@ -16,7 +16,7 @@ Start with:
 
 ### Place Each Element in Its Folder
 
-A use case folder holds an `Application/` folder, and a `WebApi/` folder when the use case has an endpoint. Put each file of the use case in one of the two, in the folder the table names, with the mark the table names. A row with no mark is placed by its folder alone.
+A use case folder holds an `Application/` folder, a `WebApi/` folder when the use case has an endpoint, and an `Infrastructure/` folder when the use case has its own port. Put each file of the use case in one of the three, in the folder the table names, with the mark the table names. A row with no mark is placed by its folder alone.
 
 | Element | Goes In | Mark | Checked By |
 |:---|:---|:---|:---|
@@ -24,18 +24,19 @@ A use case folder holds an `Application/` folder, and a `WebApi/` folder when th
 | Command or query message | The use case `Application/` folder beside its handler | None; the handler folder places it | Review the message name beside the use case name |
 | Validator | The use case `Application/` folder beside its message | `implements` naming `use-case/<module>.<name>` | Review the validator body |
 | Result type | The use case `Application/` folder beside its handler | None; the handler folder places it | See the [finding table](../tools/model.md) |
-| Aggregate root | The aggregate `Domain/` folder | `implements` naming `aggregate/<module>.<name>` | See the [finding table](../tools/model.md) |
+| Aggregate root | The module `Domain/{Aggregate}/` folder | `implements` naming `aggregate/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Root method that changes state | On the aggregate root | `implements` naming `use-case/<module>.<name>`, exactly one | See the [finding table](../tools/model.md) |
-| Domain event | The `Events/` folder of its aggregate `Domain/` folder | `implements` naming `domain-event/<aggregate>.<fact>` | See the [finding table](../tools/model.md) |
-| Refusal type | The `Exceptions/` folder of its aggregate `Domain/` folder | `implements` naming `rule/<home>.<name>` | See the [finding table](../tools/model.md) |
-| Repository interface | The aggregate `Domain/` folder | None; the aggregate folder places it | See the [finding table](../tools/model.md) |
-| Repository implementation | The aggregate `Infrastructure/` folder | `implements` naming `aggregate/<module>.<name>`, or derived from the interface | See the [finding table](../tools/model.md) |
+| Domain event | The `Events/` folder of the module `Domain/{Aggregate}/` folder | `implements` naming `domain-event/<aggregate>.<fact>` | See the [finding table](../tools/model.md) |
+| Refusal type | The `Exceptions/` folder of the module `Domain/{Aggregate}/` folder | `implements` naming `rule/<home>.<name>` | See the [finding table](../tools/model.md) |
+| Repository interface | The module `Domain/{Aggregate}/` folder | None; the module `Domain/{Aggregate}/` folder places it | See the [finding table](../tools/model.md) |
+| Repository implementation | The module `Infrastructure/Persistence/` folder | `implements` naming `aggregate/<module>.<name>`, or derived from the interface | See the [finding table](../tools/model.md) |
 | Endpoint | The use case `WebApi/` folder, or the host for a host-only endpoint | `implements` naming `use-case/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Request and response models | The use case `WebApi/` folder beside the endpoint | None; the folder places them | Review the transport models |
 | Reaction handler class | The use case `Application/` folder when the reaction runs a use case; otherwise the module `Notifications/<Name>/` folder when it sends a notification, or `ExternalSystems/<Name>/` when it calls one | `implements` naming `reaction/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Scheduled job | The use case `Application/` folder of the use case the job runs | `implements` naming `job/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Integration event | The module `Contracts/IntegrationEvents/` folder | `implements` naming `integration-event/<name>` | See the [finding table](../tools/model.md) |
-| External-system port | The node `Application/` folder beside the aggregate it serves, or the owning module `Contracts/Ports/` folder when called from another module | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
+| External-system port | The use case `Application/` folder when one use case calls it, the module `Infrastructure/` folder when several use cases of the module call it, or the owning module `Contracts/Ports/` folder when called from another module | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
+| Use case adapter | The use case `Infrastructure/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
 | Read-model reader or projection | The module `ReadModels/<ReadModelPlural>/` folder | `implements` naming `read-model/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Test | The test suite for its boundary, mirroring the module tree | `proves` naming `scenario/<use-case>.<name>` | See the [finding table](../tools/model.md) |
 

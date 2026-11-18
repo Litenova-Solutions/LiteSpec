@@ -93,9 +93,9 @@ Research and constraints hold facts about the world only. They never hold guesse
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 
-**Rationale:** Stack pages fix the code shapes: the handler, the repository call, and the published domain event each have one prescribed form. An extra outcome, edge, write, or access grant splits the project into a specification that says one thing and code that does another. A handler that authorizes itself is one such extra grant, which analyzer `LS2012` reports.
+**Rationale:** Stack pages fix the code shapes: the handler, the repository call, and the published domain event each have one prescribed form. An extra outcome, edge, write, or access grant splits the project into a specification that says one thing and code that does another. A handler that authorizes itself is one such extra grant, which analyzer `LS2012` reports. A record sentence describing a possible future is not a specification. Code builds no interface, provider list, or hook for a feature no record specifies.
 
-**Example:** Claimwick's submit-expense handler returns a code no result declares. The run fails `result-undeclared`, and the fix declares the result or removes the code.
+**Example:** Claimwick's submit-expense handler returns a code no result declares. The run fails `result-undeclared`, and the fix declares the result or removes the code. A record sentence saying a country pack may add a national audit file specifies no feature: the code builds no audit file provider for it, and the national audit file arrives as its own specified feature.
 
 **Checked by:** `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-unimplemented` finding across the implementation.
 

@@ -38,9 +38,9 @@ The two results are `result/submit-expense.submitted`, a success, and `result/su
 
 One rule stands behind the refusal: `rule/expense.receipt-required-above-threshold` states that an expense above the policy threshold needs a receipt, and it names the refusal code `spending.receipt-missing`. In code, the rule appears twice, as the exception that carries its stable code and as the check in the aggregate that raises it.
 
-The exception is `apps/api/src/Claimwick.Modules/Spending/Expenses/Domain/Exceptions/ExpenseReceiptMissingException.cs`, marked with `<implements>rule/expense.receipt-required-above-threshold</implements>`. It returns the code `spending.receipt-missing`.
+The exception is `apps/api/src/Modules/Claimwick.Spending/Domain/Expense/Exceptions/ExpenseReceiptMissingException.cs`, marked with `<implements>rule/expense.receipt-required-above-threshold</implements>`. It returns the code `spending.receipt-missing`.
 
-The check is the static factory `Expense.Submit` in `apps/api/src/Claimwick.Modules/Spending/Expenses/Domain/Expense.cs`:
+The check is the static factory `Expense.Submit` in `apps/api/src/Modules/Claimwick.Spending/Domain/Expense/Expense.cs`:
 
 ```csharp
 public static Expense Submit(Guid id, Guid employeeId, Money total, Guid? receiptId, Money receiptThreshold)
@@ -60,7 +60,7 @@ The aggregate refuses the expense before it exists, and raises `ExpenseSubmitted
 
 ## The Endpoint
 
-The HTTP endpoint is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs`. It maps `POST /api/expenses`, returns 201 Created on success, and returns a problem result with status 422 on a refusal.
+The HTTP endpoint is `apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs`. It maps `POST /api/expenses`, returns 201 Created on success, and returns a problem result with status 422 on a refusal.
 
 The submitter is not read from the body: the endpoint reads the employee from the verified claims of the signed-in user, which applies `litespec/backend/application#enforce-target-authorization-in-the-pipeline`:
 
@@ -76,7 +76,7 @@ The request body is `SubmitExpenseRequestModel` in the use case `WebApi/` folder
 
 ## The Handler
 
-The handler is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs`. It loads the active policy through `IPolicyRepository`, submits the expense with the policy's threshold, stores the expense through `IExpenseRepository`, and returns the identity:
+The handler is `apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs`. It loads the active policy through `IPolicyRepository`, submits the expense with the policy's threshold, stores the expense through `IExpenseRepository`, and returns the identity:
 
 ```csharp
 var policy = await policies.GetActiveAsync(cancellationToken);
@@ -90,11 +90,11 @@ expenses.Store(expense);
 return new SubmitExpenseCommandResult(expense.Id);
 ```
 
-The handler is marked `<implements>use-case/spending.submit-expense</implements>`. It holds no mediator and publishes no event. `Expense.Submit` raises `ExpenseSubmittedEvent`, and the pipeline stages the event with the expense. The repository interfaces it uses are in `Expenses/Domain/IExpenseRepository.cs` and `Policies/Domain/IPolicyRepository.cs`.
+The handler is marked `<implements>use-case/spending.submit-expense</implements>`. It holds no mediator and publishes no event. `Expense.Submit` raises `ExpenseSubmittedEvent`, and the pipeline stages the event with the expense. The repository interfaces it uses are in `Domain/Expense/IExpenseRepository.cs` and `Domain/Policy/IPolicyRepository.cs`.
 
 ## The Acceptance Tests
 
-Each scenario in the record gets one test method, and each test names the scenario it proves in a `<proves>` tag. The tests live in `apps/api/tests/Claimwick.Acceptance.Tests/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseScenarios.cs`:
+Each scenario in the record gets one test method, and each test names the scenario it proves in a `<proves>` tag. The tests live in `apps/api/tests/Claimwick.Acceptance.Tests/Spending/UseCases/SubmitExpense/SubmitExpenseScenarios.cs`:
 
 ```csharp
 /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
@@ -129,9 +129,9 @@ Querying the use case shows the links the builder derived from these files. The 
     }
   },
   "implements": [
-    "apps/api/src/Claimwick.Modules/Spending/Expenses/Domain/Expense.cs",
-    "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs",
-    "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs"
+    "apps/api/src/Modules/Claimwick.Spending/Domain/Expense/Expense.cs",
+    "apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs",
+    "apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs"
   ],
   "proves": [
     {
