@@ -226,6 +226,18 @@ jobs:
               cat notes.md
             } > candidate-notes.md
             mv candidate-notes.md notes.md
+          fi
+          # GitHub refuses a release body over 125,000 characters; a longer section is linked instead of inlined.
+          if [ "$(wc -c < notes.md)" -gt 120000 ]; then
+            {
+              echo "The $VERSION changelog is longer than a GitHub release body allows. Read it in [CHANGELOG.md](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/CHANGELOG.md#v$(echo "$VERSION" | tr -d .))."
+              if [ "$PRERELEASE" = "true" ]; then
+                echo
+                echo "Install this candidate with \`dotnet tool install LiteSpec.Cli --version $PACKAGE_VERSION\`, or with the install script and \`--version $PACKAGE_VERSION\`."
+              fi
+            } > notes.md
+          fi
+          if [ "$PRERELEASE" = "true" ]; then
             gh release create "$GITHUB_REF_NAME" release/* --title "$title" --notes-file notes.md --verify-tag --prerelease
           else
             gh release create "$GITHUB_REF_NAME" release/* --title "$title" --notes-file notes.md --verify-tag
