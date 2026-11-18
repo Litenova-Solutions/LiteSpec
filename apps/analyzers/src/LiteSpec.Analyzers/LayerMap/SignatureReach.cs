@@ -119,13 +119,13 @@ internal static class SignatureReach
 
                 break;
             // A tuple is a named type whose type arguments are its element types.
+            // Always walk the type arguments: Task<A> and Task<List<B>> share one generic definition but name
+            // different types. A type argument tree is finite, so the walk ends.
             case INamedTypeSymbol named:
-                if (into.Add(named.OriginalDefinition))
+                into.Add(named.OriginalDefinition);
+                foreach (var argument in named.TypeArguments)
                 {
-                    foreach (var argument in named.TypeArguments)
-                    {
-                        AddSignatureTypes(argument, into);
-                    }
+                    AddSignatureTypes(argument, into);
                 }
 
                 break;

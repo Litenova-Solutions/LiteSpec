@@ -360,9 +360,15 @@ public sealed class AggregateAccessAnalyzerTests
 
         public sealed record ExpenseTotals(decimal Submitted, decimal Approved);
 
+        public sealed record ExpenseYear(int Year);
+
         public interface IExpenseRepository
         {
             System.Threading.Tasks.Task<ExpenseTotals> TotalsAsync(ExpenseId id);
+
+            System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<ExpenseTotals>> AllTotalsAsync();
+
+            System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<ExpenseYear>> YearsAsync();
         }
         """;
 
@@ -387,6 +393,16 @@ public sealed class AggregateAccessAnalyzerTests
                         public System.Threading.Tasks.Task<ExpenseTotals> TotalsAsync(ExpenseId id)
                         {
                             return System.Threading.Tasks.Task.FromResult(new ExpenseTotals(0m, 0m));
+                        }
+
+                        public System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<ExpenseTotals>> AllTotalsAsync()
+                        {
+                            return System.Threading.Tasks.Task.FromResult<System.Collections.Generic.IReadOnlyList<ExpenseTotals>>(new[] { new ExpenseTotals(1m, 1m) });
+                        }
+
+                        public System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<ExpenseYear>> YearsAsync()
+                        {
+                            return System.Threading.Tasks.Task.FromResult<System.Collections.Generic.IReadOnlyList<ExpenseYear>>(new[] { new ExpenseYear(2026) });
                         }
                     }
                     """),
@@ -413,6 +429,45 @@ public sealed class AggregateAccessAnalyzerTests
                         internal ExpenseTotals Handle()
                         {
                             return new {|LS1014:ExpenseTotals|}(0m, 0m);
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS1014 accepts a repository building the result its interface returns inside a lambda.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    [Fact(DisplayName = "LS1014 accepts a repository building its interface result inside a lambda")]
+    public Task AcceptsARepositoryBuildingItsResultInsideALambda() =>
+        Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", Root),
+                ("Claimwick.Spending/Domain/Expenses/IExpenseRepository.cs", Repository),
+                ("Claimwick.Spending/Infrastructure/Persistence/ExpenseRepository.cs", """
+                    using System.Linq;
+                    using Claimwick.Spending.Domain;
+                    using Claimwick.Spending.Domain.Expenses;
+
+                    namespace Claimwick.Spending.Infrastructure.Persistence;
+
+                    internal sealed class ExpenseRepository : IExpenseRepository
+                    {
+                        public System.Threading.Tasks.Task<ExpenseTotals> TotalsAsync(ExpenseId id)
+                        {
+                            var totals = new[] { 1m }.Select(amount => new ExpenseTotals(amount, amount)).First();
+                            return System.Threading.Tasks.Task.FromResult(totals);
+                        }
+
+                        public System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<ExpenseTotals>> AllTotalsAsync()
+                        {
+                            return System.Threading.Tasks.Task.FromResult<System.Collections.Generic.IReadOnlyList<ExpenseTotals>>(new[] { new ExpenseTotals(1m, 1m) });
+                        }
+
+                        public System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<ExpenseYear>> YearsAsync()
+                        {
+                            return System.Threading.Tasks.Task.FromResult<System.Collections.Generic.IReadOnlyList<ExpenseYear>>(new[] { new ExpenseYear(2026) });
                         }
                     }
                     """),
