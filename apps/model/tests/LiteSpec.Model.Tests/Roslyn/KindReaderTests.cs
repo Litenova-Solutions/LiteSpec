@@ -366,6 +366,19 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A marked interface in the Ports layer is a port.</summary>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "A marked interface in the Ports layer is a port")]
+    public void MarkedInterfaceInPortsLayerIsAPort()
+    {
+        var type = TestTrees.First<InterfaceDeclarationSyntax>("""
+            /// <implements>external-system/payout-bank</implements>
+            public interface IPayoutPort;
+            """);
+
+        Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty, "Shop.Billing", "Ports"));
+    }
+
     /// <summary>An interface port with no mark is not a port.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An interface port with no mark is not a port")]

@@ -6,7 +6,7 @@ namespace LiteSpec.Model;
 ///     Finds the layer of a file: the <c>LiteSpecLayer</c> MSBuild property when the
 ///     project sets it, otherwise the nearest layer folder or the file's role suffix.
 ///     A file's layer is its top folder in the module: Domain, Application,
-///     Infrastructure or WebApi.
+///     Ports, Infrastructure or WebApi.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class ArchitectureLayerResolver
@@ -91,6 +91,7 @@ public static class ArchitectureLayerResolver
         {
             case "DOMAIN": return ArchitectureLayer.Domain;
             case "APPLICATION": return ArchitectureLayer.Application;
+            case "PORTS": return ArchitectureLayer.Ports;
             case "INFRASTRUCTURE": return ArchitectureLayer.Infrastructure;
             case "WEBAPI": return ArchitectureLayer.WebApi;
             case "WORKER": return ArchitectureLayer.Worker;
@@ -136,6 +137,16 @@ public static class ArchitectureLayerResolver
             {
                 case "Domain": return ArchitectureLayer.Domain;
                 case "Application": return ArchitectureLayer.Application;
+                case "Ports":
+                    // The Contracts Ports folder holds the module's public surface, so it
+                    // reads as Application with the Contracts folder above it, while a
+                    // module's own top-level Ports folder is the ports layer.
+                    if (index > 0 && segments[index - 1] == "Contracts")
+                    {
+                        continue;
+                    }
+
+                    return ArchitectureLayer.Ports;
                 case "Infrastructure": return ArchitectureLayer.Infrastructure;
                 case "WebApi": return ArchitectureLayer.WebApi;
                 case "Contracts": return ArchitectureLayer.Application;

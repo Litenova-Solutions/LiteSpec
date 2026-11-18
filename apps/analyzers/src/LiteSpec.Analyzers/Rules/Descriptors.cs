@@ -113,7 +113,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
         "Domain references an outer-layer concern",
         "Domain uses '{0}' from '{1}', an outer-layer concern",
-        "Domain references only the .NET base class library and project-owned Domain types: no persistence, web, messaging, mediator, logging, configuration, dependency injection, serialization, or Application, Infrastructure or WebApi type.");
+        "Domain references only the .NET base class library and project-owned Domain types: no persistence, web, messaging, mediator, logging, configuration, dependency injection, serialization, or Application, Ports, Infrastructure or WebApi type.");
 
     /// <summary>The LS1002 descriptor: Domain declares an enum.</summary>
     public static readonly DiagnosticDescriptor LS1002 = Create("LS1002", DomainCategory, ClosedSets,
@@ -291,11 +291,11 @@ internal static class Descriptors
         "Handler '{0}' takes '{1}', which the pipeline owns",
         "A command or query handler takes no pipeline-owned collaborator through its constructor; the unit of work, idempotency store, outbox, and uniqueness claim service belong to the pipeline.");
 
-    /// <summary>The LS2018 descriptor: Application or WebApi names a type outside its layer.</summary>
+    /// <summary>The LS2018 descriptor: Application, Ports or WebApi names a type outside its layer.</summary>
     public static readonly DiagnosticDescriptor LS2018 = Create("LS2018", LayersCategory, RespectLayerDirection,
         "File names a type outside its layer",
         "{0} uses '{1}', {2}",
-        "An Application file names no Infrastructure or WebApi type, no ASP.NET Core type, and no HttpContext. A WebApi file names no Infrastructure type, no repository, and no Domain type other than typed identifiers and shared-kernel values.");
+        "An Application file names no Infrastructure or WebApi type, no ASP.NET Core type, and no HttpContext. A Ports file names no Application, Infrastructure or WebApi type, no ASP.NET Core type, and no HttpContext. A WebApi file names no Infrastructure or Ports type, no repository, and no Domain type other than typed identifiers and shared-kernel values.");
 
     /// <summary>The LS2019 descriptor: Use case names a type of another use case.</summary>
     public static readonly DiagnosticDescriptor LS2019 = Create("LS2019", LayersCategory, UseCaseIsolation,
@@ -333,11 +333,11 @@ internal static class Descriptors
         "'{0}' {1}",
         "A module plugs into the platform by contributing data, never by copying platform code: store and serializer setup, guard evaluation and converters live in the platform.");
 
-    /// <summary>The LS2025 descriptor: Use-case Infrastructure names a type outside its layer.</summary>
+    /// <summary>The LS2025 descriptor: An adapter names a type outside its layer.</summary>
     public static readonly DiagnosticDescriptor LS2025 = Create("LS2025", LayersCategory, RespectLayerDirection,
-        "Use-case Infrastructure names a type outside its layer",
-        "Use-case Infrastructure uses '{0}', {1}",
-        "A use case's Infrastructure folder implements that use case's own ports from platform and library types. It names no Domain type outside typed identifiers and shared-kernel values, and no WebApi type.");
+        "Adapter names a type outside its layer",
+        "Adapter uses '{0}', {1}",
+        "An adapter in Infrastructure/{Port}/ implements its port from platform and library types. It names no Domain type outside typed identifiers and shared-kernel values, and no WebApi type.");
 
     /// <summary>The LS2026 descriptor: Model duplicated in two use case folders.</summary>
     public static readonly DiagnosticDescriptor LS2026 = Create("LS2026", LayersCategory, UseCaseIsolation,

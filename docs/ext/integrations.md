@@ -80,13 +80,13 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Applies to:** artifact: port
 
-**Statement:** Application MUST own a public external-service interface named for its business action.
+**Statement:** The module MUST own a public external-service interface named for its business action.
 
-**Rationale:** What the use case needs is a behavior, such as sending a payout, not a provider. Naming a public interface for that business action states the need without naming a provider, so Application depends on the behavior while providers change behind it.
+**Rationale:** What the use case needs is a behavior, such as sending a payout, not a provider. Naming a public interface for that business action states the need without naming a provider, so the module depends on the behavior while providers change behind it.
 
 **Example:** `IPayoutSender` describes the business action without exposing a payout-bank client.
 
-**Reviewed for:** Is every Application port named for its business action, with no provider in its name or signature? Check each Application port.
+**Reviewed for:** Is every port named for its business action, with no provider in its name or signature? Check each port.
 
 ### Isolate Provider Implementations
 
@@ -100,7 +100,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** Provider clients, SDKs, authentication, and transport models name provider things in provider terms, so they live in Infrastructure, outside the Application business boundary. A provider SDK upgrade then touches Infrastructure instead of the use case.
 
-**Example:** `IPayoutProviderClient` is provider infrastructure rather than an Application port.
+**Example:** `IPayoutProviderClient` is provider infrastructure rather than a port.
 
 **Reviewed for:** Does any Application layer code reference a provider SDK or transport type? Check the Application layer folders.
 
@@ -300,22 +300,6 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 ## Conventions
 
-### Group Provider Code
-
-**ID:** `litespec/ext/integrations#group-provider-code`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Place provider code under `Infrastructure/Integrations/{Provider}/`.
-
-**Replacement:** A project names another root for provider code in its documentation.
-
-**Rationale:** A reader finds everything about a provider in one place: its code sits inside one Infrastructure boundary under `Infrastructure/Integrations/{Provider}/`.
-
-**Reviewed for:** Does every provider's code sit under `Infrastructure/Integrations/{Provider}/`, or under another root the project documentation names? Check the Infrastructure tree.
-
 ### Keep Provider Components Together
 
 **ID:** `litespec/ext/integrations#keep-provider-components-together`
@@ -324,29 +308,13 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Applies to:** artifact: any
 
-**Default:** Keep one options class, client, transport models, mappings, and registration module in each provider folder.
+**Default:** Keep one options class, client, transport models, mappings, and registration module in each provider's `Infrastructure/{Port}/` adapter folder.
 
 **Replacement:** A project names another grouping for provider components in its documentation.
 
-**Rationale:** When the provider changes, its options, client, transport models, mappings, and registration module change together. Keeping them in the provider folder keeps each change in one place, while a registration module stored elsewhere is easy to miss when the provider changes.
+**Rationale:** When the provider changes, its options, client, transport models, mappings, and registration module change together. Keeping them in the provider adapter folder keeps each change in one place, while a registration module stored elsewhere is easy to miss when the provider changes.
 
-**Reviewed for:** Does every provider folder hold its options, client, models, mappings, and registration, or follow another grouping the project documentation names? Check each provider folder.
-
-### Keep Ports Near Use Cases
-
-**ID:** `litespec/ext/integrations#keep-ports-near-use-cases`
-
-**Strength:** default
-
-**Applies to:** artifact: port
-
-**Default:** Keep business-action ports with their Application use cases.
-
-**Replacement:** A project keeps business-action ports in one shared ports folder.
-
-**Rationale:** A business-action port exists because its use case needs that behavior. Keeping the port with its Application use cases states the need beside the use case that needs it, while a ports folder far from the use cases hides which behavior each port serves.
-
-**Reviewed for:** Does every business-action port sit with its Application use cases, or in the shared port folder the project keeps? Check the Application folders.
+**Reviewed for:** Does every provider adapter folder hold its options, client, models, mappings, and registration, or follow another grouping the project documentation names? Check each provider adapter folder.
 
 ## Dependencies
 

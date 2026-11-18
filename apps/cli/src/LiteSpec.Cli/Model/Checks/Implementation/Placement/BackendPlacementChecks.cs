@@ -17,16 +17,16 @@ namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
 internal static class BackendPlacementChecks
 {
-    /// <summary>The layer folders a use case holds its folder under: Application always, WebApi for an endpoint, and Infrastructure for its own port.</summary>
+    /// <summary>The layer folders a use case holds its folder under: Application always, and WebApi for an endpoint.</summary>
     static readonly HashSet<string> UseCaseLayerFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Application", "WebApi", "Infrastructure",
+        "Application", "WebApi",
     };
 
     /// <summary>
     ///     Reports every backend mark whose namespace or folder misses the code folder its record's placement names:
-    ///     a use case mark outside its use case folder in its aggregate folder under Application, WebApi or Infrastructure, an event or rule mark outside its module or aggregate,
-    ///     an external-system mark outside its module, and any of those with a namespace that names another path.
+    ///     a use case mark outside its use case folder in its aggregate folder under Application or WebApi, a port or adapter mark outside its module Ports or Infrastructure folder,
+    ///     an event or rule mark outside its module or aggregate, an external-system mark outside its module, and any of those with a namespace that names another path.
     ///     A mark naming no record, a record of another type, or a record its kind does not take is
     ///     <c>mark-unknown</c>, not drift. A host endpoint, a technical class, an aggregate method and a
     ///     frontend element carry no backend placement, so they are left out.
@@ -81,6 +81,18 @@ internal static class BackendPlacementChecks
                     && record.Type != RecordTypes.UseCase
                     && SourceRoots.IsUnderHost(model.Config, element.File))
                 {
+                    continue;
+                }
+
+                // A port interface lives in its module Ports folder, and its adapter in the
+                // same-named Infrastructure folder, whatever the external system record
+                // places, since the system record sits at product level with no module
+                // of its own. The port folder takes the interface name; an adapter takes
+                // the folder of the port it implements.
+                if (element.Kind is CodeKind.Port or CodeKind.Adapter
+                    && record.Type == RecordTypes.ExternalSystem)
+                {
+                    CheckPortPlacement(model, element, mark, findings);
                     continue;
                 }
 
@@ -207,7 +219,7 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Reports the folder a handler or endpoint misses for its use case: a use case whose record sits under an
-    ///     aggregate lives in its plural aggregate folder under Application, WebApi or Infrastructure, and a module-level
+    ///     aggregate lives in its plural aggregate folder under Application or WebApi, and a module-level
     ///     use case lives in its own folder directly under one of those layers. The finding names the expected folder.
     ///     A use case folder naming another use case, and a module folder naming another module, stay with
     ///     <c>mark-folder-drift</c>, so they are left out here, and a use case folder flat in its module stays with the
@@ -233,9 +245,9 @@ internal static class BackendPlacementChecks
             return false;
         }
 
-        // A use case's handler, message and steps sit in its Application folder, its endpoint in
-        // its WebApi folder, and its own adapters in its Infrastructure folder. Under an aggregate
-        // the use case folder sits in the plural aggregate folder under the layer folder.
+        // A use case's handler, message and steps sit in its Application folder, and its endpoint
+        // in its WebApi folder. Under an aggregate the use case folder sits in the plural
+        // aggregate folder under the layer folder.
         var folders = raw[1..^1];
 
         if (folders.Length == 0)
@@ -268,7 +280,7 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Reports the folder a handler or endpoint of a module-level use case misses: its own folder directly under
-    ///     Application, WebApi or Infrastructure. A use case nested under an aggregate folder reports that folder.
+    ///     Application or WebApi. A use case nested under an aggregate folder reports that folder.
     /// </summary>
     /// <param name="element">The marked handler or endpoint whose folder is checked.</param>
     /// <param name="mark">The mark naming the use case the folder should hold.</param>
@@ -298,7 +310,7 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Reports the folder a handler or endpoint of an aggregate-owned use case misses: its use case folder in the
-    ///     plural aggregate folder under Application, WebApi or Infrastructure. The finding names the expected folder.
+    ///     plural aggregate folder under Application or WebApi. The finding names the expected folder.
     ///     Flat in its own aggregate folder the closed folder check names the missing layer level.
     /// </summary>
     /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
@@ -449,6 +461,89 @@ internal static class BackendPlacementChecks
 
         findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^1]}', but its trigger '{mark.RecordId}' belongs in '{expected}'.", mark.File, mark.Line, mark.RecordId));
         return true;
+    }
+
+    /// <summary>
+    ///     Reports the folder a port interface or adapter misses: the module Ports folder named for the port for
+    ///     an interface, and the same-named Infrastructure folder for an adapter, whether one use case or many
+    ///     call the port. The port folder takes the interface name; an adapter takes the folder of the port
+    ///     it implements. A cross-module port in its module contracts sits where the module tree keeps it.
+    ///     The finding names the expected folder.
+    /// </summary>
+    /// <param name="model">The loaded project model whose configuration names the module roots.</param>
+    /// <param name="element">The marked port interface or adapter whose folder is checked.</param>
+    /// <param name="mark">The mark naming the external system the port talks to.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    private static void CheckPortPlacement(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
+    {
+        if (RawModulePath(model.Config, element.File) is not { } raw || raw.Length < 2)
+        {
+            return;
+        }
+
+        if (IsInModuleContracts(model.Config, element.File, raw[0]))
+        {
+            return;
+        }
+
+        var port = element.Kind == CodeKind.Port ? PortOf(element.Class) : AdapterPortOf(model, element, mark, raw[0]);
+        var layer = element.Kind == CodeKind.Port ? "Ports" : "Infrastructure";
+        var folders = raw[1..^1];
+
+        if (folders.Length == 2
+            && string.Equals(folders[0], layer, StringComparison.OrdinalIgnoreCase)
+            && SameName(folders[1], port))
+        {
+            return;
+        }
+
+        var where = folders.Length == 0 ? raw[0] : folders[^1];
+
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{where}', but marks '{mark.RecordId}', so it belongs in '{raw[0]}/{layer}/{port}/'.", mark.File, mark.Line, mark.RecordId));
+    }
+
+    /// <summary>The port folder a port interface takes: its own name without the leading I.</summary>
+    /// <param name="className">The interface name, such as ITextGateway.</param>
+    /// <returns>The port folder name, such as TextGateway.</returns>
+    private static string PortOf(string className) =>
+        className.Length > 1 && className[0] == 'I' && char.IsUpper(className[1])
+            ? className[1..]
+            : className;
+
+    /// <summary>
+    ///     The port folder an adapter takes: the folder of the port it implements, read from the port
+    ///     interface in its module that carries the same external-system mark, or its own name without
+    ///     the trailing Adapter when no such port is read.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every marked port.</param>
+    /// <param name="element">The marked adapter whose port is wanted.</param>
+    /// <param name="mark">The mark naming the external system the adapter talks to.</param>
+    /// <param name="module">The module folder as written on disk.</param>
+    /// <returns>The port folder name.</returns>
+    private static string AdapterPortOf(ProjectModel model, MarkedElement element, CodeMark mark, string module)
+    {
+        foreach (var candidate in model.Code.Elements)
+        {
+            if (candidate.Kind != CodeKind.Port
+                || !candidate.Marks.Any(marked => string.Equals(marked.RecordId, mark.RecordId, StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
+            if (RawModulePath(model.Config, candidate.File) is { } portRaw
+                && portRaw.Length >= 2
+                && SameName(portRaw[0], module))
+            {
+                return PortOf(candidate.Class);
+            }
+        }
+
+        var name = element.Class;
+
+        return name.EndsWith("Adapter", StringComparison.Ordinal) && name.Length > "Adapter".Length
+            ? name[..^"Adapter".Length]
+            : name;
     }
 
     /// <summary>

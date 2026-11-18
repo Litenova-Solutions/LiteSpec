@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Domain;
 
-/// <summary>LS1001: Domain references no outer-layer namespace and no Application, Infrastructure or WebApi type.</summary>
+/// <summary>LS1001: Domain references no outer-layer namespace and no Application, Ports, Infrastructure or WebApi type.</summary>
 /// <follows>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
@@ -125,7 +125,7 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
     // A port or an integration event there stays outer.
     private static bool IsOuter(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
         IsOuterLayerNamespace(type.ContainingNamespace, out _)
-        || (map.ReferencedLayer(type, compilation) is ArchitectureLayer.Application or ArchitectureLayer.Infrastructure or ArchitectureLayer.WebApi
+        || (map.ReferencedLayer(type, compilation) is ArchitectureLayer.Application or ArchitectureLayer.Ports or ArchitectureLayer.Infrastructure or ArchitectureLayer.WebApi
             && !((type.IsValueType || IsException(type)) && CodeMap.IsContracts(CodeMap.SourceFileOf(type, compilation))));
 
     /// <summary>Whether the type derives from <see cref="System.Exception" />.</summary>

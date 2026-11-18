@@ -368,6 +368,7 @@ internal sealed record PathContext(
             {
                 "Domain" => "domain",
                 "Application" => "application",
+                "Ports" => "ports",
                 "Infrastructure" => "infrastructure",
                 "WebApi" => "web-api",
                 "Composition" or "Contracts" or "Notifications" or "ExternalSystems" or "ReadModels" => "application",

@@ -489,10 +489,20 @@ static partial class GeneratedRegions
 
         foreach (var segment in segments)
         {
+            // The Ports folder of a sibling Contracts project holds the module's public
+            // surface, so it reads as application with the project below, while a
+            // module's own top-level Ports folder is the ports concern.
+            if (string.Equals(segment, "Ports", StringComparison.Ordinal)
+                && segments.Any(candidate => candidate.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
             var concern = segment switch
             {
                 "Domain" => "domain",
                 "Application" => "application",
+                "Ports" => "ports",
                 "Infrastructure" => "infrastructure",
                 "WebApi" => "web-api",
                 "Composition" or "Contracts" or "Notifications" or "ExternalSystems" or "ReadModels" => "application",

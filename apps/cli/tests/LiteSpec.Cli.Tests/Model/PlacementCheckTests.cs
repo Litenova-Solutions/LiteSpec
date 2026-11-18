@@ -574,6 +574,375 @@ public sealed class PlacementCheckTests
         Assert.Contains("names no use case of aggregate 'Loans'", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>A port holding its interface and a type a signature names, with its adapter beside it, reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortAndAdapterInNewShapeReportNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<PackRate> CurrentRate(string countryCode, CancellationToken cancellationToken);\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRate.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackRate(string CountryCode, decimal Rate);\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A file directly in Ports reports that Ports holds only one folder per port.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void FileDirectlyInPortsReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Ports", "ICountryPack.cs");
+        WriteSource(file, "namespace Library.Lending.Ports;\n\npublic interface ICountryPack\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(file, finding.Path);
+        Assert.Contains("sits directly in Ports/", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A port folder holding two interfaces reports that it holds only its own interface.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortFolderWithTwoInterfacesReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryRates.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryRates\n{\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("holds 2 interfaces", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A port folder whose name is not its interface name without the I reports the interface it holds.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortFolderNamedDifferentlyThanItsInterfaceReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "Pack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.Pack;\n\npublic interface ICountryPack\n{\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "Pack", "PackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.Pack;\n\npublic sealed class PackAdapter\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("whose interface is 'IPack'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A port folder holding no interface reports the interface it holds.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortFolderWithNoInterfaceReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRate.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackRate(string CountryCode, decimal Rate);\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("holds no interface", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A type in a port folder that no interface signature names reports the folder it belongs in.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void TypeNoSignatureNamesReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
+        var stray = ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "RateCache.cs");
+        WriteSource(stray, "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed class RateCache\n{\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(stray, finding.Path);
+        Assert.Contains("move it to Domain/{Aggregates}/ or the use case folder that uses it", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A type a signature names only through a named result reports nothing: the check follows one level in.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void TypeNamedOneLevelIntoSignaturesReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<PackPage> CurrentPage(string countryCode);\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackPage.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackPage(PackRate Rate, int Total);\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRate.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackRate(string CountryCode, decimal Rate);\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A type a signature names only two levels in reports: the check follows one level, not further.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void TypeNamedTwoLevelsIntoSignaturesReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<PackPage> CurrentPage(string countryCode);\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackPage.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackPage(PackRate Rate, int Total);\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRate.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackRate(string CountryCode, Currency Amount);\n");
+        var deep = ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Currency.cs");
+        WriteSource(deep, "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record Currency(string Code);\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(deep, finding.Path);
+        Assert.Contains("'Currency'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>An extension block in a port folder names no type, so the port folder still reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortFolderWithExtensionBlockReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRateExtensions.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\nextension(PackRate rate)\n{\n    public bool IsZero => rate.Rate == 0;\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A port interface under Application/Ports reports the Ports folder it belongs in.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortInApplicationPortsReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/text-gateway", "text-gateway", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "Application", "Ports", "TextGateway", "ITextGateway.cs");
+        WriteSource(file, "namespace Library.Lending.Application.Ports.TextGateway;\n\npublic interface ITextGateway\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Port, "ITextGateway", file, "external-system/text-gateway"));
+
+        var placed = Run(model);
+
+        // The Application Ports folder also names no declared use case.
+        Assert.Equal(2, placed.Count);
+        Assert.Contains(placed, finding => finding.Message == "Port 'ITextGateway' sits in folder 'TextGateway', but marks 'external-system/text-gateway', so it belongs in 'Lending/Ports/TextGateway/'.");
+    }
+
+    /// <summary>A port interface in a use case folder reports the Ports folder it belongs in.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortInterfaceInUseCaseFolderReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/text-gateway", "text-gateway", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "Application", "Loans", "BorrowCopy", "ITextGateway.cs");
+        WriteSource(file, "namespace Library.Lending.Application.Loans.BorrowCopy;\n\npublic interface ITextGateway\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Port, "ITextGateway", file, "external-system/text-gateway"));
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("Port 'ITextGateway' sits in folder 'BorrowCopy', but marks 'external-system/text-gateway', so it belongs in 'Lending/Ports/TextGateway/'.", finding.Message);
+        Assert.Equal("external-system/text-gateway", finding.Subject);
+    }
+
+    /// <summary>An adapter in an ExternalSystems folder reports the Infrastructure folder it belongs in.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterInExternalSystemsFolderReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/text-gateway", "text-gateway", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "Infrastructure", "ExternalSystems", "TextGatewayAdapter.cs");
+        WriteSource(file, "namespace Library.Lending.Infrastructure.ExternalSystems;\n\npublic sealed class TextGatewayAdapter\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Adapter, "TextGatewayAdapter", file, "external-system/text-gateway"));
+
+        var placed = Run(model);
+
+        // The ExternalSystems folder also names no port folder.
+        Assert.Equal(2, placed.Count);
+        Assert.Contains(placed, finding => finding.Message == "Adapter 'TextGatewayAdapter' sits in folder 'ExternalSystems', but marks 'external-system/text-gateway', so it belongs in 'Lending/Infrastructure/TextGateway/'.");
+    }
+
+    /// <summary>An adapter in a use case folder reports the Infrastructure folder it belongs in.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterInUseCaseFolderReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/text-gateway", "text-gateway", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "Infrastructure", "Loans", "BorrowCopy", "TextGatewayAdapter.cs");
+        WriteSource(file, "namespace Library.Lending.Infrastructure.Loans.BorrowCopy;\n\npublic sealed class TextGatewayAdapter\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Adapter, "TextGatewayAdapter", file, "external-system/text-gateway"));
+
+        var placed = Run(model);
+
+        // The Loans folder also names no port folder.
+        Assert.Equal(2, placed.Count);
+        Assert.Contains(placed, finding => finding.Message == "Adapter 'TextGatewayAdapter' sits in folder 'BorrowCopy', but marks 'external-system/text-gateway', so it belongs in 'Lending/Infrastructure/TextGateway/'.");
+    }
+
+    /// <summary>An adapter beside the port its mark names reports nothing, whatever its own class name.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterBesideItsPortReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/text-gateway", "text-gateway", temp.Path));
+        var port = ProductFile(temp.Path, "Lending", "Ports", "TextGateway", "ITextGateway.cs");
+        WriteSource(port, "namespace Library.Lending.Ports.TextGateway;\n\npublic interface ITextGateway\n{\n}\n");
+        var adapter = ProductFile(temp.Path, "Lending", "Infrastructure", "TextGateway", "TextGatewaySmtpClient.cs");
+        WriteSource(adapter, "namespace Library.Lending.Infrastructure.TextGateway;\n\npublic sealed class TextGatewaySmtpClient\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Port, "ITextGateway", port, "external-system/text-gateway"));
+        model.Code.Elements.Add(Element(CodeKind.Adapter, "TextGatewaySmtpClient", adapter, "external-system/text-gateway"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An adapter away from the port its mark names reports the port folder, not its own class name.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterAwayFromItsPortReportsPortFolder()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/text-gateway", "text-gateway", temp.Path));
+        var port = ProductFile(temp.Path, "Lending", "Ports", "TextGateway", "ITextGateway.cs");
+        WriteSource(port, "namespace Library.Lending.Ports.TextGateway;\n\npublic interface ITextGateway\n{\n}\n");
+        var adapter = ProductFile(temp.Path, "Lending", "Infrastructure", "ExternalSystems", "TextGatewaySmtpClient.cs");
+        WriteSource(adapter, "namespace Library.Lending.Infrastructure.ExternalSystems;\n\npublic sealed class TextGatewaySmtpClient\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Port, "ITextGateway", port, "external-system/text-gateway"));
+        model.Code.Elements.Add(Element(CodeKind.Adapter, "TextGatewaySmtpClient", adapter, "external-system/text-gateway"));
+
+        var placed = Run(model);
+
+        // The ExternalSystems folder also names no port folder, and the port also names no adapter folder.
+        Assert.Equal(3, placed.Count);
+        Assert.Contains(placed, finding => finding.Message == "Adapter 'TextGatewaySmtpClient' sits in folder 'ExternalSystems', but marks 'external-system/text-gateway', so it belongs in 'Lending/Infrastructure/TextGateway/'.");
+    }
+
+    /// <summary>A port with no adapter folder of the same name reports the adapter folder it pairs with.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortWithNoAdapterReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("names no adapter folder", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("Infrastructure/CountryPack/", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>An adapter with no port folder of the same name reports the port folder it pairs with.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterWithNoPortReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("names no port folder", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("Ports/CountryPack/", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A cross-module port in its module contracts reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortInModuleContractsReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/text-gateway", "text-gateway", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "Ports", "ITextGateway.cs");
+        WriteSource(file, "namespace Library.Lending.Contracts.Ports;\n\npublic interface ITextGateway\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Port, "ITextGateway", file, "external-system/text-gateway"));
+
+        Assert.Empty(Run(model));
+    }
+
     /// <summary>An acceptance test flat under its module reports that it belongs in its aggregate folder.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
@@ -702,6 +1071,15 @@ public sealed class PlacementCheckTests
     {
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "namespace " + @namespace + ";\n\npublic sealed class " + @class + "\n{\n}\n");
+    }
+
+    /// <summary>Writes one C# file with the source as given.</summary>
+    /// <param name="file">The full path of the file to write.</param>
+    /// <param name="source">The file contents.</param>
+    static void WriteSource(string file, string source)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        File.WriteAllText(file, source);
     }
 
     /// <summary>One record with its placement path.</summary>

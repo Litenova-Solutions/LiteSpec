@@ -314,29 +314,58 @@ public sealed class UseCaseIsolationAnalyzerTests
             ],
             assemblyName: "Claimwick.Modules");
 
-    /// <summary>LS2019 reports a use case Infrastructure folder naming another use case folder.</summary>
+    /// <summary>LS2019 accepts a use case naming a port.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
-    [Fact(DisplayName = "LS2019 reports a use case Infrastructure folder naming another use case folder")]
-    public Task ReportsAUseCaseInfrastructureFolderNamingAnotherUseCase() =>
+    [Fact(DisplayName = "LS2019 accepts a use case naming a port")]
+    public Task AcceptsAUseCaseNamingAPort() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Spending/Infrastructure/Expenses/SubmitExpense/SubmitExpenseWriter.cs", """
-                    using Claimwick.Spending.Application.Expenses.ApproveExpense;
+                ("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseHandler.cs", """
+                    using Claimwick.Spending.Ports.ReceiptPdf;
 
-                    namespace Claimwick.Spending.Infrastructure.Expenses.SubmitExpense;
+                    namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
 
-                    internal sealed class SubmitExpenseWriter
+                    internal sealed class SubmitExpenseHandler
                     {
-                        internal void Write({|LS2019:ApproveExpensePolicy|} policy)
+                        internal void Handle(IReceiptPdf pdf)
                         {
                         }
                     }
                     """),
-                ("Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpensePolicy.cs", """
-                    namespace Claimwick.Spending.Application.Expenses.ApproveExpense;
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
 
-                    internal sealed class ApproveExpensePolicy
+                    internal interface IReceiptPdf
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS2019 stays quiet when an adapter names a use case type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 stays quiet when an adapter names a use case type")]
+    public Task StaysQuietWhenAnAdapterNamesAUseCaseType() =>
+        Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
+            [
+                ("Claimwick.Spending/Infrastructure/ReceiptPdf/ReceiptPdfRenderer.cs", """
+                    using Claimwick.Spending.Application.Expenses.SubmitExpense;
+
+                    namespace Claimwick.Spending.Infrastructure.ReceiptPdf;
+
+                    internal sealed class ReceiptPdfRenderer
+                    {
+                        internal void Render(SubmitExpenseCommand command)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommand.cs", """
+                    namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
+
+                    internal sealed class SubmitExpenseCommand
                     {
                     }
                     """),

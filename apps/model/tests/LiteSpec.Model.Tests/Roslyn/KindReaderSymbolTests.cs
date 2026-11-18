@@ -391,6 +391,8 @@ public sealed class KindReaderSymbolTests
 
         Assert.Equal(CodeKind.Port, KindReader.KindOf(node, KindContext.Empty, "Shop.Application"));
         Assert.Equal(CodeKind.Port, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+        Assert.Equal(CodeKind.Port, KindReader.KindOf(node, KindContext.Empty, "Shop.Billing", "Ports"));
+        Assert.Equal(CodeKind.Port, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Billing", "Ports"));
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.WebApi"));
     }
 

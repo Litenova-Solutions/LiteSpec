@@ -109,6 +109,7 @@ internal sealed class TraceabilityContext
         {
             case ArchitectureLayer.Domain: return "Domain";
             case ArchitectureLayer.Application: return "Application";
+            case ArchitectureLayer.Ports: return "Ports";
             case ArchitectureLayer.Infrastructure: return "Infrastructure";
             case ArchitectureLayer.WebApi: return "WebApi";
             case ArchitectureLayer.Worker: return "Worker";

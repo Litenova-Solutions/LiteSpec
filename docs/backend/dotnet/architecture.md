@@ -44,15 +44,13 @@ apps/api/src/
             SubmitExpenseCommandIdempotencyDefinition.cs
             SubmitExpenseResult.cs
           ExportExpenses/
-            query, handler, definitions, result,
-            IExpensesArchiveWriter.cs (the use case's port)
-        Ports/                         ports several use cases of the module call
+            query, handler, definitions, result
+      Ports/
+        ReceiptPdf/                    IReceiptPdf.cs and only the types its signatures name
       Infrastructure/
         Persistence/                   repositories, store contributions, read-model readers,
                                        domain-event to module-event mapping
-        ExternalSystems/               payout provider, document reader, bank formats ...
-        Expenses/
-          ExportExpenses/              ExpensesArchiveWriter.cs, one writer per section
+        ReceiptPdf/                    ReceiptPdfRenderer.cs, the adapter for Ports/ReceiptPdf/
       WebApi/
         Expenses/
           SubmitExpense/
@@ -77,13 +75,15 @@ The WebApi host holds `Program.cs` composition, and the Worker host exists only 
 
 The host also keeps the endpoints that have no use case folder to sit in: protocol endpoints such as sign-out and device callbacks, static assets such as scripts it serves, and development-only tooling. Each such endpoint still carries its mark.
 
-### Why the Names Kernel and Platform
+### Why the Names Kernel, Platform, and Port
 
 The two shared projects take their names from established patterns, each trimmed to what the project holds.
 
 **Kernel** comes from the Shared Kernel pattern in Eric Evans's *Domain-Driven Design* (2003): a small part of the domain model that several parts of a system agree to share and change only together. Here the shared part is the business vocabulary every module speaks, such as money, typed identifiers, dates, the aggregate root, and the domain exception, so the same rule applies: it stays small, it holds no technical code, and a change to it is a change to every module. The word "Shared" is dropped because everything in the project is shared by definition, and because Evans's pattern names an agreement between bounded contexts, while a LiteSpec product is one bounded context whose modules share one vocabulary.
 
 **Platform** names what Chris Richardson calls a microservice chassis (microservices.io, the Microservice Chassis pattern): the technical base that handles the cross-cutting concerns every service needs, such as persistence setup, messaging, security, auditing, HTTP conventions, and health, so each service holds only its business code. The modules of one product play the part of those services, and they plug into the base by contributing data to it. "Platform" is used instead of "Chassis" because it reads plainly in that sentence (a module contributes to the platform, a host calls `AddPlatform`), and because it matches the platform-team sense of a base other teams build on.
+
+**Port** comes from Alistair Cockburn's "Hexagonal Architecture" (2005), also called Ports and Adapters ([alistair.cockburn.us](https://alistair.cockburn.us/hexagonal-architecture/)): the application talks to the outside only through purpose-named ports, and adapters convert between a port and a technology. The same idea appears as Fowler's Gateway and Separated Interface ([martinfowler.com](https://martinfowler.com/eaaCatalog/gateway.html)), as the core-owned interfaces of Palermo's Onion Architecture ([jeffreypalermo.com](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/)), and as Gateways in Martin's Clean Architecture ([blog.cleancoder.com](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)). All rest on dependency inversion: the inner code owns the interface, the outer code implements it. "Port" is used instead of "Gateway" because a gateway fits an external system but less a file format or the clock, and instead of "Interfaces" or "Abstractions" because neither says why these interfaces are grouped; it also already names the cross-module ports of the Contracts projects.
 
 Other names were set aside:
 
@@ -97,12 +97,14 @@ Other names were set aside:
 | `Framework` | Suggests code reused across products, while the platform serves one product. |
 | `Hosting`, `Runtime` | `Hosting` collides with `Hosts/`; `Runtime` fits messaging but not persistence setup or authorization. |
 | `Chassis` | Kept as the pattern the platform follows, not as the project name. |
+| `Gateway` | Fits an external system, but less a file format or the clock. |
+| `Interfaces`, `Abstractions` | Say nothing about why these interfaces are grouped. |
 
 ### The Module Tree and Its Layers
 
-Every node of the tree allows a closed set of folder names, so any other folder is refused. The layer of a file is its top folder in the module: a file under `Application/` is Application whatever use case folder holds it.
+Every node of the tree allows a closed set of folder names, so any other folder is refused. The layer of a file is its top folder in the module: a file under `Application/` is Application whatever use case folder holds it, and a file under `Ports/` is read as the ports layer.
 
-A module holds its entry type at its root, then `Domain/`, `Application/`, `Infrastructure/`, and `WebApi/`. Its public surface lives in the sibling `{Product}.{Module}.Contracts` project beside it. `Domain/` holds one folder per declared aggregate in the plural; a module whose single aggregate has the module's name stays flat instead of nesting, with the aggregate's types directly in `Domain/`. Aggregates live under `Domain/{Aggregates}/`, and the root type keeps its singular name, so `Domain/Expenses/` holds the type `Expense`. `Application/` holds one folder per declared aggregate that has use cases, with one folder per use case inside it, plus one folder per declared module-level use case and `Ports/` for the ports several use cases of the module call. `Infrastructure/` holds `Persistence/` with the repositories, store contributions, and read-model readers, `ExternalSystems/` with the adapters for systems the module calls, and the aggregate and module-level use case folders of use cases with their own adapter. `WebApi/` holds the aggregate and module-level use case folders of use cases reached over HTTP, with the endpoint and its request and response models.
+A module holds its entry type at its root, then `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, and `WebApi/`. Its public surface lives in the sibling `{Product}.{Module}.Contracts` project beside it. `Domain/` holds one folder per declared aggregate in the plural; a module whose single aggregate has the module's name stays flat instead of nesting, with the aggregate's types directly in `Domain/`. Aggregates live under `Domain/{Aggregates}/`, and the root type keeps its singular name, so `Domain/Expenses/` holds the type `Expense`. `Application/` holds one folder per declared aggregate that has use cases, with one folder per use case inside it, plus one folder per declared module-level use case. `Ports/` holds one folder per port of the module: `Ports/{Port}/` holds the interface `I{Port}` and only the types its signatures name, with no files directly in `Ports/`. `Infrastructure/` holds `Persistence/` with the repositories, store contributions, and read-model readers, and one adapter folder per port the module implements, each named like its port folder. `WebApi/` holds the aggregate and module-level use case folders of use cases reached over HTTP, with the endpoint and its request and response models.
 
 Everything that belongs to one aggregate sits in a folder named for the aggregate in the plural, and every layer of the product uses the same folder, so a reader follows one name from the record to the screen. A singular folder makes a namespace such as `Claimwick.Spending.Application.Expense`, and inside `...Application.Expense.SubmitExpense` the C# name lookup finds that namespace before the `Expense` type, so every handler naming its aggregate fails with CS0118. The same smell exists in a singular `Domain/Expense/` holding the type `Expense`. The plural also reads as the collection of the code of that aggregate, the common .NET feature-folder convention, and the record folders of the Claimwick example are already plural. The plural is computed from the name part of the aggregate id, in kebab case for records and the frontend and in PascalCase for .NET.
 
@@ -113,21 +115,20 @@ Everything that belongs to one aggregate sits in a folder named for the aggregat
 | An aggregate, its entities, values, events and refusals | `Modules/{Product}.{Module}/Domain/{Aggregates}/` |
 | A use case's message, handler and definitions | `Modules/{Product}.{Module}/Application/{Aggregates}/{UseCase}/` |
 | A use case's endpoint and HTTP models | `Modules/{Product}.{Module}/WebApi/{Aggregates}/{UseCase}/` |
-| An adapter only one use case uses | `Modules/{Product}.{Module}/Infrastructure/{Aggregates}/{UseCase}/` |
-| A port several use cases of the module call | `Modules/{Product}.{Module}/Application/Ports/` |
+| A port of the module | `Modules/{Product}.{Module}/Ports/{Port}/` holding `I{Port}` and only the types its signatures name |
+| The adapter implementing a port | `Modules/{Product}.{Module}/Infrastructure/{Port}/`, the same folder name as its port |
 | A repository, store contribution or read-model reader | `Modules/{Product}.{Module}/Infrastructure/Persistence/` |
-| An adapter for an external system the module calls | `Modules/{Product}.{Module}/Infrastructure/ExternalSystems/` |
 | A read model with its projections and reader | `Modules/{Product}.{Module}/Application/ReadModels/{ReadModels}/` |
 | A type other modules use | `Modules/{Product}.{Module}.Contracts/`, in its kind folder |
 | Wiring that decides which modules run | `Hosts/{Host}/Program.cs` |
 
-A module-level use case, whose record sits under `modules/{module}/use-cases/`, drops the aggregate segment in every layer: `Application/{UseCase}/`, `WebApi/{UseCase}/`, and `Infrastructure/{UseCase}/`.
+A module-level use case, whose record sits under `modules/{module}/use-cases/`, drops the aggregate segment in each: `Application/{UseCase}/` and `WebApi/{UseCase}/`.
 
 A reaction's event handler and a job class sit in the `Application/` folder of the use case they run. One that runs no use case sits in the `Application/Notifications/` folder of the notification it sends, or in the `Application/ExternalSystems/` folder of the system it calls. A module keeps each read model in its `Application/ReadModels/` folder, and its public surface sorted by kind in its sibling Contracts project: `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, and `Ports/`, so a reader sees at a glance what another module may reference.
 
-A use case file takes its layer from its top folder: endpoints with their request and response models sit in `WebApi/{Aggregates}/{UseCase}/`, the message, result, handler, validator, definitions, ports, reactions, and job sit in `Application/{Aggregates}/{UseCase}/`, and adapters implementing the use case's own ports sit in `Infrastructure/{Aggregates}/{UseCase}/`. A typed identifier that another module references lives in the `Identifiers/` folder of its owner's Contracts project, and shared values live in the Kernel project. The platform `Http/` folder holds what endpoints of two or more modules compile against, such as the endpoint contract and the current actor.
+A use case file takes its layer from its top folder: endpoints with their request and response models sit in `WebApi/{Aggregates}/{UseCase}/`, and the message, result, handler, validator, definitions, reactions, and job sit in `Application/{Aggregates}/{UseCase}/`. Port interfaces sit in `Ports/{Port}/`, with their adapters in `Infrastructure/{Port}/`. A typed identifier that another module references lives in the `Identifiers/` folder of its owner's Contracts project, and shared values live in the Kernel project. The platform `Http/` folder holds what endpoints of two or more modules compile against, such as the endpoint contract and the current actor.
 
-The code tree mirrors the record tree. A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-case}` maps to code at `Application/{Aggregates}/{UseCase}/` and, when reached over HTTP, `WebApi/{Aggregates}/{UseCase}/`, plus `Infrastructure/{Aggregates}/{UseCase}/` when it has its own adapter, and an aggregate record at `modules/{module}/aggregates/{aggregates}` maps to code at `Modules/{Product}.{Module}/Domain/{Aggregates}/`. A use case record at `modules/{module}/use-cases/{use-case}` drops the aggregate segment in every layer.
+The code tree mirrors the record tree. A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-case}` maps to code at `Application/{Aggregates}/{UseCase}/` and, when reached over HTTP, `WebApi/{Aggregates}/{UseCase}/`, and an aggregate record at `modules/{module}/aggregates/{aggregates}` maps to code at `Modules/{Product}.{Module}/Domain/{Aggregates}/`. A use case record at `modules/{module}/use-cases/{use-case}` drops the aggregate segment in every layer.
 
 Every layer of the product uses the same plural aggregate folder:
 
@@ -136,7 +137,8 @@ Every layer of the product uses the same plural aggregate folder:
 | Records | `.litespec/behavior/modules/spending/aggregates/expenses/aggregate.yaml`, `.../aggregates/expenses/use-cases/submit-expense/` |
 | Domain | `Domain/Expenses/` (the root type stays `Expense`) |
 | Application | `Application/Expenses/SubmitExpense/` |
-| Infrastructure | `Infrastructure/Expenses/SubmitExpense/` (a use case adapter) |
+| Ports | `Ports/{Port}/` (one folder per port, such as `Ports/ReceiptPdf/`) |
+| Infrastructure | `Infrastructure/{Port}/` (one adapter folder per port, such as `Infrastructure/ReceiptPdf/`) |
 | WebApi | `WebApi/Expenses/SubmitExpense/` |
 | Acceptance tests | `{Product}.Acceptance.Tests/Spending/Expenses/SubmitExpense/` |
 | Frontend | `lib/modules/spending/expenses/submit-expense/` |
@@ -190,7 +192,7 @@ The handler in the tree above has namespace `Claimwick.Spending.Application.Expe
 
 `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers` decides between a use case folder and the module and product folders. Module folders mirror record homes: each layer folder holds one plural aggregate folder with one folder per use case inside it, plus one folder per module-level use case, each reaction and job sits with the use case, notification, or external system it runs, sends, or calls, and each read model sits in the `Application/ReadModels/` folder. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
-A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-case}` maps to code at `Application/{Aggregates}/{UseCase}/` and, when reached over HTTP, `WebApi/{Aggregates}/{UseCase}/`, plus `Infrastructure/{Aggregates}/{UseCase}/` when it has its own adapter, and an aggregate record at `modules/{module}/aggregates/{aggregates}` maps to code at `Modules/{Product}.{Module}/Domain/{Aggregates}/`. A use case record at `modules/{module}/use-cases/{use-case}` drops the aggregate segment in every layer. A project that keeps one modules project holding every module maps each module to one folder of that project instead.
+A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-case}` maps to code at `Application/{Aggregates}/{UseCase}/` and, when reached over HTTP, `WebApi/{Aggregates}/{UseCase}/`, and an aggregate record at `modules/{module}/aggregates/{aggregates}` maps to code at `Modules/{Product}.{Module}/Domain/{Aggregates}/`. A use case record at `modules/{module}/use-cases/{use-case}` drops the aggregate segment in every layer. A project that keeps one modules project holding every module maps each module to one folder of that project instead.
 
 **Example:**
 
@@ -199,20 +201,22 @@ A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-ca
 | Kernel project root | Files only |
 | Platform project root | `Persistence/`, `Messaging/`, `Access/`, `Auditing/`, `Http/`, `CountryPacks/`, `Modules/` |
 | `Modules/` folder | one project folder per declared module, and one Contracts project folder per declared module |
-| Module project root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, and the entry type file |
+| Module project root | `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/`, and the entry type file |
 | One modules project root, when the project keeps it | one folder per declared module |
 | Contracts project root | `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, `Ports/` |
 | Module `Contracts/`, in the one modules project only | `Identifiers/`, `IntegrationEvents/`, `ModuleEvents/`, `Ports/` |
 | Module `Domain/` | one folder per declared aggregate, in the plural |
 | Module `Domain/{Aggregates}/` | `Events/`, `Exceptions/`, files |
-| Module `Application/` | one folder per declared aggregate that has use cases, one folder per declared module-level use case, `Ports/`, `Notifications/`, `ExternalSystems/`, `ReadModels/` |
-| Module `Application/{Aggregates}/`, `WebApi/{Aggregates}/`, `Infrastructure/{Aggregates}/` | one folder per use case declared under that aggregate; no files |
-| Module `Infrastructure/` | `Persistence/`, `ExternalSystems/`, the aggregate and module-level use case folders of use cases with their own adapter |
+| Module `Application/` | one folder per declared aggregate that has use cases, one folder per declared module-level use case, `Notifications/`, `ExternalSystems/`, `ReadModels/` |
+| Module `Application/{Aggregates}/`, `WebApi/{Aggregates}/` | one folder per use case declared under that aggregate; no files |
+| Module `Ports/` | one folder per port of the module; no files |
+| Module `Ports/{Port}/` | the interface `I{Port}` and only the types its member signatures name |
+| Module `Infrastructure/` | `Persistence/`, one folder per port the module implements |
 | Module `WebApi/` | the aggregate and module-level use case folders of use cases reached over HTTP |
 | Module `Application/Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `Application/ExternalSystems/` | one per external system a reaction or job of the module only calls |
 | Module `Application/ReadModels/` | one per declared read model of the module, in the plural |
-| Each use case folder, `Application/Ports/`, and each folder under `Notifications/`, `ExternalSystems/`, and `ReadModels/` | Files only |
+| Each use case folder and each folder under `Notifications/`, `ExternalSystems/`, and `ReadModels/` | Files only |
 
 ```text
 {Product}.Kernel/
@@ -228,14 +232,15 @@ Modules/{Product}.Organizations/
       CreateTeam/      CreateTeamCommand.cs  CreateTeamCommandResult.cs  CreateTeamCommandHandler.cs  CreateTeamCommandValidator.cs  CreateTeamCommandAuthorizationDefinition.cs  CreateTeamCommandAuditDefinition.cs  CreateTeamCommandIdempotencyDefinition.cs
       RemoveMember/    RemoveMemberCommand.cs  RemoveMemberCommandHandler.cs  RemoveMemberOnAccountClosedHandler.cs
     ReadTeamDirectory/        a module-level use case: no aggregate folder
-    Ports/             ports several use cases of the module call
     Notifications/
       MemberRemoved/          a reaction that only sends this notification
     ReadModels/
       MemberAccounts/         a read model of another module's published facts
+  Ports/
+    {Port}/             I{Port} and only the types its signatures name; no files directly in Ports/
   Infrastructure/
     Persistence/       TeamRepository.cs
-    ExternalSystems/   adapters for systems the module calls
+    {Port}/             the adapter implementing Ports/{Port}/, same folder name
   WebApi/
     Teams/
       CreateTeam/      CreateTeamEndpoint.cs  CreateTeamRequestModel.cs  CreateTeamResponseModel.cs
@@ -243,7 +248,7 @@ Modules/{Product}.Organizations.Contracts/
   Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
 ```
 
-**Checked by:** `litespec model check` reports `code-placement-drift` for a folder outside its closed set or naming no declared record, for a file in the wrong layer folder of its use case, for a reaction or job outside the folder of what it runs, for an `{Aggregates}/` folder naming no declared aggregate, for a use case folder naming no use case of that aggregate, for a file directly in an `{Aggregates}/` folder, and for a singular `Domain/{Aggregate}/` folder, and `mark-folder-drift` for a marked element outside the folder its mark names.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a folder outside its closed set or naming no declared record, for a file in the wrong layer folder of its use case, for a reaction or job outside the folder of what it runs, for an `{Aggregates}/` folder naming no declared aggregate, for a use case folder naming no use case of that aggregate, for a file directly in an `{Aggregates}/` folder, for a singular `Domain/{Aggregate}/` folder, for a file directly in `Ports/`, for a port folder with no adapter folder in `Infrastructure/`, and for an adapter folder with no port folder, and `mark-folder-drift` for a marked element outside the folder its mark names.
 
 ### Keep Business Values in the Kernel
 
@@ -334,21 +339,22 @@ Modules/{Product}.Organizations.Contracts/
 
 **Applies to:** artifact: use-case
 
-**Statement:** Each module MUST hold its Domain, Application, Infrastructure, and WebApi code in those four folders, with one plural aggregate folder holding one folder per use case inside each layer that serves the use case, and one folder per module-level use case directly in each layer that serves it.
+**Statement:** Each module MUST hold its Domain, Application, Ports, Infrastructure, and WebApi code in those folders, with one plural aggregate folder holding one folder per use case inside each layer that serves the use case, and one folder per module-level use case directly in each layer that serves it.
 
-**Rationale:** The folders make each layer visible at a glance: a reader opening a module sees its domain, its use cases, its adapters, and its endpoints in the shape every .NET backend uses. A use case spreads over one folder per layer that serves it, inside the plural folder of its aggregate, and the layer folders keep each file's layer in its path. The code mirrors the records, so a reader moves between a record folder and its code folder by the same names, and the plural keeps the aggregate type visible to every handler instead of hiding it behind a singular namespace that fails with CS0118. Settled by [decision/0107-kernel-platform-and-one-project-per-module](decision/0107-kernel-platform-and-one-project-per-module).
+**Rationale:** The folders make each layer visible at a glance: a reader opening a module sees its domain, its use cases, its ports, its adapters, and its endpoints in the shape every .NET backend uses. A use case spreads over one folder per layer that serves it, inside the plural folder of its aggregate, and every port of the module lives in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`. The code mirrors the records, so a reader moves between a record folder and its code folder by the same names, and the plural keeps the aggregate type visible to every handler instead of hiding it behind a singular namespace that fails with CS0118. Settled by [decision/0107-kernel-platform-and-one-project-per-module](decision/0107-kernel-platform-and-one-project-per-module).
 
 **Example:**
 
 | Folder | Holds | Present when |
 |---|---|---|
-| `Application/{Aggregates}/{UseCase}/` | the message, handler, validator, one definition class per concern, the result, the reaction or job that runs the use case, and ports only this use case calls | always |
+| `Application/{Aggregates}/{UseCase}/` | the message, handler, validator, one definition class per concern, the result, the reaction or job that runs the use case | always |
+| `Ports/{Port}/` | the interface `I{Port}` and only the types its signatures name | the module declares a port |
 | `WebApi/{Aggregates}/{UseCase}/` | the endpoint, its request and response models | the use case is reached over HTTP |
-| `Infrastructure/{Aggregates}/{UseCase}/` | adapters that implement this use case's own ports (an archive writer, a renderer, a file parser only this use case uses) | the use case has its own port |
+| `Infrastructure/{Port}/` | the adapter implementing the module's port | the module declares a port |
 
-A module-level use case drops the aggregate segment: `Application/{UseCase}/`, `WebApi/{UseCase}/`, and `Infrastructure/{UseCase}/`.
+A module-level use case drops the aggregate segment: `Application/{UseCase}/` and `WebApi/{UseCase}/`.
 
-**Reviewed for:** Does every module hold its Domain, Application, Infrastructure, and WebApi code in those four folders, with one plural aggregate folder holding one folder per use case inside each layer that serves it, and one folder per module-level use case directly in each layer that serves it? Look at the module folders.
+**Reviewed for:** Does every module hold its Domain, Application, Ports, Infrastructure, and WebApi code in those folders, with one plural aggregate folder holding one folder per use case inside each layer that serves it, one folder per module-level use case directly in each layer that serves it, every port in its own `Ports/{Port}/` folder, and every adapter in its `Infrastructure/{Port}/` folder? Look at the module folders.
 
 ### Keep Application Types in Their Layer Folders
 
@@ -358,13 +364,13 @@ A module-level use case drops the aggregate segment: `Application/{UseCase}/`, `
 
 **Applies to:** artifact: any
 
-**Statement:** An application MUST place each use case's messages, results, handlers, validators, definitions, and triggers in the use case's folder inside `Application/`, shared ports in the module `Application/Ports/` folder, and cross-module contracts in the sorted kind folders of its Contracts project.
+**Statement:** An application MUST place each use case's messages, results, handlers, validators, definitions, and triggers in the use case's folder inside `Application/`, every port of the module in its own `Ports/{Port}/` folder holding the interface `I{Port}` and only the types its signatures name with no files directly in `Ports/`, each port's adapter in its `Infrastructure/{Port}/` folder with the same folder name, and cross-module contracts in the sorted kind folders of its Contracts project.
 
-**Rationale:** One use case keeps its command, query, result, handler, validator, definitions, and triggers in its `Application/{Aggregates}/{UseCase}/` folder, its endpoint and transport models in its `WebApi/{Aggregates}/{UseCase}/` folder, and the adapters for its own ports in its `Infrastructure/{Aggregates}/{UseCase}/` folder; a module-level use case drops the aggregate segment in each. A use case's own models never move up: two use cases with one shape each declare it, under `litespec/backend/architecture#give-each-use-case-its-own-models`.
+**Rationale:** One use case keeps its command, query, result, handler, validator, definitions, and triggers in its `Application/{Aggregates}/{UseCase}/` folder, and its endpoint and transport models in its `WebApi/{Aggregates}/{UseCase}/` folder; a module-level use case drops the aggregate segment in each. A use case's own models never move up: two use cases with one shape each declare it, under `litespec/backend/architecture#give-each-use-case-its-own-models`.
 
-Rules used by two or more use cases of one aggregate sit in the aggregate `Domain/{Aggregates}/` folder. Ports used by two or more use cases of one module sit in the module `Application/Ports/` folder, with their adapters in `Infrastructure/`. A module publishes its typed identifiers in the `Identifiers/` folder of its Contracts project, its integration events in `IntegrationEvents/`, its module events in `ModuleEvents/`, and its read-only cross-module ports in `Ports/`, so the public surface of a module stays visible in its Contracts project. It publishes no command and no refusal.
+Rules used by two or more use cases of one aggregate sit in the aggregate `Domain/{Aggregates}/` folder. Every port of the module sits in its own `Ports/{Port}/` folder, whether one use case or many call it, so `Ports/` is the complete list of what the module needs from outside: `Ports/{Port}/` holds the interface `I{Port}` and only the types its member signatures name, with no files directly in `Ports/`, and each port's adapter sits in its `Infrastructure/{Port}/` folder with the same folder name. Whether an interface is a port at all is a judgment the reviewer answers under `litespec/backend/application#declare-a-port-only-for-what-the-module-does-not-compute`. A module publishes its typed identifiers in the `Identifiers/` folder of its Contracts project, its integration events in `IntegrationEvents/`, its module events in `ModuleEvents/`, and its read-only cross-module ports in `Ports/`, so the public surface of a module stays visible in its Contracts project. It publishes no command and no refusal.
 
-**Reviewed for:** Does every message, result, handler, validator, definition, and trigger sit in its use case's `Application/` folder, every shared port in the module `Application/Ports/` folder, and every cross-module contract in its Contracts kind folder? Check the use case and Ports folders and the Contracts project.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a port folder holding no interface or more than one, for a port folder whose name is not its interface name without the `I`, and for a type in a port folder that the interface signatures do not name, and `dotnet build` reports `LS2018` for a `Ports/` file naming an `Application/`, `Infrastructure/` or `WebApi/` type.
 
 ### Place Each Read Model in Its Application Read Models Folder
 
@@ -439,14 +445,15 @@ Modules/Claimwick.Reporting/Application/ReadModels/ReimbursedExpenses/
 | Platform | Kernel and its libraries; never a module | project references |
 | A module | Kernel, Platform, and other modules' Contracts projects | project references plus visibility: only the Contracts project and `{Module}Module` are `public`, everything else `internal` |
 | `Domain/` | Kernel and the module's own `Domain/` | analyzer (folder) |
-| `Application/{Aggregates}/{UseCase}/` | `Domain/`, its own use case folder, `Application/Ports/`, `Application/ReadModels/`, the module's and other modules' Contracts projects, Platform abstractions; never another use case folder, never `Infrastructure/` or `WebApi/` | analyzer (folder) |
-| `Infrastructure/` | `Domain/`, `Application/` (to implement its ports), Platform, libraries | analyzer (folder) |
-| `WebApi/{Aggregates}/{UseCase}/` | its own `Application/{Aggregates}/{UseCase}/` (message and result), Kernel values, typed identifiers, Platform `Http/` and `Access/`; never `Domain/` types, repositories, `Infrastructure/`, or another use case | analyzer (folder) |
+| `Ports/` | Kernel, the module's `Domain/` types, Platform abstractions; never `Application/`, `Infrastructure/` or `WebApi/` | analyzer (folder) |
+| `Application/{Aggregates}/{UseCase}/` | `Domain/`, its own use case folder, `Ports/`, `Application/ReadModels/`, the module's and other modules' Contracts projects, Platform abstractions; never another use case folder, never `Infrastructure/` or `WebApi/` | analyzer (folder) |
+| `Infrastructure/` | `Domain/`, `Ports/` (to implement them), Platform, libraries | analyzer (folder) |
+| `WebApi/{Aggregates}/{UseCase}/` | its own `Application/{Aggregates}/{UseCase}/` (message and result), Kernel values, typed identifiers, Platform `Http/` and `Access/`; never `Ports/`, `Domain/` types, repositories, `Infrastructure/`, or another use case | analyzer (folder) |
 | Hosts | Platform and each module's entry type | project references |
 
-**Example:** Domain references no Application, Infrastructure, or WebApi type, and none of the persistence, web, mediator, logging, and injection namespaces. Application references no Infrastructure or WebApi type, and no ASP.NET Core type. WebApi references no Domain type outside typed identifiers and Kernel values, and no repository.
+**Example:** Domain references no Application, Infrastructure, or WebApi type, and none of the persistence, web, mediator, logging, and injection namespaces. Ports references no Application, Infrastructure, or WebApi type. Application references no Infrastructure or WebApi type, and no ASP.NET Core type. WebApi references no Domain type outside typed identifiers and Kernel values, and no repository.
 
-**Checked by:** `dotnet build` reports `LS1001` for a Domain type naming an outer-layer type and `LS2018` for an Application or WebApi type naming a type outside its layer.
+**Checked by:** `dotnet build` reports `LS1001` for a Domain type naming an outer-layer type and `LS2018` for an Application, Ports, or WebApi type naming a type outside its layer.
 
 ### Keep Use Case Folders Isolated
 
@@ -526,7 +533,7 @@ A module publishes no command and no refusal: another module triggers its acts t
 
 **Replacement:** A project records its own project layout in its host documentation.
 
-**Rationale:** Each module project then holds one complete business capability: a reader opening it sees the module's domain, use cases, adapters, and endpoints in the four layer folders. The compiler enforces the boundaries: the Kernel references only the base class library, the Platform references no module, and each module exposes only its Contracts project and its entry type. Hosts stay separate projects, because two hosts can run the same modules. The names come from the Shared Kernel pattern of domain-driven design and the microservice chassis pattern, as "Why the Names Kernel and Platform" above explains.
+**Rationale:** Each module project then holds one complete business capability: a reader opening it sees the module's domain, use cases, ports, adapters, and endpoints in the module's layer folders. The compiler enforces the boundaries: the Kernel references only the base class library, the Platform references no module, and each module exposes only its Contracts project and its entry type. Hosts stay separate projects, because two hosts can run the same modules. The names come from the Shared Kernel pattern of domain-driven design and the microservice chassis pattern, as "Why the Names Kernel and Platform" above explains.
 
 A project that keeps one modules project holding every module is an allowed deviation; `LS2020` then enforces the Contracts boundary that project references otherwise enforce. Settled by [decision/0107-kernel-platform-and-one-project-per-module](decision/0107-kernel-platform-and-one-project-per-module).
 
@@ -606,7 +613,7 @@ Modules/Claimwick.Spending/
   Claimwick.Spending.csproj                 references Kernel, Platform, Claimwick.Spending.Contracts,
                                             Claimwick.Reporting.Contracts
   SpendingModule.cs
-  Domain/  Application/  Infrastructure/  WebApi/
+  Domain/  Application/  Ports/  Infrastructure/  WebApi/
 Modules/Claimwick.Spending.Contracts/
   Claimwick.Spending.Contracts.csproj       references Kernel and Platform only
   Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/

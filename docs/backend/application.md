@@ -11,11 +11,11 @@ Each use case owns one folder with its message, result, handler, and endpoint. C
 
 ### The Use Case Folder
 
-Application code lives in the `Application/` layer folder of each module: one folder per aggregate that has use cases, with one folder per use case inside it, one folder per module-level use case, one `Ports/` folder for the ports several use cases of the module call, one folder beside each notification, external system, and read model that a module trigger serves, and one product folder holding the pipeline machinery.
+Application code lives in the `Application/` layer folder of each module: one folder per aggregate that has use cases, with one folder per use case inside it, one folder per module-level use case, one folder beside each notification, external system, and read model that a module trigger serves, and one product folder holding the pipeline machinery. Every port of the module lives in the module `Ports/` folder instead, with its adapter in `Infrastructure/`.
 
-Each layer folder holds one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint, and `Infrastructure/{Aggregates}/{UseCase}/` when the use case has its own port. A module-level use case drops the aggregate segment in each. No `WebApi/` folder for the use case means no endpoint reaches it.
+`Application/` and `WebApi/` each hold one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, and `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint. A module-level use case drops the aggregate segment in each. No `WebApi/` folder for the use case means no endpoint reaches it. Every port of the module lives in its own `Ports/{Port}/` folder instead of a use case folder, whether one use case or many call it, with its adapter in `Infrastructure/{Port}/`.
 
-The `Application/{Aggregates}/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{Aggregates}/{UseCase}/` folder holds the endpoint with its request and response models. The `Infrastructure/{Aggregates}/{UseCase}/` folder holds the adapters that implement the use case's own ports.
+The `Application/{Aggregates}/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{Aggregates}/{UseCase}/` folder holds the endpoint with its request and response models. The `Ports/{Port}/` folder holds the interface `I{Port}` and only the types its signatures name, and the `Infrastructure/{Port}/` folder holds the adapter implementing it.
 
 Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder, grouped by kind into identifiers, integration events, module events, and ports. The pipeline machinery itself lives in the product `Application/` folder.
 
@@ -39,16 +39,16 @@ In Claimwick, the approve-expense command flows from validation through the auth
 
 ### Ports
 
-A port is a narrow interface that Application declares for work it does not do itself, such as archiving posts or reading the clock. Each port names one business capability in project-owned types, types the project defines rather than types a provider or transport defines. Infrastructure implements the port.
+A port is a narrow interface that the module declares for work it does not compute in memory: an external system, a file format it reads or writes, a platform service the Platform does not already expose as an abstraction, or the clock. Each port names one business capability in project-owned types, types the project defines rather than types a provider or transport defines. Infrastructure implements the port.
 
-A port is declared in the layer folder its consumers share, so reviewers see it beside the specification it serves. A port that another module calls is published in the owning module's `Contracts/Ports/` folder. Such a port only reads: a write another module needs arrives as a fact that its reaction answers.
+Every port of the module lives in its own `Ports/{Port}/` folder, whether one use case or many call it, so `Ports/` is the complete list of what the module needs from outside. A port that another module calls is published in the owning module's `Contracts/Ports/` folder instead. Such a port only reads: a write another module needs arrives as a fact that its reaction answers.
 
-Four kinds of port belong in Application:
+Four kinds of port belong in `Ports/`:
 
-- A repository keeps the store out of business code.
 - An outside-system port keeps a provider behind an adapter.
-- A rule calculation that another module calls keeps one home for the rule.
-- A decision port answers one current-value question that another module's command needs.
+- A file-format port keeps a reader or writer behind an adapter.
+- A platform-service port keeps a platform service the Platform does not already expose as an abstraction behind an adapter.
+- The clock keeps time behind an adapter.
 
 A general reader that returns the owner's state to any caller is not one of them: a module keeps its own read model, its own stored copy of the fields it needs from another module, and a screen joins each owner's query. An external-system port carries the operations one `calls` effect names, and a messenger port carries the notifications `sends` effects name.
 
@@ -94,7 +94,7 @@ One folder per use case inside the plural aggregate folder in `Application/` kee
 
 **Deviation:** Only when a helper serves only the use case and splitting it would scatter one act across folders.
 
-**Rationale:** A use case folder reads as the use case. More files, or a file over the line bound, signals work that belongs in the use case's `Infrastructure/` folder behind a port, or in the module: production of a file format, rendering, and parsing live in Infrastructure under `litespec/backend/architecture#produce-file-formats-in-infrastructure`.
+**Rationale:** A use case folder reads as the use case. More files, or a file over the line bound, signals work that belongs in the module's `Ports/` and `Infrastructure/` folders behind a port, or in the module: production of a file format, rendering, and parsing live in Infrastructure under `litespec/backend/architecture#produce-file-formats-in-infrastructure`.
 
 **Reviewed for:** Does any use case folder hold more than its message, handler, validator, definitions, result, and a few helpers, or a file over 200 lines? Look at the file counts and sizes in each use case folder.
 
@@ -391,29 +391,47 @@ Mirroring the Domain shape in the result keeps the layers aligned, so the data o
 
 **Applies to:** artifact: port
 
-**Statement:** Application MUST declare each external port as a public interface with a noun or verb name, one method or one purpose, and project-owned types.
+**Statement:** The module MUST declare each external port as a public interface with a noun or verb name, one method or one purpose, and project-owned types.
 
 **Rationale:** A port is the seam where a provider change stops. It has one method or one purpose, named as a noun for the capability (`PostArchive`) or a verb for the act (`ArchivePosts`), typed with project-owned types. If provider names or transport models entered the interface, replacing the provider would rewrite Application. Keeping them in Infrastructure confines the change to the adapter.
 
 **Reviewed for:** Does every external port have the public interface shape, the noun or verb name, the single method or purpose, and the project-owned types? Look at each port declaration.
 
-### Declare a Port Where Its Consumers Meet
+### Declare Every Port in the Module Ports Folder
 
-**ID:** `litespec/backend/application#declare-a-port-where-its-consumers-meet`
+**ID:** `litespec/backend/application#declare-every-port-in-the-module-ports-folder`
 
 **Strength:** required
 
 **Applies to:** artifact: port
 
-**Statement:** A port MUST be declared at the lowest folder holding every consumer that names it, following `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
+**Statement:** Every port of a module MUST live in its own `Ports/{Port}/` folder holding the interface `I{Port}` and only the types its signatures name, with its adapter in its `Infrastructure/{Port}/` folder, and a port another module calls in the owning module's `Contracts/Ports/` folder.
 
-**Rationale:** A port in a product-wide folder is reviewed by nobody. A port declared beside the use case it serves is reviewed with that use case's specification.
+**Rationale:** `Ports/` is the complete list of what the module needs from outside: every port of the module lives there, whether one use case or many call it, each in its own folder with its adapter beside it in `Infrastructure/`. A reader opening `Ports/` sees each outside dependency once, instead of hunting use case folders for interfaces.
 
-A port one use case calls is declared in that use case's `Application/` folder. A port several use cases of one module call is declared in the module `Application/Ports/` folder, with its implementation in `Infrastructure/`. Only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers. Collecting every port in one folder because they share the word "port" is grouping by technical type, and `litespec/backend/application#organize-application-by-use-case` rejects that grouping one level down for the same reason.
+Only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers.
 
 Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.
 
-**Reviewed for:** Does every port sit at the lowest folder holding every consumer that names it? Look at each port beside its consumers.
+**Reviewed for:** Does every port of the module live in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`, and every cross-module port in the owning module's `Contracts/Ports/` folder? Look at each port folder beside its callers and its adapter.
+
+### Declare a Port Only for What the Module Does Not Compute
+
+**ID:** `litespec/backend/application#declare-a-port-only-for-what-the-module-does-not-compute`
+
+**Strength:** required
+
+**Applies to:** artifact: port
+
+**Statement:** A module MUST declare a port in its `Ports/` folder only as an interface Infrastructure implements for work the module does not compute in memory: an external system, a file format it reads or writes, a platform service, or the clock.
+
+**Rationale:** A port is the seam where outside work stops: the module owns the interface in its `Ports/` folder, Infrastructure implements it in `Infrastructure/{Port}/`, and the dependency points inward. An interface for work the module computes in memory is not a port, whatever it is named. In-process logic behind an interface, a mapping, a builder, or a calculator with one implementation and no I/O, decides in `Domain/{Aggregates}/` as part of the aggregate or a domain service when it decides, and stays in the use case folder when it only coordinates. A store read is not a port either: a command handler reads and writes through its aggregate repository under `litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories`, and a query handler projects through the read session and its read models under `litespec/backend/application#project-queries-directly`. One port serves one platform service, with the members every caller needs, instead of several interfaces over the same service. Permission constants come from the records instead of a port: the stack generates one constant per `permission/` record. Domain exceptions and enums stay in `Domain/{Aggregates}/Exceptions/` and the aggregate folder.
+
+A `Ports/` folder that accepts in-process helpers becomes the place for whatever fits nowhere else, and a reader can no longer tell what the module depends on. Each port earns its folder by reaching outside the process. Settled by [decision/0107-kernel-platform-and-one-project-per-module](decision/0107-kernel-platform-and-one-project-per-module).
+
+**Example:** In Claimwick, the receipt PDF renderer is a port: Spending declares `IReceiptPdf` in `Ports/ReceiptPdf/` and implements it in `Infrastructure/ReceiptPdf/`, because writing the receipt file reaches outside the process. The mapping from an `Expense` to an export row is not a port: it runs in memory behind one implementation, so it stays in the use case folder. Permission checks name the generated constants (`LiteSpecPermissions` on .NET), so no port answers who may act.
+
+**Reviewed for:** Does every interface in the module `Ports/` folders reach outside the process, with no in-process logic, store read, duplicate platform interface, permission constant, domain exception, or enum among them? Look at each port beside its callers and its Infrastructure implementation.
 
 ### Read Another Module's State Through a Read Model
 
@@ -777,13 +795,13 @@ A message that leaves before its transaction commits promises work even when the
 
 **Applies to:** artifact: any
 
-**Default:** Place each use case in one folder per layer that serves it, inside the plural aggregate folder of its aggregate, with a module-level use case dropping the aggregate segment in each: `Application/{Aggregates}/{UseCase}/` with its message, result, handler, validator, pipeline definitions, own steps and triggers, `WebApi/{Aggregates}/{UseCase}/` with its endpoint and transport models when it has an endpoint, and `Infrastructure/{Aggregates}/{UseCase}/` with the adapters for its own ports when it has its own port.
+**Default:** Place each use case in one folder per layer that serves it, inside the plural aggregate folder of its aggregate, with a module-level use case dropping the aggregate segment in each: `Application/{Aggregates}/{UseCase}/` with its message, result, handler, validator, pipeline definitions, own steps and triggers, and `WebApi/{Aggregates}/{UseCase}/` with its endpoint and transport models when it has an endpoint; place every port of the module in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`.
 
 **Replacement:** A project names its own Application folder layout in its documentation.
 
 **Rationale:** One folder per use case inside the plural aggregate folder in each layer that serves it holds everything a reviewer needs to judge it in one set of folders, and the module tree lets a reader move from a handler to its endpoint without a map.
 
-The layer folders state each file's layer in the path and show by their presence whether the use case has an endpoint or its own port. The reactions and job that run the use case sit in its `Application/` folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
+The layer folders state each file's layer in the path and show by their presence whether the use case has an endpoint. The module `Ports/` folder lists every port of the module with its adapter in `Infrastructure/`. The reactions and job that run the use case sit in its `Application/` folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
 **Example:** The layout reads as follows:
 
@@ -803,15 +821,15 @@ The layer folders state each file's layer in the path and show by their presence
         ArchiveStalePost/                 no WebApi folder: no endpoint reaches this use case
           ArchiveStalePostsJob            the job that runs this use case once per stale post
           ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case
-        ExportPosts/                      query, handler, definitions, result, IPostsArchiveWriter
+        ExportPosts/                      query, handler, definitions, result
       Notifications/
         NewPost/
           NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification
+    Ports/
+      PostsArchive/                       IPostsArchive and only the types its signatures name
     Infrastructure/
       Persistence/                        PostRepository, store contributions, read-model readers
-      ExternalSystems/                    adapters for systems the module calls
-      Posts/
-        ExportPosts/                      PostsArchiveWriter, one writer per section
+      PostsArchive/                       PostsArchiveWriter, one writer per section
     WebApi/
       Posts/
         CreateDraft/                      Endpoint, RequestModel, ResponseModel
@@ -840,7 +858,7 @@ The layer folders state each file's layer in the path and show by their presence
 
 Module, aggregate, and use case order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
-Only a use case gets a folder named for it in a layer folder, so every such folder name names one use case.
+Only a use case gets a folder named for it in an `Application/` or `WebApi/` folder, so every such folder name names one use case.
 
 A use case's own models stay in its folder under `litespec/backend/architecture#give-each-use-case-its-own-models`, and any other type sits in the node layer folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. An event handler or job lives with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`, with its mark under `litespec/backend/application#answer-each-reaction-in-one-marked-class`. A folder named for a fact, a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
 

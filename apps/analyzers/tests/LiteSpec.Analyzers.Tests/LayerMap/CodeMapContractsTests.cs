@@ -39,6 +39,43 @@ public sealed class CodeMapContractsTests
         Assert.Equal("Modules/Claimwick.Contracts", MapFor("Claimwick.Contracts", named).ModuleOf(named));
     }
 
+    /// <summary>A file in a module Ports folder maps to its module with the Ports layer and no use case.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact]
+    public void PortsFileMapsToThePortsLayer()
+    {
+        const string path = "Modules/Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs";
+        var map = MapFor("Claimwick.Spending", path);
+
+        Assert.Equal(ArchitectureLayer.Ports, map.LayerOf(path));
+        Assert.Equal("Modules/Claimwick.Spending", map.ModuleOf(path));
+        Assert.Null(map.UseCaseOf(path));
+    }
+
+    /// <summary>A file in an Infrastructure adapter folder maps to Infrastructure with no use case.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact]
+    public void AdapterFileHasNoUseCase()
+    {
+        const string path = "Modules/Claimwick.Spending/Infrastructure/ReceiptPdf/ReceiptPdfRenderer.cs";
+        var map = MapFor("Claimwick.Spending", path);
+
+        Assert.Equal(ArchitectureLayer.Infrastructure, map.LayerOf(path));
+        Assert.True(CodeMap.IsAdapter(path));
+        Assert.Null(map.UseCaseOf(path));
+    }
+
+    /// <summary>A file in Persistence is no adapter and sits in no use case.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact]
+    public void PersistenceFileIsNoAdapter()
+    {
+        const string path = "Modules/Claimwick.Spending/Infrastructure/Persistence/ExpenseRepository.cs";
+
+        Assert.False(CodeMap.IsAdapter(path));
+        Assert.Null(MapFor("Claimwick.Spending", path).UseCaseOf(path));
+    }
+
     /// <summary>Builds the code map for one compilation holding one file.</summary>
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <param name="path">The source file path.</param>

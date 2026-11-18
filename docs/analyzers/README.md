@@ -18,7 +18,7 @@ A project that claims neither layer runs no rule, and the generator writes no so
 
 ### File Layers
 
-The analyzers work out each file's layer from its top folder in the module. A file under a `Domain/`, `Application/`, `Infrastructure/`, or `WebApi/` folder takes that layer. Test files take Test.
+The analyzers work out each file's layer from its top folder in the module. A file under a `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, or `WebApi/` folder takes that layer. Test files take Test.
 
 Three assembly name suffixes name project roles: `Shop.Kernel` reads as Domain, so the business values answer the Domain rules; `Shop.Platform` reads as Infrastructure; and `Shop.Api` reads as WebApi beside the `WebApi` and `Worker` hosts. A module project such as `Shop.Orders` names no layer: each of its files takes its layer from its folder, as above.
 
@@ -30,10 +30,10 @@ Each rule runs only in the layers its provision covers:
 - `LS2001` runs on Application, Infrastructure, WebApi, and Worker files.
 - `LS2004`, `LS2005`, `LS2007`, and `LS2009` to `LS2016` run on Application, Infrastructure, and Worker files.
 - `LS2003` and `LS2006` run on WebApi files.
-- `LS2018` runs on Application and WebApi files.
+- `LS2018` runs on Application, Ports, and WebApi files.
 - `LS2019` and `LS2020` run on every layer except Test.
 - `LS2021` runs on Domain, Application, and Infrastructure files of the modules project, and `LS2022` on every layer except Test.
-- `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a use case folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test.
+- `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a port adapter folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test.
 - Style rules run in every production layer.
 - `LS4001` runs in test projects.
 - `LS5003` and `LS5004` run in every layer, checking the kinds each layer holds.

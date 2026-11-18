@@ -29,4 +29,15 @@ internal sealed class ExpenseRepository : IExpenseRepository
     {
         _session.Delete<Expense>(id);
     }
+
+    public async Task<IReadOnlyList<Guid>> SelectExpiredAsync(CancellationToken cancellationToken)
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddYears(-7);
+        return await _session.Query<Expense>()
+            .Where(expense => expense.State is ExpenseApprovedState approved && approved.DecidedAt < cutoff
+                || expense.State is ExpenseRefusedState refused && refused.DecidedAt < cutoff
+                || expense.State is ExpenseReimbursedState reimbursed && reimbursed.ReimbursedAt < cutoff)
+            .Select(expense => expense.Id)
+            .ToListAsync(cancellationToken);
+    }
 }

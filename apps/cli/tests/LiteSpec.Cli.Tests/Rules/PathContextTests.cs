@@ -69,6 +69,22 @@ public sealed class PathContextTests
         Assert.Contains("concern: application, artifact: port", result.Output);
     }
 
+    /// <summary>A port file in a module Ports folder derives the ports concern with the port artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
+    [Fact]
+    public void RulesModulePortFileDerivesPortsConcern()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Modules/Demo.Billing/Ports/PayoutBank/IPayoutBank.cs", "interface IPayoutBank;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Modules/Demo.Billing/Ports/PayoutBank/IPayoutBank.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: ports, artifact: port", result.Output);
+    }
+
     /// <summary>A command message file keeps the use-case artifact.</summary>
     /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]

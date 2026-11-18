@@ -509,7 +509,7 @@
       "path": "analyzers/rules/ls2025",
       "style": "reference",
       "area": "analyzers",
-      "title": "LS2025: Use-Case Infrastructure Names a Type Outside Its Layer",
+      "title": "LS2025: Adapter Names a Type Outside Its Layer",
       "intent": "",
       "sections": [
         "Reference",

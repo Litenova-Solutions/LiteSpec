@@ -9,8 +9,10 @@ public enum ArchitectureLayer
     None,
     /// <summary>Business rules: aggregates, state records, value objects, domain events, domain exceptions, repository contracts.</summary>
     Domain,
-    /// <summary>Use-case coordination: commands, queries, results, handlers, validators, ports, pipeline positions, module Contracts folders.</summary>
+    /// <summary>Use-case coordination: commands, queries, results, handlers, validators, pipeline positions, module Contracts folders.</summary>
     Application,
+    /// <summary>Driven ports: the interfaces the module declares for what it does not compute in memory, with the types their signatures name.</summary>
+    Ports,
     /// <summary>Technical adapters: repository implementations, mappings, module registration, store setup.</summary>
     Infrastructure,
     /// <summary>HTTP hosting: endpoints, request and response models, transport mappings, host projects.</summary>

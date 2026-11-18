@@ -14,7 +14,7 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("use-case/spending.submit-expense: ", result.Output);
@@ -61,7 +61,7 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/application#keep-command-handlers-to-load-call-and-stage:", result.Output);

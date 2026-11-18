@@ -19,6 +19,7 @@ internal sealed class CodeMap
     {
         "Domain",
         "Application",
+        "Ports",
         "Infrastructure",
         "WebApi",
         "Contracts",
@@ -34,17 +35,9 @@ internal sealed class CodeMap
     /// <summary>Application folders shared by every use case of the module, which name no use case.</summary>
     private static readonly HashSet<string> SharedApplicationFolders = new(StringComparer.Ordinal)
     {
-        "Ports",
         "Notifications",
         "ExternalSystems",
         "ReadModels",
-    };
-
-    /// <summary>Infrastructure folders shared by every use case of the module, which name no use case.</summary>
-    private static readonly HashSet<string> SharedInfrastructureFolders = new(StringComparer.Ordinal)
-    {
-        "Persistence",
-        "ExternalSystems",
     };
 
     /// <summary>Initializes a new instance of the <see cref="CodeMap"/> class.</summary>
@@ -149,9 +142,10 @@ internal sealed class CodeMap
     /// <summary>
     ///     Returns the use case key holding the file: its module folder and use case folder,
     ///     or null when the file sits in no use case folder. A file's use case is the first
-    ///     folder below Application, WebApi or Infrastructure in its module that holds files,
+    ///     folder below Application or WebApi in its module that holds files,
     ///     shared folders aside: a module-level use case sits directly below the layer folder,
     ///     while a use case of an aggregate sits below its aggregate folder, which holds none.
+    ///     Ports and Infrastructure hold shared folders only, so their files sit in no use case.
     ///     One key reads across the layers that hold the use case.
     /// </summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
@@ -201,12 +195,29 @@ internal sealed class CodeMap
             return !SharedApplicationFolders.Contains(child);
         }
 
-        if (layer.Equals("Infrastructure", StringComparison.Ordinal))
+        return layer.Equals("WebApi", StringComparison.Ordinal);
+    }
+
+    /// <summary>Returns true when the file sits in an Infrastructure adapter folder: below Infrastructure but outside Persistence; otherwise false.</summary>
+    /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
+    /// <returns>True when an adapter folder holds the file; otherwise false.</returns>
+    public static bool IsAdapter(string? filePath)
+    {
+        if (string.IsNullOrEmpty(filePath))
         {
-            return !SharedInfrastructureFolders.Contains(child);
+            return false;
         }
 
-        return layer.Equals("WebApi", StringComparison.Ordinal);
+        var segments = filePath!.Replace('\\', '/').Split('/');
+        for (var index = 0; index + 2 < segments.Length; index++)
+        {
+            if (segments[index].Equals("Infrastructure", StringComparison.Ordinal))
+            {
+                return !segments[index + 1].Equals("Persistence", StringComparison.Ordinal);
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Returns the folders holding source files directly, as forward-slash directory paths.</summary>
@@ -405,7 +416,7 @@ internal sealed class CodeMap
                     continue;
                 }
 
-                if (relative[1] is "Contracts" or "Domain" or "Application" or "Infrastructure" or "WebApi")
+                if (relative[1] is "Contracts" or "Domain" or "Application" or "Ports" or "Infrastructure" or "WebApi")
                 {
                     modules.Add(root + "/" + relative[0]);
                 }
@@ -439,6 +450,7 @@ internal sealed class CodeMap
 
         return HasChildFolder(paths, root, "Domain")
             || HasChildFolder(paths, root, "Application")
+            || HasChildFolder(paths, root, "Ports")
             || HasChildFolder(paths, root, "Infrastructure")
             || HasChildFolder(paths, root, "WebApi")
             ? root
@@ -503,7 +515,7 @@ internal sealed class CodeMap
 
     /// <summary>
     ///     Returns true when a source file sits in a product layer folder directly under the root:
-    ///     <c>Domain/</c>, <c>Application/</c>, <c>Infrastructure/</c> or <c>WebApi/</c>.
+    ///     <c>Domain/</c>, <c>Application/</c>, <c>Ports/</c>, <c>Infrastructure/</c> or <c>WebApi/</c>.
     ///     A nested <c>Contracts/</c> folder marks a module only in the modules project.
     ///     The modules project, a host, a tool or a test project holds none there.
     /// </summary>
@@ -525,7 +537,7 @@ internal sealed class CodeMap
             if (slash > 0)
             {
                 var first = rest.Substring(0, slash);
-                if (first is "Domain" or "Application" or "Infrastructure" or "WebApi")
+                if (first is "Domain" or "Application" or "Ports" or "Infrastructure" or "WebApi")
                 {
                     return true;
                 }

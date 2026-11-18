@@ -226,7 +226,7 @@ public sealed class LayerDirectionAnalyzerTests
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 stays quiet in a Domain file of the same compilation")]
-    public Task StaysQuietOutsideApplicationAndWebApi() =>
+    public Task StaysQuietOutsideApplicationPortsAndWebApi() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
                 ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
@@ -383,4 +383,116 @@ public sealed class LayerDirectionAnalyzerTests
                     """),
             ],
             assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2018 accepts an Application file naming a port.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 accepts an Application file naming a port")]
+    public Task AcceptsAnApplicationFileNamingAPort() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs", """
+                    using Claimwick.Spending.Ports.ReceiptPdf;
+
+                    namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
+
+                    internal sealed class SubmitExpenseCommandHandler
+                    {
+                        internal void Handle(IReceiptPdf pdf)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
+
+                    internal interface IReceiptPdf
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS2018 reports a WebApi file naming a port.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 reports a WebApi file naming a port")]
+    public Task ReportsAWebApiFileNamingAPort() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Spending/WebApi/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs", """
+                    using Claimwick.Spending.Ports.ReceiptPdf;
+
+                    namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
+
+                    internal sealed class SubmitExpenseEndpoint
+                    {
+                        internal void Describe({|LS2018:IReceiptPdf|} pdf)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
+
+                    internal interface IReceiptPdf
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS2018 reports a Ports file naming an Application type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 reports a Ports file naming an Application type")]
+    public Task ReportsAPortsFileNamingAnApplicationType() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    using Claimwick.Spending.Application.Expenses.SubmitExpense;
+
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
+
+                    internal interface IReceiptPdf
+                    {
+                        void Render({|LS2018:SubmitExpenseCommand|} command);
+                    }
+                    """),
+                ("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommand.cs", """
+                    namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
+
+                    internal sealed class SubmitExpenseCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS2018 accepts a Ports file naming Domain types.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 accepts a Ports file naming Domain types")]
+    public Task AcceptsAPortsFileNamingDomainTypes() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    using Claimwick.Spending.Domain.Expenses;
+
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
+
+                    internal interface IReceiptPdf
+                    {
+                        void Render(Expense expense);
+                    }
+                    """),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
+
+                    internal sealed class Expense
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
 }

@@ -353,6 +353,34 @@ public sealed class DomainOuterLayerAnalyzerTests
                     """),
             ], assemblyName: "Claimwick.Modules");
 
+    /// <summary>LS1001 reports a Domain file naming a port.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 reports a Domain file naming a port")]
+    public Task ReportsADomainFileNamingAPort() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
+                    using Claimwick.Spending.Ports.ReceiptPdf;
+
+                    namespace Claimwick.Spending.Domain.Expenses;
+
+                    internal sealed class Expense
+                    {
+                        internal void Print({|LS1001:IReceiptPdf|} pdf)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
+
+                    internal interface IReceiptPdf
+                    {
+                    }
+                    """),
+            ], assemblyName: "Claimwick.Spending");
+
     /// <summary>LS1001 accepts a typed identifier from another module's Contracts and reports a port there.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>

@@ -274,8 +274,8 @@ public sealed class FollowsCheckTests
 
                 Keep each loan as one document.
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/CommitStep.cs", """
-                namespace Library.Lending.Application.Ports;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/CommitStep.cs", """
+                namespace Library.Lending.Application.Loans.BorrowCopy;
 
                 [Follows("decision/0002-keep-loans-as-documents")]
                 internal sealed class CommitStep

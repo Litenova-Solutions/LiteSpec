@@ -39,6 +39,20 @@ public sealed class ModuleLayoutReaderTests
         Assert.Equal(CodeKind.Port, element.Kind);
     }
 
+    /// <summary>A marked interface in a module Ports folder reads as a port.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void InterfaceInPortsFolderReadsAsPort()
+    {
+        using var temp = TestCli.Temp("readers");
+        WriteModuleProject(temp.Path);
+        var code = ReadBackend(temp.Path);
+
+        var element = Assert.Single(code.Elements, element => element.Class == "IPayoutBank");
+
+        Assert.Equal(CodeKind.Port, element.Kind);
+    }
+
     /// <summary>A marked class in a Domain folder reads as a domain service.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
@@ -89,6 +103,7 @@ public sealed class ModuleLayoutReaderTests
         var config = ConsumerConfig.Load(temp.Path);
 
         Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Contracts", "Ports", "ITextGateway.cs")));
+        Assert.Equal("Ports", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Ports", "PayoutBank", "IPayoutBank.cs")));
         Assert.Equal("Domain", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Domain", "Loans", "LoanPricing.cs")));
         Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs")));
         Assert.Equal("WebApi", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "WebApi", "BorrowCopy", "BorrowCopyEndpoint.cs")));
@@ -168,6 +183,14 @@ public sealed class ModuleLayoutReaderTests
 
             /// <implements>external-system/lending.text-gateway</implements>
             public interface ITextGateway
+            {
+            }
+            """);
+        WriteSource(ProductFile(root, "Lending", "Ports", "PayoutBank", "IPayoutBank.cs"), """
+            namespace Library.Lending.Ports.PayoutBank;
+
+            /// <implements>external-system/lending.payout-bank</implements>
+            public interface IPayoutBank
             {
             }
             """);

@@ -43,6 +43,8 @@ public sealed class LayerResolverTests
     [InlineData("Domain", ArchitectureLayer.Domain)]
     [InlineData("Application.Abstractions", ArchitectureLayer.None)]
     [InlineData("applicationabstractions", ArchitectureLayer.None)]
+    [InlineData("Ports", ArchitectureLayer.Ports)]
+    [InlineData("ports", ArchitectureLayer.Ports)]
     [InlineData("WebApi", ArchitectureLayer.WebApi)]
     [InlineData("Test", ArchitectureLayer.Test)]
     [InlineData("Tests", ArchitectureLayer.Test)]
@@ -59,6 +61,8 @@ public sealed class LayerResolverTests
     [Theory]
     [InlineData("Claimwick/Organizations/Teams/Domain/Team.cs", ArchitectureLayer.Domain)]
     [InlineData("Claimwick/Organizations/Teams/Application/CreateTeam.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick/Organizations/Teams/Ports/TeamReader/ITeamReader.cs", ArchitectureLayer.Ports)]
+    [InlineData("Claimwick/Organizations/Contracts/Ports/ITeamReader.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Infrastructure/TeamRepository.cs", ArchitectureLayer.Infrastructure)]
     [InlineData("Claimwick/Organizations/Teams/WebApi/TeamLinks.cs", ArchitectureLayer.WebApi)]
     [InlineData("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", ArchitectureLayer.Application)]
@@ -111,6 +115,8 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick.Modules/Organizations/Application/Notifications/TeamRenamed/TeamRenamedText.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick.Modules/Organizations/Application/ExternalSystems/PayoutBank/PayoutBankAdapter.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick.Modules/Organizations/Application/ReadModels/ReimbursedExpenses/ReimbursedExpenseOnEmployeeReimbursedProjection.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Ports/TeamReader/ITeamReader.cs", ArchitectureLayer.Ports)]
+    [InlineData("Claimwick.Modules/Organizations/Contracts/Ports/ITeamReader.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Team.cs", ArchitectureLayer.None)]
     public void ResolvesAModuleFile(string filePath, ArchitectureLayer expected) =>
         Assert.Equal(expected, ArchitectureLayerResolver.FileLayer(filePath, "Claimwick", null));

@@ -1,3 +1,4 @@
+using Claimwick.Spending.Domain.Expenses;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Spending.Application.Expenses.ErasePersonalData;
@@ -7,17 +8,17 @@ namespace Claimwick.Spending.Application.Expenses.ErasePersonalData;
 internal sealed class EraseExpiredPersonalDataJob : BackgroundService
 {
     private readonly ICommandMediator _mediator;
-    private readonly IExpiredExpenseSelector _selector;
+    private readonly IExpenseRepository _expenses;
 
-    public EraseExpiredPersonalDataJob(ICommandMediator mediator, IExpiredExpenseSelector selector)
+    public EraseExpiredPersonalDataJob(ICommandMediator mediator, IExpenseRepository expenses)
     {
         _mediator = mediator;
-        _selector = selector;
+        _expenses = expenses;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        foreach (var expenseId in await _selector.SelectAsync(stoppingToken))
+        foreach (var expenseId in await _expenses.SelectExpiredAsync(stoppingToken))
         {
             await _mediator.SendAsync(new ErasePersonalDataCommand(expenseId), stoppingToken);
         }

@@ -193,8 +193,8 @@ public sealed class DotnetBackendReaderTests
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, Path.Combine("App", "Application", "Ports"), "LoanRepository.cs", """
-            namespace Library.App.Application.Ports;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "LoanRepository.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public sealed class LoanRepository : ILoanRepository
             {

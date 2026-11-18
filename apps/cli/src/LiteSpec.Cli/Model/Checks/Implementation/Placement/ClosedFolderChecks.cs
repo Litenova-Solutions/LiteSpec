@@ -3,12 +3,16 @@ using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Model;
 using LiteSpec.Standards;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static LiteSpec.Cli.Model.Checks.Implementation.Placement.PlacementPath;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 
-/// <summary>The closed-folder check: the Kernel, the Platform, each module project, each aggregate and use case folder, and each frontend modules root hold only their fixed folders and the folders a declared record names.</summary>
+/// <summary>The closed-folder check: the Kernel, the Platform, each module project, each aggregate and use case folder, each port folder with its adapter folder, and each frontend modules root hold only their fixed folders and the folders a declared record names.</summary>
 /// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
+/// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
 /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
 /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
 internal static class ClosedFolderChecks
@@ -19,10 +23,10 @@ internal static class ClosedFolderChecks
         "Persistence", "Messaging", "Access", "Auditing", "Http", "CountryPacks", "Modules",
     };
 
-    /// <summary>Fixed folders at a module project root, whatever its aggregates, use cases, triggers and read models declare.</summary>
+    /// <summary>Fixed folders at a module project root, whatever its aggregates, use cases, ports, triggers and read models declare.</summary>
     static readonly HashSet<string> ModuleFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Domain", "Application", "Infrastructure", "WebApi",
+        "Domain", "Application", "Ports", "Infrastructure", "WebApi",
     };
 
     /// <summary>The kind folders the module contracts hold: the sorted public surface.</summary>
@@ -37,28 +41,28 @@ internal static class ClosedFolderChecks
         "Events", "Exceptions",
     };
 
-    /// <summary>Fixed folders under a module Application folder besides its use case folders: its shared ports and trigger homes.</summary>
+    /// <summary>Fixed folders under a module Application folder besides its use case folders: its trigger homes.</summary>
     static readonly HashSet<string> ApplicationFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Ports", "Notifications", "ExternalSystems", "ReadModels",
+        "Notifications", "ExternalSystems", "ReadModels",
     };
 
-    /// <summary>Fixed folders under a module Infrastructure folder besides its use case folders: its shared adapters.</summary>
+    /// <summary>Fixed folders under a module Infrastructure folder besides its adapter folders: its persistence.</summary>
     static readonly HashSet<string> InfrastructureFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Persistence", "ExternalSystems",
+        "Persistence",
     };
 
     /// <summary>The layer folders a use case folder sits under.</summary>
     static readonly HashSet<string> UseCaseHomeLayers = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Application", "WebApi", "Infrastructure",
+        "Application", "WebApi",
     };
 
-    /// <summary>Fixed folders under a layer folder that hold no use case: the shared ports, trigger homes and persistence.</summary>
+    /// <summary>Fixed folders under a layer folder that hold no use case: the trigger homes and persistence.</summary>
     static readonly HashSet<string> FixedLayerFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Ports", "Notifications", "ExternalSystems", "ReadModels", "Persistence",
+        "Notifications", "ExternalSystems", "ReadModels", "Persistence",
     };
 
     /// <summary>The file name suffixes of transport types, which sit in a use case WebApi folder and no other.</summary>
@@ -229,6 +233,30 @@ internal static class ClosedFolderChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckModuleLevel(ConsumerConfig config, string module, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, bool nestedContracts, List<Finding> findings)
     {
+        // Each port pairs with one adapter folder of the same name, so both folder
+        // names are read before either level is checked.
+        string? ports = null;
+        string? infrastructure = null;
+
+        foreach (var child in ChildFolders(module))
+        {
+            if (string.Equals(Path.GetFileName(child), "Ports", StringComparison.OrdinalIgnoreCase))
+            {
+                ports = child;
+            }
+            else if (string.Equals(Path.GetFileName(child), "Infrastructure", StringComparison.OrdinalIgnoreCase))
+            {
+                infrastructure = child;
+            }
+        }
+
+        var portNames = ports is null
+            ? []
+            : ChildFolders(ports).Select(child => Path.GetFileName(child)).ToList();
+        var adapterNames = infrastructure is null
+            ? []
+            : ChildFolders(infrastructure).Select(child => Path.GetFileName(child)).Where(name => !InfrastructureFolders.Contains(name)).ToList();
+
         foreach (var child in ChildFolders(module))
         {
             var name = Path.GetFileName(child);
@@ -243,9 +271,13 @@ internal static class ClosedFolderChecks
                 {
                     CheckApplicationLevel(config, child, moduleName, aggregates, useCases, homes, findings);
                 }
+                else if (string.Equals(name, "Ports", StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckPortsLevel(config, child, adapterNames, findings);
+                }
                 else if (string.Equals(name, "Infrastructure", StringComparison.OrdinalIgnoreCase))
                 {
-                    CheckInfrastructureLevel(config, child, moduleName, aggregates, useCases, findings);
+                    CheckInfrastructureLevel(config, child, portNames, findings);
                 }
                 else if (string.Equals(name, "WebApi", StringComparison.OrdinalIgnoreCase))
                 {
@@ -356,15 +388,7 @@ internal static class ClosedFolderChecks
 
             if (ApplicationFolders.Contains(name))
             {
-                if (string.Equals(name, "Ports", StringComparison.OrdinalIgnoreCase))
-                {
-                    CheckUseCaseFilesOnly(config, child, "Ports", findings);
-                }
-                else
-                {
-                    CheckHomeLevel(config, child, moduleName, name, homes, findings);
-                }
-
+                CheckHomeLevel(config, child, moduleName, name, homes, findings);
                 continue;
             }
 
@@ -391,7 +415,7 @@ internal static class ClosedFolderChecks
         {
             if (owned.Count > 0)
             {
-                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Application/, which holds only one folder per aggregate and use case, Ports, Notifications, ExternalSystems and ReadModels.", file, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Application/, which holds only one folder per aggregate and use case, Notifications, ExternalSystems and ReadModels.", file, 1, null));
             }
         }
     }
@@ -439,19 +463,14 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence or ExternalSystems folder and no declared aggregate or module-level use case of the module.</summary>
+    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence folder and no port folder of the module: each adapter folder pairs with one port folder of the same name.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="infrastructure">The absolute Infrastructure folder of one module.</param>
-    /// <param name="moduleName">The module folder name as written on disk.</param>
-    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
-    /// <param name="declared">The declared use cases by module, aggregate and name.</param>
+    /// <param name="portNames">The port folder names under the module Ports folder.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckInfrastructureLevel(ConsumerConfig config, string infrastructure, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
+    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    private static void CheckInfrastructureLevel(ConsumerConfig config, string infrastructure, IReadOnlyList<string> portNames, List<Finding> findings)
     {
-        var owned = declared
-            .Where(useCase => SameName(moduleName, useCase.Module))
-            .ToList();
-
         foreach (var child in ChildFolders(infrastructure))
         {
             var name = Path.GetFileName(child);
@@ -461,12 +480,12 @@ internal static class ClosedFolderChecks
                 continue;
             }
 
-            if (CheckLayerChildFolder(config, child, "Infrastructure", moduleName, aggregates, owned, findings))
+            if (portNames.Any(port => SameName(name, port)))
             {
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Infrastructure folder.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Adapter folder '{PathText.Relative(config.Root, child)}' names no port folder; its port sits in 'Ports/{name}/'.", child, 1, null));
         }
     }
 
@@ -477,7 +496,7 @@ internal static class ClosedFolderChecks
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="child">The absolute child folder under the layer folder.</param>
-    /// <param name="layer">The layer folder holding the child: Application, WebApi or Infrastructure.</param>
+    /// <param name="layer">The layer folder holding the child: Application or WebApi.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
     /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="owned">The declared use cases of the module.</param>
@@ -539,7 +558,7 @@ internal static class ClosedFolderChecks
     /// <param name="aggregate">The absolute aggregate folder under the layer folder.</param>
     /// <param name="name">The aggregate folder name as written on disk.</param>
     /// <param name="under">The declared use case names under the aggregate.</param>
-    /// <param name="layer">The layer folder holding the aggregate folder: Application, WebApi or Infrastructure.</param>
+    /// <param name="layer">The layer folder holding the aggregate folder: Application or WebApi.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckAggregateUseCaseLevel(ConsumerConfig config, string aggregate, string name, IReadOnlyList<string> under, string layer, List<Finding> findings)
     {
@@ -619,10 +638,300 @@ internal static class ClosedFolderChecks
         }
     }
 
+    /// <summary>
+    ///     Reports every file directly in a module Ports folder, which holds only one folder
+    ///     per port, every port folder with no adapter folder of the same name, and checks
+    ///     each port folder for its interface and named types.
+    /// </summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="ports">The absolute Ports folder of one module.</param>
+    /// <param name="adapterNames">The adapter folder names under the module Infrastructure folder, without Persistence.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    private static void CheckPortsLevel(ConsumerConfig config, string ports, IReadOnlyList<string> adapterNames, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(ports))
+        {
+            CheckPortFolder(config, child, findings);
+
+            var name = Path.GetFileName(child);
+
+            if (!adapterNames.Any(adapter => SameName(name, adapter)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Port folder '{PathText.Relative(config.Root, child)}' names no adapter folder; its adapter sits in 'Infrastructure/{name}/'.", child, 1, null));
+            }
+        }
+
+        foreach (var file in ChildFiles(ports))
+        {
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Ports/, which holds only one folder per port.", file, 1, null));
+        }
+    }
+
+    /// <summary>
+    ///     Reports the shape of one port folder: no interface or more than one, an interface
+    ///     whose name is not the folder name with an I prefix, and a type no member signature of the
+    ///     interface names, directly or through one named type. A port folder holds files only.
+    /// </summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="port">The absolute port folder under Ports.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    private static void CheckPortFolder(ConsumerConfig config, string port, List<Finding> findings)
+    {
+        CheckUseCaseFilesOnly(config, port, "port", findings);
+
+        var name = Path.GetFileName(port);
+        var relative = PathText.Relative(config.Root, port);
+        var types = PortTypesOf(port);
+        var faces = types.Where(type => type.IsInterface).OrderBy(type => type.Name, StringComparer.Ordinal).ToList();
+
+        if (faces.Count == 0)
+        {
+            findings.Add(new Finding("code-placement-drift", $"Port folder '{relative}' holds no interface; it holds the interface 'I{name}' and only the types its signatures name.", port, 1, null));
+            return;
+        }
+
+        if (faces.Count > 1)
+        {
+            var held = string.Join(", ", faces.Select(face => $"'{face.Name}'"));
+            findings.Add(new Finding("code-placement-drift", $"Port folder '{relative}' holds {faces.Count} interfaces ({held}); it holds only the interface 'I{name}' and only the types its signatures name.", port, 1, null));
+            return;
+        }
+
+        var face = faces[0];
+
+        if (!string.Equals(face.Name, "I" + name, StringComparison.OrdinalIgnoreCase))
+        {
+            findings.Add(new Finding("code-placement-drift", $"Interface '{face.Name}' sits in port folder '{relative}', whose interface is 'I{name}'.", face.File, face.Line, null));
+        }
+
+        // A named type keeps its own parts: the check follows the interface signatures one level
+        // into the types they name, so a result part the interface names only through its result stays.
+        // Only the interface's own names open the second level; names found there open no third.
+        var direct = new HashSet<string>(face.SignatureNames, StringComparer.Ordinal);
+        var named = new HashSet<string>(direct, StringComparer.Ordinal);
+
+        foreach (var type in types)
+        {
+            if (!type.IsInterface && direct.Contains(type.Name))
+            {
+                named.UnionWith(type.SignatureNames);
+            }
+        }
+
+        foreach (var type in types)
+        {
+            if (!type.IsInterface && !named.Contains(type.Name))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Type '{type.Name}' in port folder '{relative}' is named by no signature of '{face.Name}'; move it to Domain/{{Aggregates}}/ or the use case folder that uses it.", type.File, type.Line, null));
+            }
+        }
+    }
+
+    /// <summary>One top-level type declared in a port folder: its name, file, line, whether it is an interface, and the simple type names its member signatures name.</summary>
+    /// <param name="Name">The simple type name as declared.</param>
+    /// <param name="File">The file declaring the type.</param>
+    /// <param name="Line">The 1-based line of the type name.</param>
+    /// <param name="IsInterface">Whether the declaration is an interface.</param>
+    /// <param name="SignatureNames">The simple type names its members name: parameter and return types with their type arguments, then property, field and event types.</param>
+    sealed record PortDeclaredType(string Name, string File, int Line, bool IsInterface, HashSet<string> SignatureNames);
+
+    /// <summary>The top-level types each C# file directly in a port folder declares, in file order, with the simple type names each member signature names.</summary>
+    /// <param name="port">The absolute port folder under Ports.</param>
+    /// <returns>The declared types in file order, each with its signature names; a file that cannot be read reads as empty.</returns>
+    private static List<PortDeclaredType> PortTypesOf(string port)
+    {
+        var types = new List<PortDeclaredType>();
+
+        foreach (var file in ChildFiles(port))
+        {
+            if (!file.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            SyntaxTree tree;
+
+            try
+            {
+                if (!File.Exists(file))
+                {
+                    continue;
+                }
+
+                tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file));
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            var root = tree.GetRoot();
+
+            foreach (var declared in root.DescendantNodes().OfType<MemberDeclarationSyntax>())
+            {
+                if (declared is not TypeDeclarationSyntax and not EnumDeclarationSyntax and not DelegateDeclarationSyntax)
+                {
+                    continue;
+                }
+
+                if (declared.Parent is TypeDeclarationSyntax)
+                {
+                    continue;
+                }
+
+                // A C# 14 extension block is a type declaration with no name, so it names no type.
+                if (declared is TypeDeclarationSyntax extension
+                    && (extension.Identifier.IsMissing || extension.Identifier.Span.Length == 0))
+                {
+                    continue;
+                }
+
+                var names = new HashSet<string>(StringComparer.Ordinal);
+
+                if (declared is TypeDeclarationSyntax type)
+                {
+                    if (type.ParameterList is not null)
+                    {
+                        foreach (var parameter in type.ParameterList.Parameters)
+                        {
+                            AddSignatureNames(parameter.Type, names);
+                        }
+                    }
+
+                    foreach (var member in type.Members)
+                    {
+                        AddMemberNames(member, names);
+                    }
+                }
+                else if (declared is DelegateDeclarationSyntax delegateType)
+                {
+                    AddSignatureNames(delegateType.ReturnType, names);
+
+                    foreach (var parameter in delegateType.ParameterList.Parameters)
+                    {
+                        AddSignatureNames(parameter.Type, names);
+                    }
+                }
+
+                var identifier = declared switch
+                {
+                    TypeDeclarationSyntax named => named.Identifier,
+                    EnumDeclarationSyntax named => named.Identifier,
+                    DelegateDeclarationSyntax named => named.Identifier,
+                    _ => default,
+                };
+                var line = tree.GetLineSpan(identifier.Span).StartLinePosition.Line + 1;
+                types.Add(new PortDeclaredType(identifier.ValueText, file, line, declared is InterfaceDeclarationSyntax, names));
+            }
+        }
+
+        return types;
+    }
+
+    /// <summary>Adds the simple type names one member signature names: a method's return and parameter types, a property, field or event type, or an indexer's type and parameter types.</summary>
+    /// <param name="member">The member whose signature is read.</param>
+    /// <param name="names">The names collected so far.</param>
+    private static void AddMemberNames(MemberDeclarationSyntax member, HashSet<string> names)
+    {
+        switch (member)
+        {
+            case MethodDeclarationSyntax method:
+                AddSignatureNames(method.ReturnType, names);
+
+                foreach (var parameter in method.ParameterList.Parameters)
+                {
+                    AddSignatureNames(parameter.Type, names);
+                }
+
+                break;
+            case PropertyDeclarationSyntax property:
+                AddSignatureNames(property.Type, names);
+                break;
+            case FieldDeclarationSyntax field:
+                AddSignatureNames(field.Declaration.Type, names);
+                break;
+            case EventFieldDeclarationSyntax fieldEvent:
+                AddSignatureNames(fieldEvent.Declaration.Type, names);
+                break;
+            case EventDeclarationSyntax declaredEvent:
+                AddSignatureNames(declaredEvent.Type, names);
+                break;
+            case IndexerDeclarationSyntax indexer:
+                AddSignatureNames(indexer.Type, names);
+
+                foreach (var parameter in indexer.ParameterList.Parameters)
+                {
+                    AddSignatureNames(parameter.Type, names);
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    /// <summary>Adds the simple names one type use states: its own name with each nested type argument name, unqualified and without nullability or array ranks.</summary>
+    /// <param name="type">The type syntax as written, or null when the signature states none.</param>
+    /// <param name="names">The names collected so far.</param>
+    private static void AddSignatureNames(TypeSyntax? type, HashSet<string> names)
+    {
+        switch (type)
+        {
+            case null:
+                break;
+            case IdentifierNameSyntax plain:
+                names.Add(plain.Identifier.ValueText);
+                break;
+            case GenericNameSyntax generic:
+                names.Add(generic.Identifier.ValueText);
+
+                foreach (var argument in generic.TypeArgumentList.Arguments)
+                {
+                    AddSignatureNames(argument, names);
+                }
+
+                break;
+            case QualifiedNameSyntax qualified:
+                AddSignatureNames(qualified.Right, names);
+                break;
+            case AliasQualifiedNameSyntax alias:
+                AddSignatureNames(alias.Name, names);
+                break;
+            case NullableTypeSyntax nullable:
+                AddSignatureNames(nullable.ElementType, names);
+                break;
+            case ArrayTypeSyntax array:
+                AddSignatureNames(array.ElementType, names);
+                break;
+            case TupleTypeSyntax tuple:
+                foreach (var element in tuple.Elements)
+                {
+                    AddSignatureNames(element.Type, names);
+                }
+
+                break;
+            case PointerTypeSyntax pointer:
+                AddSignatureNames(pointer.ElementType, names);
+                break;
+            case FunctionPointerTypeSyntax pointer:
+                // The last function pointer parameter states the return type.
+                foreach (var parameter in pointer.ParameterList.Parameters)
+                {
+                    AddSignatureNames(parameter.Type, names);
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
+
     /// <summary>Reports every subfolder under a folder that holds files only.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="folder">The absolute folder that holds files only.</param>
-    /// <param name="kind">The folder kind as printed: use case, Ports, Notifications, ExternalSystems or ReadModels.</param>
+    /// <param name="kind">The folder kind as printed: use case, port, Notifications, ExternalSystems or ReadModels.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseFilesOnly(ConsumerConfig config, string folder, string kind, List<Finding> findings)
     {
@@ -635,13 +944,13 @@ internal static class ClosedFolderChecks
     /// <summary>
     ///     Reports the layout of one use case folder: any subfolder, and each file that sits in the
     ///     wrong layer. A transport type, such as an endpoint or a request or response model, belongs
-    ///     in WebApi, and every other file belongs in Application or in Infrastructure for the use
-    ///     case's own adapters. The folder decides what a model or row is: beside the endpoint it
-    ///     shapes the wire contract, while in Application it is a result part the query projects.
+    ///     in WebApi, and every other file belongs in Application. The folder decides what a model or
+    ///     row is: beside the endpoint it shapes the wire contract, while in Application it is a
+    ///     result part the query projects.
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
-    /// <param name="useCase">The absolute use case folder under Application, WebApi or Infrastructure.</param>
-    /// <param name="layer">The layer folder holding the use case folder: Application, WebApi or Infrastructure.</param>
+    /// <param name="useCase">The absolute use case folder under Application or WebApi.</param>
+    /// <param name="layer">The layer folder holding the use case folder: Application or WebApi.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
     private static void CheckUseCaseFolder(ConsumerConfig config, string useCase, string layer, List<Finding> findings)
@@ -652,13 +961,13 @@ internal static class ClosedFolderChecks
 
     /// <summary>
     ///     Reports each file in a use case folder that sits in the wrong layer: a transport type, such as an
-    ///     endpoint or a request or response model, belongs in WebApi, and every other file belongs in Application
-    ///     or in Infrastructure for the use case's own adapters. The folder decides what a model or row is: beside the
-    ///     endpoint it shapes the wire contract, while in Application it is a result part the query projects.
+    ///     endpoint or a request or response model, belongs in WebApi, and every other file belongs in
+    ///     Application. The folder decides what a model or row is: beside the endpoint it shapes the wire
+    ///     contract, while in Application it is a result part the query projects.
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
-    /// <param name="useCase">The use case folder under Application, WebApi or Infrastructure.</param>
-    /// <param name="layer">The layer folder holding the use case folder: Application, WebApi or Infrastructure.</param>
+    /// <param name="useCase">The use case folder under Application or WebApi.</param>
+    /// <param name="layer">The layer folder holding the use case folder: Application or WebApi.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
     private static void CheckTransportFiles(ConsumerConfig config, string useCase, string layer, List<Finding> findings)
@@ -875,7 +1184,7 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Whether a module-relative path sits in a use case folder under Application, WebApi or Infrastructure.</summary>
+    /// <summary>Whether a module-relative path sits in a use case folder under Application or WebApi.</summary>
     /// <param name="segments">The module-relative path segments, with the file name last.</param>
     /// <returns>True when a layer folder names a use case folder that holds the file.</returns>
     private static bool InsideUseCase(string[] segments)

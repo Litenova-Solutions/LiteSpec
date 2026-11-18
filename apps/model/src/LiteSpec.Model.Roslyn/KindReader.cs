@@ -503,24 +503,24 @@ public static class KindReader
     private static bool HasJobName(string name) =>
         name.EndsWith("Job", StringComparison.Ordinal) || name.EndsWith("Worker", StringComparison.Ordinal);
 
-    /// <summary>Whether the declaration is a port: a marked interface in an application or infrastructure layer.</summary>
+    /// <summary>Whether the declaration is a port: a marked interface in an application, ports or infrastructure layer.</summary>
     /// <param name="type">The type declaration.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
     /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a port.</returns>
     private static bool IsPort(TypeDeclarationSyntax type, string? containingProject, string? containingLayer) =>
         type is InterfaceDeclarationSyntax
-        && ProjectMatches(containingProject, containingLayer, "Application", "Infrastructure")
+        && ProjectMatches(containingProject, containingLayer, "Application", "Ports", "Infrastructure")
         && HasExternalSystemMark(type);
 
-    /// <summary>Whether the symbol is a port: a marked interface in an application or infrastructure layer.</summary>
+    /// <summary>Whether the symbol is a port: a marked interface in an application, ports or infrastructure layer.</summary>
     /// <param name="type">The type symbol.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
     /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a port.</returns>
     private static bool IsPort(INamedTypeSymbol type, string? containingProject, string? containingLayer) =>
         type.TypeKind == TypeKind.Interface
-        && ProjectMatches(containingProject, containingLayer, "Application", "Infrastructure")
+        && ProjectMatches(containingProject, containingLayer, "Application", "Ports", "Infrastructure")
         && HasExternalSystemMark(type);
 
     /// <summary>Whether the declaration is a domain service: a marked class in the domain project.</summary>

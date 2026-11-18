@@ -24,19 +24,19 @@ public sealed class UseCaseInfrastructureAnalyzerTests
         }
         """;
 
-    /// <summary>LS2025 reports a use case adapter naming a Domain type.</summary>
+    /// <summary>LS2025 reports an adapter naming a Domain type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2025 reports a use case adapter naming a Domain type")]
-    public Task ReportsAUseCaseAdapterNamingADomainType() =>
+    [Fact(DisplayName = "LS2025 reports an adapter naming a Domain type")]
+    public Task ReportsAnAdapterNamingADomainType() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
             [
                 ("Claimwick.Export/Domain/Stubs.cs", Stubs),
                 ("Claimwick.Export/Domain/Workspaces/Workspace.cs", Root),
-                ("Claimwick.Export/Infrastructure/Workspaces/ExportWorkspace/WorkspaceArchiveWriter.cs", """
+                ("Claimwick.Export/Infrastructure/WorkspaceArchive/WorkspaceArchiveWriter.cs", """
                     using Claimwick.Export.Domain.Workspaces;
 
-                    namespace Claimwick.Export.Infrastructure.Workspaces.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.WorkspaceArchive;
 
                     internal sealed class WorkspaceArchiveWriter
                     {
@@ -48,11 +48,11 @@ public sealed class UseCaseInfrastructureAnalyzerTests
             ],
             assemblyName: "Claimwick.Export");
 
-    /// <summary>LS2025 reports a use case adapter naming a WebApi type.</summary>
+    /// <summary>LS2025 reports an adapter naming a WebApi type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2025 reports a use case adapter naming a WebApi type")]
-    public Task ReportsAUseCaseAdapterNamingAWebApiType() =>
+    [Fact(DisplayName = "LS2025 reports an adapter naming a WebApi type")]
+    public Task ReportsAnAdapterNamingAWebApiType() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
             [
                 ("Claimwick.Export/Domain/Stubs.cs", Stubs),
@@ -63,10 +63,10 @@ public sealed class UseCaseInfrastructureAnalyzerTests
                     {
                     }
                     """),
-                ("Claimwick.Export/Infrastructure/Workspaces/ExportWorkspace/WorkspaceArchiveWriter.cs", """
+                ("Claimwick.Export/Infrastructure/WorkspaceArchive/WorkspaceArchiveWriter.cs", """
                     using Claimwick.Export.WebApi.Workspaces.ExportWorkspace;
 
-                    namespace Claimwick.Export.Infrastructure.Workspaces.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.WorkspaceArchive;
 
                     internal sealed class WorkspaceArchiveWriter
                     {
@@ -78,10 +78,10 @@ public sealed class UseCaseInfrastructureAnalyzerTests
             ],
             assemblyName: "Claimwick.Export");
 
-    /// <summary>LS2025 accepts a use case adapter naming identifiers and shared values.</summary>
+    /// <summary>LS2025 accepts an adapter naming identifiers and shared values.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2025 accepts a use case adapter naming identifiers and shared values")]
+    [Fact(DisplayName = "LS2025 accepts an adapter naming identifiers and shared values")]
     public Task AcceptsIdentifiersAndSharedValues() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
             [
@@ -93,17 +93,43 @@ public sealed class UseCaseInfrastructureAnalyzerTests
                     {
                     }
                     """),
-                ("Claimwick.Export/Infrastructure/Workspaces/ExportWorkspace/WorkspaceArchiveWriter.cs", """
+                ("Claimwick.Export/Infrastructure/WorkspaceArchive/WorkspaceArchiveWriter.cs", """
                     using Claimwick.Export.Domain;
                     using Claimwick.Shared;
 
-                    namespace Claimwick.Export.Infrastructure.Workspaces.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.WorkspaceArchive;
 
                     internal sealed class WorkspaceArchiveWriter
                     {
                         internal void Write(WorkspaceId id, Money total)
                         {
                         }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Export");
+
+    /// <summary>LS2025 accepts an adapter naming its port.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2025 accepts an adapter naming its port")]
+    public Task AcceptsAnAdapterNamingItsPort() =>
+        Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
+            [
+                ("Claimwick.Export/Ports/WorkspaceArchive/IWorkspaceArchive.cs", """
+                    namespace Claimwick.Export.Ports.WorkspaceArchive;
+
+                    internal interface IWorkspaceArchive
+                    {
+                    }
+                    """),
+                ("Claimwick.Export/Infrastructure/WorkspaceArchive/WorkspaceArchiveWriter.cs", """
+                    using Claimwick.Export.Ports.WorkspaceArchive;
+
+                    namespace Claimwick.Export.Infrastructure.WorkspaceArchive;
+
+                    internal sealed class WorkspaceArchiveWriter : IWorkspaceArchive
+                    {
                     }
                     """),
             ],

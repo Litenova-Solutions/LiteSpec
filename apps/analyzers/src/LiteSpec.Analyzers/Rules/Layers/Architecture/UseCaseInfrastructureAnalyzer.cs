@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
-/// <summary>LS2025: a use case's Infrastructure folder names no Domain type outside identifiers and shared values, and no WebApi type.</summary>
+/// <summary>LS2025: an Infrastructure adapter names no Domain type outside identifiers and shared values, and no WebApi type.</summary>
 /// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
@@ -42,7 +42,7 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
     private static void AnalyzeName(SyntaxNodeAnalysisContext context, FileScope scope, CodeMap map)
     {
         var node = (SimpleNameSyntax)context.Node;
-        if (!scope.AppliesTo(node.SyntaxTree) || map.UseCaseOf(node.SyntaxTree.FilePath) is null)
+        if (!scope.AppliesTo(node.SyntaxTree) || !CodeMap.IsAdapter(node.SyntaxTree.FilePath))
         {
             return;
         }
@@ -57,13 +57,14 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
         context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS2025, node.Identifier.GetLocation(), name, reason));
     }
 
-    /// <summary>Returns why the use case Infrastructure may not name the type, or null when it may.</summary>
+    /// <summary>Returns why the adapter may not name the type, or null when it may.</summary>
     /// <param name="type">The type under inspection.</param>
     /// <param name="map">The architectural home of every source file.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <returns>The reason clause, or null when the layer may name the type.</returns>
     private static string? ViolationOf(INamedTypeSymbol type, CodeMap map, Compilation compilation)
     {
+        // The adapter implements its port, so a Ports type stays allowed beside Application and library types.
         var target = map.ReferencedLayer(type, compilation);
         if (target == ArchitectureLayer.WebApi)
         {

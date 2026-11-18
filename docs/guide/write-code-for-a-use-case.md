@@ -16,7 +16,7 @@ Start with:
 
 ### Place Each Element in Its Folder
 
-Each layer folder holds one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint, and `Infrastructure/{Aggregates}/{UseCase}/` when the use case has its own port. A module-level use case drops the aggregate segment in each. Put each file of the use case in one of the three, in the folder the table names, with the mark the table names. A row with no mark is placed by its folder alone.
+`Application/` and `WebApi/` each hold one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, and `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint. A module-level use case drops the aggregate segment in each. Every port of the module lives in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`. Put each file of the use case in the folder the table names, with the mark the table names. A row with no mark is placed by its folder alone.
 
 | Element | Goes In | Mark | Checked By |
 |:---|:---|:---|:---|
@@ -35,8 +35,8 @@ Each layer folder holds one plural aggregate folder with one folder per use case
 | Reaction handler class | The `Application/{Aggregates}/{UseCase}/` folder when the reaction runs a use case; otherwise the `Application/Notifications/<Name>/` folder when it sends a notification, or `Application/ExternalSystems/<Name>/` when it calls one | `implements` naming `reaction/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Scheduled job | The `Application/{Aggregates}/{UseCase}/` folder of the use case the job runs | `implements` naming `job/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Integration event | The module `Contracts/IntegrationEvents/` folder | `implements` naming `integration-event/<name>` | See the [finding table](../tools/model.md) |
-| External-system port | The `Application/{Aggregates}/{UseCase}/` folder when one use case calls it, the module `Application/Ports/` folder when several use cases of the module call it, or the owning module `Contracts/Ports/` folder when called from another module | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
-| Use case adapter | The `Infrastructure/{Aggregates}/{UseCase}/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
+| External-system port | The module `Ports/{Port}/` folder, or the owning module `Contracts/Ports/` folder when called from another module | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
+| Port adapter | The module `Infrastructure/{Port}/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
 | Read-model reader or projection | The `Application/ReadModels/<ReadModelPlural>/` folder | `implements` naming `read-model/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Test | The test suite for its boundary, mirroring the module tree | `proves` naming `scenario/<use-case>.<name>` | See the [finding table](../tools/model.md) |
 

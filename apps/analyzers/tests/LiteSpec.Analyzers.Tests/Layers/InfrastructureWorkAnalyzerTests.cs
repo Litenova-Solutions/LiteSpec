@@ -57,10 +57,10 @@ public sealed class InfrastructureWorkAnalyzerTests
     public Task StaysSilentInAnInfrastructureFile() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
             [
-                ("Claimwick.Export/Infrastructure/ExportWorkspace/WorkspaceArchiveWriter.cs", """
+                ("Claimwick.Export/Infrastructure/WorkspaceArchive/WorkspaceArchiveWriter.cs", """
                     using System.IO.Compression;
 
-                    namespace Claimwick.Export.Infrastructure.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.WorkspaceArchive;
 
                     internal sealed class WorkspaceArchiveWriter
                     {

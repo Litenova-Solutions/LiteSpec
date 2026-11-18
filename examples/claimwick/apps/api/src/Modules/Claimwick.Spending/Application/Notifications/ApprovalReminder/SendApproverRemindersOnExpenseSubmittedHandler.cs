@@ -1,4 +1,5 @@
 using Claimwick.Spending.Domain.Expenses.Events;
+using Claimwick.Spending.Ports.EmailMessenger;
 
 namespace Claimwick.Spending.Application.Notifications.ApprovalReminder;
 

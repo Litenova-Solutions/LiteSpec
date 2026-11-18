@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
-/// <summary>LS2018: an Application or WebApi file names no type outside its layer.</summary>
+/// <summary>LS2018: an Application, Ports or WebApi file names no type outside its layer.</summary>
 /// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LayerDirectionAnalyzer : LayerAnalyzer
@@ -22,7 +22,7 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(ArchitectureLayer layer) =>
-        layer == ArchitectureLayer.Application || layer == ArchitectureLayer.WebApi;
+        layer == ArchitectureLayer.Application || layer == ArchitectureLayer.Ports || layer == ArchitectureLayer.WebApi;
 
     /// <summary>
     ///     Registers the analysis actions for the layer direction analyzer rule with the compilation
@@ -56,7 +56,8 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
             return;
         }
 
-        if (map.ReferencedLayer(type, context.Compilation) == ArchitectureLayer.Infrastructure
+        if ((source == ArchitectureLayer.Application || source == ArchitectureLayer.WebApi)
+            && map.ReferencedLayer(type, context.Compilation) == ArchitectureLayer.Infrastructure
             && IsAggregateDocument(type, context.Compilation))
         {
             reason += ". Query the aggregate type through IQuerySession instead of naming the Infrastructure document type.";
@@ -80,10 +81,37 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
                 return null;
             }
 
+            // Application calls the module ports, so a Ports type stays allowed beside Domain and Application types.
             var layer = map.ReferencedLayer(type, compilation);
             if (layer == ArchitectureLayer.Infrastructure || layer == ArchitectureLayer.WebApi)
             {
                 return "which lives in the " + layer + " layer";
+            }
+
+            if (type.Name.Equals("HttpContext", StringComparison.Ordinal))
+            {
+                return "which is an HttpContext";
+            }
+
+            if (IsAspNetCore(type.ContainingNamespace))
+            {
+                return "which is an ASP.NET Core type";
+            }
+
+            return null;
+        }
+
+        if (source == ArchitectureLayer.Ports)
+        {
+            if (IsPlatform(type))
+            {
+                return null;
+            }
+
+            var portLayer = map.ReferencedLayer(type, compilation);
+            if (portLayer == ArchitectureLayer.Application || portLayer == ArchitectureLayer.Infrastructure || portLayer == ArchitectureLayer.WebApi)
+            {
+                return "which lives in the " + portLayer + " layer";
             }
 
             if (type.Name.Equals("HttpContext", StringComparison.Ordinal))
@@ -111,9 +139,9 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
         }
 
         var target = map.ReferencedLayer(type, compilation);
-        if (target == ArchitectureLayer.Infrastructure)
+        if (target == ArchitectureLayer.Infrastructure || target == ArchitectureLayer.Ports)
         {
-            return "which lives in the Infrastructure layer";
+            return "which lives in the " + target + " layer";
         }
 
         if (target == ArchitectureLayer.Domain && !IsIdentifier(type) && !IsSharedKernel(type, map, compilation))

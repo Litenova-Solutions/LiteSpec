@@ -11,4 +11,7 @@ internal interface IExpenseRepository
 
     /// <summary>Deletes one expense with the personal data it holds.</summary>
     void Delete(Guid id);
+
+    /// <summary>Selects the identities of the decided expenses past their retention.</summary>
+    Task<IReadOnlyList<Guid>> SelectExpiredAsync(CancellationToken cancellationToken);
 }

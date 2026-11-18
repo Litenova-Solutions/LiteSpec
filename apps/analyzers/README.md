@@ -13,7 +13,7 @@ You maintain the Roslyn analyzers when you add a rule, change what a rule report
 The package reports 55 diagnostics in five categories:
 
 - `LiteSpec.Domain` (`LS1001` to `LS1016`) covers Domain only, except `LS1014`, which covers every production layer.
-- `LiteSpec.Layers` (`LS2001` and `LS2003` to `LS2028`) covers Application, Infrastructure, WebApi, and Worker as each rule states.
+- `LiteSpec.Layers` (`LS2001` and `LS2003` to `LS2028`) covers Application, Ports, Infrastructure, WebApi, and Worker as each rule states.
 - `LiteSpec.Style` (`LS3001` to `LS3005`) covers production files, and `LiteSpec.Tests` (`LS4001`) covers test files only.
 - `LiteSpec.Traceability` (`LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013`) covers every layer as each rule states.
 
@@ -71,7 +71,7 @@ Add the package to a consumer project, or once in `Directory.Build.props`, follo
 | `src/LiteSpec.Analyzers/Generation/GeneratorDiagnostics.cs` | The generator diagnostics for `LS5009`, `LS5012`, and `LS5013` (four descriptors: the permission and role forms of `LS5009`, `LS5012`, and the non-virtual base `Code` of `LS5013`) with IDs, messages, provisions, and help links. |
 | `src/LiteSpec.Analyzers/Rules/Provision.cs` | Provision IDs and help links, pinned to release `7.0.0`. |
 | `src/LiteSpec.Analyzers/Rules/Domain/` | 14 analyzers for `LS1001` to `LS1016`. |
-| `src/LiteSpec.Analyzers/Rules/Layers/` | 25 analyzers for `LS2001` and `LS2003` to `LS2028`, by the page each cites: `Application/` (handlers, the command pipeline, repositories, the message and event mediators, message definitions, infrastructure work), `Architecture/` (layer direction, module and use case boundaries, controllers, visibility, platform ownership, use case infrastructure, duplicate models), and `Naming/` (the naming rules). |
+| `src/LiteSpec.Analyzers/Rules/Layers/` | 25 analyzers for `LS2001` and `LS2003` to `LS2028`, by the page each cites: `Application/` (handlers, the command pipeline, repositories, the message and event mediators, message definitions, infrastructure work), `Architecture/` (layer direction, module and use case boundaries, controllers, visibility, platform ownership, adapters, duplicate models), and `Naming/` (the naming rules). |
 | `src/LiteSpec.Analyzers/Rules/Style/` | 4 analyzers for `LS3001` to `LS3005`. |
 | `src/LiteSpec.Analyzers/Rules/Tests/` | 1 analyzer for `LS4001`. |
 | `src/LiteSpec.Analyzers/Rules/Traceability/` | 4 analyzers for `LS5003` to `LS5006`. |
@@ -92,7 +92,7 @@ A rule outside its layer registers nothing and costs nothing.
 
 The generator lives outside this flow. `LiteSpecGenerator` implements `IIncrementalGenerator` and writes its sources through `GeneratedSourceWriter.Execute`, which stays silent in the shared kernel and writes the full surface for a module project. A host sees the registry, the permissions, and the roles through its module project, so it generates none of its own.
 
-The resolver reads each file: the nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`), a sibling `{Product}.{Module}.Contracts` project counting as `Application` for its owner module, or the file's role suffix. A file's layer is its top folder in the module, and its use case is the next folder. The assembly name suffix places only hosts, the kernel, the platform, and test projects: `Shop.WebApi` and `Shop.Api` mean WebApi, `Shop.Worker` means Worker, `Shop.Kernel` means Domain, `Shop.Platform` means Infrastructure, and `Shop.Domain.Tests` means Test. A module project names no layer, so each of its files takes its layer from its folder. The suffix check matches a full name or a dot segment, which leaves `Shop.DomainTests` resolving to `None` with no rule running there. A host file with neither signal takes its layer from the assembly, and a file the rules cannot place stays silent.
+The resolver reads each file: the nearest layer folder (`Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`), a sibling `{Product}.{Module}.Contracts` project counting as `Application` for its owner module, or the file's role suffix. A file's layer is its top folder in the module. A file under `Application/` or `WebApi/` takes its use case from the next folder; `Ports/` and `Infrastructure/` hold shared folders only. The assembly name suffix places only hosts, the kernel, the platform, and test projects: `Shop.WebApi` and `Shop.Api` mean WebApi, `Shop.Worker` means Worker, `Shop.Kernel` means Domain, `Shop.Platform` means Infrastructure, and `Shop.Domain.Tests` means Test. A module project names no layer, so each of its files takes its layer from its folder. The suffix check matches a full name or a dot segment, which leaves `Shop.DomainTests` resolving to `None` with no rule running there. A host file with neither signal takes its layer from the assembly, and a file the rules cannot place stays silent.
 
 | Rule | Analyzer class | Layer |
 |:---|:---|:---|
@@ -124,7 +124,7 @@ The resolver reads each file: the nearest layer folder (`Domain/`, `Application/
 | `LS2014` | `FindOrCreateAnalyzer` | Application, Infrastructure, Worker |
 | `LS2015` | `HandlerLoopWriteAnalyzer` | Application, Infrastructure, Worker |
 | `LS2016` | `PipelineOwnedDependencyAnalyzer` | Application, Infrastructure, Worker |
-| `LS2018` | `LayerDirectionAnalyzer` | Application, WebApi |
+| `LS2018` | `LayerDirectionAnalyzer` | Application, Ports, WebApi |
 | `LS2019` | `UseCaseIsolationAnalyzer` | Every layer |
 | `LS2020` | `ModuleBoundaryAnalyzer` | Every layer |
 | `LS2021` | `MessageSentOutsideEntryPointAnalyzer` | Domain, Application, Infrastructure |

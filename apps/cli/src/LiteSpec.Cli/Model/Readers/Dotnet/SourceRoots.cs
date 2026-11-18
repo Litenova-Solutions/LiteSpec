@@ -11,7 +11,7 @@ static class SourceRoots
     /// <summary>Layer folders that state the layer of the files under them: the top folder of a file in its module.</summary>
     static readonly HashSet<string> LayerFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Domain", "Application", "Infrastructure", "WebApi",
+        "Domain", "Application", "Ports", "Infrastructure", "WebApi",
     };
 
     /// <summary>Module-level folders that state no layer: the public surface and the record homes they mirror. A notification, external system or read model folder keeps its child, which names the record.</summary>
@@ -151,6 +151,7 @@ static class SourceRoots
         {
             ArchitectureLayer.Domain => "Domain",
             ArchitectureLayer.Application => "Application",
+            ArchitectureLayer.Ports => "Ports",
             ArchitectureLayer.Infrastructure => "Infrastructure",
             ArchitectureLayer.WebApi => "WebApi",
             ArchitectureLayer.Worker => "Worker",

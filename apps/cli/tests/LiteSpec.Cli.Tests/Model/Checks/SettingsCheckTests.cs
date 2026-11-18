@@ -197,9 +197,9 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("hold-ready-reader", "A hold is ready.", "Hello, a hold is ready.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unimplemented", "notification/lending.loan-due");
@@ -216,9 +216,9 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due.", "Hello, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -234,7 +234,7 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unimplemented", "MessageTemplates.cs");
@@ -267,10 +267,10 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due.", "Hello, your loan ends soon."),
             ("hold-ready-reader", "A hold is ready.", "Hello, a hold is ready.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unrecorded", "MessageTemplates.cs");
@@ -287,9 +287,9 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs", PairFormStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", PairFormStore(
             ("loan-due-reader", "Hello, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -305,9 +305,9 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader", "readerName", "dueDate"));
-        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-param-drift", "dueDate");
@@ -324,9 +324,9 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader", "readerName"));
-        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -341,8 +341,8 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "none", "readerName"));
-        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs", TemplateStore());
-        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MessageTemplates.cs");
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore());
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
