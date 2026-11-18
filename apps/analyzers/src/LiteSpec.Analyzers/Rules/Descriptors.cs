@@ -49,6 +49,8 @@ internal static class Descriptors
     private static readonly Provision UseCaseIsolation = Provision.Of("backend/dotnet/architecture", "keep-use-case-folders-isolated");
     /// <summary>The provision the related descriptors enforce: reach another module only through contracts (litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts).</summary>
     private static readonly Provision ModuleContracts = Provision.Of("backend/dotnet/architecture", "reach-another-module-only-through-contracts");
+    /// <summary>The provision the related descriptors enforce: publish only data from each contracts project (litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project).</summary>
+    private static readonly Provision ContractsData = Provision.Of("backend/dotnet/architecture", "publish-only-data-from-each-contracts-project");
     /// <summary>The provision the related descriptors enforce: exclude mvc controllers from the stack (litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack).</summary>
     private static readonly Provision NoControllers = Provision.Of("backend/dotnet/api", "exclude-mvc-controllers-from-the-stack");
     /// <summary>The provision the related descriptors enforce: stage aggregate writes through repositories (litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories).</summary>
@@ -357,6 +359,18 @@ internal static class Descriptors
         "Module exposes a public type outside Contracts",
         "'{0}' is public outside Contracts; keep module types internal behind the '{1}' entry type",
         "In one project per module only the Contracts project and the module entry type are public. Every other module type stays internal, so the compiler enforces the module boundary.");
+
+    /// <summary>The LS2029 descriptor: File names a contract type outside its layer.</summary>
+    public static readonly DiagnosticDescriptor LS2029 = Create("LS2029", LayersCategory, RespectLayerDirection,
+        "File names a contract type outside its layer",
+        "{0} uses '{1}', {2}",
+        "A Domain, Application, Ports, WebApi, or Infrastructure file outside a provider adapter names no public query or result of another module's Contracts project: only the adapter in 'Infrastructure/{Provider}/' sends another module's public queries. A Platform file names no module identifier.");
+
+    /// <summary>The LS2030 descriptor: Contracts project declares an interface.</summary>
+    public static readonly DiagnosticDescriptor LS2030 = Create("LS2030", LayersCategory, ContractsData,
+        "Contracts project declares an interface",
+        "'{0}' is an interface in a Contracts project; a Contracts project publishes data only",
+        "A Contracts project publishes data only: identifiers, facts, and public queries grouped by aggregate. It declares no interface.");
 
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,

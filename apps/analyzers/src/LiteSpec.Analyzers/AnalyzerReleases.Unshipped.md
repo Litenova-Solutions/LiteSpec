@@ -5,6 +5,8 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+LS2029 | LiteSpec.Layers | Error | Descriptors
+LS2030 | LiteSpec.Layers | Error | Descriptors
 
 ### Removed Rules
 

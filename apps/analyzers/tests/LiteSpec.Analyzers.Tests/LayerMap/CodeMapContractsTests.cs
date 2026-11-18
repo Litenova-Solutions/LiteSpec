@@ -76,6 +76,49 @@ public sealed class CodeMapContractsTests
         Assert.Null(MapFor("Claimwick.Spending", path).UseCaseOf(path));
     }
 
+    /// <summary>A type in a use case folder below an aggregate folder is a public query or result.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void ContractsUseCaseFileIsAPublicQuery()
+    {
+        Assert.True(Contracts.IsPublicQuery(
+            "Modules/Claimwick.Books.Contracts/Books/ReadBook/ReadBookQuery.cs", "ReadBookQuery"));
+        Assert.True(Contracts.IsPublicQuery(
+            "Claimwick.Modules/Books/Contracts/Books/ReadBook/ReadBookResult.cs", "ReadBookResult"));
+    }
+
+    /// <summary>A type directly in an aggregate folder is an identifier or a fact, never a public query.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void ContractsAggregateFileIsNoPublicQuery()
+    {
+        Assert.False(Contracts.IsPublicQuery(
+            "Modules/Claimwick.Books.Contracts/Books/BookId.cs", "BookId"));
+        Assert.False(Contracts.IsPublicQuery(
+            "Claimwick.Modules/Books/Contracts/Books/BookLent.cs", "BookLent"));
+    }
+
+    /// <summary>A query or result directly in a Contracts top folder is a module-level public query.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void ContractsModuleLevelQueryFileIsAPublicQuery()
+    {
+        Assert.True(Contracts.IsPublicQuery(
+            "Modules/Claimwick.Books.Contracts/SearchCatalog/SearchCatalogQuery.cs", "SearchCatalogQuery"));
+        Assert.True(Contracts.IsPublicQuery(
+            "Claimwick.Modules/Books/Contracts/SearchCatalog/SearchCatalogResult.cs", "SearchCatalogResult"));
+    }
+
+    /// <summary>A file in the Platform project reads as one by assembly or by path segment.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact]
+    public void PlatformFileIsDetected()
+    {
+        Assert.True(CodeMap.IsPlatformFile("Claimwick.Platform/Access/ActorScope.cs", "Claimwick.Modules"));
+        Assert.True(CodeMap.IsPlatformFile("Access/ActorScope.cs", "Claimwick.Platform"));
+        Assert.False(CodeMap.IsPlatformFile("Claimwick.Modules/Books/Application/ReadBook/ReadBookQueryHandler.cs", "Claimwick.Modules"));
+    }
+
     /// <summary>Builds the code map for one compilation holding one file.</summary>
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <param name="path">The source file path.</param>

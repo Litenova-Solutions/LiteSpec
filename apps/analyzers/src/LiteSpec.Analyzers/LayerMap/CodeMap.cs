@@ -249,7 +249,7 @@ internal sealed class CodeMap
 
         foreach (var segment in filePath.Split('/', '\\'))
         {
-            if (segment.Equals("Contracts", StringComparison.Ordinal) || IsContractsFolderName(segment))
+            if (segment.Equals("Contracts", StringComparison.Ordinal) || IsContractsProjectName(segment))
             {
                 return true;
             }
@@ -262,18 +262,47 @@ internal sealed class CodeMap
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <returns>True when the assembly name ends with .Contracts on a dotted owner name; otherwise false.</returns>
     internal static bool IsContractsAssembly(string assemblyName) =>
-        IsContractsFolderName(assemblyName);
+        IsContractsProjectName(assemblyName);
 
     /// <summary>Returns true when the folder names a sibling Contracts project; otherwise false.</summary>
     /// <param name="folder">The project folder name.</param>
     /// <returns>True when the folder ends with .Contracts on a dotted owner name, so a module named Contracts stays a module; otherwise false.</returns>
-    private static bool IsContractsFolderName(string folder)
+    internal static bool IsContractsProjectName(string folder)
     {
         const string suffix = ".Contracts";
 
         return folder.Length > suffix.Length
             && folder.EndsWith(suffix, StringComparison.Ordinal)
             && folder.Substring(0, folder.Length - suffix.Length).Contains(".");
+    }
+
+    /// <summary>Returns true when the file sits in the Platform project: the compilation builds it, or a path segment names it; otherwise false.</summary>
+    /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
+    /// <param name="assemblyName">The compilation assembly name.</param>
+    /// <returns>True when the assembly or a path segment names the Platform project.</returns>
+    internal static bool IsPlatformFile(string? filePath, string assemblyName)
+    {
+        if (assemblyName.Equals("Platform", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".Platform", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return false;
+        }
+
+        foreach (var segment in filePath!.Split('/', '\\'))
+        {
+            if (segment.Equals("Platform", StringComparison.Ordinal)
+                || segment.EndsWith(".Platform", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Returns the folder with each sibling Contracts project segment replaced by its owner module segment.</summary>
@@ -286,7 +315,7 @@ internal sealed class CodeMap
 
         for (var index = 0; index < segments.Length; index++)
         {
-            if (IsContractsFolderName(segments[index]))
+            if (IsContractsProjectName(segments[index]))
             {
                 segments[index] = segments[index].Substring(0, segments[index].Length - suffix.Length);
             }
@@ -382,7 +411,7 @@ internal sealed class CodeMap
             var segments = folder.Split('/');
             for (var index = 0; index < segments.Length; index++)
             {
-                if (IsContractsFolderName(segments[index]))
+                if (IsContractsProjectName(segments[index]))
                 {
                     segments[index] = segments[index].Substring(0, segments[index].Length - ".Contracts".Length);
                     modules.Add(string.Join("/", segments, 0, index + 1));
