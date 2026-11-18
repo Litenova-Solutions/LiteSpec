@@ -215,6 +215,8 @@ WebApi enforces coarse authenticated, role, or scope policies first under `lites
 
 **Example:** Policies are composable values: `Permission(id)`, `RecentSignIn(id)`, `Self(id)`, and `System`. Sensitive spending use cases such as reimburse-expense declare `RecentSignIn(permission)` in their authorization definitions. The guard evaluates in order: the sign-in is present, then the sign-in is younger than the recent sign-in window, then the permission holds. A missing sign-in keeps its refusal, a stale sign-in is refused with the recorded code and sentence before the permission check, and the window comes from the identity contract.
 
+A condition only a module can decide, such as the caller owning the record a message names or the workspace being open, is a condition the module contributes to the platform rather than a guard it writes: the policy names it, as `When(condition, Permission(id))`, the module registers the condition through its entry point, and the one guard evaluates it after the sign-in checks and before the permission. A condition that holds for every message, such as an open workspace, runs for every message that carries a caller, with no policy change.
+
 **Reviewed for:** Does every use case whose record cites a rule governing an access condition declare the matching policy, with no use case guard of its own for it? Look at each authorization definition beside the guard implementations.
 
 ### Keep Command Handlers to Load, Call and Stage
