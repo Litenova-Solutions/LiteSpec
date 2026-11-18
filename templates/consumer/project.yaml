@@ -26,8 +26,9 @@ paths:
   - apps/api/tests
 stackConfig:
   dotnet:
-    modules: apps/api/src/__PROJECT__.Modules
-    sharedKernel: apps/api/src/__PROJECT__.SharedKernel
+    modules: apps/api/src/Modules/*
+    kernel: apps/api/src/__PROJECT__.Kernel
+    platform: apps/api/src/__PROJECT__.Platform
 frontends:
 - name: web
   path: apps/web

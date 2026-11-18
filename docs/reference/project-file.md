@@ -55,7 +55,7 @@ The schema states every location the tools read, with its default. The model bui
 
 ### The `stackConfig.dotnet` Object
 
-The schema states the .NET projects the model builder reads, with their defaults. A `*` in one segment expands to the first folder matching it.
+The schema states the .NET projects the model builder reads, with their defaults. The `modules` pattern expands to every matching folder, so `apps/api/src/Modules/*` reads one project per module; a single project holding every module stays allowed as `apps/api/src/*.Modules`. Every other `*` in one segment expands to the first folder matching it. The `kernel` project holds the business values every module speaks, and the `platform` project holds the technical capabilities.
 
 ### The `ui.package` Object
 
@@ -110,8 +110,9 @@ paths:
   - apps/api/tests
 stackConfig:
   dotnet:
-    modules: apps/api/src/shop.Modules
-    sharedKernel: apps/api/src/shop.SharedKernel
+    modules: apps/api/src/Modules/*
+    kernel: apps/api/src/shop.Kernel
+    platform: apps/api/src/shop.Platform
 frontends:
 - name: web
   path: apps/web

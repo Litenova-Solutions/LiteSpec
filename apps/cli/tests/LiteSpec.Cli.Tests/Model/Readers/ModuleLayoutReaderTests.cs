@@ -96,7 +96,7 @@ public sealed class ModuleLayoutReaderTests
         Assert.Equal("WebApi", SourceRoots.LayerOf(config, Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi", "Protocol", "SignOutEndpoint.cs")));
     }
 
-    /// <summary>Unmarked Domain types group by their aggregate folder under the modules root, and shared kernel types under the kernel.</summary>
+    /// <summary>Unmarked Domain types group by their aggregate folder under the modules root, and Kernel types under the kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void PartsGroupByAggregateFolderInModuleLayout()
@@ -104,39 +104,43 @@ public sealed class ModuleLayoutReaderTests
         using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
-        var root = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Loan.cs");
-        var held = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Money.cs");
-        var kernel = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Domain", "Clock.cs");
+        var root = ProductFile(temp.Path, "Lending", "Domain", "Loans", "Loan.cs");
+        var held = ProductFile(temp.Path, "Lending", "Domain", "Loans", "Money.cs");
+        var kernel = Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel", "Clock.cs");
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.AggregateRoot, "Loan", null, root, 3,
             [new CodeMark("aggregate/lending.loan", MarkStyle.Xml, MarkVerb.Implements, root, 1)],
             InTests: false));
         model.Code.DomainTypes.Add(new DomainType("Money", "Library.Lending.Loans", held, 3, false));
-        model.Code.DomainTypes.Add(new DomainType("Clock", "Library.Domain", kernel, 3, false));
+        model.Code.DomainTypes.Add(new DomainType("Clock", "Library.Kernel", kernel, 3, false));
 
         Parts.Compute(model);
 
-        Assert.Equal("apps/api/src/Library.Modules/Lending/Loans/Domain/Money.cs:Money", Assert.Single(model.Parts["aggregate/lending.loan"]));
-        Assert.Equal("apps/api/src/Library.SharedKernel/Domain/Clock.cs:Clock", Assert.Single(model.Parts["kernel"]));
+        Assert.Equal("apps/api/src/Library.Modules/Lending/Domain/Loans/Money.cs:Money", Assert.Single(model.Parts["aggregate/lending.loan"]));
+        Assert.Equal("apps/api/src/Library.Kernel/Clock.cs:Clock", Assert.Single(model.Parts["kernel"]));
         Assert.Empty(Parts.Orphans(model));
     }
 
-    /// <summary>The modules and shared kernel roots resolve without the layer-projects extension, leaving the layer roots empty.</summary>
+    /// <summary>The module, Kernel and Platform roots resolve without the layer-projects extension, leaving the layer roots empty.</summary>
     /// <proves>litespec/core/model#declare-size-and-stacks</proves>
     [Fact]
-    public void ModuleLayoutResolvesTheModulesAndSharedKernelRoots()
+    public void ModuleLayoutResolvesTheModuleKernelAndPlatformRoots()
     {
         using var temp = TestCli.Temp("readers");
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules"));
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform"));
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"}");
         var config = ConsumerConfig.Load(temp.Path);
 
         Assert.False(config.IsLayerProjects);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules"), config.ModulesRoot);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel"), config.SharedKernelRoot);
+        Assert.Equal(
+            [Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending")],
+            config.ModulesRoots);
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel"), config.KernelRoot);
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform"), config.PlatformRoot);
         Assert.Equal("", config.DomainRoot);
         Assert.Equal("", config.InfrastructureRoot);
     }
@@ -158,7 +162,7 @@ public sealed class ModuleLayoutReaderTests
         var config = ConsumerConfig.Load(temp.Path);
 
         Assert.True(config.IsLayerProjects);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Application"), config.ModulesRoot);
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Application"), Assert.Single(config.ModulesRoots));
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Domain"), config.DomainRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Infrastructure"), config.InfrastructureRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi"), Assert.Single(config.WebApiRoots));
@@ -177,7 +181,7 @@ public sealed class ModuleLayoutReaderTests
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"sharedKernel\": \"apps/api/src/Library.SharedKernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"kernel\": \"apps/api/src/Library.Kernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         WriteSource(ProductFile(root, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs"), """
             namespace Library.Lending.Loans.UseCases.BorrowCopy;
 

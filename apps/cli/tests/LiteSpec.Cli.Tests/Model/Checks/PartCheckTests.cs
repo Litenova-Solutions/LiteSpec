@@ -61,29 +61,29 @@ public sealed class PartCheckTests
             found => found.Code == "part-parent-missing");
 
         Assert.Equal(
-            "Domain type 'CopyTitle' sits in 'src/Domain/Lending/Copies', which holds no aggregate root and is not the shared kernel.",
+            "Domain type 'CopyTitle' sits in 'src/Domain/Lending/Copies', which holds no aggregate root and is not the Kernel.",
             finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(3, finding.Line);
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>Type In The Shared Kernel Is Listed Under Kernel.</summary>
+    /// <summary>Type In The Kernel Is Listed Under Kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void TypeInTheSharedKernelIsListedUnderKernel()
+    public void TypeInTheKernelIsListedUnderKernel()
     {
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        var file = Path.Combine(temp.Path, "src", "Library.SharedKernel", "Domain", "Money.cs");
-        AddType(model, file, "Money", "Library.SharedKernel.Domain", 4, false);
+        var file = Path.Combine(temp.Path, "src", "Library.Kernel", "Money.cs");
+        AddType(model, file, "Money", "Library.Kernel", 4, false);
 
         Assert.DoesNotContain("part-parent-missing", TestModel.Codes(model));
 
         Parts.Compute(model);
 
-        Assert.Contains("src/Library.SharedKernel/Domain/Money.cs:Money", model.Parts["kernel"]);
+        Assert.Contains("src/Library.Kernel/Money.cs:Money", model.Parts["kernel"]);
     }
 
     /// <summary>Marked Domain Service Is Never A Part.</summary>
@@ -143,7 +143,7 @@ public sealed class PartCheckTests
     static void WriteProject(string root) =>
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
-            """{"stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Library.SharedKernel"}}}""");
+            """{"stackConfig": {"dotnet": {"domain": "src/Domain", "kernel": "src/Library.Kernel"}}}""");
 
     static void AddRoot(ProjectModel model, string file, string root, string aggregate, int line = 5) =>
         model.Code.Elements.Add(new MarkedElement(

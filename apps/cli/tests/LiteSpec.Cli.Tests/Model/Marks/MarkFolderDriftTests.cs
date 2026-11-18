@@ -196,14 +196,14 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
-    /// <summary>Element Under Shared Kernel Reports No Mark Folder Drift.</summary>
+    /// <summary>Element Under Kernel Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void ElementUnderSharedKernelReportsNoMarkFolderDrift()
+    public void ElementUnderKernelReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path, "xml", "\"sharedKernel\": \"apps/api/src/Library.SharedKernel\"");
-        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Domain", "Money.cs");
+        var model = DriftModel(temp.Path, "xml", "\"kernel\": \"apps/api/src/Library.Kernel\"");
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel", "Money.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "aggregate/billing.invoice"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));

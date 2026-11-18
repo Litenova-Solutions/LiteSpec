@@ -61,6 +61,7 @@ steps:
   - result/attach-receipt.attached
   - domain-event/receipt.attached
   - aggregate/spending.receipt
+  - rule/spending.receipt-filed-once
 edgeCases:
 - Spending refuses a receipt on a decided expense with `spending.expense-decided`.
 records:

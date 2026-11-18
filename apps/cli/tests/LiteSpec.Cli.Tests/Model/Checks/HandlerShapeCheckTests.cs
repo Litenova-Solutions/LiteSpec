@@ -66,19 +66,19 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("OrderManager", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Shared Kernel Project Is Exempt.</summary>
+    /// <summary>Kernel Project Is Exempt.</summary>
     /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
-    public void SharedKernelProjectIsExempt()
+    public void KernelProjectIsExempt()
     {
         using var temp = TestCli.Temp("checks");
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
-            """{"stackConfig": {"dotnet": {"sharedKernel": "src/App.SharedKernel"}}}""");
+            """{"stackConfig": {"dotnet": {"kernel": "src/App.Kernel"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
-            Path.Combine(temp.Path, "src", "App.SharedKernel", "OrderHelper.cs"),
+            Path.Combine(temp.Path, "src", "App.Kernel", "OrderHelper.cs"),
             "OrderHelper"));
 
         Assert.DoesNotContain("name-reason-missing", TestModel.Codes(model));

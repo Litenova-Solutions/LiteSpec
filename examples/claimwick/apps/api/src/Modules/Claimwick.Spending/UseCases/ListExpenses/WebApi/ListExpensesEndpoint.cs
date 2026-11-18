@@ -1,0 +1,38 @@
+using System.Security.Claims;
+using Claimwick.Platform.Http;
+using Claimwick.Spending.UseCases.ListExpenses.Application;
+using LiteBus.Queries.Abstractions;
+
+namespace Claimwick.Spending.UseCases.ListExpenses.WebApi;
+
+/// <implements>use-case/spending.list-expenses</implements>
+internal sealed class ListExpensesEndpoint : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet("/api/expenses", HandleAsync)
+            .WithName("ListExpenses")
+            .WithSummary("List the signed-in employee's expenses, newest first.")
+            .Produces<ListExpensesResponseModel>(StatusCodes.Status200OK);
+    }
+
+    private static async Task<Ok<ListExpensesResponseModel>> HandleAsync(
+        ClaimsPrincipal user,
+        IQueryMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        // The reader is the signed-in employee, read from verified claims, never from the query string.
+        var employeeId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await mediator.QueryAsync(new ListExpensesQuery(employeeId), cancellationToken);
+
+        return TypedResults.Ok(new ListExpensesResponseModel(
+            result.Expenses
+                .Select(expense => new ExpenseResponseItemModel(
+                    expense.ExpenseId,
+                    expense.Amount,
+                    expense.Currency,
+                    expense.State,
+                    expense.SubmittedAt))
+                .ToList()));
+    }
+}

@@ -164,7 +164,7 @@ The table lives on the aggregate page, as `litespec/core/domain-model#connect-ev
 
 **Strength:** default
 
-**Default:** Mirror the production module, aggregate, `UseCases/`, and use case folder names inside each test suite.
+**Default:** Mirror the production module, `UseCases/`, and use case folder names inside each test suite.
 
 **Replacement:** A project names its test tree shape in its testing documentation.
 

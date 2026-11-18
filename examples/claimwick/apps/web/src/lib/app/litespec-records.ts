@@ -66,6 +66,7 @@ export type ProofTargetId =
   | "litespec/frontend/data#classify-state"
   | "litespec/frontend/data#compose-a-screen-from-each-owners-query"
   | "litespec/frontend/data#generate-the-client-from-the-published-contract"
+  | "litespec/frontend/data#hold-every-monetary-amount-in-the-frame-money-type"
   | "litespec/frontend/data#keep-a-calendar-date-free-of-a-time-zone"
   | "litespec/frontend/data#keep-schemas-use-case-specific"
   | "litespec/frontend/data#keep-secrets-out-of-browser-storage"
@@ -199,6 +200,8 @@ export type ProofTargetId =
   | "litespec/frontend/patterns/feedback-and-states#nothing-has-ever-existed"
   | "litespec/frontend/patterns/feedback-and-states#nothing-matches-what-was-asked-for"
   | "litespec/frontend/patterns/feedback-and-states#reader-may-not-do-this"
+  | "litespec/frontend/patterns/feedback-and-states#route-error-frame"
+  | "litespec/frontend/patterns/feedback-and-states#route-loading-frame"
   | "litespec/frontend/patterns/feedback-and-states#sign-in-ran-out"
   | "litespec/frontend/patterns/feedback-and-states#somebody-else-saved-first"
   | "litespec/frontend/patterns/feedback-and-states#something-went-wrong-on-our-side"
@@ -287,6 +290,7 @@ export type ProofTargetId =
   | "litespec/frontend/patterns/navigation#workspace-switcher"
   | "litespec/frontend/patterns/page-frames#calendar-or-schedule-page"
   | "litespec/frontend/patterns/page-frames#editor-page"
+  | "litespec/frontend/patterns/page-frames#entry-page"
   | "litespec/frontend/patterns/page-frames#error-or-not-found-page"
   | "litespec/frontend/patterns/page-frames#form-page"
   | "litespec/frontend/patterns/page-frames#home-page"
@@ -405,6 +409,7 @@ export type ProofTargetId =
   | "litespec/frontend/web/testing#keep-web-test-mocks-to-the-stack-libraries"
   | "litespec/frontend/web/testing#refuse-a-test-without-an-assertion"
   | "litespec/frontend/web/ui#build-within-the-browser-support-target"
+  | "litespec/frontend/web/ui#draw-platform-composites-with-native-elements"
   | "litespec/frontend/web/ui#give-moving-content-a-pause-control"
   | "litespec/frontend/web/ui#honor-reduced-motion"
   | "litespec/frontend/web/ui#keep-the-tone-table-in-the-stack-states-file"
@@ -470,7 +475,7 @@ export type ProofTargetId =
   | "scenario/submit-expense.lowered-threshold-refuses-waiting-expense"
   | "scenario/submit-expense.submitting-with-a-receipt-succeeds"
   | "scenario/submit-expense.submitting-without-a-receipt-is-refused";
-export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }
+export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId; readonly offers?: readonly UseCaseId[] }
 export function proves(id: ProofTargetId): { annotation: [{ type: "proves"; description: ProofTargetId }] } {
   return { annotation: [{ type: "proves", description: id }] };
 }

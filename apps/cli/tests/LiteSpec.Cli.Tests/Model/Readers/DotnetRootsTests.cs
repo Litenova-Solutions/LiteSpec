@@ -238,7 +238,7 @@ public sealed class DotnetRootsTests
             ConsumerConfig.Load(temp.Path).Problems,
             found => found.Code == "reader-missing" && found.Message.Contains("modules", StringComparison.Ordinal));
 
-        Assert.Contains("*.Modules", problem.Message, StringComparison.Ordinal);
+        Assert.Contains("Modules/*", problem.Message, StringComparison.Ordinal);
         Assert.Contains("defaulted to", problem.Message, StringComparison.Ordinal);
     }
 

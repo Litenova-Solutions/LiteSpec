@@ -41,6 +41,7 @@ apps/api/src/
                                        SubmitExpenseCommandValidator.cs
                                        SubmitExpenseCommandAuthorizationDefinition.cs
                                        SubmitExpenseCommandAuditDefinition.cs
+                                       SubmitExpenseCommandIdempotencyDefinition.cs
                                        SubmitExpenseResult.cs
           WebApi/                      SubmitExpenseEndpoint.cs
                                        SubmitExpenseRequest.cs

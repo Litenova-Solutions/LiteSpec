@@ -217,6 +217,42 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls1014.md",
+      "path": "analyzers/rules/ls1014",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS1014: Aggregate Part Constructed Outside Its Domain Folder",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls1015.md",
+      "path": "analyzers/rules/ls1015",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS1015: Non-Root Type Exposes Public Mutation",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls1016.md",
+      "path": "analyzers/rules/ls1016",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS1016: Aggregate References Another Aggregate by Object",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/analyzers/rules/ls2001.md",
       "path": "analyzers/rules/ls2001",
       "style": "reference",
@@ -457,6 +493,78 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls2023.md",
+      "path": "analyzers/rules/ls2023",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2023: Class Implements Two Message Definitions",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2024.md",
+      "path": "analyzers/rules/ls2024",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2024: Module Holds Platform-Owned Capability Code",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2025.md",
+      "path": "analyzers/rules/ls2025",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2025: Use-Case Infrastructure Names a Type Outside Its Slice",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2026.md",
+      "path": "analyzers/rules/ls2026",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2026: Model Duplicated in Two Use Case Folders",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2027.md",
+      "path": "analyzers/rules/ls2027",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2027: Application Does Infrastructure Work",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2028.md",
+      "path": "analyzers/rules/ls2028",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2028: Module Exposes a Public Type Outside Contracts",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/analyzers/rules/ls3001.md",
       "path": "analyzers/rules/ls3001",
       "style": "reference",
@@ -498,6 +606,18 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS3004: Concrete Class Is Not Sealed",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls3005.md",
+      "path": "analyzers/rules/ls3005",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS3005: Class or Struct Declares a Primary Constructor",
       "intent": "",
       "sections": [
         "Reference",
@@ -594,6 +714,18 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS5012: Role Allows an Undeclared Permission",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls5013.md",
+      "path": "analyzers/rules/ls5013",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS5013: Base Declares a Non-Virtual Code",
       "intent": "",
       "sections": [
         "Reference",
@@ -3685,6 +3817,186 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0097-one-audit-chain-segment-per-category-and-year/0097-one-audit-chain-segment-per-category-and-year.md",
+      "path": "intent/decisions/0097-one-audit-chain-segment-per-category-and-year/0097-one-audit-chain-segment-per-category-and-year",
+      "style": "decision",
+      "area": "intent",
+      "title": "One Audit Chain Segment per Category and Year",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0098-reference-data-tables/0098-reference-data-tables.md",
+      "path": "intent/decisions/0098-reference-data-tables/0098-reference-data-tables",
+      "style": "decision",
+      "area": "intent",
+      "title": "Reference Data Tables",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0099-rule-sources/0099-rule-sources.md",
+      "path": "intent/decisions/0099-rule-sources/0099-rule-sources",
+      "style": "decision",
+      "area": "intent",
+      "title": "Rule Sources",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0100-retention-holds-and-rounded-starts/0100-retention-holds-and-rounded-starts.md",
+      "path": "intent/decisions/0100-retention-holds-and-rounded-starts/0100-retention-holds-and-rounded-starts",
+      "style": "decision",
+      "area": "intent",
+      "title": "Retention Holds and Rounded Starts",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0101-check-rule-citations/0101-check-rule-citations.md",
+      "path": "intent/decisions/0101-check-rule-citations/0101-check-rule-citations",
+      "style": "decision",
+      "area": "intent",
+      "title": "Check Rule Citations Across Sibling Commands and Scenarios",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0102-draw-platform-composites-with-native-elements/0102-draw-platform-composites-with-native-elements.md",
+      "path": "intent/decisions/0102-draw-platform-composites-with-native-elements/0102-draw-platform-composites-with-native-elements",
+      "style": "decision",
+      "area": "intent",
+      "title": "Draw Platform Composites with Native Elements",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0103-dotnet-stack-binding/0103-dotnet-stack-binding.md",
+      "path": "intent/decisions/0103-dotnet-stack-binding/0103-dotnet-stack-binding",
+      "style": "decision",
+      "area": "intent",
+      "title": "Settle the .NET Stack Binding, Protocol, and Sign-In",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0104-reach-each-aggregate-only-through-its-root/0104-reach-each-aggregate-only-through-its-root.md",
+      "path": "intent/decisions/0104-reach-each-aggregate-only-through-its-root/0104-reach-each-aggregate-only-through-its-root",
+      "style": "decision",
+      "area": "intent",
+      "title": "Reach Each Aggregate Only Through Its Root",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0105-store-each-aggregate-root-as-its-own-document/0105-store-each-aggregate-root-as-its-own-document.md",
+      "path": "intent/decisions/0105-store-each-aggregate-root-as-its-own-document/0105-store-each-aggregate-root-as-its-own-document",
+      "style": "decision",
+      "area": "intent",
+      "title": "Store Each Aggregate Root as Its Own Document",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0106-state-class-design-rules/0106-state-class-design-rules.md",
+      "path": "intent/decisions/0106-state-class-design-rules/0106-state-class-design-rules",
+      "style": "decision",
+      "area": "intent",
+      "title": "State Class Design Rules",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0107-kernel-platform-and-one-project-per-module/0107-kernel-platform-and-one-project-per-module.md",
+      "path": "intent/decisions/0107-kernel-platform-and-one-project-per-module/0107-kernel-platform-and-one-project-per-module",
+      "style": "decision",
+      "area": "intent",
+      "title": "Kernel, Platform, and One Project per Module",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0108-composable-access-policies/0108-composable-access-policies.md",
+      "path": "intent/decisions/0108-composable-access-policies/0108-composable-access-policies",
+      "style": "decision",
+      "area": "intent",
+      "title": "Composable Policies for Shared Access Conditions",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -4530,6 +4842,19 @@
       ]
     },
     {
+      "file": "docs/workspace/design.md",
+      "path": "workspace/design",
+      "style": "standard",
+      "area": "workspace",
+      "title": "Class Design",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/workspace/naming.md",
       "path": "workspace/naming",
       "style": "standard",
@@ -4715,6 +5040,7 @@
         "docs/core/writing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md",
         "docs/quality/ci.md",
@@ -5081,6 +5407,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5168,6 +5495,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5258,6 +5586,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5341,6 +5670,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5428,6 +5758,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5503,6 +5834,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5577,6 +5909,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5644,6 +5977,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],
@@ -5715,6 +6049,7 @@
         "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
+        "docs/workspace/design.md",
         "docs/workspace/naming.md",
         "docs/workspace/structure.md"
       ],

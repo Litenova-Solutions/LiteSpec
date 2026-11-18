@@ -63,8 +63,11 @@ sealed class ConsumerConfig
     /// <summary>Gets the URI prefix of every problem type, from <c>problemTypeBase</c>; empty when the declaration names none.</summary>
     public string ProblemTypeBase { get; private set; } = "";
 
-    /// <summary>Gets the modules project holding every module, or the Application project under layer-projects.</summary>
-    public string ModulesRoot { get; private set; } = "";
+    /// <summary>Gets the module projects, one per module, or the Application project under layer-projects, or the single modules project when the project keeps it.</summary>
+    public IReadOnlyList<string> ModulesRoots { get; private set; } = [];
+
+    /// <summary>Gets the first module project, for callers outside the model that still read a single root.</summary>
+    public string ModulesRoot => ModulesRoots.Count > 0 ? ModulesRoots[0] : "";
 
     /// <summary>Gets the Domain project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
     public string DomainRoot { get; private set; } = "";
@@ -81,8 +84,14 @@ sealed class ConsumerConfig
     /// <summary>Gets a value indicating whether the project selects the layer-projects extension, so the five project roots apply.</summary>
     public bool IsLayerProjects { get; private set; }
 
-    /// <summary>Gets the shared kernel project holding what every module builds on.</summary>
-    public string SharedKernelRoot { get; private set; } = "";
+    /// <summary>Gets the Kernel project holding the business values every module speaks.</summary>
+    public string KernelRoot { get; private set; } = "";
+
+    /// <summary>Gets the Platform project holding the technical capabilities with no business words.</summary>
+    public string PlatformRoot { get; private set; } = "";
+
+    /// <summary>Gets the Kernel project, for callers outside the model that still read the shared kernel root.</summary>
+    public string SharedKernelRoot => KernelRoot;
 
     /// <summary>Gets where tests live.</summary>
     public IReadOnlyList<string> TestRoots { get; private set; } = [];
@@ -277,7 +286,7 @@ sealed class ConsumerConfig
                 }
             }
 
-            return [Resolve(config.Root, fallback)];
+            return Expand(config.Root, fallback);
         }
 
         // Records live under the record roots that paths.docs names, which default
@@ -287,12 +296,25 @@ sealed class ConsumerConfig
         config.GlossaryPath = Native(projectPaths.GlossaryPath);
         config.UiPatternCatalog = Combine(config.Root, ReadString(paths, "uiPatterns", CatalogChecks.DefaultCatalog));
         config.BehaviorDocs = Native(projectPaths.BehaviorDocs);
-        config.ModulesRoot = DeclaredRoot("modules", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*.Modules", reportDefault: true);
+        var modulesFallback = layerProjects ? "apps/api/src/*.Application" : "apps/api/src/Modules/*";
+        config.ModulesRoots = DeclaredRoots("modules", modulesFallback);
+
+        var modulesMissing = selectsDotnet
+            && (dotnet is null || dotnet["modules"] is null)
+            && !AnyExists(config.ModulesRoots);
+
+        if (modulesMissing)
+        {
+            var resolved = config.ModulesRoots.Count > 0 ? config.ModulesRoots[0] : Resolve(config.Root, modulesFallback);
+            ReportMissing("modules", modulesFallback, resolved, declared: false);
+        }
+
         config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain", reportDefault: true) : DeclaredRootOrEmpty("domain");
         config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi");
         config.InfrastructureRoot = layerProjects ? DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure", reportDefault: true) : DeclaredRootOrEmpty("infrastructure");
         config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker");
-        config.SharedKernelRoot = DeclaredRoot("sharedKernel", "apps/api/src/*.SharedKernel", reportDefault: false);
+        config.KernelRoot = layerProjects ? DeclaredRootOrEmpty("kernel") : DeclaredRoot("kernel", "apps/api/src/*.Kernel", reportDefault: false);
+        config.PlatformRoot = layerProjects ? DeclaredRootOrEmpty("platform") : DeclaredRoot("platform", "apps/api/src/*.Platform", reportDefault: false);
 
         if (StringAt(dotnet, "templateStore") is { } storePath)
         {
@@ -595,6 +617,22 @@ sealed class ConsumerConfig
     /// <param name="path">The absolute path with forward slashes, as <see cref="ProjectPaths" /> resolves it.</param>
     /// <returns>The absolute path with the operating system's separators.</returns>
     private static string Native(string path) => Path.GetFullPath(path.Replace('/', Path.DirectorySeparatorChar));
+
+    /// <summary>Whether any path in the list names a folder that exists.</summary>
+    /// <param name="roots">The absolute paths to test.</param>
+    /// <returns>True when any path names a folder that exists.</returns>
+    private static bool AnyExists(IReadOnlyList<string> roots)
+    {
+        for (var index = 0; index < roots.Count; index++)
+        {
+            if (Directory.Exists(roots[index]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>
     ///     Resolves one path, expanding a single segment wildcard to the first match.

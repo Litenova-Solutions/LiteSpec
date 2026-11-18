@@ -26,21 +26,29 @@ static class SourceRoots
     /// <returns>The folder name of the matching backend root, or null when the file sits under none of them.</returns>
     public static string? ProjectOf(ConsumerConfig config, string file)
     {
-        var abstractions = config.ModulesRoot + ".Abstractions";
-
-        if (abstractions.Length > ".Abstractions".Length && IsUnder(abstractions, file))
+        foreach (var modules in config.ModulesRoots)
         {
-            return FolderName(abstractions);
+            var abstractions = modules + ".Abstractions";
+
+            if (abstractions.Length > ".Abstractions".Length && IsUnder(abstractions, file))
+            {
+                return FolderName(abstractions);
+            }
+
+            if (IsUnder(modules, file))
+            {
+                return FolderName(modules);
+            }
         }
 
-        if (IsUnder(config.ModulesRoot, file))
+        if (IsUnder(config.KernelRoot, file))
         {
-            return FolderName(config.ModulesRoot);
+            return FolderName(config.KernelRoot);
         }
 
-        if (IsUnder(config.SharedKernelRoot, file))
+        if (IsUnder(config.PlatformRoot, file))
         {
-            return FolderName(config.SharedKernelRoot);
+            return FolderName(config.PlatformRoot);
         }
 
         if (IsUnder(config.DomainRoot, file))
@@ -72,17 +80,23 @@ static class SourceRoots
         return null;
     }
 
-    /// <summary>Every backend root the readers walk: the modules and shared kernel roots with their hosts, plus the layer projects they name.</summary>
+    /// <summary>Every backend root the readers walk: the module, Kernel and Platform roots with their hosts, plus the layer projects they name.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
-    /// <returns>The non-empty backend roots in read order, with the cross-module contracts part after the modules root.</returns>
+    /// <returns>The non-empty backend roots in read order, with the cross-module contracts part after each modules root.</returns>
     public static IReadOnlyList<string> BackendRoots(ConsumerConfig config)
     {
         var roots = new List<string>();
-        var candidates = new List<string>
-        {
-            config.ModulesRoot, config.ModulesRoot + ".Abstractions", config.SharedKernelRoot, config.DomainRoot,
-        };
+        var candidates = new List<string>();
 
+        foreach (var modules in config.ModulesRoots)
+        {
+            candidates.Add(modules);
+            candidates.Add(modules + ".Abstractions");
+        }
+
+        candidates.Add(config.KernelRoot);
+        candidates.Add(config.PlatformRoot);
+        candidates.Add(config.DomainRoot);
         candidates.AddRange(config.WebApiRoots);
         candidates.Add(config.InfrastructureRoot);
         candidates.AddRange(config.WorkerRoots);
@@ -107,6 +121,13 @@ static class SourceRoots
         config.WebApiRoots.Any(root => IsUnder(root, file))
         || config.WorkerRoots.Any(root => IsUnder(root, file));
 
+    /// <summary>Whether the file sits under the Kernel or Platform root.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="file">The file path.</param>
+    /// <returns>True when the file sits under the Kernel or Platform root.</returns>
+    public static bool IsUnderKernelOrPlatform(ConsumerConfig config, string file) =>
+        IsUnder(config.KernelRoot, file) || IsUnder(config.PlatformRoot, file);
+
     /// <summary>
     ///     The layer of one backend file, read from the shared resolver: under layer-projects from its
     ///     project suffix, otherwise from its nearest layer folder or its role suffix, with Contracts as
@@ -117,13 +138,18 @@ static class SourceRoots
     /// <returns>The layer name, or null when no folder, suffix or project states one.</returns>
     public static string? LayerOf(ConsumerConfig config, string file)
     {
-        var abstractions = config.ModulesRoot + ".Abstractions";
         string? root = null;
-        var candidates = new List<string>
-        {
-            abstractions, config.ModulesRoot, config.SharedKernelRoot, config.DomainRoot,
-        };
+        var candidates = new List<string>();
 
+        foreach (var modules in config.ModulesRoots)
+        {
+            candidates.Add(modules + ".Abstractions");
+            candidates.Add(modules);
+        }
+
+        candidates.Add(config.KernelRoot);
+        candidates.Add(config.PlatformRoot);
+        candidates.Add(config.DomainRoot);
         candidates.AddRange(config.WebApiRoots);
         candidates.Add(config.InfrastructureRoot);
         candidates.AddRange(config.WorkerRoots);
@@ -164,37 +190,48 @@ static class SourceRoots
     /// <summary>
     ///     The path segments of the file under its module layout, with the module first and the file name last,
     ///     or null when the file sits under no backend root, under the cross-module contracts part, under provider
-    ///     plumbing, under the shared kernel, under the modules composition folder, in a host under the module
+    ///     plumbing, under the Kernel or Platform, under the modules composition folder, in a host under the module
     ///     layout, or in a layer root itself. Layer folders and module-level record folders state no module
     ///     segment, so they are left out and the first kept segment is the module folder. A leading WebApi
     ///     Endpoints folder is skipped, so the first segment is the module folder and the last is the file name.
     /// </summary>
-    /// <param name="config">The consumer configuration that holds each layer root and the shared kernel root.</param>
+    /// <param name="config">The consumer configuration that holds each layer root, the Kernel root and the Platform root.</param>
     /// <param name="file">The full path of the file whose segments are wanted.</param>
     /// <returns>The path segments with the module first, or null when the file sits outside the module layout.</returns>
     public static string[]? ModulePath(ConsumerConfig config, string file)
     {
-        if (config.SharedKernelRoot.Length > 0 && IsUnder(config.SharedKernelRoot, file))
+        if (IsUnderKernelOrPlatform(config, file))
         {
             return null;
         }
 
-        var abstractions = config.ModulesRoot + ".Abstractions";
-
-        if (abstractions.Length > ".Abstractions".Length && IsUnder(abstractions, file))
+        foreach (var modules in config.ModulesRoots)
         {
-            return null;
+            var abstractions = modules + ".Abstractions";
+
+            if (abstractions.Length > ".Abstractions".Length && IsUnder(abstractions, file))
+            {
+                return null;
+            }
         }
 
-        // Under the modules root the WebApi and Worker roots are hosts, which
+        // Under the modules roots the WebApi and Worker roots are hosts, which
         // hold their endpoints and plumbing without a folder rule.
-        var productLayout = IsProductRoot(config.ModulesRoot);
+        var productLayout = IsProductLayout(config);
 
-        if (IsUnder(config.ModulesRoot, file))
+        foreach (var modules in config.ModulesRoots)
         {
-            return HasLayerSuffix(FolderName(config.ModulesRoot))
-                ? UnderLayerRoot(config.ModulesRoot, file, skipEndpoints: false, skipPersistence: false)
-                : UnderProductRoot(config.ModulesRoot, file);
+            if (IsUnder(modules, file))
+            {
+                if (HasLayerSuffix(FolderName(modules)))
+                {
+                    return UnderLayerRoot(modules, file, skipEndpoints: false, skipPersistence: false);
+                }
+
+                return IsSingleModulesProject(modules)
+                    ? UnderProductRoot(modules, file)
+                    : UnderModuleProject(modules, file);
+            }
         }
 
         if (IsUnder(config.DomainRoot, file))
@@ -230,27 +267,120 @@ static class SourceRoots
         return null;
     }
 
-    /// <summary>The product name: the modules root folder without its project suffix, or empty when no root is named.</summary>
-    /// <param name="config">The consumer configuration naming the modules root.</param>
-    /// <returns>The product name, or an empty string when the modules root is empty.</returns>
-    public static string ProductName(ConsumerConfig config)
+    /// <summary>The module project holding the file, or null when the file sits under no module project.</summary>
+    /// <param name="config">The consumer configuration naming the module projects.</param>
+    /// <param name="file">The file path.</param>
+    /// <returns>The module project root holding the file, or null.</returns>
+    public static string? ModuleProjectOf(ConsumerConfig config, string file)
     {
-        var folder = FolderName(config.ModulesRoot);
-
-        if (folder.Length == 0)
+        foreach (var modules in config.ModulesRoots)
         {
-            return "";
-        }
-
-        foreach (var suffix in new[] { ".Application.Abstractions", ".Application", ".Domain", ".Infrastructure", ".WebApi", ".Worker", ".Modules", ".SharedKernel" })
-        {
-            if (folder.EndsWith(suffix, StringComparison.Ordinal))
+            if (IsUnder(modules, file))
             {
-                return folder[..^suffix.Length];
+                return modules;
             }
         }
 
-        return folder;
+        return null;
+    }
+
+    /// <summary>The module name a module project folder states: the part after the last dot, or null for the single modules project and layer projects.</summary>
+    /// <param name="project">The module project root.</param>
+    /// <returns>The module name, or null when the project holds every module or names a layer.</returns>
+    public static string? ModuleNameOf(string project)
+    {
+        var folder = FolderName(project);
+
+        if (folder.Length == 0 || HasLayerSuffix(folder) || IsSingleModulesProject(project))
+        {
+            return null;
+        }
+
+        var dot = folder.LastIndexOf('.');
+
+        if (dot < 0 || dot + 1 >= folder.Length)
+        {
+            return folder;
+        }
+
+        return folder[(dot + 1)..];
+    }
+
+    /// <summary>Whether the project is the single modules project holding every module, the allowed deviation.</summary>
+    /// <param name="project">The module project root.</param>
+    /// <returns>True when the folder name ends with .Modules.</returns>
+    public static bool IsSingleModulesProject(string project) =>
+        FolderName(project).EndsWith(".Modules", StringComparison.Ordinal);
+
+    /// <summary>Whether any module project is the one product project rather than a layer project.</summary>
+    /// <param name="config">The consumer configuration naming the module projects.</param>
+    /// <returns>True when any module project folder carries no layer suffix.</returns>
+    public static bool IsProductLayout(ConsumerConfig config) =>
+        config.ModulesRoots.Any(root => IsProductRoot(root));
+
+    /// <summary>The product name: the Kernel, Platform, or module project folder without its suffix, or empty when no root is named.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The product name, or an empty string when no root names one.</returns>
+    public static string ProductName(ConsumerConfig config)
+    {
+        var folders = new List<string>();
+
+        void Add(string root)
+        {
+            if (root.Length == 0)
+            {
+                return;
+            }
+
+            var folder = FolderName(root);
+
+            if (folder.Length == 0 || folder.StartsWith('.'))
+            {
+                return;
+            }
+
+            folders.Add(folder);
+        }
+
+        Add(config.KernelRoot);
+        Add(config.PlatformRoot);
+
+        foreach (var modules in config.ModulesRoots)
+        {
+            Add(modules);
+        }
+
+        Add(config.DomainRoot);
+
+        foreach (var folder in folders)
+        {
+            foreach (var suffix in new[] { ".Application.Abstractions", ".Application", ".Domain", ".Infrastructure", ".WebApi", ".Worker", ".Modules", ".Kernel", ".Platform" })
+            {
+                if (folder.EndsWith(suffix, StringComparison.Ordinal))
+                {
+                    var product = folder[..^suffix.Length];
+
+                    if (product.Length > 0)
+                    {
+                        return product;
+                    }
+                }
+            }
+
+            var dot = folder.LastIndexOf('.');
+
+            if (dot > 0)
+            {
+                return folder[..dot];
+            }
+
+            if (folder.Length > 0)
+            {
+                return folder;
+            }
+        }
+
+        return "";
     }
 
     /// <summary>Whether the file sits under the root.</summary>
@@ -308,8 +438,8 @@ static class SourceRoots
         return rest.Length >= 2 ? rest : null;
     }
 
-    /// <summary>The path segments under the modules root, with layer and record folders left out, or null outside any module.</summary>
-    /// <param name="root">The modules root holding every module.</param>
+    /// <summary>The path segments under the single modules root, with layer and record folders left out, or null outside any module.</summary>
+    /// <param name="root">The single modules root holding every module.</param>
     /// <param name="file">The full path of the file whose segments are wanted.</param>
     /// <returns>The path segments with the module first and the file name last, or null when the file sits outside any module.</returns>
     static string[]? UnderProductRoot(string root, string file)
@@ -329,6 +459,48 @@ static class SourceRoots
         }
 
         var kept = new List<string>();
+
+        for (var index = 0; index < segments.Length - 1; index++)
+        {
+            if (LayerFolders.Contains(segments[index]) || UnlayeredFolders.Contains(segments[index]))
+            {
+                continue;
+            }
+
+            kept.Add(segments[index]);
+        }
+
+        kept.Add(segments[^1]);
+
+        return kept.Count >= 2 ? [.. kept] : null;
+    }
+
+    /// <summary>The path segments under one module project, with the module first and the file name last, or null outside the module.</summary>
+    /// <param name="root">The module project root holding one module.</param>
+    /// <param name="file">The full path of the file whose segments are wanted.</param>
+    /// <returns>The path segments with the module first and the file name last, or null when the file sits in the project root itself.</returns>
+    static string[]? UnderModuleProject(string root, string file)
+    {
+        var segments = PathText.Relative(root, file).Split('/');
+
+        if (segments.Length < 2)
+        {
+            return null;
+        }
+
+        if (segments[0].Equals("Composition", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var module = ModuleNameOf(root);
+
+        if (module is null)
+        {
+            return null;
+        }
+
+        var kept = new List<string> { module };
 
         for (var index = 0; index < segments.Length - 1; index++)
         {

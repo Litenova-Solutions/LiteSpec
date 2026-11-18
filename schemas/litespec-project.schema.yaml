@@ -134,15 +134,18 @@ properties:
     type: object
     properties:
       dotnet:
-        description: Paths the model builder reads for the .NET backend. Each supports one segment wildcard expanding to the first matching folder.
+        description: Paths the model builder reads for the .NET backend. Each supports one segment wildcard; modules expands to every matching folder and the rest expand to the first matching folder.
         type: object
         additionalProperties: false
         properties:
           modules:
-            description: 'The modules project the model builder reads: every module with its aggregates, use cases, reactions and jobs. Defaults to apps/api/src/*.Modules. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application.'
+            description: 'The module projects the model builder reads: one project per module under Modules/, each with its aggregates, use cases, reactions and jobs. Defaults to apps/api/src/Modules/*. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application. A single project holding every module stays allowed as apps/api/src/*.Modules.'
             $ref: '#/$defs/projectPath'
-          sharedKernel:
-            description: 'The shared kernel project the model builder reads: what every module builds on and that names no module, where reasonless names are allowed. Defaults to apps/api/src/*.SharedKernel.'
+          kernel:
+            description: 'The Kernel project the model builder reads: the business values every module speaks, where reasonless names are allowed. Defaults to apps/api/src/*.Kernel.'
+            $ref: '#/$defs/projectPath'
+          platform:
+            description: 'The Platform project the model builder reads: the technical capabilities with no business words. Defaults to apps/api/src/*.Platform.'
             $ref: '#/$defs/projectPath'
           domain:
             description: 'The Domain project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Domain with that extension and to none without it.'

@@ -385,7 +385,7 @@ static class InitCommand
             AgentProtocol.FormatStacks(stackNames),
             AgentProtocol.FormatExtensions(extensionNames),
             AgentProtocol.FormatLayers(layerClaims),
-            Path.Combine(home, "docs"),
+            AgentProtocol.DocsFor(Path.Combine(home, "docs"), root),
             command);
 
         foreach (var (file, relative) in Scaffold)

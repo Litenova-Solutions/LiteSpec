@@ -69,16 +69,14 @@ internal static class TestPlacementChecks
             return false;
         }
 
-        // Tests mirror the module tree, so a UseCases level states no module,
-        // aggregate or use case segment of its own. A module-level UseCases folder
-        // holding an aggregate-owned use case keeps its name, so the aggregate
-        // check below names it.
+        // Tests mirror the module tree, so a UseCases level states no module
+        // or use case segment of its own. A use case lives directly under its
+        // module, whatever aggregate its record sits under.
         var kept = new List<string> { segments[0] };
 
         for (var index = 1; index < segments.Length - 1; index++)
         {
-            if (!segments[index].Equals("UseCases", StringComparison.OrdinalIgnoreCase)
-                || (path.Aggregate is not null && index == 1))
+            if (!segments[index].Equals("UseCases", StringComparison.OrdinalIgnoreCase))
             {
                 kept.Add(segments[index]);
             }
@@ -93,22 +91,31 @@ internal static class TestPlacementChecks
             return true;
         }
 
-        if (path.Aggregate is not null && segments.Length >= 3 && !SameName(segments[1], path.Aggregate))
+        if (segments.Length == 2)
         {
-            if (SameName(path.Aggregate, path.Module!))
-            {
-                return false;
-            }
+            return false;
+        }
 
+        // Under layer projects a test keeps its aggregate parent.
+        if (!SourceRoots.IsProductLayout(config)
+            && segments.Length >= 4
+            && path.Aggregate is not null
+            && SameName(segments[1], path.Aggregate)
+            && SameName(segments[2], path.Name!))
+        {
+            return false;
+        }
+
+        // Nested under an aggregate folder the test reports the old shape.
+        if (segments.Length >= 4 && SameName(segments[2], path.Name!))
+        {
             findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
             return true;
         }
 
-        var useCaseAt = path.Aggregate is not null && segments.Length >= 3 && SameName(segments[1], path.Aggregate) ? 2 : 1;
-
-        if (segments.Length > useCaseAt + 1 && !SameName(segments[useCaseAt], path.Name!))
+        if (!SameName(segments[1], path.Name!))
         {
-            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[useCaseAt]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
             return true;
         }
 
@@ -136,17 +143,22 @@ internal static class TestPlacementChecks
             return;
         }
 
-        var expected = new List<string> { Naming.Pascal(path.Module!) };
+        var expected = SourceRoots.IsProductLayout(config)
+            ? new List<string> { Naming.Pascal(path.Module!), Naming.Pascal(path.Name!) }
+            : new List<string> { Naming.Pascal(path.Module!) };
 
-        if (path.Aggregate is not null && !SameName(path.Aggregate, path.Module!))
+        if (!SourceRoots.IsProductLayout(config) && path.Aggregate is not null && !SameName(path.Aggregate, path.Module!))
         {
             expected.Add(Naming.Pascal(path.Aggregate));
         }
 
-        expected.Add(Naming.Pascal(path.Name!));
+        if (!SourceRoots.IsProductLayout(config))
+        {
+            expected.Add(Naming.Pascal(path.Name!));
+        }
 
         if (PlacedSegments(product, actual) is not { } placed
-            || (!NamespaceMatches(placed, expected) && !NamespaceMatches(placed, WithModuleNamedAggregate(path, expected))))
+            || !NamespaceMatches(placed, expected))
         {
             findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' declares namespace '{actual}', but '{mark.RecordId}' places it under '{product}.{string.Join(".", expected)}'.", mark.File, mark.Line, mark.RecordId));
         }

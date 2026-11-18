@@ -29,9 +29,12 @@ paths:
   - .litespec/proof/sbom
 stackConfig:
   dotnet:
-    modules: apps/api/src/Claimwick.Modules
-    sharedKernel: apps/api/src/Claimwick.SharedKernel
-    templateStore: apps/api/src/Claimwick.Modules/Spending/Application/MessageTemplates.cs
+    modules: apps/api/src/Modules/*
+    kernel: apps/api/src/Claimwick.Kernel
+    platform: apps/api/src/Claimwick.Platform
+    webapi:
+    - apps/api/src/Hosts/Claimwick.WebApi
+    templateStore: apps/api/src/Modules/Claimwick.Spending/Notifications/ApprovalReminder/MessageTemplates.cs
 frontends:
 - name: web
   path: apps/web

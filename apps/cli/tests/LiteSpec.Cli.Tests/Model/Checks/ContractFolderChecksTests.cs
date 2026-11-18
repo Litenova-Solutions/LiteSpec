@@ -163,7 +163,7 @@ public sealed class ContractFolderChecksTests
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"sharedKernel\": \"apps/api/src/Library.SharedKernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"kernel\": \"apps/api/src/Library.Kernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
         model.Records.Add(TestModel.Record("module", "module/lending", Path.Combine(root, ".litespec", "lending.yaml"), """{"summary": "Lending lends copies to readers."}"""));
 

@@ -17,15 +17,15 @@ namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
 internal static class BackendPlacementChecks
 {
-    /// <summary>The layer folders a use case holds: its Application folder, and its WebApi folder for an endpoint.</summary>
+    /// <summary>The layer folders a use case holds: its Application folder always, its WebApi folder for an endpoint, and its Infrastructure folder for its own port.</summary>
     static readonly HashSet<string> UseCaseLayerFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Application", "WebApi",
+        "Application", "WebApi", "Infrastructure",
     };
 
     /// <summary>
-    ///     Reports every backend mark whose namespace or aggregate folder misses the code folder its record's placement names:
-    ///     a use case mark outside its aggregate folder, an event or rule mark outside its module or aggregate,
+    ///     Reports every backend mark whose namespace or folder misses the code folder its record's placement names:
+    ///     a use case mark outside its module UseCases folder, an event or rule mark outside its module or aggregate,
     ///     an external-system mark outside its module, and any of those with a namespace that names another path.
     ///     A mark naming no record, a record of another type, or a record its kind does not take is
     ///     <c>mark-unknown</c>, not drift. A host endpoint, a technical class, an aggregate method and a
@@ -85,15 +85,15 @@ internal static class BackendPlacementChecks
                 }
 
                 // A rule the product holds is enforced by a shared value, so its code lives in
-                // the shared kernel, wherever the rule's record file sits.
+                // the Kernel, wherever the rule's record file sits.
                 if (record.Type == RecordTypes.Rule
                     && Identifiers.TrySplit(record.Id, out _, out var ruleHome, out _)
                     && ruleHome is not null
                     && model.ById.ContainsKey($"product/{ruleHome}"))
                 {
-                    if (!SourceRoots.IsUnder(model.Config.SharedKernelRoot, element.File))
+                    if (!SourceRoots.IsUnder(model.Config.KernelRoot, element.File))
                     {
-                        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' implements the product rule '{record.Id}', so it belongs in the shared kernel.", mark.File, mark.Line, mark.RecordId));
+                        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' implements the product rule '{record.Id}', so it belongs in the Kernel.", mark.File, mark.Line, mark.RecordId));
                     }
 
                     continue;
@@ -120,7 +120,7 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Reports the backend folder the mark misses: the module folder for an event, rule or external-system
-    ///     mark, the use case and aggregate folders for a handler or endpoint mark, and the aggregate folder
+    ///     mark, the use case folder for a handler or endpoint mark, and the aggregate folder
     ///     for an event, rule or aggregate mark. A rule exception or domain event in its module Contracts
     ///     folder, and a rule exception beside an aggregate its rule governs or binds, sit where the module
     ///     tree keeps them. The module folder of an event handler, job host or aggregate root, and the
@@ -180,7 +180,7 @@ internal static class BackendPlacementChecks
             return false;
         }
 
-        if (segments.Length < 3 || SameName(segments[1], path.Aggregate))
+        if (segments.Length < 3 || SameAggregate(segments[1], path.Aggregate))
         {
             return false;
         }
@@ -196,7 +196,7 @@ internal static class BackendPlacementChecks
         // aggregate that enforces it, which the rule names in governs or binds.
         if (record.Type == RecordTypes.Rule
             && ruleHomes is not null
-            && ruleHomes.Any(home => SameName(segments[1], home)))
+            && ruleHomes.Any(home => SameAggregate(segments[1], home)))
         {
             return false;
         }
@@ -206,12 +206,13 @@ internal static class BackendPlacementChecks
     }
 
     /// <summary>
-    ///     Reports the folder a handler or endpoint misses for its use case: an aggregate
-    ///     use case lives in its aggregate UseCases folder, and a module-level use case in
-    ///     the module UseCases folder. A use case folder naming another use case, and a
-    ///     module folder naming another module, stay with <c>mark-folder-drift</c>, so they
-    ///     are left out here, and a use case folder flat in its aggregate folder stays with
-    ///     the closed folder check, which names the missing UseCases level.
+    ///     Reports the folder a handler or endpoint misses for its use case: every use case lives
+    ///     directly under its module in the module UseCases folder, whatever aggregate its record
+    ///     sits under. A use case folder naming another use case, and a module folder naming
+    ///     another module, stay with <c>mark-folder-drift</c>, so they are left out here, and a
+    ///     use case folder flat in its module stays with the closed folder check, which names
+    ///     the missing UseCases level. A use case nested under an aggregate folder reports the
+    ///     old shape.
     /// </summary>
     /// <param name="config">The project configuration that holds each layer root.</param>
     /// <param name="element">The marked handler or endpoint whose folder is checked.</param>
@@ -234,8 +235,9 @@ internal static class BackendPlacementChecks
             return false;
         }
 
-        // A use case's handler, message and steps sit in its Application folder, and its endpoint in
-        // its WebApi folder. The layer folder names no use case, so the use case folder is the one above it.
+        // A use case's handler, message and steps sit in its Application folder, its endpoint in
+        // its WebApi folder, and its own adapters in its Infrastructure folder. The layer folder
+        // names no use case, so the use case folder is the one above it.
         var folders = raw[1..^1];
 
         if (folders.Length > 0 && UseCaseLayerFolders.Contains(folders[^1]))
@@ -257,46 +259,10 @@ internal static class BackendPlacementChecks
 
         var above = folders.Length >= 2 ? folders[^2] : null;
 
-        if (path.Aggregate is null)
-        {
-            // A use case no single aggregate owns lives in the module UseCases
-            // folder; directly under the module it is the closed folder check
-            // that names the folder.
-            if (above is null)
-            {
-                return false;
-            }
-
-            if (above.Equals("UseCases", StringComparison.OrdinalIgnoreCase))
-            {
-                // Nested under an aggregate UseCases folder, the use case sits in
-                // an aggregate that owns no use case of its own name.
-                if (folders.Length >= 3)
-                {
-                    findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^3]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
-                    return true;
-                }
-
-                return false;
-            }
-
-            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{above}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
-            return true;
-        }
-
+        // Directly under the module the closed folder check names the missing UseCases level.
         if (above is null)
         {
-            // Under layer-projects a module with one aggregate of its own name
-            // stays flat, so the use case folder sits directly under the module
-            // only for that aggregate. In the module layout the UseCases level
-            // is required instead.
-            if (!SourceRoots.IsProductRoot(config.ModulesRoot) && SameName(path.Aggregate, path.Module!))
-            {
-                return false;
-            }
-
-            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{own}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
-            return true;
+            return false;
         }
 
         if (above.Equals("UseCases", StringComparison.OrdinalIgnoreCase))
@@ -305,20 +271,6 @@ internal static class BackendPlacementChecks
 
             if (home is null)
             {
-                // A module with one aggregate of its own name stays flat, so the
-                // use case folder sits in the module UseCases folder only for
-                // that aggregate.
-                if (SameName(path.Aggregate, path.Module!))
-                {
-                    return false;
-                }
-
-                findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder 'UseCases', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
-                return true;
-            }
-
-            if (SameName(home, path.Aggregate))
-            {
                 return false;
             }
 
@@ -326,7 +278,9 @@ internal static class BackendPlacementChecks
             return true;
         }
 
-        if (SameName(above, path.Aggregate))
+        // Flat in its own aggregate folder the closed folder check names the missing
+        // Domain and UseCases levels.
+        if (path.Aggregate is not null && SameAggregate(above, path.Aggregate))
         {
             return false;
         }
@@ -339,35 +293,61 @@ internal static class BackendPlacementChecks
     ///     The path segments of the file under its module layout without leaving any
     ///     folder out, with the module first and the file name last, or null when the
     ///     file sits outside every module. Under layer projects the module path already
-    ///     keeps every folder, so it is returned as is.
+    ///     keeps every folder, so it is returned as is. Under one module project the
+    ///     module name comes from the project folder.
     /// </summary>
-    /// <param name="config">The project configuration that holds each layer root and the shared kernel root.</param>
+    /// <param name="config">The project configuration that holds each layer root, the Kernel root and the Platform root.</param>
     /// <param name="file">The full path of the file whose segments are wanted.</param>
     /// <returns>The raw path segments with the module first, or null when the file sits outside the module layout.</returns>
     private static string[]? RawModulePath(ConsumerConfig config, string file)
     {
-        if (SourceRoots.IsProductRoot(config.ModulesRoot) && SourceRoots.IsUnder(config.ModulesRoot, file))
+        if (SourceRoots.IsUnderKernelOrPlatform(config, file))
         {
-            if (config.SharedKernelRoot.Length > 0 && SourceRoots.IsUnder(config.SharedKernelRoot, file))
-            {
-                return null;
-            }
+            return null;
+        }
 
-            var abstractions = config.ModulesRoot + ".Abstractions";
+        foreach (var modules in config.ModulesRoots)
+        {
+            var abstractions = modules + ".Abstractions";
 
             if (abstractions.Length > ".Abstractions".Length && SourceRoots.IsUnder(abstractions, file))
             {
                 return null;
             }
 
-            var segments = PathText.Relative(config.ModulesRoot, file).Split('/');
+            if (!SourceRoots.IsUnder(modules, file))
+            {
+                continue;
+            }
 
-            if (segments.Length >= 2 && segments[0].Equals("Composition", StringComparison.OrdinalIgnoreCase))
+            if (!SourceRoots.IsProductRoot(modules))
+            {
+                return SourceRoots.ModulePath(config, file);
+            }
+
+            var segments = PathText.Relative(modules, file).Split('/');
+
+            if (segments.Length >= 1 && segments[0].Equals("Composition", StringComparison.OrdinalIgnoreCase))
             {
                 return null;
             }
 
-            return segments.Length >= 2 ? segments : null;
+            if (SourceRoots.IsSingleModulesProject(modules))
+            {
+                return segments.Length >= 2 ? segments : null;
+            }
+
+            if (SourceRoots.ModuleNameOf(modules) is not { } module)
+            {
+                return null;
+            }
+
+            if (segments.Length < 1)
+            {
+                return null;
+            }
+
+            return segments.Length == 1 ? [module, segments[0]] : [module, .. segments];
         }
 
         return SourceRoots.ModulePath(config, file);
@@ -389,7 +369,7 @@ internal static class BackendPlacementChecks
     /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
     private static bool CheckTriggerFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<Finding> findings)
     {
-        if (!SourceRoots.IsProductRoot(config.ModulesRoot)
+        if (!SourceRoots.IsProductLayout(config)
             || TriggerHomeOf(record) is not { } home
             || RawModulePath(config, element.File) is not { } raw
             || raw.Length < 2
@@ -436,7 +416,7 @@ internal static class BackendPlacementChecks
     {
         var path = PathOf(readModel);
 
-        if (!SourceRoots.IsProductRoot(model.Config.ModulesRoot)
+        if (!SourceRoots.IsProductLayout(model.Config)
             || path.Module is null
             || path.Name is null
             || RawModulePath(model.Config, element.File) is not { } raw
@@ -466,22 +446,45 @@ internal static class BackendPlacementChecks
     }
 
     /// <summary>Whether the file sits in the Contracts folder of the module the mark names, at any depth below it.</summary>
-    /// <param name="config">The project configuration that holds the modules root.</param>
+    /// <param name="config">The project configuration that holds the module projects.</param>
     /// <param name="file">The full path of the file under test.</param>
     /// <param name="module">The module the record's folder path states.</param>
     /// <returns>True when the file sits under the module Contracts folder in the module layout.</returns>
     private static bool IsInModuleContracts(ConsumerConfig config, string file, string module)
     {
-        if (!SourceRoots.IsProductRoot(config.ModulesRoot) || !SourceRoots.IsUnder(config.ModulesRoot, file))
+        if (!SourceRoots.IsProductLayout(config))
         {
             return false;
         }
 
-        var segments = PathText.Relative(config.ModulesRoot, file).Split('/');
+        foreach (var modules in config.ModulesRoots)
+        {
+            if (!SourceRoots.IsProductRoot(modules) || !SourceRoots.IsUnder(modules, file))
+            {
+                continue;
+            }
 
-        return segments.Length >= 3
-            && SameName(segments[0], module)
-            && segments[1].Equals("Contracts", StringComparison.OrdinalIgnoreCase);
+            var segments = PathText.Relative(modules, file).Split('/');
+
+            if (SourceRoots.IsSingleModulesProject(modules))
+            {
+                if (segments.Length >= 3
+                    && SameName(segments[0], module)
+                    && segments[1].Equals("Contracts", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            else if (SourceRoots.ModuleNameOf(modules) is { } own
+                && SameName(own, module)
+                && segments.Length >= 2
+                && segments[0].Equals("Contracts", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>The aggregates a rule exception may sit beside: the rule home, and every same-module aggregate the rule governs or binds.</summary>
@@ -554,7 +557,7 @@ internal static class BackendPlacementChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckBackendNamespace(ConsumerConfig config, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<string>? ruleHomes, Dictionary<string, string> namespaces, List<Finding> findings)
     {
-        var expected = ExpectedSegments(path);
+        var expected = SourceRoots.IsProductLayout(config) ? ExpectedSegments(path) : ExpectedSegmentsWithAggregate(path);
 
         if (expected.Count == 0)
         {
@@ -591,15 +594,48 @@ internal static class BackendPlacementChecks
                 || (record.Type == RecordTypes.Rule
                     && ruleHomes is not null
                     && significant.Count >= 2
-                    && ruleHomes.Any(home => SameName(significant[1], home)))))
+                    && ruleHomes.Any(home => SameAggregate(significant[1], home)))))
         {
             return;
         }
 
-        if (!NamespaceMatches(placed, expected) && !NamespaceMatches(placed, WithModuleNamedAggregate(path, expected)))
+        if (!NamespaceMatches(placed, expected) && !NamespaceMatchesSingularAggregate(placed, expected, path))
         {
             findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' declares namespace '{actual}', but '{mark.RecordId}' places it under '{product}.{string.Join(".", expected)}'.", mark.File, mark.Line, mark.RecordId));
         }
+    }
+
+    /// <summary>Whether the declared namespace segments match the expected ones with the aggregate in the singular: code names the aggregate in the singular while the record folder names it in the plural.</summary>
+    /// <param name="placed">The declared namespace segments after the product.</param>
+    /// <param name="expected">The expected segments in placement order, without the product.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
+    /// <returns>True when the placed segments carry the expected segments with a singular aggregate.</returns>
+    private static bool NamespaceMatchesSingularAggregate(List<string> placed, List<string> expected, PlacementPath path)
+    {
+        if (path.IsUseCase || path.Aggregate is null || expected.Count < 2)
+        {
+            return false;
+        }
+
+        var singular = new List<string>(expected);
+        singular[1] = Naming.Pascal(SingularOf(path.Aggregate));
+
+        return NamespaceMatches(placed, singular);
+    }
+
+    /// <summary>The expected namespace segments with the aggregate parent a layer project keeps for a use case.</summary>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
+    /// <returns>The expected segments with the aggregate, or the expected segments unchanged when the path states no aggregate parent.</returns>
+    private static List<string> ExpectedSegmentsWithAggregate(PlacementPath path)
+    {
+        var expected = ExpectedSegments(path);
+
+        if (!path.IsUseCase || path.Module is null || path.Aggregate is null || SameName(path.Aggregate, path.Module))
+        {
+            return expected;
+        }
+
+        return [expected[0], Naming.Pascal(path.Aggregate), .. expected.Skip(1)];
     }
 
     /// <summary>Whether the endpoint sits in a host, where host endpoints carry their mark without a use case folder.</summary>
@@ -607,7 +643,7 @@ internal static class BackendPlacementChecks
     /// <param name="file">The full path of the endpoint file.</param>
     /// <returns>True when the file sits under a host root in the module layout.</returns>
     private static bool IsHostEndpoint(ConsumerConfig config, string file) =>
-        !SourceRoots.IsProductRoot(config.ModulesRoot)
+        !SourceRoots.IsProductLayout(config)
             ? false
             : SourceRoots.IsUnderHost(config, file);
 

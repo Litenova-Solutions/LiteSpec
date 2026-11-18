@@ -1,0 +1,27 @@
+using Claimwick.Platform.Http;
+using Claimwick.Spending.UseCases.ErasePersonalData.Application;
+using LiteBus.Commands.Abstractions;
+
+namespace Claimwick.Spending.UseCases.ErasePersonalData.WebApi;
+
+/// <implements>use-case/spending.erase-personal-data</implements>
+internal sealed class ErasePersonalDataEndpoint : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost("/api/expenses/{expenseId}:erase", HandleAsync)
+            .WithName("ErasePersonalData")
+            .WithSummary("Erase the personal data of a decided expense.")
+            .Produces(StatusCodes.Status204NoContent);
+    }
+
+    private static async Task<NoContent> HandleAsync(
+        Guid expenseId,
+        ICommandMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        await mediator.SendAsync(new ErasePersonalDataCommand(expenseId), cancellationToken);
+
+        return TypedResults.NoContent();
+    }
+}

@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Model.Code;
 /// <summary>
 ///     Derives each unmarked Domain type's aggregate from its folder: the first folder walking
 ///     upward that declares exactly one aggregate root carrying one <c>aggregate/</c> mark owns
-///     the type, a type in the shared kernel belongs to the kernel, and anything else is orphaned.
+///     the type, a type in the Kernel belongs to the kernel, and anything else is orphaned.
 ///     A marked type is never a part.
 /// </summary>
 /// <follows>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</follows>
@@ -40,28 +40,39 @@ static class Parts
         var grouped = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var orphans = new List<DomainType>();
 
-        // The Domain scope is the Domain project under layer-projects and the modules
-        // root in the module layout, where the reader already kept the Domain layer
-        // files only. The shared kernel project holds kernel types beside the scope.
-        var scope = model.Config.DomainRoot.Length > 0 ? model.Config.DomainRoot : model.Config.ModulesRoot;
+        // The Domain scopes are the Domain project under layer-projects and the module
+        // projects in the module layout, where the reader already kept the Domain layer
+        // files only. The Kernel project holds kernel types beside the scopes.
+        var scopes = ScopesOf(model);
 
-        if (scope.Length == 0)
+        if (scopes.Count == 0)
         {
             return (grouped, orphans);
         }
 
-        var domain = Folder(scope);
-        var aggregates = AggregateByFolder(model, scope, domain);
-        var kernelOnDisk = Directory.Exists(model.Config.SharedKernelRoot);
+        var domains = scopes.Select(Folder).ToList();
+        var aggregates = new Dictionary<string, string>(Comparer);
+
+        foreach (var scope in scopes)
+        {
+            foreach (var entry in AggregateByFolder(model, scope, Folder(scope)))
+            {
+                aggregates.TryAdd(entry.Key, entry.Value);
+            }
+        }
+
+        var kernelOnDisk = Directory.Exists(model.Config.KernelRoot);
 
         foreach (var type in model.Code.DomainTypes)
         {
-            if (type.HasMark || (!IsUnder(scope, type.File) && !IsUnder(model.Config.SharedKernelRoot, type.File)))
+            var scope = scopes.FirstOrDefault(candidate => IsUnder(candidate, type.File));
+
+            if (type.HasMark || (scope is null && !IsUnder(model.Config.KernelRoot, type.File)))
             {
                 continue;
             }
 
-            if (IsUnder(model.Config.SharedKernelRoot, type.File))
+            if (IsUnder(model.Config.KernelRoot, type.File))
             {
                 Add(grouped, "kernel", Entry(model, type));
                 continue;
@@ -69,11 +80,13 @@ static class Parts
 
             var folder = FolderOf(type.File);
 
-            if (!kernelOnDisk && IsKernelFolder(model, scope, folder))
+            if (scope is not null && !kernelOnDisk && IsKernelFolder(model, scope, folder))
             {
                 Add(grouped, "kernel", Entry(model, type));
                 continue;
             }
+
+            var domain = scope is null ? domains[0] : Folder(scope);
 
             if (WalkUp(folder, domain, aggregates) is { } aggregate)
             {
@@ -187,11 +200,24 @@ static class Parts
         return aggregates;
     }
 
-    /// <summary>Whether the folder is the kernel home when no shared kernel project is on disk: the scope root itself under layer-projects, the Domain folder under the modules root in the module layout.</summary>
+    /// <summary>The Domain scope roots: the Domain project under layer-projects, else every module project.</summary>
+    /// <param name="model">The built project model holding the declared roots.</param>
+    /// <returns>The non-empty scope roots in read order.</returns>
+    private static List<string> ScopesOf(ProjectModel model)
+    {
+        if (model.Config.DomainRoot.Length > 0)
+        {
+            return [model.Config.DomainRoot];
+        }
+
+        return [.. model.Config.ModulesRoots.Where(root => root.Length > 0)];
+    }
+
+    /// <summary>Whether the folder is the kernel home when no Kernel project is on disk: the scope root itself under layer-projects.</summary>
     /// <param name="model">The built project model holding the declared roots.</param>
     /// <param name="scope">The Domain scope root the walk stays inside.</param>
     /// <param name="folder">The normalized folder holding the type.</param>
-    /// <returns>True when the folder holds shared-kernel types.</returns>
+    /// <returns>True when the folder holds Kernel types.</returns>
     private static bool IsKernelFolder(ProjectModel model, string scope, string folder)
     {
         if (model.Config.DomainRoot.Length > 0)
@@ -199,7 +225,7 @@ static class Parts
             return Same(folder, Folder(scope));
         }
 
-        return UnderOrSame(Folder(Path.Combine(scope, "Domain")), folder);
+        return false;
     }
 
     /// <summary>The one aggregate mark the element carries, or null when it carries none or several.</summary>

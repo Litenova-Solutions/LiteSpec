@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="330" viewBox="0 0 720 330" role="img" aria-labelledby="backend-dependencies-title backend-dependencies-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="backend-dependencies-title">The four layers and their references</title>
-  <desc id="backend-dependencies-desc">Four layers stacked from outermost to innermost: WebApi, Infrastructure, Application, and Domain. WebApi references Application and WebApi, and from Domain only typed identifiers and shared-kernel values. Infrastructure references Domain, Application, and Infrastructure. Application references Domain and Application. Domain references only Domain.</desc>
+  <desc id="backend-dependencies-desc">Four layers stacked from outermost to innermost: WebApi, Infrastructure, Application, and Domain. WebApi references Application and WebApi, and from Domain only typed identifiers and Kernel values. Infrastructure references Domain, Application, and Infrastructure. Application references Domain and Application. Domain references only Domain.</desc>
   <defs>
     <marker id="backend-dependencies-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 10 5 0 10z" style="fill: var(--muted-fg, #77706a)" />

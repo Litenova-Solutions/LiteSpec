@@ -5,6 +5,7 @@ summary: An employee files a new expense with its amount, currency, and receipt.
 route: /expenses/new
 offers:
 - use-case/spending.submit-expense
+- use-case/spending.list-expenses
 serves:
 - flow/submit-and-reimburse#s1
 fulfills:

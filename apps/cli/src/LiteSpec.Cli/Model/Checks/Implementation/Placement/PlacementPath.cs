@@ -152,7 +152,9 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
 
         var expected = new List<string> { Naming.Pascal(path.Module) };
 
-        if (path.Aggregate is not null && !SameName(path.Aggregate, path.Module))
+        // A use case lives directly under its module, whatever aggregate its record sits
+        // under, so its namespace names no aggregate. Any other record names its aggregate.
+        if (!path.IsUseCase && path.Aggregate is not null && !SameName(path.Aggregate, path.Module))
         {
             expected.Add(Naming.Pascal(path.Aggregate));
         }
@@ -165,21 +167,36 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
         return expected;
     }
 
-    /// <summary>
-    ///     The expected segments with the aggregate kept after its module when both share a name, because the
-    ///     module layout gives such an aggregate its own folder, as in Directory.Directory.
-    /// </summary>
-    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
-    /// <param name="expected">The expected segments that drop the aggregate named like its module.</param>
-    /// <returns>The expected segments with that aggregate, or the expected segments unchanged.</returns>
-    internal static List<string> WithModuleNamedAggregate(PlacementPath path, List<string> expected)
+    /// <summary>Whether a code aggregate folder and a declared aggregate spell one aggregate: case, hyphens, underscores and number ignored, so Domain/Expense/ matches the declared expenses aggregate.</summary>
+    /// <param name="folder">The code folder name as written on disk, in the singular.</param>
+    /// <param name="aggregate">The declared aggregate name from its record folder, in the plural.</param>
+    /// <returns>True when both names spell one aggregate with case, hyphens, underscores and number ignored; otherwise false.</returns>
+    internal static bool SameAggregate(string folder, string aggregate)
     {
-        if (path.Module is null || path.Aggregate is null || !SameName(path.Aggregate, path.Module) || expected.Count == 0)
+        if (SameName(folder, aggregate))
         {
-            return expected;
+            return true;
         }
 
-        return [expected[0], Naming.Pascal(path.Aggregate), .. expected.Skip(1)];
+        return SameName(SingularOf(folder), SingularOf(aggregate));
+    }
+
+    /// <summary>The singular of an aggregate name: expenses to expense, policies to policy.</summary>
+    /// <param name="name">The aggregate name in either number.</param>
+    /// <returns>The name with a trailing plural lowered to the singular, or the name unchanged when it names none.</returns>
+    internal static string SingularOf(string name)
+    {
+        if (name.EndsWith("ies", StringComparison.OrdinalIgnoreCase) && name.Length > 3)
+        {
+            return name[..^3] + "y";
+        }
+
+        if (name.EndsWith('s') && !name.EndsWith("ss", StringComparison.OrdinalIgnoreCase) && name.Length > 1)
+        {
+            return name[..^1];
+        }
+
+        return name;
     }
 
     /// <summary>Whether a folder name and a record name spell one name: case, hyphens and underscores ignored.</summary>

@@ -92,6 +92,7 @@ static class Checker
         TestPlacementChecks.Run,
         FrontendPlacementChecks.Run,
         ClosedFolderChecks.Run,
+        DefinitionChecks.Run,
         MarkChecks.Run,
         ReactionSubscriptionChecks.Run,
         ScreenChecks.Run,

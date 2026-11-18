@@ -7,29 +7,23 @@ using static LiteSpec.Cli.Model.Checks.Implementation.Placement.PlacementPath;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 
-/// <summary>The closed-folder check: the shared kernel, the modules root, each module, aggregate and use case folder, and each frontend modules root hold only their fixed folders and the folders a declared record names.</summary>
+/// <summary>The closed-folder check: the Kernel, the Platform, each module project, each aggregate and use case folder, and each frontend modules root hold only their fixed folders and the folders a declared record names.</summary>
 /// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
 /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
 /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
 internal static class ClosedFolderChecks
 {
-    /// <summary>Fixed folders at the modules root, whatever its modules declare.</summary>
-    static readonly HashSet<string> ModulesRootFolders = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>Fixed folders at the Platform root: one folder per technical capability.</summary>
+    static readonly HashSet<string> PlatformFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Composition",
-    };
-
-    /// <summary>Fixed folders at the shared kernel root: one layer folder per layer.</summary>
-    static readonly HashSet<string> SharedKernelFolders = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "Domain", "Application", "Infrastructure", "WebApi",
+        "Persistence", "Messaging", "Access", "Auditing", "Http", "CountryPacks", "Modules",
     };
 
     /// <summary>Fixed folders at a module, whatever its aggregates, use cases, triggers and read models declare.</summary>
     static readonly HashSet<string> ModuleFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Contracts", "Domain", "Application", "Infrastructure",
-        "UseCases", "Notifications", "ExternalSystems", "ReadModels",
+        "Contracts", "Domain", "UseCases", "Infrastructure",
+        "Notifications", "ExternalSystems", "ReadModels",
     };
 
     /// <summary>The kind folders a module Contracts folder holds: the sorted public surface.</summary>
@@ -38,16 +32,22 @@ internal static class ClosedFolderChecks
         "Identifiers", "IntegrationEvents", "ModuleEvents", "Ports",
     };
 
-    /// <summary>Fixed folders at an aggregate, whatever its use cases declare.</summary>
-    static readonly HashSet<string> AggregateFolders = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>Fixed folders under one aggregate in Domain: its events and refusals.</summary>
+    static readonly HashSet<string> AggregateSubFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Domain", "Application", "Infrastructure", "UseCases",
+        "Events", "Exceptions",
     };
 
-    /// <summary>The layer folders a use case holds: its handler, message and steps, and its endpoint and transport models.</summary>
+    /// <summary>Fixed folders under a module Infrastructure folder: its shared adapters.</summary>
+    static readonly HashSet<string> InfrastructureFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Persistence", "ExternalSystems",
+    };
+
+    /// <summary>The layer folders a use case holds: its handler, message and steps, its endpoint and transport models, and its own adapters.</summary>
     static readonly HashSet<string> UseCaseLayerFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Application", "WebApi",
+        "Application", "WebApi", "Infrastructure",
     };
 
     /// <summary>The file name suffixes of transport types, which sit in a use case WebApi folder and no other.</summary>
@@ -71,22 +71,40 @@ internal static class ClosedFolderChecks
         var useCases = DeclaredUseCases(model);
         var homes = DeclaredTriggerHomes(model);
 
-        if (model.Config.ModulesRoot.Length > 0 && Directory.Exists(model.Config.ModulesRoot))
+        foreach (var modulesRoot in model.Config.ModulesRoots)
         {
-            if (SourceRoots.IsProductRoot(model.Config.ModulesRoot))
+            if (modulesRoot.Length == 0 || !Directory.Exists(modulesRoot))
             {
-                CheckModulesRoot(model.Config, modules, aggregates, useCases, homes, findings);
-                CheckMessageFiles(model.Config, useCases, findings);
+                continue;
+            }
+
+            if (SourceRoots.IsProductRoot(modulesRoot))
+            {
+                if (SourceRoots.IsSingleModulesProject(modulesRoot))
+                {
+                    CheckSingleModulesRoot(model.Config, modulesRoot, modules, aggregates, useCases, homes, findings);
+                }
+                else
+                {
+                    CheckModuleProject(model.Config, modulesRoot, modules, aggregates, useCases, homes, findings);
+                }
+
+                CheckMessageFiles(model.Config, modulesRoot, useCases, findings);
             }
             else
             {
-                CheckLayerProject(model.Config, model.Config.ModulesRoot, modules, findings);
+                CheckLayerProject(model.Config, modulesRoot, modules, findings);
             }
         }
 
-        if (model.Config.SharedKernelRoot.Length > 0 && Directory.Exists(model.Config.SharedKernelRoot))
+        if (model.Config.KernelRoot.Length > 0 && Directory.Exists(model.Config.KernelRoot))
         {
-            CheckSharedKernelRoot(model.Config, findings);
+            CheckKernelRoot(model.Config, findings);
+        }
+
+        if (model.Config.PlatformRoot.Length > 0 && Directory.Exists(model.Config.PlatformRoot))
+        {
+            CheckPlatformRoot(model.Config, findings);
         }
 
         foreach (var root in new[] { model.Config.DomainRoot, model.Config.InfrastructureRoot })
@@ -99,7 +117,7 @@ internal static class ClosedFolderChecks
 
         // Hosts hold their endpoints and plumbing without a folder rule in the module
         // layout; under layer-projects their module folders name declared modules.
-        if (!SourceRoots.IsProductRoot(model.Config.ModulesRoot))
+        if (!SourceRoots.IsProductLayout(model.Config))
         {
             foreach (var root in model.Config.WebApiRoots.Concat(model.Config.WorkerRoots))
             {
@@ -116,50 +134,78 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under the shared kernel root that breaks its closed set of layer folders.</summary>
+    /// <summary>Reports every folder under the Kernel root, which holds files only.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckSharedKernelRoot(ConsumerConfig config, List<Finding> findings)
+    private static void CheckKernelRoot(ConsumerConfig config, List<Finding> findings)
     {
-        foreach (var child in ChildFolders(config.SharedKernelRoot))
+        foreach (var child in ChildFolders(config.KernelRoot))
+        {
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' sits in the Kernel, which holds files only.", child, 1, null));
+        }
+    }
+
+    /// <summary>Reports every folder under the Platform root that breaks its closed set of capability folders.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckPlatformRoot(ConsumerConfig config, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(config.PlatformRoot))
         {
             var name = Path.GetFileName(child);
 
-            if (SharedKernelFolders.Contains(name))
+            if (PlatformFolders.Contains(name))
             {
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no shared kernel layer folder.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Platform folder.", child, 1, null));
         }
     }
 
-    /// <summary>Reports every folder under the modules root that breaks its level's closed set.</summary>
+    /// <summary>Reports every folder under the single modules root that breaks its level's closed set.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="modulesRoot">The single modules project holding every module.</param>
     /// <param name="modules">The declared module names.</param>
     /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckModulesRoot(ConsumerConfig config, List<string> modules, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    private static void CheckSingleModulesRoot(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
     {
-        foreach (var module in ChildFolders(config.ModulesRoot))
+        foreach (var module in ChildFolders(modulesRoot))
         {
             var name = Path.GetFileName(module);
 
-            if (ModulesRootFolders.Contains(name))
-            {
-                continue;
-            }
-
             if (modules.Count > 0 && !modules.Any(declared => SameName(name, declared)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no Composition folder or declared module.", module, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no declared module.", module, 1, null));
                 continue;
             }
 
             CheckModuleLevel(config, module, name, aggregates, useCases, homes, findings);
         }
+    }
+
+    /// <summary>Reports the module project that names no declared module, and every folder under it that breaks the module level's closed set.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="modulesRoot">The module project holding one module.</param>
+    /// <param name="modules">The declared module names.</param>
+    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
+    /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
+    /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckModuleProject(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    {
+        var name = SourceRoots.ModuleNameOf(modulesRoot) ?? Path.GetFileName(modulesRoot);
+
+        if (modules.Count > 0 && !modules.Any(declared => SameName(name, declared)))
+        {
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, modulesRoot)}' names no declared module.", modulesRoot, 1, null));
+            return;
+        }
+
+        CheckModuleLevel(config, modulesRoot, name, aggregates, useCases, homes, findings);
     }
 
     /// <summary>Reports every folder under one module that breaks the module level's closed set.</summary>
@@ -182,9 +228,17 @@ internal static class ClosedFolderChecks
                 {
                     CheckContractsLevel(config, child, findings);
                 }
+                else if (string.Equals(name, "Domain", StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckDomainLevel(config, child, moduleName, aggregates, findings);
+                }
                 else if (string.Equals(name, "UseCases", StringComparison.OrdinalIgnoreCase))
                 {
-                    CheckUseCasesLevel(config, child, moduleName, null, useCases, findings);
+                    CheckUseCasesLevel(config, child, moduleName, useCases, findings);
+                }
+                else if (string.Equals(name, "Infrastructure", StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckInfrastructureLevel(config, child, findings);
                 }
                 else if (string.Equals(name, "Notifications", StringComparison.OrdinalIgnoreCase)
                     || string.Equals(name, "ExternalSystems", StringComparison.OrdinalIgnoreCase)
@@ -196,13 +250,7 @@ internal static class ClosedFolderChecks
                 continue;
             }
 
-            if (aggregates.Count > 0 && !aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameName(name, aggregate.Aggregate)))
-            {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no layer folder or declared aggregate.", child, 1, null));
-                continue;
-            }
-
-            CheckAggregateLevel(config, child, moduleName, name, useCases, findings);
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no module folder.", child, 1, null));
         }
     }
 
@@ -228,31 +276,63 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under one aggregate that breaks the aggregate level's closed set.</summary>
+    /// <summary>Reports every folder under a module Domain folder that names no declared aggregate of the module.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
-    /// <param name="aggregate">The absolute aggregate folder.</param>
+    /// <param name="domain">The absolute Domain folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
-    /// <param name="aggregateName">The aggregate folder name as written on disk.</param>
-    /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
+    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckAggregateLevel(ConsumerConfig config, string aggregate, string moduleName, string aggregateName, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
+    private static void CheckDomainLevel(ConsumerConfig config, string domain, string moduleName, IReadOnlyList<(string Module, string Aggregate)> aggregates, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(domain))
+        {
+            var name = Path.GetFileName(child);
+
+            if (aggregates.Count > 0 && !aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameAggregate(name, aggregate.Aggregate)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no declared aggregate.", child, 1, null));
+                continue;
+            }
+
+            CheckAggregateLevel(config, child, findings);
+        }
+    }
+
+    /// <summary>Reports every folder under one aggregate in Domain that names no Events or Exceptions folder.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="aggregate">The absolute aggregate folder under Domain.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckAggregateLevel(ConsumerConfig config, string aggregate, List<Finding> findings)
     {
         foreach (var child in ChildFolders(aggregate))
         {
             var name = Path.GetFileName(child);
 
-            if (string.Equals(name, "UseCases", StringComparison.OrdinalIgnoreCase))
-            {
-                CheckUseCasesLevel(config, child, moduleName, aggregateName, useCases, findings);
-                continue;
-            }
-
-            if (AggregateFolders.Contains(name))
+            if (AggregateSubFolders.Contains(name))
             {
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no layer folder or UseCases folder.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Events or Exceptions folder.", child, 1, null));
+        }
+    }
+
+    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence or ExternalSystems folder.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="infrastructure">The absolute Infrastructure folder of one module.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckInfrastructureLevel(ConsumerConfig config, string infrastructure, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(infrastructure))
+        {
+            var name = Path.GetFileName(child);
+
+            if (InfrastructureFolders.Contains(name))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Infrastructure folder.", child, 1, null));
         }
     }
 
@@ -310,15 +390,17 @@ internal static class ClosedFolderChecks
 
     /// <summary>
     ///     Reports each file in a use case layer folder that sits in the wrong one: a transport type, such as an
-    ///     endpoint or a request or response model, belongs in WebApi, and every other file belongs in Application.
+    ///     endpoint or a request or response model, belongs in WebApi, and every other file belongs in Application
+    ///     or in Infrastructure for the slice's own adapters.
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
-    /// <param name="layer">The use case layer folder: Application or WebApi.</param>
+    /// <param name="layer">The use case layer folder: Application, WebApi or Infrastructure.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
     private static void CheckTransportFiles(ConsumerConfig config, string layer, List<Finding> findings)
     {
-        var inWebApi = string.Equals(Path.GetFileName(layer), "WebApi", StringComparison.OrdinalIgnoreCase);
+        var folder = Path.GetFileName(layer);
+        var inWebApi = string.Equals(folder, "WebApi", StringComparison.OrdinalIgnoreCase);
 
         foreach (var file in ChildFiles(layer))
         {
@@ -326,7 +408,7 @@ internal static class ClosedFolderChecks
 
             if (transport && !inWebApi)
             {
-                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' is a transport type, which sits in WebApi/, not Application/.", file, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' is a transport type, which sits in WebApi/, not {folder}/.", file, 1, null));
             }
             else if (!transport && inWebApi)
             {
@@ -337,7 +419,7 @@ internal static class ClosedFolderChecks
 
     /// <summary>
     ///     Reports the layout of one declared use case folder: files directly in it, and any folder other than its
-    ///     Application and WebApi folders. Each of those holds files only.
+    ///     Application, WebApi and Infrastructure folders. Each of those holds files only.
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="useCase">The absolute use case folder.</param>
@@ -346,7 +428,7 @@ internal static class ClosedFolderChecks
     {
         foreach (var file in ChildFiles(useCase))
         {
-            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in use case '{Path.GetFileName(useCase)}', which holds only its Application and WebApi folders.", file, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in use case '{Path.GetFileName(useCase)}', which holds only its Application, WebApi and Infrastructure folders.", file, 1, null));
         }
 
         foreach (var child in ChildFolders(useCase))
@@ -360,31 +442,23 @@ internal static class ClosedFolderChecks
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no use case layer folder, which is Application or WebApi.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no use case layer folder, which is Application, WebApi or Infrastructure.", child, 1, null));
         }
     }
 
-    /// <summary>Reports every folder under a UseCases folder that names no declared use case of its home.</summary>
+    /// <summary>Reports every folder under a module UseCases folder that names no declared use case of the module.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
-    /// <param name="useCases">The absolute UseCases folder of one module or aggregate.</param>
+    /// <param name="useCases">The absolute UseCases folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
-    /// <param name="aggregateName">The aggregate folder name as written on disk, or null at module level.</param>
     /// <param name="declared">The declared use cases by module, aggregate and name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckUseCasesLevel(ConsumerConfig config, string useCases, string moduleName, string? aggregateName, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
+    private static void CheckUseCasesLevel(ConsumerConfig config, string useCases, string moduleName, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
     {
-        // A module with one aggregate of its own name stays flat, so the module
-        // UseCases folder also holds the use cases of that aggregate.
-        var owned = aggregateName is null
-            ? declared
-                .Where(useCase => SameName(moduleName, useCase.Module)
-                    && (useCase.Aggregate is null || SameName(useCase.Aggregate, moduleName)))
-                .ToList()
-            : declared
-                .Where(useCase => SameName(moduleName, useCase.Module)
-                    && useCase.Aggregate is not null
-                    && SameName(aggregateName, useCase.Aggregate))
-                .ToList();
+        // Every use case lives directly under its module, whatever aggregate its
+        // record sits under.
+        var owned = declared
+            .Where(useCase => SameName(moduleName, useCase.Module))
+            .ToList();
 
         foreach (var child in ChildFolders(useCases))
         {
@@ -580,20 +654,23 @@ internal static class ClosedFolderChecks
     }
 
     /// <summary>
-    ///     Reports each message, result or transport model file in the modules project that sits outside a use case
+    ///     Reports each message, result or transport model file in one module project that sits outside a use case
     ///     folder. A use case's own models live in its folder, so a file named for a use case outside one is drift. The
     ///     finding names the use case folder the file belongs in when the file name's prefix names a declared use case.
-    ///     Composition and the shared kernel hold no use case models, so they are left out.
     /// </summary>
-    /// <param name="config">The project configuration that holds the modules root.</param>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="modulesRoot">The module project holding the files.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/backend/architecture#give-each-use-case-its-own-models</follows>
-    private static void CheckMessageFiles(ConsumerConfig config, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
+    private static void CheckMessageFiles(ConsumerConfig config, string modulesRoot, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
     {
-        foreach (var file in Directory.EnumerateFiles(config.ModulesRoot, "*.cs", SearchOption.AllDirectories).OrderBy(child => child, StringComparer.Ordinal))
+        var single = SourceRoots.IsSingleModulesProject(modulesRoot);
+        var own = single ? null : SourceRoots.ModuleNameOf(modulesRoot);
+
+        foreach (var file in Directory.EnumerateFiles(modulesRoot, "*.cs", SearchOption.AllDirectories).OrderBy(child => child, StringComparer.Ordinal))
         {
-            var segments = PathText.Relative(config.ModulesRoot, file).Split('/');
+            var segments = PathText.Relative(modulesRoot, file).Split('/');
 
             if (segments.Length < 2
                 || segments.Any(segment => SourceTree.SkippedFolders.Contains(segment))
@@ -611,7 +688,9 @@ internal static class ClosedFolderChecks
             }
 
             var prefix = fileName[..^suffix.Length];
-            var match = useCases.FirstOrDefault(useCase => SameName(segments[0], useCase.Module) && SameName(prefix, useCase.Name));
+            var match = single
+                ? useCases.FirstOrDefault(useCase => SameName(segments[0], useCase.Module) && SameName(prefix, useCase.Name))
+                : useCases.FirstOrDefault(useCase => own is not null && SameName(own, useCase.Module) && SameName(prefix, useCase.Name));
             var relative = PathText.Relative(config.Root, file);
 
             if (match.Module is null)
@@ -622,9 +701,9 @@ internal static class ClosedFolderChecks
 
             var layer = suffix is "RequestModel.cs" or "ResponseModel.cs" ? "WebApi" : "Application";
             var useCaseFolder = Naming.Pascal(match.Name);
-            var belongs = match.Aggregate is null || SameName(match.Aggregate, match.Module)
+            var belongs = single
                 ? $"{segments[0]}/UseCases/{useCaseFolder}/{layer}"
-                : $"{segments[0]}/{Naming.Pascal(match.Aggregate)}/UseCases/{useCaseFolder}/{layer}";
+                : $"UseCases/{useCaseFolder}/{layer}";
 
             findings.Add(new Finding("code-placement-drift", $"File '{relative}' holds a message, result or transport model outside a use case folder; it belongs in '{belongs}'.", file, 1, null));
         }

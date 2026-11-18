@@ -461,7 +461,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Example:** Claimwick counts an expense approved after the recorded March close toward April, even when its event arrives with late March events.
 
-**Reviewed for:** Does every module acting on another module's fact resolve late arrivals against owner-written facts or confirm with the owner? Check the timestamps and decision ports beside each cross-module read.
+**Reviewed for:** When one module acts on a fact another module owns, which owner-written moment or decision port settles a late arrival? Check the timestamps and decision ports beside each cross-module read.
 
 ### State Every Boundary Check as a Rule of Its Module
 

@@ -242,7 +242,8 @@ sealed class BookLive : IDisposable
         var paths = new List<string> { Path.Combine(config.Root, ConsumerRoot.FolderName) };
         if (config.ReadsCode)
         {
-            paths.AddRange([config.ModulesRoot, config.DomainRoot, config.SharedKernelRoot, config.InfrastructureRoot, config.TestResultsDir]);
+            paths.AddRange(config.ModulesRoots);
+            paths.AddRange([config.DomainRoot, config.KernelRoot, config.PlatformRoot, config.InfrastructureRoot, config.TestResultsDir]);
             paths.AddRange(config.WebApiRoots);
             paths.AddRange(config.WorkerRoots);
             paths.AddRange(config.TestRoots);

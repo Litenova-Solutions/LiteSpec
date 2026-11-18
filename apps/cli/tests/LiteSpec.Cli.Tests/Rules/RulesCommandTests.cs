@@ -71,11 +71,11 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "Rules for apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
+            "Rules for apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
             result.Output);
         Assert.Contains("Required:", result.Output);
         Assert.Contains("Concern-wide:", result.Output);
@@ -205,7 +205,7 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs",
+            "apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs",
             "--full");
 
         Assert.Equal(0, result.Status);

@@ -41,7 +41,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -71,14 +71,14 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
-        WriteCode(file, "Library.Billing.Loans.BorrowCopy", "BorrowCopyCommandHandler");
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Billing.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("Handler 'BorrowCopyCommandHandler' declares namespace 'Library.Billing.Loans.BorrowCopy', but 'use-case/lending.borrow-copy' places it under 'Library.Lending.Loans.BorrowCopy'.", finding.Message);
+        Assert.Equal("Handler 'BorrowCopyCommandHandler' declares namespace 'Library.Billing.BorrowCopy', but 'use-case/lending.borrow-copy' places it under 'Library.Lending.BorrowCopy'.", finding.Message);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
@@ -89,8 +89,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
-        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -120,8 +120,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Events", "LoanBorrowedEvent.cs");
-        WriteCode(file, "Library.Lending.Loans.Events", "LoanBorrowedEvent");
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "Events", "LoanBorrowedEvent.cs");
+        WriteCode(file, "Library.Lending.Domain.Loans.Events", "LoanBorrowedEvent");
         model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "domain-event/loan.loan-borrowed"));
 
         Assert.Empty(Run(model));
@@ -134,8 +134,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = TestFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
-        WriteCode(file, "Library.Acceptance.Tests.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyScenarios");
+        var file = TestFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
+        WriteCode(file, "Library.Acceptance.Tests.Lending.UseCases.BorrowCopy", "BorrowCopyScenarios");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file));
 
         Assert.Empty(Run(model));
@@ -257,7 +257,7 @@ public sealed class PlacementCheckTests
         Assert.Empty(Run(model));
     }
 
-    /// <summary>A product folder that names no layer folder or declared module reports the folder.</summary>
+    /// <summary>A product folder that names no declared module reports the folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutStrayProductFolderReportsPlacementDrift()
@@ -269,7 +269,7 @@ public sealed class PlacementCheckTests
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("Folder 'apps/api/src/Library.Modules/Archive' names no Composition folder or declared module.", finding.Message);
+        Assert.Equal("Folder 'apps/api/src/Library.Modules/Archive' names no declared module.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -280,7 +280,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Loans", "UseCases", "BorrowCopy"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Domain", "Loans"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "UseCases", "BorrowCopy"));
 
         Assert.Empty(Run(model));
     }
@@ -292,8 +293,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
-        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy.Application", "BorrowCopyCommandHandler");
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -306,8 +307,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyEndpoint.cs");
-        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy.Application", "BorrowCopyEndpoint");
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyEndpoint.cs");
+        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "BorrowCopyEndpoint", file, "use-case/lending.borrow-copy"));
 
         var finding = Assert.Single(Run(model));
@@ -356,14 +357,14 @@ public sealed class PlacementCheckTests
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         model.Records.Add(WithEffects(Rec(RecordTypes.Job, "job/lending.erase-expired", "lending/job/erase-expired", temp.Path), """[{"runs": "use-case/lending.borrow-copy"}]"""));
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "EraseExpiredLoansJob.cs");
-        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy.Application", "EraseExpiredLoansJob");
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "EraseExpiredLoansJob.cs");
+        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "EraseExpiredLoansJob");
         model.Code.Elements.Add(Element(CodeKind.Job, "EraseExpiredLoansJob", file, "job/lending.erase-expired"));
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>A job in a module Jobs folder reports the use case Application folder it belongs in, and the Jobs folder that names no layer.</summary>
+    /// <summary>A job in a module Jobs folder reports the use case Application folder it belongs in, and the Jobs folder that names no module folder.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void ModuleLayoutJobInJobsFolderReportsTriggerDrift()
@@ -379,7 +380,7 @@ public sealed class PlacementCheckTests
 
         Assert.Equal(2, placed.Count);
         Assert.Contains(placed, finding => finding.Message == "Job 'EraseExpiredLoansJob' sits in folder 'EraseExpiredLoans', but its trigger 'job/lending.erase-expired' belongs in 'Lending/UseCases/BorrowCopy/Application'.");
-        Assert.Contains(placed, finding => finding.Message.EndsWith("Lending/Jobs' names no layer folder or declared aggregate.", StringComparison.Ordinal));
+        Assert.Contains(placed, finding => finding.Message.EndsWith("Lending/Jobs' names no module folder.", StringComparison.Ordinal));
     }
 
     /// <summary>A Contracts Commands folder reports that it names no Contracts kind folder.</summary>
@@ -397,25 +398,25 @@ public sealed class PlacementCheckTests
         // The command file is also a message outside its use case folder.
         Assert.Equal(2, placed.Count);
         Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Commands' names no Contracts kind folder.");
-        Assert.Contains(placed, finding => finding.Message.EndsWith("it belongs in 'Lending/Loans/UseCases/BorrowCopy/Application'.", StringComparison.Ordinal));
+        Assert.Contains(placed, finding => finding.Message.EndsWith("it belongs in 'Lending/UseCases/BorrowCopy/Application'.", StringComparison.Ordinal));
     }
 
-    /// <summary>An aggregate WebApi folder reports that it names no layer folder or UseCases folder.</summary>
+    /// <summary>An aggregate WebApi folder reports that it names no Events or Exceptions folder.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void ModuleLayoutAggregateWebApiFolderReportsLayerDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "WebApi", "LoanResponseModel.cs");
-        WriteCode(file, "Library.Lending.Loans.WebApi", "LoanResponseModel");
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "WebApi", "LoanResponseModel.cs");
+        WriteCode(file, "Library.Lending.Domain.Loans.WebApi", "LoanResponseModel");
 
         var placed = Run(model);
 
         // The response model is also a transport model outside its use case folder.
         Assert.Equal(2, placed.Count);
-        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Loans/WebApi' names no layer folder or UseCases folder.");
-        Assert.Contains(placed, finding => finding.Message == "File 'apps/api/src/Library.Modules/Lending/Loans/WebApi/LoanResponseModel.cs' holds a message, result or transport model outside a use case folder.");
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Domain/Loans/WebApi' names no Events or Exceptions folder.");
+        Assert.Contains(placed, finding => finding.Message == "File 'apps/api/src/Library.Modules/Lending/Domain/Loans/WebApi/LoanResponseModel.cs' holds a message, result or transport model outside a use case folder.");
     }
 
     /// <summary>A read-model projection in its module's read-models folder reports nothing.</summary>
@@ -441,7 +442,7 @@ public sealed class PlacementCheckTests
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         model.Records.Add(Rec("read-model", "read-model/lending.reimbursed-expense", "lending/read-model/reimbursed-expense", temp.Path));
-        var file = ProductFile(temp.Path, "Lending", "Loans", "Projections", "ReimbursedExpenseOnLoanBorrowedProjection.cs");
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "Projections", "ReimbursedExpenseOnLoanBorrowedProjection.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "ReimbursedExpenseOnLoanBorrowedProjection", file, "read-model/lending.reimbursed-expense"));
 
         var placed = Run(model);
@@ -456,8 +457,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommand.cs");
-        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy.Application", "BorrowCopyCommand");
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommand.cs");
+        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyCommand");
 
         Assert.Empty(Run(model));
     }
@@ -469,11 +470,11 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "BorrowCopyCommand.cs");
-        WriteCode(file, "Library.Lending.Loans", "BorrowCopyCommand");
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "BorrowCopyCommand.cs");
+        WriteCode(file, "Library.Lending.Domain.Loans", "BorrowCopyCommand");
 
         var finding = Assert.Single(Run(model));
-        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Loans/BorrowCopyCommand.cs' holds a message, result or transport model outside a use case folder; it belongs in 'Lending/Loans/UseCases/BorrowCopy/Application'.", finding.Message);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Domain/Loans/BorrowCopyCommand.cs' holds a message, result or transport model outside a use case folder; it belongs in 'Lending/UseCases/BorrowCopy/Application'.", finding.Message);
     }
 
     /// <summary>Adds the effects a reaction or job record declares, as the record file's effects list.</summary>

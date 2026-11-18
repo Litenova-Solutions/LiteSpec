@@ -4,7 +4,7 @@ using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
-/// <summary>The part check: an unmarked Domain type under no aggregate folder and outside the kernel.</summary>
+/// <summary>The part check: an unmarked Domain type under no aggregate folder and outside the Kernel.</summary>
 /// <follows>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</follows>
 internal static class PartChecks
 {
@@ -17,7 +17,7 @@ internal static class PartChecks
         {
             findings.Add(new Finding(
                 "part-parent-missing",
-                $"Domain type '{orphan.Name}' sits in '{FolderShown(model, orphan.File)}', which holds no aggregate root and is not the shared kernel.",
+                $"Domain type '{orphan.Name}' sits in '{FolderShown(model, orphan.File)}', which holds no aggregate root and is not the Kernel.",
                 orphan.File,
                 orphan.Line,
                 null));

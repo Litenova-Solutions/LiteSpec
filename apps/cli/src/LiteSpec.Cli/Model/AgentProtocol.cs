@@ -50,7 +50,7 @@ static partial class AgentProtocol
                 FormatStacks(config.Stacks),
                 FormatExtensions(config.Extensions),
                 FormatLayers(config.Layers),
-                release.Docs,
+                DocsFor(release.Docs, config.Root),
                 CommandFor(config.Root));
             File.WriteAllText(file, fresh);
 
@@ -73,7 +73,7 @@ static partial class AgentProtocol
             FormatStacks(config.Stacks),
             FormatExtensions(config.Extensions),
             FormatLayers(config.Layers),
-            release.Docs,
+            DocsFor(release.Docs, config.Root),
             CommandFor(config.Root));
         var expected = BuildRegion(filled, newline);
 
@@ -241,7 +241,7 @@ static partial class AgentProtocol
             FormatStacks(config.Stacks),
             FormatExtensions(config.Extensions),
             FormatLayers(config.Layers),
-            release.Docs,
+            DocsFor(release.Docs, config.Root),
             CommandFor(config.Root));
 
         return BuildRegion(filled, "\n");
@@ -469,6 +469,47 @@ static partial class AgentProtocol
         }
 
         return parts.Count == 0 ? null : string.Join(", ", parts);
+    }
+
+    /// <summary>The docs folder as the protocol names it, the same on every machine that holds the same layout.</summary>
+    /// <param name="docs">The absolute docs folder of the carried release.</param>
+    /// <param name="root">The project root the protocol is written into.</param>
+    /// <returns>A path relative to the project root when the docs sit beside it in one repository, a path under the home folder written with a tilde, or the absolute path.</returns>
+    internal static string DocsFor(string docs, string root)
+    {
+        var full = Path.GetFullPath(docs);
+        var relative = Path.GetRelativePath(Path.GetFullPath(root), full);
+
+        if (!Path.IsPathRooted(relative) && SharesRepository(root, full))
+        {
+            return relative.Replace(Path.DirectorySeparatorChar, '/');
+        }
+
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+        if (home.Length > 0 && full.StartsWith(Path.GetFullPath(home) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        {
+            return "~/" + Path.GetRelativePath(home, full).Replace(Path.DirectorySeparatorChar, '/');
+        }
+
+        return full;
+    }
+
+    /// <summary>Whether the project root and the docs folder sit inside one git repository.</summary>
+    /// <param name="root">The project root.</param>
+    /// <param name="docs">The absolute docs folder.</param>
+    /// <returns>True when the nearest repository above the root also holds the docs folder.</returns>
+    private static bool SharesRepository(string root, string docs)
+    {
+        for (var folder = new DirectoryInfo(Path.GetFullPath(root)); folder is not null; folder = folder.Parent)
+        {
+            if (Directory.Exists(Path.Combine(folder.FullName, ".git")) || File.Exists(Path.Combine(folder.FullName, ".git")))
+            {
+                return docs.StartsWith(folder.FullName + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        return false;
     }
 
     /// <summary>The command that runs the CLI in the project: dotnet litespec with a tool manifest, else litespec.</summary>

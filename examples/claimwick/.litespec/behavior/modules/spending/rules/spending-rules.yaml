@@ -37,11 +37,11 @@ records:
   title: Suppressed Manager Gets No Reminder
   kind: precondition
   statement: A manager holding a reminder preference gets no approval reminder.
-  source: product-choice
   governs:
   - aggregate/spending.reminder-preference
   binds:
   - aggregate/spending.reminder-preference
   basedOn: []
+  source: product-choice
   fulfills:
   - requirement/approval-reminders.remind-approver-after-three-days

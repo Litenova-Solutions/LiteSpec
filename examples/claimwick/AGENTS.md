@@ -5,8 +5,9 @@ When this file disagrees with `litespec rules`, `litespec model query` or a reco
 
 This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
-Before a task, read https://litespec.dev/7.0.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
-UI work: the pattern pages listed in that index.
+Before a task, read the LiteSpec pages of this release at ../../docs and open only the pages the task touches.
+Read this release only: never substitute another version when a page is missing.
+UI work: the pattern pages of this release.
 
 Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#select-task-context)
 

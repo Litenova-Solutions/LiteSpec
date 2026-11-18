@@ -18,14 +18,14 @@ File-scoped namespaces, braces on every body, explicit access modifiers, and sea
 
 ### C# Role Names
 
-The Role Suffixes table on the shared [Naming and Code Style](../../workspace/naming.md) page lists the suffixes for handlers, endpoints, reactions, and jobs. The table below adds the C#-specific names: the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and the modules project carries one assembly marker.
+The Role Suffixes table on the shared [Naming and Code Style](../../workspace/naming.md) page lists the suffixes for handlers, endpoints, reactions, and jobs. The table below adds the C#-specific names: the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and each module project carries one entry type.
 
 | Role | Pattern | Example |
 |:---|:---|:---|
 | Repository interface | `I{Aggregate}Repository` | `IPostRepository` |
 | API mapping class | `{UseCase}ApiMappings` | `CreateDraftApiMappings` |
 | Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
-| Assembly marker | `{Product}AssemblyMarker` | `ClaimwickAssemblyMarker` |
+| Module entry type | `{Module}Module` | `SpendingModule` |
 
 Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
 
