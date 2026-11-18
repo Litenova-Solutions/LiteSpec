@@ -10,7 +10,8 @@ namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>
 ///     LS2021: a type that is not an endpoint, reaction or job holds no command, query or event mediator,
-///     so only the three entry points send a use case message. The shared kernel composes the pipeline and is exempt.
+///     so only the three entry points send a use case message. The platform composes the pipeline and is exempt,
+///     with the shared kernel of a one-modules-project solution.
 /// </summary>
 /// <follows>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -40,7 +41,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
-        if (IsSharedKernel(context.Compilation.AssemblyName))
+        if (IsPipelineAssembly(context.Compilation.AssemblyName))
         {
             return;
         }
@@ -127,12 +128,14 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
         return false;
     }
 
-    /// <summary>Returns true when the assembly is the shared kernel, which composes the pipeline; otherwise false.</summary>
+    /// <summary>Returns true when the assembly holds the pipeline: the platform, or the shared kernel of a one-modules-project solution; otherwise false.</summary>
     /// <param name="assemblyName">The compilation assembly name, or null when it has none.</param>
-    /// <returns>True when the assembly name ends with the SharedKernel segment; otherwise false.</returns>
-    private static bool IsSharedKernel(string? assemblyName) =>
+    /// <returns>True when the assembly name ends with the Platform or SharedKernel segment; otherwise false.</returns>
+    private static bool IsPipelineAssembly(string? assemblyName) =>
         assemblyName is not null
-        && (assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
+        && (assemblyName.Equals("Platform", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".Platform", StringComparison.Ordinal)
+            || assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
             || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal));
 
     /// <summary>Returns the location of the declared type of a parameter, field or property, or null when it has none.</summary>

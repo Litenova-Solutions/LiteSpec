@@ -647,6 +647,40 @@ public sealed class KindReaderTests
         }
     }
 
+    /// <summary>A message definition class takes no kind: definitions take no mark.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact(DisplayName = "A message definition class takes no kind")]
+    public void MessageDefinitionClassTakesNoKind()
+    {
+        var type = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class SubmitExpenseCommandAuthorizationDefinition : IAuthorizationDefinition<SubmitExpenseCommand>
+            {
+                public void Authorize()
+                {
+                }
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
+    }
+
+    /// <summary>A class deriving a type with Definition inside its name is technical.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact(DisplayName = "A class deriving a type with Definition inside its name is technical")]
+    public void ClassDerivingDefinitionPrefixedBaseIsTechnical()
+    {
+        var type = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class AuditRegistry : DefinitionRegistry
+            {
+                public void Register()
+                {
+                }
+            }
+            """);
+
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
+    }
+
     /// <summary>A record, struct, interface, or enum is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A record, struct, interface, or enum is not technical")]

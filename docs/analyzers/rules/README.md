@@ -1,10 +1,10 @@
 # Overview
 
-When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 45 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
+When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 56 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
 
 ## Domain Rules
 
-Rules `LS1001` to `LS1013` run in Domain only.
+Rules `LS1001` to `LS1016` check Domain modeling. `LS1014` runs in every production layer; the rest run in Domain only.
 
 - [LS1001: Domain References an Outer-Layer Concern](ls1001.md): reports a Domain use of an outer-layer namespace.
 - [LS1002: Domain Declares an Enum](ls1002.md): reports any enum declared in Domain.
@@ -19,10 +19,13 @@ Rules `LS1001` to `LS1013` run in Domain only.
 - [LS1011: Public Domain Contract Is Undocumented](ls1011.md): reports a public Domain type or member with no XML documentation.
 - [LS1012: Identifier Is Not a Strongly Typed Value](ls1012.md): reports a raw or malformed identifier in Domain.
 - [LS1013: Switch Leaves a Sealed Case to Its Discard Arm](ls1013.md): reports a switch leaving a sealed case to its discard arm.
+- [LS1014: Aggregate Part Constructed Outside Its Domain Folder](ls1014.md): reports construction of an aggregate part outside its `Domain/` folder.
+- [LS1015: Non-Root Type Exposes Public Mutation](ls1015.md): reports a public setter, constructor, or mutable collection on a non-root aggregate type.
+- [LS1016: Aggregate References Another Aggregate by Object](ls1016.md): reports an aggregate property typed as another aggregate's root or entity.
 
 ## Outer-Layer Rules
 
-Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2022` run across layers, as each page states.
+Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2028` run across layers, as each page states.
 
 - [LS2001: Implementation Type Is Not Internal Sealed](ls2001.md): reports an implementation type visible outside its assembly or open to extension.
 - [LS2003: WebApi Uses an MVC Controller](ls2003.md): reports a class derived from `ControllerBase` or carrying `ApiController`.
@@ -44,15 +47,22 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2022` run across layers
 - [LS2020: Module Names a Type Outside Another Module's Contracts](ls2020.md): reports a module naming another module past its `Contracts/` folder.
 - [LS2021: Message Sent Outside an Entry Point](ls2021.md): reports a mediator held outside an endpoint, reaction, or job.
 - [LS2022: Event Published by User Code](ls2022.md): reports user code naming the event mediator or an event publisher.
+- [LS2023: Class Implements Two Message Definitions](ls2023.md): reports a class implementing two message definition contracts.
+- [LS2024: Module Holds Platform-Owned Capability Code](ls2024.md): reports serializer, store, guard, or converter code in a module.
+- [LS2025: Use-Case Infrastructure Names a Type Outside Its Slice](ls2025.md): reports use-case `Infrastructure/` naming a Domain or WebApi type.
+- [LS2026: Model Duplicated in Two Use Case Folders](ls2026.md): reports a record declared with the same members in two use case folders.
+- [LS2027: Application Does Infrastructure Work](ls2027.md): reports archive, serialization, or document work in Application.
+- [LS2028: Module Exposes a Public Type Outside Contracts](ls2028.md): reports a public module type outside `Contracts/`.
 
 ## Naming and Style Rules
 
-Rules `LS3001` to `LS3004` run in every production layer.
+Rules `LS3001` to `LS3005` run in every production layer.
 
 - [LS3001: Asynchronous Method Name Lacks Async](ls3001.md): reports an async method whose name does not end in `Async`.
 - [LS3002: CancellationToken Is Not the Last Parameter](ls3002.md): reports a cancellation token that is misplaced or misnamed.
 - [LS3003: File Does Not Match Its Primary Type](ls3003.md): reports a C# file whose name differs from its primary type.
 - [LS3004: Concrete Class Is Not Sealed](ls3004.md): reports an unsealed class nothing derives from.
+- [LS3005: Class or Struct Declares a Primary Constructor](ls3005.md): reports a class or struct primary constructor.
 
 ## Test Rules
 
@@ -62,7 +72,7 @@ Rule `LS4001` runs in test projects only.
 
 ## Traceability Rules
 
-Rules `LS5003` to `LS5006`, `LS5009`, `LS5011`, and `LS5012` run across layers, as each page states.
+Rules `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013` run across layers, as each page states.
 
 - [LS5003: Code Element Carries the Wrong Number of Marks](ls5003.md): reports an element whose mark count differs from what its kind takes.
 - [LS5004: Mark Uses the Undeclared Style](ls5004.md): reports a mark in the style the project did not declare.
@@ -71,3 +81,4 @@ Rules `LS5003` to `LS5006`, `LS5009`, `LS5011`, and `LS5012` run across layers, 
 - [LS5009: Two Permissions Generate One Constant Name](ls5009.md): reports two permissions generating one constant name.
 - [LS5011: One Message Maps to Two Use Cases](ls5011.md): reports one message mapped to two use cases.
 - [LS5012: Role Allows an Undeclared Permission](ls5012.md): reports a role allowing a permission no record declares.
+- [LS5013: Base Declares a Non-Virtual Code](ls5013.md): reports a marked exception inheriting a non-virtual `Code`.

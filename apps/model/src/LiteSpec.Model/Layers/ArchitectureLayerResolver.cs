@@ -71,7 +71,7 @@ public static class ArchitectureLayerResolver
 
     /// <summary>
     ///     Returns true when the file sits below a UseCases folder, or in a module Notifications, ExternalSystems or
-    ///     ReadModels folder; otherwise false. A file inside a use case takes its layer from its Application or WebApi folder.
+    ///     ReadModels folder; otherwise false. A file inside a use case takes its layer from its layer folder.
     /// </summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>True when a folder of the path is named UseCases, Notifications, ExternalSystems or Views; otherwise false.</returns>
@@ -122,17 +122,25 @@ public static class ArchitectureLayerResolver
         return text == "LAYERPROJECTS" ? BackendLayout.LayerProjects : BackendLayout.Modules;
     }
 
-    /// <summary>Reads the layer from the last segments of an assembly name.</summary>
+    /// <summary>
+    ///     Reads the layer from the last segments of an assembly name. A business kernel reads
+    ///     as Domain, so its values answer the Domain rules; a technical platform reads as
+    ///     Infrastructure; an Api host reads as WebApi beside the WebApi and Worker hosts.
+    ///     A module project names no layer: the layer of its files is their folder.
+    /// </summary>
     /// <param name="assemblyName">The assembly name that names the application project.</param>
     /// <returns>The layer named by the last assembly name segments, or None when none names one.</returns>
     public static ArchitectureLayer FromAssemblyName(string assemblyName)
     {
         if (EndsWithSegment(assemblyName, "Tests") || EndsWithSegment(assemblyName, "Test")) return ArchitectureLayer.Test;
         if (EndsWithSegment(assemblyName, "Application.Abstractions")) return ArchitectureLayer.ApplicationAbstractions;
+        if (EndsWithSegment(assemblyName, "Kernel")) return ArchitectureLayer.Domain;
+        if (EndsWithSegment(assemblyName, "Platform")) return ArchitectureLayer.Infrastructure;
         if (EndsWithSegment(assemblyName, "Domain")) return ArchitectureLayer.Domain;
         if (EndsWithSegment(assemblyName, "Application")) return ArchitectureLayer.Application;
         if (EndsWithSegment(assemblyName, "Infrastructure")) return ArchitectureLayer.Infrastructure;
         if (EndsWithSegment(assemblyName, "WebApi")) return ArchitectureLayer.WebApi;
+        if (EndsWithSegment(assemblyName, "Api")) return ArchitectureLayer.WebApi;
         if (EndsWithSegment(assemblyName, "Worker")) return ArchitectureLayer.Worker;
         return ArchitectureLayer.None;
     }

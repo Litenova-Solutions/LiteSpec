@@ -28,7 +28,7 @@ Put a single `PackageReference` in `apps/api/Directory.Build.props` so every pro
 <PackageVersion Include="LiteSpec.Analyzers" Version="7.0.0" />
 ```
 
-and drop `Version` from the `PackageReference`. Do not add a second copy in any project file.
+and drop `Version` from the `PackageReference`. Do not add a second copy in any project file. For an unreleased build, consume the package through a local feed instead of a project reference, as `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts` shows.
 
 ### 2. Confirm the Layout
 
@@ -48,11 +48,11 @@ Under `layer-projects`, a project whose name ends in no layer name declares its 
 </PropertyGroup>
 ```
 
-The accepted values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value that names no known layer reports `LS2017`. `None` opts a project out and turns off the whole package there: no analyzer rule runs, and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package takes the layout from `selectedExtensions` in `.litespec/project.yaml`, so there is nothing else to wire. This step puts in place the shared kernel and modules projects with their hosts from [the .NET architecture page](../backend/dotnet/architecture.md).
+The accepted values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value that names no known layer reports `LS2017`. `None` opts a project out and turns off the whole package there: no analyzer rule runs, and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package takes the layout from `selectedExtensions` in `.litespec/project.yaml`, so there is nothing else to wire. This step puts in place the Kernel, Platform, and module projects with their hosts from [the .NET architecture page](../backend/dotnet/architecture.md).
 
 #### Check the Record Layer Claims
 
-The package also follows the record layers the project claims. A project that claims the record model alone gets no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5003` to `LS5006`, `LS5009`, `LS5011`, and `LS5012`, so a project can mark its code in its own layout before taking on the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing `.litespec/project.yaml`, set the property in that project's file:
+The package also follows the record layers the project claims. A project that claims the record model alone gets no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013`, so a project can mark its code in its own layout before taking on the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing `.litespec/project.yaml`, set the property in that project's file:
 
 ```xml
 <PropertyGroup>
@@ -70,7 +70,7 @@ Build the solution:
 dotnet build apps/api/Shop.slnx
 ```
 
-Each finding is an error by default: it fails the build and points at the provision it enforces. A typical first line looks like this:
+Each finding is an error by default and fails the build, except `LS3005`, which reports at info severity because the primary-constructor advice is advisory. Each finding points at the provision it enforces. A typical first line looks like this:
 
 ```text
 error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/7.0.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
@@ -153,7 +153,7 @@ The caller in Application supplies `publishedAt` from its own clock, and tests p
 
 ### 5. Let the Build Fail on Findings in CI
 
-No further setup is needed: every rule is an error by default, so `dotnet build` already fails on a finding. The `build` job compiles the solution with `dotnet build <solution>`, which means a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. [The continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) lists the jobs each change selects. Lower a severity only where a waiver allows it, as the next step describes.
+No further setup is needed: every rule is an error by default, except `LS3005` at info, so `dotnet build` already fails on a finding. The `build` job compiles the solution with `dotnet build <solution>`, which means a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. [The continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) lists the jobs each change selects. Lower a severity only where a waiver allows it, as the next step describes.
 
 ### 6. Record a Deliberate Waiver
 

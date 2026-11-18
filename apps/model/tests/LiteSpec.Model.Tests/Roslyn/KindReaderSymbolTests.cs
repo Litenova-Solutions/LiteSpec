@@ -416,6 +416,28 @@ public sealed class KindReaderSymbolTests
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty));
     }
 
+    /// <summary>A symbol message definition class takes no kind: definitions take no mark.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact(DisplayName = "A symbol message definition class takes no kind")]
+    public void SymbolMessageDefinitionClassTakesNoKind()
+    {
+        const string code = """
+            public interface IAuthorizationDefinition<TMessage>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandAuthorizationDefinition : IAuthorizationDefinition<SubmitExpenseCommand>
+            {
+                public void Authorize()
+                {
+                }
+            }
+            """;
+        var symbol = SymbolOf(code, "SubmitExpenseCommandAuthorizationDefinition");
+
+        Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+    }
+
     /// <summary>A symbol record, nested class, or constructor-only class is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol record, nested class, or constructor-only class is not technical")]

@@ -145,6 +145,17 @@ internal static class LocalityChecks
                         continue;
                     }
 
+                    if (source.Type == RecordTypes.Rule && property.Name == RecordFields.Governs)
+                    {
+                        findings.Add(new Finding(
+                            "link-locality-invalid",
+                            $"Rule '{source.Id}' in module '{sourceModule}' governs '{targetId}' in module '{targetModule}' with no declared dependency. State the check as its own rule in module '{targetModule}' at its boundary and name this rule in prose; module '{sourceModule}' checks again when it acts.",
+                            source.File,
+                            source.Line,
+                            SubjectOf(source)));
+                        continue;
+                    }
+
                     findings.Add(new Finding(
                         "link-locality-invalid",
                         $"{TypeLabel(source.Type)} '{source.Id}' in module '{sourceModule}' links to '{targetId}' in module '{targetModule}' through '{property.Name}' with no declared dependency.",
@@ -400,7 +411,7 @@ internal static class LocalityChecks
     /// <param name="model">The loaded project model that resolves the module and parent records.</param>
     /// <param name="record">The record whose module is wanted.</param>
     /// <returns>The module name, or null when the record sits at product level.</returns>
-    private static string? ModuleOf(ProjectModel model, Record record)
+    internal static string? ModuleOf(ProjectModel model, Record record)
     {
         var segments = record.File.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
 

@@ -194,4 +194,30 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
                     """),
             ],
             assemblyName: "Shop.Tests");
+
+    /// <summary>LS2022 accepts the event mediator in the platform, which holds the publishing pipeline.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    [Fact(DisplayName = "LS2022 accepts the event mediator in the platform")]
+    public Task AcceptsTheEventMediatorInThePlatform() =>
+        Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
+            [
+                ("Shop.Platform/Stubs.cs", Stubs),
+                ("Shop.Platform/Messaging/PublishOutbox.cs", """
+                    using LiteBus.Events.Abstractions;
+
+                    namespace Shop.Platform.Messaging;
+
+                    internal sealed class PublishOutbox
+                    {
+                        private readonly IEventMediator _events;
+
+                        public PublishOutbox(IEventMediator events)
+                        {
+                            _events = events;
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Platform");
 }

@@ -59,7 +59,18 @@ LS5012 | LiteSpec.Traceability | Error | GeneratorDiagnostics
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+LS1014 | LiteSpec.Domain | Error | Descriptors
+LS1015 | LiteSpec.Domain | Error | Descriptors
+LS1016 | LiteSpec.Domain | Error | Descriptors
 LS2021 | LiteSpec.Layers | Error | Descriptors
 LS2022 | LiteSpec.Layers | Error | Descriptors
+LS2023 | LiteSpec.Layers | Error | Descriptors
+LS2024 | LiteSpec.Layers | Error | Descriptors
+LS2025 | LiteSpec.Layers | Error | Descriptors
+LS2026 | LiteSpec.Layers | Error | Descriptors
+LS2027 | LiteSpec.Layers | Error | Descriptors
+LS2028 | LiteSpec.Layers | Error | Descriptors
 LS3002 | LiteSpec.Style | Error | Descriptors
 LS3003 | LiteSpec.Style | Error | Descriptors
+LS3005 | LiteSpec.Style | Info | Descriptors
+LS5013 | LiteSpec.Traceability | Error | GeneratorDiagnostics

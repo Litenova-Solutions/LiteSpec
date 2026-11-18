@@ -21,7 +21,7 @@ public sealed class LocalityCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "link-locality-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Rule 'rule/finance.refund-needs-receipt' in module 'finance' links to 'aggregate/lending.loan' in module 'lending' through 'governs' with no declared dependency.", finding.Message);
+        Assert.Equal("Rule 'rule/finance.refund-needs-receipt' in module 'finance' governs 'aggregate/lending.loan' in module 'lending' with no declared dependency. State the check as its own rule in module 'lending' at its boundary and name this rule in prose; module 'finance' checks again when it acts.", finding.Message);
         Assert.Equal("rule/finance.refund-needs-receipt", finding.Subject);
     }
 

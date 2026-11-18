@@ -312,4 +312,40 @@ public sealed class ModuleBoundaryAnalyzerTests
             ],
             assemblyName: "Shop.Application",
             layout: "layer-projects");
+
+    /// <summary>LS2020 stays quiet in a one-module-project compilation, where visibility holds the boundary.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    [Fact(DisplayName = "LS2020 stays quiet in a one-module-project compilation")]
+    public Task StaysQuietInAModuleProject() =>
+        Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Stubs.cs", """
+                    namespace Claimwick.Spending.Domain;
+
+                    internal sealed class Unused
+                    {
+                    }
+                    """),
+                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                    using Claimwick.Spending.Migrations;
+
+                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+
+                    internal sealed class SubmitExpenseCommandHandler
+                    {
+                        internal void Handle(MigrationPlan plan)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Migrations/MigrationPlan.cs", """
+                    namespace Claimwick.Spending.Migrations;
+
+                    internal sealed class MigrationPlan
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
 }

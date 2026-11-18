@@ -12,8 +12,8 @@ namespace LiteSpec.Analyzers.Rules.Layers.Application;
 /// <summary>
 ///     LS2022: user code names no event mediator and no event publisher. The pipeline publishes each outbound
 ///     integration event a use case raises, so an event goes out only through the declared translation. The
-///     shared kernel holds that pipeline and is exempt; every other type in the modules project is checked,
-///     entry points included.
+///     platform holds that pipeline and is exempt, with the shared kernel of a one-modules-project solution;
+///     every other type is checked, entry points included.
 /// </summary>
 /// <follows>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -35,7 +35,7 @@ public sealed class EventPublishedByUserCodeAnalyzer : LayerAnalyzer
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
-        if (IsSharedKernel(context.Compilation.AssemblyName))
+        if (IsPipelineAssembly(context.Compilation.AssemblyName))
         {
             return;
         }
@@ -70,11 +70,13 @@ public sealed class EventPublishedByUserCodeAnalyzer : LayerAnalyzer
     private static bool IsPublisher(INamedTypeSymbol type) =>
         type.Name == "IEventMediator" || type.Name.EndsWith("EventPublisher", StringComparison.Ordinal);
 
-    /// <summary>Returns true when the assembly is the shared kernel, which holds the publishing pipeline; otherwise false.</summary>
+    /// <summary>Returns true when the assembly holds the pipeline: the platform, or the shared kernel of a one-modules-project solution; otherwise false.</summary>
     /// <param name="assemblyName">The compilation assembly name, or null when it has none.</param>
-    /// <returns>True when the assembly name ends with the SharedKernel segment; otherwise false.</returns>
-    private static bool IsSharedKernel(string? assemblyName) =>
+    /// <returns>True when the assembly name ends with the Platform or SharedKernel segment; otherwise false.</returns>
+    private static bool IsPipelineAssembly(string? assemblyName) =>
         assemblyName is not null
-        && (assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
+        && (assemblyName.Equals("Platform", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".Platform", StringComparison.Ordinal)
+            || assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
             || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal));
 }

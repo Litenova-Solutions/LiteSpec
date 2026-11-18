@@ -37,13 +37,15 @@ internal sealed class CodeMap
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="modules">The module folders, as forward-slash directory paths.</param>
     /// <param name="slices">The use case and reaction folders, as forward-slash directory paths.</param>
-    private CodeMap(string assemblyName, BackendLayout layout, string? declared, HashSet<string> modules, HashSet<string> slices)
+    /// <param name="root">The modules or module project root, or null when the compilation is neither.</param>
+    private CodeMap(string assemblyName, BackendLayout layout, string? declared, HashSet<string> modules, HashSet<string> slices, string? root)
     {
         AssemblyName = assemblyName;
         Layout = layout;
         Declared = declared;
         Modules = modules;
         Slices = slices;
+        Root = root;
     }
 
     /// <summary>Gets the assembly name that names the modules project.</summary>
@@ -61,6 +63,12 @@ internal sealed class CodeMap
     /// <summary>Gets the use case and reaction folders, as forward-slash directory paths.</summary>
     private HashSet<string> Slices { get; }
 
+    /// <summary>Gets the modules or module project root, or null when the compilation is neither.</summary>
+    private string? Root { get; }
+
+    /// <summary>Gets a value indicating whether the compilation is one module project: the project root itself is the module.</summary>
+    public bool IsModuleProject => Root is not null && Modules.Contains(Root);
+
     /// <summary>Builds the map for one compilation.</summary>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <param name="options">The analyzer options carrying the additional files.</param>
@@ -77,13 +85,24 @@ internal sealed class CodeMap
         }
 
         var layout = FileScope.DeclaredLayout(options);
+        var moduleRoot = layout == BackendLayout.LayerProjects
+            ? null
+            : ModuleProjectRootOf(paths, compilation.AssemblyName ?? string.Empty);
+        var root = moduleRoot
+            ?? ApplicationRootOf(paths, compilation.AssemblyName ?? string.Empty);
         var modules = FindModules(paths, layout, compilation.AssemblyName ?? string.Empty);
+        if (moduleRoot is not null)
+        {
+            modules.Add(moduleRoot);
+        }
+
         return new CodeMap(
             compilation.AssemblyName ?? string.Empty,
             layout,
             FileScope.DeclaredLayer(options),
             modules,
-            FindSlices(paths, layout, ApplicationRootOf(paths, compilation.AssemblyName ?? string.Empty)));
+            FindSlices(paths, layout, root),
+            root);
     }
 
     /// <summary>Returns the layer of the file.</summary>
@@ -115,6 +134,12 @@ internal sealed class CodeMap
 
         return longest;
     }
+
+    /// <summary>Returns the aggregate folder holding the file, or null when no aggregate does.</summary>
+    /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
+    /// <returns>The aggregate folder, or null when the file sits outside every aggregate.</returns>
+    public string? AggregateOf(string? filePath) =>
+        Aggregates.AggregateOf(filePath, Modules);
 
     /// <summary>Returns the use case folder holding the file, or null when none does.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
@@ -272,6 +297,61 @@ internal sealed class CodeMap
         }
 
         return modules;
+    }
+
+    /// <summary>
+    ///     Returns the module project root: the project folder of a compilation that holds
+    ///     module folders at its root, or null when the compilation is no module project.
+    ///     The map records such a root as its own module, which opens module, slice and
+    ///     aggregate detection for modules that publish no Contracts folder yet, and tells
+    ///     a module project from the modules project.
+    /// </summary>
+    /// <param name="paths">The source file paths of the compilation.</param>
+    /// <param name="assemblyName">The compilation assembly name.</param>
+    /// <returns>The root as a forward-slash directory path, or null.</returns>
+    private static string? ModuleProjectRootOf(List<string> paths, string assemblyName)
+    {
+        if (IsModulesAssembly(assemblyName) || IsSharedKernelAssembly(assemblyName))
+        {
+            return null;
+        }
+
+        if (ProjectRootOf(paths, assemblyName) is not string root)
+        {
+            return null;
+        }
+
+        return HasChildFolder(paths, root, "Contracts")
+            || HasChildFolder(paths, root, "Domain")
+            || HasChildFolder(paths, root, "UseCases")
+            ? root
+            : null;
+    }
+
+    /// <summary>Returns true when a source file sits in the child folder of the root; otherwise false.</summary>
+    /// <param name="paths">The source file paths of the compilation.</param>
+    /// <param name="root">The project root as a forward-slash directory path.</param>
+    /// <param name="child">The child folder name.</param>
+    /// <returns>True when a source file sits in the child folder; otherwise false.</returns>
+    private static bool HasChildFolder(List<string> paths, string root, string child)
+    {
+        foreach (var path in paths)
+        {
+            var unified = path.Replace('\\', '/');
+            if (!unified.StartsWith(root + "/", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var rest = unified.Substring(root.Length + 1);
+            var slash = rest.IndexOf('/');
+            if (slash > 0 && rest.Substring(0, slash).Equals(child, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Returns the modules project root, or null when the compilation is no modules project.</summary>
@@ -444,7 +524,9 @@ internal sealed class CodeMap
 
     /// <summary>
     ///     Returns the use case folder a folder belongs to: the nearest ancestor whose parent is a UseCases folder,
-    ///     when the folder runs through that ancestor's Application or WebApi folder. Otherwise null.
+    ///     when the folder runs through one of that ancestor's layer folders. A layer folder is any folder
+    ///     directly under the use case folder: Application, WebApi, Infrastructure, or a later layer.
+    ///     Otherwise null.
     /// </summary>
     /// <param name="folder">The folder as a forward-slash directory path.</param>
     /// <returns>The use case folder, as a forward-slash directory path, or null when the folder sits in no use case.</returns>
@@ -460,9 +542,7 @@ internal sealed class CodeMap
                 continue;
             }
 
-            return segments[index + 1] is "Application" or "WebApi"
-                ? string.Join("/", segments, 0, index + 1)
-                : null;
+            return string.Join("/", segments, 0, index + 1);
         }
 
         return null;

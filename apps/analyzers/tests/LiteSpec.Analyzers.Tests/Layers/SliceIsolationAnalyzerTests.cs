@@ -359,4 +359,33 @@ public sealed class SliceIsolationAnalyzerTests
             ],
             assemblyName: "Shop.Application",
             layout: "layer-projects");
+
+    /// <summary>LS2019 reports a use case Infrastructure folder naming another use case folder.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 reports a use case Infrastructure folder naming another use case folder")]
+    public Task ReportsAUseCaseInfrastructureFolderNamingAnotherUseCase() =>
+        Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
+            [
+                ("Claimwick.Spending/UseCases/SubmitExpense/Infrastructure/SubmitExpenseWriter.cs", """
+                    using Claimwick.Spending.UseCases.ApproveExpense;
+
+                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+
+                    internal sealed class SubmitExpenseWriter
+                    {
+                        internal void Write({|LS2019:ApproveExpensePolicy|} policy)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/UseCases/ApproveExpense/Application/ApproveExpensePolicy.cs", """
+                    namespace Claimwick.Spending.UseCases.ApproveExpense;
+
+                    internal sealed class ApproveExpensePolicy
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
 }

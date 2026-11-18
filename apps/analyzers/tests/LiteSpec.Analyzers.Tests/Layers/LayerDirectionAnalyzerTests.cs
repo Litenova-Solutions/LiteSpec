@@ -322,4 +322,107 @@ public sealed class LayerDirectionAnalyzerTests
             ],
             assemblyName: "Shop.WebApi",
             layout: "layer-projects");
+
+    /// <summary>LS2018 reports an Application file naming a stored document of an aggregate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 reports an Application file naming a stored document of an aggregate")]
+    public Task ReportsAnApplicationFileNamingAnAggregateDocument() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Modules/Spending/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs", """
+                    namespace Claimwick.Spending;
+
+                    internal sealed class SubmitExpenseCommandHandler
+                    {
+                        internal void Handle({|LS2018:ExpenseDocument|} document)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Spending/Infrastructure/ExpenseDocument.cs", """
+                    namespace Claimwick.Spending;
+
+                    internal sealed class ExpenseDocument
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/Spending/Domain/Expense.cs", """
+                    namespace Claimwick.Spending;
+
+                    public abstract class AggregateRoot<TId>;
+
+                    public sealed class Expense : AggregateRoot<ExpenseId>
+                    {
+                    }
+
+                    public readonly record struct ExpenseId(System.Guid Value);
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2018 reports a WebApi file naming a stored document of an aggregate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 reports a WebApi file naming a stored document of an aggregate")]
+    public Task ReportsAWebApiFileNamingAnAggregateDocument() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Modules/Spending/UseCases/ReadExpense/ReadExpenseEndpoint.cs", """
+                    namespace Claimwick.Spending;
+
+                    internal sealed class ReadExpenseEndpoint
+                    {
+                        internal void Handle({|LS2018:ExpenseDocument|} document)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Spending/Infrastructure/ExpenseDocument.cs", """
+                    namespace Claimwick.Spending;
+
+                    internal sealed class ExpenseDocument
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/Spending/Domain/Expense.cs", """
+                    namespace Claimwick.Spending;
+
+                    public abstract class AggregateRoot<TId>;
+
+                    public sealed class Expense : AggregateRoot<ExpenseId>
+                    {
+                    }
+
+                    public readonly record struct ExpenseId(System.Guid Value);
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2018 reports an Application file naming a document with no aggregate behind it.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 reports an Application file naming a document with no aggregate behind it")]
+    public Task ReportsAnApplicationFileNamingADocumentWithNoAggregate() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Modules/Spending/UseCases/ReadTotals/ReadTotalsQueryHandler.cs", """
+                    namespace Claimwick.Spending;
+
+                    internal sealed class ReadTotalsQueryHandler
+                    {
+                        internal void Handle({|LS2018:ExpenseTotalsDocument|} document)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Spending/Infrastructure/ExpenseTotalsDocument.cs", """
+                    namespace Claimwick.Spending;
+
+                    internal sealed class ExpenseTotalsDocument
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
 }

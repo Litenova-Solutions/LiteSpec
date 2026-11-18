@@ -56,6 +56,12 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
             return;
         }
 
+        if (map.ReferencedLayer(type, context.Compilation) == ArchitectureLayer.Infrastructure
+            && IsAggregateDocument(type, context.Compilation))
+        {
+            reason += ". Query the aggregate type through IQuerySession instead of naming the Infrastructure document type.";
+        }
+
         context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS2018, node.Identifier.GetLocation(), source, name, reason));
     }
 
@@ -69,7 +75,17 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
     {
         if (source == ArchitectureLayer.Application)
         {
+            if (IsPlatform(type))
+            {
+                return null;
+            }
+
             var layer = map.ReferencedLayer(type, compilation);
+            if (layer == ArchitectureLayer.Infrastructure && type.TypeKind == TypeKind.Interface)
+            {
+                return null;
+            }
+
             if (layer == ArchitectureLayer.Infrastructure || layer == ArchitectureLayer.WebApi)
             {
                 return "which lives in the " + layer + " layer";
@@ -107,6 +123,30 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
         return null;
     }
 
+    /// <summary>Returns true when the type is a stored document of an aggregate: its name ends in Document and the compilation declares the aggregate root; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="compilation">The compilation whose types and references the check reads.</param>
+    /// <returns>True when the type documents an aggregate the compilation declares.</returns>
+    private static bool IsAggregateDocument(INamedTypeSymbol type, Compilation compilation)
+    {
+        const string suffix = "Document";
+        if (!type.Name.EndsWith(suffix, StringComparison.Ordinal) || type.Name.Length == suffix.Length)
+        {
+            return false;
+        }
+
+        var aggregate = type.Name.Substring(0, type.Name.Length - suffix.Length);
+        foreach (var symbol in compilation.GetSymbolsWithName(aggregate, SymbolFilter.Type))
+        {
+            if (symbol is INamedTypeSymbol candidate && Aggregates.IsRoot(candidate))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>Returns true when the type is a typed identifier; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
     /// <returns>True when the type is a typed identifier; otherwise false.</returns>
@@ -117,9 +157,31 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
     /// <param name="type">The type under inspection.</param>
     /// <param name="map">The architectural home of every source file.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
-    /// <returns>True when the type lives in the shared kernel; otherwise false.</returns>
+    /// <returns>True when the type lives in the shared kernel.</returns>
     private static bool IsSharedKernel(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
-        CodeMap.SourceFileOf(type, compilation) is string file && map.ModuleOf(file) is null;
+        (CodeMap.SourceFileOf(type, compilation) is string file && map.ModuleOf(file) is null)
+        || IsKernelAssembly(type.ContainingAssembly?.Name);
+
+    /// <summary>Returns true when the type lives in the technical platform; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type lives in the platform.</returns>
+    private static bool IsPlatform(INamedTypeSymbol type)
+    {
+        var assembly = type.ContainingAssembly?.Name;
+        return !string.IsNullOrEmpty(assembly)
+            && (assembly!.Equals("Platform", StringComparison.Ordinal)
+                || assembly.EndsWith(".Platform", StringComparison.Ordinal));
+    }
+
+    /// <summary>Returns true when the assembly is the business kernel; otherwise false.</summary>
+    /// <param name="assemblyName">The assembly name, or null when the compilation does not provide it.</param>
+    /// <returns>True when the assembly is the kernel.</returns>
+    private static bool IsKernelAssembly(string? assemblyName) =>
+        !string.IsNullOrEmpty(assemblyName)
+        && (assemblyName!.Equals("Kernel", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal)
+            || assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal));
 
     /// <summary>Returns true when the namespace is an ASP.NET Core namespace; otherwise false.</summary>
     /// <param name="containing">The containing namespace, or null when the compilation does not provide it.</param>

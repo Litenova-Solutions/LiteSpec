@@ -26,9 +26,9 @@ namespace LiteSpec.Model.Roslyn;
 ///     match one declaration, the first in the design table order wins; a test
 ///     attribute wins over an aggregate method body. A technical class is last:
 ///     a top-level class in an outer-layer project that takes no other kind and
-///     declares an ordinary method, excluding generated code, migrations, and
-///     nested types. FrontendModule is a frontend kind and is never recognized
-///     from C#.
+///     declares an ordinary method, excluding generated code, migrations,
+///     nested types, and message definition classes, which take no mark.
+///     FrontendModule is a frontend kind and is never recognized from C#.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class KindReader
@@ -619,13 +619,45 @@ public static class KindReader
             || (type.Name.EndsWith("Endpoint", StringComparison.Ordinal)
                 && ProjectMatches(containingProject, containingLayer, "WebApi")));
 
+    /// <summary>Whether the declaration is a message definition class: it implements a definition contract.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when a base type name ends in Definition.</returns>
+    private static bool IsDefinition(TypeDeclarationSyntax type)
+    {
+        foreach (var baseType in BaseTypes(type))
+        {
+            if (SyntaxNames.SimpleName(baseType)?.EndsWith("Definition", StringComparison.Ordinal) == true)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the symbol is a message definition class: it implements a definition contract.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <returns>True when an implemented contract name ends in Definition.</returns>
+    private static bool IsDefinition(INamedTypeSymbol type)
+    {
+        foreach (var contract in type.AllInterfaces)
+        {
+            if (contract.Name.EndsWith("Definition", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>
     ///     Whether the type declaration is a technical class: a top-level class in an
     ///     outer-layer project that declares an ordinary method, excluding generated
-    ///     code, migrations, and model snapshots. A null project leaves the class
-    ///     unrecognized: without a project name no layer can be confirmed. A partial
-    ///     part reads through the context names the host collected, so partial parts
-    ///     count as one class.
+    ///     code, migrations, model snapshots, and message definition classes, which
+    ///     take no mark. A null project leaves the class unrecognized: without a
+    ///     project name no layer can be confirmed. A partial part reads through the
+    ///     context names the host collected, so partial parts count as one class.
     /// </summary>
     /// <param name="type">The type declaration.</param>
     /// <param name="context">The cross-file names the host collected.</param>
@@ -641,7 +673,7 @@ public static class KindReader
             return false;
         }
 
-        if (IsGeneratedFile(type.SyntaxTree) || HasGeneratedCodeAttribute(type) || IsMigration(type))
+        if (IsGeneratedFile(type.SyntaxTree) || HasGeneratedCodeAttribute(type) || IsMigration(type) || IsDefinition(type))
         {
             return false;
         }
@@ -667,8 +699,9 @@ public static class KindReader
     /// <summary>
     ///     Whether the type symbol is a technical class: a top-level non-record class
     ///     in an outer-layer project that declares an ordinary method, excluding
-    ///     generated code, migrations, and model snapshots. Partial parts merge in
-    ///     the symbol, so no context names are needed.
+    ///     generated code, migrations, model snapshots, and message definition
+    ///     classes, which take no mark. Partial parts merge in the symbol, so no
+    ///     context names are needed.
     /// </summary>
     /// <param name="type">The type symbol.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
@@ -680,7 +713,8 @@ public static class KindReader
             || type.IsRecord
             || type.ContainingType is not null
             || containingProject is null
-            || !ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
+            || !ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker")
+            || IsDefinition(type))
         {
             return false;
         }

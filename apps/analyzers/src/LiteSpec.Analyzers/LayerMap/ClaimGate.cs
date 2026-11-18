@@ -9,7 +9,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 
 /// <summary>
 ///     Whether a rule runs for the record layers the project claims. The traceability rules
-///     (<c>LS5001</c> to <c>LS5012</c>) run when Implementation is claimed with either practice.
+///     (<c>LS5001</c> to <c>LS5013</c>) run when Implementation is claimed with either practice.
 ///     The mark rule on tests (<c>LS4001</c>) runs when Proof is claimed with either practice.
 ///     Every other rule states LiteSpec's practice for Implementation and runs only when that
 ///     practice is <c>litespec</c>. A layer left out of the claim runs nothing for it.
@@ -110,7 +110,7 @@ internal static class ClaimGate
         return name == "own" ? LayerPractice.Own : LayerPractice.LiteSpec;
     }
 
-    /// <summary>Whether the diagnostic is a traceability rule, LS5001 to LS5012.</summary>
+    /// <summary>Whether the diagnostic is a traceability rule, LS5001 to LS5013.</summary>
     /// <param name="id">The diagnostic identifier, such as LS5003.</param>
     /// <returns>True when the identifier names a traceability rule; otherwise false.</returns>
     private static bool IsTraceability(string id) =>
@@ -118,5 +118,5 @@ internal static class ClaimGate
         && id.StartsWith("LS", StringComparison.Ordinal)
         && int.TryParse(id.Substring(2), NumberStyles.None, CultureInfo.InvariantCulture, out var number)
         && number >= 5001
-        && number <= 5012;
+        && number <= 5013;
 }

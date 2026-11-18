@@ -89,6 +89,22 @@ internal static class Descriptors
     private static readonly Provision EmitAfterCommit = Provision.Of("backend/application", "stage-declared-module-and-integration-events-in-the-commit");
     /// <summary>The provision the related descriptors enforce: point code and tests up to records (litespec/core/system#point-code-and-tests-up-to-records).</summary>
     private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
+    /// <summary>The provision the related descriptors enforce: construct aggregate parts only inside the root (litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root).</summary>
+    private static readonly Provision AggregateConstruction = Provision.Of("backend/dotnet/domain", "construct-aggregate-parts-only-inside-the-root");
+    /// <summary>The provision the related descriptors enforce: model child entities as sealed classes (litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes).</summary>
+    private static readonly Provision ChildEntities = Provision.Of("backend/dotnet/domain", "model-child-entities-as-sealed-classes");
+    /// <summary>The provision the related descriptors enforce: reference other aggregates by typed identifier (litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier).</summary>
+    private static readonly Provision TypedAggregateRefs = Provision.Of("backend/dotnet/domain", "reference-other-aggregates-by-typed-identifier");
+    /// <summary>The provision the related descriptors enforce: declare each pipeline concern in its own class (litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class).</summary>
+    private static readonly Provision PipelineConcern = Provision.Of("workspace/design", "declare-each-pipeline-concern-in-its-own-class");
+    /// <summary>The provision the related descriptors enforce: plug modules into the platform through contributions (litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions).</summary>
+    private static readonly Provision PlatformContributions = Provision.Of("backend/dotnet/architecture", "plug-modules-into-the-platform-through-contributions");
+    /// <summary>The provision the related descriptors enforce: expose only contracts and the entry point (litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point).</summary>
+    private static readonly Provision ModuleSurface = Provision.Of("backend/dotnet/architecture", "expose-only-contracts-and-the-entry-point");
+    /// <summary>The provision the related descriptors enforce: produce file formats in infrastructure (litespec/backend/architecture#produce-file-formats-in-infrastructure).</summary>
+    private static readonly Provision FileFormats = Provision.Of("backend/architecture", "produce-file-formats-in-infrastructure");
+    /// <summary>The provision the related descriptors enforce: avoid primary constructors on classes and structs (litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs).</summary>
+    private static readonly Provision NoPrimaryConstructors = Provision.Of("workspace/naming", "avoid-primary-constructors-on-classes-and-structs");
     /// <summary>The provision the related descriptors enforce: write each mark in the declared style (litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style).</summary>
     private static readonly Provision DeclaredStyle = Provision.Of("backend/dotnet/stack", "write-each-mark-in-the-declared-style");
     /// <summary>The provision the related descriptors enforce: generate runtime values from the records (litespec/backend/dotnet/stack#generate-runtime-values-from-the-records).</summary>
@@ -174,6 +190,24 @@ internal static class Descriptors
         "Switch leaves a sealed case to its discard arm",
         "Switch on '{0}' leaves '{1}' to its discard arm; handle every sealed case explicitly",
         "A switch over an abstract state or closed-set record gives every sealed case its own arm and keeps the discard arm for values outside the sealed set. The compiler does not check the switch, so a case left to the discard arm reaches it at run time.");
+
+    /// <summary>The LS1014 descriptor: Aggregate part constructed outside its Domain folder.</summary>
+    public static readonly DiagnosticDescriptor LS1014 = Create("LS1014", DomainCategory, AggregateConstruction,
+        "Aggregate part constructed outside its Domain folder",
+        "'{0}' belongs to the '{1}' aggregate; construct it through the root instead of here",
+        "Application, WebApi, reactions and jobs call only the root's named factories and methods with plain inputs. They never construct an entity or value object that belongs to an aggregate.");
+
+    /// <summary>The LS1015 descriptor: Non-root type exposes public mutation.</summary>
+    public static readonly DiagnosticDescriptor LS1015 = Create("LS1015", DomainCategory, ChildEntities,
+        "Non-root type exposes public mutation",
+        "'{0}' is a non-root type of the '{1}' aggregate; {2}",
+        "Only the root changes its aggregate: entities and value objects inside an aggregate have no public setters, no public constructors and no public mutable collections.");
+
+    /// <summary>The LS1016 descriptor: Aggregate references another aggregate by object.</summary>
+    public static readonly DiagnosticDescriptor LS1016 = Create("LS1016", DomainCategory, TypedAggregateRefs,
+        "Aggregate references another aggregate by object",
+        "'{0}' is typed as '{1}' of the '{2}' aggregate; reference it by its typed id",
+        "An aggregate references another aggregate by its typed id only, never by object reference.");
 
     /// <summary>The LS2001 descriptor: Implementation type is not internal sealed.</summary>
     public static readonly DiagnosticDescriptor LS2001 = Create("LS2001", LayersCategory, InternalImplementations,
@@ -295,6 +329,43 @@ internal static class Descriptors
         "'{0}' publishes events from user code; the pipeline publishes the integration event a raised domain event translates",
         "Only the pipeline publishes an outbound integration event. A use case raises a domain event, and the pipeline stages each integration event that translates it in the same commit. User code holds no event mediator and no event publisher.");
 
+    /// <summary>The LS2023 descriptor: Class implements two message definitions.</summary>
+    public static readonly DiagnosticDescriptor LS2023 = Create("LS2023", LayersCategory, PipelineConcern,
+        "Class implements two message definitions",
+        "'{0}' implements {1} message definitions; {2}",
+        "Each pipeline declaration sits in its own class: one class implements exactly one LiteBus message definition contract, never two concerns such as authorization and audit.");
+
+    /// <summary>The LS2024 descriptor: Module holds platform-owned capability code.</summary>
+    public static readonly DiagnosticDescriptor LS2024 = Create("LS2024", LayersCategory, PlatformContributions,
+        "Module holds platform-owned capability code",
+        "'{0}' {1}",
+        "A module plugs into the platform by contributing data, never by copying platform code: store and serializer setup, guard evaluation and converters live in the platform.");
+
+    /// <summary>The LS2025 descriptor: Use-case Infrastructure names a type outside its slice.</summary>
+    public static readonly DiagnosticDescriptor LS2025 = Create("LS2025", LayersCategory, RespectLayerDirection,
+        "Use-case Infrastructure names a type outside its slice",
+        "Use-case Infrastructure uses '{0}', {1}",
+        "A use case's Infrastructure folder implements that use case's own ports from platform and library types. It names no Domain type outside typed identifiers and shared-kernel values, and no WebApi type.");
+
+    /// <summary>The LS2026 descriptor: Model duplicated in two use case folders.</summary>
+    public static readonly DiagnosticDescriptor LS2026 = Create("LS2026", LayersCategory, UseCaseIsolation,
+        "Model duplicated in two use case folders",
+        "'{0}' in use case '{1}' duplicates the model in use case '{2}'{3}",
+        "A shape two use cases need is declared once beside the aggregate they share, or referenced from the shared kernel when it is a shared value. Copying it into each use case folder breaks isolation.",
+        compilationEnd: true);
+
+    /// <summary>The LS2027 descriptor: Application does infrastructure work.</summary>
+    public static readonly DiagnosticDescriptor LS2027 = Create("LS2027", LayersCategory, FileFormats,
+        "Application does infrastructure work",
+        "'{0}' from '{1}' does file, archive or document work in Application; move it behind a port into Infrastructure",
+        "Producing a file format, rendering and parsing are Infrastructure behind an Application port, even when they use only the base class library.");
+
+    /// <summary>The LS2028 descriptor: Module exposes a public type outside Contracts.</summary>
+    public static readonly DiagnosticDescriptor LS2028 = Create("LS2028", LayersCategory, ModuleSurface,
+        "Module exposes a public type outside Contracts",
+        "'{0}' is public outside Contracts; keep module types internal behind the '{1}' entry type",
+        "In one project per module only the Contracts folder and the module entry type are public. Every other module type stays internal, so the compiler enforces the module boundary.");
+
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,
         "Asynchronous method name lacks Async",
@@ -319,6 +390,13 @@ internal static class Descriptors
         "Class '{0}' has no derived type and must be sealed",
         "Production C# seals every concrete class that nothing derives from.",
         compilationEnd: true);
+
+    /// <summary>The LS3005 descriptor: Class or struct declares a primary constructor.</summary>
+    public static readonly DiagnosticDescriptor LS3005 = Create("LS3005", StyleCategory, NoPrimaryConstructors,
+        "Class or struct declares a primary constructor",
+        "'{0}' declares a primary constructor; declare private readonly fields and an explicit constructor",
+        "Classes and structs state their state with private readonly fields and an explicit constructor. Positional records stay allowed for immutable data.",
+        severity: DiagnosticSeverity.Info);
 
     /// <summary>The LS4001 descriptor: Test contains no assertion.</summary>
     public static readonly DiagnosticDescriptor LS4001 = Create("LS4001", TestsCategory, ScenarioProof,
@@ -364,15 +442,16 @@ internal static class Descriptors
     /// <param name="message">The message format, with placeholders for the reported names.</param>
     /// <param name="description">The full description of the rule the diagnostic enforces.</param>
     /// <param name="compilationEnd">Whether the diagnostic reports at compilation end instead of per element.</param>
+    /// <param name="severity">The severity the diagnostic reports with.</param>
     /// <returns>The diagnostic descriptor.</returns>
     private static DiagnosticDescriptor Create(
-        string id, string category, Provision provision, string title, string message, string description, bool compilationEnd = false) =>
+        string id, string category, Provision provision, string title, string message, string description, bool compilationEnd = false, DiagnosticSeverity severity = DiagnosticSeverity.Error) =>
         new(
             id,
             title,
             message,
             category,
-            DiagnosticSeverity.Error,
+            severity,
             isEnabledByDefault: true,
             description: $"{description} Provision: {provision.Id}",
             helpLinkUri: provision.HelpLink,

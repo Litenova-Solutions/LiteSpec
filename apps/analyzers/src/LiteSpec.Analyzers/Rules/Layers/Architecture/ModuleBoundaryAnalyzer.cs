@@ -31,7 +31,7 @@ public sealed class ModuleBoundaryAnalyzer : LayerAnalyzer
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         var map = CodeMap.For(context.Compilation, context.Options);
-        if (map.Layout == BackendLayout.LayerProjects)
+        if (map.Layout == BackendLayout.LayerProjects || map.IsModuleProject)
         {
             return;
         }

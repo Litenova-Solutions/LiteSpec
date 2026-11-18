@@ -1,6 +1,6 @@
 # Overview
 
-The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 45 rules, each with its own reference page.
+The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 56 rules, each with its own reference page.
 
 ## How the Pages Fit Together
 
@@ -14,7 +14,7 @@ Whether a rule runs on a file comes down to four facts.
 
 The record layers the project claims in `layers` in `.litespec/project.yaml` decide which rules run at all. The build props read that block into the `LiteSpecImplementation` and `LiteSpecProof` properties and make them visible to the compiler, and a project can also set either property itself to name another practice.
 
-A project that claims neither layer runs no rule, and the generator writes no source and reports no diagnostic. A claim of Implementation with either practice runs the traceability rules `LS5003` to `LS5006`, `LS5009`, `LS5011`, and `LS5012`, and `LiteSpecImplementation` set to `litespec` also runs every architecture rule. A claim of Proof runs `LS4001`. An absent property reads as `litespec`, which matches what a project with no `layers` block claims.
+A project that claims neither layer runs no rule, and the generator writes no source and reports no diagnostic. A claim of Implementation with either practice runs the traceability rules `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013`, and `LiteSpecImplementation` set to `litespec` also runs every architecture rule. A claim of Proof runs `LS4001`. An absent property reads as `litespec`, which matches what a project with no `layers` block claims.
 
 ### File Layers
 
@@ -34,11 +34,13 @@ When the project selects the `layer-projects` extension, the analyzers read the 
 
 Under `layer-projects`, an assembly name with no listed suffix opts the project out, as does an explicit `LiteSpecLayer` value of `None`. Opting out turns off the whole package: no analyzer rule runs, and the generator writes no source and reports no diagnostic in that project. A declared `LiteSpecLayer` value that names no known layer still reports `LS2017`. The package reads the layout from `selectedExtensions` in `.litespec/project.yaml`, so there is nothing else to wire.
 
+In both layouts, three more suffixes name project roles: `Shop.Kernel` reads as Domain, so the business values answer the Domain rules; `Shop.Platform` reads as Infrastructure; and `Shop.Api` reads as WebApi beside the `WebApi` and `Worker` hosts. A module project such as `Shop.Orders` names no layer: each of its files takes its layer from its folder, as above.
+
 ### Rule Layers
 
 Each rule runs only in the layers its provision covers:
 
-- Domain rules run on Domain files.
+- Domain rules run on Domain files, except `LS1014`, which runs in every production layer.
 - `LS2001` runs on Application, Infrastructure, WebApi, and Worker files.
 - `LS2004`, `LS2005`, `LS2007`, and `LS2009` to `LS2016` run on Application, Infrastructure, and Worker files.
 - `LS2003` and `LS2006` run on WebApi files.
@@ -46,6 +48,7 @@ Each rule runs only in the layers its provision covers:
 - `LS2018` runs on Application and WebApi files.
 - `LS2019` and `LS2020` run on every layer except Test.
 - `LS2021` runs on Domain, Application, and Infrastructure files of the modules project, and `LS2022` on every layer except Test.
+- `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a use case folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test.
 - Style rules run in every production layer.
 - `LS4001` runs in test projects.
 - `LS5003` and `LS5004` run in every layer, checking the kinds each layer holds.
@@ -53,12 +56,13 @@ Each rule runs only in the layers its provision covers:
 - `LS5009` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes permission constants.
 - `LS5011` runs in every layer, where the generator writes the registry.
 - `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries.
+- `LS5013` runs where the generator writes exception parts.
 
 The analyzers skip generated code.
 
 ### Decision Time
 
-Most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` wait until the end of compilation, when every type is known.
+Most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, `LS2026`, and `LS3004` wait until the end of compilation, when every type is known.
 
 ## How a Rule Reads Records
 
@@ -70,7 +74,7 @@ An `.editorconfig` entry for the rule id overrides the computed severity, and lo
 
 ## Severity and Compiler Support
 
-Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the finding is advisory, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so an advisory finding stays a warning while a blocking one fails the build. A project lowers a rule's severity in `.editorconfig`:
+Every rule reports an error and is enabled by default, so a finding fails the build. `LS3005` reports at info severity instead, because the primary-constructor advice is advisory: it never fails the build on its own. A traceability rule reports a warning instead where the finding is advisory, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so an advisory finding stays a warning while a blocking one fails the build. A project lowers a rule's severity in `.editorconfig`:
 
 ```ini
 [*.cs]

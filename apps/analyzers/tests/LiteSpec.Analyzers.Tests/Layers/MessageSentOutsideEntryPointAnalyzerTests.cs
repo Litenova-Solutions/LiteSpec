@@ -260,4 +260,30 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     """),
             ],
             assemblyName: "Shop.Tests");
+
+    /// <summary>LS2021 accepts a mediator in the platform, which composes the pipeline.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 accepts a mediator in the platform")]
+    public Task AcceptsAMediatorInThePlatform() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Platform/Stubs.cs", Stubs),
+                ("Shop.Platform/Messaging/PublishOutbox.cs", """
+                    using LiteBus.Commands.Abstractions;
+
+                    namespace Shop.Platform.Messaging;
+
+                    internal sealed class PublishOutbox
+                    {
+                        private readonly ICommandMediator _mediator;
+
+                        public PublishOutbox(ICommandMediator mediator)
+                        {
+                            _mediator = mediator;
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Platform");
 }

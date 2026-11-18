@@ -291,4 +291,116 @@ public sealed class ExceptionValueTests
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
+
+    /// <summary>An exception under a base with a non-virtual Code reports LS5013 and takes no part.</summary>
+    /// <proves>litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once</proves>
+    [Fact(DisplayName = "An exception under a base with a non-virtual Code reports LS5013 and takes no part")]
+    public void NonVirtualBaseCodeReportsLS5013AndTakesNoPart()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("""
+                namespace Shop.Orders;
+
+                public abstract class DomainException : System.Exception
+                {
+                    protected DomainException(string code, string message)
+                        : base(message)
+                    {
+                        Code = code;
+                    }
+
+                    public string Code { get; }
+                }
+
+                /// <implements>rule/expense.receipt-required</implements>
+                public sealed partial class ReceiptRequiredException : DomainException
+                {
+                    public ReceiptRequiredException()
+                        : base("expense.receipt-missing", "A receipt is required.")
+                    {
+                    }
+                }
+                """),
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
+                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+
+        var diagnostic = Assert.Single(run.ReportedDiagnostics);
+        Assert.Equal("LS5013", diagnostic.Id);
+        Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
+    /// <summary>An exception under a base with a Code field reports LS5013 and takes no part.</summary>
+    /// <proves>litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once</proves>
+    [Fact(DisplayName = "An exception under a base with a Code field reports LS5013 and takes no part")]
+    public void NonPropertyBaseCodeReportsLS5013AndTakesNoPart()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("""
+                namespace Shop.Orders;
+
+                public abstract class DomainException : System.Exception
+                {
+                    protected DomainException(string message)
+                        : base(message)
+                    {
+                    }
+
+                    public string Code = "";
+                }
+
+                /// <implements>rule/expense.receipt-required</implements>
+                public sealed partial class ReceiptRequiredException : DomainException
+                {
+                    public ReceiptRequiredException()
+                        : base("A receipt is required.")
+                    {
+                    }
+                }
+                """),
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
+                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+
+        var diagnostic = Assert.Single(run.ReportedDiagnostics);
+        Assert.Equal("LS5013", diagnostic.Id);
+        Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
+    /// <summary>An exception under a base with an abstract Code stays silent.</summary>
+    /// <proves>litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once</proves>
+    [Fact(DisplayName = "An exception under a base with an abstract Code stays silent")]
+    public void AbstractBaseCodeStaysSilent()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("""
+                namespace Shop.Orders;
+
+                public abstract class DomainException : System.Exception
+                {
+                    protected DomainException(string message)
+                        : base(message)
+                    {
+                    }
+
+                    public abstract string Code { get; }
+                }
+
+                /// <implements>rule/expense.receipt-required</implements>
+                public sealed partial class ReceiptRequiredException : DomainException
+                {
+                    public ReceiptRequiredException()
+                        : base("A receipt is required.")
+                    {
+                    }
+                }
+                """),
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
+                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+
+        Assert.Empty(run.ReportedDiagnostics);
+        Assert.True(run.Sources.TryGetValue("LiteSpecException.Shop.Orders.ReceiptRequiredException.g.cs", out var part), "The exception part is missing.");
+        Assert.Contains("public override string Code => \"expense.receipt-missing\";", part, StringComparison.Ordinal);
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
 }

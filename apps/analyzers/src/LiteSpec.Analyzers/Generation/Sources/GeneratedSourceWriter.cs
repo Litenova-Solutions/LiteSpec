@@ -88,7 +88,15 @@ internal static class GeneratedSourceWriter
                 && FirstWithPrefix(type.MarkIds, "rule/") is string ruleId
                 && codes.TryGetValue(ruleId, out var code))
             {
-                context.AddSource(HintName("LiteSpecException", type), ExceptionText(type, code));
+                if (type.BaseHasNonVirtualCode)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        GeneratorDiagnostics.NonVirtualBaseCode, Location.None, type.Name, type.BaseCodeOwner));
+                }
+                else
+                {
+                    context.AddSource(HintName("LiteSpecException", type), ExceptionText(type, code));
+                }
             }
         }
 

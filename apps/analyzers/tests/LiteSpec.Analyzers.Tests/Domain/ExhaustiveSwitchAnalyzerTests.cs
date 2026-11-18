@@ -114,6 +114,91 @@ public sealed class ExhaustiveSwitchAnalyzerTests
             }
             """);
 
+    /// <summary>LS1013 accepts nested cases named by type plus a discard arm.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    [Fact(DisplayName = "LS1013 accepts nested cases named by type plus a discard arm")]
+    public Task AcceptsNestedCasesNamedByTypePlusADiscard() =>
+        Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
+            namespace Shop.Orders;
+
+            public abstract record EntryKind
+            {
+                public sealed record Asset : EntryKind;
+
+                public sealed record Closing : EntryKind;
+
+                public sealed record Cost : EntryKind;
+            }
+
+            public sealed class EntryRouter
+            {
+                public string Describe(EntryKind kind) => kind switch
+                {
+                    EntryKind.Asset => "asset",
+                    EntryKind.Closing => "closing",
+                    EntryKind.Cost => "cost",
+                    _ => throw new System.InvalidOperationException(),
+                };
+            }
+            """);
+
+    /// <summary>LS1013 reports a nested case missing from type-only arms.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    [Fact(DisplayName = "LS1013 reports a nested case missing from type-only arms")]
+    public Task ReportsANestedCaseMissingFromTypeOnlyArms() =>
+        Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
+            namespace Shop.Orders;
+
+            public abstract record EntryKind
+            {
+                public sealed record Asset : EntryKind;
+
+                public sealed record Closing : EntryKind;
+
+                public sealed record Cost : EntryKind;
+            }
+
+            public sealed class EntryRouter
+            {
+                public string Describe(EntryKind kind) => kind switch
+                {
+                    EntryKind.Asset => "asset",
+                    EntryKind.Closing => "closing",
+                    {|LS1013:_|} => throw new System.InvalidOperationException(),
+                };
+            }
+            """);
+
+    /// <summary>LS1013 accepts nested cases grouped with or.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    [Fact(DisplayName = "LS1013 accepts nested cases grouped with or")]
+    public Task AcceptsNestedCasesGroupedWithOr() =>
+        Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
+            namespace Shop.Orders;
+
+            public abstract record EntryKind
+            {
+                public sealed record Asset : EntryKind;
+
+                public sealed record Closing : EntryKind;
+
+                public sealed record Cost : EntryKind;
+            }
+
+            public sealed class EntryRouter
+            {
+                public string Describe(EntryKind kind) => kind switch
+                {
+                    EntryKind.Asset or EntryKind.Closing => "grouped",
+                    EntryKind.Cost => "cost",
+                    _ => throw new System.InvalidOperationException(),
+                };
+            }
+            """);
+
     /// <summary>LS1013 accepts a case handled through an abstract intermediate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
