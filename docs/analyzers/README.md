@@ -33,7 +33,7 @@ Each rule runs only in the layers its provision covers:
 - `LS2018` runs on Application, Ports, and WebApi files.
 - `LS2019` and `LS2020` run on every layer except Test.
 - `LS2021` runs on Domain, Application, and Infrastructure files of the modules project, and `LS2022` on every layer except Test.
-- `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a port adapter folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test.
+- `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a port adapter folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test. `LS2029` runs on every module layer except Test and on the Platform, and `LS2030` on Contracts projects.
 - Style rules run in every production layer.
 - `LS4001` runs in test projects.
 - `LS5003` and `LS5004` run in every layer, checking the kinds each layer holds.

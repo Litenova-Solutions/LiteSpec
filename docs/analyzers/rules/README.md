@@ -25,7 +25,7 @@ Rules `LS1001` to `LS1016` check Domain modeling. `LS1014` runs in every product
 
 ## Outer-Layer Rules
 
-Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2028` run across layers, as each page states.
+Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2030` run across layers, as each page states.
 
 - [LS2001: Implementation Type Is Not Internal Sealed](ls2001.md): reports an implementation type visible outside its assembly or open to extension.
 - [LS2003: WebApi Uses an MVC Controller](ls2003.md): reports a class derived from `ControllerBase` or carrying `ApiController`.
@@ -52,6 +52,8 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2028` run across layers
 - [LS2026: Model Duplicated in Two Use Case Folders](ls2026.md): reports a record declared with the same members in two use case folders.
 - [LS2027: Application Does Infrastructure Work](ls2027.md): reports archive, serialization, or document work in Application.
 - [LS2028: Module Exposes a Public Type Outside Contracts](ls2028.md): reports a public type in a module project outside its entry type.
+- [LS2029: File Names a Contract Type Outside Its Layer](ls2029.md): reports another module's public query or result named outside the provider adapter, and a module identifier named in the Platform.
+- [LS2030: Contracts Project Declares an Interface](ls2030.md): reports an interface in a Contracts project, which publishes data only.
 
 ## Naming and Style Rules
 

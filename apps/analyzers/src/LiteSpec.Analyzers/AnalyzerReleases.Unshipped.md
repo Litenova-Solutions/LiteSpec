@@ -1,13 +1,6 @@
 ; Unshipped analyzer release
 ; https://github.com/dotnet/roslyn-analyzers/blob/main/src/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
-### New Rules
-
-Rule ID | Category | Severity | Notes
---------|----------|----------|-------
-LS2029 | LiteSpec.Layers | Error | Descriptors
-LS2030 | LiteSpec.Layers | Error | Descriptors
-
 ### Removed Rules
 
 Rule ID | Category | Severity | Notes
