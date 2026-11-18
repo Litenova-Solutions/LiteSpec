@@ -39,7 +39,6 @@ export interface AgentProtocolValues {
 /** Every placeholder the region may hold, in contract order, with the values field that fills it and what it takes. */
 export const AGENT_PROTOCOL_PLACEHOLDERS: { placeholder: string; field: keyof AgentProtocolValues; takes: string }[] = [
   { placeholder: "__LITESPEC_PACKAGE_VERSION__", field: "packageVersion", takes: "the package version the project follows, such as 7.0.0 or 7.0.0-rc.1" },
-  { placeholder: "__LITESPEC_VERSION__", field: "version", takes: "the release whose links the project reads" },
   { placeholder: "__SIZE__", field: "size", takes: "small or large" },
   { placeholder: "__SHAPE__", field: "shape", takes: "server or client-only" },
   { placeholder: "__STACKS__", field: "stacks", takes: "the selected stack keys, comma and space separated, or none" },

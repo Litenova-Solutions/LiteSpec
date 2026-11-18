@@ -61,7 +61,7 @@ apps/api/src/
     {Product}.Worker/Program.cs        the same modules, jobs and outbox only
 ```
 
-`{Product}.Kernel` holds the business values every module speaks and references only the base class library. `{Product}.Platform` holds the technical capabilities with no business words and references the Kernel and its libraries, never a module. Each module project references the Kernel, the Platform, and other modules' `Contracts/`, and only its `Contracts/` folder and its `{Module}Module` entry type are public, so the compiler refuses any other cross-module reference. Each project takes its own name as its root namespace. A project that keeps one modules project holding every module is an allowed deviation; `LS2020` then enforces the `Contracts/` boundary that project references otherwise enforce.
+`{Product}.Kernel` holds the business values every module speaks and references only the base class library. `{Product}.Platform` holds the technical capabilities with no business words and references the Kernel and its libraries, never a module. Each module project references the Kernel, the Platform, and other modules' `Contracts/`, and only its `Contracts/` folder and its `{Module}Module` entry type are public, so the compiler refuses any other cross-module reference. Each project takes its own name as its root namespace. Each module's `Contracts/` folder compiles as its own `{Product}.{Module}.Contracts` project, so module projects reference contracts projects and never each other, and two modules may depend on each other's contracts without a project cycle. A project that keeps one modules project holding every module is an allowed deviation; `LS2020` then enforces the `Contracts/` boundary that project references otherwise enforce.
 
 The WebApi host holds `Program.cs` composition, and the Worker host exists only when background work needs its own process. Each `Program.cs` decides which modules run in that host and in what order, and nothing else: it calls `AddPlatform()`, then `AddModules(...)` with the modules of that host, then maps the endpoints the platform discovered. Two hosts share wiring through the platform's `AddModules`, never through a folder beside the modules.
 
@@ -529,3 +529,34 @@ MapEndpoints(...)    the endpoints the platform discovered
 **Rationale:** Scanners and the host need an assembly reference, and without a marker developers make handlers public to supply one, widening visibility for tooling convenience. Each module project's entry type gives the host and the scanners their reference while every handler stays internal. The platform discovers the internal endpoints in every module assembly the host adds.
 
 **Reviewed for:** Does each module project expose exactly its entry type as its one public marker, with no unneeded marker elsewhere? Check each project for its marker.
+
+### Compile Each Contracts Folder as Its Own Project
+
+**ID:** `litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project`
+
+**Strength:** default
+
+**Applies to:** artifact: any
+
+**Default:** Compile each module's `Contracts/` folder as its own `{Product}.{Module}.Contracts` project inside the module folder, referencing only the Kernel, the Platform, and the Contracts projects it names, and let each module project reference the Contracts projects of the modules it reaches instead of their module projects.
+
+**Replacement:** A project whose module dependencies run one way only references module projects directly and records that choice in its host documentation.
+
+**Rationale:** Project references cannot form a cycle, but module dependencies through contracts often run both ways: a module reacts to a module event of a module that depends on it, or one module's port names another module's identifier. With one project per module and module projects referencing each other, the first such edge fails the build. A Contracts project depends on no module project, so any module can reference any contracts, and the module projects never reference each other. The Contracts projects must not form a cycle among themselves, so an identifier that two modules' contracts both name, such as the workspace, business, or person identifier every module carries, belongs in the Kernel, which `litespec/backend/dotnet/architecture#keep-business-values-in-the-kernel` already allows for values every module speaks. A Contracts project holds no domain type: a module event that a domain event produces is mapped inside the publishing module, never by a factory in `Contracts/` that names the domain event.
+
+**Example:**
+
+```text
+Modules/Claimwick.Spending/
+  Claimwick.Spending.csproj                 references Kernel, Platform, Claimwick.Spending.Contracts,
+                                            Claimwick.Reporting.Contracts
+  SpendingModule.cs
+  Contracts/
+    Claimwick.Spending.Contracts.csproj     references Kernel and Platform only
+    Identifiers/  ModuleEvents/  Ports/
+  Domain/  UseCases/  Infrastructure/
+```
+
+The module project excludes `Contracts/**` from its own compile items so each contract compiles once, in its Contracts project.
+
+**Reviewed for:** Does any module project reference another module project, does any Contracts project reference a module project or name a domain type, and do the Contracts projects reference each other without a cycle? Check the project references of each module and Contracts project.

@@ -2805,6 +2805,24 @@
       "example": ""
     },
     {
+      "id": "litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project",
+      "heading": "Compile Each Contracts Folder as Its Own Project",
+      "page": "docs/backend/dotnet/architecture.md",
+      "anchor": "compile-each-contracts-folder-as-its-own-project",
+      "kind": "convention",
+      "mark": "guidance",
+      "evidence": "Does any module project reference another module project, does any Contracts project reference a module project or name a domain type, and do the Contracts projects reference each other without a cycle? Check the project references of each module and Contracts project.",
+      "stack": "dotnet",
+      "concern": "application",
+      "artifact": "any",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "default",
+      "statement": "Compile each module\u0027s \u0060Contracts/\u0060 folder as its own \u0060{Product}.{Module}.Contracts\u0060 project inside the module folder, referencing only the Kernel, the Platform, and the Contracts projects it names, and let each module project reference the Contracts projects of the modules it reaches instead of their module projects.",
+      "rationale": "Project references cannot form a cycle, but module dependencies through contracts often run both ways: a module reacts to a module event of a module that depends on it, or one module\u0027s port names another module\u0027s identifier. With one project per module and module projects referencing each other, the first such edge fails the build. A Contracts project depends on no module project, so any module can reference any contracts, and the module projects never reference each other. The Contracts projects must not form a cycle among themselves, so an identifier that two modules\u0027 contracts both name, such as the workspace, business, or person identifier every module carries, belongs in the Kernel, which \u0060litespec/backend/dotnet/architecture#keep-business-values-in-the-kernel\u0060 already allows for values every module speaks. A Contracts project holds no domain type: a module event that a domain event produces is mapped inside the publishing module, never by a factory in \u0060Contracts/\u0060 that names the domain event.",
+      "example": "\u0060\u0060\u0060text\nModules/Claimwick.Spending/\n  Claimwick.Spending.csproj                 references Kernel, Platform, Claimwick.Spending.Contracts,\n                                            Claimwick.Reporting.Contracts\n  SpendingModule.cs\n  Contracts/\n    Claimwick.Spending.Contracts.csproj     references Kernel and Platform only\n    Identifiers/  ModuleEvents/  Ports/\n  Domain/  UseCases/  Infrastructure/\n\u0060\u0060\u0060\n\nThe module project excludes \u0060Contracts/**\u0060 from its own compile items so each contract compiles once, in its Contracts project."
+    },
+    {
       "id": "litespec/backend/dotnet/architecture#expose-one-public-entry-type-per-module",
       "heading": "Expose One Public Entry Type per Module",
       "page": "docs/backend/dotnet/architecture.md",

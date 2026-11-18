@@ -96,7 +96,7 @@ describe("agent protocol region", () => {
     assert.strictEqual(lines[1], precedenceSentence("__LITESPEC_COMMAND__"));
   });
 
-  it("holds exactly the nine known placeholders", () => {
+  it("holds exactly the eight known placeholders", () => {
     const found = [...new Set(loadAgentProtocolRegion().match(/__[A-Z0-9_]+__/g) ?? [])].sort();
     assert.deepStrictEqual(
       found,
@@ -117,7 +117,7 @@ describe("agent protocol region", () => {
       docs: "https://litespec.dev/7.0.0/select/server.dotnet.react/llms.txt",
       command: "litespec",
     });
-    assert.ok(out.includes("$&1.0=$&1.0"), out);
+    assert.ok(out.includes("$&1.0-rc.1=$&1.0-rc.1"), out);
     assert.ok(!/__[A-Z0-9_]+__/.test(out), out);
   });
 

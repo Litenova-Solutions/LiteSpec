@@ -109,7 +109,7 @@ test -f "$work/book/index.html"
 litespec model query use-case/spending.submit-expense > "$work/query.json"
 grep -q '"id": "use-case/spending.submit-expense"' "$work/query.json"
 
-litespec rules apps/api/src/Claimwick.SharedKernel/Domain/Money.cs > /dev/null
+litespec rules apps/api/src/Claimwick.Kernel/Money.cs > /dev/null
 
 # Rename a record and rename it back; the copy must end byte for byte as it started.
 sha256_tree "$claimwick" > "$work/claimwick-before.sha256"
