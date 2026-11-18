@@ -354,4 +354,68 @@ public sealed class AggregateAccessAnalyzerTests
                     """),
             ],
             assemblyName: "Claimwick.Spending.Tests");
+
+    private const string Repository = """
+        namespace Claimwick.Spending.Domain.Expenses;
+
+        public sealed record ExpenseTotals(decimal Submitted, decimal Approved);
+
+        public interface IExpenseRepository
+        {
+            System.Threading.Tasks.Task<ExpenseTotals> TotalsAsync(ExpenseId id);
+        }
+        """;
+
+    /// <summary>LS1014 accepts a repository building the query result its Domain interface returns.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    [Fact(DisplayName = "LS1014 accepts a repository building the result its Domain interface returns")]
+    public Task AcceptsARepositoryBuildingTheResultItsInterfaceReturns() =>
+        Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", Root),
+                ("Claimwick.Spending/Domain/Expenses/IExpenseRepository.cs", Repository),
+                ("Claimwick.Spending/Infrastructure/Persistence/ExpenseRepository.cs", """
+                    using Claimwick.Spending.Domain;
+                    using Claimwick.Spending.Domain.Expenses;
+
+                    namespace Claimwick.Spending.Infrastructure.Persistence;
+
+                    internal sealed class ExpenseRepository : IExpenseRepository
+                    {
+                        public System.Threading.Tasks.Task<ExpenseTotals> TotalsAsync(ExpenseId id)
+                        {
+                            return System.Threading.Tasks.Task.FromResult(new ExpenseTotals(0m, 0m));
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS1014 still reports a handler building the result a repository interface returns.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    [Fact(DisplayName = "LS1014 reports a handler building the result a repository interface returns")]
+    public Task ReportsAHandlerBuildingARepositoryResult() =>
+        Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", Root),
+                ("Claimwick.Spending/Domain/Expenses/IExpenseRepository.cs", Repository),
+                ("Claimwick.Spending/Application/Expenses/ListExpenses/ListExpensesQueryHandler.cs", """
+                    using Claimwick.Spending.Domain.Expenses;
+
+                    namespace Claimwick.Spending.Application.Expenses.ListExpenses;
+
+                    internal sealed class ListExpensesQueryHandler
+                    {
+                        internal ExpenseTotals Handle()
+                        {
+                            return new {|LS1014:ExpenseTotals|}(0m, 0m);
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
 }

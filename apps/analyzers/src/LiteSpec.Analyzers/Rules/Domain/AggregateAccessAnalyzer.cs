@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
@@ -33,14 +35,16 @@ public sealed class AggregateAccessAnalyzer : LayerAnalyzer
     {
         var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
         var map = CodeMap.For(context.Compilation, context.Options);
-        context.RegisterOperationAction(c => AnalyzeCreation(c, scope, map), OperationKind.ObjectCreation);
+        var contracts = new ConcurrentDictionary<INamedTypeSymbol, HashSet<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+        context.RegisterOperationAction(c => AnalyzeCreation(c, scope, map, contracts), OperationKind.ObjectCreation);
     }
 
     /// <summary>Analyzes the creation.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="map">The architectural home of every source file.</param>
-    private static void AnalyzeCreation(OperationAnalysisContext context, FileScope scope, CodeMap map)
+    /// <param name="contracts">The types each implementing type may build, by the interfaces it implements.</param>
+    private static void AnalyzeCreation(OperationAnalysisContext context, FileScope scope, CodeMap map, ConcurrentDictionary<INamedTypeSymbol, HashSet<INamedTypeSymbol>> contracts)
     {
         if (context.Operation.Syntax is null || !scope.AppliesTo(context.Operation.Syntax.SyntaxTree))
         {
@@ -69,11 +73,37 @@ public sealed class AggregateAccessAnalyzer : LayerAnalyzer
             return;
         }
 
+        // A repository or an adapter builds what the interface it implements returns: a repository query
+        // result declared beside the aggregate, a port result the module Domain defines.
+        if (context.ContainingSymbol?.ContainingType is INamedTypeSymbol builder
+            && contracts.GetOrAdd(builder, type => ContractTypesOf(type, context.Compilation)).Contains(created.OriginalDefinition))
+        {
+            return;
+        }
+
         var location = context.Operation.Syntax is ObjectCreationExpressionSyntax creation
             ? creation.Type.GetLocation()
             : context.Operation.Syntax.GetLocation();
         context.ReportDiagnostic(Diagnostic.Create(
             Descriptors.LS1014, location, created.Name, CodeMap.FolderName(aggregate)));
+    }
+
+    /// <summary>Returns the types the source interfaces the type implements reach through their member signatures.</summary>
+    /// <param name="type">The type that constructs.</param>
+    /// <param name="compilation">The compilation whose source types the reach follows.</param>
+    /// <returns>The reachable types by original definition.</returns>
+    private static HashSet<INamedTypeSymbol> ContractTypesOf(INamedTypeSymbol type, Compilation compilation)
+    {
+        var interfaces = new List<INamedTypeSymbol>();
+        foreach (var face in type.AllInterfaces)
+        {
+            if (CodeMap.SourceFileOf(face, compilation) is not null)
+            {
+                interfaces.Add(face.OriginalDefinition);
+            }
+        }
+
+        return SignatureReach.Of(interfaces, compilation);
     }
 
     /// <summary>Returns true when the aggregate type may be constructed outside its folder; otherwise false.</summary>

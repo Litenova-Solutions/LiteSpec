@@ -102,38 +102,7 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
         CollectImplementedPorts(compilation, filePath, ports);
         CollectFolderPort(compilation, filePath, ports);
 
-        var direct = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-        foreach (var port in ports)
-        {
-            AddInterfaceSignatureTypes(port, direct);
-        }
-
-        // An adapter reads whatever the port hands it: a port that passes an aggregate lets the adapter
-        // read the aggregate's values, and the values' values. The rule follows the member signatures of
-        // every source type the port names, transitively. Only source types open further types, so
-        // library generics such as Task or List open nothing.
-        var allowed = new HashSet<INamedTypeSymbol>(direct, SymbolEqualityComparer.Default);
-        var pending = new Queue<INamedTypeSymbol>(direct);
-        while (pending.Count > 0)
-        {
-            var named = pending.Dequeue();
-            if (CodeMap.SourceFileOf(named, compilation) is null)
-            {
-                continue;
-            }
-
-            var reached = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            AddMemberSignatureTypes(named, reached);
-            foreach (var next in reached)
-            {
-                if (allowed.Add(next))
-                {
-                    pending.Enqueue(next);
-                }
-            }
-        }
-
-        return allowed;
+        return SignatureReach.Of(ports, compilation);
     }
 
     /// <summary>Collects the port interfaces the types declared in the adapter folder implement.</summary>
@@ -245,99 +214,6 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
         }
 
         return false;
-    }
-
-    /// <summary>Adds every type the interface names in its member signatures: each member's parameters, returns and type arguments, with inherited members included.</summary>
-    /// <param name="face">The port interface whose signatures are read.</param>
-    /// <param name="into">The named types collected so far, by original definition.</param>
-    private static void AddInterfaceSignatureTypes(INamedTypeSymbol face, HashSet<INamedTypeSymbol> into)
-    {
-        AddMemberSignatureTypes(face, into);
-        foreach (var inherited in face.AllInterfaces)
-        {
-            AddMemberSignatureTypes(inherited, into);
-        }
-    }
-
-    /// <summary>Adds every type the members of the type name in their signatures: a method's return and parameter types, a property, field or event type, or an indexer's type and parameter types, with type arguments.</summary>
-    /// <param name="type">The type whose members are read.</param>
-    /// <param name="into">The named types collected so far, by original definition.</param>
-    private static void AddMemberSignatureTypes(INamedTypeSymbol type, HashSet<INamedTypeSymbol> into)
-    {
-        foreach (var member in type.GetMembers())
-        {
-            switch (member)
-            {
-                // A nested type is part of its container: the cases of a closed set (VatTreatment.Domestic21) come with the set.
-                case INamedTypeSymbol nested:
-                    into.Add(nested.OriginalDefinition);
-                    break;
-                case IMethodSymbol method when method.AssociatedSymbol is null:
-                    AddSignatureTypes(method.ReturnType, into);
-                    foreach (var parameter in method.Parameters)
-                    {
-                        AddSignatureTypes(parameter.Type, into);
-                    }
-
-                    break;
-                case IPropertySymbol property:
-                    AddSignatureTypes(property.Type, into);
-                    foreach (var parameter in property.Parameters)
-                    {
-                        AddSignatureTypes(parameter.Type, into);
-                    }
-
-                    break;
-                case IFieldSymbol field:
-                    AddSignatureTypes(field.Type, into);
-                    break;
-                case IEventSymbol @event:
-                    AddSignatureTypes(@event.Type, into);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    /// <summary>Adds the named types one type use states: its own name with each nested type argument name, unwrapping arrays, nullables, tuples and pointers.</summary>
-    /// <param name="type">The type as the signature states it, or null when the signature states none.</param>
-    /// <param name="into">The named types collected so far, by original definition.</param>
-    private static void AddSignatureTypes(ITypeSymbol? type, HashSet<INamedTypeSymbol> into)
-    {
-        switch (type)
-        {
-            case null:
-            case ITypeParameterSymbol:
-                break;
-            case IArrayTypeSymbol array:
-                AddSignatureTypes(array.ElementType, into);
-                break;
-            case IPointerTypeSymbol pointer:
-                AddSignatureTypes(pointer.PointedAtType, into);
-                break;
-            case IFunctionPointerTypeSymbol pointer:
-                AddSignatureTypes(pointer.Signature.ReturnType, into);
-                foreach (var parameter in pointer.Signature.Parameters)
-                {
-                    AddSignatureTypes(parameter.Type, into);
-                }
-
-                break;
-            // A tuple is a named type whose type arguments are its element types.
-            case INamedTypeSymbol named:
-                if (into.Add(named.OriginalDefinition))
-                {
-                    foreach (var argument in named.TypeArguments)
-                    {
-                        AddSignatureTypes(argument, into);
-                    }
-                }
-
-                break;
-            default:
-                break;
-        }
     }
 
     /// <summary>Returns the folder holding the file, as a forward-slash directory path.</summary>

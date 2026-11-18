@@ -900,15 +900,15 @@
       "anchor": "declare-every-port-in-the-module-ports-folder",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every port of the module live in its own \u0060Ports/{Port}/\u0060 folder with its adapter in \u0060Infrastructure/{Port}/\u0060, and every cross-module port in the owning module\u0027s \u0060Contracts/Ports/\u0060 folder? Look at each port folder beside its callers and its adapter.",
+      "evidence": "Does every port of the module live in its own \u0060Ports/{Port}/\u0060 folder holding only its interface and the types its signatures name through at most one named type, with its adapter in \u0060Infrastructure/{Port}/\u0060, and every cross-module port in the owning module\u0027s \u0060Contracts/Ports/\u0060 folder? Look at each port folder beside its callers and its adapter.",
       "stack": "any",
       "concern": "application",
       "artifact": "port",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Every port of a module MUST live in its own \u0060Ports/{Port}/\u0060 folder holding the interface \u0060I{Port}\u0060 and only the types its signatures name, with its adapter in its \u0060Infrastructure/{Port}/\u0060 folder, and a port another module calls in the owning module\u0027s \u0060Contracts/Ports/\u0060 folder.",
-      "rationale": "\u0060Ports/\u0060 is the complete list of what the module needs from outside: every port of the module lives there, whether one use case or many call it, each in its own folder with its adapter beside it in \u0060Infrastructure/\u0060. A reader opening \u0060Ports/\u0060 sees each outside dependency once, instead of hunting use case folders for interfaces. Only a port another module calls belongs in the owning module\u0027s \u0060Contracts/Ports/\u0060 folder. A port in \u0060Contracts/Ports/\u0060 only reads: a write another module needs is a fact its reaction answers. Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.",
+      "statement": "Every port of a module MUST live in its own \u0060Ports/{Port}/\u0060 folder holding the interface \u0060I{Port}\u0060 and only the types its signatures name, directly or through one named type, with its adapter in its \u0060Infrastructure/{Port}/\u0060 folder, and a port another module calls in the owning module\u0027s \u0060Contracts/Ports/\u0060 folder.",
+      "rationale": "\u0060Ports/\u0060 is the complete list of what the module needs from outside: every port of the module lives there, whether one use case or many call it, each in its own folder with its adapter beside it in \u0060Infrastructure/\u0060. A reader opening \u0060Ports/\u0060 sees each outside dependency once, instead of hunting use case folders for interfaces. The folder holds two levels of types: the types the interface signatures name, and the types those types name in their own signatures, such as a result part the interface reaches only through its result. Names found at the second level open no third. Only a port another module calls belongs in the owning module\u0027s \u0060Contracts/Ports/\u0060 folder. A port in \u0060Contracts/Ports/\u0060 only reads: a write another module needs is a fact its reaction answers. Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.",
       "example": ""
     },
     {
@@ -3286,7 +3286,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A file outside an aggregate\u0027s \u0060Domain/\u0060 folder MUST NOT construct a type from that folder other than the root\u0027s input records and typed identifiers.",
+      "statement": "A file outside an aggregate\u0027s \u0060Domain/\u0060 folder MUST NOT construct a type from that folder other than the root\u0027s input records, typed identifiers, and the types the interfaces its class implements name in their member signatures (a repository building the query result its Domain interface returns, an adapter building the result its port returns).",
       "rationale": "The root\u0027s factories and methods are the one entry point to the aggregate, under \u0060litespec/backend/domain#reach-an-aggregate-only-through-its-root\u0060. A caller that constructs an entity or value object of the aggregate builds a part the root never validated, and a caller that constructs a part to pass it in takes over behavior the root should own. Callers pass plain inputs instead. Input records and typed identifiers carry no aggregate behavior, so constructing them stays outside this rule. This provision binds \u0060litespec/backend/domain#reach-an-aggregate-only-through-its-root\u0060 for .NET. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).",
       "example": "In the Claimwick product, the submit-expense handler constructs no expense line and no allocation. It passes the identifiers, the line inputs, and the submitted time to \u0060Expense.Submit\u0060, and the root builds its lines and its allocation inside the factory."
     },

@@ -75,7 +75,7 @@ Each aggregate root gets one repository interface that loads and stages that agg
 
 **Applies to:** artifact: aggregate
 
-**Statement:** A file outside an aggregate's `Domain/` folder MUST NOT construct a type from that folder other than the root's input records and typed identifiers.
+**Statement:** A file outside an aggregate's `Domain/` folder MUST NOT construct a type from that folder other than the root's input records, typed identifiers, and the types the interfaces its class implements name in their member signatures (a repository building the query result its Domain interface returns, an adapter building the result its port returns).
 
 **Rationale:** The root's factories and methods are the one entry point to the aggregate, under `litespec/backend/domain#reach-an-aggregate-only-through-its-root`. A caller that constructs an entity or value object of the aggregate builds a part the root never validated, and a caller that constructs a part to pass it in takes over behavior the root should own. Callers pass plain inputs instead. Input records and typed identifiers carry no aggregate behavior, so constructing them stays outside this rule. This provision binds `litespec/backend/domain#reach-an-aggregate-only-through-its-root` for .NET. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
 
