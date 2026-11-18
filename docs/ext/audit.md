@@ -438,13 +438,13 @@ A pseudonymous identifier is still personal data where the holder can reverse it
 
 **Applies to:** artifact: any
 
-**Statement:** An audit store MUST refuse update and delete through the privileges granted to the writing account.
+**Statement:** An audit store MUST refuse update and delete through the privileges granted to every account except the operator account that deletes expired records.
 
-**Rationale:** An audit store that relies on absent code paths stays append-only until someone writes the missing path. Revoked privileges refuse update and delete no matter what the code tries. A reviewer verifies a privilege in the database instead of auditing every line for a write that should not exist.
+**Rationale:** An audit store that relies on absent code paths stays append-only until someone writes the missing path. Revoked privileges refuse update and delete no matter what the code tries. Retention deletion still needs a delete path, so the operator account that `litespec/ext/audit#delete-expired-records-through-a-separate-operator-account` requires holds `DELETE`, and every other account holds neither update nor delete. A reviewer verifies a privilege in the database instead of auditing every line for a write that should not exist.
 
-**Example:** The application account holds `INSERT` and `SELECT` on the audit table, and it holds neither `UPDATE` nor `DELETE`.
+**Example:** The application account holds `INSERT` and `SELECT` on the audit table, and it holds neither `UPDATE` nor `DELETE`. The operator account holds `INSERT` and `DELETE` on the same table and writes only through the deletion job.
 
-**Reviewed for:** Does any writing account hold update or delete on the audit store? Check the granted store privileges.
+**Reviewed for:** Does any account except the operator deletion account hold update or delete on the audit store? Check the granted store privileges.
 
 ### Chain Records to Expose Tampering
 
@@ -454,9 +454,9 @@ A pseudonymous identifier is still personal data where the holder can reverse it
 
 **Applies to:** artifact: any
 
-**Statement:** An audit store MUST chain each record to its predecessor with a SHA-256 hash over a canonical serialization of both.
+**Statement:** An audit store MUST chain each record to its predecessor in its segment with a SHA-256 hash over a canonical serialization of both.
 
-**Rationale:** The hash chain detects an edit and a removal, because a changed or missing record breaks every value after it. Detection is the obligation: it lets a reviewer prove the trail is intact. Prevention at a higher cost is not required.
+**Rationale:** The hash chain detects an edit and a removal, because a changed or missing record breaks every value after it. Detection is the obligation: it lets a reviewer prove the trail is intact. Prevention at a higher cost is not required. Each segment verifies from its own genesis record, so deleting a whole closed segment breaks no live link.
 
 The algorithm is named because two implementations that each choose their own cannot verify each other. A verifier written later cannot recompute a chain whose algorithm no one recorded. Canonical serialization is named for the same reason. A hash over a serialization that reorders fields verifies nothing.
 
@@ -472,15 +472,15 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Applies to:** artifact: job
 
-**Statement:** An audit store SHOULD publish a periodic checkpoint of its chain head to a destination that the store's own operators cannot rewrite.
+**Statement:** An audit store SHOULD publish a periodic checkpoint of each live segment's chain head and record count to a destination that the store's own operators cannot rewrite.
 
 **Deviation:** A store whose recorded threat model excludes its own operators publishes no checkpoint.
 
-**Rationale:** A chain proves that records agree with each other, but anyone holding the store can recompute the whole chain and keep it agreeing. A checkpoint held somewhere the operators cannot rewrite fixes the chain as it stood at that moment. A later recomputation disagrees with the checkpoint, which exposes it.
+**Rationale:** A checkpoint fixes the chain as it stood when published: a reader who kept that checkpoint detects any later change to the records it covers. Records written after the checkpoint stay uncovered until the next checkpoint, so the interval between checkpoints bounds the window in which a rewrite goes unseen. A checkpoint the store's own operators can rewrite proves nothing against those operators. Only a checkpoint held where they cannot rewrite it, published or held by a third party, gives tamper evidence against them, and the adoption decision states whether the store publishes one.
 
-**Example:** The checkpoint is the chain head and its record count, published at a stated interval. A separate append-only destination, a timestamping authority, and a transparency log each qualify.
+**Example:** The checkpoint is the chain head and its record count, published per segment at a stated interval. A separate append-only destination, a timestamping authority, and a transparency log each qualify.
 
-**Reviewed for:** Does the store publish a checkpoint where its own operators cannot rewrite it? Check the checkpoint destination and the threat model.
+**Reviewed for:** Does the store publish a checkpoint of head and count for each live segment where its own operators cannot rewrite it? Check the checkpoint destination and the threat model.
 
 ### Verify the Integrity Chain on a Schedule
 
@@ -490,11 +490,27 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Applies to:** artifact: job
 
-**Statement:** An audit deployment MUST verify its integrity chain on a recurring schedule and raise an alert on a break.
+**Statement:** An audit deployment MUST verify each live chain segment on a recurring schedule and raise an alert on a break.
 
-**Rationale:** Tamper evidence that no one checks proves nothing: a break sits in the store until someone looks. Scheduled verification turns the chain into a standing claim the deployment re-proves on each run. Verification recomputes the chain and checks its head against the external checkpoint, so it detects a changed or truncated tail since the last checkpoint. The alert carries the break to an operator instead of waiting for the next review.
+**Rationale:** Tamper evidence that no one checks proves nothing: a break sits in the store until someone looks. Scheduled verification turns each live segment into a standing claim the deployment re-proves on each run. Verification recomputes each live segment and checks its head and record count against the latest checkpoint that covers it, so it detects any change to the records that checkpoint covers. Records written after it are covered from the next checkpoint, so the checkpoint interval bounds the window in which a rewrite goes unseen. The alert carries the break to an operator instead of waiting for the next review.
 
-**Reviewed for:** Does the deployment verify its chain on a schedule and alert on a break? Check the integrity job and its alerts.
+**Reviewed for:** Does the deployment verify each live segment on a schedule and alert on a break? Check the integrity job and its alerts.
+
+### State the Checkpoint Interval as the Detection Window
+
+**ID:** `litespec/ext/audit#state-the-checkpoint-interval-as-the-detection-window`
+
+**Strength:** advisory
+
+**Applies to:** artifact: record:decision; when: audit-adoption
+
+**Statement:** An audit adoption decision SHOULD state its checkpoint interval as the window in which a rewrite goes unseen.
+
+**Deviation:** A store that publishes no checkpoint states that choice with its threat model instead.
+
+**Rationale:** Records written after the latest checkpoint stay uncovered until the next one, so the interval is the bound on unseen rewrites. Stating it in the adoption decision tells each reviewer and user what the checkpoints do not cover. Without it, a reader mistakes scheduled verification for cover of the newest records.
+
+**Reviewed for:** Does the adoption decision state the checkpoint interval as the window in which records are not yet covered by a checkpoint? Check that decision record.
 
 ### Correct Mistakes with a New Record
 
@@ -518,11 +534,59 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Applies to:** artifact: job
 
-**Statement:** An audit deployment MUST delete a record after the retention period declared for its category.
+**Statement:** An audit deployment MUST delete a chain segment as a whole after the retention period declared for its category.
 
-**Rationale:** Each category declares its retention in the adoption decision, and the deployment deletes records when that period ends. Deleting on schedule keeps retention defensible: everything kept has a declared reason, and nothing kept lacks one. An indefinite period is the hardest retention to defend, and the easiest to fix while the design is still open.
+**Rationale:** Each category declares its retention in the adoption decision, and the deployment deletes the category's closed segments when that period ends. A segment is closed with a final checkpoint before it is deleted as a whole, so the remaining segments still verify from their own anchors. Deleting on schedule keeps retention defensible: everything kept has a declared reason, and nothing kept lacks one. An indefinite period is the hardest retention to defend, and the easiest to fix while the design is still open.
 
-**Reviewed for:** Does any stored record outlive its category's declared retention? Check the stored rows against the adoption decision.
+**Reviewed for:** Does any stored segment outlive its category's declared retention? Check the stored segments against the adoption decision.
+
+### Delete Expired Records Through a Separate Operator Account
+
+**ID:** `litespec/ext/audit#delete-expired-records-through-a-separate-operator-account`
+
+**Strength:** required
+
+**Applies to:** artifact: job
+
+**Statement:** An audit deployment MUST run retention deletion and tenant data erasure through a separate audited operator process under its own account.
+
+**Rationale:** The application account holds only `INSERT` and `SELECT`, so it cannot delete what retention ends. The operator process holds `DELETE` under its own account, deletes closed segments on schedule, and writes one deletion record per deleted segment. Tenant data erasure runs through the same process, so no application path deletes or removes audit data.
+
+**Example:** Claimwick keeps sign-in denials for two years and expense records for seven. A nightly operator job deletes the closed segments whose retention ended and writes one deletion record per deleted segment, while the application account keeps only `INSERT` and `SELECT`.
+
+**Reviewed for:** Does all retention deletion and tenant data erasure run through the operator process under its own account? Check the deletion job and the granted store privileges.
+
+### Segment the Audit Chain by Category and Calendar Year
+
+**ID:** `litespec/ext/audit#segment-the-audit-chain-by-category-and-calendar-year`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An audit store MUST hold one hash chain segment per audited category and calendar year, each with its own genesis record and checkpoints.
+
+**Rationale:** Deleting one category's expired records from a shared chain breaks every later link, so verification fails from the first expiry on. One segment per category and year lets the deployment delete a whole closed segment while the remaining segments still verify from their own anchors. The segment is closed with a final checkpoint before it is deleted as a whole.
+
+**Example:** Claimwick holds its 2026 sign-in denials in one segment. When their two years end, the deployment deletes that segment whole, and the expense segments keep verifying from their own genesis records.
+
+**Reviewed for:** Does every audit record sit in the segment of its category and year, with its own genesis and checkpoints? Check the stored chain values.
+
+### Record Each Segment Deletion in the Following Segment
+
+**ID:** `litespec/ext/audit#record-each-segment-deletion-in-the-following-segment`
+
+**Strength:** required
+
+**Applies to:** artifact: job
+
+**Statement:** An audit deployment MUST record each deleted chain segment as an audit record in the following segment of the same category.
+
+**Rationale:** A deleted segment leaves no rows, so without a record the trail cannot show what it removed. The deletion record states which segment was deleted with its record count and final checkpoint. The following year segment is still live, because it expires a year later, so it holds the record.
+
+**Example:** Deleting the 2026 sign-in denial segment writes one record into the 2027 denial segment, naming the deleted segment with its count and final checkpoint.
+
+**Reviewed for:** Does every deleted segment have its deletion record in the following segment? Check the deletion records against the retention schedule.
 
 ### Remove the Identity Mapping on Erasure
 
@@ -682,11 +746,11 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Applies to:** artifact: any
 
-**Default:** Store audit records in the business database, under a separate account holding `INSERT` and `SELECT` privileges.
+**Default:** Store audit records in the business database, with the application account holding `INSERT` and `SELECT` and a separate operator account holding `DELETE`.
 
 **Replacement:** A consumer records a trail-store convention naming where its audit records live.
 
-**Rationale:** One database provides the atomic success write the transaction rules depend on. A separate account holding only `INSERT` and `SELECT` provides the append-only guarantee.
+**Rationale:** One database provides the atomic success write the transaction rules depend on. The application account holding only `INSERT` and `SELECT` provides the append-only guarantee, while the operator account holds `DELETE` for retention deletion.
 
 **Reviewed for:** Does the trail live in the business database or the recorded local convention? Check the audit store and its privileges.
 
