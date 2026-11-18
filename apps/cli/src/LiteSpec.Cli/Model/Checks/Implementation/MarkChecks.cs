@@ -16,7 +16,8 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     The mark checks: every element carries the marks its kind takes, each mark names
 ///     a record of the type its kind takes, each frontend element carries the marks its
 ///     kind takes, each backend mark sits in its record's module folder, each command
-///     handler calls its marked act, each marked act raises its use case's events, and
+///     handler calls its marked act, each marked act raises its use case's events, each
+///     use-case folder, event handler and job host with no record is reported once, and
 ///     every mapped record is named by a mark. The analyzers own the C# mark style,
 ///     count, runtime values and partial types, which one compilation shows; this
 ///     check owns what needs the records.
@@ -32,10 +33,12 @@ internal static class MarkChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        CheckMarkPresence(model, findings);
-        CheckMarkLinks(model, findings);
+        var unrecorded = UnrecordedCode.Find(model);
+
+        CheckMarkPresence(model, unrecorded, findings);
+        CheckMarkLinks(model, unrecorded, findings);
         CheckMarkFolderDrift(model, findings);
-        CheckStrayMarks(model, findings);
+        CheckStrayMarks(model, unrecorded, findings);
         CheckDecisionsFollowed(model, findings);
         CheckUseCaseActCalled(model, findings);
         CheckActEvents(model, findings);
@@ -43,15 +46,22 @@ internal static class MarkChecks
         CheckUseCaseExposed(model, findings);
         CheckEffectsImplemented(model, findings);
         CheckUseCaseReached(model, findings);
+        CheckUnrecorded(unrecorded, findings);
     }
 
-    /// <summary>Reports each code element that carries no mark its kind takes.</summary>
+    /// <summary>Reports each code element that carries no mark its kind takes, except the ones an unrecorded folder or trigger covers.</summary>
     /// <param name="model">The loaded project model that holds each marked code element.</param>
+    /// <param name="unrecorded">The unrecorded folders and triggers whose classes keep no per-class mark finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckMarkPresence(ProjectModel model, List<Finding> findings)
+    private static void CheckMarkPresence(ProjectModel model, UnrecordedCode unrecorded, List<Finding> findings)
     {
         foreach (var element in model.Code.Elements)
         {
+            if (unrecorded.Covers(element))
+            {
+                continue;
+            }
+
             if (!element.Marks.Any(mark => MarkRules.TakesVerb(element.Kind, mark.Verb)))
             {
                 findings.Add(new Finding("mark-missing", $"{KindName(element.Kind)} '{DisplayName(element)}' carries no mark.", element.File, element.Line, null));
@@ -59,10 +69,11 @@ internal static class MarkChecks
         }
     }
 
-    /// <summary>Reports each mark that names no record of the kind it takes or uses the wrong verb, and each frontend element that breaks its kind count.</summary>
+    /// <summary>Reports each mark that names no record of the kind it takes or uses the wrong verb, and each frontend element that breaks its kind count, except on the elements an unrecorded folder or trigger covers.</summary>
     /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
+    /// <param name="unrecorded">The unrecorded folders and triggers whose classes keep no per-class mark finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckMarkLinks(ProjectModel model, List<Finding> findings)
+    private static void CheckMarkLinks(ProjectModel model, UnrecordedCode unrecorded, List<Finding> findings)
     {
         var conventions = ConventionFiles.Load(model.Config)
             .Select(entry => entry.Id)
@@ -70,6 +81,11 @@ internal static class MarkChecks
 
         foreach (var element in model.Code.Elements)
         {
+            if (unrecorded.Covers(element))
+            {
+                continue;
+            }
+
             foreach (var mark in element.Marks)
             {
                 if (mark.Verb == MarkVerb.Follows)
@@ -402,13 +418,20 @@ internal static class MarkChecks
     ///     Reports every mark on an element that takes no mark: a reading method, a
     ///     private helper, or an unrecognized class carrying a mark, or a proves mark
     ///     on a method with no test attribute. A <c>follows</c> mark is never stray.
+    ///     A stray mark an unrecorded folder or trigger covers stays silent.
     /// </summary>
     /// <param name="model">The loaded project model that holds each stray mark read from the code.</param>
+    /// <param name="unrecorded">The unrecorded folders and triggers whose classes keep no per-class mark finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckStrayMarks(ProjectModel model, List<Finding> findings)
+    private static void CheckStrayMarks(ProjectModel model, UnrecordedCode unrecorded, List<Finding> findings)
     {
         foreach (var stray in model.Code.StrayMarks)
         {
+            if (unrecorded.Covers(stray))
+            {
+                continue;
+            }
+
             foreach (var mark in stray.Marks)
             {
                 if (mark.Verb == MarkVerb.Follows)
@@ -844,6 +867,23 @@ internal static class MarkChecks
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>Reports each use-case folder, event handler and job host with no record behind one finding each.</summary>
+    /// <param name="unrecorded">The unrecorded folders and triggers.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/core/layers#implement-only-declared-behavior</follows>
+    private static void CheckUnrecorded(UnrecordedCode unrecorded, List<Finding> findings)
+    {
+        foreach (var folder in unrecorded.Folders)
+        {
+            findings.Add(new Finding("use-case-unrecorded", folder.Message, folder.File, folder.Line, folder.RecordId));
+        }
+
+        foreach (var trigger in unrecorded.Triggers)
+        {
+            findings.Add(new Finding(trigger.Code, trigger.Message, trigger.File, trigger.Line, trigger.Subject));
         }
     }
 
