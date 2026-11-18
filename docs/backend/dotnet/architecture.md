@@ -451,9 +451,9 @@ Modules/Claimwick.Reporting/Application/ReadModels/ReimbursedExpenses/
 | `WebApi/{Aggregates}/{UseCase}/` | its own `Application/{Aggregates}/{UseCase}/` (message and result), Kernel values, typed identifiers, Platform `Http/` and `Access/`; never `Ports/`, `Domain/` types, repositories, `Infrastructure/`, or another use case | analyzer (folder) |
 | Hosts | Platform and each module's entry type | project references |
 
-**Example:** Domain references no Application, Infrastructure, or WebApi type, and none of the persistence, web, mediator, logging, and injection namespaces. Ports references no Application, Infrastructure, or WebApi type. Application references no Infrastructure or WebApi type, and no ASP.NET Core type. WebApi references no Domain type outside typed identifiers and Kernel values, and no repository.
+**Example:** Domain references no Application, Infrastructure, or WebApi type, and none of the persistence, web, mediator, logging, and injection namespaces. Ports references no Application, Infrastructure, or WebApi type. Application references no Infrastructure or WebApi type, and no ASP.NET Core type. WebApi references no Domain type outside typed identifiers and Kernel values, and no repository. An adapter in `Infrastructure/{Port}/` names no Domain type outside typed identifiers, shared-kernel values and the types the interfaces of the ports it implements name in their member signatures, and no WebApi type.
 
-**Checked by:** `dotnet build` reports `LS1001` for a Domain type naming an outer-layer type and `LS2018` for an Application, Ports, or WebApi type naming a type outside its layer.
+**Checked by:** `dotnet build` reports `LS1001` for a Domain type naming an outer-layer type, `LS2018` for an Application, Ports, or WebApi type naming a type outside its layer, and `LS2025` for an adapter in `Infrastructure/{Port}/` naming a Domain type outside those or a WebApi type.
 
 ### Keep Use Case Folders Isolated
 

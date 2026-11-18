@@ -337,7 +337,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2025 = Create("LS2025", LayersCategory, RespectLayerDirection,
         "Adapter names a type outside its layer",
         "Adapter uses '{0}', {1}",
-        "An adapter in Infrastructure/{Port}/ implements its port from platform and library types. It names no Domain type outside typed identifiers and shared-kernel values, and no WebApi type.");
+        "An adapter in Infrastructure/{Port}/ implements its port from platform and library types. It names no Domain type outside typed identifiers, shared-kernel values and the types the interfaces of the ports it implements name in their member signatures, and no WebApi type.");
 
     /// <summary>The LS2026 descriptor: Model duplicated in two use case folders.</summary>
     public static readonly DiagnosticDescriptor LS2026 = Create("LS2026", LayersCategory, UseCaseIsolation,

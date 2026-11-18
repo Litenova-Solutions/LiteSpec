@@ -48,7 +48,7 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2028` run across layers
 - [LS2022: Event Published by User Code](ls2022.md): reports user code naming the event mediator or an event publisher.
 - [LS2023: Class Implements Two Message Definitions](ls2023.md): reports a class implementing two message definition contracts.
 - [LS2024: Module Holds Platform-Owned Capability Code](ls2024.md): reports serializer, store, guard, or converter code in a module.
-- [LS2025: Adapter Names a Type Outside Its Layer](ls2025.md): reports an `Infrastructure/{Port}/` adapter naming a Domain or WebApi type.
+- [LS2025: Adapter Names a Type Outside Its Layer](ls2025.md): reports an `Infrastructure/{Port}/` adapter naming a Domain type outside its ports' signatures or a WebApi type.
 - [LS2026: Model Duplicated in Two Use Case Folders](ls2026.md): reports a record declared with the same members in two use case folders.
 - [LS2027: Application Does Infrastructure Work](ls2027.md): reports archive, serialization, or document work in Application.
 - [LS2028: Module Exposes a Public Type Outside Contracts](ls2028.md): reports a public type in a module project outside its entry type.

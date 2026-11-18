@@ -48,6 +48,43 @@ public sealed class UseCaseInfrastructureAnalyzerTests
             ],
             assemblyName: "Claimwick.Export");
 
+    /// <summary>LS2025 reports an adapter naming a Domain type no port signature names.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2025 reports an adapter naming a Domain type no port signature names")]
+    public Task ReportsAnAdapterNamingADomainTypeNoPortSignatureNames() =>
+        Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
+            [
+                ("Claimwick.Export/Domain/Stubs.cs", Stubs),
+                ("Claimwick.Export/Domain/Workspaces/Workspace.cs", Root),
+                ("Claimwick.Export/Ports/WorkspaceArchive/IWorkspaceArchive.cs", """
+                    namespace Claimwick.Export.Ports.WorkspaceArchive;
+
+                    internal interface IWorkspaceArchive
+                    {
+                        void Write(string path);
+                    }
+                    """),
+                ("Claimwick.Export/Infrastructure/WorkspaceArchive/WorkspaceArchiveWriter.cs", """
+                    using Claimwick.Export.Domain.Workspaces;
+                    using Claimwick.Export.Ports.WorkspaceArchive;
+
+                    namespace Claimwick.Export.Infrastructure.WorkspaceArchive;
+
+                    internal sealed class WorkspaceArchiveWriter : IWorkspaceArchive
+                    {
+                        public void Write(string path)
+                        {
+                        }
+
+                        internal void Rebuild({|LS2025:Workspace|} workspace)
+                        {
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Export");
+
     /// <summary>LS2025 reports an adapter naming a WebApi type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
@@ -130,6 +167,44 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
                     internal sealed class WorkspaceArchiveWriter : IWorkspaceArchive
                     {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Export");
+
+    /// <summary>LS2025 accepts an adapter naming a Domain type its port returns.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2025 accepts an adapter naming a Domain type its port returns")]
+    public Task AcceptsAnAdapterNamingADomainTypeItsPortReturns() =>
+        Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
+            [
+                ("Claimwick.Export/Domain/Stubs.cs", Stubs),
+                ("Claimwick.Export/Domain/Workspaces/Workspace.cs", Root),
+                ("Claimwick.Export/Ports/WorkspaceArchive/IWorkspaceArchive.cs", """
+                    using Claimwick.Export.Domain;
+                    using Claimwick.Export.Domain.Workspaces;
+
+                    namespace Claimwick.Export.Ports.WorkspaceArchive;
+
+                    internal interface IWorkspaceArchive
+                    {
+                        Workspace Open(WorkspaceId id);
+                    }
+                    """),
+                ("Claimwick.Export/Infrastructure/WorkspaceArchive/WorkspaceArchiveReader.cs", """
+                    using Claimwick.Export.Domain;
+                    using Claimwick.Export.Domain.Workspaces;
+                    using Claimwick.Export.Ports.WorkspaceArchive;
+
+                    namespace Claimwick.Export.Infrastructure.WorkspaceArchive;
+
+                    internal sealed class WorkspaceArchiveReader : IWorkspaceArchive
+                    {
+                        public Workspace Open(WorkspaceId id)
+                        {
+                            throw new System.NotImplementedException();
+                        }
                     }
                     """),
             ],
