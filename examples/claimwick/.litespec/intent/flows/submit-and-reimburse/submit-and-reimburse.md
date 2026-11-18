@@ -15,4 +15,4 @@ Ava paid a 48.90 EUR train fare for a client visit and has not submitted it yet.
 
 ## Branches
 
-At step 3, when Ben rejects the fare instead of approving it, the flow ends with the rejection and no payout. Ben may reject any expense, so the employee learns the decision from the list before any money moves.
+At `step/submit-and-reimburse.decide-expense`, when Ben rejects the fare instead of approving it, the flow ends with the rejection and no payout. Ben may reject any expense, so the employee learns the decision from the list before any money moves.

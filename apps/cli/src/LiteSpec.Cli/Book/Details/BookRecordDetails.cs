@@ -285,13 +285,14 @@ static class BookRecordDetails
                 continue;
             }
 
-            var hash = entry.Id.IndexOf('#');
-            if (hash < 0)
+            if (!Identifiers.TrySplit(entry.Id, out var prefix, out var home, out _)
+                || !string.Equals(prefix, RecordTypes.Step, StringComparison.Ordinal)
+                || home is not { Length: > 0 })
             {
                 continue;
             }
 
-            var flow = entry.Id[..hash];
+            var flow = $"flow/{home}";
             if (!byFlow.TryGetValue(flow, out var list))
             {
                 list = [];

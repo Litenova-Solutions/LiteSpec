@@ -8,7 +8,7 @@ access:
   grant: permission/export-expenses
   tenant: own
 serves:
-- flow/export-approved-expenses#s1
+- step/export-approved-expenses.export-batch
 fulfills:
 - requirement/approval.decided-within-five-days
 reachedThrough:

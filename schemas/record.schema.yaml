@@ -86,7 +86,7 @@ $defs:
     pattern: '^flow/[a-z0-9][a-z0-9-]*$'
   flowStepId:
     type: string
-    pattern: '^flow/[a-z0-9][a-z0-9-]*#s[0-9]+$'
+    pattern: '^step/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
   moduleId:
     type: string
     pattern: '^module/[a-z0-9][a-z0-9-]*$'
@@ -940,6 +940,10 @@ $defs:
         $ref: '#/$defs/useCaseId'
         x-reads-as: queries
         x-read-back-as: is queried by
+      commands:
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: commands
+        x-read-back-as: is commanded by
       timing:
         enum:
         - inline
@@ -960,6 +964,8 @@ $defs:
       - calls
     - required:
       - queries
+    - required:
+      - commands
   triggeredEffectEntry:
     type: object
     additionalProperties: false
@@ -980,6 +986,10 @@ $defs:
         $ref: '#/$defs/useCaseId'
         x-reads-as: queries
         x-read-back-as: is queried by
+      commands:
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: commands
+        x-read-back-as: is commanded by
       timing:
         enum:
         - inline
@@ -1002,6 +1012,8 @@ $defs:
       - calls
     - required:
       - queries
+    - required:
+      - commands
   isoDuration:
     type: string
     pattern: '^P(?=.*\d)(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$'
@@ -1646,11 +1658,13 @@ $defs:
     additionalProperties: false
     required:
     - id
+    - title
     - statement
     properties:
       id:
-        type: string
-        pattern: '^s[0-9]+$'
+        $ref: '#/$defs/flowStepId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
       statement:
         $ref: '#/$defs/nonEmptyString'
       actor:
@@ -1667,6 +1681,11 @@ $defs:
         x-read-back-as: is carried by
       failure:
         $ref: '#/$defs/nonEmptyString'
+      branches:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/flowBranch'
     not:
       required:
       - actor
@@ -1675,18 +1694,31 @@ $defs:
     type: object
     additionalProperties: false
     required:
-    - step
-    - condition
-    - nextStep
+    - when
+    oneOf:
+    - required:
+      - then
+    - required:
+      - ends
     properties:
-      step:
-        type: string
-        pattern: '^s[0-9]+$'
-      condition:
+      when:
         $ref: '#/$defs/nonEmptyString'
-      nextStep:
-        type: string
-        pattern: '^(s[0-9]+|end)$'
+      then:
+        $ref: '#/$defs/flowStepId'
+        x-reads-as: continues at
+        x-read-back-as: is continued from
+      ends:
+        $ref: '#/$defs/nonEmptyString'
+      instead:
+        $ref: '#/$defs/nonEmptyString'
+      carries:
+        $ref: '#/$defs/requirementIdArray'
+        x-reads-as: carries
+        x-read-back-as: is carried by
+      system:
+        $ref: '#/$defs/externalSystemId'
+        x-reads-as: is performed by
+        x-read-back-as: performs
   problemEvidence:
     type: object
     additionalProperties: false
@@ -2885,7 +2917,6 @@ $defs:
     - id
     - title
     - offering
-    - solves
     - successCriteria
     - excludes
     properties:
@@ -2903,10 +2934,6 @@ $defs:
         x-read-back-as: is used by
       offering:
         $ref: '#/$defs/nonEmptyString'
-      solves:
-        $ref: '#/$defs/problemIdArray'
-        x-reads-as: solves
-        x-read-back-as: is solved by
       advances:
         $ref: '#/$defs/goalIdArray'
         x-reads-as: advances
@@ -3063,11 +3090,6 @@ $defs:
         minItems: 1
         items:
           $ref: '#/$defs/flowStep'
-      branches:
-        type: array
-        minItems: 1
-        items:
-          $ref: '#/$defs/flowBranch'
   modulePage:
     type: object
     additionalProperties: false

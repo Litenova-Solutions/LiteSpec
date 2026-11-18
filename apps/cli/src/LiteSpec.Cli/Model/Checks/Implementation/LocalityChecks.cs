@@ -141,21 +141,21 @@ internal static class LocalityChecks
                         continue;
                     }
 
-                    // A public query lists its consumer modules in reachedThrough; the
-                    // consumer's queries edge and dependsOn carry the forward dependency,
-                    // so the back-link needs none.
+                    // A public use case lists its consumer modules in reachedThrough; the
+                    // consumer's queries or commands edge and dependsOn carry the forward
+                    // dependency, so the back-link needs none.
                     if (property.Name == RecordFields.ReachedThrough
                         && target.Type == RecordTypes.Module)
                     {
                         continue;
                     }
 
-                    // A queries edge crosses modules by design: the provider's
-                    // reachedThrough names the consuming module, and the query-edge
-                    // checks own the edge when it does not, so each edge reports once.
+                    // A queries or commands edge crosses modules by design: the provider's
+                    // reachedThrough names the consuming module, and the edge checks
+                    // own the edge when it does not, so each edge reports once.
                     if (target.Type == RecordTypes.UseCase
                         && source.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job
-                        && IsQueriesEdge(source, property.Name, targetId))
+                        && IsUseCaseEdge(source, property.Name, targetId))
                     {
                         continue;
                     }
@@ -188,14 +188,14 @@ internal static class LocalityChecks
         }
     }
 
-    /// <summary>Whether the link is a queries edge, which crosses modules by design and the query-edge checks own.</summary>
+    /// <summary>Whether the link is a queries or commands edge, which crosses modules by design and the edge checks own.</summary>
     /// <param name="source">The record the link starts from.</param>
     /// <param name="property">The top-level link field carrying the target.</param>
     /// <param name="targetId">The link target as written.</param>
-    /// <returns>True when a queries verb names the target through the field.</returns>
-    private static bool IsQueriesEdge(Record source, string property, string targetId)
+    /// <returns>True when a queries or commands verb names the target through the field.</returns>
+    private static bool IsUseCaseEdge(Record source, string property, string targetId)
     {
-        if (property == RecordFields.Queries)
+        if (property is RecordFields.Queries or RecordFields.Commands)
         {
             return true;
         }
@@ -208,7 +208,11 @@ internal static class LocalityChecks
         var wanted = Identifiers.BaseId(targetId);
 
         return RecordEntries.EffectEntries(source)
-            .Select(entry => RecordEntries.Str(entry, RecordFields.Queries))
+            .SelectMany(entry => new[]
+            {
+                RecordEntries.Str(entry, RecordFields.Queries),
+                RecordEntries.Str(entry, RecordFields.Commands),
+            })
             .Where(id => id is { Length: > 0 })
             .Any(id => Identifiers.BaseId(id!).Equals(wanted, StringComparison.Ordinal));
     }
@@ -229,6 +233,7 @@ internal static class LocalityChecks
         AddDependsOnEdges(model, graph, edges);
         AddContractsReferenceEdges(model, graph, edges);
         AddQueriesEdges(model, graph, edges);
+        AddCommandsEdges(model, graph, edges);
         AddTriggerEdges(model, graph, edges);
 
         foreach (var targets in graph.Values)
@@ -433,6 +438,40 @@ internal static class LocalityChecks
                 }
 
                 AddEdge(graph, edges, source, provider, $"'{source}' queries '{resolved.Id}'");
+            }
+        }
+    }
+
+    /// <summary>Adds one edge per commands edge from a record in one module to a use case in another.</summary>
+    /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
+    /// <param name="graph">The module graph by module identifier, receiving each target.</param>
+    /// <param name="edges">The edge labels by hop, receiving each label.</param>
+    private static void AddCommandsEdges(
+        ProjectModel model,
+        Dictionary<string, List<string>> graph,
+        Dictionary<(string From, string To), HashSet<string>> edges)
+    {
+        foreach (var holder in model.Records.Where(record =>
+            !record.Derived && record.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job))
+        {
+            if (ModuleOf(model, holder) is not { Length: > 0 } from
+                || ModuleIdOf(model, from) is not { } source)
+            {
+                continue;
+            }
+
+            foreach (var target in holder.EdgeIds(RecordFields.Commands))
+            {
+                if (!model.ById.TryGetValue(Identifiers.BaseId(target), out var resolved)
+                    || resolved.Type != RecordTypes.UseCase
+                    || ModuleOf(model, resolved) is not { Length: > 0 } to
+                    || to.Equals(from, StringComparison.Ordinal)
+                    || ModuleIdOf(model, to) is not { } provider)
+                {
+                    continue;
+                }
+
+                AddEdge(graph, edges, source, provider, $"'{source}' commands '{resolved.Id}'");
             }
         }
     }

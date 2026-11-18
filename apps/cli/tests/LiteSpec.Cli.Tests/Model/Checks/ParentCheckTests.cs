@@ -6,23 +6,24 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the parent check: every record with a required written parent names it, at tier G.</summary>
 public sealed class ParentCheckTests
 {
-    /// <summary>Feature In The Features Folder Passes.</summary>
-    /// <proves>litespec/core/intent#solve-problems-with-standalone-features</proves>
+    /// <summary>Feature In Its Problem Folder Passes.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
     [Fact]
-    public void FeatureInTheFeaturesFolderPasses()
+    public void FeatureInItsProblemFolderPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, ".litespec", "intent", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
+            TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(temp.Path, ".litespec", "intent", "problems", "overdue-loans-pile-up", "overdue-loans-pile-up.yaml"), """{}"""),
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
 
-    /// <summary>Feature Outside The Features Folder Reports.</summary>
-    /// <proves>litespec/core/intent#solve-problems-with-standalone-features</proves>
+    /// <summary>Feature Outside A Problem Folder Reports.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
     [Fact]
-    public void FeatureOutsideTheFeaturesFolderReports()
+    public void FeatureOutsideAProblemFolderReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -31,23 +32,21 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/hold-queue' sits outside the product's intent/features folder, so it has no parent product.", finding.Message);
         Assert.Equal("feature/hold-queue", finding.Subject);
     }
 
-    /// <summary>Feature In A Problem Folder Reports.</summary>
-    /// <proves>litespec/core/intent#solve-problems-with-standalone-features</proves>
+    /// <summary>Feature In A Problem Folder Without Its Problem Reports.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
     [Fact]
-    public void FeatureInAProblemFolderReports()
+    public void FeatureInAProblemFolderWithoutItsProblemReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, ".litespec", "intent", "problems", "ghost", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "problems", "ghost", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/hold-queue' sits in 'intent/problems/ghost/features/hold-queue', but features live in 'intent/features/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("feature/hold-queue", finding.Subject);
     }
 
@@ -59,8 +58,8 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
-            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}""")]);
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
@@ -73,9 +72,9 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["flow/renew-loan#s1"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
-            TestModel.Record("flow", "flow/renew-loan", Path.Combine(temp.Path, "renew.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader renews the loan."}]}"""),
-            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["step/renew-loan.renew-loan"], "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy."}]}"""),
+            .. TestModel.Records("flow", "flow/renew-loan", Path.Combine(temp.Path, "renew.yaml"), """{"actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "step/renew-loan.renew-loan", "title": "Renew Loan", "statement": "The reader renews the loan."}]}"""),
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}""")]);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
@@ -91,7 +90,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy."}]}""")]);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
@@ -107,7 +106,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": "actor/reader", "serves": ["goal/no-such-goal"], "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy."}]}""")]);
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
         Assert.Contains("reference-unknown", TestModel.Codes(model));

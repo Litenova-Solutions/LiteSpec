@@ -7,7 +7,7 @@ access:
   grant: permission/manage-copies
   tenant: own
 serves:
-- flow/borrow-and-return#s8
+- step/borrow-and-return.retire-copy
 fulfills:
 - requirement/borrowing.copy-shelf-home
 reachedThrough:

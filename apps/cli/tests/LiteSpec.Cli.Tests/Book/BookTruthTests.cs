@@ -52,17 +52,37 @@ public sealed class BookTruthTests
         {
             var reaction = Records(root).First(record => Text(record["type"]) == "reaction");
             reactionId = Text(reaction["id"]);
-            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("flow/borrowing#s2");
+            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("step/borrowing.return-copy");
+            ((JsonArray)root["records"]!).Add(new JsonObject
+            {
+                ["type"] = "step",
+                ["id"] = "step/borrowing.return-copy",
+                ["title"] = "The member returns the copy.",
+                ["owner"] = "lending-team",
+                ["status"] = "approved",
+                ["effectiveStatus"] = "approved",
+                ["decider"] = null,
+                ["decideBy"] = null,
+                ["file"] = ".litespec/product/flows/borrowing.yaml",
+                ["line"] = 10,
+                ["fields"] = new JsonObject
+                {
+                    ["id"] = "step/borrowing.return-copy",
+                    ["statement"] = "The member returns the copy.",
+                },
+                ["links"] = new JsonObject(),
+            });
         });
         Assert.True(reactionId.Length > 0, "The fixture holds no reaction.");
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
-        var flow = ReadRecords(Path.Combine(Out(temp), "data"))["flow/borrowing"];
+        var records = ReadRecords(Path.Combine(Out(temp), "data"));
+        var flow = records["flow/borrowing"];
         var servers = Obj(flow, "stepServers");
-        Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
-        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), reactionId));
-        Assert.Empty(Obj(flow, "stepScreens")["s2"] as JsonArray ?? new JsonArray());
-        Assert.True(HasEdge(Arr(flow, "in"), reactionId, "reaction.serves"));
+        Assert.True(HasString(servers["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
+        Assert.True(HasString(servers["step/borrowing.return-copy"] as JsonArray ?? new JsonArray(), reactionId));
+        Assert.Empty(Obj(flow, "stepScreens")["step/borrowing.return-copy"] as JsonArray ?? new JsonArray());
+        Assert.True(HasEdge(Arr(records["step/borrowing.return-copy"], "in"), reactionId, "reaction.serves"));
     }
 
     /// <summary>A flow step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
@@ -71,13 +91,13 @@ public sealed class BookTruthTests
     public void ExercisedStepRendersAsWalked()
     {
         using var temp = TestCli.Temp("book-truth");
-        var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("flow/borrowing#s1"));
+        var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("step/borrowing.borrow-copy"));
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
         var flow = ReadRecords(Path.Combine(Out(temp), "data"))["flow/borrowing"];
         var exercised = Arr(flow, "exercised");
-        Assert.True(HasString(exercised, "s1"));
-        Assert.False(HasString(exercised, "s2"));
+        Assert.True(HasString(exercised, "step/borrowing.borrow-copy"));
+        Assert.False(HasString(exercised, "step/borrowing.return-copy"));
     }
 
     /// <summary>Findings embedded in the model reach their subject records, open and known apart.</summary>

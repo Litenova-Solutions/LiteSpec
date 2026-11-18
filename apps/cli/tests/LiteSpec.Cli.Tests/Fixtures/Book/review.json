@@ -125,7 +125,7 @@
       "effectiveStatus": "draft",
       "decider": "Ada",
       "decideBy": "2026-11-15",
-      "file": ".litespec/intent/features/self-checkout/self-checkout.yaml",
+      "file": ".litespec/intent/problems/slow-desk-queues/features/self-checkout/self-checkout.yaml",
       "line": 3,
       "explanation": "# Self Checkout\n\n## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
       "fields": {
@@ -151,9 +151,6 @@
         ]
       },
       "links": {
-        "solves": [
-          "problem/slow-desk-queues"
-        ],
         "advances": [
           "goal/faster-borrowing"
         ]
@@ -387,12 +384,12 @@
         "actor": "actor/member",
         "steps": [
           {
-            "id": "s1",
+            "id": "step/borrowing.borrow-copy",
             "statement": "The member borrows a copy before closing.",
             "actor": "actor/member"
           },
           {
-            "id": "s2",
+            "id": "step/borrowing.return-copy",
             "statement": "The member returns the copy.",
             "actor": "actor/member",
             "failure": "The desk renews the loan."
@@ -409,6 +406,51 @@
         ],
         "cites": [
           "requirement/self-checkout.max-wait"
+        ]
+      }
+    },
+    {
+      "type": "step",
+      "id": "step/borrowing.borrow-copy",
+      "title": "The member borrows a copy before closing.",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/product/flows/borrowing.yaml",
+      "line": 8,
+      "fields": {
+        "id": "step/borrowing.borrow-copy",
+        "statement": "The member borrows a copy before closing.",
+        "actor": "actor/member"
+      },
+      "links": {
+        "actor": [
+          "actor/member"
+        ]
+      }
+    },
+    {
+      "type": "step",
+      "id": "step/borrowing.return-copy",
+      "title": "The member returns the copy.",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/product/flows/borrowing.yaml",
+      "line": 13,
+      "fields": {
+        "id": "step/borrowing.return-copy",
+        "statement": "The member returns the copy.",
+        "actor": "actor/member",
+        "failure": "The desk renews the loan."
+      },
+      "links": {
+        "actor": [
+          "actor/member"
         ]
       }
     },
@@ -626,7 +668,7 @@
           "tenant": "own"
         },
         "serves": [
-          "flow/borrowing#s1"
+          "step/borrowing.borrow-copy"
         ]
       },
       "links": {
@@ -640,7 +682,7 @@
           "requirement/self-checkout.max-wait"
         ],
         "serves": [
-          "flow/borrowing#s1"
+          "step/borrowing.borrow-copy"
         ]
       }
     },
@@ -1587,7 +1629,7 @@
         "reachedBy": []
       },
       {
-        "id": "flow/borrowing#s1",
+        "id": "step/borrowing.borrow-copy",
         "kind": "step",
         "reached": true,
         "reachedBy": [
@@ -1595,7 +1637,7 @@
         ]
       },
       {
-        "id": "flow/borrowing#s2",
+        "id": "step/borrowing.return-copy",
         "kind": "step",
         "reached": false,
         "reachedBy": []

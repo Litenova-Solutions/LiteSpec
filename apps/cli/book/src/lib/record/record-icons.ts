@@ -11,7 +11,7 @@ import {
 // One icon per record type and per mark.
 const ICONS: Record<string, Component> = {
   product: Package, problem: TriangleAlert, goal: Target, direction: Compass, feature: Boxes, requirement: FileCheck, decision: Scale,
-  constraint: Fence, research: Microscope, flow: Route, actor: User, module: Folder,
+  constraint: Fence, research: Microscope, flow: Route, step: ArrowRight, actor: User, module: Folder,
   aggregate: Table2, rule: Shield, "domain-event": Activity, "module-event": Network, "integration-event": Radio, "read-model": Eye, "reference-data": Database, "use-case": Zap, scenario: ListChecks,
   result: CircleDot, reaction: Workflow, job: Timer, notification: Bell, setting: Settings, screen: Monitor,
   role: IdCard, permission: KeyRound, "entry-point": DoorOpen, "external-system": Plug, limit: Gauge, runbook: BookOpen,

@@ -116,6 +116,8 @@ public sealed class FindingCodesTests
     [InlineData("exercises-uncited", "A")]
     [InlineData("refusal-next-step-unknown", "A")]
     [InlineData("guard-module-foreign", "G")]
+    [InlineData("command-target-invalid", "G")]
+    [InlineData("command-consumer-missing", "G")]
     public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -157,6 +159,8 @@ public sealed class FindingCodesTests
     [InlineData("exercises-uncited", RecordLayer.Behavior, false, null)]
     [InlineData("refusal-next-step-unknown", RecordLayer.Behavior, false, null)]
     [InlineData("guard-module-foreign", RecordLayer.Behavior, false, null)]
+    [InlineData("command-target-invalid", RecordLayer.Behavior, false, null)]
+    [InlineData("command-consumer-missing", RecordLayer.Behavior, false, null)]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);

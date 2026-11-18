@@ -268,9 +268,9 @@ public sealed class BookEnrichTests
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var flow = details["flow/borrowing"];
         var servers = Obj(flow, "stepServers");
-        Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
-        Assert.Empty(servers["s2"] as JsonArray ?? new JsonArray());
-        Assert.Empty(Obj(flow, "stepScreens")["s1"] as JsonArray ?? new JsonArray());
+        Assert.True(HasString(servers["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
+        Assert.Empty(servers["step/borrowing.return-copy"] as JsonArray ?? new JsonArray());
+        Assert.Empty(Obj(flow, "stepScreens")["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray());
         Assert.Empty(Arr(flow, "exercised"));
         Assert.Null(details["goal/faster-borrowing"]["stepServers"]);
     }
@@ -294,26 +294,26 @@ public sealed class BookEnrichTests
             {
                 reactionId = Str(obj, "id") ?? "";
                 var fields = obj["fields"] as JsonObject ?? new JsonObject();
-                fields["serves"] = new JsonArray("flow/borrowing#s2");
+                fields["serves"] = new JsonArray("step/borrowing.return-copy");
             }
             else if (Str(obj, "type") == "job" && jobId.Length == 0)
             {
                 jobId = Str(obj, "id") ?? "";
                 var fields = obj["fields"] as JsonObject ?? new JsonObject();
-                fields["serves"] = new JsonArray("flow/borrowing#s1");
+                fields["serves"] = new JsonArray("step/borrowing.borrow-copy");
             }
         }
 
         Assert.True(reactionId.Length > 0, "The fixture holds no reaction.");
         Assert.True(jobId.Length > 0, "The fixture holds no job.");
-        model["exercisedSteps"] = new JsonArray("flow/borrowing#s1");
+        model["exercisedSteps"] = new JsonArray("step/borrowing.borrow-copy");
         var flow = DetailsOf(model)["flow/borrowing"];
         var servers = Obj(flow, "stepServers");
-        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), reactionId));
-        Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), jobId));
+        Assert.True(HasString(servers["step/borrowing.return-copy"] as JsonArray ?? new JsonArray(), reactionId));
+        Assert.True(HasString(servers["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray(), jobId));
         var exercised = Arr(flow, "exercised");
-        Assert.True(HasString(exercised, "s1"));
-        Assert.False(HasString(exercised, "s2"));
+        Assert.True(HasString(exercised, "step/borrowing.borrow-copy"));
+        Assert.False(HasString(exercised, "step/borrowing.return-copy"));
     }
 
     /// <summary>Screens carry their route, called use cases and a route implementation entry.</summary>
@@ -493,9 +493,7 @@ public sealed class BookEnrichTests
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var useOut = Arr(details["use-case/lending.borrow-copy"], "out");
-        Assert.True(HasEdge(useOut, "flow/borrowing", "use-case.serves"));
         Assert.True(HasEdge(useOut, "requirement/self-checkout.max-wait", "use-case.fulfills"));
-        Assert.True(HasEdge(Arr(details["flow/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
         Assert.True(HasEdge(
             Arr(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "in"),
@@ -505,9 +503,16 @@ public sealed class BookEnrichTests
             Arr(details["use-case/lending.borrow-copy"], "in"),
             "code/src/Application/Lending/BorrowCopyHandler.cs",
             "implements"));
+
+        var stepped = DetailsOf(NewModel(
+            Record("flow", "flow/borrowing", "Borrowing", fieldsJson: """{"steps": [{"id": "step/borrowing.borrow-copy", "statement": "The reader borrows the copy."}]}"""),
+            Record("step", "step/borrowing.borrow-copy", "step/borrowing.borrow-copy", fieldsJson: """{"statement": "The reader borrows the copy."}"""),
+            Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", fieldsJson: """{"serves": ["step/borrowing.borrow-copy"]}""")));
+        Assert.True(HasEdge(Arr(stepped["use-case/lending.borrow-copy"], "out"), "step/borrowing.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(stepped["step/borrowing.borrow-copy"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
-    /// <summary>Nested link fields form dotted keys, and step fragments resolve to the record.</summary>
+    /// <summary>Nested link fields form dotted keys, and operation fragments resolve to the record.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NestedEffectsFormDottedKeys()

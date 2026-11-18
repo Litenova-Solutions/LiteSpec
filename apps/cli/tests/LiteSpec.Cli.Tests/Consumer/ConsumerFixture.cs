@@ -58,9 +58,9 @@ static class ConsumerFixture
             {"type":"product","id":"product/fixture","title":"Fixture Shop","summary":"The shop sells printed books to readers in one city.","boundary":"The shop sells printed books to readers.","users":["actor/customer"]}
             """,
             null),
-        new(".litespec/intent/features/pricing/pricing.yaml",
+        new(".litespec/intent/problems/slow-delivery/features/pricing/pricing.yaml",
             """
-            {"type":"feature","id":"feature/pricing","title":"Pricing","summary":"The shop charges one flat fee on every order.","offering":"Every order carries a flat fee of one euro.","advances":["goal/faster-delivery"],"solves":["problem/slow-delivery"],"successCriteria":["Every order carries a flat fee of one euro.","Every receipt shows the same fee line."],"excludes":["The shop offers no discount outside the flat fee.","Delivery speed stays outside this feature."]}
+            {"type":"feature","id":"feature/pricing","title":"Pricing","summary":"The shop charges one flat fee on every order.","offering":"Every order carries a flat fee of one euro.","advances":["goal/faster-delivery"],"successCriteria":["Every order carries a flat fee of one euro.","Every receipt shows the same fee line."],"excludes":["The shop offers no discount outside the flat fee.","Delivery speed stays outside this feature."]}
             """,
             """
             # Pricing
@@ -72,7 +72,7 @@ static class ConsumerFixture
             Alex orders two books on Monday and pays one fee at checkout.
 
             """),
-        new(".litespec/intent/features/pricing/requirements/flat-fee/flat-fee.yaml",
+        new(".litespec/intent/problems/slow-delivery/features/pricing/requirements/flat-fee/flat-fee.yaml",
             """
             {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}
             """,

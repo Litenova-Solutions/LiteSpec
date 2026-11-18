@@ -8,7 +8,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the Contracts closed set: aggregate folders with the identifier, facts and public query folders, no interface, no command, and each public query message at its Contracts path.</summary>
+/// <summary>Proves the Contracts closed set: aggregate folders with the identifier, facts and public use case folders, no interface, no stray command, and each public use case message at its Contracts path.</summary>
 public sealed class ContractFolderChecksTests
 {
     /// <summary>An Aggregate Folder With Identifier Facts And Public Query Reports Nothing.</summary>
@@ -43,7 +43,7 @@ public sealed class ContractFolderChecksTests
         Directory.CreateDirectory(ContractsFolder(temp.Path, "DomainEvents"));
 
         var finding = Assert.Single(Run(model));
-        Assert.Contains("names no declared aggregate or public module-level query", finding.Message);
+        Assert.Contains("names no declared aggregate or public module-level use case", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -59,7 +59,7 @@ public sealed class ContractFolderChecksTests
         Directory.CreateDirectory(Path.Combine(loans, "RetireCopy"));
 
         var finding = Assert.Single(Run(model));
-        Assert.Contains("which is no public query", finding.Message);
+        Assert.Contains("which is no public use case", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -94,10 +94,10 @@ public sealed class ContractFolderChecksTests
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>A Command In Contracts Reports Drift.</summary>
+    /// <summary>A Command Beside Its Contracts Aggregate Reports Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void CommandInContractsReportsDrift()
+    public void CommandBesideItsContractsAggregateReportsDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
@@ -106,7 +106,59 @@ public sealed class ContractFolderChecksTests
         File.WriteAllText(Path.Combine(loans, "BorrowCopyCommand.cs"), "namespace Library.Lending.Contracts.Loans;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
 
         var finding = Assert.Single(Run(model));
-        Assert.Contains("holds a command; only public queries sit in Contracts", finding.Message);
+        Assert.Contains("holds a command message outside a use case folder", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A Public Command Folder With Message And Result Reports Nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void PublicCommandFolderWithMessageAndResultReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "reachedThrough": ["module/finance"]}""", temp.Path));
+        var borrow = ContractsFolder(temp.Path, "Loans", "BorrowCopy");
+        Directory.CreateDirectory(borrow);
+        File.WriteAllText(Path.Combine(borrow, "BorrowCopyCommand.cs"), "namespace Library.Lending.Contracts.Loans.BorrowCopy;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
+        File.WriteAllText(Path.Combine(borrow, "BorrowCopyCommandResult.cs"), "namespace Library.Lending.Contracts.Loans.BorrowCopy;\n\npublic sealed record BorrowCopyCommandResult(Guid CopyId);\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A Stray Command File In A Public Command Folder Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void StrayCommandFileInPublicCommandFolderReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "reachedThrough": ["module/finance"]}""", temp.Path));
+        var borrow = ContractsFolder(temp.Path, "Loans", "BorrowCopy");
+        Directory.CreateDirectory(borrow);
+        File.WriteAllText(Path.Combine(borrow, "BorrowCopyCommand.cs"), "namespace Library.Lending.Contracts.Loans.BorrowCopy;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
+        File.WriteAllText(Path.Combine(borrow, "RetireCopyCommand.cs"), "namespace Library.Lending.Contracts.Loans.BorrowCopy;\n\npublic sealed record RetireCopyCommand(Guid CopyId);\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("holds a command of no public use case", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A Public Command Message In The Module Project Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    [Fact]
+    public void PublicCommandMessageInModuleProjectReportsDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = FolderModel(temp.Path);
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "reachedThrough": ["module/finance"]}""", temp.Path));
+        var useCase = Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Application", "Loans", "BorrowCopy");
+        Directory.CreateDirectory(useCase);
+        File.WriteAllText(Path.Combine(useCase, "BorrowCopyCommand.cs"), "namespace Library.Lending.Application.Loans.BorrowCopy;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("holds the message of public command 'use-case/lending.borrow-copy'", finding.Message);
+        Assert.Contains("it belongs in 'Lending/Contracts/Loans/BorrowCopy/'", finding.Message);
         Assert.Null(finding.Subject);
     }
 

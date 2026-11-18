@@ -9,7 +9,7 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-  - flow/borrow-and-return#s2
+  - step/borrow-and-return.borrow-copy
 fulfills:
   - requirement/borrowing.no-such-requirement
 reachedThrough:

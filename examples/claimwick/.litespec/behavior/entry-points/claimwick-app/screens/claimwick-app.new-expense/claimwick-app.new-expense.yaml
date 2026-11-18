@@ -7,7 +7,7 @@ offers:
 - use-case/spending.submit-expense
 - use-case/spending.list-expenses
 serves:
-- flow/submit-and-reimburse#s1
+- step/submit-and-reimburse.submit-expense
 fulfills:
 - requirement/ui-control-boundary
 - requirement/ui-focus-indicator

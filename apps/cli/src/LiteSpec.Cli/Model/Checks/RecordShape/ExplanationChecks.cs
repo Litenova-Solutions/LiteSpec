@@ -217,6 +217,15 @@ internal static class ExplanationChecks
     {
         if (byId.TryGetValue(explanation.Name, out var record))
         {
+            // A flow's branches live on its steps, so the Branches section is backed
+            // when any step holds a non-empty branches list.
+            if (record.Type == RecordTypes.Flow
+                && fields.Contains(RecordFields.Branches, StringComparer.Ordinal)
+                && StepsHoldBranches(record))
+            {
+                return true;
+            }
+
             return fields.Any(field => record.Raw.ValueKind == JsonValueKind.Object
                 && record.Raw.TryGetProperty(field, out var value)
                 && !IsEmpty(value));
@@ -244,6 +253,23 @@ internal static class ExplanationChecks
             && records.ValueKind == JsonValueKind.Array
             && records.EnumerateArray().Any(entry => entry.ValueKind == JsonValueKind.Object
                 && fields.Any(field => entry.TryGetProperty(field, out var value) && !IsEmpty(value)));
+    }
+
+    /// <summary>Whether any step of the flow holds a non-empty branches list.</summary>
+    /// <param name="record">The flow record whose steps are read.</param>
+    /// <returns>True when a step holds branches; otherwise false.</returns>
+    private static bool StepsHoldBranches(Record record)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            || steps.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        return steps.EnumerateArray().Any(step => step.ValueKind == JsonValueKind.Object
+            && step.TryGetProperty(RecordFields.Branches, out var branches)
+            && !IsEmpty(branches));
     }
 
     /// <summary>Reads the record a container page holds, as JSON.</summary>

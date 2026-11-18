@@ -145,8 +145,8 @@ public sealed class ModelCheckTests
             fixture.Path,
             "waiver/list-loans-unimplemented",
             "List Loans Unimplemented",
-            ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
-            ["use-case/lending.list-loans", "screen/library-app.loans"],
+            ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded", "step-implementation-missing"],
+            ["use-case/lending.list-loans", "screen/library-app.loans", "step/borrow-and-return.review-loans"],
             "2035-06-01");
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);

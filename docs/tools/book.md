@@ -49,7 +49,7 @@ The book shows records, not teaching. Helper text that teaches LiteSpec stays of
 
 Three views draw the UI blueprint. The screen page draws the screen's wireframe from its explanation file. Each entry point page draws its navigation map from `leadsTo`, with the entry point's screens as places and the connections between them. Each flow page draws its storyboard, the screens of the flow's steps in step order.
 
-A flow's branches show inside its steps: each branch sits in the step it leaves from, with its condition and the step it continues at, and that step names where else it is reached from.
+A flow's steps show in order, each with its title and its branches indented under it: each branch states its condition, the work done in its place, and the step it continues at or the outcome it ends in. Each step names where else it is reached from and carries its trace: the screens and use cases serving it, the requirements it carries with the use cases fulfilling them, and the code files and tests behind them.
 
 The book builds the model in memory from the consumer root, then renders it. It computes nothing the model does not state: every word it shows about a record, a link, or a proof state comes from the record itself or the carried release.
 

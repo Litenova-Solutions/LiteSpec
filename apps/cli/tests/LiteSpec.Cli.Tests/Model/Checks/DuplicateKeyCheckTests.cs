@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the duplicate key checks: no two entries of one record share a source key, step id, operation name or field name, at tier G.</summary>
+/// <summary>Proves the duplicate key checks: no two entries of one record share a source key, branch path, operation name or field name, at tier G.</summary>
 public sealed class DuplicateKeyCheckTests
 {
     /// <summary>Each key kind that repeats within one record reports once, naming the kind and the key.</summary>
@@ -26,13 +26,13 @@ public sealed class DuplicateKeyCheckTests
     [InlineData(
         "flow",
         "flow/loan-desk",
-        """{"actor": "actor/librarian", "steps": [{"id": "scan-copy", "statement": "Scan the copy."}, {"id": "scan-copy", "statement": "Scan it again."}]}""",
-        "Record 'flow/loan-desk' names step id 'scan-copy' twice.")]
+        """{"actor": "actor/librarian", "steps": [{"id": "step/loan-desk.scan-copy", "title": "Scan Copy", "statement": "Scan the copy.", "branches": [{"when": "The copy is damaged.", "then": "step/loan-desk.shelve-copy"}, {"when": "The copy is on hold.", "then": "step/loan-desk.shelve-copy"}]}]}""",
+        "Record 'flow/loan-desk' names the branch 'step/loan-desk.scan-copy to step/loan-desk.shelve-copy' twice.")]
     [InlineData(
         "flow",
         "flow/loan-desk",
-        """{"actor": "actor/librarian", "steps": [{"id": "s1", "statement": "Scan the copy."}, {"id": "s2", "statement": "Shelve the copy."}], "branches": [{"step": "s1", "condition": "The copy is damaged.", "nextStep": "end"}, {"step": "s1", "condition": "The copy is damaged again.", "nextStep": "end"}]}""",
-        "Record 'flow/loan-desk' names the branch 's1 to end' twice.")]
+        """{"actor": "actor/librarian", "steps": [{"id": "step/loan-desk.scan-copy", "title": "Scan Copy", "statement": "Scan the copy.", "branches": [{"when": "The copy is damaged.", "ends": "The copy is retired."}, {"when": "The copy is lost.", "ends": "The copy is written off."}]}]}""",
+        "Record 'flow/loan-desk' names the branch 'step/loan-desk.scan-copy to end' twice.")]
     [InlineData(
         "external-system",
         "external-system/card-gateway",
@@ -63,7 +63,7 @@ public sealed class DuplicateKeyCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record(type, id, Path.Combine(temp.Path, ".litespec", "record.yaml"), json));
+            [.. TestModel.Records(type, id, Path.Combine(temp.Path, ".litespec", "record.yaml"), json)]);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-key-duplicate");
         Assert.Equal("G", finding.Tier);
@@ -79,11 +79,11 @@ public sealed class DuplicateKeyCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record(
+            [.. TestModel.Records(
                 "flow",
                 "flow/loan-desk",
                 Path.Combine(temp.Path, ".litespec", "record.yaml"),
-                """{"actor": "actor/librarian", "steps": [{"id": "s1", "statement": "Scan the copy."}, {"id": "s2", "statement": "Shelve the copy."}], "branches": [{"step": "s1", "condition": "The copy is damaged.", "nextStep": "end"}, {"step": "s1", "condition": "The copy is on hold.", "nextStep": "s2"}]}"""));
+                """{"actor": "actor/librarian", "steps": [{"id": "step/loan-desk.scan-copy", "title": "Scan Copy", "statement": "Scan the copy.", "branches": [{"when": "The copy is damaged.", "ends": "The copy is retired."}, {"when": "The copy is on hold.", "then": "step/loan-desk.shelve-copy"}]}, {"id": "step/loan-desk.shelve-copy", "title": "Shelve Copy", "statement": "Shelve the copy."}]}""")]);
 
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }

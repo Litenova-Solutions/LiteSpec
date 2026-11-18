@@ -365,7 +365,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Rationale:** A person achieves a flow step through use cases, and reaches those use cases on a screen. Naming the step on the screen lets the book say where each step happens. Checking it against the offered use cases catches a screen that claims a step its use cases do not carry.
 
-**Example:** Claimwick's expense form serves `flow/submit-and-reimburse#s1` because it offers `use-case/spending.submit-expense`, which serves that step.
+**Example:** Claimwick's expense form serves `step/submit-and-reimburse.submit-expense` because it offers `use-case/spending.submit-expense`, which serves that step.
 
 **Checked by:** `litespec model check` reports `screen-serves-drift` (level G) for a served step no offered use case serves.
 
@@ -381,7 +381,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Rationale:** A step a person achieves in a browser happens on some page. A step that no screen serves is either carried by a page nobody recorded or not reachable at all, and then the book cannot tell the reader where it happens. Two findings sit side by side: `step-use-case-missing` names a step no use case serves, and `step-screen-missing` names a step that a browser or device use case serves and no screen serves.
 
-**Example:** Claimwick's `flow/submit-and-reimburse#s1` is served by the expense form.
+**Example:** Claimwick's `step/submit-and-reimburse.submit-expense` is served by the expense form.
 
 **Checked by:** `litespec model check` reports `step-screen-missing` (level G) for a step a browser or device use case serves that no screen serves.
 

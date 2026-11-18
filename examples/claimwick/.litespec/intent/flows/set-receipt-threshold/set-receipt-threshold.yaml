@@ -8,7 +8,8 @@ answers:
 startedWhen: Finance has agreed a new receipt threshold with the managers.
 finishedWhen: The policy holds the new receipt threshold.
 steps:
-- id: s1
+- id: step/set-receipt-threshold.set-threshold
+  title: Set Threshold
   statement: The manager sets the receipt threshold for the policy.
   actor: actor/manager
   failure: The manager enters a negative threshold, so the policy keeps its threshold and the manager can enter a new one.

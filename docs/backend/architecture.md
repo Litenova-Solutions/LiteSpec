@@ -30,7 +30,7 @@ A [module](../reference/glossary.md) is one business area: it organizes the lang
 
 Every module organizes its code as the module tree: one `Contracts/` folder for its public surface, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per port of the module, and the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it, plus one folder per module-level use case, with `Infrastructure/` holding `Persistence/` and one adapter folder per port. A use case that touches two aggregates sits in the aggregate folder its record names: the record tree already groups use cases by aggregate, and the code mirrors the records.
 
-A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, the facts another module consumes, and one folder per public query with its message and result. Other modules reference nothing outside it.
+A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, the facts another module consumes, and one folder per public query or public command with its message and result. Other modules reference nothing outside it.
 
 ### The Module Tree
 
@@ -74,9 +74,9 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 |:---|:---|
 | Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/` |
-| Module `Contracts/` | one folder per aggregate with anything public, in the plural, and one folder per public module-level query; no files |
-| Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, the facts another module consumes, and one folder per public query of that aggregate |
-| Module `Contracts/{Aggregates}/{UseCase}/` and each public module-level query folder | the query message, its result, and the result parts; no other files |
+| Module `Contracts/` | one folder per aggregate with anything public, in the plural, and one folder per public module-level use case; no files |
+| Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, the facts another module consumes, and one folder per public query or public command of that aggregate |
+| Module `Contracts/{Aggregates}/{UseCase}/` and each public module-level use case folder | the message, its result, and the result parts; no other files |
 | Module `Domain/` | one folder per declared aggregate, in the plural |
 | Module `Domain/{Aggregates}/` | `Events/`, `Exceptions/`, files |
 | Module `Application/` | one folder per declared aggregate that has use cases, one folder per declared module-level use case, `Notifications/`, `ExternalSystems/`, `ReadModels/` |
@@ -92,7 +92,7 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 
 A module shares with other modules only through its `Contracts/` folder. A typed identifier another module carries lives in the aggregate folder of its owner's `Contracts/` folder, so the one rule covers identifiers too; an identifier no other module carries lives in the aggregate's `Domain/` folder.
 
-A module publishes no command, no refusal, and no interface. To trigger an act on another module's aggregate, a module raises its own fact, and the owning module's reaction answers the published module event; each module refuses with its own refusals. To read another module's current value, a module asks through its port to that module, answered by the provider's public query.
+A module publishes no refusal and no interface. To trigger an act on an upstream module's aggregate, a module sends that module's public command through its port to the provider; to read an upstream module's current value, it sends that module's public query through the same port. A downstream change arrives as a fact the downstream module's reaction answers. Each module refuses with its own refusals.
 
 Kernel values stay in the product `Domain/`. Product-wide technical capabilities stay in the product `Application/`, `Infrastructure/`, and `WebApi/` folders: persistence setup, messaging, authorization, auditing, and HTTP conventions. The product `WebApi/` folder holds only what endpoints of two or more modules compile against, such as the endpoint contract and the current actor.
 
@@ -116,6 +116,14 @@ A reaction answers its trigger by running one command or sending a notification,
 
 Publishing a post runs a `PublishPostCommand` through the handler and the domain repository. Reading a post runs a query that projects the stored data directly to its result.
 
+### Upstream and Downstream
+
+A module is downstream of the modules it depends on, and upstream of the modules depending on it. A depends on B when A references B's Contracts, sends B's public queries or public commands, or reacts to B's facts. Every relationship between two modules has one direction, so the dependency graph over all four edge kinds holds no cycle.
+
+Commands and queries flow upstream, and facts flow downstream. A downstream module sends an upstream module's public queries and public commands and reacts to its facts. An upstream module never queries, commands, or reacts to a downstream module: when it must know downstream work finished, the downstream module calls its public command.
+
+In the Claimwick product, the reporting module sits downstream of the spending module. Reporting sends spending's public read-expense query and spending's public commands through its port to the spending module, and follows spending's published facts. Spending sends nothing to reporting and answers no reporting fact.
+
 ### Reference Limits Between Layers
 
 | Code in | May not reference |
@@ -135,7 +143,7 @@ Across modules, each read takes one of three paths:
 
 A module loads the other module's aggregate or repository in no case.
 
-Writes stay inside the module too. A command changes only its own module's aggregates; an act on another module's aggregate is that module's use case, triggered by a module event its reaction answers. A reaction to another module's fact subscribes to the published module event, not to the domain event behind it.
+Writes cross the module boundary only upstream. A command changes only its own module's aggregates; an act on an upstream module's aggregate runs as that module's public command, sent through the caller's port to the provider. An act on a downstream module's aggregate runs as a reaction to the fact the command raised. A reaction to another module's fact subscribes to the published module event, not to the domain event behind it, and answers upstream facts only.
 
 ### From Records to Code
 
@@ -175,7 +183,7 @@ Nothing above Implementation is computed from code: code points up to the record
 
 **Rationale:** When each layer defines its own outward contracts, a change to an inner shape stops at the boundary instead of forcing changes in every outer layer. Kernel values cross layer boundaries because the Kernel is shared by definition, and aggregate typed identifiers cross them because messages need to identify their targets.
 
-The module boundary works the same way: the adapter in `Infrastructure/{Provider}/` maps the provider's public query answer into the consumer's own types, and a use case returns it in no result or transport model of its own, so the owner can change its answer without changing the reader's contract.
+The module boundary works the same way: the adapter in `Infrastructure/{Provider}/` maps the provider's public query or public command answer into the consumer's own types, and a use case returns it in no result or transport model of its own, so the owner can change its answer without changing the reader's contract.
 
 **Reviewed for:** Is any inner layer's type reused as an outward contract, or any other module's port answer returned as-is, outside Kernel values and aggregate typed identifiers? Look at the results and transport models in each layer's folders.
 
@@ -221,7 +229,7 @@ A folder named for a technical grouping rather than a module defeats the rule: t
 # single-aggregate module whose aggregate name matches the module: Domain stays flat, layer folders nest under the plural aggregate folder
 Organizations/
   Contracts/
-    Organizations/            the identifier, the facts, and the public queries of the organization aggregate
+    Organizations/            the identifier, the facts, and the public queries and public commands of the organization aggregate
   Domain/                     the organization aggregate directly: Organization, OrganizationState
   Application/
     Organizations/
@@ -234,7 +242,7 @@ Organizations/
 Spending/
   Contracts/
     Expenses/                 ExpenseId, ExpenseReimbursed, ReadExpense/ (query and result)
-    Policies/                 the identifier, the facts, and the public queries of the policy aggregate
+    Policies/                 the identifier, the facts, and the public queries and public commands of the policy aggregate
   Domain/
     Expenses/                 Expense, ExpenseState, the expense repository contract
     Policies/
@@ -385,21 +393,37 @@ The three allowed paths each state what crosses. The consumer port states what o
 
 **Reviewed for:** Does any cross-module read load another module's aggregate or repository, or call a general reader instead of a consumer port, a read model, or a screen joining owner queries? Look at the cross-module reads beside the consumer ports.
 
-### Send Only Queries Across Modules
+### Give Every Module Relationship One Direction
 
-**ID:** `litespec/backend/architecture#send-only-queries-across-modules`
+**ID:** `litespec/backend/architecture#give-every-module-relationship-one-direction`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every relationship between two modules MUST have one direction, so the module dependency graph over Contracts references, `queries` edges, `commands` edges, and reactions to facts holds no cycle.
+
+**Rationale:** A relationship with two directions says each module builds on the other, so neither has a seam to split along. One direction per relationship keeps the graph acyclic: A depends on B when A references B's Contracts, sends B's public queries or public commands, or reacts to B's facts, and no chain of such edges returns to its start. A cycle means a concept is split across two modules, and the fix moves the concept into one module, under `litespec/backend/architecture#merge-modules-that-need-each-others-model`. Settled by [decision/0110-module-dependencies-form-a-dag](decision/0110-module-dependencies-form-a-dag).
+
+**Example:** In the Claimwick product, reporting depends on spending through its port to the spending module, and spending depends on nothing. A spending edge back to reporting would close a cycle and is reported naming both modules and the edges.
+
+**Checked by:** `litespec model check` reports `module-dependency-invalid` for a cycle in the module dependency graph over Contracts references, `queries` edges, `commands` edges, and reactions to facts.
+
+### Send Commands and Queries Upstream
+
+**ID:** `litespec/backend/architecture#send-commands-and-queries-upstream`
 
 **Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, reaction, job; when: cross-module
 
-**Statement:** A module MUST send only public queries across a module boundary, so a command is never public and a change in one module reaches another through a fact and a reaction there.
+**Statement:** A module MUST send another module's public queries and public commands only upstream, follow only upstream facts, and direct no query, command, or reaction at a downstream module.
 
-**Rationale:** A synchronous cross-module write couples the caller to the provider's consistency boundary, storage, and uptime: the caller commits only when the provider commits, and the provider's rules run inside the caller's transaction. A public query only reads: the provider answers with its current value and nothing else, and its record lists the consuming modules in `reachedThrough`, so every synchronous edge is declared. A change the caller needs in the owning module is a fact that module's reaction answers, under `litespec/backend/architecture#restrict-commands-to-their-own-module-aggregates`. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+**Rationale:** The direction rule is what makes one direction per relationship hold in practice. A downstream module sends an upstream module's public queries and public commands and reacts to its facts. An upstream module never queries, commands, or reacts to a downstream module: choreography across the boundary makes two modules depend on each other, which the direction rule forbids. When an upstream module must know downstream work finished, the downstream module calls its public command, under `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
 
-**Example:** In the Claimwick product, the reporting module sends spending's public read-expense query through its port to the spending module. When reporting needs an expense changed, spending's reaction to reporting's published fact runs the spending use case; reporting sends no spending command.
+**Example:** In the Claimwick product, the reporting module sends spending's public read-expense query and spending's public commands through its port to the spending module, and follows spending's published facts. Spending sends nothing to reporting and answers no reporting fact.
 
-**Reviewed for:** Does any module send another module's command, or publish a command in its Contracts? Look at the cross-module sends beside the Contracts projects.
+**Reviewed for:** Does any module query, command, or react to a downstream module instead of sending upstream and following upstream facts? Look at the cross-module edges beside the module dependency graph.
 
 ### Restrict Commands to Their Own Module Aggregates
 
@@ -409,13 +433,13 @@ The three allowed paths each state what crosses. The consumer port states what o
 
 **Applies to:** artifact: command-handler
 
-**Statement:** A command MUST change only the aggregates of its own module, so an act on another module's aggregate runs as that module's use case, triggered by a module event its reaction answers.
+**Statement:** A command MUST change only the aggregates of its own module, so an act on another module's aggregate runs as that module's public command sent upstream, or as a downstream reaction to the fact the command raised.
 
-**Rationale:** Each module guards its own consistency boundaries, so a command from another module that wrote its aggregates would bypass the owning module's rules. An act on another module's aggregate is that module's use case instead: the caller raises its own fact, the owning module's reaction answers the published module event, and the owning module enforces its own invariants. A module publishes no command, so no caller can send one across the boundary.
+**Rationale:** Each module guards its own consistency boundaries, so a command from another module that wrote its aggregates would bypass the owning module's rules. An act on an upstream module's aggregate is that module's public command instead: the caller sends it through its port to the provider, the owning module runs its own handler through its own pipeline, and the owning module enforces its own invariants. The caller declares the send as `effects.commands` naming the owner's public command use case. An act on a downstream module's aggregate is a fact the command raises and the downstream module's reaction answers, under `litespec/backend/architecture#send-commands-and-queries-upstream`.
 
-**Example:** In the Claimwick product, a command that needs a policy change raises its own fact, and the policy module's reaction to the published module event runs the policy use case. The command writes no policy aggregate and sends no policy command.
+**Example:** In the Claimwick product, a reporting command that needs an expense changed sends spending's public command through reporting's port to the spending module, and the spending handler runs the change through spending's own pipeline. The command writes no spending aggregate itself. A spending command that changes what reporting keeps raises its fact, and reporting's reaction answers the published module event.
 
-**Reviewed for:** Is any command writing an aggregate outside its own module, or sending another module's command, instead of raising a fact that module's reaction answers? Look at each command handler beside its module.
+**Reviewed for:** Is any command writing an aggregate outside its own module, or reaching another module outside a public command sent upstream or a fact a downstream reaction answers? Look at each command handler beside its module.
 
 ### Subscribe Across Modules Only to Module Events
 
@@ -427,11 +451,43 @@ The three allowed paths each state what crosses. The consumer port states what o
 
 **Statement:** A reaction to another module's fact MUST subscribe only to the published module event.
 
-**Rationale:** A domain event stays inside the module that raised it, while the published module event carries the fact to the other modules of the product. A reaction that subscribed to another module's domain event would couple to the owner's internals and break when they change. The module event is the stable cross-module fact, so cross-module reactions answer it. A fact from outside the product still arrives as an inbound integration event.
+**Rationale:** A domain event stays inside the module that raised it, while the published module event carries the fact to the other modules of the product. A reaction that subscribed to another module's domain event would couple to the owner's internals and break when they change. The module event is the stable cross-module fact, so cross-module reactions answer it. A reaction answers the module events of upstream modules only, under `litespec/backend/architecture#send-commands-and-queries-upstream`. A fact from outside the product still arrives as an inbound integration event.
 
 **Example:** In the Claimwick product, a reaction in the reporting module answers the published expense reimbursed module event, not the spending domain event behind it.
 
 **Reviewed for:** Is any reaction triggered by another module's domain event instead of its published module event? Look at each reaction trigger beside the module events.
+
+### Run Every Spanning Process from Its Most Downstream Participant
+
+**ID:** `litespec/backend/architecture#run-every-spanning-process-from-its-most-downstream-participant`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, reaction, job
+
+**Statement:** A process spanning modules MUST run from its most downstream participant, or from a process module depending on every participant, through the participants' public commands, with choreography only where it creates no cycle.
+
+**Rationale:** A spanning process needs one driver: the most downstream participant, which already depends on every other participant, or a process module that depends on all of them. The driver runs the process through the participants' public commands and follows their facts, so every edge points upstream and the graph holds no cycle. Choreography, where each participant reacts to the others' facts, stays allowed only where it creates no cycle: two participants answering each other's facts depend on each other both ways. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+
+**Example:** In the Claimwick product, a period close spanning spending and reporting runs from the reporting module, which sends spending's public commands for each spending step and follows spending's facts. Spending answers no reporting fact.
+
+**Reviewed for:** Does every process spanning modules run from its most downstream participant or a process module through public commands, with choreography only where it creates no cycle? Look at the spanning processes beside their participants' public commands.
+
+### Merge Modules That Need Each Other's Model
+
+**ID:** `litespec/backend/architecture#merge-modules-that-need-each-others-model`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Two modules that need each other's model MUST merge into one module or move the shared concept into the module that owns it.
+
+**Rationale:** Two modules that each need the other's model have no seam between them: whatever the boundary, each side reaches across it. Merging them into one module, or moving the shared concept into the module that owns it, gives every concept one owner and every relationship one direction, under `litespec/backend/architecture#give-every-module-relationship-one-direction`. Sharing identifiers through the Kernel instead hides the cycle while the split concept stays split. Settled by [decision/0110-module-dependencies-form-a-dag](decision/0110-module-dependencies-form-a-dag).
+
+**Example:** Two modules passing each other's identifiers both ways merge into one module, and the shared concept lives in one aggregate with one owner.
+
+**Reviewed for:** Do any two modules need each other's model without merging or moving the shared concept? Look at the module pairs with edges both ways beside the module records.
 
 ### Name the Host for Work That Outlives a Request
 

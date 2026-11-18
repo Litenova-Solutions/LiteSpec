@@ -28,7 +28,7 @@ When the project lists `intent` in `explanations.layers`, you also get `<name>.m
 
 Give each flow one actor and one reason. An actor who takes two paths toward two goals takes two flows. When one path reaches a goal through two actors, write one flow with a handoff, where the second actor takes over a step through its own `actor` field.
 
-A staff flow follows the same shape. Finance exporting the approved batch is a flow that finance takes, with one reason, `startedWhen`, `finishedWhen`, steps, and `branches`. A scheduled promise, such as a nightly erasure, is a requirement that a job fulfills, not a flow.
+A staff flow follows the same shape. Finance exporting the approved batch is a flow that finance takes, with one reason, `startedWhen`, `finishedWhen`, and steps with their branches. A scheduled promise, such as a nightly erasure, is a requirement that a job fulfills, not a flow.
 
 This satisfies `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for` and `litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system`.
 
@@ -88,12 +88,12 @@ A second act of a person is a second step.
 
 | Instead of | Write |
 |:---|:---|
-| `statement: The employee submits the expense and attaches the receipt.` | Two steps: `s1` The employee submits the expense with its amount and currency. `s2` The employee attaches the receipt to the expense. |
+| `statement: The employee submits the expense and attaches the receipt.` | Two steps: one where the employee submits the expense with its amount and currency, and one where the employee attaches the receipt to the expense. |
 | `statement: Finance pays the employee the amount with the correct tax.` | `statement: Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account.` |
 
 The first weak version packs two acts into one step, so a reader cannot see where one act ends. The second states what the product does without the rule for how it computes the amount. This satisfies `litespec/core/intent#write-flow-steps-as-sentences-with-ids`.
 
-Give each step an `id` in order: `s1`, `s2`, and so on. Use an `actor` field only at a handoff, when a second person takes over a step. A step's `system` field names only an external system, because a job or a reaction never appears in a step.
+Give each step an `id` as `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case, such as `step/submit-and-reimburse.submit-expense`. Give each step a `title`, a short Title Case name of its act such as `Submit Expense`, and take the act from the title's words in kebab case. List order is the main path; no position lives in an id. The book, the trace, and `model query` show the title, while the `statement` keeps the full sentence. Use an `actor` field only at a handoff, when a second person takes over a step. A step's `system` field names only an external system, because a job or a reaction never appears in a step.
 
 ### Give Each Blocker as the Step's Failure
 
@@ -101,7 +101,7 @@ When a condition stops the flow, write it as the `failure` of the step it blocks
 
 | Instead of | Write |
 |:---|:---|
-| `s4 failure: Finance must not pay out expenses that were not approved, as the policy requires.` | `s4 failure: The expense is not approved, so it waits and no payout is made.`, with `requirement/approval.decided-within-five-days` in the step's `carries` |
+| `failure` on the reimburse step: Finance must not pay out expenses that were not approved, as the policy requires. | `failure` on the reimburse step: The expense is not approved, so it waits and no payout is made, with `requirement/approval.decided-within-five-days` in the step's `carries` |
 
 The weak version states a rule in the flow, which belongs to the requirement, and it names no outcome a reader can observe. The strong version states the blocked outcome and cites the requirement that holds it. This satisfies `litespec/core/intent#state-each-flow-blocker-as-a-step-failure` and `litespec/core/writing#use-literal-words`.
 
@@ -109,17 +109,18 @@ A flow states no rule of its own. Keep a condition with a number, such as a thre
 
 ### Write Branches
 
-Use `branches` to list each path that leaves the order of the steps. Each entry names the `step` it leaves, the `condition` under which it leaves, and the `nextStep` it continues at, or `end`.
+Write each path that leaves the order of the steps as a branch on the step it leaves, in that step's `branches`. Each branch states one `when` condition, and exactly one of `then`, naming the step of the same flow where the path continues, or `ends`, stating the outcome when the flow ends there. A branch that does work of its own states that work in `instead`, with its own `carries` where the work needs it.
 
-Give a branch no action of its own, because an action on a branch is a step, placed in the order.
+Give each branch one condition. Two conditions joined by "or" are two branches.
 
 | Instead of | Write |
 |:---|:---|
-| `branches: - step: s3, condition: the manager rejects the expense, nextStep: end`, with the rejection email described in the explanation only | `branches: - step: s3, condition: the manager rejects the expense, nextStep: end`, and the rejection notice as a step if the flow must show it |
+| On the decide step, one branch with `when: the document is not an invoice or the owner refuses it` | On the decide step, one branch per condition, each with its own `then` or `ends` |
+| On the decide step, `when: the manager rejects the expense` with both `then` and `ends` | On the decide step, `when: the manager rejects the expense` with `ends` stating that the expense is rejected and no payout is made |
 
-The weak version hides an action in prose where no check reads it. The strong version names the path in the structured list, so the notice has a place in the order if the flow needs one. This satisfies `litespec/core/intent#branch-a-flow-only-between-its-steps`.
+The weak versions pack two paths into one branch, so a reader cannot tell where each path goes. The strong versions give each path its own branch with its own ending. This satisfies `litespec/core/intent#branch-a-flow-only-between-its-steps`.
 
-When a branch retries a step, such as a reminder before a decision, name the step it returns to as its `nextStep`, and write the reminder as a step if it is an act of its own.
+When a branch retries a step, such as a reminder before a decision, name the step it returns to in `then`, and write the reminder as a step if it is an act of its own. When the branch is an alternative that does work of its own, such as uploading a paper receipt instead of forwarding an email, state that work in `instead` with the requirements it carries.
 
 ### Write the Finish and Reach Each Clause
 
@@ -163,22 +164,23 @@ Under Branches, optional, explain when each branch happens and why, giving one o
 
 | Instead of | Write |
 |:---|:---|
-| If the manager says no, the flow ends. | At step 3, when Ben rejects the fare instead of approving it, the flow ends with the rejection and no payout. Ben may reject any expense, so the employee learns the decision from the list before any money moves. |
+| If the manager says no, the flow ends. | At the decide step, when Ben rejects the fare instead of approving it, the flow ends with the rejection and no payout. Ben may reject any expense, so the employee learns the decision from the list before any money moves. |
 
 This satisfies `litespec/core/writing#keep-the-conditions-when-shortening`.
 
 ### Check That the Parts Agree
 
-Read the summary, `startedWhen`, the steps, each `failure`, `branches`, `finishedWhen`, and the explanation together. The start in the summary and in `startedWhen` must match, the Example must begin from `startedWhen`, and every blocker in the explanation must appear as a step `failure`. Fix any disagreement: a step in the Example that the steps do not state, or a path in Branches that `branches` does not list.
+Read the summary, `startedWhen`, the steps, each `failure`, each step's `branches`, `finishedWhen`, and the explanation together. The start in the summary and in `startedWhen` must match, the Example must begin from `startedWhen`, and every blocker in the explanation must appear as a step `failure`. Fix any disagreement: a step in the Example that the steps do not state, or a path in Branches that no step's `branches` lists.
 
 This satisfies `litespec/core/intent#reach-each-finish-condition-through-a-step` and `litespec/core/intent#branch-a-flow-only-between-its-steps`.
 
 ### Run Model Check
 
-Run `litespec model check` from the consumer root. It reports `record-invalid` for a flow without `startedWhen`, a flow holding both `serves` and `answers` or neither, or a branch missing `step`, `condition`, or `nextStep`. It reports `record-invalid` for a branch whose `step` or `nextStep` names no step of the flow.
+Run `litespec model check` from the consumer root. It reports `record-invalid` for a flow without `startedWhen`, a flow holding both `serves` and `answers` or neither, a step without `title`, or a branch missing `when`, carrying both or neither of `then` and `ends`, joining two conditions with "or" in `when`, or continuing at a step of another flow. It reports `identifier-invalid` for a step id outside the `step/<flow>.<act>` form, `identifier-title-invalid` for a step whose act is no word subsequence of its title, `reference-unknown` for a `then` naming no step, and `step-unreached` for a step no path reaches.
 
 ## Check
 
 - `litespec model check` exits `0` from the consumer root with no finding on the flow record or its explanation file.
 - `litespec rules <path to the flow record>` lists the judgment provisions above, and you have answered each one.
+- `litespec model query step/<flow>.<act>` shows each step with its trace: the screens and use cases serving it, the requirements it carries, and the code and tests behind them.
 - A reader who has never met you can say who takes the flow, where it starts, where it can leave its order, and what ends it, without opening another record.

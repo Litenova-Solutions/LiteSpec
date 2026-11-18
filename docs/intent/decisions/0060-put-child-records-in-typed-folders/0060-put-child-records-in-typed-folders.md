@@ -24,7 +24,7 @@ LiteSpec compared 3 options for where child records sit. The table sets each opt
 
 A child record stored as its own file sits in its own folder. That folder is named for the child type in the plural and sits inside the parent's folder. A child stored as an entry, such as a result, scenario, permission, flow step or source, stays in its parent's file.
 
-The homes are the same for every module. Features stand alone in the product's features folder. Requirements sit in a requirements folder under their feature, or in the product's requirements folder where no feature stands above them. Aggregates sit in an aggregates folder under their module. Use cases sit in a use-cases folder under their aggregate, and a use case that belongs to no aggregate sits in a use-cases folder under its module. Domain events and rules sit in folders under the aggregate. Flows sit in the product's flows folder.
+The homes are the same for every module. Features sit in a features folder under the problem each answers. Requirements sit in a requirements folder under their feature, or in the product's requirements folder where no feature stands above them. Aggregates sit in an aggregates folder under their module. Use cases sit in a use-cases folder under their aggregate, and a use case that belongs to no aggregate sits in a use-cases folder under its module. Domain events and rules sit in folders under the aggregate. Flows sit in the product's flows folder.
 
 ## Consequences
 

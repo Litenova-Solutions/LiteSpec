@@ -51,15 +51,15 @@ A record's folder is part of the record: it names the record's parent. The other
   product.yaml                 the product, above the record layers
   intent/
     goals/  constraints/  decisions/  research/  actors/  roles/  flows/
-    features/
-      approval/
-        approval.yaml        the feature, naming its problems in solves
-        requirements/
-          decided-within-five-days/
-            decided-within-five-days.yaml   a requirement, in its own folder
     problems/
       expenses-wait-weeks/
         expenses-wait-weeks.yaml
+        features/
+          approval/
+            approval.yaml        the feature, answering its problem
+            requirements/
+              decided-within-five-days/
+                decided-within-five-days.yaml   a requirement, in its own folder
   behavior/
     modules/
       spending/
@@ -117,7 +117,7 @@ Read Intent before Behavior. Start at the product record, with its goals, proble
 
 ### One Flow End to End
 
-Follow one flow from its reason to its proof: the goal or problem with its requirements, the flow with its start, its steps, and its branches, the use cases that serve each step, and the tests the model links to each scenario. When every scenario on the flow is proven, the flow holds.
+Follow one flow from its reason to its proof: the goal or problem with its requirements, the flow with its start and its steps with their branches, the use cases that serve each step, and the tests the model links to each scenario. When every scenario on the flow is proven, the flow holds.
 
 ### One Module End to End
 

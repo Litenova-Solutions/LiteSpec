@@ -60,7 +60,7 @@ Impact mapping reasons outward from a goal through actors and impacts to deliver
 
 **Words:** goal, problem, feature, flow.
 
-**Differs:** LiteSpec fixes the map as typed records and links: a feature stands alone, solves problems and advances goals, and a flow holds product sentences with ids that point toward the record the flow exists for. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw: the record tree carries the links, and the builder checks them.
+**Differs:** LiteSpec fixes the map as typed records and links: a feature answers one problem from that problem's folder and advances goals, and a flow holds product sentences with ids that point toward the record the flow exists for. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw: the record tree carries the links, and the builder checks them.
 
 ## Decision Records
 

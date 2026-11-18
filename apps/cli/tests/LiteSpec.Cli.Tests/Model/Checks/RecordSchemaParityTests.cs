@@ -32,10 +32,10 @@ public sealed class RecordSchemaParityTests
         ["decision"] = ("decision/0001-loan-store", """{"summary": "Loan storage.", "options": [{"name": "Documents", "pros": "Simple.", "cons": "Slow."}], "choice": "Documents.", "consequences": "Loans are documents.", "reopenedWhen": "Reads exceed one second.", "context": "Loans need a store."}"""),
         ["requirement"] = ("requirement/lending.loan-limit", """{"kind": "policy", "statement": "A reader holds five loans.", "rationale": "Fair shares.", "values": [{"value": "5", "effectiveFrom": "2026-01-01"}]}"""),
         ["problem"] = ("problem/lost-copies", """{"summary": "Copies go missing.", "statement": "Copies go missing on the shelf.", "affects": ["actor/reader"], "failureCases": ["Copies go missing on the shelf."], "workaround": "Readers ask at the desk.", "cost": "Readers wait for copies.", "resolutionCriteria": ["Copies stay on the shelf."]}"""),
-        ["feature"] = ("feature/hold-copy", """{"summary": "Hold a copy.", "offering": "Readers hold a copy.", "solves": ["problem/lost-copies"], "successCriteria": ["Readers hold copies."], "excludes": ["Returning copies."]}"""),
+        ["feature"] = ("feature/hold-copy", """{"summary": "Hold a copy.", "offering": "Readers hold a copy.", "successCriteria": ["Readers hold copies."], "excludes": ["Returning copies."]}"""),
         ["actor"] = ("actor/reader", """{"summary": "A reader.", "kind": "person", "belongsToTeam": true, "holds": ["role/lending-desk"], "responsibilities": ["Borrows copies."], "knowledge": ["Reads the catalogue."]}"""),
         ["role"] = ("role/lending-desk", """{"summary": "Runs the lending desk.", "scope": "lending-desk", "allows": ["permission/borrow"], "limits": ["One desk."]}"""),
-        ["flow"] = ("flow/submit-expense", """{"summary": "A reader borrows.", "actor": "actor/reader", "serves": ["goal/faster-pickup"], "startedWhen": "The reader is at the desk with a copy.", "finishedWhen": "The copy is out.", "steps": [{"id": "s1", "statement": "The reader borrows the copy.", "actor": "actor/reader"}], "branches": [{"step": "s1", "condition": "The shelf is empty.", "nextStep": "end"}]}"""),
+        ["flow"] = ("flow/submit-expense", """{"summary": "A reader borrows.", "actor": "actor/reader", "serves": ["goal/faster-pickup"], "startedWhen": "The reader is at the desk with a copy.", "finishedWhen": "The copy is out.", "steps": [{"id": "step/submit-expense.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy.", "actor": "actor/reader", "branches": [{"when": "The shelf is empty.", "ends": "The reader leaves without a copy."}]}]}"""),
         ["module"] = ("module/lending", """{"summary": "Lending.", "dependsOn": [], "responsibilities": ["Lends copies."], "excludes": ["Sells copies."]}"""),
         ["aggregate"] = ("aggregate/copy.loan", """{"summary": "A loan.", "states": [{"name": "on-loan", "meaning": "The copy is out."}]}"""),
         ["use-case"] = ("use-case/lending.borrow-copy", """{"summary": "Borrow a copy.", "kind": "command", "reachedThrough": ["entry-point/library-app"], "access": {"grant": "permission/borrow", "tenant": "own"}, "steps": [{"statement": "The reader borrows the copy."}], "idempotency": {"mode": "none", "reason": "A second borrow is refused."},"audit": {"level": "none", "target": "No audit entry."}}"""),
@@ -98,7 +98,7 @@ public sealed class RecordSchemaParityTests
         ("decision", "options"), ("decision", "reopenedWhen"), ("decision", "choice"), ("decision", "context"),
         ("requirement", "kind"), ("requirement", "statement"), ("requirement", "rationale"), ("requirement", "values"),
         ("problem", "affects"), ("problem", "statement"), ("problem", "failureCases"), ("problem", "workaround"), ("problem", "cost"), ("problem", "resolutionCriteria"),
-        ("feature", "solves"), ("feature", "successCriteria"), ("feature", "excludes"),
+        ("feature", "successCriteria"), ("feature", "excludes"),
         ("actor", "kind"), ("actor", "responsibilities"), ("actor", "knowledge"),
         ("role", "scope"), ("role", "allows"), ("role", "limits"),
         ("flow", "actor"), ("flow", "serves"), ("flow", "startedWhen"), ("flow", "finishedWhen"), ("flow", "steps"),
@@ -126,10 +126,13 @@ public sealed class RecordSchemaParityTests
         ("role with a scope that is not kebab-case", "role", json => Replace(json, "scope", "\"Lending Desk\"")),
         ("flow with no steps", "flow", json => Replace(json, "steps", "[]")),
         ("flow with a betweenSteps field", "flow", json => Replace(json, "betweenSteps", "\"The reader waits.\"")),
-        ("flow with no branches", "flow", json => Replace(json, "branches", "[]")),
-        ("flow with a branch that has no condition", "flow", json => Replace(json, "branches", "[{\"step\": \"s1\", \"nextStep\": \"end\"}]")),
-        ("flow with a branch that has no step", "flow", json => Replace(json, "branches", "[{\"condition\": \"The shelf is empty.\", \"nextStep\": \"end\"}]")),
-        ("flow with a branch that has no nextStep", "flow", json => Replace(json, "branches", "[{\"step\": \"s1\", \"condition\": \"The shelf is empty.\"}]")),
+        ("flow with top-level branches", "flow", json => Replace(json, "branches", "[{\"when\": \"The shelf is empty.\", \"ends\": \"The reader leaves.\"}]")),
+        ("flow with a step that has no title", "flow", json => Replace(json, "steps", "[{\"id\": \"step/submit-expense.borrow-copy\", \"statement\": \"The reader borrows the copy.\", \"actor\": \"actor/reader\"}]")),
+        ("flow with a step that has no statement", "flow", json => Replace(json, "steps", "[{\"id\": \"step/submit-expense.borrow-copy\", \"title\": \"Borrow Copy\", \"actor\": \"actor/reader\"}]")),
+        ("flow with a branch that has no when", "flow", json => Replace(json, "steps", "[{\"id\": \"step/submit-expense.borrow-copy\", \"title\": \"Borrow Copy\", \"statement\": \"The reader borrows the copy.\", \"branches\": [{\"ends\": \"The reader leaves.\"}]}]")),
+        ("flow with a branch that has then and ends", "flow", json => Replace(json, "steps", "[{\"id\": \"step/submit-expense.borrow-copy\", \"title\": \"Borrow Copy\", \"statement\": \"The reader borrows the copy.\", \"branches\": [{\"when\": \"The shelf is empty.\", \"then\": \"step/submit-expense.borrow-copy\", \"ends\": \"The reader leaves.\"}]}]")),
+        ("flow with a branch that has neither then nor ends", "flow", json => Replace(json, "steps", "[{\"id\": \"step/submit-expense.borrow-copy\", \"title\": \"Borrow Copy\", \"statement\": \"The reader borrows the copy.\", \"branches\": [{\"when\": \"The shelf is empty.\"}]}]")),
+        ("flow with a step holding an empty branches", "flow", json => Replace(json, "steps", "[{\"id\": \"step/submit-expense.borrow-copy\", \"title\": \"Borrow Copy\", \"statement\": \"The reader borrows the copy.\", \"branches\": []}]")),
         ("requirement with an unknown kind", "requirement", json => Replace(json, "kind", "\"bogus\"")),
         ("requirement with a policy and no values", "requirement", json => Replace(json, "values", "[]")),
         ("constraint with no sources", "constraint", json => Replace(json, "sources", "[]")),
@@ -200,7 +203,7 @@ public sealed class RecordSchemaParityTests
         using var temp = TestCli.Temp("parity");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record(type, id, Path.Combine(temp.Path, "record.yaml"), json));
+            [.. TestModel.Records(type, id, Path.Combine(temp.Path, "record.yaml"), json)]);
 
         return Checker.Check(model).Findings
             .Where(finding => ShapeCodes.Contains(finding.Code, StringComparer.Ordinal))

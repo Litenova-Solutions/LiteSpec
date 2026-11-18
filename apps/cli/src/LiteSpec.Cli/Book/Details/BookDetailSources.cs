@@ -157,7 +157,7 @@ static partial class BookDetailSources
         }
     }
 
-    /// <summary>The records serving each flow step id, such as flow/name#s1.</summary>
+    /// <summary>The records serving each flow step id.</summary>
     /// <param name="index">The model index.</param>
     /// <returns>The serving record ids per step id.</returns>
     public static Dictionary<string, List<string>> ServedBy(BookIndex index)
@@ -179,7 +179,7 @@ static partial class BookDetailSources
 
             foreach (var target in BookDetailValues.StringsOf(BookRender.Fields(record)?["serves"]))
             {
-                if (!target.Contains('#'))
+                if (!target.StartsWith("step/", StringComparison.Ordinal))
                 {
                     continue;
                 }

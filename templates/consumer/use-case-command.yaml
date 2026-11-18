@@ -11,7 +11,7 @@ access:
   tenant: <own|cross|public|none>
   recentSignInLimit: setting/<module>.<name, or remove this line>
 serves:
-- flow/<name>#s1
+- step/<flow>.<act>
 fulfills:
 - requirement/<feature>.<name, or remove this line>
 computedBy:

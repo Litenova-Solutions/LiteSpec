@@ -21,7 +21,7 @@ public sealed class BookOutlineGroupingTests
                 "feature/self-checkout",
                 "Self Checkout",
                 "approved",
-                fields: new JsonObject { ["solves"] = Links("problem/slow-desk-queues") }),
+                file: ".litespec/intent/problems/slow-desk-queues/features/self-checkout/self-checkout.yaml"),
             Record("requirement", "requirement/self-checkout.max-wait", "Max Wait", "approved"),
             Record("requirement", "requirement/self-checkout.copy-shelf-home", "Copy Shelf Home", "approved"),
             Record(
@@ -60,7 +60,7 @@ public sealed class BookOutlineGroupingTests
         Assert.Contains(feature!.Children, child => string.Equals(child.Id, "requirement/self-checkout.max-wait", StringComparison.Ordinal));
         Assert.Contains(feature.Children, child => string.Equals(child.Id, "requirement/self-checkout.copy-shelf-home", StringComparison.Ordinal));
 
-        // The only feature solves a problem, so no top-level Features group exists: the feature sits only under its problem.
+        // The only feature sits in its problem's folder, so no top-level Features group exists: the feature sits only under its problem.
         Assert.Null(Find(outline.Layers, "intent/feature"));
 
         var decisions = Find(outline.Layers, "implementation/decision");
@@ -69,28 +69,34 @@ public sealed class BookOutlineGroupingTests
         Assert.Contains(decisions.Children, child => string.Equals(child.Id, "decision/0004-serve-receipts", StringComparison.Ordinal));
     }
 
-    /// <summary>A feature solving no problem sits only under Features, and a product-level requirement sits under Product requirements.</summary>
+    /// <summary>A feature outside any problem's folder stays unplaced with no outline node, and a product-level requirement sits under Product requirements.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void FeatureWithoutSolvedProblemsSitsOnlyUnderFeatures()
+    public void FeatureOutsideAProblemFolderStaysUnplaced()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("problem", "problem/slow-desk-queues", "Slow Desk Queues", "approved"),
-            Record("feature", "feature/kiosk-pickup", "Kiosk Pickup", "approved"),
+            Record(
+                "feature",
+                "feature/kiosk-pickup",
+                "Kiosk Pickup",
+                "approved",
+                file: ".litespec/intent/features/kiosk-pickup/kiosk-pickup.yaml"),
             Record("requirement", "requirement/evening-access", "Evening Access", "approved"));
+
+        Assert.Null(BookParents.ParentOf(model, "feature/kiosk-pickup"));
 
         var outline = BookOutline.Build(model);
 
-        Assert.Empty(outline.Unplaced);
+        Assert.Contains("feature/kiosk-pickup", outline.Unplaced);
+        Assert.Null(Find(outline.Layers, "feature/kiosk-pickup"));
 
         var problem = Find(outline.Layers, "problem/slow-desk-queues");
         Assert.NotNull(problem);
         Assert.DoesNotContain(problem!.Children, child => string.Equals(child.Kind, "record", StringComparison.Ordinal));
 
-        var features = Find(outline.Layers, "intent/feature");
-        Assert.NotNull(features);
-        Assert.Contains(features!.Children, child => string.Equals(child.Id, "feature/kiosk-pickup", StringComparison.Ordinal));
+        Assert.Null(Find(outline.Layers, "intent/feature"));
 
         var requirements = Find(outline.Layers, "intent/requirement");
         Assert.NotNull(requirements);
@@ -192,17 +198,6 @@ public sealed class BookOutlineGroupingTests
         }
 
         return BookStores.WithIntentCoverage(new JsonObject { ["records"] = array });
-    }
-
-    static JsonArray Links(params string[] ids)
-    {
-        var array = new JsonArray();
-        foreach (var id in ids)
-        {
-            array.Add(id);
-        }
-
-        return array;
     }
 
     static BookOutlineNode? Find(IReadOnlyList<BookOutlineNode> layers, string id)

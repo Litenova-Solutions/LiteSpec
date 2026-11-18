@@ -9,7 +9,7 @@ access:
   grant: permission/read-loans
   tenant: own
 serves:
-  - flow/borrow-and-return#s4
+  - step/borrow-and-return.review-loans
 fulfills:
   - requirement/borrowing.max-active-loans
 reachedThrough:

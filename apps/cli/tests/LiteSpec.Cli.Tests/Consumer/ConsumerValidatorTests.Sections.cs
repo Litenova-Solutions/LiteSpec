@@ -7,8 +7,8 @@ namespace LiteSpec.Cli.Tests.Consumer;
 public sealed partial class ConsumerValidatorTests
 {
     const string BriefPage = ".litespec/product.yaml";
-    const string RequirementPage = ".litespec/intent/features/pricing/pricing.yaml";
-    const string RequirementExplanation = ".litespec/intent/features/pricing/pricing.md";
+    const string RequirementPage = ".litespec/intent/problems/slow-delivery/features/pricing/pricing.yaml";
+    const string RequirementExplanation = ".litespec/intent/problems/slow-delivery/features/pricing/pricing.md";
     const string DecisionPage = ".litespec/intent/decisions/0001-launch/0001-launch.yaml";
     const string DecisionExplanation = ".litespec/intent/decisions/0001-launch/0001-launch.md";
     const string ActorPage = ".litespec/intent/actors/customer/customer.yaml";
@@ -180,8 +180,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/intent/features/approval-reminders/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","advances":["goal/faster-delivery"],"solves":["problem/slow-delivery"],"successCriteria":["The product sends one reminder for each claim that waits past three days."],"excludes":["Claims decided in time never trigger a reminder."]}""");
+            ".litespec/intent/problems/slow-delivery/features/approval-reminders/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","advances":["goal/faster-delivery"],"successCriteria":["The product sends one reminder for each claim that waits past three days."],"excludes":["Claims decided in time never trigger a reminder."]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
 
@@ -248,7 +248,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml",
-            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
+            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"step/submit-and-reimburse.submit-claim","title":"Submit Claim","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'startedWhen'");
     }
 

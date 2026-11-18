@@ -85,7 +85,7 @@ Every record states something the software does, holds, refuses at runtime, or r
 
 Each module is declared under `behavior/modules/<module>/`, so one name runs through Behavior and code. A folder under `behavior/modules/` that names no declared module gets a blocking finding.
 
-Each feature stands on its own in `intent/features/`, naming the problems it solves in `solves`. Product-level requirements sit in `intent/requirements/`. Anything cross-cutting, such as accessibility or security, sits at product level.
+Each feature sits in the `features/` folder of the one problem it answers. Product-level requirements sit in `intent/requirements/`. Anything cross-cutting, such as accessibility or security, sits at product level.
 
 Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas, but they make no conformance claim.
 

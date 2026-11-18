@@ -17,7 +17,7 @@ public sealed class ModelQuerySearchTests
               "kind": "command"
             }
             """);
-        TestRecords.Write(root, ".litespec/intent/features/borrowing/requirements/nightly-reconciled/nightly-reconciled.yaml", """
+        TestRecords.Write(root, ".litespec/intent/problems/slow-ledger/features/borrowing/requirements/nightly-reconciled/nightly-reconciled.yaml", """
             {
               "type": "requirement",
               "id": "requirement/borrowing.nightly-reconciled",
@@ -25,7 +25,7 @@ public sealed class ModelQuerySearchTests
               "summary": "The quarry ledger is reconciled nightly."
             }
             """);
-        TestRecords.Write(root, ".litespec/intent/features/borrowing/requirements/ledger-close/ledger-close.yaml", """
+        TestRecords.Write(root, ".litespec/intent/problems/slow-ledger/features/borrowing/requirements/ledger-close/ledger-close.yaml", """
             {
               "type": "requirement",
               "id": "requirement/borrowing.ledger-close",

@@ -117,33 +117,16 @@ export function requirementFields(f: RecordFields): RequirementFields {
 export interface FlowFields {
   startedWhen?: string;
   steps: RecordFields[];
-  branches: RecordFields[];
   finishedWhen?: string;
 }
 
-/** The fields the flow renderer reads, through the typed readers. */
+/** The fields the flow renderer reads, through the typed readers. Branches live on the step they leave. */
 export function flowFields(f: RecordFields): FlowFields {
   return {
     startedWhen: stringField(f, "startedWhen"),
     steps: objectList(f, "steps"),
-    branches: objectList(f, "branches"),
     finishedWhen: stringField(f, "finishedWhen"),
   };
-}
-
-/**
- * One flow branch as the sentence the book shows after the steps. The step
- * it leaves is named by its position, so a reader finds it in the list above.
- */
-export function flowBranchSentence(steps: RecordFields[], branch: RecordFields): string {
-  const position = (id: string) => {
-    const at = steps.findIndex((step) => String(step.id ?? "") === id);
-    return at < 0 ? "step " + id : "step " + (at + 1);
-  };
-  const from = position(String(branch.step ?? ""));
-  const next = String(branch.nextStep ?? "");
-  const then = next === "end" ? "the flow ends" : "the flow continues at " + position(next);
-  return "At " + from + ", when " + String(branch.condition ?? "") + ", " + then + ".";
 }
 
 /** The fields the screen renderer reads. */

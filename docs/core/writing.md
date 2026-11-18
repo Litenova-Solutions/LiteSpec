@@ -18,6 +18,7 @@ A title is the record's name wherever records are listed: book lists, outlines, 
 | goal | An outcome noun phrase; the number and date stay in fields | Reimbursement Within Five Working Days |
 | direction | A noun phrase naming the way the product may grow; no date or priority | Contractor Expenses |
 | flow | A verb phrase naming the actor's task | Submit an Expense Claim with Receipts |
+| step | A verb phrase naming the act | Submit Expense |
 | actor | A role noun phrase | Approver |
 | requirement | A phrase naming the specific behavior or fact it requires, never a bare noun | Expense Above Threshold Carries Receipt |
 | constraint | A subject noun phrase; the authority stays in its field | Receipt Retention Period per Country |
@@ -57,7 +58,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions | Context: context; Options: options; Decision: choice; Consequences: consequences; Evidence: basedOn; Revisit Conditions: reopenedWhen |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) | Capabilities: the feature's requirements; Success Criteria: successCriteria; Boundaries: excludes; Example: none, illustration only |
 | requirement | Example (optional) | Example: none, illustration only |
-| flow | Example, Branches (optional) | Example: none, illustration only; Branches: branches |
+| flow | Example, Branches (optional) | Example: none, illustration only; Branches: steps.branches |
 | module | Responsibilities, Boundaries, Example (optional) | Responsibilities: responsibilities; Boundaries: excludes; Example: none, illustration only |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) | Lifecycle: states, transitions; Data and Retention: data, dataClasses; Example: none, illustration only; Limits: limits |
 | use-case | Flow, Example (optional), Edge Cases (optional) | Flow: steps; Example: none, illustration only; Edge Cases: edgeCases |

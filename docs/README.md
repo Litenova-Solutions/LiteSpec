@@ -250,7 +250,7 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Add a Blazor Frontend](guide/add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](guide/add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write a Problem](guide/write-a-problem.md): write one problem with its failure cases, evidence and resolution criteria.
-- [Write a Feature](guide/write-a-feature.md): write one feature with its requirements and the problems it solves.
+- [Write a Feature](guide/write-a-feature.md): write one feature with its requirements and the problem it answers.
 - [Write a Constraint](guide/write-a-constraint.md): write one outside rule with its sources, its scope, its rules and the requirements that hold its effect.
 - [Write a Flow](guide/write-a-flow.md): write one actor's path toward one goal or one problem, from its start through its steps, blockers and branches.
 - [Write a Research Record](guide/write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.

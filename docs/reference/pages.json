@@ -3546,11 +3546,11 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0080-solve-problems-with-standalone-features/0080-solve-problems-with-standalone-features.md",
-      "path": "intent/decisions/0080-solve-problems-with-standalone-features/0080-solve-problems-with-standalone-features",
+      "file": "docs/intent/decisions/0080-give-product-commitments-a-home/0080-give-product-commitments-a-home.md",
+      "path": "intent/decisions/0080-give-product-commitments-a-home/0080-give-product-commitments-a-home",
       "style": "decision",
       "area": "intent",
-      "title": "Solve Problems with Standalone Features",
+      "title": "Give Product Commitments a Home",
       "intent": "",
       "sections": [
         "Context",
@@ -4015,6 +4015,21 @@
       "style": "decision",
       "area": "intent",
       "title": "Module Dependencies Form a DAG",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0111-name-flow-steps-and-keep-branches-on-them/0111-name-flow-steps-and-keep-branches-on-them.md",
+      "path": "intent/decisions/0111-name-flow-steps-and-keep-branches-on-them/0111-name-flow-steps-and-keep-branches-on-them",
+      "style": "decision",
+      "area": "intent",
+      "title": "Name Flow Steps and Keep Branches on Them",
       "intent": "",
       "sections": [
         "Context",

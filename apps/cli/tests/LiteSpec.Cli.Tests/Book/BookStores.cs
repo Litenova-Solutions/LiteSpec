@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Details;
 using LiteSpec.Cli.Model.CompletionStages;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Book;
@@ -42,9 +43,10 @@ static class BookStores
                 Add(servedBy, IdsOf(record, "serves"), id);
             }
 
-            if (type == RecordTypes.Feature)
+            if (type == RecordTypes.Feature
+                && RecordPlacement.ProblemOf(Text(record, "file")) is { Length: > 0 } problem)
             {
-                Add(answeredBy, IdsOf(record, "solves"), id);
+                Add(answeredBy, [$"problem/{problem}"], id);
             }
 
             if (type == RecordTypes.Flow)
@@ -73,10 +75,9 @@ static class BookStores
             .Where(record => Text(record, "type") == RecordTypes.Flow)
             .OrderBy(record => Text(record, "id"), StringComparer.Ordinal))
         {
-            var flowId = Text(flow, "id");
             foreach (var step in (flow["fields"]?["steps"] as JsonArray ?? []).OfType<JsonObject>())
             {
-                entries.Add(Entry(flowId + "#" + Text(step, "id"), "step", servedBy));
+                entries.Add(Entry(Text(step, "id"), "step", servedBy));
             }
         }
 

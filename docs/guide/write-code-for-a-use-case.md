@@ -37,10 +37,11 @@ Start with:
 | Integration event | The `Contracts/{Aggregates}/` folder of the owning module's Contracts project | `implements` naming `integration-event/<name>` | See the [finding table](../tools/model.md) |
 | Module event | The `Contracts/{Aggregates}/` folder of the owning module's Contracts project | `implements` naming `module-event/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Public query message and result | The `Contracts/{Aggregates}/{UseCase}/` folder of the owning module's Contracts project | None; the handler folder places them | See the [finding table](../tools/model.md) |
+| Public command message and result | The `Contracts/{Aggregates}/{UseCase}/` folder of the owning module's Contracts project | None; the handler folder places them | See the [finding table](../tools/model.md) |
 | External-system port | The module `Ports/{Port}/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
-| Consumer port to another module | The consumer `Ports/{Provider}/` folder, named for the provider module | None; the folder places it | Review the port beside the `queries` edge |
+| Consumer port to another module | The consumer `Ports/{Provider}/` folder, named for the provider module | None; the folder places it | Review the port beside the `queries` or `commands` edge |
 | Port adapter | The module `Infrastructure/{Port}/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
-| Provider adapter | The consumer `Infrastructure/{Provider}/` folder, sending the provider's public queries | None; the folder places it | Review the adapter beside the `queries` edge |
+| Provider adapter | The consumer `Infrastructure/{Provider}/` folder, sending the provider's public queries and public commands | None; the folder places it | Review the adapter beside the `queries` or `commands` edge |
 | Read-model reader or projection | The `Application/ReadModels/<ReadModelPlural>/` folder | `implements` naming `read-model/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Test | The test suite for its boundary, mirroring the module tree | `proves` naming `scenario/<use-case>.<name>` | See the [finding table](../tools/model.md) |
 

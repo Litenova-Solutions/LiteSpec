@@ -8,7 +8,7 @@ access:
   grant: permission/post-reimbursement
   tenant: own
 serves:
-- flow/submit-and-reimburse#s4
+- step/submit-and-reimburse.reimburse-expense
 fulfills:
 - requirement/approval.expense-reimbursed-at-most-once
 reachedThrough:

@@ -23,6 +23,7 @@ internal static class CitationChecks
             }
 
             var cited = new HashSet<string>(StringComparer.Ordinal);
+            var oldForm = new HashSet<string>(StringComparer.Ordinal);
 
             foreach (var property in record.Raw.EnumerateObject())
             {
@@ -46,6 +47,11 @@ internal static class CitationChecks
                     {
                         cited.Add(match.Value);
                     }
+
+                    foreach (Match match in OldStepCitation.Matches(prose))
+                    {
+                        oldForm.Add(Identifiers.TrimCitation(match.Value));
+                    }
                 }
             }
 
@@ -55,6 +61,11 @@ internal static class CitationChecks
                 {
                     findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' cites '{id}', which no record holds.", record.File, record.Line, SubjectOf(record)));
                 }
+            }
+
+            foreach (var id in oldForm.Order(StringComparer.Ordinal))
+            {
+                findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' cites '{id}', which names a step in the old flow/name#step form; cite the step id instead.", record.File, record.Line, SubjectOf(record)));
             }
         }
 
@@ -130,16 +141,27 @@ internal static class CitationChecks
             }
         }
 
+        var oldForm = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        void CollectOldForm(MatchCollection matches)
+        {
+            foreach (Match match in matches)
+            {
+                oldForm.TryAdd(Identifiers.TrimCitation(match.Value), startLine + LineOf(starts, match.Index) - 1);
+            }
+        }
+
         if (isComment)
         {
             // A comment is read only here, so every link target and citation in
             // it is collected as written.
-            CollectLinkTargets(text, starts, startLine, cited);
+            CollectLinkTargets(text, starts, startLine, cited, oldForm);
 
             var commentProse = LinkTarget.Replace(text, match => "](" + new string(' ', match.Length - 3) + ")");
 
             Collect(Identifiers.Citation.Matches(commentProse), Identifiers.TrimCitation);
             Collect(Identifiers.SharedCitation().Matches(commentProse), value => value);
+            CollectOldForm(OldStepCitation.Matches(commentProse));
         }
         else
         {
@@ -154,6 +176,7 @@ internal static class CitationChecks
 
             Collect(Identifiers.Citation.Matches(prose), Identifiers.TrimCitation);
             Collect(Identifiers.SharedCitation().Matches(prose), value => value);
+            CollectOldForm(OldStepCitation.Matches(prose));
         }
 
         foreach (var entry in cited.OrderBy(left => left.Value).ThenBy(left => left.Key, StringComparer.Ordinal))
@@ -163,6 +186,11 @@ internal static class CitationChecks
                 findings.Add(new Finding("reference-unknown", $"Citation '{entry.Key}' resolves to no record.", file, entry.Value, subject));
             }
         }
+
+        foreach (var entry in oldForm.OrderBy(left => left.Value).ThenBy(left => left.Key, StringComparer.Ordinal))
+        {
+            findings.Add(new Finding("reference-unknown", $"Citation '{entry.Key}' names a step in the old flow/name#step form; cite the step id instead.", file, entry.Value, subject));
+        }
     }
 
     /// <summary>Collects each link target naming a record as a citation of its base identifier.</summary>
@@ -170,7 +198,8 @@ internal static class CitationChecks
     /// <param name="starts">The offset of each line start in the text.</param>
     /// <param name="startLine">The one-based line of the first line of the text in its file.</param>
     /// <param name="cited">The cited identifiers with their lines, appended in place.</param>
-    private static void CollectLinkTargets(string text, int[] starts, int startLine, Dictionary<string, int> cited)
+    /// <param name="oldForm">The old-form step citations with their lines, appended in place.</param>
+    private static void CollectLinkTargets(string text, int[] starts, int startLine, Dictionary<string, int> cited, Dictionary<string, int> oldForm)
     {
         // A link target naming a record cites it. Any other target is a file
         // path: a path that starts with a record type's name, such as
@@ -182,6 +211,11 @@ internal static class CitationChecks
             if (LinkChecks.IsRecordTarget(target))
             {
                 cited.TryAdd(Identifiers.TrimCitation(Identifiers.BaseId(target)), startLine + LineOf(starts, match.Index) - 1);
+
+                if (Identifiers.TrySplitStep(Identifiers.TrimCitation(target), out _, out _))
+                {
+                    oldForm.TryAdd(Identifiers.TrimCitation(target), startLine + LineOf(starts, match.Index) - 1);
+                }
             }
         }
     }
@@ -241,6 +275,9 @@ internal static class CitationChecks
             }
         }
     }
+
+    /// <summary>Matches one step citation in the old flow/name#step form, so it is reported as old rather than resolved through its flow.</summary>
+    private static readonly Regex OldStepCitation = new(@"(?<![A-Za-z0-9_./-])flow/[A-Za-z0-9][A-Za-z0-9._-]*#[A-Za-z0-9][A-Za-z0-9._-]*", RegexOptions.Compiled);
 
     /// <summary>Matches one Markdown link target, so file paths are blanked before citations are read.</summary>
     private static readonly Regex LinkTarget = new(@"\]\([^)\s]*\)", RegexOptions.Compiled);

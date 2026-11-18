@@ -20,7 +20,7 @@ Reactions answering another module's event sat with the module that triggered th
 
 Content is what a record states and what it changes; its links are its reasons, not its content. A reaction answering another module's integration event sits with the module whose records it changes. An integration event sits with its one publishing module, or its receiving module when inbound. An external system sits at the lowest node holding every record that calls it: a module when one module calls it.
 
-Each parent in the table was checked against the provision. A requirement lies within its feature, a flow sits under the product, and the known cases hold. A feature whose content spans two problems sits under neither, as [decision/0080-solve-problems-with-standalone-features](decision/0080-solve-problems-with-standalone-features) states.
+Each parent in the table was checked against the provision. A requirement lies within its feature, a feature lies within the one problem it answers, and a flow sits under the product, and the known cases hold.
 
 ## Consequences
 

@@ -96,20 +96,30 @@ public sealed class ProseReferenceCheckTests
         Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
-    /// <summary>A known identifier with a flow-step suffix passes.</summary>
+    /// <summary>A known step identifier passes; the old flow-step suffix is reported.</summary>
     /// <proves>litespec/core/model#name-records-in-prose-by-their-identifiers</proves>
     [Fact]
-    public void KnownIdentifierWithFlowStepSuffixPasses()
+    public void KnownStepIdentifierPassesAndOldFormReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"title": "Borrow and return", "actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"title": "Reader", "kind": "person"}"""));
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"title": "Borrow and return", "actor": ["actor/reader"], "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"title": "Reader", "kind": "person"}""")]);
         model.Bodies.Add(TestModel.Body(
+            Path.Combine(temp.Path, "borrowing.md"),
+            "# Borrowing\n\nStart at `step/borrow-and-return.borrow-copy`.\n"));
+
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
+
+        var old = TestModel.Model(
+            TestModel.Config(temp.Path),
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"title": "Borrow and return", "actor": ["actor/reader"], "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"title": "Reader", "kind": "person"}""")]);
+        old.Bodies.Add(TestModel.Body(
             Path.Combine(temp.Path, "borrowing.md"),
             "# Borrowing\n\nStart at `flow/borrow-and-return#s1`.\n"));
 
-        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(old));
     }
 }

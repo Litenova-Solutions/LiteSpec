@@ -42,11 +42,11 @@ public static class RecordFolders
         Scaffold("goal", "intent/goals/{name}", "{name}.yaml"),
         Scaffold("direction", "intent/directions/{name}", "{name}.yaml"),
         Scaffold("problem", "intent/problems/{name}", "{name}.yaml"),
-        // A feature stands alone at product level; it names the problems it solves in its own record.
-        Scaffold("feature", "intent/features/{name}", "{name}.yaml"),
-        // A requirement of one feature sits in its own folder inside that feature's folder; litespec new and rename
-        // place it from the feature record, since the identifier names the feature.
-        Scaffold("requirement", "intent/features/{feature}/requirements/{name}", "{name}.yaml"),
+        // A feature sits in the folder of the one problem it answers; its identifier carries no problem.
+        Scaffold("feature", "intent/problems/{problem}/features/{name}", "{name}.yaml"),
+        // A requirement sits in its own folder inside its feature's folder. litespec new and rename place it
+        // from the feature record, since the identifier names the feature but not the problem.
+        Scaffold("requirement", "intent/problems/{problem}/features/{feature}/requirements/{name}", "{name}.yaml"),
         // A product-wide requirement, with no offer behind it, sits under the product.
         At("requirement", "intent/requirements/{name}", "{name}.yaml"),
         Scaffold("constraint", "intent/constraints/{name}", "{name}.yaml"),
@@ -55,6 +55,7 @@ public static class RecordFolders
         At("decision", "implementation/modules/{module}/decisions/{name}", "{name}.yaml"),
         Scaffold("research", "intent/research/{name}", "{name}.yaml"),
         Scaffold("flow", "intent/flows/{name}", "{name}.yaml"),
+        At("step", "intent/flows/{name}", "{name}.yaml"),
         Scaffold("actor", "intent/actors/{name}", "{name}.yaml"),
         Scaffold("role", "intent/roles/{name}", "{name}.yaml"),
         Scaffold("module", "behavior/modules/{name}", "module.yaml"),
@@ -287,6 +288,7 @@ public static class RecordFolders
     /// <returns>The text with each token replaced; the aggregate token takes the plural its folder carries.</returns>
     private static string Fill(string text, string? home, string name) =>
         text.Replace("{module}", home ?? string.Empty)
+            .Replace("{problem}", home ?? string.Empty)
             .Replace("{feature}", home ?? string.Empty)
             .Replace("{entry-point}", home ?? string.Empty)
             .Replace("{home}", home ?? string.Empty)
@@ -346,7 +348,7 @@ public static class RecordFolders
     /// <param name="home">The home entry.</param>
     /// <returns>True when the path needs the home.</returns>
     private static bool NeedsHome(Home home) =>
-        home.Folder.Contains("{module}") || home.Folder.Contains("{feature}") || home.Folder.Contains("{entry-point}") || home.File.Contains("{home}");
+        home.Folder.Contains("{module}") || home.Folder.Contains("{problem}") || home.Folder.Contains("{feature}") || home.Folder.Contains("{entry-point}") || home.File.Contains("{home}");
 
     /// <summary>
     ///     One home of a record type: the folder pattern below the record layer and the file rule.

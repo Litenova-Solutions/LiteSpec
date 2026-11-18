@@ -116,7 +116,7 @@ export function downOf(book: Book, id: string): DownEntry[] {
     linked(book.ins(id, "cites"), "cites");
   }
   if (t === "goal") linked(book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature"), "advances");
-  if (t === "problem") linked(book.ins(id, "solves").filter((x) => book.typeOf(x) === "feature"), "solves");
+  if (t === "problem") contained(book.kids(id).filter((x) => book.typeOf(x) === "feature"), "answers this problem");
   if (t === "feature") contained(book.kids(id).filter((x) => book.typeOf(x) === "requirement"), "a requirement of the feature");
   if (t === "requirement") linked(book.ins(id, "fulfills"), "fulfills");
   if (t === "flow") linked(book.ins(id, "serves"), "serves");
@@ -728,17 +728,15 @@ export function completionSectionVisible(book: Book, id: string): boolean {
   return completionLines(r.completion).some((line) => line.mark !== "none-expected");
 }
 
-/** The step suffixes a record carries for a flow, from its serves field. */
+/** The step ids of a flow that a record serves, from its serves field (`step/<flow>.<act>`). */
 function servedSteps(book: Book, serverId: string, flowId: string): string[] {
   const raw = book.get(serverId)?.fields?.["serves"];
   const entries = typeof raw === "string" ? [raw] : Array.isArray(raw) ? raw : [];
+  const prefix = "step/" + flowId.slice(flowId.indexOf("/") + 1) + ".";
   const out: string[] = [];
   for (const entry of entries) {
     const text = String(entry);
-    const hash = text.indexOf("#");
-    if (hash < 0 || stripStep(text) !== flowId) continue;
-    const step = text.slice(hash + 1);
-    if (step && !out.includes(step)) out.push(step);
+    if (text.startsWith(prefix) && !out.includes(text)) out.push(text);
   }
   return out;
 }
@@ -747,19 +745,15 @@ function servedSteps(book: Book, serverId: string, flowId: string): string[] {
 function stepIdOf(step: unknown): string | null {
   if (typeof step !== "object" || step === null || !("id" in step)) return null;
   const id: unknown = step.id;
-  return typeof id === "string" || typeof id === "number" ? String(id) : null;
+  return typeof id === "string" ? id : null;
 }
 
-/** A step suffix read as a flow step number: its position in the flow's steps, else the number it carries. */
+/** A step id read as its position in the flow, counted from 1, or null when the flow has no such step. */
 function flowStepPosition(book: Book, flowId: string, stepId: string): number | null {
   const steps = book.get(flowId)?.fields?.["steps"];
-  if (Array.isArray(steps)) {
-    const at = steps.findIndex((step) => stepIdOf(step) === stepId);
-    if (at >= 0) return at + 1;
-  }
-  const match = /^s(\d+)$/i.exec(stepId) ?? /^(\d+)$/.exec(stepId);
-  const digits = match?.[1];
-  return digits === undefined ? null : Number(digits);
+  if (!Array.isArray(steps)) return null;
+  const at = steps.findIndex((step) => stepIdOf(step) === stepId);
+  return at < 0 ? null : at + 1;
 }
 
 /** Step numbers read as words: "1 and 6", or "1, 2 and 6". */

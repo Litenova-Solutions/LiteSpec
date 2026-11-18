@@ -861,7 +861,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/intent/features/hold-queue/hold-queue.yaml",
+      "file": ".litespec/intent/problems/overdue-loans-pile-up/features/hold-queue/hold-queue.yaml",
       "line": 3,
       "fields": {
         "type": "feature",
@@ -871,11 +871,7 @@
         "status": "approved",
         "lifecycle": "shipped"
       },
-      "links": {
-        "solves": [
-          "problem/overdue-loans-pile-up"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "flow",
@@ -897,42 +893,42 @@
         "actor": "actor/reader",
         "steps": [
           {
-            "id": "s1",
+            "id": "step/borrow-and-return.register-copy",
             "statement": "The reader registers a new copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s2",
+            "id": "step/borrow-and-return.borrow-copy",
             "statement": "The reader borrows an available copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s3",
+            "id": "step/borrow-and-return.renew-loan",
             "statement": "The reader extends an active loan.",
             "actor": "actor/reader"
           },
           {
-            "id": "s4",
+            "id": "step/borrow-and-return.review-loans",
             "statement": "The reader lists current loans.",
             "actor": "actor/reader"
           },
           {
-            "id": "s5",
+            "id": "step/borrow-and-return.return-copy",
             "statement": "The reader returns a borrowed copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s6",
+            "id": "step/borrow-and-return.place-hold",
             "statement": "The reader places a hold on a loaned copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s7",
+            "id": "step/borrow-and-return.cancel-hold",
             "statement": "The reader cancels a waiting hold.",
             "actor": "actor/reader"
           },
           {
-            "id": "s8",
+            "id": "step/borrow-and-return.retire-copy",
             "statement": "The librarian retires a worn copy.",
             "actor": "actor/librarian"
           }
@@ -3457,49 +3453,49 @@
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s1",
+        "id": "step/borrow-and-return.register-copy",
         "kind": "step",
         "reached": false,
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s2",
+        "id": "step/borrow-and-return.borrow-copy",
         "kind": "step",
         "reached": false,
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s3",
+        "id": "step/borrow-and-return.renew-loan",
         "kind": "step",
         "reached": false,
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s4",
+        "id": "step/borrow-and-return.review-loans",
         "kind": "step",
         "reached": false,
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s5",
+        "id": "step/borrow-and-return.return-copy",
         "kind": "step",
         "reached": false,
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s6",
+        "id": "step/borrow-and-return.place-hold",
         "kind": "step",
         "reached": false,
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s7",
+        "id": "step/borrow-and-return.cancel-hold",
         "kind": "step",
         "reached": false,
         "reachedBy": []
       },
       {
-        "id": "flow/borrow-and-return#s8",
+        "id": "step/borrow-and-return.retire-copy",
         "kind": "step",
         "reached": false,
         "reachedBy": []

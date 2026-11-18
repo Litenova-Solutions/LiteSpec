@@ -17,7 +17,7 @@ Application code lives in the `Application/` layer folder of each module: one fo
 
 The `Application/{Aggregates}/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{Aggregates}/{UseCase}/` folder holds the endpoint with its request and response models. The `Ports/{Port}/` folder holds the interface `I{Port}` and only the types its signatures name, and the `Infrastructure/{Port}/` folder holds the adapter implementing it.
 
-Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder: data only, grouped by aggregate into identifiers, facts, and public queries with their messages and results. The pipeline machinery itself lives in the product `Application/` folder.
+Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder: data only, grouped by aggregate into identifiers, facts, and public queries and public commands with their messages and results. The pipeline machinery itself lives in the product `Application/` folder.
 
 Each event handler class carries a mark naming the reaction it implements, and sits with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 
@@ -41,7 +41,7 @@ In Claimwick, the approve-expense command flows from validation through the auth
 
 A port is a narrow interface that the module declares for work it does not compute in memory: an external system, a file format it reads or writes, a platform service the Platform does not already expose as an abstraction, or the clock. Each port names one business capability in project-owned types, types the project defines rather than types a provider or transport defines. Infrastructure implements the port.
 
-Every port of the module lives in its own `Ports/{Port}/` folder, whether one use case or many call it, so `Ports/` is the complete list of what the module needs from outside. A consumer port to another module is an ordinary port in the consumer's `Ports/` folder: one port per provider module, named for the provider, with its adapter sending the provider's public queries. Such a port only reads: a write another module needs arrives as a fact that its reaction answers.
+Every port of the module lives in its own `Ports/{Port}/` folder, whether one use case or many call it, so `Ports/` is the complete list of what the module needs from outside. A consumer port to another module is an ordinary port in the consumer's `Ports/` folder: one port per provider module, named for the provider, with its adapter sending the provider's public queries and public commands. The port carries what one consumer needs from one provider: reads through the provider's public queries, and acts through the provider's public commands.
 
 Four kinds of port belong in `Ports/`:
 
@@ -50,13 +50,13 @@ Four kinds of port belong in `Ports/`:
 - A platform-service port keeps a platform service the Platform does not already expose as an abstraction behind an adapter.
 - The clock keeps time behind an adapter.
 
-A general reader that returns the owner's state to any caller is not one of them: a module asks through its port to the provider, answered by the provider's public query, and a screen joins each owner's query. A read model stays the answer when the module needs another module's data reshaped and kept locally. An external-system port carries the operations one `calls` effect names, and a messenger port carries the notifications `sends` effects name.
+A general reader that returns the owner's state to any caller is not one of them: a module asks through its port to the provider, answered by the provider's public query, sends through the same port, answered by the provider's public command, and a screen joins each owner's query. A read model stays the answer when the module needs another module's data reshaped and kept locally. An external-system port carries the operations one `calls` effect names, and a messenger port carries the notifications `sends` effects name.
 
 In Claimwick, the payout provider sits behind an external-system port: an event handler calls the port operation after the commit, and Infrastructure adapts the provider behind it. If the provider changes, only the adapter changes.
 
 ### Declared Effects
 
-Every edge between use cases, reactions, jobs, notifications, module events, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`, where `sends` names a notification, `calls` names an external-system operation, and `queries` names a public query use case of another module. A reaction or job also declares `runs`, naming the one use case it runs, and declares `queries` the same way when it needs another module's current value.
+Every edge between use cases, reactions, jobs, notifications, module events, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`, where `sends` names a notification, `calls` names an external-system operation, `queries` names a public query use case of another module, and `commands` names a public command use case of another module. A reaction or job also declares `runs`, naming the one use case it runs, and declares `queries` the same way when it needs another module's current value, or `commands` when it needs another module to act.
 
 An edge the records do not declare is behavior the specification hides. The effect checks report it as `effect-undeclared`.
 
@@ -465,7 +465,7 @@ This is the practice known as event-carried state transfer, declared as a record
 
 **Rationale:** Some decisions cannot accept a copy that lags: money that may still move, or capacity that may still sell. The consumer port states what one consumer needs in its own types, and the provider's public query answers with the owner's current value and nothing else, so the port cannot grow into a general reader, and its name says what it decides.
 
-It only reads: a change the caller needs in the owning module is a fact that module's reaction answers. The provider's public use case lists the consuming module in `reachedThrough`, and the consumer's `queries` edge names the public use case, so the edge is declared on both sides. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+It only reads: a change the caller needs in the owning module is a public command the caller sends through the same port, under `litespec/backend/application#declare-every-commands-edge-on-the-sender`. The provider's public use case lists the consuming module in `reachedThrough`, and the consumer's `queries` edge names the public use case, so the edge is declared on both sides. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
 
 **Example:** In the Claimwick product, a reimbursement command asks spending for the current expense through reporting's port to the spending module, answered by spending's public read-expense query, instead of reading a whole event profile through a general reader.
 
@@ -479,19 +479,67 @@ It only reads: a change the caller needs in the owning module is a fact that mod
 
 **Applies to:** artifact: port, command-handler, query-handler; when: cross-module
 
-**Statement:** A module MUST reach another module only through one port per provider module, named for the provider in `Ports/{Provider}/`, with one adapter in `Infrastructure/{Provider}/` that sends the provider's public queries.
+**Statement:** A module MUST reach another module only through one port per provider module, named for the provider in `Ports/{Provider}/`, with one adapter in `Infrastructure/{Provider}/` that sends the provider's public queries and public commands.
 
-**Rationale:** The port states what one consumer needs from one provider in the consumer's own types and identifiers, never the provider's queries or results. The adapter is the only code that sends another module's public query and the only code that names the provider's query and result types. Handlers keep sending nothing: they call the port, and the adapter sends. The consuming use case, reaction, or job declares the edge as `effects.queries` naming the provider's public use case. One port per provider keeps every read of one provider in one folder with one adapter, so replacing the provider rewrites one adapter. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+**Rationale:** The port states what one consumer needs from one provider in the consumer's own types and identifiers, never the provider's queries, commands, or results. The adapter is the only code that sends another module's public query or public command, and the only code that names the provider's query, command, and result types. Handlers keep sending nothing: they call the port, and the adapter sends. The calling use case, reaction, or job declares each edge as `effects.queries` or `effects.commands` naming the provider's public use case. One port per provider keeps every call of one provider in one folder with one adapter, so replacing the provider rewrites one adapter. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
 
 **Example:**
 
 ```text
 Claimwick.Reporting/
   Ports/Spending/ISpending.cs                 what reporting needs from spending, in reporting's own types
-  Infrastructure/Spending/SpendingAdapter.cs  sends spending's public queries and maps their results
+  Infrastructure/Spending/SpendingAdapter.cs  sends spending's public queries and public commands and maps their results
 ```
 
-**Reviewed for:** Does every cross-module read pass through the consumer's port to the provider module, with only the adapter in `Infrastructure/{Provider}/` naming the provider's queries and results? Look at each cross-module read beside the consumer's ports and adapters.
+**Checked by:** `dotnet build` reports `LS2029` for another module's public query, public command, or result named outside the adapter in `Infrastructure/{Provider}/`.
+
+### Declare Every Commands Edge on the Sender
+
+**ID:** `litespec/backend/application#declare-every-commands-edge-on-the-sender`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, reaction, job; when: cross-module
+
+**Statement:** A use case, reaction, or job that sends another module's public command MUST declare the edge as `effects.commands` naming the owner's public command use case.
+
+**Rationale:** A send no record declares is behavior the specification hides: the caller's handler reaches across the boundary, and no diff shows the pair. Declaring the edge as `effects.commands` names the owner's public command use case beside the behavior that sends it. The owner's record lists the sending module in `reachedThrough`, under `litespec/core/use-cases#list-the-sending-modules-of-a-public-command`, so the edge is declared on both sides. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+
+**Example:** In the Claimwick product, reporting's close-period command declares `effects.commands` naming `use-case/spending.close-expenses`, and spending's close-expenses command lists `module/reporting` in `reachedThrough`.
+
+**Reviewed for:** Does every send of another module's public command declare its `effects.commands` edge naming the owner's public command use case? Look at each cross-module send beside its record's effects.
+
+### Send Public Commands in Process
+
+**ID:** `litespec/backend/application#send-public-commands-in-process`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, port; when: cross-module
+
+**Statement:** A consumer MUST send another module's public command in process and synchronously through its port to the provider, with the adapter in `Infrastructure/{Provider}/` mapping the result.
+
+**Rationale:** A public command travels like a public query: the handler calls its port to the provider, and the adapter sends the owner's command through the command entry point and maps the result into the consumer's own types. The owner runs its ordinary command handler through its own pipeline, with authorization, audit, idempotency, and validation. Durable asynchronous sending stays a later step; the records and contracts do not change when it comes. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+
+**Example:** In the Claimwick product, reporting's close-period handler calls its port to the spending module, and the adapter in `Infrastructure/Spending/` sends spending's close-expenses command and maps the result.
+
+**Reviewed for:** Does every public command cross modules in process and synchronously through the consumer port, with only the adapter in `Infrastructure/{Provider}/` sending it? Look at each cross-module command send beside the consumer ports and adapters.
+
+### Confirm Downstream Completion Through an Upstream Command
+
+**ID:** `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, reaction; when: cross-module
+
+**Statement:** A module that needs to know downstream work finished MUST learn it through its own public command that the downstream module calls, never by reacting to a downstream fact.
+
+**Rationale:** An upstream module that reacts to a downstream fact depends on the downstream module, which breaks the one direction every module relationship keeps. The downstream module reports completion by calling the upstream module's public command instead, naming its own module, and the upstream handler records the report through its own pipeline. Facts flow downstream only; completion confirmations travel upstream as commands. Settled by [decision/0109-module-contracts-publish-data](decision/0109-module-contracts-publish-data).
+
+**Example:** In the Claimwick product, when an erasure spanning modules finishes its spending part, spending calls the owning module's public confirm command naming the spending module, instead of the owner reacting to a spending fact.
+
+**Reviewed for:** Does any module react to a downstream fact instead of learning completion through its own public command? Look at each reaction to another module's fact beside the upstream public commands.
 
 ### Call External Systems Through Their Ports
 
@@ -653,7 +701,7 @@ One execution host runs the job under `litespec/backend/architecture#name-the-ho
 
 Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails `effect-undeclared` on any dispatch the record does not declare.
 
-A module event or an outbound integration event is no effect: the pipeline stages each from the domain event it translates under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`. `sends`, `calls`, and `runs` effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one. A `queries` edge is the one effect a handler answers inline: the handler calls its port to the provider, and the adapter in `Infrastructure/{Provider}/` sends the provider's public query.
+A module event or an outbound integration event is no effect: the pipeline stages each from the domain event it translates under `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`. `sends`, `calls`, and `runs` effects run in an event handler or job after the commit, and only an entry point sends a message: an endpoint, an event handler, or a job, each sending one. A `queries` edge or a `commands` edge is answered inline: the handler calls its port to the provider, and the adapter in `Infrastructure/{Provider}/` sends the provider's public query or public command and maps the result.
 
 A `sends` or `calls` effect on a command is `after-commit` or `async`, never `inline`, and `consistency: atomic` never reaches past the use case's own writes. The complete-sign-in command of a hosted sign-in is the one command that declares a `calls` edge with `inline` timing, for the token exchange whose result the session needs; `effect-timing-invalid` exempts that edge. The effect graph holds no cycles except through domain events with a stated end condition.
 
@@ -860,8 +908,8 @@ The layer folders state each file's layer in the path and show by their presence
         ExportPosts/                      endpoint
   Customers/                              two aggregates: Domain holds one plural folder per aggregate
     Contracts/
-      CustomerAccounts/  CustomerAccountId, the facts, and the public queries of the account aggregate
-      Consents/          ConsentId, the facts, and the public queries of the consent aggregate
+      CustomerAccounts/  CustomerAccountId, the facts, and the public queries and public commands of the account aggregate
+      Consents/          ConsentId, the facts, and the public queries and public commands of the consent aggregate
     Domain/
       CustomerAccounts/
       Consents/

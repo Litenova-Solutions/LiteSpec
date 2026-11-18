@@ -10,8 +10,8 @@ Use this generated page to find the folder and file each record type lives in, r
 | `goal` | `intent/goals/{name}` | `{name}.yaml` |
 | `direction` | `intent/directions/{name}` | `{name}.yaml` |
 | `problem` | `intent/problems/{name}` | `{name}.yaml` |
-| `feature` | `intent/features/{name}` | `{name}.yaml` |
-| `requirement` | `intent/features/{feature}/requirements/{name}` | `{name}.yaml` |
+| `feature` | `intent/problems/{problem}/features/{name}` | `{name}.yaml` |
+| `requirement` | `intent/problems/{problem}/features/{feature}/requirements/{name}` | `{name}.yaml` |
 | `requirement` | `intent/requirements/{name}` | `{name}.yaml` |
 | `constraint` | `intent/constraints/{name}` | `{name}.yaml` |
 | `decision` | `intent/decisions/{name}` | `{name}.yaml` |
@@ -19,6 +19,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `decision` | `implementation/modules/{module}/decisions/{name}` | `{name}.yaml` |
 | `research` | `intent/research/{name}` | `{name}.yaml` |
 | `flow` | `intent/flows/{name}` | `{name}.yaml` |
+| `step` | `intent/flows/{name}` | `{name}.yaml` |
 | `actor` | `intent/actors/{name}` | `{name}.yaml` |
 | `role` | `intent/roles/{name}` | `{name}.yaml` |
 | `module` | `behavior/modules/{name}` | `module.yaml` |

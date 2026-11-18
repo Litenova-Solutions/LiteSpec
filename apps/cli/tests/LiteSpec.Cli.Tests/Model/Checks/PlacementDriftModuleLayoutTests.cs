@@ -129,7 +129,7 @@ public sealed class PlacementDriftModuleLayoutTests
         WriteCode(file, "Library.Lending.Contracts.Exceptions", "LoanNotFoundException");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
 
-        Assert.Contains(Run(model), finding => finding.Message.Contains("names no declared aggregate or public module-level query", StringComparison.Ordinal));
+        Assert.Contains(Run(model), finding => finding.Message.Contains("names no declared aggregate or public module-level use case", StringComparison.Ordinal));
     }
 
     /// <summary>A product rule exception in the Kernel reports nothing, wherever its record file sits.</summary>
@@ -383,7 +383,7 @@ public sealed class PlacementDriftModuleLayoutTests
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only one folder per aggregate and public module-level query.", finding.Message);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only one folder per aggregate and public module-level use case.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -403,7 +403,7 @@ public sealed class PlacementDriftModuleLayoutTests
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only one folder per aggregate and public module-level query.", finding.Message);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only one folder per aggregate and public module-level use case.", finding.Message);
     }
 
     /// <summary>A nested model and a row in a use case WebApi folder report nothing, a handler there still reports, and a row in Application stays a result part.</summary>

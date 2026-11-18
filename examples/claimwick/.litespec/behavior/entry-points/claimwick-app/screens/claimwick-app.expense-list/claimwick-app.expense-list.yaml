@@ -6,7 +6,7 @@ route: /expenses
 offers:
 - use-case/spending.list-expenses
 serves:
-- flow/submit-and-reimburse#s5
+- step/submit-and-reimburse.watch-expenses
 fulfills:
 - requirement/ui-chart-series
 - requirement/ui-control-boundary

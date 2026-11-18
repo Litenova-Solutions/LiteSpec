@@ -33,6 +33,11 @@ internal static class SchemaChecks
     /// <summary>The waiver field naming the records whose change closes the gap.</summary>
     const string WaiverClosedBy = "closedBy";
 
+    /// <summary>The word joining two branch conditions, which two branches state instead.</summary>
+    private static readonly Regex JoinedCondition = new(
+        @"\bor\b",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     /// <summary>Runs the schema checks on every record.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -205,8 +210,6 @@ internal static class SchemaChecks
                     findings.Add(new Finding("record-invalid", $"Feature '{record.Id}' names serves and advances holds its goal.", record.File, record.Line, SubjectOf(record)));
                 }
 
-                // A feature stands on its own and names the problems it solves.
-                RequireIds(record, RecordFields.Solves, 1, findings);
                 RequireArray(record, RecordFields.SuccessCriteria, 1, findings);
                 RequireArray(record, RecordFields.Excludes, 1, findings);
                 break;
@@ -248,6 +251,12 @@ internal static class SchemaChecks
                 }
 
                 CheckFlowBranches(record, findings);
+                break;
+
+            case RecordTypes.Step:
+                RequireString(record, RecordFields.Statement, findings);
+                CheckStepLinks(model, record, findings);
+                CheckStepBranches(model, record, findings);
                 break;
 
             case RecordTypes.Module:
@@ -533,7 +542,7 @@ internal static class SchemaChecks
         }
     }
 
-    /// <summary>Reports each link whose target record type the linking field forbids, and each step or actor a flow names wrongly.</summary>
+    /// <summary>Reports each link whose target record type the linking field forbids.</summary>
     /// <param name="model">The loaded project model that resolves each link target.</param>
     /// <param name="record">The record whose links are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -580,56 +589,6 @@ internal static class SchemaChecks
                 }
 
                 CheckFragment(model, record, target, baseId, resolved, findings);
-            }
-        }
-
-        if (record.Type == RecordTypes.Flow
-            && record.Raw.TryGetProperty(RecordFields.Steps, out var steps)
-            && steps.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var step in steps.EnumerateArray())
-            {
-                if (step.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                if (step.TryGetProperty(RecordFields.UseCase, out var useCase)
-                    && useCase.ValueKind == JsonValueKind.String
-                    && useCase.GetString() is { } id
-                    && model.ById.TryGetValue(id, out var resolved)
-                    && resolved.Type != RecordTypes.UseCase)
-                {
-                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
-                }
-
-                if (step.TryGetProperty(RecordFields.Actor, out var actor)
-                    && actor.ValueKind == JsonValueKind.String
-                    && actor.GetString() is { } actorId
-                    && model.ById.TryGetValue(actorId, out var actorRecord)
-                    && actorRecord.Type != RecordTypes.Actor)
-                {
-                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' names actor '{actorId}', which is a {actorRecord.Type}.", record.File, record.Line, SubjectOf(record)));
-                }
-
-                // A step performs with an external system only; jobs and reactions never appear in a step.
-                if (step.TryGetProperty(RecordFields.System, out var system)
-                    && system.ValueKind == JsonValueKind.String
-                    && system.GetString() is { } systemId
-                    && model.ById.TryGetValue(systemId, out var systemRecord)
-                    && systemRecord.Type != RecordTypes.ExternalSystem)
-                {
-                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' names system '{systemId}' in a step, which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
-                }
-
-                // A step carries the requirements it cites, and nothing else.
-                foreach (var cited in LinkStrings(step, RecordFields.Carries))
-                {
-                    if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && citedRecord.Type != RecordTypes.Requirement)
-                    {
-                        findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' step carries '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
-                    }
-                }
             }
         }
 
@@ -685,9 +644,10 @@ internal static class SchemaChecks
     }
 
     /// <summary>
-    ///     Whether the link fragment names a flow step or an external-system
-    ///     operation its record holds. The citation check reads only the base id,
-    ///     so a missing step or operation is reported here.
+    ///     Whether the link fragment names an external-system operation its record holds.
+    ///     The citation check reads only the base id, so a missing operation is reported
+    ///     here; a step in the old flow/name#step form is reported there instead, so one
+    ///     citation draws one finding.
     /// </summary>
     /// <param name="model">The loaded project model that resolves the link target.</param>
     /// <param name="record">The record that holds the link.</param>
@@ -705,11 +665,6 @@ internal static class SchemaChecks
 
         if (Identifiers.TrySplitStep(target, out _, out _))
         {
-            if (resolved.Type == RecordTypes.Flow && !resolved.StepIds().Contains(target, StringComparer.Ordinal))
-            {
-                findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' serves '{target}', which names no step of the flow.", record.File, record.Line, SubjectOf(record)));
-            }
-
             return;
         }
 
@@ -754,56 +709,192 @@ internal static class SchemaChecks
         || DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _);
 
     /// <summary>
-    ///     Reports a flow branch that lacks its step, condition or nextStep, and a branch whose
-    ///     step or nextStep names no step of the flow. The end of a path is written as end.
+    ///     Reports a flow that still holds its branches at the top level, and a step
+    ///     that no path reaches: not the first step, with no earlier step falling
+    ///     through to it and no branch continuing to it. A step falls through to its
+    ///     list successor unless one of its branches continues elsewhere with then;
+    ///     a branch that only ends leaves the main path through.
     /// </summary>
-    /// <param name="record">The flow record whose branches are read.</param>
+    /// <param name="record">The flow record whose steps are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFlowBranches(Record record, List<Finding> findings)
     {
-        if (!record.Raw.TryGetProperty(RecordFields.Branches, out var branches))
+        if (record.Has(RecordFields.Branches))
+        {
+            findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' holds {RecordFields.Branches}; state each branch on the step it leaves.", record.File, record.Line, SubjectOf(record)));
+        }
+
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            || steps.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        var ids = new List<string>();
+        var diverts = new HashSet<string>(StringComparer.Ordinal);
+        var continued = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var step in steps.EnumerateArray())
+        {
+            if (step.ValueKind != JsonValueKind.Object
+                || Str(step, RecordFields.Id) is not { Length: > 0 } id)
+            {
+                continue;
+            }
+
+            ids.Add(id);
+
+            if (step.TryGetProperty(RecordFields.Branches, out var branches)
+                && branches.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var branch in branches.EnumerateArray())
+                {
+                    if (branch.ValueKind == JsonValueKind.Object
+                        && Str(branch, RecordFields.Then) is { Length: > 0 } next)
+                    {
+                        diverts.Add(id);
+                        continued.Add(next);
+                    }
+                }
+            }
+        }
+
+        for (var at = 0; at < ids.Count; at++)
+        {
+            if (at == 0 || continued.Contains(ids[at]) || !diverts.Contains(ids[at - 1]))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("step-unreached", $"Flow step '{ids[at]}' is reached by no path.", record.File, record.Line, ids[at]));
+        }
+    }
+
+    /// <summary>
+    ///     Reports a step whose use case, system or carried requirements name a record
+    ///     of another type. A step performs with an external system only, and carries
+    ///     the requirements it cites, and nothing else. The step's actor is a link
+    ///     field, so the link check judges it.
+    /// </summary>
+    /// <param name="model">The loaded project model that resolves each link target.</param>
+    /// <param name="record">The step record whose links are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckStepLinks(ProjectModel model, Record record, List<Finding> findings)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
+        if (Str(record.Raw, RecordFields.UseCase) is { Length: > 0 } id
+            && model.ById.TryGetValue(id, out var resolved)
+            && resolved.Type != RecordTypes.UseCase)
+        {
+            findings.Add(new Finding("record-invalid", $"Step '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+        }
+
+        // A step performs with an external system only; jobs and reactions never appear in a step.
+        if (Str(record.Raw, RecordFields.System) is { Length: > 0 } systemId
+            && model.ById.TryGetValue(systemId, out var systemRecord)
+            && systemRecord.Type != RecordTypes.ExternalSystem)
+        {
+            findings.Add(new Finding("record-invalid", $"Step '{record.Id}' names system '{systemId}', which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
+        }
+
+        foreach (var cited in LinkStrings(record.Raw, RecordFields.Carries))
+        {
+            if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && citedRecord.Type != RecordTypes.Requirement)
+            {
+                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' carries '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports a step branch that lacks its condition, holds then and ends together
+    ///     or neither, joins two conditions with or, continues at a step of another
+    ///     flow, or names a system or carried requirement of another type. A branch
+    ///     that continues nowhere names no step, so the citation check owns it.
+    /// </summary>
+    /// <param name="model">The loaded project model that resolves each branch target.</param>
+    /// <param name="record">The step record whose branches are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckStepBranches(ProjectModel model, Record record, List<Finding> findings)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Branches, out var branches))
         {
             return;
         }
 
         if (branches.ValueKind != JsonValueKind.Array)
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {RecordFields.Branches} as no array.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Step '{record.Id}' holds {RecordFields.Branches} as no array.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (branches.GetArrayLength() == 0)
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds an empty {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Step '{record.Id}' holds an empty {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
             return;
         }
-
-        var stepTargets = record.StepIds().ToHashSet(StringComparer.Ordinal);
 
         foreach (var branch in branches.EnumerateArray())
         {
             if (branch.ValueKind != JsonValueKind.Object)
             {
-                findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 
-            foreach (var field in new[] { RecordFields.Step, RecordFields.Condition, RecordFields.NextStep })
+            if (Str(branch, RecordFields.When) is not { Length: > 0 } when)
             {
-                if (Str(branch, field) is not { Length: > 0 })
+                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' has a branch with no {RecordFields.When}.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (JoinedCondition.IsMatch(when))
+            {
+                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' joins two conditions with 'or' in {RecordFields.When}; write one branch per condition.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            var then = Str(branch, RecordFields.Then);
+            var ends = Str(branch, RecordFields.Ends);
+
+            if (then is { Length: > 0 } && ends is { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' has a branch with {RecordFields.Then} and {RecordFields.Ends} together.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (then is not { Length: > 0 } && ends is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' has a branch with neither {RecordFields.Then} nor {RecordFields.Ends}.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (then is { Length: > 0 } && model.ById.TryGetValue(then, out var next))
+            {
+                if (next.Type != RecordTypes.Step)
                 {
-                    findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' has a branch with no {field}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Step '{record.Id}' continues at '{then}', which is a {next.Type}, not a step.", record.File, record.Line, SubjectOf(record)));
+                }
+                else if (Identifiers.TrySplit(then, out _, out var thenHome, out _)
+                    && Identifiers.TrySplit(record.Id, out _, out var home, out _)
+                    && !string.Equals(thenHome, home, StringComparison.Ordinal))
+                {
+                    findings.Add(new Finding("record-invalid", $"Step '{record.Id}' continues at '{then}', which is a step of another flow.", record.File, record.Line, SubjectOf(record)));
                 }
             }
 
-            if (Str(branch, RecordFields.Step) is { Length: > 0 } step && !stepTargets.Contains($"{record.Id}#{step}"))
+            if (Str(branch, RecordFields.System) is { Length: > 0 } systemId
+                && model.ById.TryGetValue(systemId, out var systemRecord)
+                && systemRecord.Type != RecordTypes.ExternalSystem)
             {
-                findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' branches from step '{step}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' names system '{systemId}' in a branch, which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
             }
 
-            if (Str(branch, RecordFields.NextStep) is { Length: > 0 } next && next != "end" && !stepTargets.Contains($"{record.Id}#{next}"))
+            foreach (var cited in LinkStrings(branch, RecordFields.Carries))
             {
-                findings.Add(new Finding("record-invalid", $"Flow '{record.Id}' branches to step '{next}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+                if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && citedRecord.Type != RecordTypes.Requirement)
+                {
+                    findings.Add(new Finding("record-invalid", $"Step '{record.Id}' branch carries '{cited}', which is a {citedRecord.Type}, not a requirement.", record.File, record.Line, SubjectOf(record)));
+                }
             }
         }
     }

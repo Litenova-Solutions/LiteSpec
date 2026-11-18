@@ -85,24 +85,24 @@ A rule whose `governs` names more than one aggregate names every governed aggreg
 
 A use case is one thing an actor does through the system. The module has ten, each in a file of its own.
 
-Every use case names its grant and the entry point that reaches it, and most name the flow step they serve. The erasure use case serves none, because a scheduled promise is a requirement that a job fulfills, and the reminder-preference change serves none, fulfilling its requirement directly:
+Every use case names its grant and the entry point that reaches it, and most name the flow step they serve. The erasure use case serves none, because a scheduled promise is a requirement that a job fulfills:
 
 | Use case | Kind | Grant | Serves | Raises |
 |:---|:---|:---|:---|:---|
-| Submit expense | command | `permission/request-expense` | `flow/submit-and-reimburse#s1` | `domain-event/expense.submitted` |
-| Attach receipt | command | `permission/request-expense` | `flow/submit-and-reimburse#s2` | `domain-event/receipt.attached` |
-| Approve expense | command | `permission/approve-expense` | `flow/submit-and-reimburse#s3` | `domain-event/expense.approved` |
-| Refuse expense | command | `permission/approve-expense` | `flow/submit-and-reimburse#s3` | `domain-event/expense.refused` |
-| Reimburse expense | command | `permission/post-reimbursement` | `flow/submit-and-reimburse#s4` | `domain-event/expense.reimbursed` |
-| List expenses | query | `permission/list-expenses` | `flow/submit-and-reimburse#s5` | none |
-| Change receipt threshold | command | `permission/manage-policy` | `flow/set-receipt-threshold#s1` | none |
-| Change reminder preference | command | `permission/manage-reminder-preference` | none | none |
-| Export expenses | query | `permission/export-expenses` | `flow/export-approved-expenses#s1` | none |
+| Submit expense | command | `permission/request-expense` | `step/submit-and-reimburse.submit-expense` | `domain-event/expense.submitted` |
+| Attach receipt | command | `permission/request-expense` | `step/submit-and-reimburse.attach-receipt` | `domain-event/receipt.attached` |
+| Approve expense | command | `permission/approve-expense` | `step/submit-and-reimburse.decide-expense` | `domain-event/expense.approved` |
+| Refuse expense | command | `permission/approve-expense` | `step/submit-and-reimburse.decide-expense` | `domain-event/expense.refused` |
+| Reimburse expense | command | `permission/post-reimbursement` | `step/submit-and-reimburse.reimburse-expense` | `domain-event/expense.reimbursed` |
+| List expenses | query | `permission/list-expenses` | `step/submit-and-reimburse.watch-expenses` | none |
+| Change receipt threshold | command | `permission/manage-policy` | `step/set-receipt-threshold.set-threshold` | none |
+| Change reminder preference | command | `permission/manage-reminder-preference` | `step/submit-and-reimburse.set-reminder-preference` | none |
+| Export expenses | query | `permission/export-expenses` | `step/export-approved-expenses.export-batch` | none |
 | Erase personal data | command | `permission/remove-personal-data` | none | `domain-event/expense.personal-data-erased` |
 
 The Submit expense file lists its inputs, its results, and its scenarios. It takes a submission identifier, an amount, a currency, and an optional receipt. It has two results: `result/submit-expense.submitted`, and the refusal `result/submit-expense.receipt-missing` with the code `spending.receipt-missing`. Its two scenarios are the ones the acceptance tests prove, as [A Use Case in Code](a-use-case-in-code.md) shows.
 
-The flow steps run in the order the flow file gives them. Submit expense serves `flow/submit-and-reimburse#s1`, and Attach receipt serves `flow/submit-and-reimburse#s2`. The flow file names no use case; each use case names the step it serves.
+The flow steps run in the order the flow file gives them. Submit expense serves `step/submit-and-reimburse.submit-expense`, and Attach receipt serves `step/submit-and-reimburse.attach-receipt`. The flow file names no use case; each use case names the step it serves.
 
 ## The Entry Point and the Screen
 
@@ -117,7 +117,7 @@ route: /expenses
 offers:
 - use-case/spending.list-expenses
 serves:
-- flow/submit-and-reimburse#s5
+- step/submit-and-reimburse.watch-expenses
 pageFrame:
   pattern: list-page
   option: search-and-a-state-filter-only

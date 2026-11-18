@@ -100,7 +100,7 @@ public sealed class ScreenCheckTests
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
-        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["flow/walk#s2"]));
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["step/walk.finish-walk"]));
 
         Assert.Single(WithCode(model, "screen-serves-drift"));
     }
@@ -112,7 +112,7 @@ public sealed class ScreenCheckTests
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
-        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["flow/walk#s1"]));
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["step/walk.start-walk"]));
 
         Assert.Empty(WithCode(model, "screen-serves-drift"));
     }
@@ -135,7 +135,7 @@ public sealed class ScreenCheckTests
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
-        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["flow/walk#s1"]));
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["step/walk.start-walk"]));
 
         Assert.Empty(WithCode(model, "step-screen-missing"));
     }
@@ -442,9 +442,11 @@ public sealed class ScreenCheckTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"],"serves":["flow/walk#s1"]}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/app"],"serves":["flow/walk#s1"]}""", root));
-        model.Records.Add(Rec("flow", "flow/walk", """{"actor":["actor/employee"],"steps":[{"id":"s1","useCase":"use-case/lending.list-loans"},{"id":"s2","useCase":"use-case/lending.list-loans"}]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
+        model.Records.Add(Rec("flow", "flow/walk", """{"actor":["actor/employee"],"steps":[{"id":"step/walk.start-walk","title":"Start Walk","statement":"The employee starts the walk."},{"id":"step/walk.finish-walk","title":"Finish Walk","statement":"The employee finishes the walk."}]}""", root));
+        model.Records.Add(Rec("step", "step/walk.start-walk", """{"title":"Start Walk","statement":"The employee starts the walk."}""", root));
+        model.Records.Add(Rec("step", "step/walk.finish-walk", """{"title":"Finish Walk","statement":"The employee finishes the walk."}""", root));
         model.Records.Add(Rec("result", "result/list-loans.listed", """{"outcome":"success","meaning":"The loans are listed."}""", root));
         model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused"}""", root));
         model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", """{"given":"A loan.","when":"The employee lists loans.","then":"Both are listed.","result":"result/list-loans.listed"}""", root));

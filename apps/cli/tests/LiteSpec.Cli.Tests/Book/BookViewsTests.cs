@@ -96,7 +96,7 @@ public sealed class BookViewsTests
         }
 
         // Spot placements across the parent rules.
-        Assert.Equal("product/library", Str(details["feature/self-checkout"], "parent"));
+        Assert.Equal("problem/slow-desk-queues", Str(details["feature/self-checkout"], "parent"));
         Assert.Equal("feature/self-checkout", Str(details["requirement/self-checkout.max-wait"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.borrow-copy"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.return-copy"], "parent"));
@@ -353,7 +353,6 @@ public sealed class BookViewsTests
         Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "requirement"));
         Assert.Equal(("answers", "is answered by"), Phrases(links, "answers", "flow"));
         Assert.Equal(("fulfills", "is fulfilled by"), Phrases(links, "fulfills", "use-case"));
-        Assert.Equal(("solves", "is solved by"), Phrases(links, "solves", "feature"));
         Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "flow"));
         Assert.Equal(("is triggered by", "triggers"), Phrases(links, "triggeredBy", "reaction"));
 
@@ -362,7 +361,7 @@ public sealed class BookViewsTests
         var eventReaction = details.Keys.First(id =>
             Str(details[id], "type") == "reaction"
             && HasEdge(Arr(details[id], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
-        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "flow/borrowing", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "step/borrowing.borrow-copy", "use-case.serves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
         Assert.True(HasEdge(Arr(details["requirement/self-checkout.max-wait"], "out"), "feature/self-checkout", "requirement.cites"));
         Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "use-case/lending.borrow-copy", "rule.governs"));
@@ -556,14 +555,14 @@ public sealed class BookViewsTests
         Assert.Equal("The desk renews the loan.", Str(steps[1]!.AsObject(), "failure"));
 
         var servers = Obj(flow, "stepServers");
-        Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
-        Assert.Empty(servers["s2"] as JsonArray ?? new JsonArray());
-        Assert.Empty(Obj(flow, "stepScreens")["s1"] as JsonArray ?? new JsonArray());
+        Assert.True(HasString(servers["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
+        Assert.Empty(servers["step/borrowing.return-copy"] as JsonArray ?? new JsonArray());
+        Assert.Empty(Obj(flow, "stepScreens")["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray());
         Assert.Empty(Arr(flow, "exercised"));
 
         Assert.True(HasEdge(Arr(flow, "out"), "requirement/self-checkout.max-wait", "flow.cites"));
         Assert.True(HasEdge(Arr(flow, "out"), "actor/member", "flow.actor"));
-        Assert.True(HasEdge(Arr(flow, "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["step/borrowing.borrow-copy"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>A setting detail carries its meaning and default; a use-case detail carries its access grant and what it serves.</summary>
@@ -582,7 +581,7 @@ public sealed class BookViewsTests
         var access = Obj(Obj(useCase, "fields"), "access");
         Assert.Equal("permission/borrow-copy", Str(access, "grant"));
         Assert.Equal("own", Str(access, "tenant"));
-        Assert.True(HasString(Arr(Obj(useCase, "fields"), "serves"), "flow/borrowing#s1"));
+        Assert.True(HasString(Arr(Obj(useCase, "fields"), "serves"), "step/borrowing.borrow-copy"));
         Assert.True(HasString(Arr(Obj(useCase, "fields"), "reachedThrough"), "entry-point/library-app"));
         var keys = Arr(useCase, "out").OfType<JsonObject>().Select(edge => Str(edge, "key")).ToList();
         Assert.Contains("use-case.serves", keys);
@@ -590,7 +589,7 @@ public sealed class BookViewsTests
         Assert.Contains("use-case.raises", keys);
         Assert.Contains("use-case.reachedThrough", keys);
         Assert.Contains("use-case.access.grant", keys);
-        Assert.True(HasEdge(Arr(details["flow/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["step/borrowing.borrow-copy"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>The search shards cover statements, summaries and explanation heads for every record.</summary>
@@ -820,7 +819,7 @@ public sealed class BookViewsTests
             .Select(edge => Str(edge, "id"))
             .ToList();
         Assert.Equal(3, fulfilling.Count);
-        Assert.True(HasEdge(Arr(details["flow/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["step/borrowing.borrow-copy"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>Whether a product-parented type tops its own layer instead of nesting under the product.</summary>

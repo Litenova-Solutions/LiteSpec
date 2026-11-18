@@ -36,7 +36,7 @@ outcomes:
 fulfills:
 - requirement/<feature>.<name, or remove this line>
 serves:
-- flow/<name>#s1
+- step/<flow>.<act>
 onFailure:
   mode: <retry|skip-and-log|discard>
   retry:

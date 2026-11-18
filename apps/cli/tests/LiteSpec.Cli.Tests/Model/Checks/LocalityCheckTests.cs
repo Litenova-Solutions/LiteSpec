@@ -110,6 +110,44 @@ public sealed class LocalityCheckTests
         Assert.Equal("query-target-invalid", finding.Code);
     }
 
+    /// <summary>Commands Edge To Listed Public Command Passes.</summary>
+    /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
+    [Fact]
+    public void CommandsEdgeToListedPublicCommandPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "reachedThrough": ["module/finance"]}"""),
+            TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
+
+        Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
+        Assert.DoesNotContain("command-target-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Commands Edge To Unlisted Command Reports Once.</summary>
+    /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
+    [Fact]
+    public void CommandsEdgeToUnlistedCommandReportsOnce()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/reporting", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""),
+            TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
+
+        var findings = Checker.Check(model).Findings
+            .Where(found => found.Subject == "use-case/finance.record-repayment"
+                && found.Code is "link-locality-invalid" or "command-target-invalid");
+        var finding = Assert.Single(findings);
+        Assert.Equal("command-target-invalid", finding.Code);
+    }
+
     /// <summary>Link Across Layers May Cross Modules.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
@@ -280,6 +318,42 @@ public sealed class LocalityCheckTests
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query"}"""),
             TestModel.Record("use-case", "use-case/finance.read-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "read-fine.yaml"), """{"kind": "query", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
+
+        Assert.DoesNotContain("module-dependency-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Commands Cycle Reports.</summary>
+    /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
+    [Fact]
+    public void CommandsCycleReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/finance.record-fine", "timing": "inline"}]}"""),
+            TestModel.Record("use-case", "use-case/finance.record-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-fine.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("module/finance", finding.Subject);
+        Assert.Contains("'module/finance' commands 'use-case/lending.borrow-copy'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("'module/lending' commands 'use-case/finance.record-fine'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>One Way Commands Edge Passes.</summary>
+    /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
+    [Fact]
+    public void OneWayCommandsEdgePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/finance.record-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-fine.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
 
         Assert.DoesNotContain("module-dependency-invalid", TestModel.Codes(model));
     }

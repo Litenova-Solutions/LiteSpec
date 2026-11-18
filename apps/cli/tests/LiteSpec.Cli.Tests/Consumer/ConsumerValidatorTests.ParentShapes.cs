@@ -15,7 +15,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml",
-            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer","carries":["requirement/pricing.flat-fee"]}]}""");
+            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","steps":[{"id":"step/submit-and-reimburse.submit-claim","title":"Submit Claim","statement":"The customer submits the order.","actor":"actor/customer","carries":["requirement/pricing.flat-fee"],"branches":[{"when":"The shop refuses the claim.","ends":"The claim is refused and nothing is reimbursed."}]}]}""");
         TestRecords.Explain(
             folder.Path,
             ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.md",
@@ -32,7 +32,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml",
-            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer","carries":["requirement/pricing.flat-fee"]}]}""");
+            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","steps":[{"id":"step/submit-and-reimburse.submit-claim","title":"Submit Claim","statement":"The customer submits the order.","actor":"actor/customer","carries":["requirement/pricing.flat-fee"],"branches":[{"when":"The shop refuses the claim.","ends":"The claim is refused and nothing is reimbursed."}]}]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'destination'");
     }
 
@@ -44,8 +44,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/intent/features/approval-reminders/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","summary":"Managers get a reminder for claims waiting past three days.","offering":"Managers get a reminder for claims waiting past three days.","solves":["problem/slow-delivery"],"advances":["goal/faster-delivery"],"successCriteria":["The product sends one reminder for each claim that waits past three days.","The reminder names the claim and its waiting time."],"excludes":["Claims decided in time never trigger a reminder.","The reminder carries no other claim data."]}""");
+            ".litespec/intent/problems/slow-delivery/features/approval-reminders/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","summary":"Managers get a reminder for claims waiting past three days.","offering":"Managers get a reminder for claims waiting past three days.","advances":["goal/faster-delivery"],"successCriteria":["The product sends one reminder for each claim that waits past three days.","The reminder names the claim and its waiting time."],"excludes":["Claims decided in time never trigger a reminder.","The reminder carries no other claim data."]}""");
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -57,8 +57,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/intent/features/approval-reminders/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","summary":"Managers get a reminder for claims waiting past three days.","offering":"Managers get a reminder for claims waiting past three days.","solves":["problem/slow-delivery"],"state":"shipped","advances":["goal/faster-delivery"],"successCriteria":["The product sends one reminder for each claim that waits past three days.","The reminder names the claim and its waiting time."],"excludes":["Claims decided in time never trigger a reminder.","The reminder carries no other claim data."]}""");
+            ".litespec/intent/problems/slow-delivery/features/approval-reminders/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","summary":"Managers get a reminder for claims waiting past three days.","offering":"Managers get a reminder for claims waiting past three days.","state":"shipped","advances":["goal/faster-delivery"],"successCriteria":["The product sends one reminder for each claim that waits past three days.","The reminder names the claim and its waiting time."],"excludes":["Claims decided in time never trigger a reminder.","The reminder carries no other claim data."]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 

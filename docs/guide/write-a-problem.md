@@ -145,7 +145,7 @@ This satisfies `litespec/core/intent#grade-problem-evidence-by-kind`, `litespec/
 
 ### Write One Resolution Criterion per Failure Case
 
-Under Resolution Criteria, give each failure case one observable outcome for the sufferer that shows the failure has ended, as one item of `resolutionCriteria`. Name no feature, format, or screen there. The feature that delivers the outcome names the problem in `solves`.
+Under Resolution Criteria, give each failure case one observable outcome for the sufferer that shows the failure has ended, as one item of `resolutionCriteria`. Name no feature, format, or screen there. The feature that delivers the outcome sits in the problem's `features/` folder.
 
 | Instead of | Write |
 |:---|:---|

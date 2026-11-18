@@ -707,14 +707,15 @@ static class RenameCommand
 
     /// <summary>
     ///     The record types that take their identifier home from each parent type, from the identifier table: a result
-    ///     and a scenario take the use-case name, an event takes the aggregate name, a rule takes its module,
-    ///     aggregate or product name, a module-homed record takes the module name, a requirement takes the feature
-    ///     name, and a screen takes the entry-point name.
+    ///     and a scenario take the use-case name, a step takes the flow name, an event takes the aggregate name,
+    ///     a rule takes its module, aggregate or product name, a module-homed record takes the module name,
+    ///     a requirement takes the feature name, and a screen takes the entry-point name.
     /// </summary>
     static readonly Dictionary<string, HashSet<string>> ChildrenByParent =
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
             [RecordTypes.UseCase] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Result, RecordTypes.Scenario },
+            [RecordTypes.Flow] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Step },
             [RecordTypes.Aggregate] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.DomainEvent, RecordTypes.Rule },
             [RecordTypes.Module] = new HashSet<string>(StringComparer.Ordinal)
             {

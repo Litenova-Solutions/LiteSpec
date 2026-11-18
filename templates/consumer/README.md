@@ -31,13 +31,13 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `decision.md` | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` | Explains the decision beside its record file. |
 | `problem.yaml` | `.litespec/intent/problems/<name>/<name>.yaml` | Records one pain someone has today. |
 | `problem.md` | `.litespec/intent/problems/<name>/<name>.md` | Explains the problem beside its record file. |
-| `feature.yaml` | `.litespec/intent/features/<name>/<name>.yaml` | Records one standalone offer with the problems it solves and the goals it advances. Its requirements sit in their own folders beneath it. |
-| `feature.md` | `.litespec/intent/features/<name>/<name>.md` | Explains the feature beside its record file. |
-| `requirement.yaml` | `.litespec/intent/features/<feature>/requirements/<name>/<name>.yaml` | Records one commitment a feature makes, with its kind and statement. |
+| `feature.yaml` | `.litespec/intent/problems/<problem>/features/<name>/<name>.yaml` | Records one offer against one problem, with the goals it advances. Its requirements sit in their own folders beneath it. |
+| `feature.md` | `.litespec/intent/problems/<problem>/features/<name>/<name>.md` | Explains the feature beside its record file. |
+| `requirement.yaml` | `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml` | Records one commitment a feature makes, with its kind and statement. |
 | `requirement.yaml` | `.litespec/intent/requirements/<name>/<name>.yaml` | Records one product commitment, citing the constraint, goal or problem behind it. |
 | `requirements` | `.litespec/intent/requirements/<name>/<name>.yaml` | Ships the six interface quality requirements `litespec init` writes: text contrast, control boundary, focus indicator, chart series, reflow, and target size. |
-| `requirement.md` | `.litespec/intent/features/<feature>/requirements/<name>/<name>.md` | Explains the requirement beside its record file, when its statement needs prose. |
-| `requirement.md` | `.litespec/intent/requirements/<name>/<name>.md` | Explains the product requirement beside its record file, when its statement needs prose. |
+| `requirement.md` | `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.md` | Explains the requirement beside its record file. |
+| `requirement.md` | `.litespec/intent/requirements/<name>/<name>.md` | Explains the product requirement beside its record file. |
 | `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person or organization that takes part in the product. |
 | `actor.md` | `.litespec/intent/actors/<name>/<name>.md` | Explains the actor beside its record file. |
 | `role.yaml` | `.litespec/intent/roles/<name>/<name>.yaml` | Records one named set of permissions at a scope. |
@@ -117,7 +117,7 @@ An explanation file lives in the record's folder beside its record file, sharing
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
 | module | Responsibilities, Boundaries, Example (optional) |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
-| requirement | Example (optional); the explanation file itself is optional |
+| requirement | Example (optional) |
 | flow | Example, Branches (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |

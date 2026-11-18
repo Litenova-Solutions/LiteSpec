@@ -172,7 +172,7 @@ A provision that holds only in some situations states its condition as a `when` 
 | `upload` | A use case that takes a file from the caller |
 | `document-number` | A use case that issues a legal document number |
 | `erasure` | A use case or job that erases, pseudonymizes or anonymizes personal data |
-| `cross-module` | A use case, reaction or job that declares a `queries` edge to another module's public query |
+| `cross-module` | A use case, reaction or job that declares a `queries` edge to another module's public query or a `commands` edge to another module's public command |
 | `project` | Never a single record: the provision applies to the project once, so a code path never returns it |
 | `audit-adoption` | The decision the `audit` selection names in its `decision` field in `.litespec/project.yaml` |
 

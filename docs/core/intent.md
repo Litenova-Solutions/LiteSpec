@@ -35,9 +35,9 @@ A record earns its place by answering its question with evidence. A problem no s
 
 Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. Prices, markets, hiring, and launch dates stay out, except as a constraint that binds the software or as dated research behind a choice. The software-only rule in `litespec/core/principles#write-every-record-about-the-software` draws that boundary, and [The Software Test](#the-software-test) applies it to each record type.
 
-Read Intent along the chain from problem to requirement. A problem names one pain an outsider suffers today, with the evidence that it is real. A feature is the offer against that pain. Each feature stands in its own folder under `intent/features/`, names the problems it answers in `solves`, and names the goals it moves in `advances`. A requirement states one commitment Behavior fulfills. Each requirement sits in its own folder inside its feature's folder, and keeps one authoritative file there; a commitment no offer carries, such as tenant isolation, sits at product level instead.
+Read Intent along the chain from problem to requirement. A problem names one pain an outsider suffers today, with the evidence that it is real. A feature is the offer against that pain. Each feature sits in the `features/` folder of the one problem it answers and names the goals it moves in `advances`. A requirement states one commitment Behavior fulfills. Each requirement sits in its own folder inside its feature's folder, and keeps one authoritative file there; a commitment no offer carries, such as tenant isolation, sits at product level instead.
 
-The [model page](model.md) defines the record types and their links. The book gathers each feature with its requirements and the decisions behind them, and groups every feature under each problem it solves.
+The [model page](model.md) defines the record types and their links. The book gathers each feature with its requirements and the decisions behind them, and groups every feature under the problem it answers.
 
 The product states what it leaves out in `excludes`: only an `excludes` entry sets a requirement aside, and the product summary is never read as an exclusion.
 
@@ -65,25 +65,25 @@ A record that states company operation fails the test, whatever its folder. Reac
 
 ### Where Each Record Lives
 
-Each record sits in its parent's folder, and the folder names that parent. You find a requirement by walking from the product to its feature to the requirement itself:
+Each record sits in its parent's folder, and the folder names that parent. You find a requirement by walking from the product to its problem, its feature, and the requirement itself:
 
 ```text
 .litespec/
   product.yaml               the product, above the record layers
   intent/
-    goals/  directions/  constraints/  decisions/  research/  actors/  roles/  flows/  features/  requirements/
+    goals/  directions/  constraints/  decisions/  research/  actors/  roles/  flows/  requirements/
     problems/
       payouts-wait/
         payouts-wait.yaml
         payouts-wait.md          its explanation
-    features/
-      payout/
-        payout.yaml              the feature
-        payout.md                its explanation, optional
-        requirements/
-          paid-once/             requirement
-            paid-once.yaml
-            paid-once.md         its explanation, optional
+        features/
+          payout/
+            payout.yaml              the feature
+            payout.md                its explanation, optional
+            requirements/
+              paid-once/             requirement
+                paid-once.yaml
+                paid-once.md         its explanation, optional
     requirements/
       tenant-isolation/
         tenant-isolation.yaml    product requirement
@@ -92,7 +92,7 @@ Each record sits in its parent's folder, and the folder names that parent. You f
         pay-a-payout.yaml
 ```
 
-The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds problems, directions, goals, constraints, decisions, research, actors, roles, flows, features, and product requirements, each kind in its own folder. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps.
+The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds problems, directions, goals, constraints, decisions, research, actors, roles, flows, and product requirements, each kind in its own folder. Each problem's folder holds the problem and the features that answer it, and each feature's folder holds the feature and its requirements. Flows cross modules through their steps.
 
 Decision folders take their numbers from one sequence across every home, as `litespec/core/model#take-decision-numbers-from-one-sequence` states.
 
@@ -106,7 +106,7 @@ Modules are not declared here. A module is a code boundary, so Behavior declares
 
 ### Identifiers and Placement
 
-An identifier names the record, not its place. `problem/organizers-wait-for-ticket-money` is unique in the product, and every link and citation uses it. When a feature answers a different problem, you change its `solves` and move no folder, because the identifier names no problem.
+An identifier names the record, not its place. `problem/organizers-wait-for-ticket-money` is unique in the product, and every link and citation uses it. When a feature moves to another problem, you move its folder and change no citation, because the identifier names no problem.
 
 Placement is separate from the identifier: the folder path and the record's `module` state where the record sits. The book and the CLI show the identifier together with that placement, so you can tell where a record sits without a second identifier.
 
@@ -140,25 +140,25 @@ Some commitments do not hold in every case. An `except` entry states in product 
 
 ### Flow Shape and Fields
 
-A flow is one task's path through the software: a trigger, ordered steps, alternative paths, step failures, and an end state. Its name is the standard user flow term, so it fits any actor. The fields match that shape: `steps` hold the main flow, and `branches` hold the alternative flows.
+A flow is one task's path through the software: a trigger, ordered steps, alternative paths, step failures, and an end state. Its name is the standard user flow term, so it fits any actor. The fields match that shape: `steps` hold the main flow in order, and each step holds the alternative paths leaving it in its own `branches`.
 
-A flow leads one actor toward one goal, problem, or constraint. It carries `actor`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and exactly one reason: `serves` naming one goal, or `answers` naming one problem or one constraint. Each reason field holds a list of exactly one identifier, the shape every link field has.
+A flow leads one actor toward one goal, problem, or constraint. It carries `actor`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, and exactly one reason: `serves` naming one goal, or `answers` naming one problem or one constraint. Each reason field holds a list of exactly one identifier, the shape every link field has.
 
 `summary` states the flow's purpose in up to four sentences: who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom. The book renders it first on the page, so a cold reader learns the purpose before the mechanics. `startedWhen` states the observable state in which the flow starts, in one sentence; `finishedWhen` states the end, in one sentence.
 
-Each step carries its `id` (`s1`, `s2`, and so on) and one product sentence in `statement`, naming one act of its performer. A step names another actor only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `carries`. A step id reads `flow/<name>#s1`. The flow carries no `carries` of its own; the model reads the union of its steps.
+Each step carries its `id` as `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case, such as `step/submit-and-reimburse.submit-expense`. The id names the act, so a citation reads without opening the flow, and list order is the main path, so no position lives in an id. Each step carries its `title`, a short Title Case name of its act, and the id's act is the title's words in kebab case. The step states one act of its performer in one product sentence in `statement`. A step names another actor only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `carries`. The flow carries no `carries` of its own; the model reads the union of its steps.
 
-`branches` states each path that leaves the order of the steps: the step it leaves, its condition, and the step it continues at, or `end`.
+Each branch sits on the step it leaves, in that step's `branches`. A branch states one `when` condition, and exactly one of `then`, naming the step of the same flow where the path continues, or `ends`, stating the outcome when the flow ends there. A branch that does work of its own states that work in `instead`, with its own `carries` and `system` where the work needs them.
 
-Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. Jobs and reactions never stand in `system`; they serve the step from above like use cases.
+Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. Jobs and reactions never stand in `system`; they serve the step from above like use cases. Code never marks a step: code points one layer up, to the behavior serving it, and the trace walks from there.
 
-The book shows each flow as record detail: `startedWhen`, the steps as sentences with their `failure` texts, each branch as a sentence after the steps, `finishedWhen`, each step with the requirements it cites (with their statements, `except` entries, and fallbacks inline), the serving use cases' goals, and the Then clauses of their scenarios as context. Field names never render literally in flow detail.
+The book shows each flow as record detail: `startedWhen`, the steps with their titles and sentences, their `failure` texts and their branches indented under them, `finishedWhen`, each step with the requirements it cites (with their statements, `except` entries, and fallbacks inline), the serving use cases' goals, and the Then clauses of their scenarios as context. Each step carries its trace: the screens and use cases serving it, the requirements it carries with the use cases fulfilling them, and the code files and tests behind them. Field names never render literally in flow detail.
 
 A step names another actor only at a handoff, and a flow with several reasons splits into several flows.
 
 ### Staff Flows
 
-Flows are not only customer flows. A staff actor takes a staff flow the same way: finance exporting the approved batch carries `serves` or `answers`, `startedWhen`, `finishedWhen`, steps, and `branches` like any other flow, and staff steps read as product sentences too.
+Flows are not only customer flows. A staff actor takes a staff flow the same way: finance exporting the approved batch carries `serves` or `answers`, `startedWhen`, `finishedWhen`, and steps with their branches like any other flow, and staff steps read as product sentences too.
 
 A scheduled promise is different: it is a requirement that a job fulfills, not a flow, because no actor takes a path through it.
 
@@ -464,27 +464,27 @@ Time, money, and risk stay apart because each is judged in its own units; a tota
 
 **Rationale:** A statement naming a solution files a missing feature as a pain: the reader accepts the answer before weighing the pain, and every alternative answer reads as off-topic. A statement naming the sufferer, the condition, and the consequence leaves the answer to the feature that solves it.
 
-Criteria covering one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature delivering the outcome names the problem in `solves`, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.
+Criteria covering one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature delivering the outcome sits in the folder of the problem it answers, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.
 
 **Example:** "Readers lose track of due dates" names a pain. "Readers need a reminder dashboard" names a solution and is reported. The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks.
 
 **Reviewed for:** Does any problem `statement` or `resolutionCriteria` outcome name a product, feature, solution, or implementation, and does every failure case have a resolution criterion stating an observable outcome for the sufferer? Look at the problem statements beside their sufferers and at `failureCases` beside `resolutionCriteria` in each problem record and its explanation file.
 
-### Solve Problems with Standalone Features
+### Answer One Problem with Each Feature
 
-**ID:** `litespec/core/intent#solve-problems-with-standalone-features`
+**ID:** `litespec/core/intent#answer-one-problem-with-each-feature`
 
 **Strength:** required
 
 **Applies to:** artifact: record:feature
 
-**Statement:** A feature MUST stand in `intent/features/<name>/` and name in `solves` one or more problems it answers.
+**Statement:** A feature MUST sit in the features folder of the one problem it answers, `intent/problems/<problem>/features/`, and an offer that answers two pains is two features.
 
-**Rationale:** One offer can answer two pains, and a feature answering two problems belongs in neither problem's folder, as the placement provision requires. Standing alone in its own folder with `solves`, each offer is written once, and the book groups it under every problem it answers. Proposed by decision 0080. Settled by [decision/0080-solve-problems-with-standalone-features](decision/0080-solve-problems-with-standalone-features).
+**Rationale:** The folder names the problem, so a reader of a problem sees every answer to it beside the problem. An offer that answers two pains is two features, one per problem, so each pain keeps its answers beside it.
 
-**Example:** The Claimwick approval reminders feature stands in `intent/features/approval-reminders/` and names `problem/expenses-wait-weeks` in `solves`.
+**Example:** The approval feature and the approval reminders feature both answer the expense wait problem, so both sit in `intent/problems/expenses-wait-weeks/features/`.
 
-**Checked by:** `litespec model check` reports `record-placement-invalid` for a feature outside `intent/features/`, and `record-invalid` for a feature with no `solves`.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a feature outside a problem's `features/` folder.
 
 ### Explain Every Problem in Its Fixed Sections
 
@@ -514,7 +514,7 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Statement:** A feature MUST state its `offering`, its success criteria in `successCriteria`, what it leaves out in `excludes`, and name the goals it moves in `advances`.
 
-**Rationale:** A feature without a written scope grows with every reading: each builder fills the gap with behavior nobody asked for. The `offering` states what is in and what is out, where the links are. The `successCriteria` state only outcomes the feature brings about on its own and a tester can check. The `excludes` state what the feature leaves to other features, which features it depends on, and each open question its owner has not decided. The explanation file restates both fields in its Success Criteria and Boundaries sections. The `solves` list ties the offer to the pains it answers, and `advances` ties it to the goals it moves, so each offer traces to a pain beside an outcome. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** A feature without a written scope grows with every reading: each builder fills the gap with behavior nobody asked for. The `offering` states what is in and what is out, where the links are. The `successCriteria` state only outcomes the feature brings about on its own and a tester can check. The `excludes` state what the feature leaves to other features, which features it depends on, and each open question its owner has not decided. The explanation file restates both fields in its Success Criteria and Boundaries sections. The folder ties the offer to the pain it answers, and `advances` ties it to the goals it moves, so each offer traces to a pain beside an outcome. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
 **Reviewed for:** Does every feature state its offering, its success criteria, what it leaves out, and the goals it moves? Look at each feature record beside its goals.
 
@@ -768,7 +768,7 @@ The `reopenedWhen` condition names what would reopen the choice, so the decision
 
 **Statement:** A requirement no offer carries MUST sit in `intent/requirements/<name>/` and cite in `cites` at least one constraint, goal or problem.
 
-**Rationale:** A permanent commitment with no offer, such as tenant isolation, audit integrity, accessibility, or recovery, has no feature to hold it. Its `cites` takes the list a feature requirement takes, so the research and decisions behind it stay citable beside the constraint, goal, or problem it answers. Sitting at product level with its reason cited keeps it reachable without an invented feature. Proposed by decision 0080. Settled by [decision/0080-solve-problems-with-standalone-features](decision/0080-solve-problems-with-standalone-features).
+**Rationale:** A permanent commitment with no offer, such as tenant isolation, audit integrity, accessibility, or recovery, has no feature to hold it. Its `cites` takes the list a feature requirement takes, so the research and decisions behind it stay citable beside the constraint, goal, or problem it answers. Sitting at product level with its reason cited keeps it reachable without an invented feature. Proposed by decision 0080. Settled by [decision/0080-give-product-commitments-a-home](decision/0080-give-product-commitments-a-home).
 
 **Example:** The library holds tenant isolation as `requirement/tenant-isolation` at product level, citing the constraint that binds it.
 
@@ -894,9 +894,9 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Applies to:** artifact: record:flow
 
-**Statement:** A flow MUST lead one actor toward the record it exists for through ordered steps, naming exactly one reason, one goal in `serves` or one problem or constraint in `answers`, and stating each path off that order in `branches`.
+**Statement:** A flow MUST lead one actor toward the record it exists for through ordered steps, naming exactly one reason, one goal in `serves` or one problem or constraint in `answers`, and stating each path off that order in the `branches` of the step it leaves.
 
-**Rationale:** A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in `carries` the requirements it carries, and the use cases, reactions, and jobs serving each step point up with `serves`. `branches` holds the paths leaving the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).
+**Rationale:** A flow with several actors or several reasons is several flows tangled together: no reader can tell where one task ends and the next starts. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step fitting nowhere is visible. Each step names in `carries` the requirements it carries, and the use cases, reactions, and jobs serving each step point up with `serves`. Each step holds the paths leaving it in its own `branches`, each stating its condition and where the path continues or ends, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for). Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
 
 **Example:** Claimwick held a 21-step flow with five actors, from filing an expense to closing the month. Split by reason, it is four flows: file an expense; approve an expense; reimburse the employee; close the month.
 
@@ -986,17 +986,17 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Applies to:** artifact: record:flow
 
-**Statement:** Each flow step MUST carry its `id`, its product sentence in `statement` naming one act of its performer and no use case, and in `carries` each requirement the step carries.
+**Statement:** Each flow step MUST carry its `id` as `step/<flow>.<act>`, its `title` naming its act in Title Case, its product sentence in `statement` naming one act of its performer and no use case, and in `carries` each requirement the step carries.
 
 **Rationale:** A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence states one act of its performer and may end with the product's observable response after the act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account". How the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits, and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow).
 
-The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `flow/<name>#s1`. A step naming its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames.
+The `id` names the step's act as a verb phrase in kebab case, scoped by its flow, as `step/submit-and-reimburse.submit-expense`: use cases, reactions, and jobs point up with `serves` to that id, and the citation reads without opening the flow. The `title` names the same act in Title Case, as `Submit Expense`, and the act is the title's words in kebab case, as `litespec/core/model#name-each-identifier-from-its-title` states. The book, the trace, and `model query` show the title, while the `statement` keeps the full sentence. A step naming its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames. An act that only numbers the step, such as `s3` or `step-2`, says nothing and breaks on every inserted step, so the act names what the performer does.
 
-The performer and the failure text are optional: a step names another actor only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067.
+The performer and the failure text are optional: a step names another actor only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067. Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
 
-**Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `flow/submit-and-reimburse#s4` in `serves`.
+**Example:** The step `step/submit-and-reimburse.reimburse-expense` carries `Reimburse Expense` in `title`, states `Finance reimburses the approved expense.` in `statement`, and names no use case; `use-case/spending.reimburse-expense` names that id in `serves`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a flow step missing `id` or `statement`, or naming a use case.
+**Checked by:** `litespec model check` reports `record-invalid` for a flow step missing `id`, `title`, or `statement`, or naming a use case; `litespec model check` reports `identifier-invalid` for a step id outside the `step/<flow>.<act>` form, for a `<flow>` segment naming another flow, or for a positional act; `litespec model check` reports `identifier-title-invalid` for a step whose act is no word subsequence of its title; `litespec model check` reports `reference-unknown` for a step citation naming no step.
 
 ### State When Each Flow Starts
 
@@ -1022,13 +1022,29 @@ The performer and the failure text are optional: a step names another actor only
 
 **Applies to:** artifact: record:flow
 
-**Statement:** A flow MUST leave the order of its steps only through `branches`, each naming the `step` it leaves, its `condition`, and the `nextStep` it continues at or `end`.
+**Statement:** A flow MUST leave the order of its steps only through the `branches` of the step each path leaves, each branch stating one `when` condition and exactly one of the step it continues at in `then` or the outcome in `ends`.
 
-**Rationale:** A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch names both steps, so a check reads each path, and an action is always a step, never a branch. The `step` and `nextStep` name steps of the flow, so a branch leaving a missing step is reported. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow).
+**Rationale:** A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch on its step names where the path goes, so a check reads each path: `then` names a step of the same flow, and `ends` states the outcome when the flow ends there. One condition per branch keeps each path testable: two conditions joined by "or" are two branches. A branch that does work of its own states that work in `instead`, with its own `carries` and `system`, so the alternative reads beside the step it replaces. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
 
-**Example:** A branch with `step` s3, `condition` the manager rejects the expense, and `nextStep` end ends the flow at the rejection; the act of rejecting stays the step s3.
+**Example:** The decide step carries a branch with `when` the manager rejects the expense and `ends` stating that the expense is rejected and no payout is made; the act of deciding stays the step.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a branch missing `step`, `condition` or `nextStep`, and `record-invalid` for a branch whose `step` or `nextStep` names no step of the flow.
+**Checked by:** `litespec model check` reports `record-invalid` for a branch missing `when`, carrying both or neither of `then` and `ends`, joining two conditions with "or" in `when`, or continuing at a step of another flow, and `reference-unknown` for a `then` naming no step.
+
+### Reach Every Flow Step by a Path
+
+**ID:** `litespec/core/intent#reach-every-flow-step-by-a-path`
+
+**Strength:** required
+
+**Applies to:** artifact: record:flow
+
+**Statement:** Every flow step MUST be reached by the step order or by a branch: the first step starts the flow, and each later step follows the step before it or is named by a branch's `then`.
+
+**Rationale:** A step no path reaches is a moment the actor never gets to: an act filed in the flow that no walk through it performs. The step order reaches each step from the one before it, and a branch reaches its `then` step from the step it leaves. A step reached neither way is reported, so the flow holds no act outside its paths. Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
+
+**Example:** Claimwick's reimburse step follows the decide step in order, so the order reaches it; a step that follows nothing and that no branch names is reported.
+
+**Checked by:** `litespec model check` reports `step-unreached` for a step that is not the first step, that no earlier step falls through to, and that no branch's `then` names.
 
 ### Reach Each Finish Condition Through a Step
 
@@ -1058,7 +1074,7 @@ The performer and the failure text are optional: a step names another actor only
 
 **Rationale:** A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and the step's `carries` names the requirement holding the rule, so the rule is not restated in the flow.
 
-The `failure` states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.
+The `failure` states what the person sees and can do next, never the rule behind it. A branch on the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.
 
 **Example:** The step submitting an expense carries in `failure` that the expense cannot be submitted and the employee can attach the receipt and submit again, and carries in its `carries` the requirement holding the receipt rule.
 
@@ -1102,7 +1118,7 @@ None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for`, `litespec/core/intent#write-flow-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-flow-starts`, `litespec/core/intent#state-when-each-flow-finishes`, `litespec/core/intent#branch-a-flow-only-between-its-steps`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
+This informative example demonstrates `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for`, `litespec/core/intent#write-flow-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-flow-starts`, `litespec/core/intent#state-when-each-flow-finishes`, `litespec/core/intent#branch-a-flow-only-between-its-steps`, `litespec/core/intent#reach-every-flow-step-by-a-path`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
 
 The book shows flow `flow/submit-and-reimburse` as record detail. No field name, YAML, or Behavior page appears.
 
@@ -1115,12 +1131,15 @@ Started when: the employee has paid a work cost and has not yet submitted it.
 
 Finished when: the employee holds the reimbursement.
 
-1. The employee submits the expense with its amount and currency.
-2. The employee attaches the receipt to the expense.
-3. The manager approves or rejects the expense within five business days.
-4. Finance reimburses the approved expense.
-
-At step 3, when the manager rejects the expense, the flow ends.
+1. Submit Expense
+   The employee submits the expense with its amount and currency.
+2. Attach Receipt
+   The employee attaches the receipt to the expense.
+3. Decide Expense
+   The manager approves or rejects the expense within five business days.
+   When the manager rejects the expense, the flow ends with no payout.
+4. Reimburse Expense
+   Finance reimburses the approved expense.
 
 If it goes wrong: an expense that waits past three business days earns
 its approver a reminder; an expense above the threshold with no receipt

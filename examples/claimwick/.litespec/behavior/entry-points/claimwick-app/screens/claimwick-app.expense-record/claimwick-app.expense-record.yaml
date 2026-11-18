@@ -10,9 +10,9 @@ offers:
 - use-case/spending.refuse-expense
 - use-case/spending.reimburse-expense
 serves:
-- flow/submit-and-reimburse#s2
-- flow/submit-and-reimburse#s3
-- flow/submit-and-reimburse#s4
+- step/submit-and-reimburse.attach-receipt
+- step/submit-and-reimburse.decide-expense
+- step/submit-and-reimburse.reimburse-expense
 fulfills:
 - requirement/ui-focus-indicator
 - requirement/ui-reflow

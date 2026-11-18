@@ -12,16 +12,16 @@ LiteSpec compares 4 options for the link words.
 
 | Option | Strengths | Drawbacks |
 |---|---|---|
-| Advances for goals, solves for problems | One verb for each meaning; every existing feature already solves exactly one problem | Every feature, provision, check, and book page changes to the new verb in one change |
+| Advances for goals | The goal link has its own verb, and the problem a feature answers is the folder it sits in | Every feature, provision, check, and book page changes to the new verb in one change |
 | Keep `serves` for features | No field renames and no citation sweep | Three target sets and two meanings remain, and authors must guess which targets are allowed |
 | Goals optional for features | With few goals, forcing one goal per feature risks vague claims that say less than the feature's offering | A reader who starts at most planned features reaches no goal, and only a few live requirements trace to a goal |
 | One shared link for goals and problems | A feature carries one list instead of two | A goal states an outcome and a problem states a pain, so one list hides which one the feature moves |
 
-The chosen option gives each link its own verb. A feature advances goals and solves problems, and the two verbs never mean the same thing.
+The chosen option gives the goal link its own verb. A feature advances goals, and answers the one problem whose folder holds it.
 
 ## Decision
 
-This decision renames a feature's link to a goal from `serves` to `advances`. A feature's link to a problem is `solves`. Every feature stands in `intent/features/` under the product, names at least one problem in `solves`, and names at least one goal in `advances`.
+This decision renames a feature's link to a goal from `serves` to `advances`. A feature answers the one problem whose folder holds it, and names the goals it moves in `advances`.
 
 ## Consequences
 

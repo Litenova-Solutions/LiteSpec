@@ -79,10 +79,10 @@ sealed class Record : IRecordFields
     }
 
     /// <summary>
-    ///     Reads the targets of one edge verb (runs, sends, calls, queries): the entries of
+    ///     Reads the targets of one edge verb (runs, sends, calls, queries, commands): the entries of
     ///     <c>effects</c> carrying the verb, then a top-level field of the same name.
     /// </summary>
-    /// <param name="verb">The edge verb to read: runs, sends, calls or queries.</param>
+    /// <param name="verb">The edge verb to read: runs, sends, calls, queries or commands.</param>
     /// <returns>The target ids the verb names, from effects entries then a same-named field.</returns>
     public IReadOnlyList<string> EdgeIds(string verb)
     {
@@ -174,7 +174,7 @@ sealed class Record : IRecordFields
         return ids;
     }
 
-    /// <summary>The flow's step targets: flow/name#step for each step carrying an id.</summary>
+    /// <summary>The flow's step targets: the step id of each step, in step order.</summary>
     /// <returns>The step targets of the flow, or an empty list for any other record type.</returns>
     public IReadOnlyList<string> StepIds()
     {
@@ -195,7 +195,7 @@ sealed class Record : IRecordFields
                 && id.ValueKind == JsonValueKind.String
                 && id.GetString() is { Length: > 0 } stepId)
             {
-                ids.Add($"{Id}#{stepId}");
+                ids.Add(stepId);
             }
         }
 
@@ -203,9 +203,9 @@ sealed class Record : IRecordFields
     }
 
     /// <summary>
-    ///     The requirement identifiers a flow carries: the union of its steps' <c>carries</c>, in step
-    ///     order with each identifier once. A flow holds no citations of its own, so this is its
-    ///     computed citation list.
+    ///     The requirement identifiers a flow carries: the union of its steps' <c>carries</c> and
+    ///     their branches' <c>carries</c>, in step order with each identifier once. A flow holds
+    ///     no citations of its own, so this is its computed citation list.
     /// </summary>
     /// <returns>The cited requirement identifiers of the flow, or an empty list for any other record type.</returns>
     public IReadOnlyList<string> StepCitations()
@@ -222,25 +222,49 @@ sealed class Record : IRecordFields
 
         foreach (var step in steps.EnumerateArray())
         {
-            if (step.ValueKind != JsonValueKind.Object || !step.TryGetProperty(RecordFields.Carries, out var carries))
+            if (step.ValueKind != JsonValueKind.Object)
             {
                 continue;
             }
 
-            var citedIds = carries.ValueKind == JsonValueKind.Array
-                ? carries.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.String).Select(entry => entry.GetString()!)
-                : Enumerable.Empty<string>();
+            CollectCarries(step, ids);
 
-            foreach (var cited in citedIds)
+            if (step.TryGetProperty(RecordFields.Branches, out var branches)
+                && branches.ValueKind == JsonValueKind.Array)
             {
-                if (!ids.Contains(cited, StringComparer.Ordinal))
+                foreach (var branch in branches.EnumerateArray())
                 {
-                    ids.Add(cited);
+                    if (branch.ValueKind == JsonValueKind.Object)
+                    {
+                        CollectCarries(branch, ids);
+                    }
                 }
             }
         }
 
         return ids;
+    }
+
+    /// <summary>Adds the requirement identifiers a step or a branch carries, each once.</summary>
+    /// <param name="holder">The step or branch object whose <c>carries</c> is read.</param>
+    /// <param name="ids">The identifiers collected so far, appended in place.</param>
+    private static void CollectCarries(JsonElement holder, List<string> ids)
+    {
+        if (!holder.TryGetProperty(RecordFields.Carries, out var carries)
+            || carries.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var entry in carries.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.String
+                && entry.GetString() is { } cited
+                && !ids.Contains(cited, StringComparer.Ordinal))
+            {
+                ids.Add(cited);
+            }
+        }
     }
 
     /// <summary>

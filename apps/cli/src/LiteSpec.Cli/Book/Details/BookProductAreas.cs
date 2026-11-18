@@ -70,7 +70,7 @@ static class BookProductAreas
 
             foreach (var target in BookDetailValues.StringsOf(fields?["serves"]))
             {
-                if (target.Contains('#'))
+                if (target.StartsWith("step/", StringComparison.Ordinal))
                 {
                     Add(served, target, reached);
                 }
@@ -124,7 +124,7 @@ static class BookProductAreas
         foreach (var flow in flows)
         {
             var reached = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var step in StepIds(byId[flow], flow))
+            foreach (var step in StepIds(byId[flow]))
             {
                 if (served.TryGetValue(step, out var sources))
                 {
@@ -192,18 +192,17 @@ static class BookProductAreas
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToList();
 
-    /// <summary>The step ids of one flow in step order, each as flow id, hash and step id.</summary>
+    /// <summary>The step ids of one flow in step order.</summary>
     /// <param name="flow">The flow record object that holds the steps.</param>
-    /// <param name="flowId">The flow identifier the step ids start from.</param>
     /// <returns>The step identifiers in the order the flow lists its steps.</returns>
-    static List<string> StepIds(JsonObject flow, string flowId)
+    static List<string> StepIds(JsonObject flow)
     {
         var steps = new List<string>();
         foreach (var step in BookRender.Fields(flow)?["steps"] as JsonArray ?? [])
         {
             if (step is JsonObject item && BookRender.StrProp(item, "id") is { Length: > 0 } name)
             {
-                steps.Add(flowId + "#" + name);
+                steps.Add(name);
             }
         }
 

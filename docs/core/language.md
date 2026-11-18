@@ -116,11 +116,11 @@ Names an outside standard fixes stay exactly as that standard spells them. Gherk
 
 An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row.
 
-A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and a domain-event home is an aggregate name. A reaction, job, read-model, notification, setting, or reference-data table takes the module that owns it as its home. An integration event has no module home.
+A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, a step home is a flow name, and a domain-event home is an aggregate name. A reaction, job, read-model, notification, setting, or reference-data table takes the module that owns it as its home. An integration event has no module home.
 
 A use-case name is unique among use cases, so a result cites only that name; an aggregate name is unique among aggregates, so a rule cites only that name. Names are unique per record type, not across the product, so `actor/owner` and `role/owner` coexist.
 
-A rule name keeps the negation its statement makes. A flow step identifier is `flow/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios may point at derived results, which are never written as records.
+A rule name keeps the negation its statement makes. A flow step identifier is `step/<flow>.<act>`, where `<act>` is the step's act as a verb phrase in kebab case, taken from the words of the step's title. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios may point at derived results, which are never written as records.
 
 ### Name Rules
 
@@ -337,7 +337,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Rationale:** A message that states a fact reads the same in the terminal and the book: both show what is true. Advice belongs in the finding table on the [model command page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
-**Example:** A flow step with no serving use case reports `Flow step 'book-a-room#s3' is served by no use case.`
+**Example:** A flow step with no serving use case reports `Flow step 'step/book-a-room.confirm-booking' is served by no use case.`
 
 **Reviewed for:** Does every finding message state one present-tense fact opening with the subject and identifier? Check the messages the change adds.
 
@@ -510,7 +510,7 @@ A name in the word class of what the record is shows the type without opening th
 
 A short hyphenated name is easy to read aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts become competing names for one record.
 
-**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `flow/submit-and-reimburse#s2` is the second step of a flow. Claimwick names the flow `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`, each in one to six words. `decision/0001-receipt-threshold` counts its number as one word.
+**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `step/submit-and-reimburse.attach-receipt` is the step where the employee attaches the receipt. Claimwick names the flow `submit-an-expense`, the use case `submit-expense`, and the setting `receipt-threshold`, each in one to six words. `decision/0001-receipt-threshold` counts its number as one word.
 
 **Checked by:** `litespec model check` reports `identifier-invalid` for a record identifier outside the declared grammar.
 

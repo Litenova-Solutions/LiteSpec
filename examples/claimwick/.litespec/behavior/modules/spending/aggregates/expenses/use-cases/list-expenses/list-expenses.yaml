@@ -8,7 +8,7 @@ access:
   grant: permission/list-expenses
   tenant: own
 serves:
-- flow/submit-and-reimburse#s5
+- step/submit-and-reimburse.watch-expenses
 fulfills:
 - requirement/approval.decided-within-five-days
 reachedThrough:

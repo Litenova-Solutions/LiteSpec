@@ -199,7 +199,7 @@ public sealed class BookClaimTests
             Assert.Equal(
                 ["rule/claims.receipt-kept-once", "use-case/claims.submit-claim"],
                 Arr(requirement, "reachedBy").Select(node => node!.GetValue<string>()).ToList());
-            var step = entries.Single(entry => Str(entry, "id") == "flow/submit-a-claim#s3");
+            var step = entries.Single(entry => Str(entry, "id") == "step/submit-a-claim.pay-claim");
             Assert.Equal("step", Str(step, "kind"));
             Assert.False(BoolOf(step["reached"]));
             Assert.Empty(Arr(step, "reachedBy"));
@@ -230,13 +230,13 @@ public sealed class BookClaimTests
         {
             Type = RecordTypes.Flow,
             Id = "flow/submit-a-claim",
-            Raw = Raw("""{"steps":[{"id":"s1"},{"id":"s2"}]}"""),
+            Raw = Raw("""{"steps":[{"id":"step/submit-a-claim.submit-claim"},{"id":"step/submit-a-claim.decide-claim"}]}"""),
         });
         model.Records.Add(new Record
         {
             Type = RecordTypes.UseCase,
             Id = "use-case/claims.submit-claim",
-            Raw = Raw("""{"fulfills":["requirement/claims.receipt-kept"],"serves":["flow/submit-a-claim#s1"]}"""),
+            Raw = Raw("""{"fulfills":["requirement/claims.receipt-kept"],"serves":["step/submit-a-claim.submit-claim"]}"""),
         });
         model.Records.Add(new Record
         {
@@ -257,7 +257,7 @@ public sealed class BookClaimTests
         var requirement = coverage.Entries.Single(entry => entry.Kind == "requirement");
         Assert.True(requirement.Reached);
         Assert.Equal(["rule/claims.receipt-kept-once", "use-case/claims.submit-claim"], requirement.ReachedBy.ToList());
-        var unreached = coverage.Entries.Single(entry => entry.Id == "flow/submit-a-claim#s2");
+        var unreached = coverage.Entries.Single(entry => entry.Id == "step/submit-a-claim.decide-claim");
         Assert.False(unreached.Reached);
         Assert.Empty(unreached.ReachedBy);
     }
@@ -297,8 +297,8 @@ public sealed class BookClaimTests
             {"type": "product", "id": "product/claimwick", "title": "Claimwick", "fields": {}, "links": {}},
             {"type": "requirement", "id": "requirement/claims.receipt-kept", "title": "Receipt kept", "fields": {"kind": "functional"}, "links": {}},
             {"type": "requirement", "id": "requirement/claims.paid-once", "title": "Paid once", "fields": {"kind": "functional"}, "links": {}},
-            {"type": "flow", "id": "flow/submit-a-claim", "title": "Submit a claim", "fields": {"steps": [{"id": "s1"}, {"id": "s2"}, {"id": "s3"}]}, "links": {}},
-            {"type": "use-case", "id": "use-case/claims.submit-claim", "title": "Submit claim", "fields": {"fulfills": ["requirement/claims.receipt-kept"], "serves": ["flow/submit-a-claim#s1", "flow/submit-a-claim#s2"]}, "links": {"fulfills": ["requirement/claims.receipt-kept"], "serves": ["flow/submit-a-claim#s1", "flow/submit-a-claim#s2"]}},
+            {"type": "flow", "id": "flow/submit-a-claim", "title": "Submit a claim", "fields": {"steps": [{"id": "step/submit-a-claim.submit-claim"}, {"id": "step/submit-a-claim.decide-claim"}, {"id": "step/submit-a-claim.pay-claim"}]}, "links": {}},
+            {"type": "use-case", "id": "use-case/claims.submit-claim", "title": "Submit claim", "fields": {"fulfills": ["requirement/claims.receipt-kept"], "serves": ["step/submit-a-claim.submit-claim", "step/submit-a-claim.decide-claim"]}, "links": {"fulfills": ["requirement/claims.receipt-kept"], "serves": ["step/submit-a-claim.submit-claim", "step/submit-a-claim.decide-claim"]}},
             {"type": "rule", "id": "rule/claims.receipt-kept-once", "title": "Receipt kept once", "fields": {"fulfills": ["requirement/claims.receipt-kept"]}, "links": {"fulfills": ["requirement/claims.receipt-kept"]}}
           ],
           "testRun": null

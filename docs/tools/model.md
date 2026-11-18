@@ -42,9 +42,9 @@ With `--module <module>`, the command prints only the findings on the records an
 
 It also rewrites each marked project-scope skill copy that differs from what the carried release generates, writes `litespec-records.ts` into each React and Svelte frontend frame, and writes the UI source lock beside the shared package. `render` writes nothing when a record file does not parse: it lists each invalid file and exits 2, so a rendered identifier list is never quietly short.
 
-`query` prints one record with its links in both directions, showing its identifier and its folder path; agents use it to load a record's context. Its completion block carries the stage with three counts, `inScope`, `parked` and `total`: `heldBy` lists only the in-scope records holding the stage back, and `parkedBy` lists each parked record with the waiver parking it and its `expiresOn`.
+`query` prints one record with its links in both directions, showing its identifier and its folder path; agents use it to load a record's context. For a `step/<flow>.<act>` id it prints the step with its `title`, `statement`, `failure`, and branches, the screens and use cases serving it, the requirements it carries with the use cases fulfilling them, and for each serving or fulfilling record the code files whose marks name it and the tests proving its scenarios. Its completion block carries the stage with three counts, `inScope`, `parked` and `total`: `heldBy` lists only the in-scope records holding the stage back, and `parkedBy` lists each parked record with the waiver parking it and its `expiresOn`.
 
-With `--search <text>`, it lists the written records whose identifier, title, summary, or statement holds the text, case-insensitive, one line each with identifier, title, and path. An exact identifier match comes first, then other identifier matches, then title, summary, and statement matches, each group by identifier.
+With `--search <text>`, it lists the written records and flow steps whose identifier, title, summary, or statement holds the text, case-insensitive, one line each with identifier, title, and path. An exact identifier match comes first, then other identifier matches, then title, summary, and statement matches, each group by identifier.
 
 With `--list <type>`, it lists every written record of the type, such as `use-case`, one line each with identifier, title, and path, by identifier, or only those of one module with `--module <module>`. With `--search` or `--list`, no match prints nothing and exits 0.
 
@@ -97,7 +97,7 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 | `--since <ref>` | off | Only `check` reads it. Checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`; findings match by code, subject identifier and message, never by line. When the base cannot be built or checked, every finding blocks. Also reports every removed result, removed refusal code and changed integration event since `<ref>` as a `contract-break` finding. |
 | `--all` | off | Only `check` reads it. In text, lists every level A finding one by one. Without it, the level A findings are summarized by code in the counts. In JSON every finding is always listed. |
 | `--check` | off | Only `format` reads it. Writes nothing, lists each file that would change, and exits 1 when any would. |
-| `--search <text>` | off | Only `query` reads it. Lists the written records whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path. An exact identifier match prints first, then other identifier matches, title, summary and statement matches; each group orders by identifier. Prints nothing and exits 0 when nothing matches. |
+| `--search <text>` | off | Only `query` reads it. Lists the written records and flow steps whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path. An exact identifier match prints first, then other identifier matches, title, summary and statement matches; each group orders by identifier. Prints nothing and exits 0 when nothing matches. |
 | `--list <type>` | off | Only `query` reads it. Lists every written record of the type, one line each with identifier, title and path, ordered by identifier. With `--module` it lists only the records of that module. An unknown type is a usage error. |
 | `--module <module>` | off | Only `check`, `query --list` and `edges` read it. `check` prints only the findings on the records and files of the module, and the exit code follows those findings alone. `edges` prints only that module with the mutual pairs it belongs to. An unknown module is a usage error. |
 | `--record-proof` | off | Only `check` reads it. Writes `.litespec/proof/proofs.json` from the run, holding for each scenario the run commit and the outcome of the last passing run. Without it, `check` writes nothing. |
@@ -143,6 +143,12 @@ Print one record with its links:
 
 ```bash
 litespec model query --root ../consumer use-case/orders.cancel-order
+```
+
+Print one flow step with its trace:
+
+```bash
+litespec model query --root ../consumer step/submit-and-reimburse.submit-expense
 ```
 
 Find the records that mention a word:

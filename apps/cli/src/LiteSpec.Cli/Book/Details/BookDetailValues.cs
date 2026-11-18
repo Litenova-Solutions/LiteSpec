@@ -60,8 +60,8 @@ static class BookDetailValues
         return null;
     }
 
-    /// <summary>Strips the step fragment of an id, such as flow/name#s1.</summary>
-    /// <param name="id">The record id, with or without a step fragment.</param>
+    /// <summary>Strips the hash fragment of an id, such as an external-system operation.</summary>
+    /// <param name="id">The record id, with or without a fragment.</param>
     /// <returns>The id without its fragment.</returns>
     public static string BaseId(string id)
     {
@@ -71,7 +71,7 @@ static class BookDetailValues
 
     /// <summary>One record identifier as a hash link with its title, or null when the model holds no such record.</summary>
     /// <param name="index">The model index.</param>
-    /// <param name="target">The record identifier, optionally with a step fragment.</param>
+    /// <param name="target">The record identifier, optionally with a hash fragment.</param>
     /// <returns>The hash link and the linked record title, or null.</returns>
     public static (string Href, string Title)? RecordLink(BookIndex index, string target)
     {

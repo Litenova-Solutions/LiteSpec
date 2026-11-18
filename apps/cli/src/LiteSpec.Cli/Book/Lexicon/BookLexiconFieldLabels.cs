@@ -13,7 +13,7 @@ static class BookLexiconFieldLabels
     public static IReadOnlyDictionary<string, string> Labels { get; } =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["boundary"] = "Boundary", ["excludes"] = "Excludes", ["users"] = "Users", ["audience"] = "Audience", ["requires"] = "Requires", ["movedBy"] = "Moved by", ["ifExhausted"] = "If exhausted", ["exemptBecause"] = "Exempt because", ["boundBy"] = "Bound by", ["widenedBy"] = "Widened by", ["parts"] = "Parts", ["solves"] = "Solves", ["answers"] = "Answers", ["observations"] = "Observations", ["outcomes"] = "Outcomes",
+            ["boundary"] = "Boundary", ["excludes"] = "Excludes", ["users"] = "Users", ["audience"] = "Audience", ["requires"] = "Requires", ["movedBy"] = "Moved by", ["ifExhausted"] = "If exhausted", ["exemptBecause"] = "Exempt because", ["boundBy"] = "Bound by", ["widenedBy"] = "Widened by", ["parts"] = "Parts", ["answers"] = "Answers", ["observations"] = "Observations", ["outcomes"] = "Outcomes",
             ["source"] = "Source", ["authority"] = "Authority", ["applies"] = "Applies", ["appliesBecause"] = "Applies because",
             ["question"] = "Question", ["sources"] = "Sources", ["readOn"] = "Read on", ["conclusion"] = "Conclusion",
             ["options"] = "Options", ["choice"] = "Choice", ["pros"] = "Pros", ["cons"] = "Cons", ["reopenedWhen"] = "Reopened when", ["supersedes"] = "Supersedes",
@@ -31,13 +31,13 @@ static class BookLexiconFieldLabels
             ["writes"] = "Writes", ["reads"] = "Reads", ["consistency"] = "Consistency", ["effects"] = "Effects",
             ["idempotency"] = "Idempotency", ["audit"] = "Audit", ["level"] = "Level", ["access"] = "Access", ["computedBy"] = "Computed by",
             ["triggeredBy"] = "Triggered by", ["skippedWhen"] = "Skipped when", ["compensates"] = "Compensates", ["runs"] = "Runs", ["sends"] = "Sends", ["publishes"] = "Publishes",
-            ["calls"] = "Calls", ["queries"] = "Queries", ["forEach"] = "For each", ["onFailure"] = "On failure", ["onExhausted"] = "On exhausted",
+            ["calls"] = "Calls", ["queries"] = "Queries", ["commands"] = "Commands", ["forEach"] = "For each", ["onFailure"] = "On failure", ["onExhausted"] = "On exhausted",
             ["mode"] = "Mode", ["within"] = "Within", ["useCase"] = "Use case", ["operation"] = "Operation", ["event"] = "Event",
             ["retry"] = "Retry", ["maxAttempts"] = "Max attempts", ["initialDelay"] = "Initial delay", ["maxDelay"] = "Max delay",
             ["backoff"] = "Backoff", ["deadLetter"] = "Dead letter", ["after"] = "After", ["action"] = "Action",
             ["surfacesIn"] = "Surfaces in", ["runbook"] = "Runbook", ["every"] = "Every", ["cron"] = "Cron", ["manual"] = "Manual",
             ["outcome"] = "Outcome",
-            ["given"] = "Given", ["when"] = "When", ["then"] = "Then", ["examples"] = "Examples",
+            ["given"] = "Given", ["when"] = "When", ["then"] = "Then", ["ends"] = "Ends", ["instead"] = "Instead", ["examples"] = "Examples",
             ["carries"] = "Carries", ["fields"] = "Fields", ["path"] = "Path", ["contentType"] = "Content type", ["cacheControl"] = "Cache control", ["versioning"] = "Versioning", ["servedContent"] = "Served content",
             ["route"] = "Route", ["entryPoint"] = "Entry point", ["offers"] = "Offers", ["implements"] = "Implements",
             ["receives"] = "Receives", ["failure"] = "Failure", ["operations"] = "Operations", ["timeout"] = "Timeout", ["onTimeout"] = "On timeout",

@@ -143,6 +143,30 @@ internal static class ProofChecks
         return scenarioHome is not null && scenarioHome == resultHome;
     }
 
+    /// <summary>Reports a flow step served by records that no code implements. A step with no servers is owned by the step check, so one defect draws one finding.</summary>
+    /// <param name="model">The loaded project model that holds every record and each computed implements link.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunStepUnimplemented(ProjectModel model, List<Finding> findings)
+    {
+        var implemented = model.Implements.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
+
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow))
+        {
+            foreach (var step in flow.StepIds().Order(StringComparer.Ordinal))
+            {
+                var servers = model.Records
+                    .Where(record => RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal)
+                        && record.Ids(RecordFields.Serves).Contains(step, StringComparer.Ordinal))
+                    .ToList();
+
+                if (servers.Count > 0 && servers.All(server => !implemented.Contains(server.Id)))
+                {
+                    findings.Add(new Finding("step-implementation-missing", $"Flow step '{step}' is served by use cases, reactions, or jobs that no code implements.", flow.File, flow.Line, step));
+                }
+            }
+        }
+    }
+
     /// <summary>Reports a use case holding scenarios with no passing proof.</summary>
     /// <param name="model">The loaded project model that holds every record and each computed proof status.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>

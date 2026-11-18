@@ -5,7 +5,7 @@
   import { Wireframe } from "$lib/wireframe";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
-  import { flowFields, serverLineInfo, stringField } from "../page-values";
+  import { flowFields, objectList, serverLineInfo, stringField } from "../page-values";
 
   // A flow: when it starts, each step with what serves it and the branches it
   // leaves from, the storyboard of its steps' screens, and when it finishes.
@@ -17,9 +17,10 @@
   const screens: Record<string, string[]> = $derived(r.stepScreens ?? {});
   // The storyboard: each step's screens in step order, with the wireframe each carries.
   const story = $derived.by(() => {
-    const cells: { screen: string; title: string; wire: string | null; n: number; statement: string }[] = [];
+    const cells: { screen: string; title: string; wire: string | null; n: number; stepTitle: string; statement: string }[] = [];
     jf.steps.forEach((s, i) => {
       const statement = String(s.statement ?? "");
+      const stepTitle = String(s.title ?? "");
       for (const x of (screens[String(s.id ?? "")] ?? []).map(String)) {
         const target = book.get(stripStep(x));
         cells.push({
@@ -27,6 +28,7 @@
           title: target?.title ?? stripStep(x),
           wire: stringField(target?.fields, "wireframe") ?? null,
           n: i + 1,
+          stepTitle,
           statement,
         });
       }
@@ -36,8 +38,12 @@
   // The records reaching one step, with their claim state, from the step's intent coverage.
   function reachOf(stepId: unknown): { ids: string[]; claims: { id: string; state: "verified" | "claimed" }[] } {
     const want = String(stepId ?? "");
-    const hit = (r.intentCoverage?.steps ?? []).find((x) => (x.id ?? "") === want || (x.id ?? "").endsWith("#" + want));
+    const hit = (r.intentCoverage?.steps ?? []).find((x) => (x.id ?? "") === want);
     return { ids: hit?.reachedBy ?? [], claims: hit?.claims ?? [] };
+  }
+  // The records fulfilling one carried requirement, from the requirement's intent coverage.
+  function fulfilledBy(reqId: string): string[] {
+    return (book.get(reqId)?.intentCoverage?.reachedBy ?? []).map(String);
   }
   const serverInfo = $derived.by(() => {
     const out: Record<string, { built: boolean; scenarios: number; verified: number } | null> = {};
@@ -61,27 +67,27 @@
     return (id: string): number => at.get(id) ?? 0;
   });
   // The branches leaving each step, and the steps each step is also reached from, by position.
+  // Each branch lives on the step it leaves; it continues at its then step or ends the flow.
   const branchesFrom = $derived.by(() => {
     const out = new Map<number, RecordFields[]>();
-    for (const b of jf.branches) {
-      const from = positionOf(String(b.step ?? ""));
-      if (!from) continue;
-      const list = out.get(from) ?? [];
-      list.push(b);
-      out.set(from, list);
-    }
+    jf.steps.forEach((s, i) => {
+      const own = objectList(s, "branches");
+      if (own.length) out.set(i + 1, own);
+    });
     return out;
   });
   const joinedTo = $derived.by(() => {
     const out = new Map<number, number[]>();
-    for (const b of jf.branches) {
-      const from = positionOf(String(b.step ?? ""));
-      const to = positionOf(String(b.nextStep ?? ""));
-      if (!from || !to) continue;
-      const list = out.get(to) ?? [];
-      list.push(from);
-      out.set(to, list);
-    }
+    jf.steps.forEach((s, i) => {
+      const from = i + 1;
+      for (const b of objectList(s, "branches")) {
+        const to = positionOf(String(b.then ?? ""));
+        if (!to) continue;
+        const list = out.get(to) ?? [];
+        list.push(from);
+        out.set(to, list);
+      }
+    });
     return out;
   });
   // Whether every record reaching a step stands verified.
@@ -115,6 +121,7 @@
             {i + 1}
           </span>
           <div class="min-w-0 text-base">
+            {#if s.title}<div class="font-semibold">{String(s.title)}</div>{/if}
             <div>{String(s.statement ?? "")}</div>
             {#each joined as from, k (k)}
               <div class="mt-2 flex items-center gap-1 text-xs tracking-[0.32px] text-text-secondary">
@@ -135,10 +142,17 @@
                 </div>
               {/if}
               {#if Array.isArray(s.carries) && s.carries.length}
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-text-secondary">{book.fieldLabel("carries", "flow")}:</span>
-                  {#each s.carries as c, j (String(c) + "#" + j)}{#if j > 0}{", "}{/if}<RecordLink id={String(c)} />{/each}
-                </div>
+                {#each s.carries as c, j (String(c) + "#" + j)}
+                  {@const fulfilled = fulfilledBy(String(c))}
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-text-secondary">{book.fieldLabel("carries", "flow")}:</span>
+                    <RecordLink id={String(c)} />
+                    {#if fulfilled.length}
+                      <span class="text-text-secondary">fulfilled by</span>
+                      {#each fulfilled as u, m (u)}{#if m > 0}{", "}{/if}<RecordLink id={u} />{/each}
+                    {/if}
+                  </div>
+                {/each}
               {/if}
               {#if by.length}
                 {#each by as b (b)}
@@ -209,13 +223,34 @@
               {/if}
             </div>
             {#each leaving as b, k (k)}
-              {@const next = String(b.nextStep ?? "")}
-              {@const target = next === "end" ? 0 : positionOf(next)}
+              {@const then = String(b.then ?? "")}
+              {@const target = then ? positionOf(then) : 0}
+              {@const ends = String(b.ends ?? "")}
+              {@const instead = String(b.instead ?? "")}
+              {@const bcarries = Array.isArray(b.carries) ? b.carries.map(String) : []}
+              {@const bsystem = String(b.system ?? "")}
               <div class="mt-3 grid grid-cols-[16px_minmax(0,1fr)] gap-2 bg-layer px-3 py-2 text-sm">
                 <RecordIcon name="branch" class="mt-0.5 size-4 text-text-secondary" />
                 <div>
-                  <b>Branch</b>{" "}when {String(b.condition ?? "")}:{" "}
-                  {#if next === "end"}the flow ends{:else if target}<a href={"#b-step-" + target} class="text-link hover:underline">continues at step {target}</a>{:else}continues at step {next}{/if}
+                  <div>
+                    <b>Branch</b>{" "}when {String(b.when ?? "")}:{" "}
+                    {#if then}{#if target}<a href={"#b-step-" + target} class="text-link hover:underline">continues at step {target}</a>{:else}continues at {then}{/if}{:else}the flow ends{#if ends}: {ends}{/if}{/if}
+                  </div>
+                  {#if instead}
+                    <div class="mt-1"><b>{book.fieldLabel("instead")}</b> {instead}</div>
+                  {/if}
+                  {#if bcarries.length}
+                    <div class="mt-1 flex flex-wrap items-center gap-2">
+                      <span class="text-text-secondary">{book.fieldLabel("carries", "flow")}:</span>
+                      {#each bcarries as c, j (c + "#" + j)}{#if j > 0}{", "}{/if}<RecordLink id={c} />{/each}
+                    </div>
+                  {/if}
+                  {#if bsystem}
+                    <div class="mt-1 flex flex-wrap items-center gap-2">
+                      <span class="text-text-secondary">{book.fieldLabel("system")}:</span>
+                      <RecordLink id={bsystem} />
+                    </div>
+                  {/if}
                 </div>
               </div>
             {/each}
@@ -229,7 +264,7 @@
   <PageSection blockKey="story" heading="Storyboard" count={story.length}>
     {#each story as cell, i (cell.screen + "#" + i)}
       <div class="mt-6 first:mt-0">
-        <h3 class="mb-2 text-sm font-semibold">Step {cell.n} · {cell.statement}</h3>
+        <h3 class="mb-2 text-sm font-semibold">Step {cell.n} · {cell.stepTitle ? cell.stepTitle : cell.statement}</h3>
         <Wireframe text={cell.wire} title={cell.title} />
       </div>
     {/each}

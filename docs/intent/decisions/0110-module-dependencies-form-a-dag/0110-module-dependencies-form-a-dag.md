@@ -8,6 +8,8 @@ Two modules of the owner's product referenced each other's identifiers. Identity
 
 The audit trail lived in Workspaces while its pseudonyms lived in Identity, so one concern sat split across two modules. The audit trail is a concern of its own, and splitting it across two owners left readers assembling it from both.
 
+Choreography added two-way pairs on top. A process spanning modules could only run as reactions answering each other's facts, so ten pairs of modules of one product depended on each other both ways. Outside practice counts every edge kind in the graph: [Spring Modulith](https://docs.spring.io/spring-modulith/reference/verification.html) verifies that module dependencies form a directed acyclic graph, counting event listeners beside code references.
+
 ## Options
 
 LiteSpec compared 2 options for module dependency cycles. The table sets each option against the same two points: what it gains and what it costs.
@@ -19,7 +21,7 @@ LiteSpec compared 2 options for module dependency cycles. The table sets each op
 
 ## Decision
 
-Module dependencies form a directed acyclic graph over Contracts references, `queries` edges, and reactions to facts. A cycle means a concept is split across two modules, and the fix is to move the concept, never to share identifiers through the Kernel.
+Every relationship between two modules has one direction: A depends on B when A references B's Contracts, sends B's public queries or public commands, or reacts to B's facts. Module dependencies form a directed acyclic graph over all four edge kinds. A cycle means a concept is split across two modules, and the fix is to move the concept, never to share identifiers through the Kernel.
 
 The library product keeps three modules in one direction:
 
@@ -33,9 +35,9 @@ The reader's current loans moved from the reader aggregate to Lending, keyed by 
 
 ## Consequences
 
-Every concept has one owning module, and the dependency graph shows which module builds on which. A dependency cycle is a finding naming both modules and the edges that close it, and its fix moves the split concept into one module.
+Every concept has one owning module, and the dependency graph shows which module builds on which. The graph counts Contracts references, `queries` edges, `commands` edges, and reactions to facts. A dependency cycle is a finding naming both modules and the edges that close it, and its fix moves the split concept into one module.
 
-The widened provision is `litespec/core/model#keep-module-dependencies-free-of-cycles`.
+The widened provision is `litespec/core/model#keep-module-dependencies-free-of-cycles`, with `litespec/backend/architecture#give-every-module-relationship-one-direction`, `litespec/backend/architecture#run-every-spanning-process-from-its-most-downstream-participant`, and `litespec/backend/architecture#merge-modules-that-need-each-others-model` beside it.
 
 ## Revisit Conditions
 

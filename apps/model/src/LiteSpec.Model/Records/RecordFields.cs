@@ -103,6 +103,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `calls` field.</summary>
     public const string Calls = "calls";
 
+    /// <summary>Gets the name of the `commands` field.</summary>
+    public const string Commands = "commands";
+
     /// <summary>Gets the name of the `carries` field.</summary>
     public const string Carries = "carries";
 
@@ -237,6 +240,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `effects` field.</summary>
     public const string Effects = "effects";
 
+    /// <summary>Gets the name of the `ends` field.</summary>
+    public const string Ends = "ends";
+
     /// <summary>Gets the name of the `enforcedBy` field.</summary>
     public const string EnforcedBy = "enforcedBy";
 
@@ -370,6 +376,10 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `input` field.</summary>
     public const string Input = "input";
+
+    /// <summary>Gets the name of the `instead` field.</summary>
+    public const string Instead = "instead";
+
     /// <summary>Gets the name of the `key` field.</summary>
     public const string Key = "key";
 
@@ -823,9 +833,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `answers` field.</summary>
     public const string Answers = "answers";
-
-    /// <summary>Gets the name of the `solves` field.</summary>
-    public const string Solves = "solves";
 
     /// <summary>Gets the name of the `observations` field.</summary>
     public const string Observations = "observations";

@@ -69,6 +69,40 @@ public sealed class ModelQueryLinkedByTests
         Assert.Contains("effects", fields.EnumerateArray().Select(field => field.GetString()));
     }
 
+    /// <summary>A use case commanding a public command appears in its links and in the command's linkedBy.</summary>
+    /// <proves>litespec/core/agent#select-task-context</proves>
+    [Fact]
+    public void CommandsEdgeAppearsInLinksAndLinkedBy()
+    {
+        using var temp = TestCli.Temp("query-linked-by");
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "{}");
+
+        var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
+        model.Records.Add(Rec(
+            "use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
+            """{"summary": "Spending reimburses the expense.", "kind": "command", "reachedThrough": ["module/reporting"]}"""));
+        model.Records.Add(Rec(
+            "use-case", "use-case/reporting.confirm-payout", Path.Combine(temp.Path, "confirm.yaml"),
+            """{"summary": "Reporting confirms the payout.", "kind": "command", "effects": [{"commands": "use-case/spending.reimburse-expense", "timing": "inline"}]}"""));
+
+        var holder = RecordQuery.Query(model, "use-case/reporting.confirm-payout");
+
+        Assert.NotNull(holder);
+        using var holderParsed = JsonDocument.Parse(holder);
+        var links = holderParsed.RootElement.GetProperty("links");
+        Assert.True(links.TryGetProperty("effects", out var targets));
+        Assert.Contains("use-case/spending.reimburse-expense", targets.EnumerateArray().Select(target => target.GetString()));
+
+        var provider = RecordQuery.Query(model, "use-case/spending.reimburse-expense");
+
+        Assert.NotNull(provider);
+        using var providerParsed = JsonDocument.Parse(provider);
+        var linkedBy = providerParsed.RootElement.GetProperty("linkedBy");
+        Assert.True(linkedBy.TryGetProperty("use-case/reporting.confirm-payout", out var fields));
+        Assert.Contains("effects", fields.EnumerateArray().Select(field => field.GetString()));
+    }
+
     /// <summary>Builds one in-memory record from its JSON body.</summary>
     /// <param name="type">The record type.</param>
     /// <param name="id">The record identifier.</param>

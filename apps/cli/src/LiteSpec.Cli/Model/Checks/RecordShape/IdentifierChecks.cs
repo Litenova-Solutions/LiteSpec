@@ -50,6 +50,12 @@ internal static class IdentifierChecks
         "glossary.yaml",
     };
 
+    /// <summary>Acts that only number or order a step, which a verb phrase names instead.</summary>
+    private static readonly HashSet<string> PositionalActs = new(StringComparer.Ordinal)
+    {
+        "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "last",
+    };
+
     /// <summary>Reports identifier-invalid, identifier-duplicate, record-placement-invalid, identifier-title-invalid, record-key-duplicate and record-key-duplicate.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -118,6 +124,8 @@ internal static class IdentifierChecks
                     record.Line,
                     SubjectOf(record)));
             }
+
+            CheckStepId(record, home, name, findings);
         }
 
         CheckFolderDrift(model, findings);
@@ -125,6 +133,67 @@ internal static class IdentifierChecks
         CheckDecisionNumbers(model, findings);
         CheckIdentifierTitle(model, findings);
     }
+
+    /// <summary>Reports a step whose home names another flow, or whose act only numbers or orders the step.</summary>
+    /// <param name="record">The record whose identifier is judged, judged only when it is a step.</param>
+    /// <param name="home">The home the identifier split gave, or null when it holds none.</param>
+    /// <param name="name">The act the identifier split gave.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckStepId(Record record, string? home, string name, List<Finding> findings)
+    {
+        if (record.Type != RecordTypes.Step)
+        {
+            return;
+        }
+
+        // A step's home is its flow's name, read from the carrying page.
+        if (home is not null
+            && record.PageId is { Length: > 0 } pageId
+            && pageId.StartsWith("flow/", StringComparison.Ordinal)
+            && !string.Equals(home, pageId["flow/".Length..], StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "identifier-invalid",
+                $"Step '{record.Id}' sits in flow '{pageId}' but its identifier names flow '{home}'.",
+                record.File,
+                record.Line,
+                SubjectOf(record)));
+        }
+
+        if (IsPositionalAct(name))
+        {
+            findings.Add(new Finding(
+                "identifier-invalid",
+                $"Step '{record.Id}' carries a positional act '{name}'; name the act for what the step does.",
+                record.File,
+                record.Line,
+                SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Whether the act only numbers or orders the step: s3, step-2, or an ordinal word.</summary>
+    /// <param name="name">The act the step identifier ends in.</param>
+    /// <returns>True when the act is positional; otherwise false.</returns>
+    private static bool IsPositionalAct(string name)
+    {
+        if (PositionalActs.Contains(name))
+        {
+            return true;
+        }
+
+        if (name.Length > 1 && name[0] == 's' && IsDigits(name[1..]))
+        {
+            return true;
+        }
+
+        return name.StartsWith("step-", StringComparison.Ordinal) && IsDigits(name["step-".Length..]);
+    }
+
+    /// <summary>Whether the text is one or more digits.</summary>
+    /// <param name="text">The text under test.</param>
+    /// <returns>True when the text is non-empty and all digits.</returns>
+    private static bool IsDigits(string text) =>
+        text.Length > 0 && text.All(char.IsDigit);
 
     /// <summary>
     ///     Whether a record's identifier carries a home. A requirement at product level is named by its
@@ -286,15 +355,18 @@ internal static class IdentifierChecks
         }
     }
 
-    /// <summary>Reports a page record whose identifier name is no word subsequence of its title, or whose record file is named for neither its identifier name nor the fixed file name of its type.</summary>
+    /// <summary>Reports a page record whose identifier name is no word subsequence of its title, a step whose act is no word subsequence of its title, or a page record whose file is named for neither its identifier name nor the fixed file name of its type.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIdentifierTitle(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
         {
-            // Entries live in their page's file, and a derived record carries no written title.
-            if (record.Derived || record.IsEntry || !RecordTypes.All.Contains(record.Type))
+            // Entries live in their page's file, and a derived record carries no written title. A step
+            // is an entry whose act still faces its title, so it reads the subsequence rule below.
+            var isStep = record.Type == RecordTypes.Step;
+
+            if (record.Derived || (record.IsEntry && !isStep) || !RecordTypes.All.Contains(record.Type))
             {
                 continue;
             }
@@ -329,10 +401,18 @@ internal static class IdentifierChecks
             {
                 findings.Add(new Finding(
                     "identifier-title-invalid",
-                    $"{record.Title} '{record.Id}' carries an identifier name that is not a word subsequence of its title.",
+                    isStep
+                        ? $"Step '{record.Id}' carries an act that is not a word subsequence of its title."
+                        : $"{record.Title} '{record.Id}' carries an identifier name that is not a word subsequence of its title.",
                     record.File,
                     record.Line,
                     SubjectOf(record)));
+            }
+
+            // A step lives in its flow's file, so no file name faces its act.
+            if (isStep)
+            {
+                continue;
             }
 
             // A fixed file name carries the type's name instead of the record's, and the
@@ -425,7 +505,7 @@ internal static class IdentifierChecks
     }
 
     /// <summary>The name of the feature whose folder holds a requirement's own folder, or null when the path holds none.</summary>
-    /// <param name="file">The requirement record file path, <c>features/&lt;feature&gt;/&lt;name&gt;/&lt;name&gt;.yaml</c>.</param>
+    /// <param name="file">The requirement record file path, <c>features/&lt;feature&gt;/requirements/&lt;name&gt;/&lt;name&gt;.yaml</c>.</param>
     /// <returns>The feature folder name, or null when the file sits too shallow.</returns>
     private static string? FeatureFolderOf(string file)
     {

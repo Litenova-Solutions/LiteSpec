@@ -379,8 +379,8 @@ public sealed class PlacementCheckTests
         var placed = Run(model);
 
         Assert.Equal(2, placed.Count);
-        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Commands' names no declared aggregate or public module-level query of module 'Lending'.");
-        Assert.Contains(placed, finding => finding.Message.EndsWith("holds a command; only public queries sit in Contracts.", StringComparison.Ordinal));
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Commands' names no declared aggregate or public module-level use case of module 'Lending'.");
+        Assert.Contains(placed, finding => finding.Message.EndsWith("holds a command of no public use case; only public use cases sit in Contracts.", StringComparison.Ordinal));
     }
 
     /// <summary>An aggregate WebApi folder reports that it names no Events or Exceptions folder.</summary>
@@ -944,7 +944,7 @@ public sealed class PlacementCheckTests
         var placed = Run(model);
 
         Assert.Equal(2, placed.Count);
-        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Ports' names no declared aggregate or public module-level query of module 'Lending'.");
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Ports' names no declared aggregate or public module-level use case of module 'Lending'.");
         Assert.Contains(placed, finding => finding.Message == "Interface 'ITextGateway' sits in Contracts, which publishes data only.");
     }
 

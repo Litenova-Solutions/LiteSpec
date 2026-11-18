@@ -11,6 +11,7 @@ litespec new <type> <id> [--root <path>] [--help]
 litespec new <document-style> <name> [--root <path>]
 litespec new requirement <feature>.<name> [--root <path>]
 litespec new requirement <name> [--root <path>]
+litespec new feature <problem>.<name> [--root <path>]
 litespec new decision <name> [--root <path>]
 litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
 litespec new use-case <id> --kind command|query [--root <path>]
@@ -32,9 +33,11 @@ A module is declared only in Behavior, so its file is `.litespec/behavior/module
 
 Record and explanation share one Title Case title, such as `Decided Within Five Days`, written to the record's YAML `title` and to the H1 of its explanation file. The explanation file comes from the explanation template for its type, `templates/consumer/<type>.md`, with the title filled in, and is written for an article type (research or decision) or for a type on a layer the project lists in `explanations.layers`. For a document style, the command writes the `.md` document from its template.
 
-A requirement under a feature is scaffolded with `new requirement <feature>.<name>`: its own named record in the feature's `requirements/` folder, `.litespec/intent/features/<feature>/requirements/<name>/<name>.yaml`, from `templates/consumer/requirement.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled. The feature segment names the feature whose folder holds the requirement, so the feature record must exist first.
+A requirement under a feature is scaffolded with `new requirement <feature>.<name>`: its own named record in the feature's `requirements/` folder, `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml`, from `templates/consumer/requirement.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled. The feature segment names the feature whose folder holds the requirement, so the feature record must exist first.
 
-A product-level requirement is scaffolded with `new requirement <name>` at `.litespec/intent/requirements/<name>/<name>.yaml`, with its identifier `requirement/<name>`. Neither form writes an explanation file, since the explanation is optional; add `<name>.md` beside the record file only when the statement needs prose.
+A feature is scaffolded with `new feature <problem>.<name>`: its own named record in the problem's `features/` folder, `.litespec/intent/problems/<problem>/features/<name>/<name>.yaml`, with its identifier `feature/<name>` and its title filled. The problem record must exist first.
+
+A product-level requirement is scaffolded with `new requirement <name>` at `.litespec/intent/requirements/<name>/<name>.yaml`, with its identifier `requirement/<name>`. On a project listing `intent` in `explanations.layers`, both forms also write `<name>.md` beside the record file from `templates/consumer/requirement.md`.
 
 `new decision` takes only the kebab-case `<name>`. The number comes from the one decision sequence, so decision numbers stay unique without coordination: the full identifier is `decision/<number>-<name>`, written as `.litespec/intent/decisions/<number>-<name>/<number>-<name>.yaml` with its explanation file beside it.
 
@@ -125,6 +128,12 @@ Append a scenario ending in the new refusal:
 litespec new scenario use-case/orders.cancel-order cancelling-a-shipped-order-is-refused --result result/cancel-order.already-shipped
 ```
 
+Scaffold a feature under its problem:
+
+```bash
+litespec new feature expenses-wait-weeks.approval-reminders
+```
+
 Scaffold a requirement under its feature:
 
 ```bash
@@ -157,7 +166,7 @@ litespec new entry .litespec/behavior/modules/spending/settings/receipt-settings
 
 ## Underneath
 
-The record file comes from `templates/consumer/<type>.yaml` in the release the tool carries; a use case reads `use-case-command.yaml` or `use-case-query.yaml` by its `--kind`. It opens with a marker line naming its template, and `model check` reports `template-value-unchanged` for a scaffold that keeps a placeholder the template shipped. The explanation file beside the record comes from `templates/consumer/<type>.md`, and for a document style the document comes from `templates/consumer/<type>.md`. A requirement writes its record file alone, in its feature's `requirements/` folder or at product level.
+The record file comes from `templates/consumer/<type>.yaml` in the release the tool carries; a use case reads `use-case-command.yaml` or `use-case-query.yaml` by its `--kind`. It opens with a marker line naming its template, and `model check` reports `template-value-unchanged` for a scaffold that keeps a placeholder the template shipped. The explanation file beside the record comes from `templates/consumer/<type>.md`, and for a document style the document comes from `templates/consumer/<type>.md`. A requirement writes its record file in its feature's `requirements/` folder or at product level, with its explanation beside it on a project listing `intent`.
 
 The `decision` path allocates the next number from the one decision sequence, prints the provisions whose statement matches the name's words in identifier order, and then writes; it splits the name on hyphens, skips words shorter than three letters, and matches a plural word against its singular, and prints nothing when no statement matches or the carried release cannot be read.
 

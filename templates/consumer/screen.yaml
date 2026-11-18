@@ -9,7 +9,7 @@ route: <route address, such as /expenses>
 offers:
 - use-case/<module>.<name, or remove this line>
 serves:
-- flow/<name>#s1
+- step/<flow>.<act>
 fulfills:
 - requirement/<feature>.<name, or remove this line>
 pageFrame:

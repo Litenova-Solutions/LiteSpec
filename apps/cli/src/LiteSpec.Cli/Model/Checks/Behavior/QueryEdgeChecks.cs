@@ -50,7 +50,7 @@ internal static class QueryEdgeChecks
 
                 if (resolved.Field(RecordFields.Kind) == "command")
                 {
-                    findings.Add(new Finding("query-target-invalid", $"{Label(holder.Type)} '{holder.Id}' queries '{target}', which is a command; only a query crosses modules.", holder.File, holder.Line, SubjectOf(holder)));
+                    findings.Add(new Finding("query-target-invalid", $"{Label(holder.Type)} '{holder.Id}' queries '{target}', which is a command; only a query use case is queried.", holder.File, holder.Line, SubjectOf(holder)));
                     continue;
                 }
 
@@ -89,7 +89,7 @@ internal static class QueryEdgeChecks
             }
         }
 
-        foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase).OrderBy(record => record.Id, StringComparer.Ordinal))
+        foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "query").OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             foreach (var module in ModulesOf(useCase).Order(StringComparer.Ordinal))
             {

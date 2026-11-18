@@ -21,7 +21,7 @@ outcomes:
 fulfills:
 - requirement/approval-reminders.remind-approver-after-three-days
 serves:
-- flow/submit-and-reimburse#s3
+- step/submit-and-reimburse.decide-expense
 onFailure:
   mode: retry
   retry:

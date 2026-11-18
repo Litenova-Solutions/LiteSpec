@@ -16,7 +16,7 @@ internal static class FolderChecks
     /// <summary>Type folders directly under <c>intent/</c>.</summary>
     private static readonly HashSet<string> IntentRootFolders = new(StringComparer.Ordinal)
     {
-        "goals", "directions", "problems", "constraints", "decisions", "research", "actors", "flows", "roles", "features", "requirements",
+        "goals", "directions", "problems", "constraints", "decisions", "research", "actors", "flows", "roles", "requirements",
     };
 
     /// <summary>Folders directly under <c>implementation/</c>.</summary>
@@ -270,11 +270,11 @@ internal static class FolderChecks
             return true;
         }
 
-        // A feature stands in its own folder; its requirements sit under it, and product requirements sit at the root.
-        if (full[1] == "features" && full.Length > 2)
+        // A problem's features sit in its features folder; each feature is a named record folder inside it.
+        if (full[1] == "problems" && full.Length > 2)
         {
-            return full.Length == 3
-                || (full.Length >= 4 && full[3] == "requirements" && full.Length <= 5);
+            return (full.Length == 4 && full[3] == "features")
+                || (full.Length == 6 && full[3] == "features" && full[5] == "requirements");
         }
 
         if (full[1] == "requirements")
@@ -609,6 +609,6 @@ internal static class FolderChecks
     /// <returns>The phrase, from the folder map; a requirement lives in its own folder inside its feature's folder.</returns>
     private static string Expected(string type) =>
         type == RecordTypes.Requirement
-            ? "requirements live in their own folder under their feature's 'requirements/' folder, 'intent/features/<feature>/requirements/<name>/<name>.yaml, or at product level in intent/requirements/<name>/<name>.yaml'"
+            ? "requirements live in their own folder under their feature's 'requirements/' folder, 'intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml', or at product level in 'intent/requirements/<name>/<name>.yaml'"
             : RecordFolders.Phrase(type);
 }

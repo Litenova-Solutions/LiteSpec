@@ -126,7 +126,7 @@ static partial class ModelBuilder
     }
 
     /// <summary>
-    ///     Computes each flow's citations: the union of its steps' <c>cites</c>, which a flow never states itself.
+    ///     Computes each flow's citations: the union of its steps' <c>carries</c>, which a flow never states itself.
     /// </summary>
     /// <param name="model">The project model.</param>
     private static void ComputeFlowCitations(ProjectModel model)
@@ -340,7 +340,7 @@ static partial class ModelBuilder
                 break;
 
             case JsonValueKind.Object:
-                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "calls", "queries", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event", "movedBy", "boundBy", "widenedBy", "verifiedBy", "consentRule", "deliveredThrough", "arrivesThrough", "through", "cites" })
+                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "calls", "queries", "commands", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event", "movedBy", "boundBy", "widenedBy", "verifiedBy", "consentRule", "deliveredThrough", "arrivesThrough", "through", "cites" })
                 {
                     if (value.TryGetProperty(name, out var nested))
                     {

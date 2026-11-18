@@ -12,13 +12,13 @@ startedWhen: <the state the actor starts from>
 finishedWhen: <the state the actor ends in>
 # A step names the actor or the outside system, never both.
 steps:
-- id: s1
+- id: step/<flow>.<act>
+  title: <Title in Title Case>
   statement: <what the actor does, in one sentence>
   actor: actor/<name, or remove this line>
   carries:
   - requirement/<feature>.<name, or remove this line>
   failure: <what goes wrong at this step, or remove this line>
-branches:
-- step: s1
-  condition: <when the path differs>
-  nextStep: <s2 or end>
+  branches:
+  - when: <when the path differs>
+    then: step/<flow>.<act>

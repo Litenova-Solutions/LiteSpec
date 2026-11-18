@@ -73,20 +73,20 @@ public sealed class NewExplanationTests
         AssertSections(explanation, []);
     }
 
-    /// <summary>New feature writes its feature page at product level with the feature sections when intent is listed.</summary>
+    /// <summary>New feature takes its problem for the folder, writes the identifier without a home, and writes the feature sections when intent is listed.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new feature writes feature/<name> at product level with the feature sections when intent is listed")]
+    [Fact(DisplayName = "new feature writes feature/<name> under its problem with the feature sections when intent is listed")]
     public void NewFeatureWritesTheExplanationWhenIntentIsListed()
     {
         using var consumer = ConsumerWithLayers("intent");
 
         var result = TestCli.Run(
-            "new", "feature", "approval-reminders", "--root", consumer.Path);
+            "new", "feature", "expenses-wait-weeks.approval-reminders", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "features", "approval-reminders", "approval-reminders.yaml");
+            consumer.Path, ".litespec", "intent", "problems", "expenses-wait-weeks", "features", "approval-reminders", "approval-reminders.yaml");
 
         Assert.True(File.Exists(page), $"Expected the feature page at '{page}'.");
         Assert.Contains("id: feature/approval-reminders", File.ReadAllText(page));

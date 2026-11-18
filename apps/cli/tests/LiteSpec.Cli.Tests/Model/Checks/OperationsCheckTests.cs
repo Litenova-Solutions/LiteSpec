@@ -381,6 +381,7 @@ public sealed class OperationsCheckTests
     // fulfills it, so the requirement reaches Behavior as every Intent record must.
     static void WriteLatencyRequirement(string root)
     {
+        WriteRecord(root, ProblemFile, ProblemJson);
         WriteRecord(root, FeatureFile, FeatureJson, RequirementExplanation);
         WriteRecord(root, RequirementFile, RequirementJson);
         WriteRecord(root, OriginFile, OriginJson, OriginExplanation);
@@ -453,8 +454,9 @@ public sealed class OperationsCheckTests
         }
     }
 
-    const string FeatureFile = ".litespec/intent/features/performance/performance.yaml";
-    const string RequirementFile = ".litespec/intent/features/performance/requirements/list-loans-latency/list-loans-latency.yaml";
+    const string ProblemFile = ".litespec/intent/problems/slow-desk-loans/slow-desk-loans.yaml";
+    const string FeatureFile = ".litespec/intent/problems/slow-desk-loans/features/performance/performance.yaml";
+    const string RequirementFile = ".litespec/intent/problems/slow-desk-loans/features/performance/requirements/list-loans-latency/list-loans-latency.yaml";
     const string ListLoansFile = ".litespec/behavior/modules/lending/aggregates/loans/use-cases/list-loans/list-loans.yaml";
     const string RunbookFile = ".litespec/implementation/runbooks/slow-listings/slow-listings.yaml";
     const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing/0003-term-start-listing.yaml";
@@ -468,15 +470,41 @@ public sealed class OperationsCheckTests
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
     const string WaiverFile = ".litespec/governance/waivers/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
 
+    const string ProblemJson = """
+        {
+          "type": "problem",
+          "id": "problem/slow-desk-loans",
+          "title": "Slow desk loans",
+          "summary": "Readers wait at the desk while listings load.",
+          "statement": "Readers wait too long for loan listings.",
+          "affects": [
+            "actor/reader"
+          ],
+          "failureCases": [
+            "A reader waits past a minute for the loan listing at term start."
+          ],
+          "workaround": "Readers queue at the desk and staff read the loans aloud.",
+          "cost": "Each slow listing costs the desk a queue of waiting readers.",
+          "resolutionCriteria": [
+            "Loan listings answer within 300 milliseconds at p95 during term start."
+          ],
+          "evidence": [
+            {
+              "claim": "Readers wait past a minute for the loan listing at term start.",
+              "source": "https://example.org/library/desk-log",
+              "readOn": "2026-10-01",
+              "kind": "reported"
+            }
+          ]
+        }
+        """;
+
     const string FeatureJson = """
         {
           "type": "feature",
           "id": "feature/performance",
           "title": "Performance",
           "offering": "Loan listings answer within 300 milliseconds at p95 during term start.",
-          "solves": [
-            "problem/slow-desk-loans"
-          ],
           "successCriteria": [
             "Readers list loans within 300 milliseconds at p95 during term start."
           ],

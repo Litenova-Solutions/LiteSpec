@@ -11,8 +11,8 @@ namespace LiteSpec.Cli.Rules;
 ///     Evaluates a provision's applicability condition against the records a rules target marks.
 ///     Query and command read the use-case kind, upload reads a caller file input, document-number
 ///     reads a legal number signal, erasure reads an erase, pseudonymize or anonymize signal,
-///     cross-module reads a queries edge to another module's public query, project holds for
-///     no record, and audit-adoption reads the decision the audit selection names.
+///     cross-module reads a queries or commands edge to another module's public use case,
+///     project holds for no record, and audit-adoption reads the decision the audit selection names.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal static class ProvisionWhen
@@ -27,6 +27,7 @@ internal static class ProvisionWhen
     /// <param name="Inputs">The use-case inputs with their origin.</param>
     /// <param name="Outputs">The output names and meanings.</param>
     /// <param name="Queries">The effects.queries targets.</param>
+    /// <param name="Commands">The effects.commands targets.</param>
     internal sealed record RecordFields(
         string Type,
         string Id,
@@ -36,7 +37,8 @@ internal static class ProvisionWhen
         string Exposure,
         IReadOnlyList<RecordInput> Inputs,
         IReadOnlyList<string> Outputs,
-        IReadOnlyList<string> Queries);
+        IReadOnlyList<string> Queries,
+        IReadOnlyList<string> Commands);
 
     /// <summary>One use-case input with its origin.</summary>
     /// <param name="Name">The input name.</param>
@@ -77,7 +79,7 @@ internal static class ProvisionWhen
             "erasure" => records.Any(record =>
                 (record.Type == "use-case" || record.Type == "job") && ErasesPersonalData(record)),
             "cross-module" => records.Any(record =>
-                (record.Type == "use-case" || record.Type == "reaction" || record.Type == "job") && record.Queries.Count > 0),
+                (record.Type == "use-case" || record.Type == "reaction" || record.Type == "job") && (record.Queries.Count > 0 || record.Commands.Count > 0)),
             "project" => false,
             _ => false,
         };
@@ -271,7 +273,8 @@ internal static class ProvisionWhen
         Text(root, "exposure"),
         InputsOf(root),
         OutputsOf(root),
-        QueriesOf(root));
+        QueriesOf(root),
+        CommandsOf(root));
 
     /// <summary>The use-case inputs with their origin.</summary>
     /// <param name="root">The parsed record object.</param>
@@ -337,7 +340,18 @@ internal static class ProvisionWhen
     /// <summary>The effects.queries targets of a use case, reaction or job.</summary>
     /// <param name="root">The parsed record object.</param>
     /// <returns>Each queries edge target.</returns>
-    static List<string> QueriesOf(JsonElement root)
+    static List<string> QueriesOf(JsonElement root) => EffectsVerbOf(root, "queries");
+
+    /// <summary>The effects.commands targets of a use case, reaction or job.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>Each commands edge target.</returns>
+    static List<string> CommandsOf(JsonElement root) => EffectsVerbOf(root, "commands");
+
+    /// <summary>The targets of one edge verb in the effects entries of a use case, reaction or job.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <param name="verb">The edge verb to read: queries or commands.</param>
+    /// <returns>Each edge target the verb names.</returns>
+    static List<string> EffectsVerbOf(JsonElement root, string verb)
     {
         if (!root.TryGetProperty("effects", out var effects) || effects.ValueKind != JsonValueKind.Array)
         {
@@ -346,7 +360,7 @@ internal static class ProvisionWhen
 
         return effects.EnumerateArray()
             .Where(entry => entry.ValueKind == JsonValueKind.Object)
-            .Select(entry => entry.TryGetProperty("queries", out var target)
+            .Select(entry => entry.TryGetProperty(verb, out var target)
                 && target.ValueKind == JsonValueKind.String
                 ? target.GetString() ?? ""
                 : "")

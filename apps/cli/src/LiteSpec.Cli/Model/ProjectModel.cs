@@ -60,7 +60,7 @@ sealed partial class ProjectModel
     /// <summary>Gets or sets a value indicating whether whether the TypeScript reader's handshake matched, so it is qualified.</summary>
     public bool TypeScriptQualified { get; set; }
 
-    /// <summary>Gets the flow steps a passing test exercised, as <c>flow/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
+    /// <summary>Gets the flow steps a passing test exercised, as <c>step/&lt;flow&gt;.&lt;act&gt;</c> ids.</summary>
     public SortedSet<string> ExercisedSteps { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets or sets the generated-client operations each steps method calls, keyed by class and method.</summary>

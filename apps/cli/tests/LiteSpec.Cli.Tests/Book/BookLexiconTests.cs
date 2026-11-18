@@ -60,6 +60,10 @@ public sealed class BookLexiconTests
         Assert.Equal("queries", forward);
         Assert.Equal("is queried by", inverse);
 
+        Assert.True(lexicon.TryPhrase("use-case.effects.commands", "use-case", out forward, out inverse));
+        Assert.Equal("commands", forward);
+        Assert.Equal("is commanded by", inverse);
+
         Assert.True(lexicon.TryPhrase("access.grant", "use-case", out forward, out inverse));
         Assert.Equal("is granted through", forward);
         Assert.Equal("grants", inverse);

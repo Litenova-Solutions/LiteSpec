@@ -33,12 +33,12 @@ public sealed class BookProductAreasTests
                 "flow",
                 "flow/borrowing",
                 "Borrowing",
-                new JsonObject { ["steps"] = Steps("s1", "s2") }),
+                new JsonObject { ["steps"] = Steps("step/borrowing.borrow-copy", "step/borrowing.return-copy") }),
             Record(
                 "reaction",
                 "reaction/lending.send-due-reminder",
                 "Send Due Reminder",
-                new JsonObject { ["serves"] = Ids("flow/borrowing#s1") }),
+                new JsonObject { ["serves"] = Ids("step/borrowing.borrow-copy") }),
             Record(
                 "screen",
                 "screen/library-app.search",
@@ -46,7 +46,7 @@ public sealed class BookProductAreasTests
                 new JsonObject
                 {
                     ["offers"] = Ids("use-case/lending.borrow-copy"),
-                    ["serves"] = Ids("flow/borrowing#s2"),
+                    ["serves"] = Ids("step/borrowing.return-copy"),
                 }));
 
         var areas = BookProductAreas.Build(model);
@@ -99,7 +99,7 @@ public sealed class BookProductAreasTests
                 "flow",
                 "flow/unstaffed",
                 "Unstaffed",
-                new JsonObject { ["steps"] = Steps("s1") }),
+                new JsonObject { ["steps"] = Steps("step/unstaffed.borrow-copy") }),
             Record("flow", "flow/starts", "Starts"));
 
         var areas = BookProductAreas.Build(model);
@@ -129,17 +129,17 @@ public sealed class BookProductAreasTests
                 "flow",
                 "flow/borrowing",
                 "Borrowing",
-                new JsonObject { ["steps"] = Steps("s1") }),
+                new JsonObject { ["steps"] = Steps("step/borrowing.borrow-copy") }),
             Record(
                 "flow",
                 "flow/kiosk",
                 "Kiosk",
-                new JsonObject { ["steps"] = Steps("s1") }),
+                new JsonObject { ["steps"] = Steps("step/kiosk.borrow-copy") }),
             Record(
                 "flow",
                 "flow/deserted",
                 "Deserted",
-                new JsonObject { ["steps"] = Steps("s1") }),
+                new JsonObject { ["steps"] = Steps("step/deserted.borrow-copy") }),
             Record(
                 "screen",
                 "screen/library-app.search",
@@ -147,7 +147,7 @@ public sealed class BookProductAreasTests
                 new JsonObject
                 {
                     ["offers"] = Ids("use-case/lending.borrow-copy"),
-                    ["serves"] = Ids("flow/borrowing#s1"),
+                    ["serves"] = Ids("step/borrowing.borrow-copy"),
                 }),
             Record(
                 "screen",
@@ -156,13 +156,13 @@ public sealed class BookProductAreasTests
                 new JsonObject
                 {
                     ["offers"] = Ids("use-case/missing.nothing"),
-                    ["serves"] = Ids("flow/kiosk#s1"),
+                    ["serves"] = Ids("step/kiosk.borrow-copy"),
                 }),
             Record(
                 "screen",
                 "screen/library-app.about",
                 "About",
-                new JsonObject { ["serves"] = Ids("flow/deserted#s1") }));
+                new JsonObject { ["serves"] = Ids("step/deserted.borrow-copy") }));
 
         var areas = BookProductAreas.Build(model);
 
@@ -217,7 +217,7 @@ public sealed class BookProductAreasTests
                 "flow",
                 "flow/bare",
                 "Bare",
-                new JsonObject { ["steps"] = Steps("s1") }),
+                new JsonObject { ["steps"] = Steps("step/bare.borrow-copy") }),
             Record(
                 "use-case",
                 "use-case/lending.bare-serves",

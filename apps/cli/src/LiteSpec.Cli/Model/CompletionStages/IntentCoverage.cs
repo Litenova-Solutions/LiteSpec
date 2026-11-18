@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.CompletionStages;
@@ -119,17 +120,15 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
             steps.AddRange(flow.StepIds());
         }
 
-        // A problem is reached by a feature that solves it or a flow that answers it; a constraint by a flow that answers it.
+        // A problem is reached by a feature in its folder or a flow that answers it; a constraint by a flow that answers it.
         var answeredBy = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
         foreach (var record in model.Records.Where(record => !record.Derived))
         {
-            if (record.Type == RecordTypes.Feature)
+            if (record.Type == RecordTypes.Feature
+                && RecordPlacement.ProblemOf(record.File) is { } problem)
             {
-                foreach (var target in record.Ids(RecordFields.Solves))
-                {
-                    Add(answeredBy, target, record.Id);
-                }
+                Add(answeredBy, $"problem/{problem}", record.Id);
             }
 
             if (record.Type == RecordTypes.Flow)
@@ -152,11 +151,11 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
     }
 
     /// <summary>
-    ///     One entry per problem, then one per constraint, each in identifier order, reached by the records
-    ///     that name it in <c>solves</c> or <c>answers</c>.
+    ///     One entry per problem, then one per constraint, each in identifier order, reached by the features
+    ///     in its folder or the flows that name it in <c>answers</c>.
     /// </summary>
     /// <param name="model">The built project model that holds every record.</param>
-    /// <param name="answeredBy">The solving or answering record ids per problem or constraint id.</param>
+    /// <param name="answeredBy">The feature or flow record ids per problem or constraint id.</param>
     /// <returns>The problem and constraint entries.</returns>
     private static List<Entry> AnswerableEntries(ProjectModel model, IReadOnlyDictionary<string, List<string>> answeredBy)
     {
@@ -225,7 +224,7 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
     ///     step, a problem or a constraint, whether a Behavior record reaches it,
     ///     and the records that reach it.
     /// </summary>
-    /// <param name="Id">The requirement, problem or constraint id, or the flow step id as <c>flow/&lt;name&gt;#&lt;step&gt;</c>.</param>
+    /// <param name="Id">The requirement, problem or constraint id, or the flow step id as <c>step/&lt;flow&gt;.&lt;act&gt;</c>.</param>
     /// <param name="Kind">The item kind: <c>requirement</c>, <c>step</c>, <c>problem</c> or <c>constraint</c>.</param>
     /// <param name="Reached">Whether some Behavior record reaches the item.</param>
     /// <param name="ReachedBy">The Behavior record ids that reach the item, in identifier order.</param>

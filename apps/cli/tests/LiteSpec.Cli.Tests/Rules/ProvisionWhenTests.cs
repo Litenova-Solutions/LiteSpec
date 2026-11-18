@@ -149,7 +149,7 @@ public sealed class ProvisionWhenTests
         Assert.Contains("- litespec/backend/application#ask-another-module-one-question-through-a-decision-port:", result.Output);
         Assert.Contains("- litespec/backend/application#reach-another-module-through-one-port-per-provider:", result.Output);
         Assert.Contains("- litespec/backend/architecture#read-another-module-only-through-its-contracts:", result.Output);
-        Assert.Contains("- litespec/backend/architecture#send-only-queries-across-modules:", result.Output);
+        Assert.Contains("- litespec/backend/architecture#send-commands-and-queries-upstream:", result.Output);
     }
 
     /// <summary>A command whose use case declares no queries edge omits the cross-module provisions.</summary>
@@ -167,7 +167,35 @@ public sealed class ProvisionWhenTests
         Assert.DoesNotContain("litespec/backend/application#ask-another-module-one-question-through-a-decision-port", result.Output);
         Assert.DoesNotContain("litespec/backend/application#reach-another-module-through-one-port-per-provider", result.Output);
         Assert.DoesNotContain("litespec/backend/architecture#read-another-module-only-through-its-contracts", result.Output);
-        Assert.DoesNotContain("litespec/backend/architecture#send-only-queries-across-modules", result.Output);
+        Assert.DoesNotContain("litespec/backend/architecture#send-commands-and-queries-upstream", result.Output);
+    }
+
+    /// <summary>A command whose use case declares a commands edge keeps the same cross-module provisions as a queries edge.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesCommandsEdgeCommandKeepsCrossModuleProvisions()
+    {
+        using var commands = CopyCrossModuleFixture(withQueries: false, withCommands: true);
+        using var queries = CopyCrossModuleFixture(withQueries: true);
+        using var plain = CopyCrossModuleFixture(withQueries: false);
+        var handler = "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs";
+        var commandsResult = TestCli.Run("rules", "--root", commands.Path, handler);
+        var queriesResult = TestCli.Run("rules", "--root", queries.Path, handler);
+        var plainResult = TestCli.Run("rules", "--root", plain.Path, handler);
+
+        Assert.Equal(0, commandsResult.Status);
+        Assert.Equal(0, queriesResult.Status);
+        Assert.Equal(0, plainResult.Status);
+        foreach (var provision in new[]
+        {
+            "litespec/backend/architecture#send-commands-and-queries-upstream",
+            "litespec/backend/application#confirm-downstream-completion-through-an-upstream-command",
+        })
+        {
+            Assert.Contains("- " + provision + ":", commandsResult.Output);
+            Assert.Contains("- " + provision + ":", queriesResult.Output);
+            Assert.DoesNotContain(provision, plainResult.Output);
+        }
     }
 
     /// <summary>A record identifier prints conditional provisions with their condition shown.</summary>
@@ -333,8 +361,9 @@ public sealed class ProvisionWhenTests
 
     /// <summary>Copies the rules-basic fixture with a command use case and a handler marking it.</summary>
     /// <param name="withQueries">Whether the use case declares a queries edge to another module's public query.</param>
+    /// <param name="withCommands">Whether the use case declares a commands edge to another module's public command.</param>
     /// <returns>The temporary consumer root.</returns>
-    static TempFolder CopyCrossModuleFixture(bool withQueries)
+    static TempFolder CopyCrossModuleFixture(bool withQueries, bool withCommands = false)
     {
         var source = TestCli.Fixture("rules-basic");
         var temp = TestCli.Temp("rules-cross-module");
@@ -359,6 +388,16 @@ public sealed class ProvisionWhenTests
 
                 effects:
                 - queries: use-case/billing.read-invoice
+                  timing: inline
+                """;
+        }
+
+        if (withCommands)
+        {
+            record += """
+
+                effects:
+                - commands: use-case/billing.approve-invoice
                   timing: inline
                 """;
         }

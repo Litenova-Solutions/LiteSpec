@@ -142,7 +142,7 @@ static class BookBlueprintDetail
             }
 
             var onScreen = new JsonArray();
-            if (served.TryGetValue(id + "#" + stepId, out var list))
+            if (served.TryGetValue(stepId, out var list))
             {
                 foreach (var server in list)
                 {

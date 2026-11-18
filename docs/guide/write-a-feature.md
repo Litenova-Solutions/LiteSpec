@@ -2,7 +2,7 @@
 
 Write one feature as a record file, one requirement record per commitment, and an explanation file `<feature>.md`, so a developer can tell what to build and a tester can tell what passes.
 
-A feature is one offering that solves problems and advances goals. It stands alone with the product as its parent: one record file at `.litespec/intent/features/<name>/<name>.yaml` states the offering and its links, and each commitment the feature makes is a requirement record in its own folder under the feature's `requirements/` folder.
+A feature is one offering that answers one problem and advances goals. It sits in the `features/` folder of the problem it answers: one record file at `.litespec/intent/problems/<problem>/features/<name>/<name>.yaml` states the offering and its links, and each commitment the feature makes is a requirement record in its own folder under the feature's `requirements/` folder.
 
 The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.
 
@@ -11,7 +11,7 @@ The writing steps show a weak version and a strong version from the Claimwick ex
 Start with:
 
 - A consumer built through [Start a Consumer Repository](../tutorial/getting-started.md), with the product record already written.
-- The problems the feature solves and the goals it advances, each in its own record file. [Write a Problem](write-a-problem.md) writes a problem.
+- The problem the feature answers and the goals it advances, each in its own record file. [Write a Problem](write-a-problem.md) writes a problem.
 
 The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state the obligations behind these steps. Read them first; the guide shows one compliant way to meet them. The [command index](../tools/README.md) states how to spell `litespec` in a consumer.
 
@@ -19,18 +19,16 @@ The [Intent](../core/intent.md) and [Writing](../core/writing.md) pages state th
 
 ### Scaffold the Feature File
 
-Run `litespec new feature <name>` before writing any prose, with the name in kebab-case such as `expense-submission` and the title in plain words.
+Run `litespec new feature <problem>.<name>` before writing any prose, with the problem first and the name in kebab-case, such as `litespec new feature expenses-wait-weeks.expense-submission`, and the title in plain words.
 
-The command writes `<name>/<name>.yaml` under `.litespec/intent/features/`, with the product as the parent and the identifier `feature/<name>` reserved. This satisfies `litespec/core/model#write-every-record-in-its-record-file`, `litespec/core/model#write-every-record-in-its-home`, and `litespec/core/intent#solve-problems-with-standalone-features`.
+The command writes `<name>/<name>.yaml` under `.litespec/intent/problems/<problem>/features/`, with the problem as the parent and the identifier `feature/<name>` reserved. This satisfies `litespec/core/model#write-every-record-in-its-record-file`, `litespec/core/model#write-every-record-in-its-home`, and `litespec/core/intent#answer-one-problem-with-each-feature`.
 
 ### State the Offering and Its Links
 
-Use `offering` for one paragraph that states what the software does and for whom. Name each problem the feature solves in `solves`, link the goals it advances in `advances`, and name the glossary terms the feature uses in `terms`:
+Use `offering` for one paragraph that states what the software does and for whom. Link the goals it advances in `advances`, and name the glossary terms the feature uses in `terms`:
 
 ```yaml
 offering: Claimwick takes each expense with its receipt at submission time.
-solves:
-  - problem/expenses-wait-weeks
 advances:
   - goal/faster-reimbursement
 terms:
@@ -49,7 +47,7 @@ Write each link on the feature, the record that points. This satisfies `litespec
 
 ### Write One Requirement per Commitment
 
-Turn each commitment the feature makes into its own requirement record. Scaffold it with `litespec new requirement <feature>.<name>`, such as `litespec new requirement approval.above-threshold-receipt`. You get the requirement at `.litespec/intent/features/<feature>/requirements/<name>/<name>.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled, and no explanation file.
+Turn each commitment the feature makes into its own requirement record. Scaffold it with `litespec new requirement <feature>.<name>`, such as `litespec new requirement approval.above-threshold-receipt`. You get the requirement at `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled, and no explanation file.
 
 Then fill the record fields: the kind, `functional`, `quality`, or `policy`; one testable sentence in `statement`; one line of reason in `rationale`; and the records behind it in `cites`.
 
@@ -198,6 +196,6 @@ Leave acceptance criteria out of it, because the Behavior scenarios that fulfill
 ## Check
 
 - `litespec model check` exits `0` from the consumer root with no finding on the feature file, its explanation, or any requirement file.
-- `litespec model query feature/<name>` shows the feature with its requirements.
+- `litespec model query feature/<name>` shows the feature with its problem and requirements.
 - `litespec rules <path to the feature record>` lists the judgment provisions above, and you have answered each one.
 - A developer can tell what to build from the requirements, and a tester can tell what passes and what fails. Every date, amount, and condition that matters is stated, and no explanation sentence adds behavior the requirements do not hold.

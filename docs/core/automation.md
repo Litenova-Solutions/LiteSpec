@@ -19,10 +19,10 @@ The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md
 
 | Field | Meaning |
 |:---|:---|
-| `triggeredBy` | The `domain-event/...`, `module-event/...`, or `integration-event/...` ids the reaction answers, as one id or a list: a domain event of its own module, a module event of any module of the product, or an inbound integration event. |
+| `triggeredBy` | The `domain-event/...`, `module-event/...`, or `integration-event/...` ids the reaction answers, as one id or a list: a domain event of its own module, a module event of an upstream module of the product, or an inbound integration event. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
 | `compensates` | The `use-case/...` id the reaction undoes, for a reaction answering a later step's failure, optional. |
-| `effects` | `{ runs / sends / calls / queries, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A reaction may omit `timing`, which means `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
+| `effects` | `{ runs / sends / calls / queries / commands, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A reaction may omit `timing`, which means `async`. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
@@ -64,7 +64,7 @@ The name follows `<verb>-<what>`, using the verb of the use case it runs, or its
 | `kind` | `scheduled` or `one-off`. |
 | `schedule` | The schedule, required with `scheduled`: `{ "every": "PT1M" }`, `{ "cron": "0 3 * * *", "timezone": "..." }`, or `{ "at": "startup" }` for a run once at deployment start. The timezone is a literal IANA zone, or `{ "setting": "setting/<module>.<name>" }` or `{ "field": "aggregate/<module>.<aggregate>#<field>" }` naming where the zone is stored. |
 | `selection`, `batchSize`, `lease`, `cursor`, `runbook`, `runsWhen`, `serviceLevel`, `evidence` | What each run selects, how many items per batch, the lock with its duration, where resume state lives, the runbook answering the run, the condition it runs under, the promised service level, and the evidence the run leaves. |
-| `effects` | `{ runs / sends / calls / queries, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A job states `timing` on each entry. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
+| `effects` | `{ runs / sends / calls / queries / commands, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A job states `timing` on each entry. Each effect runs on its own, as [Run Each Effect on Its Own](#run-each-effect-on-its-own) states. |
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
@@ -143,9 +143,9 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Applies to:** artifact: record:reaction
 
-**Statement:** Each reaction MUST declare in `triggeredBy` the domain events of its own module, the module events of any module of the product, or the inbound integration events it answers.
+**Statement:** Each reaction MUST declare in `triggeredBy` the domain events of its own module, the module events of upstream modules of the product, or the inbound integration events it answers.
 
-**Rationale:** A reaction without a trigger has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module, module events, or inbound integration events, never another module's domain event. Answering another module's domain event would couple it to state its module does not own; the owning module publishes a module event instead. A module event is itself the declared crossing between modules, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states, so a reaction may answer one from any module without a module dependency. A `skippedWhen` clause states when the reaction skips.
+**Rationale:** A reaction without a trigger has no defined moment to run: it never runs, or it runs whenever its author remembered. Naming the events states when it fires, as one id or a list. The reaction answers the domain events of its own module, upstream module events, or inbound integration events, never another module's domain event and never a downstream module's fact. Answering another module's domain event would couple it to state its module does not own; the owning module publishes a module event instead. A module event is itself the declared crossing between modules, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states, so a reaction may answer an upstream one without a module dependency, under `litespec/backend/architecture#send-commands-and-queries-upstream`. A `skippedWhen` clause states when the reaction skips.
 
 **Example:** In the library product, `reaction/lending.send-due-notice-on-loan-borrowed` answers `domain-event/loan.loan-borrowed` and runs the send-due-notice command.
 
@@ -193,7 +193,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction and each job MUST declare its edges in `effects`, with exactly one verb per entry.
 
-**Rationale:** A reaction or job with no declared edge observes and never acts, and an edge written outside `effects` hides behavior the checks never see. Declaring each edge in `effects`, with exactly one verb of `runs`, `sends`, `calls`, or `queries`, keeps every consequence beside the trigger or schedule, in the one grammar every record with edges shares, as the [use cases](use-cases.md) page defines.
+**Rationale:** A reaction or job with no declared edge observes and never acts, and an edge written outside `effects` hides behavior the checks never see. Declaring each edge in `effects`, with exactly one verb of `runs`, `sends`, `calls`, `queries`, or `commands`, keeps every consequence beside the trigger or schedule, in the one grammar every record with edges shares, as the [use cases](use-cases.md) page defines.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a reaction or job with no `effects` or with a top-level effect verb.
 
@@ -347,7 +347,7 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Work that spans modules MUST raise its completion fact only after every module reports its part done.
 
-**Rationale:** A completion raised early declares done while parts remain: erased data returns, and closed work reopens. Each module's reaction erases or closes its part and reports done, and the completion is raised only when every report arrived. Progress lives in a record outliving the deleted data, and the requesting state blocks new writes until completion.
+**Rationale:** A completion raised early declares done while parts remain: erased data returns, and closed work reopens. Each module's reaction erases or closes its part and reports done, and the completion is raised only when every report arrived. A report to an upstream module travels as its public command that the reporting module calls, under `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`. Progress lives in a record outliving the deleted data, and the requesting state blocks new writes until completion.
 
 **Example:** Erasing a departed employee's personal data enters Erasing, which blocks new writes. The spending reaction erases expenses and the access reaction erases sessions, each reporting done. The employee becomes Erased only when both report, and the erasure record keeps the fact and date outside the erased data.
 

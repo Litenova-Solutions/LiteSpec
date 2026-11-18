@@ -132,6 +132,9 @@ public static class RecordTypes
     /// <summary>Gets the `scenario` record type name.</summary>
     public const string Scenario = "scenario";
 
+    /// <summary>Gets the `step` record type name.</summary>
+    public const string Step = "step";
+
     /// <summary>Gets the `screen` record type name.</summary>
     public const string Screen = "screen";
 
@@ -154,7 +157,7 @@ public static class RecordTypes
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         "product", "goal", "direction", "constraint", "research", "decision", "requirement", "problem",
-        "feature", "actor", "role", "permission", "flow", "module",
+        "feature", "actor", "role", "permission", "flow", "step", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
         "reaction", "job", "notification", "setting", "read-model", "reference-data",
         "entry-point", "screen", "external-system", "runbook", "waiver", "term",
@@ -172,7 +175,7 @@ public static class RecordTypes
             ["goal"] = "intent", ["direction"] = "intent", ["constraint"] = "intent",
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
-            ["actor"] = "intent", ["role"] = "intent", ["flow"] = "intent", ["term"] = "intent",
+            ["actor"] = "intent", ["role"] = "intent", ["flow"] = "intent", ["step"] = "intent", ["term"] = "intent",
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
             ["domain-event"] = "behavior", ["module-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
@@ -200,7 +203,7 @@ public static class RecordTypes
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
         "requirement", "aggregate", "rule", "use-case", "result",
-        "scenario", "domain-event", "module-event", "reaction", "job", "notification", "setting", "screen", "read-model", "reference-data",
+        "scenario", "domain-event", "module-event", "reaction", "job", "notification", "setting", "screen", "read-model", "reference-data", "step",
     };
 
     /// <summary>Types the small size requires.</summary>
@@ -219,9 +222,8 @@ public static class RecordTypes
 
     /// <summary>
     ///     Whether the field names a link, and which record types it may point at.
-    ///     An empty set means any record type. A serves target of flow/&lt;name&gt;#&lt;step&gt;
-    ///     resolves through its flow, and a calls target of
-    ///     external-system/&lt;name&gt;#&lt;operation&gt; through its system.
+    ///     An empty set means any record type. A calls target of
+    ///     external-system/&lt;name&gt;#&lt;operation&gt; resolves through its system.
     ///     A flow's serves names one goal and its answers one problem or constraint; only serves moves a goal.
     /// </summary>
     public static readonly Dictionary<string, HashSet<string>> LinkTargets =
@@ -235,9 +237,8 @@ public static class RecordTypes
             ["users"] = new HashSet<string> { "actor" },
             ["requires"] = new HashSet<string> { "actor", "permission" },
             ["advances"] = new HashSet<string> { "goal" },
-            ["serves"] = new HashSet<string> { "goal", "flow" },
+            ["serves"] = new HashSet<string> { "goal", "flow", "step" },
             ["answers"] = new HashSet<string> { "problem", "constraint" },
-            ["solves"] = new HashSet<string> { "problem" },
             ["fulfills"] = new HashSet<string> { "requirement" },
             ["governs"] = new HashSet<string> { "aggregate", "use-case" },
             ["raises"] = new HashSet<string> { "domain-event" },
@@ -245,6 +246,7 @@ public static class RecordTypes
             ["sends"] = new HashSet<string> { "notification" },
             ["calls"] = new HashSet<string> { "external-system" },
             ["queries"] = new HashSet<string> { "use-case" },
+            ["commands"] = new HashSet<string> { "use-case" },
             ["triggeredBy"] = new HashSet<string> { "domain-event", "module-event", "integration-event" },
             ["compensates"] = new HashSet<string> { "use-case" },
             ["decidedBy"] = new HashSet<string> { "use-case", "aggregate" },

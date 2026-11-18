@@ -25,8 +25,8 @@ The project model joins a project's written records to its code, screens, and te
 .litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.change-reminder-preference' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-reminder-preference' has scenarios with no passing proof.
-.litespec/intent/flows/export-approved-expenses/export-approved-expenses.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/export-approved-expenses#s1' is served by a browser or device use case but by no screen.
-.litespec/intent/flows/set-receipt-threshold/set-receipt-threshold.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/set-receipt-threshold#s1' is served by a browser or device use case but by no screen.
+.litespec/intent/flows/export-approved-expenses/export-approved-expenses.yaml:1 [covered G] [step-screen-missing] Flow step 'step/export-approved-expenses.export-batch' is served by a browser or device use case but by no screen.
+.litespec/intent/flows/set-receipt-threshold/set-receipt-threshold.yaml:1 [covered G] [step-screen-missing] Flow step 'step/set-receipt-threshold.set-threshold' is served by a browser or device use case but by no screen.
 0 findings, 0 blocking, 20 covered.
 ```
 

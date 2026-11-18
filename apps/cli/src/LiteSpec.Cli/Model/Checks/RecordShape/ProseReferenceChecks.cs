@@ -138,6 +138,11 @@ internal static class ProseReferenceChecks
                 : "which the carried release does not ship";
         }
 
+        if (Identifiers.TrySplitStep(reference, out _, out _))
+        {
+            return "which names a step in the old flow/name#step form; cite the step id instead";
+        }
+
         return model.ById.ContainsKey(Identifiers.BaseId(reference)) ? null : "which no record holds";
     }
 

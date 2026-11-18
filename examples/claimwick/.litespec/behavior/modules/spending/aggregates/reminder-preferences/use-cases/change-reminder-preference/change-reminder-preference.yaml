@@ -8,7 +8,7 @@ access:
   grant: permission/manage-reminder-preference
   tenant: own
 serves:
-- flow/submit-and-reimburse#s6
+- step/submit-and-reimburse.set-reminder-preference
 fulfills:
 - requirement/approval-reminders.remind-approver-after-three-days
 reachedThrough:

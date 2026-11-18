@@ -30,7 +30,7 @@ To find where a record file lives, look it up in [Record Folders](../reference/f
 - [Add an Android Frontend](add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write Code for a Use Case](write-code-for-a-use-case.md): place each code element of a use case with its mark and its check.
 - [Write a Problem](write-a-problem.md): write one problem with its failure cases, evidence, and resolution criteria, step by step with weak and strong examples.
-- [Write a Feature](write-a-feature.md): write one feature with its requirements and the problems it solves, with testable statements and the feature boundaries.
+- [Write a Feature](write-a-feature.md): write one feature with its requirements and the problem it answers, with testable statements and the feature boundaries.
 - [Write a Constraint](write-a-constraint.md): write one outside rule with its sources, its scope, its rules, and the requirements that hold its effect.
 - [Write a Flow](write-a-flow.md): write one actor path toward one goal or one problem, from its start through its steps, blockers, and branches.
 - [Write a Research Record](write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.

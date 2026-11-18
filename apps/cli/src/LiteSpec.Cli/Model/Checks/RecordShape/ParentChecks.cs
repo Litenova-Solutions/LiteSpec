@@ -84,17 +84,24 @@ internal static class ParentChecks
         }
     }
 
-    /// <summary>Reports a feature outside the product's features folder. A feature stands on its own, so its parent is the product, and the problems it solves are named in solves.</summary>
-    /// <param name="model">The loaded project model that holds the feature records.</param>
-    /// <param name="record">The feature record whose file path is read.</param>
+    /// <summary>Reports a feature outside a problem's features folder, or in a folder whose problem record is missing.</summary>
+    /// <param name="model">The loaded project model that holds the problem records.</param>
+    /// <param name="record">The feature record whose folder names its problem.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFeatureParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        if (!record.File.Replace('\\', '/').Contains("/intent/features/", StringComparison.Ordinal))
+        if (RecordPlacement.ProblemOf(record.File) is not { } problem)
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
-                $"Feature '{record.Id}' sits outside the product's intent/features folder, so it has no parent product.",
+                $"Feature '{record.Id}' sits outside a problem's features folder, so it has no parent problem.",
+                record.File, record.Line, SubjectOf(record)));
+        }
+        else if (!model.ById.ContainsKey($"problem/{problem}"))
+        {
+            findings.Add(new Finding(
+                "record-placement-invalid",
+                $"Feature '{record.Id}' sits in the folder of problem '{problem}', which holds no problem record.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -124,7 +131,7 @@ internal static class ParentChecks
         }
 
         // A dangling reason target is reference-unknown, so one defect draws one finding.
-        if (reasons.Any(target => !ServesResolves(model, target)))
+        if (reasons.Any(target => !model.ById.ContainsKey(target)))
         {
             return;
         }
@@ -133,22 +140,6 @@ internal static class ParentChecks
             "record-placement-invalid",
             $"Flow '{record.Id}' has no parent and names no goal, problem or constraint.",
             record.File, record.Line, SubjectOf(record)));
-    }
-
-    /// <summary>Whether the serves target names a record or an existing flow step.</summary>
-    /// <param name="model">The loaded project model that resolves the target record and its flow steps.</param>
-    /// <param name="target">The serves identifier under test.</param>
-    /// <returns>True when the target names a record or a step of an existing flow; otherwise false.</returns>
-    private static bool ServesResolves(ProjectModel model, string target)
-    {
-        if (model.ById.ContainsKey(target))
-        {
-            return true;
-        }
-
-        return Identifiers.TrySplitStep(target, out var flowId, out _)
-            && model.ById.TryGetValue(flowId, out var flow)
-            && flow.StepIds().Contains(target, StringComparer.Ordinal);
     }
 
     /// <summary>

@@ -122,8 +122,8 @@ public sealed class CompletionTests
         using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("flow", "flow/borrowing-a-copy", Path.Combine(temp.Path, "flow.yaml"), """{"serves": ["goal/borrow"], "steps": [{"id": "s1"}, {"id": "s2"}]}"""),
-            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"serves": ["flow/borrowing-a-copy#s1"]}"""));
+            [.. TestModel.Records("flow", "flow/borrowing-a-copy", Path.Combine(temp.Path, "flow.yaml"), """{"serves": ["goal/borrow"], "steps": [{"id": "step/borrowing-a-copy.borrow-copy", "title": "Borrow Copy"}, {"id": "step/borrowing-a-copy.return-copy", "title": "Return Copy"}]}"""),
+            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"serves": ["step/borrowing-a-copy.borrow-copy"]}""")]);
 
         model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));
         CompletionCalculator.Compute(model);
@@ -131,7 +131,7 @@ public sealed class CompletionTests
         var completion = model.Completion["flow/borrowing-a-copy"];
 
         Assert.Equal("unfulfilled", completion.Stage);
-        Assert.Equal(["flow/borrowing-a-copy#s2"], completion.HeldBy);
+        Assert.Equal(["step/borrowing-a-copy.return-copy"], completion.HeldBy);
         Assert.Equal(1, completion.Counts["flow steps served"].Done);
         Assert.Equal(2, completion.Counts["flow steps served"].Of);
         Assert.Equal(1, completion.Counts["steps coded"].Done);

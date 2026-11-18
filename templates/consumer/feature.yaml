@@ -5,8 +5,6 @@ summary: <what the feature offers and to whom, or remove this line>
 terms:
 - <term id, or remove this line>
 offering: <what the product offers, in one sentence>
-solves:
-- problem/<name>
 advances:
 - goal/<name, or remove this line>
 successCriteria:

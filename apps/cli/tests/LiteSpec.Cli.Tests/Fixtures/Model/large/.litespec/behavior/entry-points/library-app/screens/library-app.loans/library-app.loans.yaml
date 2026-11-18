@@ -21,11 +21,11 @@ offers:
 - use-case/lending.cancel-hold
 - use-case/lending.retire-copy
 serves:
-- flow/borrow-and-return#s1
-- flow/borrow-and-return#s2
-- flow/borrow-and-return#s3
-- flow/borrow-and-return#s4
-- flow/borrow-and-return#s5
-- flow/borrow-and-return#s6
-- flow/borrow-and-return#s7
-- flow/borrow-and-return#s8
+- step/borrow-and-return.register-copy
+- step/borrow-and-return.borrow-copy
+- step/borrow-and-return.renew-loan
+- step/borrow-and-return.review-loans
+- step/borrow-and-return.return-copy
+- step/borrow-and-return.place-hold
+- step/borrow-and-return.cancel-hold
+- step/borrow-and-return.retire-copy

@@ -19,7 +19,7 @@ public sealed class StackReaderTests
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small", 80, 7, 0, 0)]
-    [InlineData("large", 108, 7, 1, 9)]
+    [InlineData("large", 116, 7, 1, 9)]
     public void BuildReadsFixtureCounts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);
@@ -205,7 +205,7 @@ public sealed class StackReaderTests
 
         Assert.Equal("verified", CompletionOf(root, "use-case/lending.review-loans").GetProperty("stage").GetString());
         Assert.Contains(
-            "flow/borrow-and-return#s4",
+            "step/borrow-and-return.review-loans",
             root.GetProperty("exercisedSteps").EnumerateArray().Select(step => step.GetString()));
     }
 
@@ -374,7 +374,7 @@ public sealed class StackReaderTests
             "entry-point/library-app"
           ],
           "serves": [
-            "flow/borrow-and-return#s4"
+            "step/borrow-and-return.review-loans"
           ],
           "steps": [
             {

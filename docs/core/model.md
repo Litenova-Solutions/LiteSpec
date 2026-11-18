@@ -39,12 +39,13 @@ A record type is one kind of statement a project can write, and each type answer
 | `goal` | intent | Which measurable outcome does the product serve? |
 | `direction` | intent | Which way might the product grow beyond what it promises now? |
 | `problem` | intent | Which pain does someone have today? |
-| `feature` | intent | What is offered, and which problems does it solve? |
+| `feature` | intent | What is offered against a problem? |
 | `constraint` | intent | Which outside rules hold? |
 | `research` | intent | Which outside facts inform a choice? |
 | `decision` | intent, implementation | Which choice holds, and what changes it? |
 | `requirement` | intent | What does the product do or guarantee? |
 | `flow` | intent | Which ordered steps reach the record it exists for? |
+| `step` | intent | Which act of its performer moves the flow forward? |
 | `actor` | intent | Who or what touches the product? |
 | `role` | intent | Which permission sets exist? |
 | `module` | behavior | Which product areas exist? |
@@ -91,7 +92,7 @@ Placement is the choice of where a record lives. Ten principles place every reco
 - **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, an aggregate, or an entry point. No record writes an up-link that its location already states.
 - **Four kinds of scope node, and only four.** Product, module, aggregate, and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
 - **The lowest scope node that holds every user.** A record sits under the lowest scope node that holds every record linking to it within its layer. The author places it, and the tool validates it.
-- **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency, through a module event, through an integration event, or through a queries edge to a public query that lists the consuming module. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
+- **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency, through a module event, through an integration event, through a queries edge to a public query that lists the consuming module, or through a commands edge to a public command that lists the sending module. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
 - **One identifier.** The identifier is short, unique in its record type, and what every link and citation uses. Placement shows as the folder path and the `module` field, never as a second name.
 - **One name per module in every layer and in code.** `behavior/modules/finance/`, the backend source trees, the test projects, and the frontend modules all use the declared module name.
 - **Code and tests follow the identifier.** The folder and namespace of code and tests that mark a record match that record's identifier and module.
@@ -119,12 +120,13 @@ Each parent with child records holds them in a folder named for the child type i
 | `goal` | Intent | product | `intent/goals/<name>/<name>.yaml` | product | `goal/<name>` |
 | `direction` | Intent | product | `intent/directions/<name>/<name>.yaml` | product | `direction/<name>` |
 | `problem` | Intent | product | `intent/problems/<name>/<name>.yaml` | product | `problem/<name>` |
-| `feature` | Intent | product | `intent/features/<name>/<name>.yaml` | product | `feature/<name>` |
-| `requirement` | Intent | product | `intent/features/<feature>/requirements/<name>/<name>.yaml` or `intent/requirements/<name>/<name>.yaml` | feature or product | `requirement/<feature>.<name>` or `requirement/<name>` |
+| `feature` | Intent | product | `intent/problems/<problem>/features/<name>/<name>.yaml` | problem | `feature/<name>` |
+| `requirement` | Intent | product | `intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml` or `intent/requirements/<name>/<name>.yaml` | feature or product | `requirement/<feature>.<name>` or `requirement/<name>` |
 | `constraint` | Intent | product | `intent/constraints/<name>/<name>.yaml` | product | `constraint/<name>` |
 | `decision` | Intent, Implementation | product, module | `intent/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/modules/<m>/decisions/<number>-<name>/<number>-<name>.yaml` | product or module | `decision/<number>-<name>` |
 | `research` | Intent | product | `intent/research/<name>/<name>.yaml` | product | `research/<name>` |
 | `flow` | Intent | product | `intent/flows/<name>/<name>.yaml` | product | `flow/<name>` |
+| `step` | Intent | entry | in its flow file | flow | `step/<flow>.<act>` |
 | `actor` | Intent | product | `intent/actors/<name>/<name>.yaml` | product | `actor/<name>` |
 | `role` | Intent | product | `intent/roles/<name>/<name>.yaml` | product | `role/<name>` |
 | `module` | Behavior | module | `behavior/modules/<m>/module.yaml` | product | `module/<name>` |
@@ -155,7 +157,7 @@ Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the cl
 
 A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
 
-A module, an aggregate, and an entry point are scope nodes, and the folder path of each record under one names that node. Storage is the folder path and the module, never a second name. A feature names the problems it solves in `solves`, and a product-level requirement cites at least one constraint, goal, or problem in `cites`.
+A module, an aggregate, and an entry point are scope nodes, and the folder path of each record under one names that node. Storage is the folder path and the module, never a second name. A feature answers the problem whose folder holds it, and a product-level requirement cites at least one constraint, goal, or problem in `cites`.
 
 A rule home is an aggregate name or a module name. A rule identifier keeps its home segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
@@ -167,11 +169,11 @@ List records (rule sets, setting sets, the permission set and the refusal set pe
 
 An external system sits at the lowest scope node holding every record that calls it. A product-level external system called from one module only is an `external-system-placement-wide` finding.
 
-The book groups a use case's scenarios by result, and it groups each feature under every problem its `solves` names. Both groupings are presentation; containment stays as the table states.
+The book groups a use case's scenarios by result, and it shows each feature under the problem whose folder holds it. The first grouping is presentation; the second follows containment.
 
 `fulfilledBy` does not exist: a use case keeps `fulfills` pointing up to the requirement, and the book computes the inverse. `role.allows` is a declared down-link, like `decides` and `holds`.
 
-Module dependencies form a directed acyclic graph over Contracts references, `queries` edges, and reactions to facts, beside the `dependsOn` links; a `module-dependency-invalid` finding reports a cycle.
+Module dependencies form a directed acyclic graph over Contracts references, `queries` edges, `commands` edges, and reactions to facts, beside the `dependsOn` links; a `module-dependency-invalid` finding reports a cycle.
 
 Decision numbers come from one sequence across every home, allocated by `litespec new decision`, which takes the next free number. A repeated number is a `record-key-duplicate` finding.
 
@@ -189,11 +191,11 @@ Implementation content that is not a record, and Proof content left by a run, si
 
 ### Record Parents
 
-A parent is the one record a record sits under. Every record except the product has exactly one parent, so book grouping places each record once: under its parent, or at the top of its own layer when the product parents it. A use case's scenarios group by result instead, and a feature shows under the problems its `solves` names, or under Features when it solves none.
+A parent is the one record a record sits under. Every record except the product has exactly one parent, so book grouping places each record once: under its parent, or at the top of its own layer when the product parents it. A use case's scenarios group by result instead.
 
 Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. An inverse link stays computed unless a reader needs it stated, in which case a check holds the copy.
 
-Containment follows storage. An entry's parent is the record file that holds it: a scenario's parent is its use case, reaction, or job. A record file's parent is its scope node: the product, a module, an aggregate, or an entry point. List records are files whose entries take the file's scope node as parent.
+Containment follows storage. An entry's parent is the record file that holds it: a scenario's parent is its use case, reaction, or job. A record file's parent is its scope node, or the record whose folder holds it when it nests inside another record: a feature's parent is its problem, and a feature requirement's parent is its feature. List records are files whose entries take the file's scope node as parent.
 
 Types at product level take the product as parent with no field written: a project has exactly one product, so the field would repeat one value on every record.
 
@@ -207,7 +209,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 
 | Folder | Record layer | Holds |
 |:---|:---|:---|
-| `.litespec/intent/` | Intent | Goals, directions, problems, features with their requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
+| `.litespec/intent/` | Intent | Goals, directions, problems with their features and requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
 | `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, module events, integration events, permissions and refusal sets; entry points with their screens; external systems |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, test runs, and operating logs. No person writes a fact here that a tool can compute |
@@ -244,11 +246,11 @@ rationale: |
 
 ### Explanation Files
 
-An explanation file is the optional `<name>.md` beside its record file, with the same name in the record's own folder. It is plain Markdown with no frontmatter: no field joins the two files, so the shared name is the link, and a rename moves both. It opens with `# <record title>`, then one paragraph of prose, then H2 sections in the order of the explanation-section table in [the writing standard](writing.md).
+An explanation file is the `<name>.md` beside its record file, with the same name in the record's own folder. It is plain Markdown with no frontmatter: no field joins the two files, so the shared name is the link, and a rename moves both. It opens with `# <record title>`, then one paragraph of prose, then H2 sections in the order of the explanation-section table in [the writing standard](writing.md).
 
 It restates the record in the same specification for people, elaborating each field in plain words with context and an example. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier.
 
-Inside Intent and Behavior records, a generated region derives from other records only. The file stays optional unless the project lists the record's layer in `explanations.layers` in [the project file](../reference/project-file.md).
+Inside Intent and Behavior records, a generated region derives from other records only. A record file on a layer the project lists in `explanations.layers` in [the project file](../reference/project-file.md) carries its explanation file; on any other layer the file stays optional. The layers a project can list are `intent`, `behavior` and `governance`.
 
 ### Documents
 
@@ -303,6 +305,7 @@ An identifier is the one name every link and citation uses for a record. It name
 | `decision` | `decision/<number>-<name>` | `decision/0001-receipt-threshold` |
 | `requirement` | `requirement/<feature>.<name>` or `requirement/<name>` | `requirement/approval-reminders.receipt-over-threshold` |
 | `flow` | `flow/<name>` | `flow/submit-and-reimburse` |
+| `step` | `step/<flow>.<act>` | `step/submit-and-reimburse.submit-expense` |
 | `module` | `module/<name>` | `module/spending` |
 | `aggregate` | `aggregate/<module>.<name>` | `aggregate/spending.expense` |
 | `rule` | `rule/<home>.<name>` | `rule/expense.approver-is-not-submitter` |
@@ -330,7 +333,7 @@ An identifier is the one name every link and citation uses for a record. It name
 
 The home segment stays short because names are unique where it matters. A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name.
 
-A use case name is unique among use cases, so a result cites only that name. Use case, reaction, and job names share one namespace, so a scenario cites only its parent name. An aggregate name is unique among aggregates.
+A use case name is unique among use cases, so a result cites only that name. Use case, reaction, and job names share one namespace, so a scenario cites only its parent name. An aggregate name is unique among aggregates. A flow name scopes its steps, so each step id carries its flow.
 
 A feature requirement's feature segment names its feature, and the feature's folder holds it. A product-level requirement carries no feature segment. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
@@ -338,7 +341,7 @@ The folder decides. A record that moves to another module changes the module seg
 
 Each name stays unique in its record type, and a `record-key-duplicate` finding reports a duplicate. Folders do not narrow uniqueness within a type. A page record takes its identifier name from its title, with the name words appearing in the title words in the same order.
 
-A flow step id is `flow/<name>#<step-id>`, with step ids `s1`, `s2`, and so on.
+A flow step id is `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case. List order is the main path; no position lives in an id. An act that only numbers the step, such as `s3` or `step-2`, is reported, and so is a `<flow>` segment naming another flow.
 
 A derived generic result is `result/<use-case>.forbidden`, `result/<use-case>.invalid-input`, `result/<use-case>.not-found`, `result/<use-case>.conflict`, `result/<use-case>.unauthenticated` or `result/<use-case>.sign-in-too-old`. Scenarios can point at derived results. Derived results are never written as records.
 
@@ -360,7 +363,7 @@ A field that records the history of the record is gone, because git holds it. A 
 
 ### Citations in Prose
 
-A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a flow step. Link checks resolve the identifier against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
+A Markdown link whose target is a record identifier cites that record. A flow step is cited by its `step/<flow>.<act>` identifier like any record. Link checks resolve the identifier against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
 
 ### Links
 
@@ -391,7 +394,6 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `supersedes` | decision | decision | supersedes | is superseded by |
 | `affects` | problem | actor | affects | is affected by |
 | `evidence.source` | problem | research | cites as evidence | is cited as evidence by |
-| `solves` | feature | problem | solves | is solved by |
 | `advances` | feature | goal | advances | is advanced by |
 | `cites` | requirement | goal, direction, problem, feature, constraint, research, decision | cites | is cited by |
 | `except.fallback` | requirement | requirement | falls back to | is the fallback for |
@@ -403,6 +405,9 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `steps.actor` | flow | actor | is performed by | performs |
 | `steps.system` | flow | external system | is performed by | performs |
 | `steps.carries` | flow | requirement | carries | is carried by |
+| `steps.branches.then` | flow | flow step | continues at | is continued from |
+| `steps.branches.carries` | flow | requirement | carries | is carried by |
+| `steps.branches.system` | flow | external system | is performed by | performs |
 | `dependsOn` | module | module | depends on | is depended on by |
 | `transitions.movedBy` | aggregate | use case, job | is moved by | moves |
 | `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
@@ -420,6 +425,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
 | `effects.calls` | use case, reaction, job | external operation | calls | is called by |
 | `effects.queries` | use case, reaction, job | use case | queries | is queried by |
+| `effects.commands` | use case, reaction, job | use case | commands | is commanded by |
 | `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
 | `consentRule` | use case, notification | rule | needs consent under | sets consent for |
@@ -458,13 +464,13 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 
 Links point up a layer by default, from the behavior to the promise it keeps. Intent links point up: `serves`, `answers`, `fulfills`, `cites` and `advances` connect Behavior to Intent or Intent to the promise above it.
 
-Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `queries`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources.
+Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `queries`, `commands`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources.
 
 The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, `holds`, which names the roles an actor holds, and `steps.system`, which names the external system that performs a flow step: a flow names no use case, and a requirement names no rule.
 
 A read model carries no `fulfills`: the query that reads the read model fulfills the requirement. Each `servedContent` entry on a `browser` entry point carries `fulfills` naming the requirement its content meets.
 
-Containment needs no link field: it follows storage. The scope node holds the parent, so `serves` on a flow and `answers` on a flow remain connections that carry meaning without deciding placement.
+Containment needs no link field: it follows storage. The scope node holds the parent, so `serves` on a flow and `answers` on a flow remain connections that carry meaning without deciding placement. A feature answers the one problem whose folder holds it, so the table carries no feature-to-problem link: the folder states it.
 
 The builder computes the remaining links from code, routes, and tests:
 
@@ -707,11 +713,11 @@ The book leads with completion, and it says `claimed` for a link and `verified` 
 The book shows each flow as record detail:
 
 - Its `startedWhen`.
-- The steps with their `statement` and `failure`.
-- Each branch as a sentence after the steps.
+- The steps with their `title`, their `statement`, their `failure`, and their branches indented under them, each branch with its condition and where the path continues or ends.
 - Its `finishedWhen`.
 - For each step, the requirements the step carries, with their statements and their `except` and fallback inline.
 - For each step, the serving behavior in one line.
+- For each step, its trace: the screens and use cases serving it, the requirements it carries with the use cases fulfilling them, and the code files and tests behind them.
 - The Then clauses of its scenarios, as context.
 
 Field tables render as tables. A use case's scenarios group under their result. Field names never render literally in flow detail. The book renders each record's explanation file under its fields, anchored at the record.
@@ -824,9 +830,9 @@ A generated region that `model render` writes from the record file is not a seco
 
 **Statement:** A record page on a layer the project lists in `explanations.layers` MUST carry its explanation file with the required H2 sections.
 
-**Rationale:** On a complex product, every record needs explaining for people who did not write it. Listing a layer in `explanations.layers` makes the explanation a gate instead of a habit. On a layer the project does not list, the explanation file is optional for every record type, including research and decision records.
+**Rationale:** On a complex product, every record needs explaining for people who did not write it. Listing a layer in `explanations.layers` makes the explanation a gate instead of a habit. The layers a project can list are `intent`, `behavior` and `governance`, and every record file on a listed layer carries its explanation file, requirements and waivers included. On a layer the project does not list, the explanation file is optional for every record type, including research and decision records.
 
-**Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check.
+**Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check. When Claimwick lists `governance`, its waiver `waiver/export-expenses-unimplemented` carries its explanation file with Provision, Reason, Risk and Expiry.
 
 **Checked by:** `litespec model check` reports `explanation-missing` for a record page on a listed layer with no explanation file or with a required H2 section missing or its sections out of order.
 
@@ -876,7 +882,7 @@ A generated region that `model render` writes from the record file is not a seco
 
 A feature requirement sits under its feature in its own folder, and types at product level, including a product-level requirement, sit under the product with no field written. The product is the root of the tree and stands above every record layer, settled by [decision/0091-place-the-product-above-layers](decision/0091-place-the-product-above-layers). Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
 
-**Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/features/approval-reminders/requirements/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits in the file of `use-case/spending.submit-expense`.
+**Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/problems/expenses-wait-weeks/features/approval-reminders/requirements/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits in the file of `use-case/spending.submit-expense`.
 
 **Checked by:** `litespec model check` reports `record-placement-invalid` (level G) for a record whose required parent is missing.
 
@@ -950,15 +956,15 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:direction, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:reference-data, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver
+**Applies to:** artifact: record:product, record:goal, record:direction, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:step, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:reference-data, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver
 
-**Statement:** Every page record MUST take its identifier name, and so its folder and file names, from the words of its title in title order.
+**Statement:** Every page record and every flow step MUST take its name from the words of its title in title order: a page record its identifier name, and so its folder and file names, and a flow step the act in its identifier.
 
-**Rationale:** Readers browse the folders before they open a record, so the folder name must say what the record says. A retitle that keeps the identifier leaves the folder and file saying the old name while the record says the new one, and no listing shows the gap. Taking the name from the title's words keeps the identifier, the file, and the folder on what the record says. Proposed by [decision/0061-name-each-identifier-from-its-title](../intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md).
+**Rationale:** Readers browse the folders before they open a record, so the folder name must say what the record says. A retitle that keeps the identifier leaves the folder and file saying the old name while the record says the new one, and no listing shows the gap. Taking the name from the title's words keeps the identifier, the file, and the folder on what the record says. A step lives in its flow's file, so only its act faces its title. Proposed by [decision/0061-name-each-identifier-from-its-title](../intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md).
 
-**Example:** Claimwick titles a requirement "Nobody Approves Their Own Expense", so the requirement is `requirement/approval.nobody-approves-own-expense` in `nobody-approves-own-expense/nobody-approves-own-expense.yaml`. The name `no-self-approval` holds words the title does not hold, so it is reported.
+**Example:** Claimwick titles a requirement "Nobody Approves Their Own Expense", so the requirement is `requirement/approval.nobody-approves-own-expense` in `nobody-approves-own-expense/nobody-approves-own-expense.yaml`. The name `no-self-approval` holds words the title does not hold, so it is reported. Claimwick titles a step "Submit Expense", so the step is `step/submit-and-reimburse.submit-expense`.
 
-**Checked by:** `litespec model check` reports `identifier-title-invalid` for a page record whose identifier name is no word subsequence of its title, or whose record file is named for neither its identifier name nor the fixed file name of its type.
+**Checked by:** `litespec model check` reports `identifier-title-invalid` for a page record whose identifier name is no word subsequence of its title, or whose record file is named for neither its identifier name nor the fixed file name of its type, and for a flow step whose act is no word subsequence of its title.
 
 ### State What a Reader Needs on the Record and Check Each Copy
 
@@ -1032,9 +1038,9 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Rationale:** A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with `serves`, so each step id collects the behaviors that carry the actor through it.
 
-Two findings cover the two gaps: `step-use-case-missing` names a step no use case, reaction, or job serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+Three findings cover the three gaps: `step-use-case-missing` names a step no use case, reaction, or job serves, `step-screen-missing` names a step a browser or device use case serves that no screen serves, and `step-implementation-missing` names a step whose serving use cases have no implementing code. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
-**Checked by:** `litespec model check` reports `step-use-case-missing` for a flow step with no serving use case, reaction, or job, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves.
+**Checked by:** `litespec model check` reports `step-use-case-missing` for a flow step with no serving use case, reaction, or job, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves, and beside `step-implementation-missing` (level S) for a step whose serving use cases have no implementing code.
 
 ### Connect Across Modules Only Through Declared Dependencies
 
@@ -1044,13 +1050,13 @@ Two findings cover the two gaps: `step-use-case-missing` names a step no use cas
 
 **Applies to:** artifact: any
 
-**Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, through an integration event, or through a queries edge to a public query that lists the consuming module in `reachedThrough`.
+**Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency, through a module event, through an integration event, through a queries edge to a public query that lists the consuming module in `reachedThrough`, or through a commands edge to a public command that lists the sending module in `reachedThrough`.
 
-**Rationale:** A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. A queries edge to a public query that lists the consuming module names its own tie: the consuming module's `queries` edge names the query, and the query's `reachedThrough` names the consuming module back. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.
+**Rationale:** A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency, the module event, or the integration event names the tie, so the seam where a monolith would split stays visible. A queries edge to a public query that lists the consuming module names its own tie: the consuming module's `queries` edge names the query, and the query's `reachedThrough` names the consuming module back. A commands edge to a public command that lists the sending module names its own tie the same way. Links from one layer down to the next may cross modules, because that is how one capability spans modules. This provision is the one rule for links across modules.
 
-**Example:** A spending rule cited from the finance module with no `dependsOn` tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie. Reporting's reimbursement command declares a `queries` edge to spending's read-expense query, which lists `module/reporting` in `reachedThrough`, so the edge passes with no `dependsOn` tie.
+**Example:** A spending rule cited from the finance module with no `dependsOn` tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie. Reporting's reimbursement command declares a `queries` edge to spending's read-expense query, which lists `module/reporting` in `reachedThrough`, so the edge passes with no `dependsOn` tie. Reporting's close-period command declares a `commands` edge to spending's close-expenses command, which lists `module/reporting` in `reachedThrough`, so that edge passes the same way.
 
-**Checked by:** `litespec model check` reports `link-locality-invalid` for a record under a module that is linked from another module with no declared dependency, module event, or integration event. A queries edge to a public query that lists the consuming module passes; a queries edge to a query use case whose `reachedThrough` does not name the consuming module is reported as `query-target-invalid`.
+**Checked by:** `litespec model check` reports `link-locality-invalid` for a record under a module that is linked from another module with no declared dependency, module event, or integration event. A queries edge to a public query that lists the consuming module passes, and so does a commands edge to a public command that lists the sending module; a queries edge to a query use case whose `reachedThrough` does not name the consuming module is reported as `query-target-invalid`, and a commands edge to a command use case whose `reachedThrough` does not name the sending module is reported as `command-target-invalid`.
 
 ### Keep Module Dependencies Free of Cycles
 
@@ -1062,7 +1068,7 @@ Two findings cover the two gaps: `step-use-case-missing` names a step no use cas
 
 **Statement:** Module dependencies MUST NOT form a cycle.
 
-**Rationale:** A dependency cycle says each module builds on the other, so neither has a seam to split along. The graph runs over Contracts project references, `queries` edges, and reactions to another module's facts, beside the `dependsOn` links. A cycle means a concept is split across two modules, and the fix moves the concept into one module, never through a shared identifier. Settled by [decision/0110-module-dependencies-form-a-dag](decision/0110-module-dependencies-form-a-dag).
+**Rationale:** A dependency cycle says each module builds on the other, so neither has a seam to split along. The graph runs over Contracts project references, `queries` edges, `commands` edges, and reactions to another module's facts, beside the `dependsOn` links. A cycle means a concept is split across two modules, and the fix moves the concept into one module, never through a shared identifier. Settled by [decision/0110-module-dependencies-form-a-dag](decision/0110-module-dependencies-form-a-dag).
 
 **Example:** Spending depends on finance and finance depends on spending, so the cycle is reported naming both modules and the edges that close it.
 
@@ -1176,7 +1182,7 @@ Kept in Intent, the rule and the target stand as the promises they are, the deci
 
 **Statement:** Every Markdown link outside code in a record field, an explanation file, or a document MUST resolve to an existing file or to a written record identifier.
 
-**Rationale:** A link that points at a moved file or an unknown identifier reads as navigation and leads nowhere. A link whose target is a record identifier, with an optional `#<step-id>`, cites that record: link checks resolve it against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
+**Rationale:** A link that points at a moved file or an unknown identifier reads as navigation and leads nowhere. A link whose target is a record identifier cites that record: link checks resolve it against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
 
 **Example:** The Claimwick receipt rule is cited as `[the receipt rule](rule/expense.approver-is-not-submitter)`.
 

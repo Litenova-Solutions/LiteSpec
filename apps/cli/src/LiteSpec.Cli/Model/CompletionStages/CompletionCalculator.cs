@@ -196,8 +196,8 @@ static class CompletionCalculator
     ///     One flow's completion. Its children are its steps. An unserved step
     ///     is unfulfilled, a served step with no code is specified, a step whose
     ///     serving code is found and that no passing proof exercises is
-    ///     coded, and an exercised step is verified. Steps are not records, so no
-    ///     waiver parks them and every step is in scope.
+    ///     coded, and an exercised step is verified. A step's completion is never
+    ///     parked, so every step is in scope.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="flow">The flow whose completion is wanted.</param>
@@ -623,7 +623,7 @@ static class CompletionCalculator
 
     /// <summary>One flow step's stage from the records serving it, worked out once per step.</summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
-    /// <param name="step">The flow step id, as <c>flow/&lt;name&gt;#&lt;step&gt;</c>.</param>
+    /// <param name="step">The flow step id, as <c>step/&lt;flow&gt;.&lt;act&gt;</c>.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>Unfulfilled when nothing serves the step, specified when its serving record has no code, coded when code is found and no passing proof exercises it, and verified when a passing proof exercises it.</returns>

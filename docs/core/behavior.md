@@ -27,12 +27,12 @@ A module names one product area of the bounded context. It is declared in Behavi
 One name runs through every layer:
 
 ```text
-.litespec/intent/features/<name>/              features with their requirements
+.litespec/intent/problems/<problem>/features/<name>/   features with their requirements
 .litespec/behavior/modules/<module>/...        module, aggregates and use cases
 src/<Layer>/<Module>/<Aggregates>/<UseCase>     code
 ```
 
-A reader finds a use case by module, then aggregate, then use case. Intent holds no module folder: each feature stands in `intent/features/` and names the problems it answers in `solves`, while the Behavior records that fulfill its requirements name the module.
+A reader finds a use case by module, then aggregate, then use case. Intent holds no module folder: each feature sits in the `features/` folder of the one problem it answers, while the Behavior records that fulfill its requirements name the module.
 
 The module is also the seam where a monolith would later split into services. Anything cross-cutting, such as accessibility or security, sits at product level instead of inside a module that borrows it.
 

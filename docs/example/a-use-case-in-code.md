@@ -17,7 +17,7 @@ access:
   grant: permission/request-expense
   tenant: own
 serves:
-- flow/submit-and-reimburse#s1
+- step/submit-and-reimburse.submit-expense
 fulfills:
 - requirement/approval.above-threshold-receipt
 reachedThrough:

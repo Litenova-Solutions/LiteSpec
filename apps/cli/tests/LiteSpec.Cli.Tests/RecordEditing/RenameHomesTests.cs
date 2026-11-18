@@ -55,6 +55,40 @@ public sealed class RenameHomesTests
         Assert.False(Directory.Exists(Path.Combine(flows, "close-the-year")));
     }
 
+    /// <summary>A flow rename carries the step ids in its file and every citation of them.</summary>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
+    [Fact(DisplayName = "rename carries a flow's step ids and their citations")]
+    public void RenameCarriesAFlowsStepIds()
+    {
+        using var consumer = Consumer();
+        TestRecords.Write(consumer.Path, ".litespec/intent/flows/close-the-year/close-the-year.yaml", """
+            {
+              "type": "flow",
+              "id": "flow/close-the-year",
+              "title": "Close the Year",
+              "steps": [
+                {"id": "step/close-the-year.close-ledger", "title": "Close Ledger", "statement": "The reader closes the ledger."}
+              ]
+            }
+            """);
+        TestRecords.Write(consumer.Path, $"{Expenses}/use-cases/submit-expense/submit-expense.yaml", """
+            {
+              "type": "use-case",
+              "id": "use-case/spending.submit-expense",
+              "title": "Submit Expense",
+              "serves": ["step/close-the-year.close-ledger"]
+            }
+            """);
+
+        var result = TestCli.Run("rename", "flow/close-the-year", "flow/year-end", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var moved = Path.Combine(consumer.Path, ".litespec/intent/flows/year-end/year-end.yaml");
+        Assert.Contains("step/year-end.close-ledger", File.ReadAllText(moved));
+        var useCase = Path.Combine(consumer.Path, Expenses, "use-cases", "submit-expense", "submit-expense.yaml");
+        Assert.Contains("step/year-end.close-ledger", File.ReadAllText(useCase));
+    }
+
     /// <summary>A rename that names another owner refuses without --move and changes nothing.</summary>
     /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact(DisplayName = "rename refuses another owner without --move and changes nothing")]

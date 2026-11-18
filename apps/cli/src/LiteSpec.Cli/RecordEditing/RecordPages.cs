@@ -36,6 +36,7 @@ static class RecordPages
         ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a rule that binds several aggregates",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
+        ["step"] = "its flow file",
         ["domain-event"] = "its aggregate file",
         ["refusal-set"] = ".litespec/behavior/modules/<m>/refusals.yaml",
         ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/integration-events/",
@@ -249,9 +250,8 @@ static class RecordPages
     /// <summary>
     ///     Rewrites every citation of <paramref name="oldId"/> as
     ///     <paramref name="newId"/>. A match inside a longer identifier is left
-    ///     alone; a flow step keeps its fragment. A dot after the match ends
-    ///     the citation unless a name character follows it, so a sentence that
-    ///     ends on the identifier is rewritten.
+    ///     alone. A dot after the match ends the citation unless a name character
+    ///     follows it, so a sentence that ends on the identifier is rewritten.
     /// </summary>
     /// <param name="text">The file text to rewrite.</param>
     /// <param name="oldId">The identifier to replace.</param>

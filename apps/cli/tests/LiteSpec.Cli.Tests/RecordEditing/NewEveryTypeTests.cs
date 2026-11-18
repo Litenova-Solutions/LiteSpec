@@ -21,7 +21,7 @@ public sealed class NewEveryTypeTests
         // A requirement is written in its feature's folder, so the feature exists first.
         if (type == "requirement")
         {
-            Assert.Equal(0, TestCli.Run("new", "feature", "approval", "--root", consumer.Path).Status);
+            Assert.Equal(0, TestCli.Run("new", "feature", "waiting-for-money.approval", "--root", consumer.Path).Status);
         }
 
         var result = TestCli.Run("new", type, argument, "--root", consumer.Path);
@@ -37,8 +37,8 @@ public sealed class NewEveryTypeTests
 
         var explanation = Path.ChangeExtension(record, ".md");
 
-        // A requirement takes no explanation file, and the product stands above the record layers. A waiver sits on the governance layer, which this consumer lists, so it takes its explanation file like any listed type.
-        if (type is "requirement" or "product")
+        // The product stands above the record layers, so it takes no explanation file. A waiver sits on the governance layer, which this consumer lists, so it takes its explanation file like any listed type.
+        if (type is "product")
         {
             Assert.False(File.Exists(explanation), $"A {type} takes no explanation file.");
             return;
@@ -76,8 +76,8 @@ public sealed class NewEveryTypeTests
         yield return ["goal", "faster-reimbursement", "intent/goals/faster-reimbursement/faster-reimbursement.yaml", "Faster Reimbursement", "goal/faster-reimbursement"];
         yield return ["direction", "one-desk", "intent/directions/one-desk/one-desk.yaml", "One Desk", "direction/one-desk"];
         yield return ["problem", "waiting-for-money", "intent/problems/waiting-for-money/waiting-for-money.yaml", "Waiting for Money", "problem/waiting-for-money"];
-        yield return ["feature", "approval", "intent/features/approval/approval.yaml", "Approval", "feature/approval"];
-        yield return ["requirement", "approval.decided-in-five", "intent/features/approval/requirements/decided-in-five/decided-in-five.yaml", "Decided in Five", "requirement/approval.decided-in-five"];
+        yield return ["feature", "waiting-for-money.approval", "intent/problems/waiting-for-money/features/approval/approval.yaml", "Approval", "feature/approval"];
+        yield return ["requirement", "approval.decided-in-five", "intent/problems/waiting-for-money/features/approval/requirements/decided-in-five/decided-in-five.yaml", "Decided in Five", "requirement/approval.decided-in-five"];
         yield return ["constraint", "receipt-retention", "intent/constraints/receipt-retention/receipt-retention.yaml", "Receipt Retention", "constraint/receipt-retention"];
         yield return ["decision", "receipt-threshold", "intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml", "Receipt Threshold", "decision/0001-receipt-threshold"];
         yield return ["research", "benchmark-approval-times", "intent/research/benchmark-approval-times/benchmark-approval-times.yaml", "Benchmark Approval Times", "research/benchmark-approval-times"];

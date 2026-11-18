@@ -189,12 +189,14 @@ public static class Identifiers
         || (character >= '0' && character <= '9');
 
     /// <summary>
-    ///     Splits a flow step link of the form flow/name#step into the flow id and the step.
+    ///     Splits a step citation of the old form flow/name#step into the flow id
+    ///     and the step. Steps are cited by their step identifier; this split finds
+    ///     the citations that still use the old form so the link checks report them.
     /// </summary>
-    /// <param name="id">The flow step link to split.</param>
+    /// <param name="id">The step citation to split.</param>
     /// <param name="flow">The flow id before the number sign.</param>
     /// <param name="step">The step after the number sign.</param>
-    /// <returns>True when the link splits into a flow id and a step.</returns>
+    /// <returns>True when the citation splits into a flow id and a step.</returns>
     public static bool TrySplitStep(string id, out string flow, out string step)
     {
         flow = "";
@@ -214,8 +216,8 @@ public static class Identifiers
     }
 
     /// <summary>
-    ///     The link without its number-sign fragment: a flow step resolves through its
-    ///     flow, and an external-system operation through its system.
+    ///     The link without its number-sign fragment: an external-system operation
+    ///     resolves through its system.
     /// </summary>
     /// <param name="id">The link to read.</param>
     /// <returns>The link without its fragment.</returns>

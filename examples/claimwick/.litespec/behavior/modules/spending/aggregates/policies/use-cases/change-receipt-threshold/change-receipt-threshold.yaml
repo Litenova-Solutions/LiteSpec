@@ -8,7 +8,7 @@ access:
   grant: permission/manage-policy
   tenant: own
 serves:
-- flow/set-receipt-threshold#s1
+- step/set-receipt-threshold.set-threshold
 fulfills:
 - requirement/approval.above-threshold-receipt
 reachedThrough:

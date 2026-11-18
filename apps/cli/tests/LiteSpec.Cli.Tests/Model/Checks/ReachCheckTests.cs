@@ -29,7 +29,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "problems", "ghost-pain", "features", "borrowing", "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "problems", "ghost-pain", "features", "borrowing", "borrowing.yaml"), """{}"""),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
@@ -115,8 +115,8 @@ public sealed class ReachCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
-            TestModel.Record("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"steps": [{"id": "s1", "statement": "A ghost borrows a copy.", "carries": ["requirement/borrowing.max-loans"]}]}"""));
+            [TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
+            .. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "A ghost borrows a copy.", "carries": ["requirement/borrowing.max-loans"]}]}""")]);
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
     }
@@ -212,7 +212,7 @@ public sealed class ReachCheckTests
         File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), """{"owners": ["lending-team"], "size": "large"}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["flow/borrow#s1"]}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["step/borrow.borrow-copy"]}"""),
             TestModel.Record("reaction", "reaction/lending.hold-on-borrow", Path.Combine(temp.Path, "hold.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""),
             TestModel.Record("use-case", "use-case/lending.hold-copy", Path.Combine(temp.Path, "hold-copy.yaml"), """{"kind": "command"}"""));
 

@@ -8,7 +8,8 @@ answers:
 startedWhen: Finance has the approvals of the period to pay out.
 finishedWhen: Finance has exported the batch of approved expenses for the payout.
 steps:
-- id: s1
+- id: step/export-approved-expenses.export-batch
+  title: Export Batch
   statement: Finance exports the approved expenses in one batch.
   actor: actor/finance
   failure: No approved expense awaits the export, so finance sees the refusal and there is no batch to pay out.

@@ -52,7 +52,7 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2030` run across layers
 - [LS2026: Model Duplicated in Two Use Case Folders](ls2026.md): reports a record declared with the same members in two use case folders.
 - [LS2027: Application Does Infrastructure Work](ls2027.md): reports archive, serialization, or document work in Application.
 - [LS2028: Module Exposes a Public Type Outside Contracts](ls2028.md): reports a public type in a module project outside its entry type.
-- [LS2029: File Names a Contract Type Outside Its Layer](ls2029.md): reports another module's public query or result named outside the provider adapter, and a module identifier named in the Platform.
+- [LS2029: File Names a Contract Type Outside Its Layer](ls2029.md): reports another module's public query, public command, or result named outside the provider adapter, and a module identifier named in the Platform.
 - [LS2030: Contracts Project Declares an Interface](ls2030.md): reports an interface in a Contracts project, which publishes data only.
 
 ## Naming and Style Rules

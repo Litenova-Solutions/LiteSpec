@@ -35,7 +35,7 @@ internal static class ReachChecks
             }
 
             var servesStep = useCase.Ids(RecordFields.Serves)
-                .Any(id => Identifiers.TrySplitStep(id, out _, out _));
+                .Any(id => id.StartsWith("step/", StringComparison.Ordinal));
 
             if (!servesStep)
             {
@@ -72,10 +72,10 @@ internal static class ReachChecks
         CheckUnmatchedCalls(model, findings);
     }
 
-    /// <summary>The requirements the steps of one flow cite.</summary>
+    /// <summary>The requirements the steps of one flow cite, and their branches cite.</summary>
     /// <param name="flow">The flow record whose steps are read.</param>
-    /// <returns>Each requirement identifier a step of the flow cites.</returns>
-    private static IEnumerable<string> StepCitesOf(Record flow)
+    /// <returns>Each requirement identifier a step or a branch of the flow cites.</returns>
+    private static List<string> StepCitesOf(Record flow)
     {
         if (flow.Raw.ValueKind != JsonValueKind.Object
             || !flow.Raw.TryGetProperty(RecordFields.Steps, out var steps)
@@ -84,7 +84,24 @@ internal static class ReachChecks
             return [];
         }
 
-        return steps.EnumerateArray().SelectMany(step => LinkStrings(step, RecordFields.Carries));
+        var cited = new List<string>();
+
+        foreach (var step in steps.EnumerateArray())
+        {
+            cited.AddRange(LinkStrings(step, RecordFields.Carries));
+
+            if (step.ValueKind == JsonValueKind.Object
+                && step.TryGetProperty(RecordFields.Branches, out var branches)
+                && branches.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var branch in branches.EnumerateArray())
+                {
+                    cited.AddRange(LinkStrings(branch, RecordFields.Carries));
+                }
+            }
+        }
+
+        return cited;
     }
 
     /// <summary>Whether a quality requirement is proved outside Behavior: it names its check, or a test proves it.</summary>
@@ -145,7 +162,9 @@ internal static class ReachChecks
 
         var solvedProblems = model.Records
             .Where(record => record.Type == RecordTypes.Feature && reachingFeatures.Contains(record.Id))
-            .SelectMany(record => record.Ids(RecordFields.Solves))
+            .Select(record => RecordPlacement.ProblemOf(record.File))
+            .OfType<string>()
+            .Select(name => $"problem/{name}")
             .ToHashSet(StringComparer.Ordinal);
 
         var citedProblems = model.Records

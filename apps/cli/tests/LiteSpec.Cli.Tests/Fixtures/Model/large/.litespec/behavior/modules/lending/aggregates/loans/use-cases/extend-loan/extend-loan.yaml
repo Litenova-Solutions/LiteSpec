@@ -7,7 +7,7 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-- flow/borrow-and-return#s3
+- step/borrow-and-return.renew-loan
 fulfills:
 - requirement/borrowing.loan-period-days
 reachedThrough:

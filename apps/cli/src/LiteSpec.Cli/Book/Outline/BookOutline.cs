@@ -39,7 +39,7 @@ static class BookOutline
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
     /// <summary>The record types that top the intent layer under their type groups, in display order.</summary>
-    static readonly IReadOnlyList<string> IntentTopOrder = ["direction", "goal", "problem", "feature", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
+    static readonly IReadOnlyList<string> IntentTopOrder = ["direction", "goal", "problem", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
     /// <summary>The record types under a module, in display order: aggregates with their use cases first, then the module's other records by type.</summary>
     static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "job", "read-model", "reference-data", "notification", "setting", "permission"];
     /// <summary>The record types under an aggregate, in display order.</summary>
@@ -158,17 +158,6 @@ static class BookOutline
             if (string.Equals(type, "product", StringComparison.Ordinal))
             {
                 // The product holds no outline node: it tops no layer, and its children top their own.
-                continue;
-            }
-
-            if (string.Equals(type, "feature", StringComparison.Ordinal) && SolvedProblems(record, byId, attached) is { Count: > 0 } solved)
-            {
-                // A feature solving problems sits under each one, so the book groups it with every problem it answers, and nowhere else: it never tops the intent layer beside them.
-                foreach (var problem in solved)
-                {
-                    nodes[problem].Children.Add(nodes[id]);
-                }
-
                 continue;
             }
 
@@ -507,8 +496,8 @@ static class BookOutline
         return tail.Replace('_', ' ');
     }
 
-    /// <summary>Strips the step fragment of an id, such as flow/name#s1.</summary>
-    /// <param name="id">The identifier, optionally with a step fragment after a hash.</param>
+    /// <summary>Strips the hash fragment of an id, such as an external-system operation.</summary>
+    /// <param name="id">The identifier, optionally with a fragment after a hash.</param>
     /// <returns>The identifier without its fragment, unchanged when it holds no hash.</returns>
     static string BaseId(string id)
     {
@@ -587,7 +576,7 @@ static class BookOutline
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "runbook" => "implementation",
             "term" => IsBehaviorTerm(record) ? "behavior" : "intent",
-            "goal" or "direction" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" or "role" => "intent",
+            "goal" or "direction" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "step" or "actor" or "role" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
             _ => "intent",
         };
@@ -885,30 +874,6 @@ static class BookOutline
     /// <param name="name">The property name to read.</param>
     /// <returns>The string value of the property, or null when the object or property is missing or the value is not a string.</returns>
     static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
-
-    /// <summary>The problems a feature solves that the outline places: each one a problem record attached to the tree.</summary>
-    /// <param name="record">The feature record.</param>
-    /// <param name="byId">The records by identifier.</param>
-    /// <param name="attached">Whether each record attaches to the tree.</param>
-    /// <returns>The attached problem identifiers, in the feature's order.</returns>
-    static List<string> SolvedProblems(JsonObject record, Dictionary<string, JsonObject> byId, Dictionary<string, bool> attached)
-    {
-        var solved = new List<string>();
-        foreach (var node in BookRender.Fields(record)?["solves"] as JsonArray ?? [])
-        {
-            if (node is JsonValue value
-                && value.TryGetValue<string>(out var problem)
-                && byId.TryGetValue(problem, out var target)
-                && string.Equals(StrProp(target, "type"), "problem", StringComparison.Ordinal)
-                && attached.TryGetValue(problem, out var ok)
-                && ok)
-            {
-                solved.Add(problem);
-            }
-        }
-
-        return solved;
-    }
 
     /// <summary>The result a scenario shows, when the outline places that result; the grouping under it is presentation only.</summary>
     /// <param name="record">The scenario record.</param>

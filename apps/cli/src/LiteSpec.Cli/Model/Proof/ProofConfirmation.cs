@@ -94,7 +94,7 @@ static class ProofConfirmation
 
             foreach (var step in useCase.Ids(RecordFields.Serves))
             {
-                if (Identifiers.TrySplitStep(step, out _, out _))
+                if (step.StartsWith("step/", StringComparison.Ordinal))
                 {
                     model.ExercisedSteps.Add(step);
                 }

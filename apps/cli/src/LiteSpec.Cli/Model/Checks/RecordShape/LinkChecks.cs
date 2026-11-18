@@ -33,7 +33,11 @@ internal static class LinkChecks
 
                 if (IsRecordTarget(target))
                 {
-                    if (!byId.ContainsKey(Identifiers.BaseId(target)))
+                    if (Identifiers.TrySplitStep(target, out _, out _))
+                    {
+                        found.Add(new Finding("reference-unknown", $"Link '{target}' names a step in the old flow/name#step form; cite the step id instead.", body.File, body.BodyStartLine + LineOf(starts, match.Index) - 1, body.PageId));
+                    }
+                    else if (!byId.ContainsKey(Identifiers.BaseId(target)))
                     {
                         found.Add(new Finding("reference-unknown", $"Link '{target}' resolves to no record.", body.File, body.BodyStartLine + LineOf(starts, match.Index) - 1, body.PageId));
                     }

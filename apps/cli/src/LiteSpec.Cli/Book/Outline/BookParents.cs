@@ -38,8 +38,9 @@ static class BookParents
             ["module"] = new("module", ["product"], "product"),
             ["role"] = new("role", ["product"], "product"),
             ["flow"] = new("flow", ["product"], "product"),
+            ["step"] = new("step", ["flow"], "flow"),
             ["entry-point"] = new("entry-point", ["product"], "product"),
-            ["feature"] = new("feature", ["product"], "product"),
+            ["feature"] = new("feature", ["problem"], "problem"),
             ["permission"] = new("permission", ["module"], "module"),
             ["module-event"] = new("module-event", ["module"], "module"),
             ["integration-event"] = new("integration-event", ["module"], "module"),
@@ -218,12 +219,13 @@ static class BookParents
             "goal" or "problem" or "constraint" or "research" => index.ProductId,
             "decision" or "runbook" or "waiver" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
             "direction" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" => index.ProductId,
-            "feature" => index.ProductId,
+            "feature" => ProblemFromFile(record),
             "permission" or "integration-event" => ModuleFromFile(index, record),
             "requirement" => FeatureFromFolder(index, record) ?? FeatureParent(index, id) ?? ProductParentForUndottedRequirement(index, id),
             "aggregate" or "module-event" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
             "result" => UseCaseNameParent(index, id),
+            "step" => FlowNameParent(index, id),
             "scenario" => ScenarioParent(index, record, id),
             "rule" => RuleParent(index, record, id),
             "domain-event" => AggregateFromFile(index, record) ?? AggregateNameParent(index, id),
@@ -236,6 +238,13 @@ static class BookParents
         return string.Equals(parent, id, StringComparison.Ordinal) ? null : parent;
     }
 
+    /// <summary>Finds the problem parent of a feature from its file: the problem whose features folder holds it.</summary>
+    /// <param name="record">The feature record object that holds the file path.</param>
+    /// <returns>The problem identifier for the folder, or null when the file sits in no problem's features folder.</returns>
+    static string? ProblemFromFile(JsonObject record) =>
+        RecordPlacement.ProblemOf(StrProp(record, "file") ?? string.Empty) is { Length: > 0 } problem
+            ? $"problem/{problem}"
+            : null;
 
     /// <summary>Finds the module parent of a record from its file: the module its folder sits under.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>
@@ -448,6 +457,22 @@ static class BookParents
         return AggregateFromFile(index, record)
             ?? ModuleFromFile(index, record)
             ?? ModuleParent(index, id);
+    }
+
+    /// <summary>Finds the flow parent of a step from its identifier home.</summary>
+    /// <param name="index">The parent lookup tables for the model.</param>
+    /// <param name="id">The step identifier whose home names the flow.</param>
+    /// <returns>The flow identifier for the home, or null when the identifier has no home or the model holds no such flow.</returns>
+    static string? FlowNameParent(ParentIndex index, string id)
+    {
+        if (!Identifiers.TrySplit(id, out _, out var home, out _) || home is not { Length: > 0 })
+        {
+            return null;
+        }
+
+        var flow = $"flow/{home}";
+
+        return index.ById.ContainsKey(flow) ? flow : null;
     }
 
     /// <summary>Finds the use-case parent of a record from its identifier home.</summary>

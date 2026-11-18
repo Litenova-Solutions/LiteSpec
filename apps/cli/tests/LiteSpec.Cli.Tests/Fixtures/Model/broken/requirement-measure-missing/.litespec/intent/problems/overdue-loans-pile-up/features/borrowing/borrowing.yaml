@@ -1,0 +1,8 @@
+type: feature
+id: feature/borrowing
+title: Borrowing
+offering: Readers borrow and return copies and place holds, and every copy keeps one home shelf.
+successCriteria:
+- Readers borrow and return copies and place holds with every copy on one home shelf.
+excludes:
+- Borrowing tracks no fines.

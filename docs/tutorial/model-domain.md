@@ -106,10 +106,10 @@ Intent records say what the product promises; Behavior records say how the produ
 
     | Use case | Kind | Serves | Access grant | Writes |
     |:---|:---|:---|:---|:---|
-    | `use-case/spending.submit-expense` | `command` | `flow/submit-and-reimburse#s1` | `permission/request-expense` | `aggregate/spending.expense` |
-    | `use-case/spending.approve-expense` | `command` | `flow/submit-and-reimburse#s3` | `permission/approve-expense` | `aggregate/spending.expense` |
-    | `use-case/spending.reimburse-expense` | `command` | `flow/submit-and-reimburse#s4` | `permission/post-reimbursement` | `aggregate/spending.expense` |
-    | `use-case/spending.list-expenses` | `query` | `flow/submit-and-reimburse#s5` | `permission/list-expenses` | None |
+    | `use-case/spending.submit-expense` | `command` | `step/submit-and-reimburse.submit-expense` | `permission/request-expense` | `aggregate/spending.expense` |
+    | `use-case/spending.approve-expense` | `command` | `step/submit-and-reimburse.decide-expense` | `permission/approve-expense` | `aggregate/spending.expense` |
+    | `use-case/spending.reimburse-expense` | `command` | `step/submit-and-reimburse.reimburse-expense` | `permission/post-reimbursement` | `aggregate/spending.expense` |
+    | `use-case/spending.list-expenses` | `query` | `step/submit-and-reimburse.watch-expenses` | `permission/list-expenses` | None |
 
     Every use case carries at least one of `serves` and `fulfills`. Access declares one grant and the tenant scope, and a tenant of `own` limits the permission to the caller's own records. `writes` names every aggregate the use case writes, and `reads` names every aggregate, setting, and read model it reads. None of these commands writes several aggregates, so none declares `consistency`. This satisfies `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`, `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`, and `litespec/backend/application#read-another-modules-state-through-a-read-model`.
 

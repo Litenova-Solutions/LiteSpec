@@ -7,7 +7,7 @@ access:
   grant: permission/place-hold
   tenant: own
 serves:
-- flow/borrow-and-return#s6
+- step/borrow-and-return.place-hold
 fulfills:
 - requirement/borrowing.hold-pickup-window
 reachedThrough:

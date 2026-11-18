@@ -22,6 +22,7 @@ static class NewCommand
         Usage: litespec new <type> <id> [--root <path>] [--help]
                litespec new <document-style> <name> [--root <path>]
                litespec new decision <name> [--root <path>]
+               litespec new feature <problem>.<name> [--root <path>]
                litespec new requirement <feature>.<name> [--root <path>]
                litespec new requirement <name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
@@ -53,12 +54,14 @@ static class NewCommand
         with the title filled in and the fixed sections of the type. The command
         refuses an identifier a record already carries.
 
-        new requirement <feature>.<name> writes a requirement file of its own in its feature's requirements/
-        folder: intent/features/<feature>/requirements/<name>/<name>.yaml. The feature record <feature> must
+        new feature <problem>.<name> writes a feature file of its own in its problem's features/
+        folder: intent/problems/<problem>/features/<name>/<name>.yaml. The identifier carries no problem:
+        it is feature/<name>. new requirement <feature>.<name> writes a requirement file of its own in its
+        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The feature record <feature> must
         exist; the command refuses an unknown feature. new requirement <name> writes a product requirement at
         intent/requirements/<name>/<name>.yaml, which cites the constraint, goal or problem it comes from.
-        A requirement takes no explanation file, because its statement is its lead;
-        add <name>.md beside it only when the requirement needs an example.
+        On a project listing intent in explanations.layers, a new requirement
+        gets <name>.md beside its record file from templates/consumer/requirement.md.
 
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
@@ -198,14 +201,27 @@ static class NewCommand
                 return 2;
             }
 
-            // A feature stands alone under the product, so its identifier carries no home.
-            if (type == "feature" && homeName is not null)
+            if (type == "feature" && homeName is null)
             {
-                return CommandFailure.UsageError("A feature stands alone: use litespec new feature <name>.", Usage, json: false);
+                return CommandFailure.UsageError("New feature needs a problem: use litespec new feature <problem>.<name>.", Usage, json: false);
             }
 
+            // A feature lives in its problem's folder, but its identifier carries no home:
+            // the problem picks the folder and the identifier is feature/<name>.
             // A requirement names its feature (<feature>.<name>); one with no feature is a product requirement.
             var identifierHome = homeName;
+
+            if (type == "feature")
+            {
+                if (!Identifiers.ValidName(homeName!, false) || Identifiers.AllDigitsName(homeName!))
+                {
+                    CliHost.Error.WriteLine($"'{homeName}' is not a valid problem name.");
+                    return 2;
+                }
+
+                full = $"feature/{name}";
+                identifierHome = null;
+            }
 
             if (RecordPages.GrammarError(type, identifierHome, name, full) is { } grammar)
             {
@@ -283,7 +299,7 @@ static class NewCommand
 
         if (type == RecordTypes.Requirement && homeName is not null && requirementFolder is null)
         {
-            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature {homeName}.");
+            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <problem>.{homeName}.");
             return 2;
         }
 
@@ -337,12 +353,10 @@ static class NewCommand
         string? explanation = null;
 
         // An article type, and a type on a layer the project lists, gets the explanation template for its own
-        // type, with the title filled in, so the record starts with its fixed sections. A requirement takes none:
-        // its statement is its lead.
-        if (type != RecordTypes.Requirement
-            && (RecordFile.ArticleTypes.Contains(type)
-                || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
-                    && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))))
+        // type, with the title filled in, so the record starts with its fixed sections.
+        if (RecordFile.ArticleTypes.Contains(type)
+            || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
+                && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal)))
         {
             if (ReadTemplate($"{type}.md") is not { } explanationTemplate)
             {

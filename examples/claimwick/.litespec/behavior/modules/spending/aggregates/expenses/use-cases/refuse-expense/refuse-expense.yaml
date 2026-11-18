@@ -8,7 +8,7 @@ access:
   grant: permission/approve-expense
   tenant: own
 serves:
-- flow/submit-and-reimburse#s3
+- step/submit-and-reimburse.decide-expense
 fulfills:
 - requirement/approval.decided-within-five-days
 reachedThrough:

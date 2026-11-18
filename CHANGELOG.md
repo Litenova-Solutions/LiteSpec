@@ -22,7 +22,7 @@ The new rules are `litespec/backend/architecture#give-each-use-case-its-own-mode
 - A use case's `effects` hold only `sends` and `calls`. `runs` and `emits` leave the use-case effect entry, `emits` and `sharesTransaction` leave every effect entry, and an old entry is `record-invalid`. A reaction or job holds at most one `runs` entry.
 - No record declares publishing. An outbound integration event names in `translates` the domain event it carries, and the use cases whose `raises` holds that event publish it. One pipeline step stages each raised domain event, each module event and each integration event built from it, in the same commit. LS2022 reports an event published by user code, and `effect-undeclared` reports a publish call a handler, event handler or job makes. `event-publisher-invalid` derives the publishing module from `raises` and `translates`.
 - No edge shares a transaction. Atomic consistency covers the writes of one use case, and a rule across use cases is held by a state guard. Every command commits in its own pipeline.
-- A module publishes no command and no refusal. Another module triggers its acts through a module event its reaction answers, and a use case refuses only with refusals its own module declares. A port in `Contracts/Ports/` only reads.
+- A module publishes no refusal: a use case refuses only with refusals its own module declares. Another module asks it to act only through a public command (Part AN).
 - A conflict refusal from the command a reaction runs is transient and retried under the reaction's `onFailure`; a declared final refusal ends the reaction.
 - A job selects its items and sends one command per item; a condition a batch command checked moves into the per-item act.
 
@@ -68,14 +68,17 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 
 ### Part H: Flows
 
-- The Intent record `journey` is now `flow`: identifiers `flow/<name>`, steps `flow/<name>#s1`, the folder `intent/flows/`, and the template `templates/consumer/flow.yaml`.
+- The Intent record `journey` is now `flow`: identifiers `flow/<name>`, the folder `intent/flows/`, and the template `templates/consumer/flow.yaml`.
+- Each step has a named identifier `step/<flow>.<act>`, the act a verb phrase in kebab case (`step/book-a-forwarded-invoice.confirm-proposal`), and a `title` in Title Case whose words the act repeats. List order is the main path; no position lives in an id. A step id is a real identifier: `model query`, search and every link check resolve it, and a screen or use case serves `step/<flow>.<act>`.
+- Branches live on the step they leave, in its `branches` list: each has one `when` condition (two conditions are two branches), exactly one of `then` (a step of the same flow) or `ends` (the outcome sentence), and an optional `instead` with its own `carries`. The flow-level `branches` list is removed.
+- `model check` reports a step no path reaches (`step-unreached`), a branch with both or neither of `then` and `ends` or a `when` joining two conditions with "or" (`record-invalid`), a `then` naming no step (`reference-unknown`), an act that is no word subsequence of its title (`identifier-title-invalid`), and a step whose serving use cases have no implementing code (`step-implementation-missing`). `model query step/<flow>.<act>` traces the step to the screens and use cases that serve it, the requirements it carries, and the code and tests behind them; the book shows each step with its title, its branches under it, and its trace.
 - A flow carries exactly one reason: `serves` names one goal, or `answers` names one problem or constraint. Only `serves` moves a goal.
 - Each step names the requirements it carries in its own `cites`; the flow's citations are the union of its steps'. A step's text states what the person does and sees, and a failure states what the person sees and can do next.
 - A step names a person in `actor` or an external system in `system`; jobs and reactions serve a step upward and never appear in one.
 
 ### Part I: Features, Product Requirements and Goal Outcomes
 
-- A feature stands alone at `intent/features/<name>/` and names the problems it answers in `solves`; its requirements sit under it.
+- A feature answers exactly one problem and sits in that problem's folder: `intent/problems/<problem>/features/<feature>/`, with its requirements under it. There is no `solves` field; a feature that answers two pains is split, or the two pains are one problem. The 7.0.0 draft that made features stand alone with a `solves` list is withdrawn.
 - A permanent commitment with no offer is a product-level requirement at `intent/requirements/<name>/`, identifier `requirement/<name>`, citing the constraint, goal or problem it comes from.
 - The product states its exclusions in `excludes`; only an exclusion overrides a requirement.
 - A goal records measured outcomes in `observations`; its completion shows delivery, and its outcome reads "not measured" until it has one.
@@ -375,6 +378,21 @@ The new rules are `litespec/ext/audit#delete-expired-records-through-a-separate-
 - Every monetary amount on a frontend travels in the frame Money type with a decimal string amount and scaled-integer arithmetic, and the Claimwick frame holds it in `src/lib/app/money.ts`.
 
 The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-frame-money-type` and `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`, and the new patterns are `litespec/frontend/patterns/page-frames#entry-page`, `litespec/frontend/patterns/feedback-and-states#route-loading-frame`, and `litespec/frontend/patterns/feedback-and-states#route-error-frame`. Decision 0102, Draw Platform Composites with Native Elements, records why.
+
+### Part AN: Module Contracts, Public Queries and Commands, and One Direction per Relationship
+
+- A module's Contracts project publishes data, never interfaces: one folder per aggregate holding the aggregate's identifier when another module carries it, its facts, and its public queries and commands at `{Aggregates}/{UseCase}/`, plus module-level public use cases at `{UseCase}/`. No `Identifiers/`, `ModuleEvents/` or `Ports/` folder and no interface remain in a Contracts project.
+- A public query or public command is a use case whose record lists the modules that may send it in `reachedThrough`. The sender declares the edge as `effects.queries` or `effects.commands`; the owner handles it with its ordinary handler through its own pipeline. For now a public command travels in process and synchronously, like a public query.
+- A consumer reaches another module through one port per provider, `Ports/{Provider}/I{Provider}.cs`, in its own types; its adapter in `Infrastructure/{Provider}/` is the only code that names the provider's queries, commands and results (LS2029).
+- An identifier lives in `Contracts/{Aggregates}/` of the module that owns its aggregate when another module carries it, else in `Domain/{Aggregates}/`; the Kernel holds one only with a decision naming the Contracts cycle it breaks, and the Platform names no business identifier.
+- Every relationship between two modules has one direction: commands and queries flow upstream, facts flow downstream, and an upstream module never queries, commands or reacts to a downstream module. A process spanning modules runs from its most downstream participant through the participants' public commands, and a downstream module reports finished work to an upstream module through that module's public command.
+- `model check` reports `module-dependency-invalid` for a cycle counting Contracts references, `dependsOn`, `queries` and `commands` edges and reactions to facts; `query-target-invalid` and `command-target-invalid` for an edge to a use case not reached through the sender; `query-consumer-missing` and `command-consumer-missing` for a public use case no module sends; and `code-placement-drift` for a command or query in a Contracts project that no public use case owns.
+- Decisions 0109, Module Contracts Publish Data, and 0110, Module Dependencies Form a DAG, record why, with the sources: Enterprise Integration Patterns, NServiceBus on commands and events, message ownership, orchestrated sagas, and Spring Modulith's dependency verification.
+
+### Part AO: Explanations on Every Listed Layer
+
+- A layer listed in `explanations.layers` requires an explanation file for every record on it, requirements included; the exemption for requirements is removed, and `litespec new requirement` writes the explanation from `templates/consumer/requirement.md`.
+- `governance` is a valid entry in `explanations.layers`, so a project can require an explanation for each decision, convention and waiver.
 
 ### Part U: Provision Changes Since v6.0.0
 

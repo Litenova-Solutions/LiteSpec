@@ -53,7 +53,7 @@ internal static class TemplateNormalizer
         ["roleId"] = "role/sample",
         ["permissionId"] = "permission/sample",
         ["flowId"] = "flow/sample",
-        ["flowStepId"] = "flow/sample#s1",
+        ["flowStepId"] = "step/sample.act",
         ["moduleId"] = "module/sample",
         ["aggregateId"] = "aggregate/sample.entry",
         ["ruleId"] = "rule/sample.entry",

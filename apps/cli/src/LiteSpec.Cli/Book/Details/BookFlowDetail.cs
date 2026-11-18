@@ -40,8 +40,7 @@ static class BookFlowDetail
                 continue;
             }
 
-            var full = id + "#" + stepId;
-            var all = served.TryGetValue(full, out var list) ? list : new List<string>();
+            var all = served.TryGetValue(stepId, out var list) ? list : new List<string>();
             var use = new JsonArray();
             var onScreen = new JsonArray();
             foreach (var server in all)
@@ -58,7 +57,7 @@ static class BookFlowDetail
 
             servers[stepId] = use;
             screens[stepId] = onScreen;
-            if (index.ExercisedSteps.Contains(full))
+            if (index.ExercisedSteps.Contains(stepId))
             {
                 exercised.Add((JsonNode)stepId);
             }

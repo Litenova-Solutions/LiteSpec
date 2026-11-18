@@ -71,7 +71,7 @@ A decision with source `recommended` stands until an owner chooses otherwise. Ev
 ```text
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
-.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
+.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'step/submit-and-reimburse.submit-expense' is served by a browser or device use case but by no screen.
 ```
 
 Nothing in the check points at the screen itself. The use cases and flow steps the screen does not reach are reported as covered by waivers, as [The Model and Its Checks](model-and-checks.md) shows.
