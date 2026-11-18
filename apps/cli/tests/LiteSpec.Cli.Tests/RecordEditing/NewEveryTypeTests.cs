@@ -85,7 +85,7 @@ public sealed class NewEveryTypeTests
         yield return ["actor", "reader", "intent/actors/reader/reader.yaml", "Reader", "actor/reader"];
         yield return ["role", "approver", "intent/roles/approver/approver.yaml", "Approver", "role/approver"];
         yield return ["module", "spending", "behavior/modules/spending/module.yaml", "Spending", "module/spending"];
-        yield return ["aggregate", "spending.expense", "behavior/modules/spending/aggregates/expense/aggregate.yaml", "Expense", "aggregate/spending.expense"];
+        yield return ["aggregate", "spending.expense", "behavior/modules/spending/aggregates/expenses/aggregate.yaml", "Expense", "aggregate/spending.expense"];
         yield return ["use-case", "spending.submit-expense", "behavior/modules/spending/use-cases/submit-expense/submit-expense.yaml", "Submit Expense", "use-case/spending.submit-expense"];
         yield return ["reaction", "spending.send-reminder", "behavior/modules/spending/reactions/send-reminder/send-reminder.yaml", "Send Reminder", "reaction/spending.send-reminder"];
         yield return ["job", "spending.erase-data", "behavior/modules/spending/jobs/erase-data/erase-data.yaml", "Erase Data", "job/spending.erase-data"];

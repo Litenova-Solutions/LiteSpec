@@ -158,7 +158,7 @@ public sealed class LayerResolverTests
         Assert.Equal(ArchitectureLayer.Application, layer);
     }
 
-    /// <summary>The use case folder is the next folder under Application, WebApi or Infrastructure.</summary>
+    /// <summary>The use case folder is the folder holding the file below Application, WebApi or Infrastructure.</summary>
     /// <param name="filePath">The file path under test.</param>
     /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
@@ -166,8 +166,11 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", "SubmitExpense")]
     [InlineData("Claimwick.Spending/WebApi/SubmitExpense/SubmitExpenseEndpoint.cs", "SubmitExpense")]
     [InlineData("Claimwick.Spending/Infrastructure/SubmitExpense/WorkspaceArchiveWriter.cs", "SubmitExpense")]
-    [InlineData("Claimwick.Spending\\Application\\SubmitExpense\\SubmitExpenseCommandHandler.cs", "SubmitExpense")]
-    [InlineData("Claimwick.Spending/Domain/Expense/Expense.cs", null)]
+    [InlineData("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/WebApi/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/Infrastructure/Expenses/SubmitExpense/WorkspaceArchiveWriter.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending\\Application\\Expenses\\SubmitExpense\\SubmitExpenseCommandHandler.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/Domain/Expenses/Expense.cs", null)]
     [InlineData("Claimwick.Spending/Application/SubmitExpenseHandler.cs", null)]
     [InlineData("SubmitExpenseCommandHandler.cs", null)]
     [InlineData(null, null)]

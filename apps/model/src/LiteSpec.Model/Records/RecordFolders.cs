@@ -284,13 +284,13 @@ public static class RecordFolders
     /// <param name="text">The segment or file name with tokens.</param>
     /// <param name="home">The identifier home, or null.</param>
     /// <param name="name">The identifier name.</param>
-    /// <returns>The text with each token replaced.</returns>
+    /// <returns>The text with each token replaced; the aggregate token takes the plural its folder carries.</returns>
     private static string Fill(string text, string? home, string name) =>
         text.Replace("{module}", home ?? string.Empty)
             .Replace("{feature}", home ?? string.Empty)
             .Replace("{entry-point}", home ?? string.Empty)
             .Replace("{home}", home ?? string.Empty)
-            .Replace("{aggregate}", name)
+            .Replace("{aggregate}", Naming.PluralKebab(name))
             .Replace("{name}", name);
 
     /// <summary>One home as the message shows it: the folder, then the file when the file is named.</summary>

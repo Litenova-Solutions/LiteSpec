@@ -221,7 +221,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler
 /// <implements>job/spending.erase-expired-personal-data</implements>
 internal sealed class EraseExpiredPersonalDataHost
 {
-    // Lives in Spending/Application/ErasePersonalData/.
+    // Lives in Spending/Application/Expenses/ErasePersonalData/.
     // Selects the expired expenses and sends one erase command per expense, resuming from its cursor.
 }
 ```
@@ -359,7 +359,7 @@ The pinned LiteBus package signatures take precedence over illustrative example 
 ### Change Another Aggregate from an Event Handler
 
 ```csharp
-// Lending/Application/BorrowBook/BorrowBookCommandHandler.cs
+// Lending/Application/Loans/BorrowBook/BorrowBookCommandHandler.cs
 internal sealed class BorrowBookCommandHandler
     : ICommandHandler<BorrowBookCommand, BorrowBookCommandResult>
 {
@@ -388,7 +388,7 @@ internal sealed class BorrowBookCommandHandler
 ```
 
 ```csharp
-// Lending/Application/MarkBookLent/MarkBookLentOnLoanBorrowedHandler.cs
+// Lending/Application/Books/MarkBookLent/MarkBookLentOnLoanBorrowedHandler.cs
 /// <implements>reaction/lending.mark-book-lent-on-loan-borrowed</implements>
 internal sealed class MarkBookLentOnLoanBorrowedHandler
     : IEventHandler<LoanBorrowedEvent>

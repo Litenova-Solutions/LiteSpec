@@ -83,13 +83,13 @@ The result holds only provisions on pages the consumer's stacks, shape, and sele
 List the provisions that govern a handler before editing it:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
 Read the rationale and example behind each returned statement:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs --full
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs --full
 ```
 
 List the provisions that govern a use case record:
@@ -119,7 +119,7 @@ litespec rules --root ../consumer litespec/backend/application
 Show the decisions behind a renderer:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Infrastructure/ExportExpenses/ReceiptPdfRenderer.cs
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Infrastructure/Expenses/ExportExpenses/ReceiptPdfRenderer.cs
 ```
 
 ## Underneath

@@ -1,8 +1,8 @@
 using Claimwick.Platform.Persistence;
-using Claimwick.Spending.Domain.Expense;
-using Claimwick.Spending.Domain.Policy;
-using Claimwick.Spending.Domain.Receipt;
-using Claimwick.Spending.Domain.ReminderPreference;
+using Claimwick.Spending.Domain.Expenses;
+using Claimwick.Spending.Domain.Policies;
+using Claimwick.Spending.Domain.Receipts;
+using Claimwick.Spending.Domain.ReminderPreferences;
 using Marten;
 
 namespace Claimwick.Spending.Infrastructure.Persistence;

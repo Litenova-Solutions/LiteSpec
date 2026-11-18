@@ -1,4 +1,4 @@
-using Claimwick.Spending.Domain.Expense.Events;
+using Claimwick.Spending.Domain.Expenses.Events;
 
 namespace Claimwick.Spending.Contracts.ModuleEvents;
 

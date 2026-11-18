@@ -7,9 +7,10 @@ namespace LiteSpec.Analyzers.LayerMap;
 /// <summary>
 ///     The aggregates of one compilation: which aggregate folder a file belongs to, and
 ///     whether a type plays an aggregate role. Under one project per module an aggregate
-///     lives in <c>Domain/{Aggregate}/</c> below the module root; under one modules project
-///     it lives there below its module folder. A file directly under a module
-///     <c>Domain/</c> folder belongs to no aggregate. Roles read by name, in any namespace:
+///     lives in <c>Domain/{Aggregates}/</c> below the module root, the plural folder holding
+///     the singular root type; under one modules project it lives there below its module
+///     folder. A file directly under a module <c>Domain/</c> folder belongs to no aggregate.
+///     Roles read by name, in any namespace:
 ///     a root derives from <c>AggregateRoot</c> with one type argument, a child entity from
 ///     <c>Entity</c> with one type argument, an event implements <c>IDomainEvent</c>, and an
 ///     exception derives from <c>System.Exception</c>.
@@ -73,6 +74,25 @@ internal static class Aggregates
         }
 
         return null;
+    }
+
+    /// <summary>Returns true when the type declares a file under the aggregate folder; otherwise false.</summary>
+    /// <param name="candidate">The type under inspection.</param>
+    /// <param name="aggregate">The aggregate folder as a forward-slash directory path.</param>
+    /// <returns>True when a declaring file sits under the aggregate folder.</returns>
+    public static bool DeclaredIn(INamedTypeSymbol candidate, string aggregate)
+    {
+        foreach (var reference in candidate.DeclaringSyntaxReferences)
+        {
+            var path = reference.SyntaxTree.FilePath;
+            if (!string.IsNullOrEmpty(path)
+                && path.Replace('\\', '/').StartsWith(aggregate + "/", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Returns true when the type derives from the generic aggregate root base; otherwise false.</summary>

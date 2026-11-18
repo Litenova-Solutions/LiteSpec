@@ -1,4 +1,4 @@
-using Claimwick.Spending.Domain.ReminderPreference;
+using Claimwick.Spending.Domain.ReminderPreferences;
 using Marten;
 
 namespace Claimwick.Spending.Infrastructure.Persistence;

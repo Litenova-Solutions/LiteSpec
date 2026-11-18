@@ -309,9 +309,85 @@ public sealed class FolderCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/posts", moduleFile, """{"dependsOn": []}"""),
-            TestModel.Record("aggregate", "aggregate/posts.posts", aggregateFile, """{}"""));
+            TestModel.Record("aggregate", "aggregate/posts.event", aggregateFile, """{}"""));
 
         Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
+    }
+
+    /// <summary>An aggregate in a singular folder reports a placement finding naming the plural folder.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact]
+    public void SingularAggregateFolderReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loan", "aggregate.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", aggregateFile, """{}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("aggregate/lending.loan", finding.Subject);
+        Assert.Contains("'loans'", finding.Message);
+    }
+
+    /// <summary>An aggregate in its plural folder passes.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact]
+    public void AggregateInPluralFolderPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", aggregateFile, """{}"""));
+
+        Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
+    }
+
+    /// <summary>A use case under its aggregate's singular folder reports once, on the aggregate record.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact]
+    public void UseCaseUnderOwnedSingularFolderReportsOnce()
+    {
+        using var temp = TestCli.Temp("checks");
+        var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loan", "aggregate.yaml");
+        var useCaseFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loan", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", aggregateFile, """{}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", useCaseFile, """{"kind": "command"}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("aggregate/lending.loan", finding.Subject);
+    }
+
+    /// <summary>A use case under a singular folder its aggregate does not own reports naming the plural folder.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact]
+    public void UseCaseUnderUnownedSingularFolderReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml");
+        var useCaseFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loan", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", aggregateFile, """{}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", useCaseFile, """{"kind": "command"}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+        Assert.Contains("'loans'", finding.Message);
     }
 
     /// <summary>Declared Module Passes.</summary>

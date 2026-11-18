@@ -11,15 +11,15 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
         public abstract class AggregateRoot<TId>;
 
-        public readonly record struct ExpenseId(System.Guid Value);
+        public readonly record struct WorkspaceId(System.Guid Value);
         """;
 
     private const string Root = """
         using Claimwick.Export.Domain;
 
-        namespace Claimwick.Export.Domain.Expense;
+        namespace Claimwick.Export.Domain.Workspaces;
 
-        public sealed class Expense : AggregateRoot<ExpenseId>
+        public sealed class Workspace : AggregateRoot<WorkspaceId>
         {
         }
         """;
@@ -32,15 +32,15 @@ public sealed class UseCaseInfrastructureAnalyzerTests
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
             [
                 ("Claimwick.Export/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Export/Domain/Expense/Expense.cs", Root),
-                ("Claimwick.Export/Infrastructure/ExportWorkspace/WorkspaceArchiveWriter.cs", """
-                    using Claimwick.Export.Domain.Expense;
+                ("Claimwick.Export/Domain/Workspaces/Workspace.cs", Root),
+                ("Claimwick.Export/Infrastructure/Workspaces/ExportWorkspace/WorkspaceArchiveWriter.cs", """
+                    using Claimwick.Export.Domain.Workspaces;
 
-                    namespace Claimwick.Export.Infrastructure.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.Workspaces.ExportWorkspace;
 
                     internal sealed class WorkspaceArchiveWriter
                     {
-                        internal void Write({|LS2025:Expense|} expense)
+                        internal void Write({|LS2025:Workspace|} workspace)
                         {
                         }
                     }
@@ -56,17 +56,17 @@ public sealed class UseCaseInfrastructureAnalyzerTests
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
             [
                 ("Claimwick.Export/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Export/WebApi/ExportWorkspace/ExportWorkspaceEndpoint.cs", """
-                    namespace Claimwick.Export.WebApi.ExportWorkspace;
+                ("Claimwick.Export/WebApi/Workspaces/ExportWorkspace/ExportWorkspaceEndpoint.cs", """
+                    namespace Claimwick.Export.WebApi.Workspaces.ExportWorkspace;
 
                     internal sealed class ExportWorkspaceEndpoint
                     {
                     }
                     """),
-                ("Claimwick.Export/Infrastructure/ExportWorkspace/WorkspaceArchiveWriter.cs", """
-                    using Claimwick.Export.WebApi.ExportWorkspace;
+                ("Claimwick.Export/Infrastructure/Workspaces/ExportWorkspace/WorkspaceArchiveWriter.cs", """
+                    using Claimwick.Export.WebApi.Workspaces.ExportWorkspace;
 
-                    namespace Claimwick.Export.Infrastructure.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.Workspaces.ExportWorkspace;
 
                     internal sealed class WorkspaceArchiveWriter
                     {
@@ -93,15 +93,15 @@ public sealed class UseCaseInfrastructureAnalyzerTests
                     {
                     }
                     """),
-                ("Claimwick.Export/Infrastructure/ExportWorkspace/WorkspaceArchiveWriter.cs", """
+                ("Claimwick.Export/Infrastructure/Workspaces/ExportWorkspace/WorkspaceArchiveWriter.cs", """
                     using Claimwick.Export.Domain;
                     using Claimwick.Shared;
 
-                    namespace Claimwick.Export.Infrastructure.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.Workspaces.ExportWorkspace;
 
                     internal sealed class WorkspaceArchiveWriter
                     {
-                        internal void Write(ExpenseId id, Money total)
+                        internal void Write(WorkspaceId id, Money total)
                         {
                         }
                     }
@@ -117,15 +117,15 @@ public sealed class UseCaseInfrastructureAnalyzerTests
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
             [
                 ("Claimwick.Export/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Export/Domain/Expense/Expense.cs", Root),
-                ("Claimwick.Export/Infrastructure/Persistence/ExpenseRepository.cs", """
-                    using Claimwick.Export.Domain.Expense;
+                ("Claimwick.Export/Domain/Workspaces/Workspace.cs", Root),
+                ("Claimwick.Export/Infrastructure/Persistence/WorkspaceRepository.cs", """
+                    using Claimwick.Export.Domain.Workspaces;
 
                     namespace Claimwick.Export.Infrastructure.Persistence;
 
-                    internal sealed class ExpenseRepository
+                    internal sealed class WorkspaceRepository
                     {
-                        internal void Store(Expense expense)
+                        internal void Store(Workspace workspace)
                         {
                         }
                     }

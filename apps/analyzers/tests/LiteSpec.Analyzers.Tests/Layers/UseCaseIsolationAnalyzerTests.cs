@@ -13,10 +13,10 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task ReportsAUseCaseNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamHandler.cs", """
-                    using Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamHandler.cs", """
+                    using Claimwick.Organizations.Application.Teams.RenameTeam;
 
-                    namespace Claimwick.Organizations.Application.CreateTeam;
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
 
                     internal sealed class CreateTeamHandler
                     {
@@ -25,8 +25,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/RenameTeam/RenameTeamPolicy.cs", """
-                    namespace Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamPolicy.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamPolicy
                     {
@@ -42,10 +42,10 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task ReportsAReactionFiledOutsideTheUseCaseItRuns() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Application/CreateTeam/RenameTeamOnTeamCreatedHandler.cs", """
-                    namespace Claimwick.Organizations.Application.CreateTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/RenameTeamOnTeamCreatedHandler.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
 
-                    using Claimwick.Organizations.Application.RenameTeam;
+                    using Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamOnTeamCreatedHandler
                     {
@@ -56,8 +56,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/RenameTeam/RenameTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamCommand
                     {
@@ -66,8 +66,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/RenameTeam/RenameTeamCommandResult.cs", """
-                    namespace Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamCommandResult.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamCommandResult
                     {
@@ -83,8 +83,8 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task AcceptsAReactionInTheFolderOfTheUseCaseItRuns() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Application/RenameTeam/RenameTeamOnTeamCreatedHandler.cs", """
-                    namespace Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamOnTeamCreatedHandler.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamOnTeamCreatedHandler
                     {
@@ -95,8 +95,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/RenameTeam/RenameTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamCommand
                     {
@@ -105,8 +105,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/RenameTeam/RenameTeamCommandResult.cs", """
-                    namespace Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamCommandResult.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamCommandResult
                     {
@@ -122,25 +122,25 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task AcceptsAUseCaseNamingItsOwnUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamHandler.cs", """
-                    using Claimwick.Organizations.Domain.Team;
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamHandler.cs", """
+                    using Claimwick.Organizations.Domain.Teams;
 
-                    namespace Claimwick.Organizations.Application.CreateTeam;
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
 
                     internal sealed class CreateTeamHandler
                     {
                         internal Team Handle(CreateTeamCommand command) => null!;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Application.CreateTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
 
                     internal sealed class CreateTeamCommand
                     {
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
-                    namespace Claimwick.Organizations.Domain.Team;
+                ("Claimwick.Modules/Organizations/Domain/Teams/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Teams;
 
                     internal sealed class Team
                     {
@@ -156,8 +156,8 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task AcceptsLayerFolderTypesWithRoleSuffixes() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Application.CreateTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
 
                     internal sealed class CreateTeamCommand : IActingAccountCommand
                     {
@@ -208,7 +208,7 @@ public sealed class UseCaseIsolationAnalyzerTests
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
                 ("Claimwick.Modules/Organizations/Application/TeamQueries.cs", """
-                    using Claimwick.Organizations.Application.RenameTeam;
+                    using Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     namespace Claimwick.Organizations.Application;
 
@@ -217,8 +217,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         internal RenameTeamCommand? Current() => null;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/RenameTeam/RenameTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Application.RenameTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
 
                     internal sealed class RenameTeamCommand
                     {
@@ -263,10 +263,10 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task ReportsTwoUseCasesInOneModule() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Billing.Application.CancelInvoice;
+                ("Claimwick.Modules/Billing/Application/Invoices/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Billing.Application.Invoices.CancelInvoice;
 
-                    namespace Claimwick.Billing.Application.CreateInvoice;
+                    namespace Claimwick.Billing.Application.Invoices.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -275,8 +275,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Billing/Application/CancelInvoice/CancelInvoicePolicy.cs", """
-                    namespace Claimwick.Billing.Application.CancelInvoice;
+                ("Claimwick.Modules/Billing/Application/Invoices/CancelInvoice/CancelInvoicePolicy.cs", """
+                    namespace Claimwick.Billing.Application.Invoices.CancelInvoice;
 
                     internal sealed class CancelInvoicePolicy
                     {
@@ -292,10 +292,10 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task ReportsAReactionNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Application/RemoveTeamMember/SendNoticeOnTeamMemberRemovedHandler.cs", """
-                    using Claimwick.Organizations.Application.CreateTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/RemoveTeamMember/SendNoticeOnTeamMemberRemovedHandler.cs", """
+                    using Claimwick.Organizations.Application.Teams.CreateTeam;
 
-                    namespace Claimwick.Organizations.Application.RemoveTeamMember;
+                    namespace Claimwick.Organizations.Application.Teams.RemoveTeamMember;
 
                     internal sealed class SendNoticeOnTeamMemberRemovedHandler
                     {
@@ -304,8 +304,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamPolicy.cs", """
-                    namespace Claimwick.Organizations.Application.CreateTeam;
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamPolicy.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
 
                     internal sealed class CreateTeamPolicy
                     {
@@ -321,10 +321,10 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task ReportsAUseCaseInfrastructureFolderNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Spending/Infrastructure/SubmitExpense/SubmitExpenseWriter.cs", """
-                    using Claimwick.Spending.Application.ApproveExpense;
+                ("Claimwick.Spending/Infrastructure/Expenses/SubmitExpense/SubmitExpenseWriter.cs", """
+                    using Claimwick.Spending.Application.Expenses.ApproveExpense;
 
-                    namespace Claimwick.Spending.Infrastructure.SubmitExpense;
+                    namespace Claimwick.Spending.Infrastructure.Expenses.SubmitExpense;
 
                     internal sealed class SubmitExpenseWriter
                     {
@@ -333,8 +333,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Spending/Application/ApproveExpense/ApproveExpensePolicy.cs", """
-                    namespace Claimwick.Spending.Application.ApproveExpense;
+                ("Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpensePolicy.cs", """
+                    namespace Claimwick.Spending.Application.Expenses.ApproveExpense;
 
                     internal sealed class ApproveExpensePolicy
                     {
@@ -350,10 +350,10 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task ReportsAWebApiUseCaseNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Spending/WebApi/SubmitExpense/SubmitExpenseEndpoint.cs", """
-                    using Claimwick.Spending.Application.ApproveExpense;
+                ("Claimwick.Spending/WebApi/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs", """
+                    using Claimwick.Spending.Application.Expenses.ApproveExpense;
 
-                    namespace Claimwick.Spending.WebApi.SubmitExpense;
+                    namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
 
                     internal sealed class SubmitExpenseEndpoint
                     {
@@ -362,8 +362,8 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Spending/Application/ApproveExpense/ApproveExpenseCommand.cs", """
-                    namespace Claimwick.Spending.Application.ApproveExpense;
+                ("Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpenseCommand.cs", """
+                    namespace Claimwick.Spending.Application.Expenses.ApproveExpense;
 
                     internal sealed class ApproveExpenseCommand
                     {
@@ -379,10 +379,10 @@ public sealed class UseCaseIsolationAnalyzerTests
     public Task AcceptsAWebApiUseCaseNamingItsOwnApplicationUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
             [
-                ("Claimwick.Spending/WebApi/SubmitExpense/SubmitExpenseEndpoint.cs", """
-                    using Claimwick.Spending.Application.SubmitExpense;
+                ("Claimwick.Spending/WebApi/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs", """
+                    using Claimwick.Spending.Application.Expenses.SubmitExpense;
 
-                    namespace Claimwick.Spending.WebApi.SubmitExpense;
+                    namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
 
                     internal sealed class SubmitExpenseEndpoint
                     {
@@ -391,10 +391,68 @@ public sealed class UseCaseIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommand.cs", """
-                    namespace Claimwick.Spending.Application.SubmitExpense;
+                ("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommand.cs", """
+                    namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS2019 reports a use case naming another use case of its aggregate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 reports a use case naming another use case of its aggregate")]
+    public Task ReportsAUseCaseNamingAnotherUseCaseOfItsAggregate() =>
+        Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
+            [
+                ("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseHandler.cs", """
+                    using Claimwick.Spending.Application.Expenses.ApproveExpense;
+
+                    namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
+
+                    internal sealed class SubmitExpenseHandler
+                    {
+                        internal void Handle({|LS2019:ApproveExpensePolicy|} policy)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpensePolicy.cs", """
+                    namespace Claimwick.Spending.Application.Expenses.ApproveExpense;
+
+                    internal sealed class ApproveExpensePolicy
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS2019 reports a module-level use case naming another module-level use case.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 reports a module-level use case naming another module-level use case")]
+    public Task ReportsAModuleLevelUseCaseNamingAnother() =>
+        Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
+            [
+                ("Claimwick.Spending/Application/ChangeReceiptThreshold/ChangeReceiptThresholdHandler.cs", """
+                    using Claimwick.Spending.Application.CloseExpensePeriod;
+
+                    namespace Claimwick.Spending.Application.ChangeReceiptThreshold;
+
+                    internal sealed class ChangeReceiptThresholdHandler
+                    {
+                        internal void Handle({|LS2019:CloseExpensePeriodPolicy|} policy)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Application/CloseExpensePeriod/CloseExpensePeriodPolicy.cs", """
+                    namespace Claimwick.Spending.Application.CloseExpensePeriod;
+
+                    internal sealed class CloseExpensePeriodPolicy
                     {
                     }
                     """),

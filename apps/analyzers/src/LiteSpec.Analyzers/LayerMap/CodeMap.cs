@@ -51,11 +51,13 @@ internal sealed class CodeMap
     /// <param name="assemblyName">The assembly name that names the module or modules project.</param>
     /// <param name="modules">The module folders, as forward-slash directory paths.</param>
     /// <param name="root">The modules or module project root, or null when the compilation is neither.</param>
-    private CodeMap(string assemblyName, HashSet<string> modules, string? root)
+    /// <param name="folders">The folders holding source files directly, as forward-slash directory paths.</param>
+    private CodeMap(string assemblyName, HashSet<string> modules, string? root, HashSet<string> folders)
     {
         AssemblyName = assemblyName;
         Modules = modules;
         Root = root;
+        FileFolders = folders;
     }
 
     /// <summary>Gets the assembly name that names the module or modules project.</summary>
@@ -66,6 +68,9 @@ internal sealed class CodeMap
 
     /// <summary>Gets the modules or module project root, or null when the compilation is neither.</summary>
     private string? Root { get; }
+
+    /// <summary>Gets the folders holding source files directly, as forward-slash directory paths.</summary>
+    private HashSet<string> FileFolders { get; }
 
     /// <summary>Gets a value indicating whether the compilation is one module project: the project root itself is the module.</summary>
     public bool IsModuleProject => Root is not null && Modules.Contains(Root);
@@ -92,7 +97,8 @@ internal sealed class CodeMap
         return new CodeMap(
             assemblyName,
             FindModules(paths, assemblyName),
-            root);
+            root,
+            FileFoldersOf(paths));
     }
 
     /// <summary>Returns the layer of the file: Application for a Contracts file, otherwise the resolver's layer.</summary>
@@ -142,9 +148,11 @@ internal sealed class CodeMap
 
     /// <summary>
     ///     Returns the use case key holding the file: its module folder and use case folder,
-    ///     or null when the file sits in no use case folder. A file's use case is the next
-    ///     folder under Application, WebApi or Infrastructure in its module, shared folders
-    ///     aside, so a use case reads as one key across the layers that hold it.
+    ///     or null when the file sits in no use case folder. A file's use case is the first
+    ///     folder below Application, WebApi or Infrastructure in its module that holds files,
+    ///     shared folders aside: a module-level use case sits directly below the layer folder,
+    ///     while a use case of an aggregate sits below its aggregate folder, which holds none.
+    ///     One key reads across the layers that hold the use case.
     /// </summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The use case key, or null when the file sits outside every use case folder.</returns>
@@ -162,19 +170,60 @@ internal sealed class CodeMap
         }
 
         var rest = folder.Substring(module.Length + 1).Split('/');
-        if (rest.Length < 2)
+        if (rest.Length < 2 || !IsUseCaseLayer(rest[0], rest[1]))
         {
             return null;
         }
 
-        if ((rest[0].Equals("Application", StringComparison.Ordinal) && !SharedApplicationFolders.Contains(rest[1]))
-            || rest[0].Equals("WebApi", StringComparison.Ordinal)
-            || (rest[0].Equals("Infrastructure", StringComparison.Ordinal) && !SharedInfrastructureFolders.Contains(rest[1])))
+        var key = module;
+        var path = module + "/" + rest[0];
+        for (var index = 1; index < rest.Length; index++)
         {
-            return module + "/" + rest[1];
+            path += "/" + rest[index];
+            key += "/" + rest[index];
+            if (FileFolders.Contains(path))
+            {
+                return key;
+            }
         }
 
         return null;
+    }
+
+    /// <summary>Returns true when the layer folder holds use cases and the child folder names no shared concern; otherwise false.</summary>
+    /// <param name="layer">The layer folder name.</param>
+    /// <param name="child">The child folder name.</param>
+    /// <returns>True when a use case may sit below the child folder.</returns>
+    private static bool IsUseCaseLayer(string layer, string child)
+    {
+        if (layer.Equals("Application", StringComparison.Ordinal))
+        {
+            return !SharedApplicationFolders.Contains(child);
+        }
+
+        if (layer.Equals("Infrastructure", StringComparison.Ordinal))
+        {
+            return !SharedInfrastructureFolders.Contains(child);
+        }
+
+        return layer.Equals("WebApi", StringComparison.Ordinal);
+    }
+
+    /// <summary>Returns the folders holding source files directly, as forward-slash directory paths.</summary>
+    /// <param name="paths">The source file paths of the compilation.</param>
+    /// <returns>The folders holding files directly.</returns>
+    private static HashSet<string> FileFoldersOf(List<string> paths)
+    {
+        var folders = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var path in paths)
+        {
+            if (FolderOf(path) is string folder)
+            {
+                folders.Add(folder);
+            }
+        }
+
+        return folders;
     }
 
     /// <summary>Returns true when the file sits under a module Contracts folder or a sibling Contracts project; otherwise false.</summary>

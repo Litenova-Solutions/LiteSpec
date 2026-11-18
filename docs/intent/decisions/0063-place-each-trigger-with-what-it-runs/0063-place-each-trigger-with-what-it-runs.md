@@ -18,13 +18,13 @@ A handler in a fact folder named the command of a use case in another folder. LS
 
 ## Decision
 
-Each layer folder holds one folder per use case it serves: `Application/{UseCase}/` always, `WebApi/{UseCase}/` when the use case has an endpoint, and `Infrastructure/{UseCase}/` when the use case has its own adapter. A trigger lives with what it runs. A reaction or job that runs a use case sits in that use case's `Application/` folder. One that only sends sits in the `Application/Notifications/` folder named for its notification. One that only calls sits in the `Application/ExternalSystems/` folder named for its system.
+Each layer folder holds one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint, and `Infrastructure/{Aggregates}/{UseCase}/` when the use case has its own adapter. A module-level use case drops the aggregate segment in each. A trigger lives with what it runs. A reaction or job that runs a use case sits in that use case's `Application/` folder. One that only sends sits in the `Application/Notifications/` folder named for its notification. One that only calls sits in the `Application/ExternalSystems/` folder named for its system.
 
 No use case names a type in another use-case folder. A message, result, result part, or transport model belongs to one use case, and two use cases that need the same shape each declare it. A rule still has one home in Domain, because two copies of a rule disagree.
 
 ## Consequences
 
-The module closed set loses `Jobs/`, `WebApi/`, and the `UseCases/` folders with their layer folders; each layer folder holds one folder per use case it serves, and `Application/` gains `Ports/`, `Notifications/`, `ExternalSystems/`, and `ReadModels/`. `Contracts/` keeps `Identifiers/`, `IntegrationEvents/`, and `Ports/`. The aggregate loses `WebApi/`.
+The module closed set loses `Jobs/`, `WebApi/`, and the `UseCases/` folders with their layer folders; each layer folder holds one plural aggregate folder with one folder per use case inside it plus one folder per module-level use case, and `Application/` gains `Ports/`, `Notifications/`, `ExternalSystems/`, and `ReadModels/`. `Contracts/` keeps `Identifiers/`, `IntegrationEvents/`, and `Ports/`. The aggregate loses `WebApi/`.
 
 `code-placement-drift` reads a trigger's folder from its record's effects. LS2019 drops its exemption.
 

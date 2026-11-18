@@ -26,10 +26,10 @@ public sealed class AggregateMutationAnalyzerTests
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/ExpenseLine.cs", """
+                ("Claimwick.Spending/Domain/Expenses/ExpenseLine.cs", """
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class ExpenseLine : Entity<ExpenseLineId>
                     {
@@ -47,10 +47,10 @@ public sealed class AggregateMutationAnalyzerTests
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/ExpenseLine.cs", """
+                ("Claimwick.Spending/Domain/Expenses/ExpenseLine.cs", """
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class ExpenseLine : Entity<ExpenseLineId>
                     {
@@ -70,11 +70,11 @@ public sealed class AggregateMutationAnalyzerTests
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/ExpenseLine.cs", """
+                ("Claimwick.Spending/Domain/Expenses/ExpenseLine.cs", """
                     using System.Collections.Generic;
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class ExpenseLine : Entity<ExpenseLineId>
                     {
@@ -94,8 +94,8 @@ public sealed class AggregateMutationAnalyzerTests
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/MoneyLine.cs", """
-                    namespace Claimwick.Spending.Domain.Expense;
+                ("Claimwick.Spending/Domain/Expenses/MoneyLine.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public struct MoneyLine
                     {
@@ -113,11 +113,11 @@ public sealed class AggregateMutationAnalyzerTests
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/Expense.cs", """
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
                     using System.Collections.Generic;
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class Expense : AggregateRoot<ExpenseId>
                     {
@@ -141,8 +141,8 @@ public sealed class AggregateMutationAnalyzerTests
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/ExpenseSnapshot.cs", """
-                    namespace Claimwick.Spending.Domain.Expense;
+                ("Claimwick.Spending/Domain/Expenses/ExpenseSnapshot.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed record ExpenseSnapshot(int Quantity)
                     {
@@ -152,10 +152,10 @@ public sealed class AggregateMutationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Spending/Domain/Expense/ExpenseLine.cs", """
+                ("Claimwick.Spending/Domain/Expenses/ExpenseLine.cs", """
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class ExpenseLine : Entity<ExpenseLineId>
                     {
@@ -179,10 +179,10 @@ public sealed class AggregateMutationAnalyzerTests
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/Expense.cs", """
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class Expense : AggregateRoot<ExpenseId>
                     {
@@ -196,8 +196,8 @@ public sealed class AggregateMutationAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Spending/Domain/Expense/ExpenseLineInput.cs", """
-                    namespace Claimwick.Spending.Domain.Expense;
+                ("Claimwick.Spending/Domain/Expenses/ExpenseLineInput.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class ExpenseLineInput
                     {

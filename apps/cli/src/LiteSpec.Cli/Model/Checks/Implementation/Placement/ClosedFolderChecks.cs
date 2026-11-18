@@ -101,7 +101,7 @@ internal static class ClosedFolderChecks
                 CheckModuleProject(model.Config, modulesRoot, modules, aggregates, useCases, homes, findings);
             }
 
-            CheckMessageFiles(model.Config, modulesRoot, useCases, findings);
+            CheckMessageFiles(model.Config, modulesRoot, aggregates, useCases, findings);
         }
 
         if (model.Config.KernelRoot.Length > 0 && Directory.Exists(model.Config.KernelRoot))
@@ -153,11 +153,11 @@ internal static class ClosedFolderChecks
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="modulesRoot">The single modules project holding every module.</param>
     /// <param name="modules">The declared module names.</param>
-    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckSingleModulesRoot(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    private static void CheckSingleModulesRoot(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
     {
         foreach (var module in ChildFolders(modulesRoot))
         {
@@ -177,11 +177,11 @@ internal static class ClosedFolderChecks
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="modulesRoot">The module project holding one module.</param>
     /// <param name="modules">The declared module names.</param>
-    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckModuleProject(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    private static void CheckModuleProject(ConsumerConfig config, string modulesRoot, List<string> modules, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
     {
         if (SourceRoots.IsContractsProject(modulesRoot))
         {
@@ -222,12 +222,12 @@ internal static class ClosedFolderChecks
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="module">The absolute module folder.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
-    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="nestedContracts">Whether a nested Contracts folder is allowed: only in the one-modules-project deviation.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckModuleLevel(ConsumerConfig config, string module, string moduleName, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, bool nestedContracts, List<Finding> findings)
+    private static void CheckModuleLevel(ConsumerConfig config, string module, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string Container, string Folder)> homes, bool nestedContracts, List<Finding> findings)
     {
         foreach (var child in ChildFolders(module))
         {
@@ -241,15 +241,15 @@ internal static class ClosedFolderChecks
                 }
                 else if (string.Equals(name, "Application", StringComparison.OrdinalIgnoreCase))
                 {
-                    CheckApplicationLevel(config, child, moduleName, useCases, homes, findings);
+                    CheckApplicationLevel(config, child, moduleName, aggregates, useCases, homes, findings);
                 }
                 else if (string.Equals(name, "Infrastructure", StringComparison.OrdinalIgnoreCase))
                 {
-                    CheckInfrastructureLevel(config, child, moduleName, useCases, findings);
+                    CheckInfrastructureLevel(config, child, moduleName, aggregates, useCases, findings);
                 }
                 else if (string.Equals(name, "WebApi", StringComparison.OrdinalIgnoreCase))
                 {
-                    CheckWebApiLevel(config, child, moduleName, useCases, findings);
+                    CheckWebApiLevel(config, child, moduleName, aggregates, useCases, findings);
                 }
 
                 continue;
@@ -293,19 +293,19 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under a module Domain folder that names no declared aggregate of the module.</summary>
+    /// <summary>Reports every folder under a module Domain folder that names no declared aggregate of the module: one plural folder per declared aggregate, so a singular folder reports too.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="domain">The absolute Domain folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
-    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckDomainLevel(ConsumerConfig config, string domain, string moduleName, IReadOnlyList<(string Module, string Aggregate)> aggregates, List<Finding> findings)
+    private static void CheckDomainLevel(ConsumerConfig config, string domain, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, List<Finding> findings)
     {
         foreach (var child in ChildFolders(domain))
         {
             var name = Path.GetFileName(child);
 
-            if (aggregates.Count > 0 && !aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameAggregate(name, aggregate.Aggregate)))
+            if (aggregates.Count > 0 && !aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameName(name, aggregate.Expected)))
             {
                 findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no declared aggregate.", child, 1, null));
                 continue;
@@ -334,17 +334,18 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under a module Application folder that names no declared use case of the module and no fixed Application folder.</summary>
+    /// <summary>Reports every folder under a module Application folder that names no declared aggregate or module-level use case of the module and no fixed Application folder.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="application">The absolute Application folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="declared">The declared use cases by module, aggregate and name.</param>
     /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckApplicationLevel(ConsumerConfig config, string application, string moduleName, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    private static void CheckApplicationLevel(ConsumerConfig config, string application, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
     {
-        // Every use case lives directly under Application, whatever aggregate its
-        // record sits under.
+        // A use case whose record sits under an aggregate lives in its plural aggregate
+        // folder; only a module-level use case lives directly under Application.
         var owned = declared
             .Where(useCase => SameName(moduleName, useCase.Module))
             .ToList();
@@ -367,15 +368,14 @@ internal static class ClosedFolderChecks
                 continue;
             }
 
-            if (owned.Any(useCase => SameName(name, useCase.Name)))
+            if (owned.Count == 0)
             {
                 CheckUseCaseFolder(config, child, "Application", findings);
                 continue;
             }
 
-            if (owned.Count == 0)
+            if (CheckLayerChildFolder(config, child, "Application", moduleName, aggregates, owned, findings))
             {
-                CheckUseCaseFolder(config, child, "Application", findings);
                 continue;
             }
 
@@ -391,18 +391,19 @@ internal static class ClosedFolderChecks
         {
             if (owned.Count > 0)
             {
-                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Application/, which holds only one folder per use case, Ports, Notifications, ExternalSystems and ReadModels.", file, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Application/, which holds only one folder per aggregate and use case, Ports, Notifications, ExternalSystems and ReadModels.", file, 1, null));
             }
         }
     }
 
-    /// <summary>Reports every folder under a module WebApi folder that names no declared use case of the module.</summary>
+    /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="webApi">The absolute WebApi folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="declared">The declared use cases by module, aggregate and name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckWebApiLevel(ConsumerConfig config, string webApi, string moduleName, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
+    private static void CheckWebApiLevel(ConsumerConfig config, string webApi, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
     {
         var owned = declared
             .Where(useCase => SameName(moduleName, useCase.Module))
@@ -410,17 +411,14 @@ internal static class ClosedFolderChecks
 
         foreach (var child in ChildFolders(webApi))
         {
-            var name = Path.GetFileName(child);
-
-            if (owned.Any(useCase => SameName(name, useCase.Name)))
+            if (owned.Count == 0)
             {
                 CheckUseCaseFolder(config, child, "WebApi", findings);
                 continue;
             }
 
-            if (owned.Count == 0)
+            if (CheckLayerChildFolder(config, child, "WebApi", moduleName, aggregates, owned, findings))
             {
-                CheckUseCaseFolder(config, child, "WebApi", findings);
                 continue;
             }
 
@@ -436,18 +434,19 @@ internal static class ClosedFolderChecks
         {
             if (owned.Count > 0)
             {
-                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per use case.", file, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per aggregate and use case.", file, 1, null));
             }
         }
     }
 
-    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence or ExternalSystems folder and no declared use case of the module.</summary>
+    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence or ExternalSystems folder and no declared aggregate or module-level use case of the module.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="infrastructure">The absolute Infrastructure folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="declared">The declared use cases by module, aggregate and name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckInfrastructureLevel(ConsumerConfig config, string infrastructure, string moduleName, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
+    private static void CheckInfrastructureLevel(ConsumerConfig config, string infrastructure, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
     {
         var owned = declared
             .Where(useCase => SameName(moduleName, useCase.Module))
@@ -462,14 +461,123 @@ internal static class ClosedFolderChecks
                 continue;
             }
 
-            if (owned.Any(useCase => SameName(name, useCase.Name)))
+            if (CheckLayerChildFolder(config, child, "Infrastructure", moduleName, aggregates, owned, findings))
             {
-                CheckUseCaseFolder(config, child, "Infrastructure", findings);
                 continue;
             }
 
             findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Infrastructure folder.", child, 1, null));
         }
+    }
+
+    /// <summary>
+    ///     Checks one folder under a use case layer folder: a module-level use case folder holds its use case files, a plural
+    ///     aggregate folder of an aggregate that has use cases holds only its use case folders, and anything else reports.
+    ///     A use case folder flat under the layer that names an aggregate-owned use case names the aggregate folder it sits in.
+    /// </summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="child">The absolute child folder under the layer folder.</param>
+    /// <param name="layer">The layer folder holding the child: Application, WebApi or Infrastructure.</param>
+    /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
+    /// <param name="owned">The declared use cases of the module.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the child was checked, so the caller reports nothing more for it.</returns>
+    private static bool CheckLayerChildFolder(ConsumerConfig config, string child, string layer, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> owned, List<Finding> findings)
+    {
+        var name = Path.GetFileName(child);
+
+        if (owned.Any(useCase => useCase.Aggregate is null && SameName(name, useCase.Name)))
+        {
+            CheckUseCaseFolder(config, child, layer, findings);
+            return true;
+        }
+
+        var under = owned
+            .Where(useCase => useCase.Aggregate is not null && SameName(name, ExpectedOf(aggregates, moduleName, useCase.Aggregate)))
+            .Select(useCase => useCase.Name)
+            .ToList();
+
+        if (under.Count > 0)
+        {
+            CheckAggregateUseCaseLevel(config, child, name, under, layer, findings);
+            return true;
+        }
+
+        var flat = owned.FirstOrDefault(useCase => useCase.Aggregate is not null && SameName(name, useCase.Name));
+
+        if (flat.Name is not null)
+        {
+            var expected = ExpectedOf(aggregates, moduleName, flat.Aggregate!);
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names the use case '{flat.Name}', which sits in its aggregate folder '{expected}/'.", child, 1, null));
+            return true;
+        }
+
+        foreach (var aggregate in aggregates)
+        {
+            if (!SameName(moduleName, aggregate.Module) || !SameAggregate(name, aggregate.Aggregate))
+            {
+                continue;
+            }
+
+            // A plural folder of an aggregate that holds no use case stays with the caller,
+            // which names the use case folders the level holds. A singular folder reports here.
+            if (SameName(name, aggregate.Expected))
+            {
+                return false;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no declared aggregate.", child, 1, null));
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Reports every folder under a plural aggregate folder under a layer folder that names no use case of that aggregate, and every file directly beside them.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="aggregate">The absolute aggregate folder under the layer folder.</param>
+    /// <param name="name">The aggregate folder name as written on disk.</param>
+    /// <param name="under">The declared use case names under the aggregate.</param>
+    /// <param name="layer">The layer folder holding the aggregate folder: Application, WebApi or Infrastructure.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckAggregateUseCaseLevel(ConsumerConfig config, string aggregate, string name, IReadOnlyList<string> under, string layer, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(aggregate))
+        {
+            var childName = Path.GetFileName(child);
+
+            if (under.Any(useCase => SameName(childName, useCase)))
+            {
+                CheckUseCaseFolder(config, child, layer, findings);
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no use case of aggregate '{name}'.", child, 1, null));
+        }
+
+        foreach (var file in ChildFiles(aggregate))
+        {
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in {name}/, which holds only one folder per use case.", file, 1, null));
+        }
+    }
+
+    /// <summary>The expected plural folder of an aggregate folder: the declared aggregate's plural, or the folder itself when no declared aggregate matches.</summary>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
+    /// <param name="module">The module folder name as written on disk.</param>
+    /// <param name="folder">The aggregate folder the use case sits under.</param>
+    /// <returns>The expected plural folder.</returns>
+    private static string ExpectedOf(IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, string module, string folder)
+    {
+        foreach (var aggregate in aggregates)
+        {
+            if (SameName(module, aggregate.Module) && SameAggregate(folder, aggregate.Aggregate))
+            {
+                return aggregate.Expected;
+            }
+        }
+
+        return Naming.Pascal(folder);
     }
 
     /// <summary>
@@ -618,12 +726,12 @@ internal static class ClosedFolderChecks
         return modules;
     }
 
-    /// <summary>The declared aggregates by module and aggregate name.</summary>
+    /// <summary>The declared aggregates by module, aggregate folder and expected plural folder.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <returns>The module and aggregate names of each aggregate record placed in a module folder.</returns>
-    private static List<(string Module, string Aggregate)> DeclaredAggregates(ProjectModel model)
+    /// <returns>The module, aggregate folder and expected plural folder of each aggregate record placed in a module folder.</returns>
+    private static List<(string Module, string Aggregate, string Expected)> DeclaredAggregates(ProjectModel model)
     {
-        var aggregates = new List<(string Module, string Aggregate)>();
+        var aggregates = new List<(string Module, string Aggregate, string Expected)>();
 
         foreach (var record in model.Records)
         {
@@ -636,7 +744,7 @@ internal static class ClosedFolderChecks
 
             if (path.Module is not null && path.Aggregate is not null)
             {
-                aggregates.Add((path.Module, path.Aggregate));
+                aggregates.Add((path.Module, path.Aggregate, ExpectedAggregateFolder(model, path.Module, path.Aggregate)));
             }
         }
 
@@ -693,7 +801,7 @@ internal static class ClosedFolderChecks
 
             if (record.Type is RecordTypes.Reaction or RecordTypes.Job)
             {
-                if (TriggerHomeOf(record) is { } home && home.Container != "Application")
+                if (TriggerHomeOf(model, record) is { } home && home.Container != "Application")
                 {
                     homes.Add((path.Module, home.Container, home.Name));
                 }
@@ -714,10 +822,11 @@ internal static class ClosedFolderChecks
     /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="modulesRoot">The module project holding the files.</param>
+    /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/backend/architecture#give-each-use-case-its-own-models</follows>
-    private static void CheckMessageFiles(ConsumerConfig config, string modulesRoot, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
+    private static void CheckMessageFiles(ConsumerConfig config, string modulesRoot, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
     {
         var single = SourceRoots.IsSingleModulesProject(modulesRoot);
         var own = single ? null : SourceRoots.ModuleNameOf(modulesRoot);
@@ -755,9 +864,12 @@ internal static class ClosedFolderChecks
 
             var layer = suffix is "RequestModel.cs" or "ResponseModel.cs" ? "WebApi" : "Application";
             var useCaseFolder = Naming.Pascal(match.Name);
+            var home = match.Aggregate is null
+                ? $"{layer}/{useCaseFolder}"
+                : $"{layer}/{ExpectedOf(aggregates, match.Module, match.Aggregate)}/{useCaseFolder}";
             var belongs = single
-                ? $"{segments[0]}/{layer}/{useCaseFolder}"
-                : $"{layer}/{useCaseFolder}";
+                ? $"{segments[0]}/{home}"
+                : home;
 
             findings.Add(new Finding("code-placement-drift", $"File '{relative}' holds a message, result or transport model outside a use case folder; it belongs in '{belongs}'.", file, 1, null));
         }

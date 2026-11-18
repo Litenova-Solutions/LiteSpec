@@ -6,6 +6,12 @@
       "name": "web",
       "modules": [
         {
+          "folder": "src/modules/spending/expenses/submit-expense",
+          "file": "src/modules/spending/expenses/submit-expense/litespec.ts",
+          "line": 3,
+          "marks": ["use-case/spending.submit-expense"]
+        },
+        {
           "folder": "src/modules/spending/list-expenses",
           "file": "src/modules/spending/list-expenses/litespec.ts",
           "line": 3,

@@ -13,13 +13,13 @@ public sealed class DuplicateModelAnalyzerTests
     public Task ReportsIdenticalRecordsInTwoUseCaseFolders() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(
             [
-                ("Claimwick.Spending/WebApi/ApproveExpense/MoneyModel.cs", """
-                    namespace Claimwick.Spending.WebApi.ApproveExpense;
+                ("Claimwick.Spending/WebApi/Expenses/ApproveExpense/MoneyModel.cs", """
+                    namespace Claimwick.Spending.WebApi.Expenses.ApproveExpense;
 
                     internal sealed record MoneyModel(decimal Amount, string Currency);
                     """),
-                ("Claimwick.Spending/WebApi/SubmitExpense/MoneyModel.cs", """
-                    namespace Claimwick.Spending.WebApi.SubmitExpense;
+                ("Claimwick.Spending/WebApi/Expenses/SubmitExpense/MoneyModel.cs", """
+                    namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
 
                     internal sealed record {|LS2026:MoneyModel|}(decimal Amount, string Currency);
                     """),
@@ -33,8 +33,8 @@ public sealed class DuplicateModelAnalyzerTests
     public Task AcceptsOneRecordWithNoDuplicate() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(
             [
-                ("Claimwick.Spending/WebApi/SubmitExpense/MoneyModel.cs", """
-                    namespace Claimwick.Spending.WebApi.SubmitExpense;
+                ("Claimwick.Spending/WebApi/Expenses/SubmitExpense/MoneyModel.cs", """
+                    namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
 
                     internal sealed record MoneyModel(decimal Amount, string Currency);
                     """),
@@ -48,13 +48,13 @@ public sealed class DuplicateModelAnalyzerTests
     public Task AcceptsTheSameNameWithDifferentMembers() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(
             [
-                ("Claimwick.Spending/WebApi/ApproveExpense/MoneyModel.cs", """
-                    namespace Claimwick.Spending.WebApi.ApproveExpense;
+                ("Claimwick.Spending/WebApi/Expenses/ApproveExpense/MoneyModel.cs", """
+                    namespace Claimwick.Spending.WebApi.Expenses.ApproveExpense;
 
                     internal sealed record MoneyModel(decimal Amount, string Currency);
                     """),
-                ("Claimwick.Spending/WebApi/SubmitExpense/MoneyModel.cs", """
-                    namespace Claimwick.Spending.WebApi.SubmitExpense;
+                ("Claimwick.Spending/WebApi/Expenses/SubmitExpense/MoneyModel.cs", """
+                    namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
 
                     internal sealed record MoneyModel(decimal Amount);
                     """),
@@ -68,13 +68,13 @@ public sealed class DuplicateModelAnalyzerTests
     public Task AcceptsIdenticalRecordsInOneUseCaseFolder() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(
             [
-                ("Claimwick.Spending/Application/SubmitExpense/MoneyInput.cs", """
-                    namespace Claimwick.Spending.Application.SubmitExpense;
+                ("Claimwick.Spending/Application/Expenses/SubmitExpense/MoneyInput.cs", """
+                    namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
 
                     internal sealed record MoneyInput(decimal Amount, string Currency);
                     """),
-                ("Claimwick.Spending/WebApi/SubmitExpense/MoneyInput.cs", """
-                    namespace Claimwick.Spending.WebApi.SubmitExpense;
+                ("Claimwick.Spending/WebApi/Expenses/SubmitExpense/MoneyInput.cs", """
+                    namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
 
                     internal sealed record MoneyInput(decimal Amount, string Currency);
                     """),

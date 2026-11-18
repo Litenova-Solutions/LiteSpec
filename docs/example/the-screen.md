@@ -22,7 +22,7 @@ The route file holds no reusable logic. It imports the client and the shared flo
 
 ## The Use Case Code
 
-The list logic itself is a module, `apps/web/src/lib/modules/spending/list-expenses/litespec.ts`. Its mark names `use-case/spending.list-expenses`: the module folder mirrors the backend use case path in kebab case. The record it implements is [the List expenses use case](modules-and-records.md#the-use-cases).
+The list logic itself is a module, `apps/web/src/lib/modules/spending/expenses/list-expenses/litespec.ts`. Its mark names `use-case/spending.list-expenses`: the module folder mirrors the backend use case path in kebab case. The record it implements is [the List expenses use case](modules-and-records.md#the-use-cases).
 
 ## The Generated Client
 

@@ -1,4 +1,4 @@
-using Library.Lending.Application.BorrowCopy;
+using Library.Lending.Application.Loans.BorrowCopy;
 
 namespace Library.Lending.Application.Holds.BorrowCopy;
 

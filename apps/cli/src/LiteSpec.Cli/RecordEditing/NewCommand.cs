@@ -42,7 +42,7 @@ static class NewCommand
         its explanation file: modules/<module>/reactions/<name>/<name>.yaml and
         modules/<module>/reactions/<name>/<name>.md. A module file is
         modules/<module>/module.yaml; an aggregate file is
-        modules/<module>/aggregates/<aggregate>/aggregate.yaml. A use-case file starts
+        modules/<module>/aggregates/<aggregates>/aggregate.yaml. A use-case file starts
         under modules/<module>/use-cases/<name>/<name>.yaml; move the folder
         under its aggregate's use-cases/ folder once the use case names one. The
         title is one Title Case title, written to the YAML title and to the

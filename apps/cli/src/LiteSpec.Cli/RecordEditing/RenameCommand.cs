@@ -536,7 +536,7 @@ static class RenameCommand
                 ? Path.Combine(config.BehaviorDocs, "modules", newHome!, "aggregates")
                 : Path.GetDirectoryName(oldFolder)!;
 
-            return MoveFolder(oldFolder, Path.Combine(aggregates, newName), oldFile, renameFile: false);
+            return MoveFolder(oldFolder, Path.Combine(aggregates, Naming.PluralKebab(newName)), oldFile, renameFile: false);
         }
 
         string? container;

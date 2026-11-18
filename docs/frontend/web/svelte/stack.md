@@ -26,7 +26,7 @@ Three files agree on how imports resolve. The `imports` field is the one alias d
 
 The TypeScript configuration sets `moduleResolution: bundler` with `allowImportingTsExtensions` and `noEmit`, so `#lib/app/words.ts` typechecks with its extension. SvelteKit 3 reads no `svelte.config.js`: its configuration lives in `vite.config.ts`.
 
-Route groups are folders under `src/routes` whose names stay in parentheses, such as `(console)`. The parentheses are router syntax: the folder groups routes under one layout without adding an address. For example, the Claimwick expense console keeps its frame in `src/lib/app`, its expense list page in `src/routes/expenses/+page.svelte`, and its expense use-case code in `src/lib/modules/spending`, importing frame code through `#lib/app/words.ts`.
+Route groups are folders under `src/routes` whose names stay in parentheses, such as `(console)`. The parentheses are router syntax: the folder groups routes under one layout without adding an address. For example, the Claimwick expense console keeps its frame in `src/lib/app`, its expense list page in `src/routes/expenses/+page.svelte`, and its expense use-case code in `src/lib/modules/spending/expenses`, importing frame code through `#lib/app/words.ts`.
 
 The layout follows `litespec/frontend/web/structure#use-the-frontend-application-tree`, and shared files use the extension in `litespec/frontend/web/structure#use-the-stack-file-extension`.
 

@@ -55,9 +55,10 @@ public static class ArchitectureLayerResolver
     }
 
     /// <summary>
-    ///     The use case folder holding the file: the next folder under Application,
-    ///     WebApi or Infrastructure. A file directly in a layer folder, or outside
-    ///     every layer folder, names no use case.
+    ///     The use case folder holding the file: the folder holding the file when it sits below
+    ///     Application, WebApi or Infrastructure, so a use case in its plural aggregate folder reads
+    ///     as its own folder. A file directly in a layer folder, or outside every layer folder,
+    ///     names no use case.
     /// </summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The use case folder name, or null when the file sits in no use case folder.</returns>
@@ -74,7 +75,7 @@ public static class ArchitectureLayerResolver
         {
             if (segments[index] is "Application" or "WebApi" or "Infrastructure")
             {
-                return segments[index + 1];
+                return segments[segments.Length - 2];
             }
         }
 

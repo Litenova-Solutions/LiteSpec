@@ -73,10 +73,9 @@ public sealed class AggregateMutationAnalyzer : LayerAnalyzer
             return;
         }
 
-        var aggregateName = CodeMap.FolderName(aggregate);
         foreach (var member in type.GetMembers())
         {
-            AnalyzeMember(context, type, member, aggregateName);
+            AnalyzeMember(context, type, member, aggregate);
         }
     }
 
@@ -84,13 +83,15 @@ public sealed class AggregateMutationAnalyzer : LayerAnalyzer
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="type">The type under inspection.</param>
     /// <param name="member">The member under inspection.</param>
-    /// <param name="aggregateName">The aggregate name the diagnostic reports.</param>
-    private static void AnalyzeMember(SymbolAnalysisContext context, INamedTypeSymbol type, ISymbol member, string aggregateName)
+    /// <param name="aggregate">The aggregate folder holding the type.</param>
+    private static void AnalyzeMember(SymbolAnalysisContext context, INamedTypeSymbol type, ISymbol member, string aggregate)
     {
         if (member.IsStatic || member.IsImplicitlyDeclared)
         {
             return;
         }
+
+        var aggregateName = CodeMap.FolderName(aggregate);
 
         if (member is IPropertySymbol property)
         {
@@ -115,7 +116,7 @@ public sealed class AggregateMutationAnalyzer : LayerAnalyzer
             && IsPublic(method.DeclaredAccessibility)
             && !type.IsAbstract
             && !type.IsRecord
-            && !IsInputType(type, aggregateName))
+            && !IsInputType(type, aggregate))
         {
             Report(context, type, method, aggregateName, "it must not declare the public constructor '" + type.Name + "'");
         }
@@ -178,13 +179,13 @@ public sealed class AggregateMutationAnalyzer : LayerAnalyzer
 
     /// <summary>Returns true when the type is an input of the aggregate root's factories or methods; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
-    /// <param name="aggregateName">The aggregate name.</param>
+    /// <param name="aggregate">The aggregate folder holding the type.</param>
     /// <returns>True when the root takes the type as a parameter.</returns>
-    private static bool IsInputType(INamedTypeSymbol type, string aggregateName)
+    private static bool IsInputType(INamedTypeSymbol type, string aggregate)
     {
-        foreach (var candidate in type.ContainingNamespace.GetTypeMembers(aggregateName))
+        foreach (var candidate in type.ContainingNamespace.GetTypeMembers())
         {
-            if (!Aggregates.IsRoot(candidate))
+            if (!Aggregates.IsRoot(candidate) || !Aggregates.DeclaredIn(candidate, aggregate))
             {
                 continue;
             }

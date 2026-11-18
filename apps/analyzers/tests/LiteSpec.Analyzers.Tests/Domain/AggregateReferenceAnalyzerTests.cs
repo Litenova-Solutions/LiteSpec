@@ -21,7 +21,7 @@ public sealed class AggregateReferenceAnalyzerTests
     private const string CounterpartyRoot = """
         using Claimwick.Spending.Domain;
 
-        namespace Claimwick.Spending.Domain.Counterparty;
+        namespace Claimwick.Spending.Domain.Counterparties;
 
         public sealed class Counterparty : AggregateRoot<CounterpartyId>
         {
@@ -36,11 +36,11 @@ public sealed class AggregateReferenceAnalyzerTests
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Counterparty/Counterparty.cs", CounterpartyRoot),
-                ("Claimwick.Spending/Domain/Expense/Expense.cs", """
-                    namespace Claimwick.Spending.Domain.Expense;
+                ("Claimwick.Spending/Domain/Counterparties/Counterparty.cs", CounterpartyRoot),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
 
-                    using Claimwick.Spending.Domain.Counterparty;
+                    using Claimwick.Spending.Domain.Counterparties;
 
                     public sealed class Expense : AggregateRoot<ExpenseId>
                     {
@@ -58,21 +58,21 @@ public sealed class AggregateReferenceAnalyzerTests
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Counterparty/Counterparty.cs", CounterpartyRoot),
-                ("Claimwick.Spending/Domain/Counterparty/CounterpartyContact.cs", """
+                ("Claimwick.Spending/Domain/Counterparties/Counterparty.cs", CounterpartyRoot),
+                ("Claimwick.Spending/Domain/Counterparties/CounterpartyContact.cs", """
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Counterparty;
+                    namespace Claimwick.Spending.Domain.Counterparties;
 
                     public sealed class CounterpartyContact : Entity<CounterpartyId>
                     {
                     }
                     """),
-                ("Claimwick.Spending/Domain/Expense/Expense.cs", """
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
                     using Claimwick.Spending.Domain;
-                    using Claimwick.Spending.Domain.Counterparty;
+                    using Claimwick.Spending.Domain.Counterparties;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class Expense : AggregateRoot<ExpenseId>
                     {
@@ -90,12 +90,12 @@ public sealed class AggregateReferenceAnalyzerTests
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Counterparty/Counterparty.cs", CounterpartyRoot),
-                ("Claimwick.Spending/Domain/Expense/Expense.cs", """
+                ("Claimwick.Spending/Domain/Counterparties/Counterparty.cs", CounterpartyRoot),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
                     using Claimwick.Spending.Domain;
-                    using Claimwick.Spending.Domain.Counterparty;
+                    using Claimwick.Spending.Domain.Counterparties;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class Expense : AggregateRoot<ExpenseId>
                     {
@@ -113,19 +113,19 @@ public sealed class AggregateReferenceAnalyzerTests
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
-                ("Claimwick.Spending/Domain/Expense/ExpenseLine.cs", """
+                ("Claimwick.Spending/Domain/Expenses/ExpenseLine.cs", """
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class ExpenseLine : Entity<ExpenseId>
                     {
                     }
                     """),
-                ("Claimwick.Spending/Domain/Expense/Expense.cs", """
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
                     using Claimwick.Spending.Domain;
 
-                    namespace Claimwick.Spending.Domain.Expense;
+                    namespace Claimwick.Spending.Domain.Expenses;
 
                     public sealed class Expense : AggregateRoot<ExpenseId>
                     {

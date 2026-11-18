@@ -129,12 +129,12 @@ Each parent with child records holds them in a folder named for the child type i
 | `role` | Intent | product | `intent/roles/<name>/<name>.yaml` | product | `role/<name>` |
 | `module` | Behavior | module | `behavior/modules/<m>/module.yaml` | product | `module/<name>` |
 | `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` |
-| `aggregate` | Behavior | module | `behavior/modules/<m>/aggregates/<aggregate>/aggregate.yaml` | module | `aggregate/<module>.<name>` |
-| `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
+| `aggregate` | Behavior | module | `behavior/modules/<m>/aggregates/<aggregates>/aggregate.yaml` | module | `aggregate/<module>.<name>` |
+| `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/aggregates/<aggregates>/use-cases/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
 | `result` | Behavior | entry | in its use case file | use case | `result/<use-case>.<name>` |
 | `scenario` | Behavior | entry | in the file of its use case, reaction or job | that record | `scenario/<parent>.<name>` |
-| `domain-event` | Behavior | aggregate | in `aggregate.yaml` or in `aggregates/<aggregate>/domain-events/` | aggregate | `domain-event/<aggregate>.<name>` |
-| `rule` | Behavior | aggregate, module, product | `behavior/modules/<m>/aggregates/<aggregate>/rules/`, `behavior/modules/<m>/rules/`, `behavior/rules/` | its scope node | `rule/<home>.<name>` |
+| `domain-event` | Behavior | aggregate | in `aggregate.yaml` or in `aggregates/<aggregates>/domain-events/` | aggregate | `domain-event/<aggregate>.<name>` |
+| `rule` | Behavior | aggregate, module, product | `behavior/modules/<m>/aggregates/<aggregates>/rules/`, `behavior/modules/<m>/rules/`, `behavior/rules/` | its scope node | `rule/<home>.<name>` |
 | `reaction` | Behavior | module | `behavior/modules/<m>/reactions/<name>/<name>.yaml` | module | `reaction/<module>.<name>` |
 | `job` | Behavior | module | `behavior/modules/<m>/jobs/<name>/<name>.yaml` | module | `job/<module>.<name>` |
 | `read-model` | Behavior | module | `behavior/modules/<m>/read-models/<name>/<name>.yaml` | module | `read-model/<module>.<name>` |
@@ -151,7 +151,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `waiver` | Governance | product, module | `governance/waivers/<name>/<name>.yaml`, `governance/modules/<m>/waivers/<name>/<name>.yaml` | product or module | `waiver/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `domain-events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregates>/`, where `<aggregates>` is the plural of the aggregate name (`expenses` for `aggregate/spending.expense`), and holds its `use-cases/`, `domain-events/` and `rules/` folders. The record id stays singular. Any other subfolder of a module is a `record-placement-invalid` finding.
 
 A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
 
@@ -549,9 +549,9 @@ A runtime value a record already states, such as an event classification or a re
 
 ### Where Code and Tests Sit
 
-Backend code follows the module layout: one `Contracts/` folder, one `Domain/` folder holding one folder per aggregate, and the `Application/`, `Infrastructure/`, and `WebApi/` layer folders holding one folder per use case they serve, in one tree. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout` sits in `{Product}/Finance/Application/RequestPayout/`.
+Backend code follows the module layout: one `Contracts/` folder, one `Domain/` folder holding one folder per aggregate in the plural, and the `Application/`, `Infrastructure/`, and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level use case, in one tree. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout` sits in `{Product}/Finance/Application/Payouts/RequestPayout/`.
 
-Tests mirror the code they prove, with the same check: a test marking a scenario sits under the folder path of the scenario's use case.
+Tests mirror the code they prove, with the same check: a test marking a scenario sits under the folder path of the scenario's use case, so acceptance tests mirror `{Module}/{Aggregates}/{UseCase}/`.
 
 Frontend code follows [Organize a Frontend into Frame, Routes, and Modules](../frontend/structure.md#organize-a-frontend-into-frame-routes-and-modules): module folders take the declared module names, and routes group by entry point.
 

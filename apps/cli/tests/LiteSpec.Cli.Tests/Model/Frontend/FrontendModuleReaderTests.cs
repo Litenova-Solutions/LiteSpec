@@ -17,7 +17,7 @@ public sealed class FrontendModuleReaderTests
 
         Assert.Equal(3, modules.Count);
 
-        var borrow = Assert.Single(modules, element => element.Class == "lending/borrow-copy");
+        var borrow = Assert.Single(modules, element => element.Class == "lending/loans/borrow-copy");
         var mark = Assert.Single(borrow.Marks);
 
         Assert.Equal("use-case/lending.borrow-copy", mark.RecordId);
@@ -40,10 +40,10 @@ public sealed class FrontendModuleReaderTests
             .ToList();
 
         Assert.Contains(modules, element =>
-            element.Class == "lending/list-loans"
+            element.Class == "lending/loans/list-loans"
             && element.File.Contains(Path.Combine("apps", "console")));
         Assert.Contains(modules, element =>
-            element.Class == "lending/list-loans"
+            element.Class == "lending/loans/list-loans"
             && element.File.Contains(Path.Combine("apps", "web")));
     }
 

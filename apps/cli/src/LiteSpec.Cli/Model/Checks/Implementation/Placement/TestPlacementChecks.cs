@@ -47,31 +47,31 @@ internal static class TestPlacementChecks
                     continue;
                 }
 
-                if (!CheckTestFolder(model.Config, element, mark, path, findings))
+                if (!CheckTestFolder(model, element, mark, path, findings))
                 {
-                    CheckTestNamespace(model.Config, element, mark, path, namespaces, findings);
+                    CheckTestNamespace(model, element, mark, path, namespaces, findings);
                 }
             }
         }
     }
 
     /// <summary>Reports the test folder that misses the code folder of the scenario's use case.</summary>
-    /// <param name="config">The project configuration that holds each test root.</param>
+    /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
     /// <param name="element">The marked test whose folder is checked.</param>
     /// <param name="mark">The proves mark naming the scenario.</param>
     /// <param name="path">The module, aggregate and use case the scenario's folder path states.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
-    private static bool CheckTestFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, PlacementPath path, List<Finding> findings)
+    private static bool CheckTestFolder(ProjectModel model, MarkedElement element, CodeMark mark, PlacementPath path, List<Finding> findings)
     {
-        if (TestSegments(config, element.File) is not { } segments)
+        if (TestSegments(model.Config, element.File) is not { } segments)
         {
             return false;
         }
 
-        // Tests mirror the module and use case, so the first segment names the module
-        // and the next names the use case. A use case lives directly under its
-        // module, whatever aggregate its record sits under.
+        // Tests mirror the module, the plural aggregate folder and the use case, so the
+        // first segment names the module, the next the aggregate, and the next the use case.
+        // A module-level use case drops the aggregate segment.
         if (!SameName(segments[0], path.Module!))
         {
             findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{segments[0]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
@@ -83,32 +83,52 @@ internal static class TestPlacementChecks
             return false;
         }
 
-        // Nested under an aggregate folder the test reports the old shape.
+        if (path.Aggregate is null)
+        {
+            // Nested under another folder the test reports that folder.
+            if (segments.Length >= 4 && SameName(segments[2], path.Name!))
+            {
+                findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+                return true;
+            }
+
+            if (!SameName(segments[1], path.Name!))
+            {
+                findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+                return true;
+            }
+
+            return false;
+        }
+
+        var expected = ExpectedAggregateFolder(model, path.Module!, path.Aggregate);
+        var useCase = Naming.Pascal(path.Name!);
+
         if (segments.Length >= 4 && SameName(segments[2], path.Name!))
         {
-            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+            if (SameName(segments[1], expected))
+            {
+                return false;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}', so it belongs in '{segments[0]}/{expected}/{useCase}/'.", mark.File, mark.Line, mark.RecordId));
             return true;
         }
 
-        if (!SameName(segments[1], path.Name!))
-        {
-            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
-            return true;
-        }
-
-        return false;
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}', so it belongs in '{segments[0]}/{expected}/{useCase}/'.", mark.File, mark.Line, mark.RecordId));
+        return true;
     }
 
     /// <summary>Reports the test namespace that names another path than the scenario's use case.</summary>
-    /// <param name="config">The project configuration that holds the product name.</param>
+    /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
     /// <param name="element">The marked test whose namespace is checked.</param>
     /// <param name="mark">The proves mark naming the scenario.</param>
     /// <param name="path">The module, aggregate and use case the scenario's folder path states.</param>
     /// <param name="namespaces">The parsed namespace per file, filled as files are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckTestNamespace(ConsumerConfig config, MarkedElement element, CodeMark mark, PlacementPath path, Dictionary<string, string> namespaces, List<Finding> findings)
+    private static void CheckTestNamespace(ProjectModel model, MarkedElement element, CodeMark mark, PlacementPath path, Dictionary<string, string> namespaces, List<Finding> findings)
     {
-        var product = SourceRoots.ProductName(config);
+        var product = SourceRoots.ProductName(model.Config);
 
         if (product.Length == 0)
         {
@@ -120,7 +140,14 @@ internal static class TestPlacementChecks
             return;
         }
 
-        var expected = new List<string> { Naming.Pascal(path.Module!), Naming.Pascal(path.Name!) };
+        var expected = new List<string> { Naming.Pascal(path.Module!) };
+
+        if (path.Aggregate is not null)
+        {
+            expected.Add(ExpectedAggregateFolder(model, path.Module!, path.Aggregate));
+        }
+
+        expected.Add(Naming.Pascal(path.Name!));
 
         if (PlacedSegments(product, actual) is not { } placed
             || !NamespaceMatches(placed, expected))

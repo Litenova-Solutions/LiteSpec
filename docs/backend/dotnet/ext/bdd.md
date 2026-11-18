@@ -166,13 +166,13 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Strength:** default
 
-**Default:** Group feature classes under module folders in `Acceptance.Tests`.
+**Default:** Group feature classes under `{Module}/{Aggregates}/{UseCase}/` folders in `Acceptance.Tests`, with a module-level use case dropping the aggregate segment.
 
 **Replacement:** A project names its own feature grouping in its documentation.
 
-**Rationale:** A scenario filed by business module sits beside the vocabulary it exercises, so a reader finds every example of one module in one folder. A flat or technically grouped suite scatters those examples.
+**Rationale:** A scenario filed by business module and aggregate sits beside the vocabulary it exercises, so a reader finds every example of one aggregate in one folder. A flat or technically grouped suite scatters those examples.
 
-**Reviewed for:** Does every feature class sit under its module folder, or under a documented grouping? Look at `Acceptance.Tests` beside the project documentation.
+**Reviewed for:** Does every feature class sit under its `{Module}/{Aggregates}/{UseCase}/` folder, or under a documented grouping? Look at `Acceptance.Tests` beside the project documentation.
 
 ### Keep Steps Vocabulary-Scoped
 

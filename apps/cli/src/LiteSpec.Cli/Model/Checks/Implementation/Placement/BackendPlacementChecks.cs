@@ -25,7 +25,7 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Reports every backend mark whose namespace or folder misses the code folder its record's placement names:
-    ///     a use case mark outside its use case folder under Application, WebApi or Infrastructure, an event or rule mark outside its module or aggregate,
+    ///     a use case mark outside its use case folder in its aggregate folder under Application, WebApi or Infrastructure, an event or rule mark outside its module or aggregate,
     ///     an external-system mark outside its module, and any of those with a namespace that names another path.
     ///     A mark naming no record, a record of another type, or a record its kind does not take is
     ///     <c>mark-unknown</c>, not drift. A host endpoint, a technical class, an aggregate method and a
@@ -58,7 +58,7 @@ internal static class BackendPlacementChecks
                 {
                     if (!CheckReadModelPlacement(model, element, mark, record, findings))
                     {
-                        CheckBackendNamespace(model.Config, element, mark, record, PathOf(record), null, namespaces, findings);
+                        CheckBackendNamespace(model, element, mark, record, PathOf(record), null, namespaces, findings);
                     }
 
                     continue;
@@ -112,7 +112,7 @@ internal static class BackendPlacementChecks
 
                 if (!CheckBackendFolder(model, element, mark, record, path, ruleHomes, findings))
                 {
-                    CheckBackendNamespace(model.Config, element, mark, record, path, ruleHomes, namespaces, findings);
+                    CheckBackendNamespace(model, element, mark, record, path, ruleHomes, namespaces, findings);
                 }
             }
         }
@@ -157,13 +157,13 @@ internal static class BackendPlacementChecks
             && record.Type == RecordTypes.UseCase
             && path.Name is not null)
         {
-            return CheckUseCaseElementFolder(model.Config, element, mark, path, findings);
+            return CheckUseCaseElementFolder(model, element, mark, path, findings);
         }
 
         if (element.Kind is CodeKind.EventHandler or CodeKind.Job
             && record.Type is RecordTypes.Reaction or RecordTypes.Job)
         {
-            return CheckTriggerFolder(model.Config, element, mark, record, path, findings);
+            return CheckTriggerFolder(model, element, mark, record, path, findings);
         }
 
         if (path.Aggregate is null
@@ -206,25 +206,24 @@ internal static class BackendPlacementChecks
     }
 
     /// <summary>
-    ///     Reports the folder a handler or endpoint misses for its use case: every use case lives
-    ///     in its own folder under Application, WebApi or Infrastructure, whatever aggregate its
-    ///     record sits under. A use case folder naming another use case, and a module folder naming
-    ///     another module, stay with <c>mark-folder-drift</c>, so they are left out here, and a
-    ///     use case folder flat in its module stays with the closed folder check, which names
-    ///     the missing layer level. A use case nested under an aggregate folder reports the
-    ///     old shape.
+    ///     Reports the folder a handler or endpoint misses for its use case: a use case whose record sits under an
+    ///     aggregate lives in its plural aggregate folder under Application, WebApi or Infrastructure, and a module-level
+    ///     use case lives in its own folder directly under one of those layers. The finding names the expected folder.
+    ///     A use case folder naming another use case, and a module folder naming another module, stay with
+    ///     <c>mark-folder-drift</c>, so they are left out here, and a use case folder flat in its module stays with the
+    ///     closed folder check, which names the missing layer level.
     /// </summary>
-    /// <param name="config">The project configuration that holds each module root.</param>
+    /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
     /// <param name="element">The marked handler or endpoint whose folder is checked.</param>
     /// <param name="mark">The mark naming the use case the folder should hold.</param>
     /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
-    private static bool CheckUseCaseElementFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, PlacementPath path, List<Finding> findings)
+    private static bool CheckUseCaseElementFolder(ProjectModel model, MarkedElement element, CodeMark mark, PlacementPath path, List<Finding> findings)
     {
         // The raw path derives the element's own folders: the layer folder above
         // the use case folder keeps its written name.
-        if (RawModulePath(config, element.File) is not { } raw || raw.Length < 2)
+        if (RawModulePath(model.Config, element.File) is not { } raw || raw.Length < 2)
         {
             return false;
         }
@@ -235,8 +234,8 @@ internal static class BackendPlacementChecks
         }
 
         // A use case's handler, message and steps sit in its Application folder, its endpoint in
-        // its WebApi folder, and its own adapters in its Infrastructure folder. The use case
-        // folder is the one under the layer folder.
+        // its WebApi folder, and its own adapters in its Infrastructure folder. Under an aggregate
+        // the use case folder sits in the plural aggregate folder under the layer folder.
         var folders = raw[1..^1];
 
         if (folders.Length == 0)
@@ -259,6 +258,27 @@ internal static class BackendPlacementChecks
             return false;
         }
 
+        if (path.Aggregate is null)
+        {
+            return CheckModuleLevelUseCaseFolder(element, mark, folders, findings);
+        }
+
+        return CheckAggregateUseCaseFolder(model, element, mark, path, raw[0], folders, findings);
+    }
+
+    /// <summary>
+    ///     Reports the folder a handler or endpoint of a module-level use case misses: its own folder directly under
+    ///     Application, WebApi or Infrastructure. A use case nested under an aggregate folder reports that folder.
+    /// </summary>
+    /// <param name="element">The marked handler or endpoint whose folder is checked.</param>
+    /// <param name="mark">The mark naming the use case the folder should hold.</param>
+    /// <param name="folders">The folders under the module with the file name dropped, the use case folder last.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
+    private static bool CheckModuleLevelUseCaseFolder(MarkedElement element, CodeMark mark, string[] folders, List<Finding> findings)
+    {
+        var above = folders[^2];
+
         if (UseCaseLayerFolders.Contains(above))
         {
             var home = folders.Length >= 3 ? folders[^3] : null;
@@ -272,14 +292,56 @@ internal static class BackendPlacementChecks
             return true;
         }
 
-        // Flat in its own aggregate folder the closed folder check names the missing
-        // Domain and layer levels.
-        if (path.Aggregate is not null && SameAggregate(above, path.Aggregate))
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{above}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+        return true;
+    }
+
+    /// <summary>
+    ///     Reports the folder a handler or endpoint of an aggregate-owned use case misses: its use case folder in the
+    ///     plural aggregate folder under Application, WebApi or Infrastructure. The finding names the expected folder.
+    ///     Flat in its own aggregate folder the closed folder check names the missing layer level.
+    /// </summary>
+    /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
+    /// <param name="element">The marked handler or endpoint whose folder is checked.</param>
+    /// <param name="mark">The mark naming the use case the folder should hold.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
+    /// <param name="module">The module folder as written on disk.</param>
+    /// <param name="folders">The folders under the module with the file name dropped, the use case folder last.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
+    private static bool CheckAggregateUseCaseFolder(ProjectModel model, MarkedElement element, CodeMark mark, PlacementPath path, string module, string[] folders, List<Finding> findings)
+    {
+        var above = folders[^2];
+        var expected = ExpectedAggregateFolder(model, path.Module!, path.Aggregate!);
+        var useCase = Naming.Pascal(path.Name!);
+
+        if (UseCaseLayerFolders.Contains(above))
         {
-            return false;
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^1]}', but marks '{mark.RecordId}', so it belongs in '{module}/{above}/{expected}/{useCase}/'.", mark.File, mark.Line, mark.RecordId));
+            return true;
         }
 
-        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{above}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+        var layer = folders.Length >= 3 ? folders[^3] : null;
+
+        if (SameAggregate(above, path.Aggregate!))
+        {
+            // Flat in its own aggregate folder the closed folder check names the missing layer level.
+            if (layer is null || !UseCaseLayerFolders.Contains(layer))
+            {
+                return false;
+            }
+
+            if (SameName(above, expected))
+            {
+                return false;
+            }
+        }
+
+        var home = layer is not null && UseCaseLayerFolders.Contains(layer)
+            ? layer
+            : element.Kind == CodeKind.Endpoint ? "WebApi" : "Application";
+
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{above}', but marks '{mark.RecordId}', so it belongs in '{module}/{home}/{expected}/{useCase}/'.", mark.File, mark.Line, mark.RecordId));
         return true;
     }
 
@@ -336,11 +398,12 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Reports the folder a reaction or job trigger misses, read from its record's effects: the use case
-    ///     folder under Application for the use case it runs, else the Notifications folder under Application
-    ///     for the notification it sends, else the ExternalSystems folder under Application for the external
-    ///     system it calls. A trigger in another module folder stays with <c>mark-folder-drift</c>.
+    ///     folder under Application for the use case it runs, inside its aggregate folder when the use case sits
+    ///     under one, else the Notifications folder under Application for the notification it sends, else the
+    ///     ExternalSystems folder under Application for the external system it calls. A trigger in another module
+    ///     folder stays with <c>mark-folder-drift</c>.
     /// </summary>
-    /// <param name="config">The project configuration that holds each module root.</param>
+    /// <param name="model">The loaded project model that resolves the use case the trigger runs.</param>
     /// <param name="element">The marked event handler or job host whose folder is checked.</param>
     /// <param name="mark">The mark naming the reaction or job the folder should hold.</param>
     /// <param name="record">The marked reaction or job record.</param>
@@ -348,10 +411,10 @@ internal static class BackendPlacementChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
     /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
-    private static bool CheckTriggerFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<Finding> findings)
+    private static bool CheckTriggerFolder(ProjectModel model, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<Finding> findings)
     {
-        if (TriggerHomeOf(record) is not { } home
-            || RawModulePath(config, element.File) is not { } raw
+        if (TriggerHomeOf(model, record) is not { } home
+            || RawModulePath(model.Config, element.File) is not { } raw
             || raw.Length < 2
             || !SameName(raw[0], path.Module!))
         {
@@ -359,23 +422,30 @@ internal static class BackendPlacementChecks
         }
 
         var folders = raw[..^1];
-        var placed = home.Container == "Application"
-            ? folders.Length >= 3
-                && string.Equals(folders[^2], "Application", StringComparison.OrdinalIgnoreCase)
-                && SameName(folders[^1], home.Name)
-            : folders.Length >= 4
+        var placed = home.Container == "Application" && home.Aggregate is not null
+            ? folders.Length >= 4
                 && string.Equals(folders[^3], "Application", StringComparison.OrdinalIgnoreCase)
-                && string.Equals(folders[^2], home.Container, StringComparison.OrdinalIgnoreCase)
-                && SameName(folders[^1], home.Name);
+                && SameName(folders[^2], home.Aggregate)
+                && SameName(folders[^1], home.Name)
+            : home.Container == "Application"
+                ? folders.Length >= 3
+                    && string.Equals(folders[^2], "Application", StringComparison.OrdinalIgnoreCase)
+                    && SameName(folders[^1], home.Name)
+                : folders.Length >= 4
+                    && string.Equals(folders[^3], "Application", StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(folders[^2], home.Container, StringComparison.OrdinalIgnoreCase)
+                    && SameName(folders[^1], home.Name);
 
         if (placed)
         {
             return false;
         }
 
-        var expected = home.Container == "Application"
-            ? $"{raw[0]}/Application/{home.Name}"
-            : $"{raw[0]}/Application/{home.Container}/{home.Name}";
+        var expected = home.Container == "Application" && home.Aggregate is not null
+            ? $"{raw[0]}/Application/{home.Aggregate}/{home.Name}"
+            : home.Container == "Application"
+                ? $"{raw[0]}/Application/{home.Name}"
+                : $"{raw[0]}/Application/{home.Container}/{home.Name}";
 
         findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^1]}', but its trigger '{mark.RecordId}' belongs in '{expected}'.", mark.File, mark.Line, mark.RecordId));
         return true;
@@ -521,7 +591,7 @@ internal static class BackendPlacementChecks
     }
 
     /// <summary>Reports the backend namespace that names another path than the marked record's folder path.</summary>
-    /// <param name="config">The project configuration that holds the product name.</param>
+    /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
     /// <param name="element">The marked code element whose namespace is checked.</param>
     /// <param name="mark">The mark naming the record the namespace should place.</param>
     /// <param name="record">The marked record.</param>
@@ -529,16 +599,16 @@ internal static class BackendPlacementChecks
     /// <param name="ruleHomes">The aggregates a rule mark accepts, or null when the mark names no rule.</param>
     /// <param name="namespaces">The parsed namespace per file, filled as files are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckBackendNamespace(ConsumerConfig config, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<string>? ruleHomes, Dictionary<string, string> namespaces, List<Finding> findings)
+    private static void CheckBackendNamespace(ProjectModel model, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<string>? ruleHomes, Dictionary<string, string> namespaces, List<Finding> findings)
     {
-        var expected = ExpectedSegments(path);
+        var expected = ExpectedSegments(model, path);
 
         if (expected.Count == 0)
         {
             return;
         }
 
-        var product = SourceRoots.ProductName(config);
+        var product = SourceRoots.ProductName(model.Config);
 
         if (product.Length == 0)
         {
@@ -564,7 +634,7 @@ internal static class BackendPlacementChecks
         if (record.Type is RecordTypes.DomainEvent or RecordTypes.Rule
             && significant.Count >= 1
             && SameName(significant[0], path.Module!)
-            && (IsInModuleContracts(config, element.File, path.Module!)
+            && (IsInModuleContracts(model.Config, element.File, path.Module!)
                 || (record.Type == RecordTypes.Rule
                     && ruleHomes is not null
                     && significant.Count >= 2
@@ -573,28 +643,10 @@ internal static class BackendPlacementChecks
             return;
         }
 
-        if (!NamespaceMatches(placed, expected) && !NamespaceMatchesSingularAggregate(placed, expected, path))
+        if (!NamespaceMatches(placed, expected))
         {
             findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' declares namespace '{actual}', but '{mark.RecordId}' places it under '{product}.{string.Join(".", expected)}'.", mark.File, mark.Line, mark.RecordId));
         }
-    }
-
-    /// <summary>Whether the declared namespace segments match the expected ones with the aggregate in the singular: code names the aggregate in the singular while the record folder names it in the plural.</summary>
-    /// <param name="placed">The declared namespace segments after the product.</param>
-    /// <param name="expected">The expected segments in placement order, without the product.</param>
-    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
-    /// <returns>True when the placed segments carry the expected segments with a singular aggregate.</returns>
-    private static bool NamespaceMatchesSingularAggregate(List<string> placed, List<string> expected, PlacementPath path)
-    {
-        if (path.IsUseCase || path.Aggregate is null || expected.Count < 2)
-        {
-            return false;
-        }
-
-        var singular = new List<string>(expected);
-        singular[1] = Naming.Pascal(SingularOf(path.Aggregate));
-
-        return NamespaceMatches(placed, singular);
     }
 
     /// <summary>Whether the endpoint sits in a host, where host endpoints carry their mark without a use case folder.</summary>

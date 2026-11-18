@@ -505,6 +505,8 @@ internal static class FolderChecks
             return;
         }
 
+        CheckAggregateFolder(model, record, folders, findings);
+
         // The entries of a file share its page's file, so the folder finding names the page once.
         if (!record.IsEntry && RecordFolders.FolderMismatch(record.Type, folders, fileName))
         {
@@ -513,6 +515,55 @@ internal static class FolderChecks
                 $"{Label(record.Type)} '{record.Id}' sits in folder '{folders[folders.Length - 1]}', but its file is '{fileName}'; the folder must carry the file's name.",
                 record.File, record.Line, SubjectOf(record)));
         }
+    }
+
+    /// <summary>Reports a record under an aggregates folder whose folder is not the plural its aggregate takes.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate record.</param>
+    /// <param name="record">The record whose aggregate folder is inspected.</param>
+    /// <param name="folders">The record file path as folders anchored at its record layer.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckAggregateFolder(ProjectModel model, Record record, string[] folders, List<Finding> findings)
+    {
+        if (folders is not ["behavior", "modules", _, "aggregates", var written, ..])
+        {
+            return;
+        }
+
+        string expected;
+
+        if (record.Type == RecordTypes.Aggregate)
+        {
+            // The aggregate record names its own folder: the plural of its name part.
+            if (!Identifiers.TrySplit(record.Id, out _, out _, out var name) || name.Length == 0)
+            {
+                return;
+            }
+
+            expected = Naming.PluralKebab(name);
+        }
+        else if (AggregateFolderNames.OwnerDirectory(record.File) is { } owner
+            && AggregateFolderNames.Resolve(model, written, owner) is (false, var resolved))
+        {
+            // Under an owned folder the aggregate record's own finding covers the folder,
+            // so only an unowned folder is reported here.
+            expected = resolved;
+        }
+        else
+        {
+            return;
+        }
+
+        if (string.Equals(expected, written, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        findings.Add(new Finding(
+            "record-placement-invalid",
+            record.Type == RecordTypes.Aggregate
+                ? $"Aggregate '{record.Id}' sits in folder '{written}', but its folder is the plural of its name: '{expected}'."
+                : $"{Label(record.Type)} '{record.Id}' sits in aggregate folder '{written}', but its aggregate lives in '{expected}'.",
+            record.File, record.Line, SubjectOf(record)));
     }
 
     /// <summary>Whether the file is the glossary.</summary>

@@ -30,7 +30,7 @@ public sealed class RenameHomesTests
     {
         using var consumer = Consumer();
 
-        var result = TestCli.Run("rename", "aggregate/spending.expenses", "aggregate/spending.claims", "--root", consumer.Path);
+        var result = TestCli.Run("rename", "aggregate/spending.expense", "aggregate/spending.claim", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
         var aggregates = Path.Combine(consumer.Path, ".litespec/behavior/modules/spending/aggregates");
@@ -124,8 +124,8 @@ public sealed class RenameHomesTests
         TestRecords.Write(temp.Path, $"{Expenses}/aggregate.yaml", """
             {
               "type": "aggregate",
-              "id": "aggregate/spending.expenses",
-              "title": "Expenses"
+              "id": "aggregate/spending.expense",
+              "title": "Expense"
             }
             """);
         TestRecords.Write(temp.Path, $"{Expenses}/use-cases/submit-expense/submit-expense.yaml", """

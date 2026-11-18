@@ -1,4 +1,4 @@
-using Claimwick.Spending.Domain.Expense;
+using Claimwick.Spending.Domain.Expenses;
 using Marten;
 
 namespace Claimwick.Spending.Infrastructure.Persistence;

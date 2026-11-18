@@ -144,12 +144,11 @@ public sealed class AggregateAccessAnalyzer : LayerAnalyzer
     /// <returns>True when the root takes the type as a parameter.</returns>
     private static bool IsInputType(INamedTypeSymbol created, string aggregate)
     {
-        var rootName = CodeMap.FolderName(aggregate);
         for (var space = created.ContainingNamespace; space is not null && !space.IsGlobalNamespace; space = space.ContainingNamespace)
         {
-            foreach (var candidate in space.GetTypeMembers(rootName))
+            foreach (var candidate in space.GetTypeMembers())
             {
-                if (!Aggregates.IsRoot(candidate))
+                if (!Aggregates.IsRoot(candidate) || !Aggregates.DeclaredIn(candidate, aggregate))
                 {
                     continue;
                 }

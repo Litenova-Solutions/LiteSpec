@@ -52,29 +52,50 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
 
     /// <summary>
     ///     Where a reaction or job trigger's code lives, read from its record's effects in this order: the use case it
-    ///     runs, its folder under Application; else the first notification it sends; else the first external system it calls.
+    ///     runs, its folder under Application, inside its aggregate folder when the use case sits under one; else the first
+    ///     notification it sends; else the first external system it calls.
     /// </summary>
+    /// <param name="model">The loaded project model that resolves the use case the trigger runs.</param>
     /// <param name="record">The reaction or job record whose effects are read.</param>
-    /// <returns>The container folder and the PascalCase folder name under it, or null when the trigger names no effect.</returns>
+    /// <returns>The container folder, the PascalCase folder name under it, and the aggregate folder above it or null, or null when the trigger names no effect.</returns>
     /// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
-    internal static (string Container, string Name)? TriggerHomeOf(Record record)
+    internal static (string Container, string Name, string? Aggregate)? TriggerHomeOf(ProjectModel model, Record record)
     {
-        if (FirstNameOf(record.EdgeIds(RecordFields.Runs)) is { } run)
+        if (FirstIdOf(record.EdgeIds(RecordFields.Runs)) is { } run)
         {
-            return new("Application", Naming.Pascal(run));
+            var aggregate = AggregateFolderOfUseCase(model, run);
+            return new("Application", Naming.Pascal(UseCaseNameOf(run)), aggregate);
         }
 
         if (FirstNameOf(record.EdgeIds(RecordFields.Sends)) is { } sent)
         {
-            return new("Notifications", Naming.Pascal(sent));
+            return new("Notifications", Naming.Pascal(sent), null);
         }
 
         if (FirstNameOf(record.EdgeIds(RecordFields.Calls)) is { } called)
         {
-            return new("ExternalSystems", Naming.Pascal(called));
+            return new("ExternalSystems", Naming.Pascal(called), null);
         }
 
         return null;
+    }
+
+    /// <summary>The expected aggregate folder of the use case the runs edge names: its plural folder, or null for a module-level use case or an unresolved edge.</summary>
+    /// <param name="model">The loaded project model that resolves the use case record.</param>
+    /// <param name="id">The runs edge identifier, with any '#' operation part dropped.</param>
+    /// <returns>The plural aggregate folder, or null when the use case sits in no aggregate folder.</returns>
+    private static string? AggregateFolderOfUseCase(ProjectModel model, string id)
+    {
+        if (!model.ById.TryGetValue(id, out var useCase) || useCase.Type != RecordTypes.UseCase)
+        {
+            return null;
+        }
+
+        var path = PathOf(useCase);
+
+        return path.Module is not null && path.Aggregate is not null
+            ? ExpectedAggregateFolder(model, path.Module, path.Aggregate)
+            : null;
     }
 
     /// <summary>The folder name a read model takes under its module ReadModels folder: the PascalCase plural of the read model name.</summary>
@@ -89,6 +110,30 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
             ? pascal[..^1] + "ies"
             : pascal + "s";
     }
+
+    /// <summary>The first identifier, with any '#' operation part dropped.</summary>
+    /// <param name="ids">The identifiers in declared order.</param>
+    /// <returns>The first identifier without its operation part, or null when no identifier names one.</returns>
+    private static string? FirstIdOf(IReadOnlyList<string> ids)
+    {
+        foreach (var id in ids)
+        {
+            var bare = id.Split('#')[0];
+
+            if (Identifiers.TrySplit(bare, out _, out _, out var name) && name.Length > 0)
+            {
+                return bare;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The use case name of a runs edge identifier: its name segment.</summary>
+    /// <param name="id">The runs edge identifier, with any '#' operation part dropped.</param>
+    /// <returns>The name segment, or the identifier when it names none.</returns>
+    private static string UseCaseNameOf(string id) =>
+        Identifiers.TrySplit(id, out _, out _, out var name) && name.Length > 0 ? name : id;
 
     /// <summary>The name segment of the first identifier that names one, with any '#' operation part dropped.</summary>
     /// <param name="ids">The identifiers in declared order.</param>
@@ -140,10 +185,46 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
             : next;
     }
 
+    /// <summary>The expected aggregate folder in PascalCase: the plural of the aggregate id name, or the record folder when no declared aggregate matches.</summary>
+    /// <param name="model">The loaded project model that holds the declared aggregates.</param>
+    /// <param name="module">The module the aggregate sits in.</param>
+    /// <param name="aggregate">The aggregate folder the record sits under.</param>
+    /// <returns>The plural aggregate folder, such as Expenses.</returns>
+    internal static string ExpectedAggregateFolder(ProjectModel model, string module, string aggregate)
+    {
+        foreach (var record in model.Records)
+        {
+            if (record.Type != RecordTypes.Aggregate)
+            {
+                continue;
+            }
+
+            var path = PathOf(record);
+
+            if (path.Module is null || path.Aggregate is null
+                || !SameName(path.Module, module) || !SameAggregate(path.Aggregate, aggregate))
+            {
+                continue;
+            }
+
+            // The plural comes from the name part of the aggregate id: an id names one
+            // thing, so expense reads Expenses, while the record folder already holds the plural.
+            if (Identifiers.TrySplit(record.Id, out _, out _, out var name) && name.Length > 0)
+            {
+                return Naming.PluralPascal(name);
+            }
+
+            return Naming.Pascal(path.Aggregate);
+        }
+
+        return Naming.Pascal(aggregate);
+    }
+
     /// <summary>The expected namespace segments after the product for the code folder of the marked record type.</summary>
+    /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
     /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <returns>The expected segments in placement order, or an empty list when the path states no placement.</returns>
-    internal static List<string> ExpectedSegments(PlacementPath path)
+    internal static List<string> ExpectedSegments(ProjectModel model, PlacementPath path)
     {
         if (path.Module is null)
         {
@@ -152,11 +233,12 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
 
         var expected = new List<string> { Naming.Pascal(path.Module) };
 
-        // A use case lives directly under its module, whatever aggregate its record sits
-        // under, so its namespace names no aggregate. Any other record names its aggregate.
-        if (!path.IsUseCase && path.Aggregate is not null && !SameName(path.Aggregate, path.Module))
+        // A use case under an aggregate names its plural aggregate folder, as its code folder
+        // does. Any other record names its aggregate, except under a same-named aggregate,
+        // whose types sit directly in Domain.
+        if (path.Aggregate is not null && (path.IsUseCase || !SameName(path.Aggregate, path.Module)))
         {
-            expected.Add(Naming.Pascal(path.Aggregate));
+            expected.Add(ExpectedAggregateFolder(model, path.Module, path.Aggregate));
         }
 
         if (path.Name is not null && path.IsUseCase && !SameName(path.Name, path.Aggregate ?? ""))
@@ -167,8 +249,8 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
         return expected;
     }
 
-    /// <summary>Whether a code aggregate folder and a declared aggregate spell one aggregate: case, hyphens, underscores and number ignored, so Domain/Expense/ matches the declared expenses aggregate.</summary>
-    /// <param name="folder">The code folder name as written on disk, in the singular.</param>
+    /// <summary>Whether a code aggregate folder and a declared aggregate spell one aggregate: case, hyphens, underscores and number ignored, so Domain/Expense/ still matches the declared expenses aggregate.</summary>
+    /// <param name="folder">The code folder name as written on disk.</param>
     /// <param name="aggregate">The declared aggregate name from its record folder, in the plural.</param>
     /// <returns>True when both names spell one aggregate with case, hyphens, underscores and number ignored; otherwise false.</returns>
     internal static bool SameAggregate(string folder, string aggregate)

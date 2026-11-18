@@ -1,8 +1,9 @@
 // Use-case module reading (both web stacks) and Svelte route reading. A module
-// entry comes from a use-case folder two levels below the modules root,
-// {module}/{use-case}/; its marks are every implements value of every
-// exported litespec constant. A litespec.ts elsewhere names no module. A
-// Svelte route entry is a folder
+// entry comes from a use-case folder below the modules root: a module-level
+// use case two levels deep, {module}/{use-case}/, or an aggregate use case
+// three levels deep, {module}/{aggregate}/{use-case}/; its marks are every
+// implements value of every exported litespec constant. A litespec.ts
+// elsewhere names no module. A Svelte route entry is a folder
 // holding a +page.svelte; its mark comes from the module script of the
 // +page.svelte, because SvelteKit refuses any other export from a +page.ts.
 
@@ -17,17 +18,21 @@ export interface ModuleScan {
 }
 
 // Every use-case folder below the modules root: a folder two levels deep,
-// {module}/{use-case}/, whether or not it holds files, subfolders, or a
-// litespec.ts. A litespec.ts at any other depth names no module. Entries
-// come out sorted by folder.
+// {module}/{use-case}/, holding a mark file or no child folder, or a folder
+// three levels deep, {module}/{aggregate}/{use-case}/, holding a mark file.
+// A two-level folder with child folders and no mark file is an aggregate
+// container, and a three-level folder without a mark file reads as a partials
+// folder: neither names a module. A litespec.ts at any other depth names no
+// module. Entries come out sorted by folder.
 export function readModules(modulesAbs: string, context: ReaderContext): ModuleScan {
   const modules: ModuleFacts[] = [];
   const folders = new Set<string>();
-  for (const { dir } of listDirsRecursive(modulesAbs)) {
+  for (const { dir, hasChildDir } of listDirsRecursive(modulesAbs)) {
     const rel = relativeTo(modulesAbs, dir);
     const depth = rel === null ? 0 : rel.split("/").length;
     const hasMarkFile = isFile(joinPath(dir, "litespec.ts"));
-    if (depth !== 2) continue;
+    const isModule = (depth === 2 && (hasMarkFile || !hasChildDir)) || (depth === 3 && hasMarkFile);
+    if (!isModule) continue;
     folders.add(canonical(dir));
     const folder = relativeTo(context.root, dir) ?? toPosix(dir);
     const markAbs = joinPath(dir, "litespec.ts");

@@ -88,7 +88,7 @@ The generated route artifacts, build output, and dependency folders stay untrack
 Svelte:
 
 ```ts
-// src/lib/modules/spending/list-expenses/litespec.ts
+// src/lib/modules/spending/expenses/list-expenses/litespec.ts
 import type { LiteSpecMark } from "#lib/app/litespec-records.ts";
 
 export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;
@@ -97,7 +97,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 React:
 
 ```ts
-// src/modules/spending/list-expenses/litespec.ts
+// src/modules/spending/expenses/list-expenses/litespec.ts
 import type { LiteSpecMark } from "src/app/litespec-records";
 
 export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;

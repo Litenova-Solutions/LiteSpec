@@ -66,9 +66,9 @@ public sealed class RecordFolderLayoutTests
     public void UseCaseFolderInsideAggregatePasses()
     {
         using var temp = TestCli.Temp("layout");
-        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entry", "aggregate.yaml");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
-        var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entry", "use-cases", "post-entry", "post-entry.yaml");
+        var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "use-cases", "post-entry", "post-entry.yaml");
         File.WriteAllText(useCase, "type: use-case\nid: use-case/books.post-entry\ntitle: Post entry\n");
         var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
         var model = TestModel.Model(
