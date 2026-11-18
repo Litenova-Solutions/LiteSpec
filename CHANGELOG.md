@@ -241,6 +241,117 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - Templates are checked against the record schema rather than copied from example records, and the generated `docs/reference/concepts.md` is removed.
 - The book opens in light mode, and its Outline groups records by type in reading order: Intent with directions, goals, problems with the features that solve them and their requirements, features, flows, constraints, research and decisions; Behavior by module; Implementation with technical decisions; Governance with waivers.
 
+### Part AC: Kernel, Platform, and One Project per Module
+
+- The .NET backend separates the business values every module speaks into `{Product}.Kernel`, with no dependency on any library, and the technical capabilities into `{Product}.Platform`, which names no module: persistence, messaging, access, auditing, HTTP, country packs, and module composition.
+- Each module is one project with its entry type, `Contracts/`, `Domain/`, `UseCases/`, and `Infrastructure/`. Aggregates live under `Domain/` with one folder each, and every use case sits directly under the module with one folder per layer: `Application/` always, `WebApi/` when the use case is reached over HTTP, and `Infrastructure/` when the use case has its own port. Only `Contracts/` and the entry type are public, and hosts compose modules through `AddModules`. A single modules project stays allowed with `LS2020` as its boundary.
+- A module plugs into a platform capability by contributing data instead of copying platform code: stored types and discriminators, policies, converters, and routes.
+- The record tree stays: a use case record under `aggregates/{aggregate}/use-cases/{use-case}` or `use-cases/{use-case}` maps to `UseCases/{UseCase}/`, and an aggregate record maps to `Domain/{Aggregate}/`.
+- Production of a file format, rendering, and parsing live in Infrastructure behind an Application port, even when the code uses only the base class library. A use case folder holds its message, handler, validator, definitions, and result with at most a few helpers and no file over 200 lines.
+- Kernel values are referenced directly from any layer the layer table allows; copying one into a use case folder breaks the rule. WebApi converts `Money` through the platform converter, which writes the amount as an invariant decimal string, reads only a string amount with a three-letter code, and registers once.
+- An access condition shared by several use cases is one composable authorization policy, `Permission`, `RecentSignIn`, `Self`, or `System`, declared in each authorization definition and evaluated by the one guard in the order signed-in, condition, permission.
+- A record sentence describing a possible future is not a specification: code builds no interface, provider list, or hook for a feature no record specifies. A record sentence saying a country pack may add a national audit file specifies no feature, and the national audit file arrives as its own specified feature.
+- The use-case code placement guide, the learn pages, the domain tutorial, and the Claimwick code example describe the Kernel, Platform, and one-project-per-module layout: aggregates under module `Domain/{Aggregate}/`, use cases directly under the module with `Application/`, `WebApi/`, and `Infrastructure/` folders, repositories implemented in module `Infrastructure/Persistence/`, and one message-definition class per concern.
+
+The new rules are `litespec/backend/dotnet/architecture#keep-business-values-in-the-kernel`, `litespec/backend/dotnet/architecture#keep-technical-capabilities-in-the-platform`, `litespec/backend/dotnet/architecture#register-each-module-through-its-entry-point`, `litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions`, `litespec/backend/dotnet/architecture#hold-each-use-case-layer-in-its-own-folder`, `litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point`, `litespec/backend/architecture#produce-file-formats-in-infrastructure`, `litespec/backend/application#keep-use-case-folders-small`, `litespec/backend/application#declare-shared-access-conditions-as-composable-policies`, and `litespec/backend/dotnet/api#convert-money-with-the-platform-converter`. Decisions 0107, Kernel, Platform, and One Project per Module, and 0108, Composable Policies for Shared Access Conditions, record why.
+
+### Part AD: The Aggregate Root as the Only Entry Point
+
+- Code outside an aggregate reaches it only through its root's named factories and methods, passing plain inputs; a file outside the aggregate's `Domain/` folder constructs nothing from it except the root's input records and typed identifiers. LS1014 reports the construction.
+- A child entity carries no public setter, mutating method, or constructor; LS1015 reports the surface. An aggregate references another only through its typed identifier; LS1016 reports a property typed as another aggregate's root or entity.
+- A domain service holds only a calculation that spans aggregates with no owning aggregate; the root calls it inside its own method, or Application passes its plain result in as an input.
+- A root past 500 lines splits into one partial file per business action (`{Root}.{Action}.cs`), with its rules in private members or private nested types.
+
+The new rules are `litespec/backend/domain#reach-an-aggregate-only-through-its-root`, `litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root`, `litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier` and `litespec/backend/dotnet/domain#split-a-large-root-into-one-file-per-action`. Decision 0104, Reach Each Aggregate Only Through Its Root, records why.
+
+### Part AE: Each Aggregate Root Stored as Its Own Document
+
+- Marten stores each aggregate root as its own document; a project writes no parallel document type for an aggregate. The Infrastructure store setup carries the alias, the typed-identifier mapping, the serializer with its converters and discriminator registrations, and optimistic concurrency, while Domain carries no serialization attribute. Query handlers query the aggregate type through `IQuerySession`.
+- The shared-kernel `DomainException` takes only the message in its constructor and declares `Code` abstract, so the generator writes each refusal code as an override; LS5013 reports a base that declares a non-virtual `Code` instead of emitting hiding code.
+- LS2018 names the fix when the Infrastructure type it reports is a Marten document of an aggregate: query the aggregate type through `IQuerySession`.
+
+The new rule is `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`. Decision 0105, Store Each Aggregate Root as Its Own Document, records why.
+
+### Part AF: Class Design Rules and No Primary Constructors
+
+- The workspace gains the Class Design page: one responsibility per class, one capability per set of interfaces, one class per pipeline concern, and composition over helper base classes. Each pipeline declaration class is named `{Message}{Concern}Definition`. LS2023 reports a class implementing two LiteBus message-definition contracts.
+- Classes and structs avoid primary constructors and use explicit fields with an explicit constructor; positional records keep their form. Every .NET example is rewritten to the advised shape, and LS3005 reports a class or struct primary constructor at info level.
+
+The new rules are `litespec/workspace/design#give-each-class-one-responsibility`, `litespec/workspace/design#implement-one-capability-per-class`, `litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class`, `litespec/workspace/design#take-shared-behavior-through-composition`, `litespec/workspace/design#name-each-definition-after-its-message-and-concern` and `litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs`. Decision 0106, State Class Design Rules, records why.
+
+### Part AG: Analyzer Rules for the Module Layout
+
+- New Domain rules: LS1014 reports a file outside an aggregate's `Domain/` folder that constructs a type from that folder, the root's input records and typed identifiers aside; LS1015 reports a public setter, constructor, or mutable collection on a non-root aggregate type; LS1016 reports a property of one aggregate typed as another aggregate's root or entity.
+- New layer rules: LS2023 reports a class implementing two LiteBus message definition contracts and names the split; LS2024 reports store, serializer, guard, or converter code inside a module that the platform provides; LS2025 reports a use case `Infrastructure/` folder naming a Domain or WebApi type; LS2026 reports a record declared with the same members in two use case folders; LS2027 reports archive, serialization, or document work in Application; LS2028 reports a public module type outside `Contracts/` and the entry type. LS3005 reports a class or struct primary constructor at info severity.
+- The generator reports LS5013 and writes no part when a marked exception inherits a non-virtual `Code`; a base declaring an abstract or virtual `Code` keeps the generated override.
+- The layer map recognizes both module shapes: one project per module (the project root is its own module) and one modules project. Slices accept `Infrastructure/` and later layer folders; a Kernel project reads as Domain, a Platform project as Infrastructure, and an `Api` host as WebApi.
+- LS2018 allows Platform types and Infrastructure ports from Application and names the `IQuerySession` fix for stored aggregate documents; LS2020 stays as the backstop for one-modules-project solutions while visibility holds the boundary with one project per module; LS2021 and LS2022 exempt the Platform; message definition classes take no mark.
+- LS1013 counts an arm that names a sealed case by type alone, such as `EntryKind.Asset => ...`, as covering that case, in switch expressions and switch statements. Cases grouped with `or` are covered the same way. A discard arm after every sealed case is handled reports nothing; the finding names only cases with no arm of their own.
+
+### Part AH: The .NET Stack Binding, the Agent Protocol, and Hosted Sign-In
+
+- The .NET pipeline binding names the LiteBus 7.2 APIs for every position: a Marten project stores outbox rows in its own session through `LiteBus.Outbox.Storage.Marten` (`outbox.UsePostgreSqlStorage` with `UseMartenTransactionalOutbox`), in-process dispatch runs through `outbox.UseInProcessDispatch()` with `outbox.EnableOutboxProcessor()`, delivery runs per handler, events stage through `outbox.StageCollectedEvents()`, and immediate dispatch runs through `outbox.EnableImmediateDispatch(...)`.
+- Each message declares its pipeline positions in its use case `Application/` folder in `{Message}AuthorizationDefinition`, `{Message}AuditDefinition`, and `{Message}IdempotencyDefinition`, each in its own file and implementing exactly one of `IAuthorizationDefinition<TMessage>`, `IAuditDefinition<TCommand>`, and `IIdempotencyDefinition<TMessage>`; a definition carries no LiteSpec mark, and a project uses no attribute or custom guard for what a definition declares.
+- The manifest pins every LiteBus package at `7.2.0` and adds `LiteBus.Outbox.Storage.Marten`.
+- The agent protocol points at the local docs of the carried release through `__LITESPEC_DOCS__` and tells the agent to read this release only, never substituting another version.
+- A hosted sign-in is modeled as use cases that start and complete the sign-in, with the provider as an external system declaring its authorize, token, and logout operations.
+- An unreleased analyzer build is consumed through a local feed, never through a project reference.
+- The complete-sign-in command of a hosted sign-in is the one command that declares a `calls` edge with `inline` timing, for the token exchange whose result the session needs; `effect-timing-invalid` exempts that edge.
+
+The new rule is `litespec/core/access#model-a-hosted-sign-in-as-use-cases`. Decision 0103, Settle the .NET Stack Binding, Protocol, and Sign-In, records why.
+
+### Part AI: Reference Data, Rule Sources, and Retention Holds
+
+- Each rule states `source` as `law`, `contract`, or `product-choice`, and a rule with `source: law` names the restated constraint or research record in `cites`.
+- A data class carries `holds` beside its period, each with its reason, its `heldOn` date, and its `liftedOn` date once lifted, and deletion pauses while a hold stands.
+- `periodStartsAt` takes any declared event or aggregate date field, or an event or field with `rounding` to `financial-year-end` or `calendar-year-end`.
+- A schedule `timezone` is a literal IANA zone, `{ setting: setting/<module>.<name> }`, or `{ field: aggregate/<module>.<aggregate>#<field> }` naming where the zone is stored.
+- A schema error on a value matching no allowed shape reports only the selected shape's errors: the shape the value's `type` names, else the shape a value field names that exactly one shape declares, else the shape with the fewest errors. `litespec model check --verbose` keeps the full shape list.
+- A schema error on a rejected field names the field to use instead, from the schema's `x-rejected-fields`.
+- `model check` reports `reference-data-period-invalid` for rows of one reference-data table whose validity periods overlap, or whose `effectiveTo` is no later than `effectiveFrom`. (This line replaces the ls-records line that names `reference-data-overlap`; the shipped code is `reference-data-period-invalid` per `litespec/core/domain-model#keep-reference-data-rows-from-overlapping`.)
+- The book lists reference-data tables under their module and shows each table's row count.
+
+The new rules are `litespec/core/model#cite-reference-data-instead-of-literal-values`, `litespec/core/domain-model#state-each-rules-source`, `litespec/core/domain-model#name-the-record-each-law-rule-restates`, `litespec/core/privacy#pause-deletion-while-a-hold-stands`, `litespec/core/privacy#round-an-event-start-to-a-calendar-end`, `litespec/core/model#report-one-shape-in-schema-errors`, `litespec/core/model#name-the-field-to-use-instead-in-schema-errors`, and `litespec/ext/jobs#name-a-varying-time-zone-by-its-source`. Decisions 0098, Reference Data Tables, 0099, Rule Sources, and 0100, Retention Holds and Rounded Starts, record why.
+
+### Part AJ: Rule Citation Checks Across Commands and Scenarios
+
+- `model check` reports `rule-sibling-uncited` when a command writes an aggregate without citing an invariant most commands writing that aggregate cite, so one form can no longer skip the checks its siblings apply.
+- `model check` reports `exercises-uncited` (level A) when a scenario exercises a rule its use case cites nowhere in its steps, inputs, or results.
+- `model check` reports `refusal-next-step-unknown` (level A) when a refusal sentence names a use case, screen, or setting no record holds, or promises another way out with `instead`, `alternatively`, `you can also`, or `or you can`.
+- `model check` reports `guard-module-foreign` when a guard reaches an aggregate of another module, whose rule cannot hold at commit; the guard provision now scopes guards to the command's own module.
+- A rule governing another module's records without a declared dependency reports `link-locality-invalid` with a message naming the fix: the reached module states the check as its own rule at its boundary and names the governing rule in prose, while the owning module checks again when it acts.
+- Edges and Screens documents how two modules keep one fact consistent (one owner, a module event, a read model, an agreement check) with a worked timestamp example, and states the boundary-rule pattern each module applies at its own edge.
+- Claimwick's attach-receipt step cites the receipt-filed-once invariant its success scenario exercises.
+
+The new rules are `litespec/core/use-cases#cite-the-invariants-most-writers-cite`, `litespec/core/use-cases#name-only-a-provided-way-out-in-each-refusal-sentence`, `litespec/core/edges#resolve-late-arrivals-against-owner-written-facts` and `litespec/core/edges#state-every-boundary-check-as-a-rule-of-its-module`. Decision 0101, Check Rule Citations Across Sibling Commands and Scenarios, records why.
+
+### Part AK: Audit Chains a Checkpoint Can Prove and Retention Can Delete
+
+- An audit checkpoint proves only the records it covers: verification detects any change to those records, while records written after it are covered from the next checkpoint, so the checkpoint interval bounds the window in which a rewrite goes unseen. Each checkpoint carries the chain head and its record count, and the adoption decision states the checkpoint interval as the detection window.
+- An audit store holds one hash chain segment per audited category and calendar year, each with its own genesis record and checkpoints. A segment is closed with a final checkpoint and deleted as a whole after its category's retention ends, while the remaining segments still verify from their own anchors, and each deleted segment is recorded in the following segment of the same category.
+- Retention deletion and tenant data erasure run through a separate audited operator process under its own account holding DELETE; the application account keeps only INSERT and SELECT, and the append-only and trail-store rules now name the operator account as the exception.
+
+The new rules are `litespec/ext/audit#delete-expired-records-through-a-separate-operator-account`, `litespec/ext/audit#segment-the-audit-chain-by-category-and-calendar-year`, `litespec/ext/audit#record-each-segment-deletion-in-the-following-segment` and `litespec/ext/audit#state-the-checkpoint-interval-as-the-detection-window`. Decision 0097, One Audit Chain Segment per Category and Year, records why.
+
+### Part AL: Command Line Messages That Name the Fix
+
+- `model check` prints the `release-drift` finding before every other finding, naming the reviewed release, the installed release, and the command that installs the reviewed one, because every finding after it may not apply.
+- A record file that fails to parse on a plain value holding `': '` now reports the file, the line, and the field, and says to quote the value or rephrase it without the colon. The glossary reports the same shape.
+- `rules --since` orders its report skeleton by how many changed files each judgment provision governs, most first, and prints the count on each line; duplicates stay removed.
+- `model render` writes `readonly offers?: readonly UseCaseId[]` on `LiteSpecMark`, and it writes nothing, lists each invalid file, and exits 2 when a record file does not parse, so a rendered identifier list is never quietly short.
+
+### Part AM: Frontend Data, States, and Entry Pages
+
+- The Claimwick web frontend wires one screen through the query cache end to end: the root layout builds the query client per request and provides it, the expense list prefetches in `+page.ts` and reads back the same key in the page, and the new-expense submit invalidates the list query.
+- The Claimwick web frontend ships its `package.json`, `vite.config.ts`, and `tsconfig.json`, showing the import-resolution settings agreeing: the `imports` field as the one alias declaration, bundler resolution with extension imports, and the SvelteKit configuration in `vite.config.ts`. SvelteKit 3 reads no `svelte.config.js`, and the Svelte application tree no longer lists one.
+- Two route state patterns join the feedback and states page: `route-loading-frame` renders skeletons within the floorplan, and `route-error-frame` renders the error state with retry and trace, with the bare status outside the floorplan kept as the recorded freestyle exception.
+- Dialog, popover, and details composites build on their native elements; every other composite comes from the pinned baseline. Decision 0102, Draw Platform Composites with Native Elements, records why.
+- The records-file rule states the bootstrap: `litespec model render` writes the file from the entry point's screens and use cases before any screen exists, reading every browser entry point for a frontend with no marked route yet.
+- The page frames gain `entry-page`: a centered card with title, lead, note, and actions for sign-in and similar pages outside the app shell, with split and floating-card options.
+- Every monetary amount on a frontend travels in the frame Money type with a decimal string amount and scaled-integer arithmetic, and the Claimwick frame holds it in `src/lib/app/money.ts`.
+
+The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-frame-money-type` and `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`, and the new patterns are `litespec/frontend/patterns/page-frames#entry-page`, `litespec/frontend/patterns/feedback-and-states#route-loading-frame`, and `litespec/frontend/patterns/feedback-and-states#route-error-frame`. Decision 0102, Draw Platform Composites with Native Elements, records why.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
