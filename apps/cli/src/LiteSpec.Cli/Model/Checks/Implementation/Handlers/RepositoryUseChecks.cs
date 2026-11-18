@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
@@ -151,16 +152,58 @@ internal static class RepositoryUseChecks
     ///     Reports each aggregate a use case changes whose domain repository
     ///     interface no Infrastructure class implements. The check reads the
     ///     Infrastructure layer through the backend reader, so a consumer with
-    ///     no Infrastructure folder carries no persistence layer for it to
-    ///     judge, and only writes entries naming an aggregate are read: a store
-    ///     and an aggregate whose Domain declares no repository name nothing
-    ///     to implement.
+    ///     no Infrastructure folder in any module carries no persistence layer
+    ///     for it to judge, and only writes entries naming an aggregate are
+    ///     read: a store and an aggregate whose Domain declares no repository
+    ///     name nothing to implement.
     /// </summary>
+    /// <summary>Whether any module holds an Infrastructure folder: the module project itself, or one module folder under the single modules project.</summary>
+    /// <param name="model">The loaded project model that holds the module roots.</param>
+    /// <returns>True when an Infrastructure folder exists in any module.</returns>
+    private static bool HasInfrastructureFolder(ProjectModel model)
+    {
+        foreach (var modules in model.Config.ModulesRoots)
+        {
+            if (modules.Length == 0 || !Directory.Exists(modules))
+            {
+                continue;
+            }
+
+            if (!SourceRoots.IsSingleModulesProject(modules))
+            {
+                if (Directory.Exists(Path.Combine(modules, "Infrastructure")))
+                {
+                    return true;
+                }
+
+                continue;
+            }
+
+            try
+            {
+                foreach (var module in Directory.EnumerateDirectories(modules))
+                {
+                    if (Directory.Exists(Path.Combine(module, "Infrastructure")))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Raises a finding for each written aggregate with no repository implementation.</summary>
     /// <param name="model">The loaded project model that holds every use case and the scanned repository implementations.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRepositoryUnimplemented(ProjectModel model, List<Finding> findings)
     {
-        if (!Directory.Exists(model.Config.InfrastructureRoot))
+        if (!HasInfrastructureFolder(model))
         {
             return;
         }

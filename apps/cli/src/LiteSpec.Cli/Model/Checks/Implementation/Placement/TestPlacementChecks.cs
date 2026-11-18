@@ -22,7 +22,7 @@ internal static class TestPlacementChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        var placed = model.Code.Elements.Where(element => HasTestPlacement(model.Config, element)).ToList();
+        var placed = model.Code.Elements.Where(element => HasTestPlacement(element)).ToList();
         var namespaces = NamespacesOf(placed.Where(element => element.Marks.Count > 0).Select(element => element.File));
 
         foreach (var element in placed)
@@ -69,22 +69,9 @@ internal static class TestPlacementChecks
             return false;
         }
 
-        // Tests mirror the module tree, so a UseCases level states no module
-        // or use case segment of its own. A use case lives directly under its
+        // Tests mirror the module and use case, so the first segment names the module
+        // and the next names the use case. A use case lives directly under its
         // module, whatever aggregate its record sits under.
-        var kept = new List<string> { segments[0] };
-
-        for (var index = 1; index < segments.Length - 1; index++)
-        {
-            if (!segments[index].Equals("UseCases", StringComparison.OrdinalIgnoreCase))
-            {
-                kept.Add(segments[index]);
-            }
-        }
-
-        kept.Add(segments[^1]);
-        segments = [.. kept];
-
         if (!SameName(segments[0], path.Module!))
         {
             findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{segments[0]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
@@ -92,16 +79,6 @@ internal static class TestPlacementChecks
         }
 
         if (segments.Length == 2)
-        {
-            return false;
-        }
-
-        // Under layer projects a test keeps its aggregate parent.
-        if (!SourceRoots.IsProductLayout(config)
-            && segments.Length >= 4
-            && path.Aggregate is not null
-            && SameName(segments[1], path.Aggregate)
-            && SameName(segments[2], path.Name!))
         {
             return false;
         }
@@ -143,19 +120,7 @@ internal static class TestPlacementChecks
             return;
         }
 
-        var expected = SourceRoots.IsProductLayout(config)
-            ? new List<string> { Naming.Pascal(path.Module!), Naming.Pascal(path.Name!) }
-            : new List<string> { Naming.Pascal(path.Module!) };
-
-        if (!SourceRoots.IsProductLayout(config) && path.Aggregate is not null && !SameName(path.Aggregate, path.Module!))
-        {
-            expected.Add(Naming.Pascal(path.Aggregate));
-        }
-
-        if (!SourceRoots.IsProductLayout(config))
-        {
-            expected.Add(Naming.Pascal(path.Name!));
-        }
+        var expected = new List<string> { Naming.Pascal(path.Module!), Naming.Pascal(path.Name!) };
 
         if (PlacedSegments(product, actual) is not { } placed
             || !NamespaceMatches(placed, expected))
@@ -165,13 +130,10 @@ internal static class TestPlacementChecks
     }
 
     /// <summary>Whether the element is a test outside the Infrastructure layer, whose folder and namespace follow its scenario.</summary>
-    /// <param name="config">The project configuration naming the layer roots.</param>
     /// <param name="element">The marked code element.</param>
     /// <returns>True when the element is a test whose placement is checked.</returns>
-    private static bool HasTestPlacement(ConsumerConfig config, MarkedElement element) =>
+    private static bool HasTestPlacement(MarkedElement element) =>
         element.Kind == CodeKind.Test
-        && SourceRoots.LayerOf(config, element.File) != "Infrastructure"
-        && !SourceRoots.IsUnder(config.InfrastructureRoot, element.File)
         && ArchitectureLayerResolver.FolderLayer(element.File) != ArchitectureLayer.Infrastructure;
 
     /// <summary>The test path segments under the test project, or null when the file sits outside every test root or in a project root.</summary>

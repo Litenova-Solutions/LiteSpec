@@ -13,10 +13,10 @@ public sealed class InfrastructureWorkAnalyzerTests
     public Task ReportsAnArchiveTypeInAnApplicationFile() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
             [
-                ("Claimwick.Export/UseCases/ExportWorkspace/Application/ExportWorkspaceQueryHandler.cs", """
+                ("Claimwick.Export/Application/ExportWorkspace/ExportWorkspaceQueryHandler.cs", """
                     using System.IO.Compression;
 
-                    namespace Claimwick.Export.UseCases.ExportWorkspace;
+                    namespace Claimwick.Export.Application.ExportWorkspace;
 
                     internal sealed class ExportWorkspaceQueryHandler
                     {
@@ -35,10 +35,10 @@ public sealed class InfrastructureWorkAnalyzerTests
     public Task ReportsAJsonWriterInAnApplicationFile() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
             [
-                ("Claimwick.Export/UseCases/ExportWorkspace/Application/ExportWorkspaceQueryHandler.cs", """
+                ("Claimwick.Export/Application/ExportWorkspace/ExportWorkspaceQueryHandler.cs", """
                     using System.Text.Json;
 
-                    namespace Claimwick.Export.UseCases.ExportWorkspace;
+                    namespace Claimwick.Export.Application.ExportWorkspace;
 
                     internal sealed class ExportWorkspaceQueryHandler
                     {
@@ -57,10 +57,10 @@ public sealed class InfrastructureWorkAnalyzerTests
     public Task StaysSilentInAnInfrastructureFile() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
             [
-                ("Claimwick.Export/UseCases/ExportWorkspace/Infrastructure/WorkspaceArchiveWriter.cs", """
+                ("Claimwick.Export/Infrastructure/ExportWorkspace/WorkspaceArchiveWriter.cs", """
                     using System.IO.Compression;
 
-                    namespace Claimwick.Export.UseCases.ExportWorkspace;
+                    namespace Claimwick.Export.Infrastructure.ExportWorkspace;
 
                     internal sealed class WorkspaceArchiveWriter
                     {
@@ -79,17 +79,17 @@ public sealed class InfrastructureWorkAnalyzerTests
     public Task StaysSilentWhenANamespaceOnlySharesAPrefix() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
             [
-                ("Claimwick.Export/UseCases/ExportWorkspace/Application/TableReader.cs", """
+                ("Claimwick.Export/Application/ExportWorkspace/TableReader.cs", """
                     namespace CsvReader.Utils;
 
                     public sealed class TableReader
                     {
                     }
                     """),
-                ("Claimwick.Export/UseCases/ExportWorkspace/Application/ExportWorkspaceQueryHandler.cs", """
+                ("Claimwick.Export/Application/ExportWorkspace/ExportWorkspaceQueryHandler.cs", """
                     using CsvReader.Utils;
 
-                    namespace Claimwick.Export.UseCases.ExportWorkspace;
+                    namespace Claimwick.Export.Application.ExportWorkspace;
 
                     internal sealed class ExportWorkspaceQueryHandler
                     {

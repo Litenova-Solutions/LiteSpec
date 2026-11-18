@@ -18,7 +18,7 @@ public sealed partial class UiValidatorTests
 
     // Allowed construction (litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only).
 
-    /// <summary>Approved BackendLayout Utilities.</summary>
+    /// <summary>Approved Layout Utilities.</summary>
     /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ApprovedLayoutUtilities()

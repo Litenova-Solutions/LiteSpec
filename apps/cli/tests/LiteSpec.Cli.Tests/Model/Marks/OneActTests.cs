@@ -116,10 +116,8 @@ public sealed class OneActTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -209,8 +207,8 @@ public sealed class OneActTests
 
                 A loan lends one copy to one reader.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Loan.cs", """
-                namespace Library.Domain.Lending.Loans;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Loan.cs", """
+                namespace Library.Lending.Domain.Loans;
 
                 /// <implements>aggregate/lending.loan</implements>
                 public sealed class Loan : AggregateRoot<LoanId>
@@ -235,8 +233,8 @@ public sealed class OneActTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/LoanReader.cs", """
-                namespace Library.Domain.Lending.Loans;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/LoanReader.cs", """
+                namespace Library.Lending.Domain.Loans;
 
                 public sealed class LoanReader
                 {
@@ -246,14 +244,14 @@ public sealed class OneActTests
                     public int OpenCount() => 0;
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs", """
-                namespace Library.Domain.Lending.Loans.Events;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs", """
+                namespace Library.Lending.Domain.Loans.Events;
 
                 /// <implements>domain-event/loan.loan-borrowed</implements>
                 public sealed record LoanBorrowedEvent(Guid LoanId, Guid ReaderId, DateOnly DueDate) : IDomainEvent;
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/BadBorrowCopyScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/BadBorrowCopyScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class BadBorrowCopyScenarios
                 {
@@ -264,8 +262,8 @@ public sealed class OneActTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/GoodBorrowCopyScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/GoodBorrowCopyScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class GoodBorrowCopyScenarios
                 {

@@ -12,15 +12,15 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the code placement check matches the module layout: module-level use cases, the element's own folder, Contracts publishing, reactions, enforcing aggregates, and mirrored tests.</summary>
 public sealed class PlacementDriftModuleLayoutTests
 {
-    /// <summary>A module-level use case endpoint in UseCases reports nothing.</summary>
+    /// <summary>A module-level use case endpoint in its WebApi folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void ModuleLevelEndpointInUseCasesReportsNothing()
+    public void ModuleLevelEndpointInWebApiFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "WebApi", "ReadFeatureFlagEndpoint.cs");
-        WriteCode(file, "Library.Controls.UseCases.ReadFeatureFlag", "ReadFeatureFlagEndpoint");
+        var file = ProductFile(temp.Path, "Controls", "WebApi", "ReadFeatureFlag", "ReadFeatureFlagEndpoint.cs");
+        WriteCode(file, "Library.Controls.WebApi.ReadFeatureFlag", "ReadFeatureFlagEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "ReadFeatureFlagEndpoint", file, "use-case/controls.read-feature-flag"));
 
         Assert.Empty(Run(model));
@@ -34,7 +34,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Controls", "Flags", "UseCases", "ReadFeatureFlag", "Application", "ReadFeatureFlagQueryHandler.cs");
+        var file = ProductFile(temp.Path, "Controls", "Flags", "Application", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "ReadFeatureFlagQueryHandler", file, "use-case/controls.read-feature-flag"));
 
         var placed = Run(model);
@@ -44,15 +44,15 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Equal("use-case/controls.read-feature-flag", finding.Subject);
     }
 
-    /// <summary>An endpoint of an aggregate-owned use case in the module UseCases folder reports nothing.</summary>
+    /// <summary>An endpoint of an aggregate-owned use case in its WebApi folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void AggregateOwnedEndpointInModuleUseCasesReportsNothing()
+    public void AggregateOwnedEndpointInWebApiFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "UseCases", "RecordEventChangeAnswer", "WebApi", "RecordEventChangeAnswerEndpoint.cs");
-        WriteCode(file, "Library.Cancellations.UseCases.RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint");
+        var file = ProductFile(temp.Path, "Cancellations", "WebApi", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
+        WriteCode(file, "Library.Cancellations.WebApi.RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
 
         Assert.Empty(Run(model));
@@ -65,7 +65,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "UseCases", "RecordEventChangeAnswer", "WebApi", "RecordEventChangeAnswerEndpoint.cs");
+        var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "WebApi", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
 
         var placed = Run(model);
@@ -75,15 +75,15 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Equal("use-case/cancellations.record-event-change-answer", finding.Subject);
     }
 
-    /// <summary>An aggregate-owned handler in the module UseCases folder reports nothing.</summary>
+    /// <summary>An aggregate-owned handler in its Application folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void AggregateOwnedHandlerInModuleUseCasesReportsNothing()
+    public void AggregateOwnedHandlerInApplicationFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "UseCases", "RecordEventChangeAnswer", "Application", "RecordEventChangeAnswerCommandHandler.cs");
-        WriteCode(file, "Library.Cancellations.UseCases.RecordEventChangeAnswer", "RecordEventChangeAnswerCommandHandler");
+        var file = ProductFile(temp.Path, "Cancellations", "Application", "RecordEventChangeAnswer", "RecordEventChangeAnswerCommandHandler.cs");
+        WriteCode(file, "Library.Cancellations.Application.RecordEventChangeAnswer", "RecordEventChangeAnswerCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "RecordEventChangeAnswerCommandHandler", file, "use-case/cancellations.record-event-change-answer"));
 
         Assert.Empty(Run(model));
@@ -104,15 +104,15 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Empty(Run(model));
     }
 
-    /// <summary>An endpoint beside an aggregate named like its module reports nothing in the module UseCases folder.</summary>
+    /// <summary>An endpoint beside an aggregate named like its module reports nothing in its WebApi folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void EndpointWithSameNamedAggregateInUseCasesReportsNothing()
+    public void EndpointWithSameNamedAggregateInWebApiFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Directory", "UseCases", "SearchAccounts", "WebApi", "SearchAccountsEndpoint.cs");
-        WriteCode(file, "Library.Directory.UseCases.SearchAccounts", "SearchAccountsEndpoint");
+        var file = ProductFile(temp.Path, "Directory", "WebApi", "SearchAccounts", "SearchAccountsEndpoint.cs");
+        WriteCode(file, "Library.Directory.WebApi.SearchAccounts", "SearchAccountsEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "SearchAccountsEndpoint", file, "use-case/directory.search-accounts"));
 
         Assert.Empty(Run(model));
@@ -234,29 +234,29 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Equal("rule/scanner-device.device-stands-at-own-event-gate", finding.Subject);
     }
 
-    /// <summary>A test under UseCases for a module-level use case reports nothing.</summary>
+    /// <summary>A test under its use case folder for a module-level use case reports nothing.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
-    public void TestForModuleLevelUseCaseUnderUseCasesReportsNothing()
+    public void TestForModuleLevelUseCaseInUseCaseFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = TestFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagScenarios.cs");
-        WriteCode(file, "Library.Acceptance.Tests.Controls.UseCases.ReadFeatureFlag", "ReadFeatureFlagScenarios");
+        var file = TestFile(temp.Path, "Controls", "ReadFeatureFlag", "ReadFeatureFlagScenarios.cs");
+        WriteCode(file, "Library.Acceptance.Tests.Controls.ReadFeatureFlag", "ReadFeatureFlagScenarios");
         model.Code.Elements.Add(TestElement("ReadFeatureFlagScenarios", "Reading_a_flag_succeeds", file, "scenario/read-feature-flag.reading-a-flag-succeeds"));
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>A test under UseCases for an aggregate-owned use case reports nothing.</summary>
+    /// <summary>A test under its use case folder for an aggregate-owned use case reports nothing.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
-    public void TestForAggregateOwnedUseCaseUnderUseCasesReportsNothing()
+    public void TestForAggregateOwnedUseCaseInUseCaseFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = TestFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
-        WriteCode(file, "Library.Acceptance.Tests.Lending.UseCases.BorrowCopy", "BorrowCopyScenarios");
+        var file = TestFile(temp.Path, "Lending", "BorrowCopy", "BorrowCopyScenarios.cs");
+        WriteCode(file, "Library.Acceptance.Tests.Lending.BorrowCopy", "BorrowCopyScenarios");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file, "scenario/borrow-copy.borrowing-an-available-copy-succeeds"));
 
         Assert.Empty(Run(model));
@@ -287,7 +287,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Loans", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         var placed = Run(model);
@@ -297,7 +297,7 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
-    /// <summary>An endpoint flat in its module folder reports the missing UseCases level.</summary>
+    /// <summary>An endpoint flat in its module folder reports the missing layer level.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void EndpointFlatInModuleReportsModuleFolder()
@@ -323,15 +323,15 @@ public sealed class PlacementDriftModuleLayoutTests
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         RunsBorrowCopy(model);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "SendDueNoticeOnLoanBorrowedHandler.cs");
-        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "SendDueNoticeOnLoanBorrowedHandler");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "SendDueNoticeOnLoanBorrowedHandler.cs");
+        WriteCode(file, "Library.Lending.Application.BorrowCopy", "SendDueNoticeOnLoanBorrowedHandler");
         model.Code.Elements.Add(Element(CodeKind.EventHandler, "SendDueNoticeOnLoanBorrowedHandler", file, "reaction/lending.send-due-notice"));
 
         Assert.Empty(Run(model));
         Assert.Empty(FolderDrift(model));
     }
 
-    /// <summary>A reaction in a module UseCases On fact folder reports the Application folder its effects name, and the folder that names no use case.</summary>
+    /// <summary>A reaction in an Application On fact folder reports the use case folder its effects name, and the folder that names no use case.</summary>
     /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void ReactionInOnFactFolderReportsTriggerDrift()
@@ -339,13 +339,13 @@ public sealed class PlacementDriftModuleLayoutTests
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         RunsBorrowCopy(model);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler.cs");
-        WriteCode(file, "Library.Lending.UseCases.OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler");
+        var file = ProductFile(temp.Path, "Lending", "Application", "OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler.cs");
+        WriteCode(file, "Library.Lending.Application.OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler");
         model.Code.Elements.Add(Element(CodeKind.EventHandler, "SendDueNoticeOnLoanBorrowedHandler", file, "reaction/lending.send-due-notice"));
 
         var placed = Run(model);
 
-        Assert.Contains(placed, finding => finding.Message == "Event handler 'SendDueNoticeOnLoanBorrowedHandler' sits in folder 'OnLoanBorrowed', but its trigger 'reaction/lending.send-due-notice' belongs in 'Lending/UseCases/BorrowCopy/Application'.");
+        Assert.Contains(placed, finding => finding.Message == "Event handler 'SendDueNoticeOnLoanBorrowedHandler' sits in folder 'OnLoanBorrowed', but its trigger 'reaction/lending.send-due-notice' belongs in 'Lending/Application/BorrowCopy'.");
         Assert.Contains(placed, finding => finding.Message.StartsWith("Folder ", StringComparison.Ordinal) && finding.Message.EndsWith("OnLoanBorrowed' names no declared use case.", StringComparison.Ordinal));
     }
 
@@ -413,19 +413,19 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var nested = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "WebApi", "BorrowCopyLineModel.cs");
-        WriteCode(nested, "Library.Lending.UseCases.BorrowCopy.WebApi", "BorrowCopyLineModel");
-        var row = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "WebApi", "BorrowCopyRow.cs");
-        WriteCode(row, "Library.Lending.UseCases.BorrowCopy.WebApi", "BorrowCopyRow");
-        var handler = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "WebApi", "BorrowCopyCommandHandler.cs");
-        WriteCode(handler, "Library.Lending.UseCases.BorrowCopy.WebApi", "BorrowCopyCommandHandler");
-        var resultRow = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyResultRow.cs");
-        WriteCode(resultRow, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyResultRow");
+        var nested = ProductFile(temp.Path, "Lending", "WebApi", "BorrowCopy", "BorrowCopyLineModel.cs");
+        WriteCode(nested, "Library.Lending.WebApi.BorrowCopy", "BorrowCopyLineModel");
+        var row = ProductFile(temp.Path, "Lending", "WebApi", "BorrowCopy", "BorrowCopyRow.cs");
+        WriteCode(row, "Library.Lending.WebApi.BorrowCopy", "BorrowCopyRow");
+        var handler = ProductFile(temp.Path, "Lending", "WebApi", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        WriteCode(handler, "Library.Lending.WebApi.BorrowCopy", "BorrowCopyCommandHandler");
+        var resultRow = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyResultRow.cs");
+        WriteCode(resultRow, "Library.Lending.Application.BorrowCopy", "BorrowCopyResultRow");
 
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/UseCases/BorrowCopy/WebApi/BorrowCopyCommandHandler.cs' is not a transport type, which sits in Application/, not WebApi/.", finding.Message);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/WebApi/BorrowCopy/BorrowCopyCommandHandler.cs' is not a transport type, which sits in Application/, not WebApi/.", finding.Message);
     }
 
     /// <summary>A folder in the Kernel reports that the Kernel holds files only.</summary>

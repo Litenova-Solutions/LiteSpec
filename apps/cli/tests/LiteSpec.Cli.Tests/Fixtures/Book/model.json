@@ -2810,37 +2810,37 @@
         "useCase": "use-case/lending.borrow-copy",
         "operation": "BorrowCopy",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.cancel-hold",
         "operation": "CancelHold",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.extend-loan",
         "operation": "ExtendLoan",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.place-hold",
         "operation": "PlaceHold",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.register-copy",
         "operation": "RegisterCopy",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.return-copy",
         "operation": "ReturnCopy",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs"
       }
     ],
     "reactions": [],
@@ -2848,74 +2848,74 @@
     "codes": [
       {
         "code": "lending.copy-already-registered",
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs",
         "class": "RegisterCopyCommandHandler"
       },
       {
         "code": "lending.copy-not-available",
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs",
         "class": "BorrowCopyCommandHandler"
       },
       {
         "code": "lending.copy-on-loan",
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Copy.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Copy.cs",
         "class": "Copy"
       },
       {
         "code": "lending.extension-refused",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs",
         "class": "ExtendLoanCommandHandler"
       },
       {
         "code": "lending.hold-already-waiting",
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs",
         "class": "PlaceHoldCommandHandler"
       },
       {
         "code": "lending.hold-not-waiting",
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs",
         "class": "CancelHoldCommandHandler"
       },
       {
         "code": "lending.loan-not-active",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs",
         "class": "ReturnCopyCommandHandler"
       }
     ],
     "events": [
       {
         "class": "CopyRegisteredEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRegisteredEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRegisteredEvent.cs",
         "event": "domain-event/copy.copy-registered"
       },
       {
         "class": "CopyRetiredEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRetiredEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRetiredEvent.cs",
         "event": "domain-event/copy.copy-retired"
       },
       {
         "class": "HoldCancelledEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldCancelledEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldCancelledEvent.cs",
         "event": "domain-event/hold.hold-canceled"
       },
       {
         "class": "HoldPlacedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldPlacedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldPlacedEvent.cs",
         "event": "domain-event/hold.hold-placed"
       },
       {
         "class": "LoanBorrowedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs",
         "event": "domain-event/loan.loan-borrowed"
       },
       {
         "class": "LoanExtendedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanExtendedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanExtendedEvent.cs",
         "event": "domain-event/loan.loan-extended"
       },
       {
         "class": "LoanReturnedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanReturnedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanReturnedEvent.cs",
         "event": "domain-event/loan.loan-returned"
       }
     ]
@@ -3189,102 +3189,102 @@
   "links": {
     "implements": [
       {
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRegisteredEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRegisteredEvent.cs",
         "to": "domain-event/copy.copy-registered",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRetiredEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRetiredEvent.cs",
         "to": "domain-event/copy.copy-retired",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldCancelledEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldCancelledEvent.cs",
         "to": "domain-event/hold.hold-canceled",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldPlacedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldPlacedEvent.cs",
         "to": "domain-event/hold.hold-placed",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs",
         "to": "domain-event/loan.loan-borrowed",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanExtendedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanExtendedEvent.cs",
         "to": "domain-event/loan.loan-extended",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanReturnedEvent.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanReturnedEvent.cs",
         "to": "domain-event/loan.loan-returned",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs",
         "to": "use-case/lending.borrow-copy",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs",
         "to": "use-case/lending.cancel-hold",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs",
         "to": "use-case/lending.extend-loan",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs",
         "to": "use-case/lending.place-hold",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs",
         "to": "use-case/lending.register-copy",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs",
         "to": "use-case/lending.return-copy",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs",
         "to": "result/register-copy.copy-already-registered",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Copy.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Copy.cs",
         "to": "result/retire-copy.copy-on-loan",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs",
         "to": "result/cancel-hold.hold-ended",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs",
         "to": "result/place-hold.hold-already-waiting",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs",
         "to": "result/borrow-copy.copy-unavailable",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs",
         "to": "result/extend-loan.extension-refused",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs",
         "to": "result/return-copy.loan-inactive",
         "kind": "result"
       }

@@ -16,12 +16,12 @@ public sealed class ReactionTriggerTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/notify-overdue.yaml", UseCaseJson);
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/reactions/send-notice-on-loan-borrowed.yaml", ReactionJson);
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs", ReactionFile);
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs", ReactionFile);
 
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.DoesNotContain(root.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs");
+        Assert.DoesNotContain(root.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Modules/Library.Lending/Application/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs");
         var completion = CompletionOf(root, "use-case/lending.notify-overdue");
 
         Assert.Equal("unfulfilled", completion.GetProperty("stage").GetString());
@@ -41,11 +41,11 @@ public sealed class ReactionTriggerTests
     public void JobWithoutAMarkLinksNothingAndReportsMarkMissing()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs", JobFile);
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/ListLoans/ListLoansJob.cs", JobFile);
 
         using var document = Build(temp.Path);
 
-        Assert.DoesNotContain(document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs");
+        Assert.DoesNotContain(document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Modules/Library.Lending/Application/ListLoans/ListLoansJob.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var missing = check.Output.Split('\n').Single(candidate =>

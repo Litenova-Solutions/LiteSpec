@@ -58,27 +58,27 @@ That direction keeps four concerns separate: addresses in routes, use-case code 
 
 **Applies to:** artifact: any
 
-**Statement:** A use-case folder MUST sit under the modules root at `{module}/{use-case}/` in kebab case, resolving to the one backend use case folder of the same names inside its `UseCases/` folder.
+**Statement:** A use-case folder MUST sit under the modules root at `{module}/{use-case}/` in kebab case, resolving to the backend `Application/{UseCase}/` folder of the same names.
 
 **Rationale:** A reader holding a specification page finds the frontend code by translating two names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one folder per use case, so the mirror names one folder. The frontend structure test checks the mirror on every build, under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
 
 **Example:** One backend folder and its frontend counterpart are the same path in two spellings:
 
 ```text
-<backend>/Orders/UseCases/SearchMerchantOrders/
+<backend>/Orders/Application/SearchMerchantOrders/
 <frontend>/modules/orders/search-merchant-orders/
 ```
 
-In Claimwick, `use-case/spending.list-expenses` lists expenses. The backend implements it under `Spending/UseCases/ListExpenses`, and the web frontend serves it from the same path in kebab case, `lib/modules/spending/list-expenses`, beside the screen record `screen/claimwick-app.expense-list`.
+In Claimwick, `use-case/spending.list-expenses` lists expenses. The backend implements it under `Spending/Application/ListExpenses`, and the web frontend serves it from the same path in kebab case, `lib/modules/spending/list-expenses`, beside the screen record `screen/claimwick-app.expense-list`.
 
 ```text
-<backend>/Spending/UseCases/ListExpenses/
+<backend>/Spending/Application/ListExpenses/
 <frontend>/modules/spending/list-expenses/
 ```
 
-The two backend names become two lowercase folder names, while the `UseCases/` segment has no counterpart in the frontend path.
+The two backend names become two lowercase folder names, while the `Application/` layer segment has no counterpart in the frontend path.
 
-A query that describes no one aggregate keeps its record home under `use-cases/` beside its module, but its folder mirrors the backend like any other use case. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/read-spending-summary/` and `<backend>/Spending/UseCases/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
+A query that describes no one aggregate keeps its record home under `use-cases/` beside its module, but its folder mirrors the backend like any other use case. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/read-spending-summary/` and `<backend>/Spending/Application/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 

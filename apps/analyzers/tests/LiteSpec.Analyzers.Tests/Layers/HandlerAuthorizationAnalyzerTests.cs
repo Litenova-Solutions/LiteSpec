@@ -27,7 +27,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     throw new {|LS2012:LoanForbiddenException|}();
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a query handler throwing an unauthorized exception.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -55,7 +55,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     throw new {|LS2012:ReaderUnauthorizedException|}("Denied.");
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a handler throwing an access denied exception.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -78,7 +78,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     throw new {|LS2012:HoldAccessDeniedException|}();
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a forbidden exception thrown through a local.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -102,7 +102,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     throw {|LS2012:refusal|};
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a command handler taking the authorization guard.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -120,7 +120,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             internal sealed class RenewLoanCommandHandler({|LS2012:IAuthorizationGuard|} authorizationGuard)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a query handler taking the authorization guard.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -142,7 +142,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             {
                 public ListLoansReader({|LS2012:AuthorizationGuard|} authorizationGuard) { }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a handler taking the authorization guard through its contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -165,7 +165,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             {
                 public RenewLoanUseCase({|LS2012:IAuthorizationGuard|} authorizationGuard) { }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a nullable authorization guard parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -183,7 +183,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             internal sealed class RenewLoanCommandHandler({|LS2012:IAuthorizationGuard?|} authorizationGuard)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 reports a handler taking a type that implements the authorization guard.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -206,7 +206,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             internal sealed class RenewLoanCommandHandler({|LS2012:LoanGuard|} authorizationGuard)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 accepts a handler throwing a domain refusal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -229,7 +229,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     throw new LoanNotFoundException();
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 accepts a throw in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -254,7 +254,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     throw new LoanForbiddenException();
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 accepts a rethrow.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -282,7 +282,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 accepts a handler taking a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -300,7 +300,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             internal sealed class RenewLoanCommandHandler(ILoanRepository loanRepository)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 accepts a handler taking an unrelated service.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -318,7 +318,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             internal sealed class RenewLoanCommandHandler(IClock clock)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 accepts the authorization guard in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -340,7 +340,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             internal sealed class SendDueNoticeOnLoanBorrowedHandler(IAuthorizationGuard authorizationGuard) : IEventHandler<LoanBorrowedEvent>
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 accepts the authorization guard outside a constructor.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -359,7 +359,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             {
                 public bool Allows(IAuthorizationGuard authorizationGuard) => true;
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2012 stays silent for the authorization guard outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -377,7 +377,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             internal sealed class RenewLoanCommandHandler(IAuthorizationGuard authorizationGuard)
             {
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS2012 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -400,5 +400,5 @@ public sealed class HandlerAuthorizationAnalyzerTests
                     throw new LoanForbiddenException();
                 }
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

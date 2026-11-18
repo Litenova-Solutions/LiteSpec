@@ -8,8 +8,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 ///     The aggregates of one compilation: which aggregate folder a file belongs to, and
 ///     whether a type plays an aggregate role. Under one project per module an aggregate
 ///     lives in <c>Domain/{Aggregate}/</c> below the module root; under one modules project
-///     it lives there below its module folder, or in its own folder with a <c>Domain/</c>
-///     folder inside, as the earlier layout states. A file directly under a module
+///     it lives there below its module folder. A file directly under a module
 ///     <c>Domain/</c> folder belongs to no aggregate. Roles read by name, in any namespace:
 ///     a root derives from <c>AggregateRoot</c> with one type argument, a child entity from
 ///     <c>Entity</c> with one type argument, an event implements <c>IDomainEvent</c>, and an
@@ -27,7 +26,6 @@ internal static class Aggregates
         "WebApi",
         "Contracts",
         "Composition",
-        "UseCases",
         "Notifications",
         "ExternalSystems",
         "ReadModels",
@@ -40,8 +38,7 @@ internal static class Aggregates
     /// <summary>
     ///     Returns the aggregate folder holding the file, or null when no aggregate does.
     ///     A <c>Domain/</c> folder directly under a module holds one aggregate per child
-    ///     folder; a <c>Domain/</c> folder anywhere else belongs to the aggregate folder
-    ///     that holds it, unless that folder is itself a known folder.
+    ///     folder; a <c>Domain/</c> folder anywhere else holds none.
     /// </summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <param name="modules">The module folders, as forward-slash directory paths.</param>
@@ -62,22 +59,17 @@ internal static class Aggregates
             }
 
             var parent = string.Join("/", segments, 0, index);
-            if (IsModule(parent, modules))
+            if (!IsModule(parent, modules))
             {
-                if (index + 2 < segments.Length && !KnownFolders.Contains(segments[index + 1]))
-                {
-                    return parent + "/Domain/" + segments[index + 1];
-                }
-
-                return null;
+                continue;
             }
 
-            if (index == 0 || KnownFolders.Contains(segments[index - 1]))
+            if (index + 2 < segments.Length && !KnownFolders.Contains(segments[index + 1]))
             {
-                return null;
+                return parent + "/Domain/" + segments[index + 1];
             }
 
-            return parent;
+            return null;
         }
 
         return null;

@@ -152,10 +152,8 @@ public sealed class ConventionMarkTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -221,8 +219,8 @@ public sealed class ConventionMarkTests
 
                 **Reviewed for:** Which payouts above 1,000 euros run without a confirmation step? Look at the payout screens.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/FollowsConventionStep.cs", """
-                namespace Library.Application.Lending.Technical;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/FollowsConventionStep.cs", """
+                namespace Library.Lending.Application.Ports;
 
                 /// <follows>demo/conventions#confirm-large-payouts</follows>
                 internal sealed class FollowsConventionStep
@@ -230,8 +228,8 @@ public sealed class ConventionMarkTests
                     public Task ConfirmAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/MissesConventionStep.cs", """
-                namespace Library.Application.Lending.Technical;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/MissesConventionStep.cs", """
+                namespace Library.Lending.Application.Ports;
 
                 /// <follows>demo/conventions#no-such-rule</follows>
                 internal sealed class MissesConventionStep
@@ -239,8 +237,8 @@ public sealed class ConventionMarkTests
                     public Task ConfirmAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/ImplementsConventionStep.cs", """
-                namespace Library.Application.Lending.Technical;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/ImplementsConventionStep.cs", """
+                namespace Library.Lending.Application.Ports;
 
                 /// <implements>demo/conventions#confirm-large-payouts</implements>
                 internal sealed class ImplementsConventionStep
@@ -248,8 +246,8 @@ public sealed class ConventionMarkTests
                     public Task ConfirmAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/FollowsStrayStep.cs", """
-                namespace Library.Application.Lending.Technical;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/FollowsStrayStep.cs", """
+                namespace Library.Lending.Application.Ports;
 
                 /// <follows>use-case/lending.no-such-use-case</follows>
                 /// <follows>use-case/lending.borrow-copy</follows>
@@ -258,8 +256,8 @@ public sealed class ConventionMarkTests
                     public Task ConfirmAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/ProvesConventionScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/ProvesConventionScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class ProvesConventionScenarios
                 {
@@ -271,8 +269,8 @@ public sealed class ConventionMarkTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/ProvesUnknownConventionScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/ProvesUnknownConventionScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class ProvesUnknownConventionScenarios
                 {

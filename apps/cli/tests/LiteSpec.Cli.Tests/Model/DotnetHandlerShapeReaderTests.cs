@@ -16,9 +16,9 @@ public sealed class DotnetHandlerShapeReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteDomainRoot(temp.Path);
+        WriteDomainFolder(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
@@ -45,9 +45,9 @@ public sealed class DotnetHandlerShapeReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteDomainRoot(temp.Path);
+        WriteDomainFolder(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
@@ -72,8 +72,8 @@ public sealed class DotnetHandlerShapeReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Order.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Orders"), "Order.cs", """
+            namespace Library.App.Domain.Orders;
 
             public sealed class Order
             {
@@ -85,7 +85,7 @@ public sealed class DotnetHandlerShapeReaderTests
             }
             """);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler : ICommandHandler<VoidOrderCommand>
@@ -109,8 +109,8 @@ public sealed class DotnetHandlerShapeReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Order.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Orders"), "Order.cs", """
+            namespace Library.App.Domain.Orders;
 
             public sealed class Order : AggregateRoot<OrderId>
             {
@@ -150,8 +150,8 @@ public sealed class DotnetHandlerShapeReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Ledger.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Orders"), "Ledger.cs", """
+            namespace Library.App.Domain.Orders;
 
             public sealed class Ledger
             {
@@ -173,7 +173,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler(
@@ -198,8 +198,8 @@ public sealed class DotnetHandlerShapeReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             public sealed class NotifyReaderOnCopyBorrowedHandler(IOrderRepository orders, IClock clock)
                 : IEventHandler<CopyBorrowedEvent>
@@ -218,7 +218,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "OrderEraser.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             public sealed class OrderEraser(IOrderRepository orders)
             {
@@ -228,7 +228,7 @@ public sealed class DotnetHandlerShapeReaderTests
             }
             """);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
@@ -256,7 +256,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler : ICommandHandler<VoidOrderCommand>
@@ -279,7 +279,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("RemindBorrowers"), "RemindBorrowersCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.RemindBorrowers;
+            namespace Library.App.Application.RemindBorrowers;
 
             /// <implements>use-case/lending.remind-borrowers</implements>
             public sealed class RemindBorrowersCommandHandler(IOrderRepository orders) : ICommandHandler<RemindBorrowersCommand>
@@ -310,7 +310,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("ListLoans"), "ListLoansQueryHandler.cs", """
-            namespace Library.Application.Lending.Loans.ListLoans;
+            namespace Library.App.Application.ListLoans;
 
             /// <implements>use-case/lending.list-loans</implements>
             public sealed class ListLoansQueryHandler(ILoanRepository loans) : IQueryHandler<ListLoansQuery>
@@ -334,7 +334,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("ListLoans"), "ListLoansQueryHandler.cs", """
-            namespace Library.Application.Lending.Loans.ListLoans;
+            namespace Library.App.Application.ListLoans;
 
             /// <implements>use-case/lending.list-loans</implements>
             public sealed class ListLoansQueryHandler(IQuerySession session) : IQueryHandler<ListLoansQuery>
@@ -357,7 +357,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
@@ -381,7 +381,7 @@ public sealed class DotnetHandlerShapeReaderTests
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommand.cs", """
-            namespace Library.Application.Lending.Loans.VoidOrder;
+            namespace Library.App.Application.VoidOrder;
 
             [Audited("void-order")]
             public sealed record VoidOrderCommand(Guid OrderId);
@@ -400,8 +400,8 @@ public sealed class DotnetHandlerShapeReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Order.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Orders"), "Order.cs", """
+            namespace Library.App.Domain.Orders;
 
             public sealed class Order : AggregateRoot<OrderId>
             {
@@ -427,9 +427,9 @@ public sealed class DotnetHandlerShapeReaderTests
 
     static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
-    static void WriteDomainRoot(string root) =>
-        WriteSource(root, "Domain", "Order.cs", """
-            namespace Library.Domain.Lending.Loans;
+    static void WriteDomainFolder(string root) =>
+        WriteSource(root, Path.Combine("App", "Domain", "Orders"), "Order.cs", """
+            namespace Library.App.Domain.Orders;
 
             public sealed class Order : AggregateRoot<OrderId>
             {
@@ -439,15 +439,15 @@ public sealed class DotnetHandlerShapeReaderTests
             }
             """);
 
-    static string HandlerFolder(string operation) => Path.Combine("App", "Lending", "Loans", operation);
+    static string HandlerFolder(string operation) => Path.Combine("App", "Application", operation);
 
     static void WriteProject(string root) =>
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

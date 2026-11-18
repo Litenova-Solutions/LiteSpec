@@ -235,8 +235,8 @@ public sealed class CoverageCheckTests
                     """);
             }
 
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/BorrowCopy/Application/BorrowCopySchedule.cs", """
-                namespace Library.Lending.UseCases.BorrowCopy.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopySchedule.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 /// <implements>job/lending.borrow-sweep</implements>
                 internal static class BorrowCopySchedule
@@ -247,8 +247,8 @@ public sealed class CoverageCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/RenewLoan/Application/RenewLoanSweepJob.cs", """
-                namespace Library.Lending.UseCases.RenewLoan.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewLoan/RenewLoanSweepJob.cs", """
+                namespace Library.Lending.Application.RenewLoan;
 
                 /// <implements>job/lending.renew-sweep</implements>
                 internal sealed class RenewLoanSweepJob : BackgroundService
@@ -269,8 +269,8 @@ public sealed class CoverageCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/LendCopy/Application/LendCopySchedule.cs", """
-                namespace Library.Lending.UseCases.LendCopy.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendCopy/LendCopySchedule.cs", """
+                namespace Library.Lending.Application.LendCopy;
 
                 /// <implements>job/lending.lend-sweep</implements>
                 internal static class LendCopySchedule
@@ -281,8 +281,8 @@ public sealed class CoverageCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/LendCopy/Application/LendOverdueCopiesCommandHandler.cs", """
-                namespace Library.Lending.UseCases.LendCopy.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendCopy/LendOverdueCopiesCommandHandler.cs", """
+                namespace Library.Lending.Application.LendCopy;
 
                 /// <implements>use-case/lending.lend-copy</implements>
                 internal sealed class LendOverdueCopiesCommandHandler : ICommandHandler<LendOverdueCopiesCommand, LendOverdueCopiesResult>
@@ -336,10 +336,8 @@ public sealed class CoverageCheckTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   }
                 }

@@ -81,11 +81,6 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
             }
 
             var layer = map.ReferencedLayer(type, compilation);
-            if (layer == ArchitectureLayer.Infrastructure && type.TypeKind == TypeKind.Interface)
-            {
-                return null;
-            }
-
             if (layer == ArchitectureLayer.Infrastructure || layer == ArchitectureLayer.WebApi)
             {
                 return "which lives in the " + layer + " layer";

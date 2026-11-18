@@ -34,7 +34,7 @@ stackConfig:
     platform: apps/api/src/Claimwick.Platform
     webapi:
     - apps/api/src/Hosts/Claimwick.WebApi
-    templateStore: apps/api/src/Modules/Claimwick.Spending/Notifications/ApprovalReminder/MessageTemplates.cs
+    templateStore: apps/api/src/Modules/Claimwick.Spending/Application/Notifications/ApprovalReminder/MessageTemplates.cs
 frontends:
 - name: web
   path: apps/web

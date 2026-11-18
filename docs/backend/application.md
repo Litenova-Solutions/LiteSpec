@@ -11,17 +11,17 @@ Each use case owns one folder with its message, result, handler, and endpoint. C
 
 ### The Use Case Folder
 
-Application code lives in layer folders named `Application/`: one in each use case folder, one beside each notification, external system, and read model that a module trigger serves, and one holding the product pipeline machinery.
+Application code lives in the `Application/` layer folder of each module: one folder per use case, one `Ports/` folder for the ports several use cases of the module call, one folder beside each notification, external system, and read model that a module trigger serves, and one product folder holding the pipeline machinery.
 
-One use case folder holds everything a reviewer needs to judge that use case: an `Application/` folder, a `WebApi/` folder when the use case has an endpoint, and an `Infrastructure/` folder when the use case has its own port. No `WebApi/` folder means no endpoint reaches the use case.
+Each layer folder holds one folder per use case it serves: `Application/{UseCase}/` always, `WebApi/{UseCase}/` when the use case has an endpoint, and `Infrastructure/{UseCase}/` when the use case has its own port. No `WebApi/{UseCase}/` folder means no endpoint reaches the use case.
 
-The `Application/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/` folder holds the endpoint with its request and response models. The `Infrastructure/` folder holds the adapters that implement the use case's own ports.
+The `Application/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{UseCase}/` folder holds the endpoint with its request and response models. The `Infrastructure/{UseCase}/` folder holds the adapters that implement the use case's own ports.
 
 Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder, grouped by kind into identifiers, integration events, module events, and ports. The pipeline machinery itself lives in the product `Application/` folder.
 
 Each event handler class carries a mark naming the reaction it implements, and sits with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 
-In Claimwick, `use-case/spending.approve-expense` keeps its approve command, its result, its validator, and its handler in its `Application/` folder, with its endpoint beside them in `WebApi/`. A reviewer judges the approval from that one folder.
+In Claimwick, `use-case/spending.approve-expense` keeps its approve command, its result, its validator, and its handler in `Application/ApproveExpense/`, with its endpoint in `WebApi/ApproveExpense/`. A reviewer judges the approval from those folders.
 
 ### The Command Pipeline
 
@@ -74,13 +74,13 @@ In Claimwick, the submit-expense command declares a `sends` edge to the approver
 
 **Applies to:** artifact: any
 
-**Statement:** Each command or query MUST own one use case folder inside the `UseCases/` folder of its module holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
+**Statement:** Each command or query MUST own one folder named for its use case inside the `Application/` folder of its module holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
 
 **Rationale:** When handlers live in one folder, validators in another, and endpoints in a third, a single behavior spreads across the module. A change then touches six folders, and review misses one.
 
-One folder per use case keeps the message, result, validator, handler, mapping, and pipeline-read values together, with the endpoint and transport models beside them, so a reviewer judges the whole behavior from one place. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`, and pipeline-read values sit beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
+One folder per use case inside `Application/` keeps the message, result, validator, handler, mapping, and pipeline-read values together, with the endpoint and transport models in the matching `WebApi/` folder, so a reviewer judges the whole behavior from one place. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`, and pipeline-read values sit beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
 
-**Reviewed for:** Does every command and query own one use case folder inside the `UseCases/` folder of its module, with its message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
+**Reviewed for:** Does every command and query own one folder named for its use case inside the `Application/` folder of its module, with its message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
 
 ### Keep Use Case Folders Small
 
@@ -94,7 +94,7 @@ One folder per use case keeps the message, result, validator, handler, mapping, 
 
 **Deviation:** Only when a helper serves only the use case and splitting it would scatter one act across folders.
 
-**Rationale:** A use case folder reads as the use case. More files, or a file over the line bound, signals work that belongs in the slice `Infrastructure/` folder behind a port, or in the module: production of a file format, rendering, and parsing live in Infrastructure under `litespec/backend/architecture#produce-file-formats-in-infrastructure`.
+**Rationale:** A use case folder reads as the use case. More files, or a file over the line bound, signals work that belongs in the use case's `Infrastructure/` folder behind a port, or in the module: production of a file format, rendering, and parsing live in Infrastructure under `litespec/backend/architecture#produce-file-formats-in-infrastructure`.
 
 **Reviewed for:** Does any use case folder hold more than its message, handler, validator, definitions, result, and a few helpers, or a file over 200 lines? Look at the file counts and sizes in each use case folder.
 
@@ -409,7 +409,7 @@ Mirroring the Domain shape in the result keeps the layers aligned, so the data o
 
 **Rationale:** A port in a product-wide folder is reviewed by nobody. A port declared beside the use case it serves is reviewed with that use case's specification.
 
-A port one use case calls is declared in that slice's `Application/` folder. A port several use cases of one module call is declared in the module `Infrastructure/` folder beside its implementation. Only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers. Collecting every port in one folder because they share the word "port" is grouping by technical type, and `litespec/backend/application#organize-application-by-use-case` rejects that grouping one level down for the same reason.
+A port one use case calls is declared in that use case's `Application/` folder. A port several use cases of one module call is declared in the module `Application/Ports/` folder, with its implementation in `Infrastructure/`. Only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. A port in `Contracts/Ports/` only reads: a write another module needs is a fact its reaction answers. Collecting every port in one folder because they share the word "port" is grouping by technical type, and `litespec/backend/application#organize-application-by-use-case` rejects that grouping one level down for the same reason.
 
 Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.
 
@@ -487,7 +487,7 @@ A provider call whose result the command needs before it can answer is a waiver:
 
 The notification record owns the template, the audience, the channel, the consent rule, the frequency, the dedup key, and the claims each message keeps. The `sends` edge names the notification, and the notification record carries its suppression in `suppressedWhen`. The messenger port carries the send with project-owned types.
 
-A reaction or job that only sends lives in the module `Notifications/` folder named for its notification, beside the notification's message model and any type only that notification uses. A send no edge declares fails `effect-undeclared`, and a second send of a `once` notification with the same dedup key sends nothing.
+A reaction or job that only sends lives in the `Application/Notifications/` folder named for its notification, beside the notification's message model and any type only that notification uses. A send no edge declares fails `effect-undeclared`, and a second send of a `once` notification with the same dedup key sends nothing.
 
 **Example:** The due-notice event handler sends the loan-due notification through the messenger port. The template and consent rule stay on the notification record, not in the handler.
 
@@ -777,13 +777,13 @@ A message that leaves before its transaction commits promises work even when the
 
 **Applies to:** artifact: any
 
-**Default:** Place each use case in a folder named for it inside the `UseCases/` folder of its module, holding an `Application/` folder with its message, result, handler, validator, pipeline definitions, own steps and triggers, a `WebApi/` folder with its endpoint and transport models when it has an endpoint, and an `Infrastructure/` folder with the adapters for its own ports when it has its own port.
+**Default:** Place each use case in one folder per layer that serves it: `Application/{UseCase}/` with its message, result, handler, validator, pipeline definitions, own steps and triggers, `WebApi/{UseCase}/` with its endpoint and transport models when it has an endpoint, and `Infrastructure/{UseCase}/` with the adapters for its own ports when it has its own port.
 
 **Replacement:** A project names its own Application folder layout in its documentation.
 
-**Rationale:** One folder per use case inside its `UseCases/` folder holds everything a reviewer needs to judge it in one place, and the module tree lets a reader move from a handler to its endpoint without a map.
+**Rationale:** One folder per use case inside each layer that serves it holds everything a reviewer needs to judge it in one set of folders, and the module tree lets a reader move from a handler to its endpoint without a map.
 
-Three layer folders inside it state each file's layer in the path, keep a large use case's listing readable, and show by their presence whether the use case has an endpoint or its own port. The reactions and job that run the use case sit in its `Application/` folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
+The layer folders state each file's layer in the path and show by their presence whether the use case has an endpoint or its own port. The reactions and job that run the use case sit in its `Application/` folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
 **Example:** The layout reads as follows:
 
@@ -794,49 +794,46 @@ Three layer folders inside it state each file's layer in the path, keep a large 
     Contracts/
       Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
     Domain/                               Post, PostState, and the post repository contract directly
-    UseCases/
-      CreateDraft/
-        Application/                      Command, Result, Handler, Validator, mapping
-        WebApi/                           Endpoint, RequestModel, ResponseModel
+    Application/
+      CreateDraft/                        Command, Result, Handler, Validator, mapping
       GetPost/
-        Application/
-        WebApi/
       ListPosts/
-        Application/
-          ListPostsQueryResultItem        a result part named after its result
-        WebApi/
-      ArchiveStalePost/
-        Application/                      no WebApi folder: no endpoint reaches this use case
-          ArchiveStalePostsJob            the job that runs this use case once per stale post
-          ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case
-      ExportPosts/
-        Application/                      query, handler, definitions, result, IPostsArchiveWriter
-        Infrastructure/                   PostsArchiveWriter, one writer per section
-        WebApi/                           endpoint
+        ListPostsQueryResultItem          a result part named after its result
+      ArchiveStalePost/                   no WebApi folder: no endpoint reaches this use case
+        ArchiveStalePostsJob              the job that runs this use case once per stale post
+        ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case
+      ExportPosts/                        query, handler, definitions, result, IPostsArchiveWriter
+      Notifications/
+        NewPost/
+          NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification
     Infrastructure/
-      Persistence/                        PostRepository, store contributions, read models
+      Persistence/                        PostRepository, store contributions, read-model readers
       ExternalSystems/                    adapters for systems the module calls
-    Notifications/
-      NewPost/
-        NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification
+      ExportPosts/                        PostsArchiveWriter, one writer per section
+    WebApi/
+      CreateDraft/                        Endpoint, RequestModel, ResponseModel
+      GetPost/
+      ListPosts/
+      ExportPosts/                        endpoint
   Customers/                              two aggregates: Domain holds one folder per aggregate
     Contracts/
       Identifiers/  IntegrationEvents/  ModuleEvents/  Ports/
     Domain/
       CustomerAccount/
       Consent/
-    UseCases/
+    Application/
       RestrictAccount/
-        Application/  WebApi/
       GrantConsent/
-        Application/  WebApi/
-    ReadModels/
-      OrderHistories/                     a read model of another module's published facts
+      ReadModels/
+        OrderHistories/                   a read model of another module's published facts
+    WebApi/
+      RestrictAccount/
+      GrantConsent/
 ```
 
 Module, aggregate, and use case order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
-Only a use case gets a folder below its `UseCases/` folder, so every folder name there names one use case.
+Only a use case gets a folder named for it in a layer folder, so every such folder name names one use case.
 
 A use case's own models stay in its folder under `litespec/backend/architecture#give-each-use-case-its-own-models`, and any other type sits in the node layer folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. An event handler or job lives with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`, with its mark under `litespec/backend/application#answer-each-reaction-in-one-marked-class`. A folder named for a fact, a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
 

@@ -7,7 +7,7 @@ Install the analyzer package once for the backend projects and their tests, read
 You need:
 
 - The .NET 10 SDK, which the manifest names as the .NET stack release.
-- A solution laid out with the business projects and hosts that [the .NET architecture page](../backend/dotnet/architecture.md) requires: the shared kernel and modules projects holding every module, plus a WebApi host for composition and HTTP plumbing.
+- A solution laid out with the business projects and hosts that [the .NET architecture page](../backend/dotnet/architecture.md) requires: the Kernel, Platform, and module projects, plus a WebApi host for composition and HTTP plumbing.
 - One shared build file imported by every project, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
 
 ## Procedure
@@ -36,19 +36,7 @@ A rule only runs in the layers its provision covers, so next confirm that every 
 
 #### Resolve File Layers
 
-The analyzers read the layer from the file's folder and, inside a use case folder, from its role suffix, as the [Analyzers overview](README.md) describes; test files resolve as Test. When the project selects the `layer-projects` extension, the layer comes from the assembly name suffix instead: `Shop.Domain` resolves as Domain, and the same suffix rule maps Application, Infrastructure, WebApi, and Worker, with `Application.Abstractions` for the shared contracts project. An assembly whose name carries no layer suffix is not analyzed.
-
-#### Declare the Layer Explicitly
-
-Under `layer-projects`, a project whose name ends in no layer name declares its layer in its project file:
-
-```xml
-<PropertyGroup>
-  <LiteSpecLayer>Domain</LiteSpecLayer>
-</PropertyGroup>
-```
-
-The accepted values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value that names no known layer reports `LS2017`. `None` opts a project out and turns off the whole package there: no analyzer rule runs, and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package takes the layout from `selectedExtensions` in `.litespec/project.yaml`, so there is nothing else to wire. This step puts in place the Kernel, Platform, and module projects with their hosts from [the .NET architecture page](../backend/dotnet/architecture.md).
+The analyzers read the layer from the file's top folder in the module, as the [Analyzers overview](README.md) describes; test files resolve as Test. A module project names no layer itself: each of its files takes its layer from its folder. This step puts in place the Kernel, Platform, and module projects with their hosts from [the .NET architecture page](../backend/dotnet/architecture.md).
 
 #### Check the Record Layer Claims
 

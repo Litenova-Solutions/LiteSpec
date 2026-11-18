@@ -164,7 +164,7 @@ The table lives on the aggregate page, as `litespec/core/domain-model#connect-ev
 
 **Strength:** default
 
-**Default:** Mirror the production module, `UseCases/`, and use case folder names inside each test suite.
+**Default:** Mirror the production module, layer, and use case folder names inside each test suite.
 
 **Replacement:** A project names its test tree shape in its testing documentation.
 
@@ -172,17 +172,17 @@ The table lives on the aggregate page, as `litespec/core/domain-model#connect-ev
 
 Harness and flat files stay exempt: a `Support` folder and flat Architecture test files need no production counterpart. Adapter tests sit under the adapter's `Infrastructure/` path and are exempt by kind, because they prove a scenario through an adapter that owns no use case folder.
 
-**Example:** Each test tree mirrors the production module folders, including the `UseCases/` level:
+**Example:** Each test tree mirrors the production module folders, including the layer level:
 
 ```text
 Unit tests/
   Posts/
-    UseCases/
+    Application/
       CreateDraft/
       GetPost/
 Integration tests/
   Posts/
-    UseCases/
+    Application/
       CreateDraft/
   Support/
 Architecture tests/

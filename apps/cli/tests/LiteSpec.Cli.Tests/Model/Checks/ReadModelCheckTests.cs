@@ -192,7 +192,7 @@ public sealed class ReadModelCheckTests
     }
 
     /// <summary>An event handler projection in a module ReadModels folder may carry the read-model mark, which a reaction does not take.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</proves>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ProjectionInAReadModelsFolderMayCarryTheReadModelMark()
     {
@@ -207,7 +207,7 @@ public sealed class ReadModelCheckTests
     }
 
     /// <summary>An event handler outside a module ReadModels folder may not carry the read-model mark: it takes a reaction mark.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</proves>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ProjectionOutsideAReadModelsFolderReportsTheReadModelMark()
     {

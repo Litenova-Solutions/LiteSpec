@@ -4,4 +4,4 @@ stacks:
 - dotnet
 stackConfig:
   dotnet:
-    modules: src/Library.Application
+    modules: src/Library.Orders

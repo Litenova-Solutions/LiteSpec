@@ -84,7 +84,7 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("reader");
         WriteReaderProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Spending", "Contracts", "ModuleEvents"), "ExpenseReimbursed.cs", """
+        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "ModuleEvents"), "ExpenseReimbursed.cs", """
             namespace Library.Spending.Contracts.ModuleEvents;
 
             /// <implements>module-event/spending.expense-reimbursed</implements>
@@ -107,8 +107,8 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("reader");
         WriteReaderProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("Domain", "Spending"), "ExpenseReimbursed.cs", """
-            namespace Library.Domain.Spending;
+        WriteSource(temp.Path, Path.Combine("Library.Spending", "Domain", "Spending"), "ExpenseReimbursed.cs", """
+            namespace Library.Spending.Domain.Spending;
 
             /// <implements>module-event/spending.expense-reimbursed</implements>
             public sealed record ExpenseReimbursed(Guid ExpenseId);
@@ -128,7 +128,7 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("reader");
         WriteReaderProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Spending", "Contracts", "ModuleEvents"), "ExpenseContracts.cs", """
+        WriteSource(temp.Path, Path.Combine("Library.Spending.Contracts", "ModuleEvents"), "ExpenseContracts.cs", """
             namespace Library.Spending.Contracts.ModuleEvents;
 
             public static class ExpenseContracts
@@ -182,15 +182,14 @@ public sealed class ContractFolderChecksTests
         return Path.Combine([.. parts]);
     }
 
-    /// <summary>Writes the reader fixture project with the modules and layer roots.</summary>
+    /// <summary>Writes the reader fixture project with the module, its sibling Contracts project, and the layer roots.</summary>
     /// <param name="root">The fixture root folder.</param>
     static void WriteReaderProject(string root) =>
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
+              "modules": ["src/Library.Spending", "src/Library.Spending.Contracts"], "webapi": "src/WebApi"}}}
             """);
 
     /// <summary>Writes one C# source file under the fixture source root.</summary>

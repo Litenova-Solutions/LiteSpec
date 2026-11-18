@@ -331,9 +331,9 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
-        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "other", "litespec.ts");
+        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "other", "litespec.ts");
         model.Code.Elements.Add(new MarkedElement(
-            CodeKind.FrontendModule, "lending/loans/other", null, file, 3,
+            CodeKind.FrontendModule, "lending/other", null, file, 3,
             [new CodeMark("use-case/lending.other", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
 
         Assert.Single(WithCode(model, "mark-unknown"), found => found.Message.Contains("outside frontend 'web's entry points"));
@@ -349,9 +349,9 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
-        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "list-loans", "litespec.ts");
+        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "list-loans", "litespec.ts");
         model.Code.Elements.Add(new MarkedElement(
-            CodeKind.FrontendModule, "lending/loans/list-loans", null, file, 3,
+            CodeKind.FrontendModule, "lending/list-loans", null, file, 3,
             [new CodeMark("use-case/lending.list-loans", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
 
         Assert.Empty(WithCode(model, "mark-unknown"));

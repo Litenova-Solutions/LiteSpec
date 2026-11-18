@@ -40,9 +40,9 @@ static class Parts
         var grouped = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var orphans = new List<DomainType>();
 
-        // The Domain scopes are the Domain project under layer-projects and the module
-        // projects in the module layout, where the reader already kept the Domain layer
-        // files only. The Kernel project holds kernel types beside the scopes.
+        // The Domain scopes are the module projects, where the reader already kept
+        // the Domain layer files only. The Kernel project holds kernel types beside
+        // the scopes.
         var scopes = ScopesOf(model);
 
         if (scopes.Count == 0)
@@ -61,8 +61,6 @@ static class Parts
             }
         }
 
-        var kernelOnDisk = Directory.Exists(model.Config.KernelRoot);
-
         foreach (var type in model.Code.DomainTypes)
         {
             var scope = scopes.FirstOrDefault(candidate => IsUnder(candidate, type.File));
@@ -79,13 +77,6 @@ static class Parts
             }
 
             var folder = FolderOf(type.File);
-
-            if (scope is not null && !kernelOnDisk && IsKernelFolder(model, scope, folder))
-            {
-                Add(grouped, "kernel", Entry(model, type));
-                continue;
-            }
-
             var domain = scope is null ? domains[0] : Folder(scope);
 
             if (WalkUp(folder, domain, aggregates) is { } aggregate)
@@ -200,33 +191,11 @@ static class Parts
         return aggregates;
     }
 
-    /// <summary>The Domain scope roots: the Domain project under layer-projects, else every module project.</summary>
+    /// <summary>The Domain scope roots: every module project.</summary>
     /// <param name="model">The built project model holding the declared roots.</param>
     /// <returns>The non-empty scope roots in read order.</returns>
-    private static List<string> ScopesOf(ProjectModel model)
-    {
-        if (model.Config.DomainRoot.Length > 0)
-        {
-            return [model.Config.DomainRoot];
-        }
-
-        return [.. model.Config.ModulesRoots.Where(root => root.Length > 0)];
-    }
-
-    /// <summary>Whether the folder is the kernel home when no Kernel project is on disk: the scope root itself under layer-projects.</summary>
-    /// <param name="model">The built project model holding the declared roots.</param>
-    /// <param name="scope">The Domain scope root the walk stays inside.</param>
-    /// <param name="folder">The normalized folder holding the type.</param>
-    /// <returns>True when the folder holds Kernel types.</returns>
-    private static bool IsKernelFolder(ProjectModel model, string scope, string folder)
-    {
-        if (model.Config.DomainRoot.Length > 0)
-        {
-            return Same(folder, Folder(scope));
-        }
-
-        return false;
-    }
+    private static List<string> ScopesOf(ProjectModel model) =>
+        [.. model.Config.ModulesRoots.Where(root => root.Length > 0)];
 
     /// <summary>The one aggregate mark the element carries, or null when it carries none or several.</summary>
     /// <param name="marks">The marks the element carries.</param>

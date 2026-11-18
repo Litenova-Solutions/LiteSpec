@@ -363,7 +363,6 @@ public sealed class KindReaderTests
             """);
 
         Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
-        Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty, "Application.Abstractions"));
         Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty));
     }
 
@@ -559,7 +558,6 @@ public sealed class KindReaderTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "A top-level class with a method in an outer layer is technical")]
     [InlineData("Application")]
-    [InlineData("Application.Abstractions")]
     [InlineData("Infrastructure")]
     [InlineData("WebApi")]
     [InlineData("Worker")]

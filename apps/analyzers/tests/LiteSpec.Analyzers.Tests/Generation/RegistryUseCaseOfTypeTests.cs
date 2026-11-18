@@ -34,13 +34,13 @@ public sealed class RegistryUseCaseOfTypeTests
         var files = RecordPages.Files(
             "xml",
             ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Spending");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("public static string? UseCaseOfType(System.Type type)", registry, StringComparison.Ordinal);
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
 
-        var assembly = Emit(sources, run, "Shop.Application");
+        var assembly = Emit(sources, run, "Shop.Spending");
         var lookup = Lookup(assembly, "UseCaseOfType");
 
         var handler = assembly.GetType("Shop.Spending.SubmitExpenseCommandHandler");
@@ -75,13 +75,13 @@ public sealed class RegistryUseCaseOfTypeTests
         var files = RecordPages.Files(
             "xml",
             ("approve-expense.yaml", RecordPages.UseCasePage("use-case/spending.approve-expense", "permission/approve-expense")));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Spending");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.ExpenseHandlers.ApproveExpenseCommandHandler\"] = new string[] { \"use-case/spending.approve-expense\" },", registry, StringComparison.Ordinal);
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
 
-        var assembly = Emit(sources, run, "Shop.Application");
+        var assembly = Emit(sources, run, "Shop.Spending");
         var lookup = Lookup(assembly, "UseCaseOfType");
 
         var handler = assembly.GetType("Shop.Spending.ExpenseHandlers+ApproveExpenseCommandHandler");

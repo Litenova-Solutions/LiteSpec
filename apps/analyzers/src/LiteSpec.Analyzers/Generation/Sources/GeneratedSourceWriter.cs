@@ -17,7 +17,7 @@ namespace LiteSpec.Analyzers.Generation.Sources;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class GeneratedSourceWriter
 {
-    /// <summary>Writes every source the inputs call for, or nothing without a usable project file, with no records and no marks, or in an opted-out project.</summary>
+    /// <summary>Writes every source the inputs call for, or nothing without a usable project file, with no records and no marks, or in the shared kernel.</summary>
     /// <param name="context">The source production context.</param>
     /// <param name="records">The record facts.</param>
     /// <param name="types">The marked types.</param>
@@ -28,9 +28,9 @@ internal static class GeneratedSourceWriter
         ImmutableArray<MarkedType> types,
         HostModel host)
     {
-        // The shared kernel reads layer None with no application project and no host,
-        // so it leaves through the same gate as an opted-out project and generates nothing.
-        if (host.Layer == ArchitectureLayer.None && !host.ApplicationProject)
+        // The shared kernel reads layer None with no module project and no host,
+        // so it generates nothing.
+        if (host.Layer == ArchitectureLayer.None && !host.ModuleProject)
         {
             return;
         }
@@ -100,25 +100,20 @@ internal static class GeneratedSourceWriter
             }
         }
 
-        // A host beside the modules project sees the registry, the permissions and the
+        // A host beside a module project sees the registry, the permissions and the
         // roles through that project, so it generates none of its own.
         if (!host.ModuleHost)
         {
-            EmitRegistry(context, ordered, grants, host.Layer == ArchitectureLayer.WebApi || host.ApplicationProject);
+            EmitRegistry(context, ordered, grants);
         }
         else if (host.Layer == ArchitectureLayer.WebApi)
         {
-            // The host still maps the operations of the endpoints it holds, which the modules
+            // The host still maps the operations of the endpoints it holds, which the module
             // project cannot see.
             context.AddSource("LiteSpecHostOperations.g.cs", HostOperationsText(OperationUseCasesOf(ordered)));
         }
 
-        if (!host.ModuleHost
-            && (host.Layer == ArchitectureLayer.Domain
-                || host.Layer == ArchitectureLayer.Application
-                || host.Layer == ArchitectureLayer.Infrastructure
-                || host.Layer == ArchitectureLayer.WebApi
-                || host.ApplicationProject))
+        if (!host.ModuleHost)
         {
             EmitPermissions(context, records);
             EmitRoles(context, records);

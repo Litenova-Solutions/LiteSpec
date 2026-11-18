@@ -176,9 +176,9 @@ internal static class MarkChecks
     /// <summary>
     ///     The path segments of the file under its module layout, with the module first and
     ///     the file name last, or null when the file sits outside any module. Layer folders
-    ///     state no module segment, so they are left out in either layout.
+    ///     state no module segment, so they are left out.
     /// </summary>
-    /// <param name="config">The project configuration that holds each layer root and the shared kernel path.</param>
+    /// <param name="config">The project configuration that holds each module root and the shared kernel path.</param>
     /// <param name="file">The full path of the file whose segments are wanted.</param>
     /// <returns>The path segments with the module first, or null when the file sits outside the module layout.</returns>
     private static string[]? ModuleSegments(ConsumerConfig config, string file) =>
@@ -194,7 +194,7 @@ internal static class MarkChecks
     /// <param name="element">The marked code element that carries the mark.</param>
     /// <param name="mark">The mark under test.</param>
     /// <returns>True when the mark names a read model and the element sits in a module ReadModels folder.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</follows>
+    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
     private static bool IsViewMarkInViewsFolder(ProjectModel model, MarkedElement element, CodeMark mark)
     {
         if (!mark.RecordId.StartsWith(RecordTypes.ReadModel + "/", StringComparison.Ordinal))

@@ -62,20 +62,6 @@ public sealed class EndpointNamingAnalyzerTests
             internal sealed class CreateDraftRoute : IEndpoint
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
-    /// <summary>LS2006 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2006 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<EndpointNamingAnalyzer>("""
-            namespace Shop.Core;
-
-            public interface IEndpoint { }
-
-            internal sealed class {|LS2006:CreateDraftRoute|} : IEndpoint
-            {
-            }
-            """, assemblyName: "Shop.Core", layer: "WebApi");
 }

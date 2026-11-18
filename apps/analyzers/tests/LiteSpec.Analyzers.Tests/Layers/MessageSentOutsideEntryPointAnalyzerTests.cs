@@ -38,18 +38,18 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task ReportsACommandHandlerTakingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderCommandHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
                     using LiteBus.Commands.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     internal sealed class PlaceOrderCommandHandler({|LS2021:ICommandMediator|} mediator)
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 reports a query handler taking the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -58,18 +58,18 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task ReportsAQueryHandlerTakingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/ListOrders/Application/ListOrdersQueryHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/ListOrders/ListOrdersQueryHandler.cs", """
                     using LiteBus.Queries.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.ListOrders;
 
                     internal sealed class ListOrdersQueryHandler({|LS2021:IQueryMediator|} queries)
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 reports a validator taking the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -78,18 +78,18 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task ReportsAValidatorTakingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderValidator.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderValidator.cs", """
                     using LiteBus.Commands.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     internal sealed class PlaceOrderValidator({|LS2021:ICommandMediator|} mediator)
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 reports a command handler holding the event mediator in a field.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -98,11 +98,11 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task ReportsAFieldHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderCommandHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
                     using LiteBus.Events.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     internal sealed class PlaceOrderCommandHandler
                     {
@@ -110,7 +110,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 reports a property of a non-entry type holding the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -119,11 +119,11 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task ReportsAPropertyHoldingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/ListOrders/Application/ListOrdersQueryHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/ListOrders/ListOrdersQueryHandler.cs", """
                     using LiteBus.Queries.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.ListOrders;
 
                     internal sealed class ListOrdersQueryHandler
                     {
@@ -131,7 +131,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 accepts a reaction taking the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -140,12 +140,12 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task AcceptsAReactionTakingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/SubmitPayment/Application/SubmitPaymentOnOrderPlacedHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/SubmitPayment/SubmitPaymentOnOrderPlacedHandler.cs", """
                     using LiteBus.Commands.Abstractions;
                     using LiteBus.Events.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.SubmitPayment;
 
                     public sealed record OrderPlacedEvent;
 
@@ -154,7 +154,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 accepts an endpoint taking the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -163,18 +163,18 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task AcceptsAnEndpointTakingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderEndpoint.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderEndpoint.cs", """
                     using LiteBus.Commands.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     internal sealed class PlaceOrderEndpoint(ICommandMediator mediator)
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 accepts a job deriving from BackgroundService that holds the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -183,12 +183,12 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task AcceptsAJobHoldingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/ExpireOrders/Application/ExpiredOrderSweeper.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/ExpireOrders/ExpiredOrderSweeper.cs", """
                     using LiteBus.Commands.Abstractions;
                     using Microsoft.Extensions.Hosting;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.ExpireOrders;
 
                     internal sealed class ExpiredOrderSweeper : BackgroundService
                     {
@@ -196,7 +196,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 accepts a method parameter that is not a constructor parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -205,11 +205,11 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
     public Task AcceptsAMethodParameterThatIsNotAConstructorParameter() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderCommandHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
                     using LiteBus.Commands.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     internal sealed class PlaceOrderCommandHandler
                     {
@@ -219,7 +219,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2021 accepts a mediator in the shared kernel, which composes the pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

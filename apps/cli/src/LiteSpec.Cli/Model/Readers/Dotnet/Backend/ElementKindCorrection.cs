@@ -20,7 +20,7 @@ static class ElementKindCorrection
     private const string ModuleEventPrefix = "module-event/";
 
     /// <summary>The short project names of the outer layers that hold technical classes.</summary>
-    static readonly string[] OuterLayerProjects = ["Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"];
+    static readonly string[] OuterLayerProjects = ["Application", "Infrastructure", "WebApi", "Worker"];
 
     /// <summary>
     ///     Corrects the kinds the shared kind reader assigned from simple names, using the
@@ -233,10 +233,7 @@ static class ElementKindCorrection
                 return true;
             }
 
-            if (containingLayer is not null
-                && (shortName is "Application" or "Application.Abstractions"
-                    ? containingLayer is "Application" or "ApplicationAbstractions"
-                    : containingLayer == shortName))
+            if (containingLayer is not null && containingLayer == shortName)
             {
                 return true;
             }

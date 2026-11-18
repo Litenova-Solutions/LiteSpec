@@ -20,9 +20,6 @@ paths:
   - apps/api/tests
 stackConfig:
   dotnet:
-    modules: apps/api/src/Library.Application
-    domain: apps/api/src/Library.Domain
-    webapi:
-    - apps/api/src/Library.WebApi
+    modules: apps/api/src/Modules/Library.Lending
 frontends: []
 selectedExtensions: []

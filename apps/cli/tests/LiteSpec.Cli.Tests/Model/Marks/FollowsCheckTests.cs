@@ -242,7 +242,7 @@ public sealed class FollowsCheckTests
                   "stacks": ["dotnet"], "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"}, "reviewedLiteSpecVersion": "7.0.0", "owners": ["lending-team"],
                   "marks": "attribute",
                   "frontends": [], "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": []},
-                  "stackConfig": {"dotnet": {"modules": "apps/api/src/Library.Application"}}}
+                  "stackConfig": {"dotnet": {"modules": "apps/api/src/Modules/Library.Lending"}}}
                 """);
             Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
@@ -274,8 +274,8 @@ public sealed class FollowsCheckTests
 
                 Keep each loan as one document.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/CommitStep.cs", """
-                namespace Library.Application.Lending.Technical;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Ports/CommitStep.cs", """
+                namespace Library.Lending.Application.Ports;
 
                 [Follows("decision/0002-keep-loans-as-documents")]
                 internal sealed class CommitStep

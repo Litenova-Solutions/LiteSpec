@@ -24,4 +24,4 @@ When you add a use case, read the principle page for the layer it touches first,
 ## Backend Stack
 
 - [.NET Stack](dotnet/stack.md): the .NET binding of every principle page, and the test-result formats the model builder reads.
-- [.NET Extensions Overview](dotnet/ext/README.md): the extensions only a .NET backend offers: executable BDD scenarios and the five-project layer packaging.
+- [.NET Extensions Overview](dotnet/ext/README.md): the extension only a .NET backend offers: executable BDD scenarios.

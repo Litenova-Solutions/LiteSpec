@@ -5,12 +5,10 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules;
 
 /// <summary>
-///     The base of every LiteSpec analyzer: skips opted-out compilations, gates a
-///     compilation once by the record layers it claims and by its declared or
-///     layer-projects layer, and registers the rule for per-file gating under the
-///     module layout. Generated code is skipped. A rule runs only when the claim
-///     covers every diagnostic it reports, so a rule added later inherits the gate
-///     from this base.
+///     The base of every LiteSpec analyzer: skips compilations whose claims exclude
+///     the rule, and registers the rule for per-file gating. Generated code is skipped.
+///     A rule runs only when the claim covers every diagnostic it reports, so a
+///     rule added later inherits the gate from this base.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 /// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
@@ -25,31 +23,6 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
         {
             if (!ClaimGate.Allows(ClaimGate.Declared(start.Options), SupportedDiagnostics))
             {
-                return;
-            }
-
-            var declared = FileScope.DeclaredLayer(start.Options);
-            if (declared is not null)
-            {
-                var layer = ArchitectureLayerResolver.Parse(declared);
-                if (layer == ArchitectureLayer.None || !AppliesTo(layer))
-                {
-                    return;
-                }
-
-                Register(start);
-                return;
-            }
-
-            if (FileScope.DeclaredLayout(start.Options) == BackendLayout.LayerProjects)
-            {
-                var layer = ArchitectureLayerResolver.FromAssemblyName(start.Compilation.AssemblyName ?? string.Empty);
-                if (layer == ArchitectureLayer.None || !AppliesTo(layer))
-                {
-                    return;
-                }
-
-                Register(start);
                 return;
             }
 

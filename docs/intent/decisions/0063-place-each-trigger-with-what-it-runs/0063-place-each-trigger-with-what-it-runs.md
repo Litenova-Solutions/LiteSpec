@@ -1,6 +1,6 @@
 # Place Each Trigger with What It Runs
 
-A .NET backend keeps each use case in a folder of its own. Backend developers open one folder to find the use case's endpoint, message, handler, and every trigger that starts it. This decision adds layer subfolders to that folder and places each reaction and job with the use case it runs. It stops any use case from naming another use case's types.
+A .NET backend keeps each use case in folders of its own, one per layer that serves it. Backend developers open the use case's `Application/`, `WebApi/`, and `Infrastructure/` folders to find its endpoint, message, handler, and every trigger that starts it. This decision places each reaction and job with the use case it runs. It stops any use case from naming another use case's types.
 
 ## Context
 
@@ -18,13 +18,13 @@ A handler in a fact folder named the command of a use case in another folder. LS
 
 ## Decision
 
-A use-case folder holds `Application/` and, with an endpoint, `WebApi/`. A trigger lives with what it runs. A reaction or job that runs a use case sits in that use case's `Application/` folder. One that only sends sits in the module `Notifications/` folder named for its notification. One that only calls sits in the module `ExternalSystems/` folder named for its system.
+Each layer folder holds one folder per use case it serves: `Application/{UseCase}/` always, `WebApi/{UseCase}/` when the use case has an endpoint, and `Infrastructure/{UseCase}/` when the use case has its own adapter. A trigger lives with what it runs. A reaction or job that runs a use case sits in that use case's `Application/` folder. One that only sends sits in the `Application/Notifications/` folder named for its notification. One that only calls sits in the `Application/ExternalSystems/` folder named for its system.
 
 No use case names a type in another use-case folder. A message, result, result part, or transport model belongs to one use case, and two use cases that need the same shape each declare it. A rule still has one home in Domain, because two copies of a rule disagree.
 
 ## Consequences
 
-The module closed set loses `Jobs/` and `WebApi/`, gains `Notifications/`, `ExternalSystems/`, and `ReadModels/`, and `Contracts/` keeps `Identifiers/`, `IntegrationEvents/`, and `Ports/`. The aggregate loses `WebApi/`.
+The module closed set loses `Jobs/`, `WebApi/`, and the `UseCases/` folders with their layer folders; each layer folder holds one folder per use case it serves, and `Application/` gains `Ports/`, `Notifications/`, `ExternalSystems/`, and `ReadModels/`. `Contracts/` keeps `Identifiers/`, `IntegrationEvents/`, and `Ports/`. The aggregate loses `WebApi/`.
 
 `code-placement-drift` reads a trigger's folder from its record's effects. LS2019 drops its exemption.
 

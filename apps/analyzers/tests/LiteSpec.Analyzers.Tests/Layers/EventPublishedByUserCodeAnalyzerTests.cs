@@ -33,11 +33,11 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
     public Task ReportsAReactionHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/SubmitPayment/Application/SubmitPaymentOnOrderPlacedHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/SubmitPayment/SubmitPaymentOnOrderPlacedHandler.cs", """
                     using LiteBus.Events.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.SubmitPayment;
 
                     public sealed record OrderPlacedEvent;
 
@@ -46,7 +46,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2022 reports a command handler holding the event mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -55,18 +55,18 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
     public Task ReportsACommandHandlerHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderCommandHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
                     using LiteBus.Events.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     internal sealed class PlaceOrderCommandHandler({|LS2022:IEventMediator|} events)
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2022 reports a job publishing through the event mediator, entry points included.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -75,12 +75,12 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
     public Task ReportsAJobHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/ExpireOrders/Application/ExpiredOrderSweeper.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/ExpireOrders/ExpiredOrderSweeper.cs", """
                     using LiteBus.Events.Abstractions;
                     using Microsoft.Extensions.Hosting;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.ExpireOrders;
 
                     internal sealed class ExpiredOrderSweeper : BackgroundService
                     {
@@ -88,7 +88,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2022 reports a named event publisher type that user code takes.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -97,8 +97,8 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
     public Task ReportsAnEventPublisherTakenByUserCode() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
             [
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderCommandHandler.cs", """
-                    namespace Shop.Orders;
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     internal interface ExpenseEventPublisher
                     {
@@ -109,7 +109,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2022 accepts a use case that raises a domain event and holds no event mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -118,11 +118,11 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
     public Task AcceptsAUseCaseHoldingNoEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderCommandHandler.cs", """
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
                     using LiteBus.Commands.Abstractions;
 
-                    namespace Shop.Orders;
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     public interface IOrderRepository
                     {
@@ -134,7 +134,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2022 accepts the event mediator in the shared kernel, which holds the publishing pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -163,9 +163,9 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
     public Task StaysQuietInADocumentationComment() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
             [
-                ("Shop.Application/Stubs.cs", Stubs),
-                ("Shop.Application/Orders/PlaceOrder/Application/PlaceOrderCommandHandler.cs", """
-                    namespace Shop.Orders;
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
+                    namespace Shop.Orders.Application.PlaceOrder;
 
                     /// <summary>Raises the order placed event; <see cref="LiteBus.Events.Abstractions.IEventMediator"/> publishes it.</summary>
                     internal sealed class PlaceOrderCommandHandler
@@ -173,7 +173,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Orders");
 
     /// <summary>LS2022 stays quiet in test projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

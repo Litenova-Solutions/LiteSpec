@@ -16,8 +16,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
@@ -43,8 +43,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "ListLoans"), "ListLoansQueryHandler.cs", """
-            namespace Library.Application.Lending.Loans.ListLoans;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "ListLoans"), "ListLoansQueryHandler.cs", """
+            namespace Library.App.Application.ListLoans;
 
             [Implements("use-case/lending.list-loans")]
             public sealed class ListLoansQueryHandler : IQueryHandler<ListLoansQuery>
@@ -69,8 +69,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
             {
@@ -97,8 +97,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             /// <implements>use-case/lending.return-copy</implements>
@@ -125,8 +125,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanRenewedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanRenewedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
             /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanRenewedEvent(Guid LoanId) : IDomainEvent;
@@ -144,8 +144,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent;
             """);
@@ -162,8 +162,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan : AggregateRoot<Guid>
@@ -191,8 +191,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan : AggregateRoot<Guid>
@@ -216,8 +216,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanReader.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "LoanReader.cs", """
+            namespace Library.App.Domain.Loans;
 
             public sealed class LoanReader
             {
@@ -243,8 +243,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Money.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Money.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class Money;
@@ -267,8 +267,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
             /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent
@@ -290,8 +290,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
             /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent;
@@ -309,8 +309,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "WebApi", "BorrowCopyEndpoint.cs", """
-            namespace Library.WebApi.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "WebApi", "BorrowCopy"), "BorrowCopyEndpoint.cs", """
+            namespace Library.App.WebApi.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyEndpoint : IEndpoint
@@ -341,8 +341,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "WebApi", "BorrowCopyEndpoint.cs", """
-            namespace Library.WebApi.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "WebApi", "BorrowCopy"), "BorrowCopyEndpoint.cs", """
+            namespace Library.App.WebApi.BorrowCopy;
 
             public sealed class BorrowCopyEndpoint : IEndpoint
             {
@@ -370,8 +370,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NotifyOnBorrowHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnLoanBorrowed"), "NotifyOnBorrowHandler.cs", """
+            namespace Library.App.Application.OnLoanBorrowed;
 
             /// <implements>reaction/lending.notify-on-borrow</implements>
             public sealed class NotifyOnBorrowHandler : IEventHandler<LoanBorrowedEvent>
@@ -393,8 +393,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NotifyOnBorrowHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnLoanBorrowed"), "NotifyOnBorrowHandler.cs", """
+            namespace Library.App.Application.OnLoanBorrowed;
 
             public sealed class NotifyOnBorrowHandler : IEventHandler<LoanBorrowedEvent>
             {
@@ -414,8 +414,8 @@ public sealed class DotnetMarkLinkTests
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NightlyScanJob.cs", """
-            namespace Library.Application.Lending.Loans.NightlyScan;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "NightlyScan"), "NightlyScanJob.cs", """
+            namespace Library.App.Application.NightlyScan;
 
             /// <implements>job/lending.nightly-scan</implements>
             public sealed class NightlyScanJob : BackgroundService
@@ -436,8 +436,8 @@ public sealed class DotnetMarkLinkTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

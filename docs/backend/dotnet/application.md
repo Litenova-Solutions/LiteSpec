@@ -118,7 +118,7 @@ After that commit, an event handler answers each fact through its entry point: t
 // The commit step stores the changed aggregate and stages the facts it raised in one transaction.
 outbox.StageCollectedEvents();
 
-// Spending/Contracts/IntegrationEvents/ExpenseReimbursed.cs: built from its domain event alone.
+// Claimwick.Spending.Contracts/IntegrationEvents/ExpenseReimbursed.cs: built from its domain event alone.
 public sealed record ExpenseReimbursed(ExpenseId ExpenseId, EmployeeId EmployeeId, Money Amount, DateTimeOffset ReimbursedAt)
 {
     public static ExpenseReimbursed From(ExpenseReimbursedEvent fact) =>
@@ -138,7 +138,7 @@ public sealed record ExpenseReimbursed(ExpenseId ExpenseId, EmployeeId EmployeeI
 
 **Statement:** A reaction MUST run in one class carrying one mark naming its reaction record.
 
-**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy`, and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It sits in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of the notification it only sends or the system it only calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
+**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy`, and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It sits in the `Application/` folder of the use case it runs, or in the `Application/Notifications/` or `Application/ExternalSystems/` folder of the notification it only sends or the system it only calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 
 It never writes an aggregate directly: a reaction that needs a write sends one command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision binds `litespec/backend/application#answer-each-reaction-in-one-marked-class` for .NET.
 
@@ -213,7 +213,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler
 
 **Statement:** A scheduled or one-off job MUST run as one hosted operation carrying one mark naming its job record.
 
-**Rationale:** The hosted operation sits in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of the notification it only sends or the system it only calls. It registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, so a restart resumes where the last run stopped instead of reprocessing or skipping items. It sends its one command once per selected item, and records its evidence where the record states. This provision binds `litespec/backend/application#run-each-job-within-its-declared-selection` for .NET.
+**Rationale:** The hosted operation sits in the `Application/` folder of the use case it runs, or in the `Application/Notifications/` or `Application/ExternalSystems/` folder of the notification it only sends or the system it only calls. It registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, so a restart resumes where the last run stopped instead of reprocessing or skipping items. It sends its one command once per selected item, and records its evidence where the record states. This provision binds `litespec/backend/application#run-each-job-within-its-declared-selection` for .NET.
 
 **Example:**
 
@@ -221,7 +221,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler
 /// <implements>job/spending.erase-expired-personal-data</implements>
 internal sealed class EraseExpiredPersonalDataHost
 {
-    // Lives in Spending/UseCases/ErasePersonalData/Application/.
+    // Lives in Spending/Application/ErasePersonalData/.
     // Selects the expired expenses and sends one erase command per expense, resuming from its cursor.
 }
 ```
@@ -359,7 +359,7 @@ The pinned LiteBus package signatures take precedence over illustrative example 
 ### Change Another Aggregate from an Event Handler
 
 ```csharp
-// Lending/UseCases/BorrowBook/Application/BorrowBookCommandHandler.cs
+// Lending/Application/BorrowBook/BorrowBookCommandHandler.cs
 internal sealed class BorrowBookCommandHandler
     : ICommandHandler<BorrowBookCommand, BorrowBookCommandResult>
 {
@@ -388,7 +388,7 @@ internal sealed class BorrowBookCommandHandler
 ```
 
 ```csharp
-// Lending/UseCases/MarkBookLent/Application/MarkBookLentOnLoanBorrowedHandler.cs
+// Lending/Application/MarkBookLent/MarkBookLentOnLoanBorrowedHandler.cs
 /// <implements>reaction/lending.mark-book-lent-on-loan-borrowed</implements>
 internal sealed class MarkBookLentOnLoanBorrowedHandler
     : IEventHandler<LoanBorrowedEvent>

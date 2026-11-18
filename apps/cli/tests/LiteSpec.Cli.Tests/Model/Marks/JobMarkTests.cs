@@ -12,8 +12,8 @@ public sealed class JobMarkTests
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
-        WriteSource(fixture.Path, "Library.Infrastructure", "ChargeDuesJob.cs", """
-            namespace Library.Infrastructure.Billing;
+        WriteSource(fixture.Path, Path.Combine("Modules", "Library.Lending", "Application", "ChargeDues"), "ChargeDuesJob.cs", """
+            namespace Library.Lending.Application.ChargeDues;
 
             /// <implements>job/billing.charge-dues</implements>
             public sealed class ChargeDuesJob
@@ -39,8 +39,8 @@ public sealed class JobMarkTests
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
-        WriteSource(fixture.Path, "Library.Infrastructure", "ChargeDuesJob.cs", """
-            namespace Library.Infrastructure.Billing;
+        WriteSource(fixture.Path, Path.Combine("Modules", "Library.Lending", "Application", "ChargeDues"), "ChargeDuesJob.cs", """
+            namespace Library.Lending.Application.ChargeDues;
 
             public sealed class ChargeDuesJob
             {
@@ -67,8 +67,8 @@ public sealed class JobMarkTests
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
-        WriteSource(fixture.Path, "Library.Domain", "ChargeDuesJob.cs", """
-            namespace Library.Domain.Billing;
+        WriteSource(fixture.Path, Path.Combine("Modules", "Library.Lending", "Domain", "Loans"), "ChargeDuesJob.cs", """
+            namespace Library.Lending.Domain.Loans;
 
             /// <implements>job/billing.charge-dues</implements>
             public sealed class ChargeDuesJob

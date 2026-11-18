@@ -23,7 +23,7 @@ public sealed class AsyncMethodAnalyzerTests
 
                 public ValueTask<int> {|LS3001:Count|}() => new ValueTask<int>(0);
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3001 reports the same breach in WebApi.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -58,7 +58,7 @@ public sealed class AsyncMethodAnalyzerTests
 
                 public int Count() => 0;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3001 ignores an override and reports its base.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -79,7 +79,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 public override Task Save() => Task.CompletedTask;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3001 ignores the Main entry point.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -95,7 +95,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 public static Task Main() => Task.CompletedTask;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3001 reports a local function but not a lambda.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -126,7 +126,7 @@ public sealed class AsyncMethodAnalyzerTests
                     await work();
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3001 ignores a framework contract implementation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -143,7 +143,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 public ValueTask DisposeAsync() => ValueTask.CompletedTask;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3001 reports a controller action.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -166,13 +166,13 @@ public sealed class AsyncMethodAnalyzerTests
                     public Task {|LS3001:Index|}() => Task.CompletedTask;
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS3001 ignores a breach outside the five projects.</summary>
+    /// <summary>LS3001 ignores a breach in a file the layer rules cannot place.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#reveal-asynchrony-and-cancellation-in-operation-names</proves>
-    [Fact(DisplayName = "LS3001 ignores a breach outside the five projects")]
-    public Task IgnoresABreachOutsideTheFiveProjects() =>
+    [Fact(DisplayName = "LS3001 ignores a breach in a file the layer rules cannot place")]
+    public Task IgnoresABreachInAnUnplacedFile() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
             using System.Threading.Tasks;
 
@@ -184,21 +184,6 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """, assemblyName: "Shop.Unknown");
 
-    /// <summary>LS3001 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/workspace/naming#reveal-asynchrony-and-cancellation-in-operation-names</proves>
-    [Fact(DisplayName = "LS3001 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
-            using System.Threading.Tasks;
-
-            namespace Shop.Core;
-
-            public sealed class Worker
-            {
-                public Task {|LS3001:Place|}() => Task.CompletedTask;
-            }
-            """, assemblyName: "Shop.Core", layer: "Domain");
 
     /// <summary>LS3001 ignores the top-level statements entry point.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -226,7 +211,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 public Task<string> {|LS3001:Refused|}(string reason) => Task.FromResult(reason);
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 reports a misnamed token and a token in the middle.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -245,7 +230,7 @@ public sealed class AsyncMethodAnalyzerTests
 
                 public Task LoadAsync(CancellationToken {|LS3002:cancellationToken|}, string name) => Task.CompletedTask;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 accepts the token last with a trailing params array.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -264,7 +249,7 @@ public sealed class AsyncMethodAnalyzerTests
 
                 public void Ping(CancellationToken cancellationToken) { }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 ignores an override and reports its base.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -285,7 +270,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 public override void Save(CancellationToken cancellationToken, string name) { }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 ignores an explicit interface implementation and reports its contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -306,7 +291,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 void ISaver.Save(CancellationToken cancellationToken, string name) { }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 reports a misnamed token in a local function.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -331,7 +316,7 @@ public sealed class AsyncMethodAnalyzerTests
                     await PlaceAsync(cancellationToken);
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 ignores token position in an endpoint handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -371,7 +356,7 @@ public sealed class AsyncMethodAnalyzerTests
                 public Task HandleAsync(Guid listId, CancellationToken {|LS3002:cancellationToken|}, string? state = null) =>
                     Task.CompletedTask;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 reports a misnamed token in an endpoint handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -411,7 +396,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 private Task WaitForDatabaseAsync(CancellationToken stoppingToken) => Task.CompletedTask;
             }
-            """, assemblyName: "Shop.Infrastructure");
+            """, path: "Shop.Spending/Infrastructure/Source.cs");
 
     /// <summary>LS3002 reports stoppingToken outside a hosted service.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -428,7 +413,7 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 public Task SaveAsync(CancellationToken {|LS3002:stoppingToken|}) => Task.CompletedTask;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS3002 ignores an ExecuteAsync override.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -450,13 +435,13 @@ public sealed class AsyncMethodAnalyzerTests
             {
                 protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
             }
-            """, assemblyName: "Shop.Infrastructure");
+            """, path: "Shop.Spending/Infrastructure/Source.cs");
 
-    /// <summary>LS3002 ignores a token breach outside the five projects.</summary>
+    /// <summary>LS3002 ignores a token breach in a file the layer rules cannot place.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/naming#put-the-cancellation-token-last</proves>
-    [Fact(DisplayName = "LS3002 ignores a token breach outside the five projects")]
-    public Task IgnoresATokenBreachOutsideTheFiveProjects() =>
+    [Fact(DisplayName = "LS3002 ignores a token breach in a file the layer rules cannot place")]
+    public Task IgnoresATokenBreachInAnUnplacedFile() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
             using System.Threading;
             using System.Threading.Tasks;

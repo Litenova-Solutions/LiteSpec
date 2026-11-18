@@ -13,8 +13,8 @@ public sealed class PrimaryConstructorAnalyzerTests
     public Task ReportsAClassPrimaryConstructor() =>
         Verify.AnalyzerAsync<PrimaryConstructorAnalyzer>(
             [
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     public interface IExpenseRepository;
 
@@ -50,8 +50,8 @@ public sealed class PrimaryConstructorAnalyzerTests
     public Task AcceptsAClassWithAnExplicitConstructor() =>
         Verify.AnalyzerAsync<PrimaryConstructorAnalyzer>(
             [
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     public interface IExpenseRepository;
 

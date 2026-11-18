@@ -23,11 +23,11 @@ public sealed class MessageDefinitionAnalyzerTests
 
         public interface IIdempotencyDefinition<TMessage> : IMessageDefinition<TMessage, IdempotencyDeclaration>;
 
-        public interface ISliceOwned;
+        public interface IUseCaseOwned;
         """;
 
     private const string Command = """
-        namespace Claimwick.Spending.UseCases.SubmitExpense;
+        namespace Claimwick.Spending.Application.SubmitExpense;
 
         public sealed class SubmitExpenseCommand;
         """;
@@ -39,12 +39,12 @@ public sealed class MessageDefinitionAnalyzerTests
     public Task ReportsAClassImplementingTwoDefinitions() =>
         Verify.AnalyzerAsync<MessageDefinitionAnalyzer>(
             [
-                ("Claimwick.Spending/Contracts/Stubs.cs", Stubs),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommand.cs", Command),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandDefinition.cs", """
+                ("Claimwick.Spending.Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommand.cs", Command),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandDefinition.cs", """
                     using LiteBus.Messaging.Abstractions;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class {|LS2023:SubmitExpenseCommandDefinition|}
                         : IAuthorizationDefinition<SubmitExpenseCommand>, IAuditDefinition<SubmitExpenseCommand>
@@ -61,12 +61,12 @@ public sealed class MessageDefinitionAnalyzerTests
     public Task ReportsAClassImplementingThreeDefinitions() =>
         Verify.AnalyzerAsync<MessageDefinitionAnalyzer>(
             [
-                ("Claimwick.Spending/Contracts/Stubs.cs", Stubs),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommand.cs", Command),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandDefinition.cs", """
+                ("Claimwick.Spending.Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommand.cs", Command),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandDefinition.cs", """
                     using LiteBus.Messaging.Abstractions;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class {|LS2023:SubmitExpenseCommandDefinition|}
                         : IAuthorizationDefinition<SubmitExpenseCommand>,
@@ -85,15 +85,15 @@ public sealed class MessageDefinitionAnalyzerTests
     public Task AcceptsAClassImplementingOneDefinition() =>
         Verify.AnalyzerAsync<MessageDefinitionAnalyzer>(
             [
-                ("Claimwick.Spending/Contracts/Stubs.cs", Stubs),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommand.cs", Command),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandAuthorizationDefinition.cs", """
+                ("Claimwick.Spending.Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommand.cs", Command),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandAuthorizationDefinition.cs", """
                     using LiteBus.Messaging.Abstractions;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandAuthorizationDefinition
-                        : IAuthorizationDefinition<SubmitExpenseCommand>, ISliceOwned
+                        : IAuthorizationDefinition<SubmitExpenseCommand>, IUseCaseOwned
                     {
                     }
                     """),

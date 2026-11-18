@@ -40,7 +40,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 reports repository writes in a for body.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -75,7 +75,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 reports a repository delete in a while body.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -108,7 +108,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop that builds a result list.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -141,7 +141,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     return expired;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop that writes through another type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -174,7 +174,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a repository store outside a loop.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -206,7 +206,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     loanRepository.Store(loan);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop with a store in a query handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -239,7 +239,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop with a store in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -281,7 +281,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a write then return search loop.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -321,7 +321,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     return false;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 reports a write followed by a conditional return.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -358,7 +358,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -391,5 +391,5 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

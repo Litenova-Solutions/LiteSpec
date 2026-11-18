@@ -13,11 +13,11 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task ReportsAModuleNamingAnotherModuleOutsideContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations;
-                    using Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations.Contracts.Identifiers;
+                    using Claimwick.Organizations.Domain.Team;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -27,19 +27,19 @@ public sealed class ModuleBoundaryAnalyzerTests
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
@@ -53,10 +53,10 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task ReportsAModuleWithoutContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations.Domain.Team;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -65,8 +65,8 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
@@ -111,10 +111,11 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task AcceptsAModuleNamingContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Billing.Domain.Invoice;
+                    using Claimwick.Organizations.Contracts.Identifiers;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -122,17 +123,17 @@ public sealed class ModuleBoundaryAnalyzerTests
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
-                ("Claimwick.Modules/Billing/Invoices/Domain/Money.cs", """
-                    namespace Claimwick.Billing;
+                ("Claimwick.Modules/Billing/Domain/Invoice/Money.cs", """
+                    namespace Claimwick.Billing.Domain.Invoice;
 
                     internal readonly record struct Money(decimal Amount);
                     """),
@@ -146,30 +147,32 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task AcceptsAModuleNamingItsOwnTypes() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamHandler.cs", """
+                    using Claimwick.Organizations.Domain.Team;
+
+                    namespace Claimwick.Organizations.Application.CreateTeam;
 
                     internal sealed class CreateTeamHandler
                     {
                         internal Team Handle(CreateTeamCommand command) => null!;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.CreateTeam;
 
                     internal sealed class CreateTeamCommand
                     {
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
@@ -183,8 +186,8 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task ReportsThroughAGlobalUsing() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    namespace Claimwick.Billing;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -193,23 +196,23 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/Globals.cs", """
-                    global using Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/Globals.cs", """
+                    global using Claimwick.Organizations.Domain.Team;
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
@@ -224,7 +227,7 @@ public sealed class ModuleBoundaryAnalyzerTests
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
                 ("Claimwick.Modules/Composition/Application/ModuleComposition.cs", """
-                    using Claimwick.Organizations.Teams;
+                    using Claimwick.Organizations.Domain.Team;
 
                     namespace Claimwick;
 
@@ -233,15 +236,15 @@ public sealed class ModuleBoundaryAnalyzerTests
                         internal Team? Current() => null;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
@@ -255,10 +258,11 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task AcceptsAContractsKindSubfolder() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations.Contracts.Identifiers;
+                    using Claimwick.Organizations.Contracts.Ports;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -266,52 +270,24 @@ public sealed class ModuleBoundaryAnalyzerTests
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Ports/IOrganizerReader.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Ports;
 
                     internal interface IOrganizerReader
                     {
                     }
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
             ],
             assemblyName: "Claimwick.Modules");
-
-    /// <summary>LS2020 stays quiet under layer-projects, which has no Contracts folders.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
-    [Fact(DisplayName = "LS2020 stays quiet under layer-projects, which has no Contracts folders")]
-    public Task StaysQuietUnderLayerProjects() =>
-        Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
-            [
-                ("Source.cs", """
-                    namespace Shop.Orders;
-
-                    internal sealed class CreateOrderHandler
-                    {
-                        internal void Handle(OrderStore store)
-                        {
-                        }
-                    }
-                    """),
-                ("Stubs.cs", """
-                    namespace Shop.Orders;
-
-                    internal sealed class OrderStore
-                    {
-                    }
-                    """),
-            ],
-            assemblyName: "Shop.Application",
-            layout: "layer-projects");
 
     /// <summary>LS2020 stays quiet in a one-module-project compilation, where visibility holds the boundary.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -327,10 +303,10 @@ public sealed class ModuleBoundaryAnalyzerTests
                     {
                     }
                     """),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Migrations;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandHandler
                     {

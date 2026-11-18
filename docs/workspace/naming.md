@@ -44,7 +44,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 | Persistence configuration | `{PersistedType}Configuration` | `PostConfiguration` |
 | Registration class | `{Layer}ServiceRegistration` | `InfrastructureServiceRegistration` |
 
-Full suffixes keep coordination apart from projection, and boundary data apart from business objects. Inside a use case folder the suffix also states the layer of the file: a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` is WebApi, and one ending in `Command`, `Query`, `Result`, `Handler`, or `Validator` is Application.
+Full suffixes keep coordination apart from projection, and boundary data apart from business objects. The top folder states the layer of the file, and inside a layer folder the suffix states its role: a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` is a WebApi file, and one ending in `Command`, `Query`, `Result`, `Handler`, or `Validator` is an Application file.
 
 ## Standards
 
@@ -114,11 +114,11 @@ The transport name drops the aggregate prefix of the Domain union, such as `Orde
 
 **Applies to:** artifact: reaction, job
 
-**Statement:** Each event handler and job class MUST live in the `Application/` folder of the use case its record runs, or, when it runs none, in the module `Notifications/` folder named for the notification it sends or the module `ExternalSystems/` folder named for the system it calls, with an event handler named `{Action}On{Fact}Handler`.
+**Statement:** Each event handler and job class MUST live in the `Application/` folder of the use case its record runs, or, when it runs none, in the `Application/Notifications/` folder named for the notification it sends or the `Application/ExternalSystems/` folder named for the system it calls, with an event handler named `{Action}On{Fact}Handler`.
 
 **Rationale:** A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names the command of that use case from inside the folder of the use case, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact would gather the commands of several use cases under one name instead, and it would never show every reaction to the fact, because those reactions span modules. The question of what happens when a fact is recorded is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
-**Example:** `Lending/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler` runs the expire-hold use case when a loan is returned, and `Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler` only sends the due notice.
+**Example:** `Lending/Application/ExpireHold/ExpireHoldOnLoanReturnedHandler` runs the expire-hold use case when a loan is returned, and `Lending/Application/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler` only sends the due notice.
 
 **Checked by:** `litespec model check` reports `code-placement-drift` (level S) for an event handler or job class outside the folder its record's effects name.
 

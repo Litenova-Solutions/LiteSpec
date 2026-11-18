@@ -144,8 +144,7 @@ public sealed class FindingMessageFormatTests
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
-            """{"owners": ["lending-team"], "stackConfig": {"dotnet": {"infrastructure": "src/Infrastructure"}}}""");
-        Directory.CreateDirectory(Path.Combine(root, "src", "Infrastructure"));
+            """{"owners": ["lending-team"]}""");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("use-case", "use-case/lending.void-order", Path.Combine(root, "void.yaml"), """{"status": "reviewed", "kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
@@ -183,7 +182,7 @@ public sealed class FindingMessageFormatTests
             """
             {"owners": ["lending-team"], "size": "large",
              "frontends": [{"name": "web", "path": "apps/web", "platform": "svelte"}], "paths": {},
-             "stackConfig": {"dotnet": {"domain": "src/Domain", "kernel": "src/Library.Kernel"}}}
+             "stackConfig": {"dotnet": {"kernel": "src/Library.Kernel"}}}
             """);
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 

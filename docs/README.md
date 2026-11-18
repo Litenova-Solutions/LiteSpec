@@ -76,7 +76,6 @@ These principles hold for every backend. A backend stack folder states how its t
 - [.NET Packages](backend/dotnet/packages.md): LiteBus module scope and the analyzer setup.
 - [.NET Configuration](backend/dotnet/config.md): SDK, build, package, and tool pins in MSBuild files.
 - [Executable BDD Acceptance Tests](backend/dotnet/ext/bdd.md): executable scenarios in Reqnroll or LightBDD; an extension for this stack.
-- [Layer Projects](backend/dotnet/ext/layer-projects.md): the five-project packaging for backends that keep it; an extension for this stack.
 
 ### Frontend
 

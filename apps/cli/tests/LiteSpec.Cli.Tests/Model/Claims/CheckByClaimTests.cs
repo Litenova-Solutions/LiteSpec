@@ -153,13 +153,13 @@ public sealed class CheckByClaimTests
         }
     }
 
-    /// <summary>Adds one folder naming no declared module under the backend root, so only a layout finding follows.</summary>
+    /// <summary>Adds one folder naming no module folder under the module project, so only a layout finding follows.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     static void AddStrayFolder(string root)
     {
-        var folder = Path.Combine(root, "apps", "api", "src", "Library.Application", "Archive");
+        var folder = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Archive");
         Directory.CreateDirectory(folder);
-        File.WriteAllText(Path.Combine(folder, "readme.txt"), "This folder names no declared module, so the placement check reports it.\n");
+        File.WriteAllText(Path.Combine(folder, "readme.txt"), "This folder names no module folder, so the placement check reports it.\n");
     }
 
     /// <summary>Writes the claimed layers into the fixture project file.</summary>

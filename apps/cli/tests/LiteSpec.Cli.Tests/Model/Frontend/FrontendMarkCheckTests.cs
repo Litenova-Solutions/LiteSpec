@@ -27,7 +27,7 @@ public sealed class FrontendMarkCheckTests
 
         var finding = Assert.Single(missing);
         Assert.Contains("Frontend module", finding.Message);
-        Assert.Contains("lending/loans/borrow-copy", finding.Message);
+        Assert.Contains("lending/borrow-copy", finding.Message);
         Assert.Null(finding.Subject);
     }
 

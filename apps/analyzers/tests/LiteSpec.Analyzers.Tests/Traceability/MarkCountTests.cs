@@ -13,7 +13,7 @@ public sealed class MarkCountTests
     [Fact(DisplayName = "LS5003 reports a handler carrying two marks")]
     public Task ReportsAHandlerCarryingTwoMarks() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -30,8 +30,7 @@ public sealed class MarkCountTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense")],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense")]);
 
     /// <summary>LS5003 reports one record named twice.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -39,7 +38,7 @@ public sealed class MarkCountTests
     [Fact(DisplayName = "LS5003 reports one record named twice")]
     public Task ReportsOneRecordNamedTwice() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -56,8 +55,7 @@ public sealed class MarkCountTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase()],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), UseCase()]);
 
     /// <summary>LS5003 reports a root method carrying two use-case marks.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -65,7 +63,7 @@ public sealed class MarkCountTests
     [Fact(DisplayName = "LS5003 reports a root method carrying two use-case marks")]
     public Task ReportsARootMethodCarryingTwoMarks() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public abstract class AggregateRoot<TState>
@@ -89,8 +87,7 @@ public sealed class MarkCountTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense"), DomainEvent()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), Aggregate(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense"), DomainEvent()]);
 
     /// <summary>LS5003 accepts a root method carrying one mark.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -98,7 +95,7 @@ public sealed class MarkCountTests
     [Fact(DisplayName = "LS5003 accepts a root method carrying one mark")]
     public Task AcceptsARootMethodCarryingOneMark() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public abstract class AggregateRoot<TState>
@@ -121,8 +118,7 @@ public sealed class MarkCountTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()]);
 
     /// <summary>LS5003 reports one record named twice on a multi-mark kind.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -130,7 +126,7 @@ public sealed class MarkCountTests
     [Fact(DisplayName = "LS5003 reports one record named twice on a multi-mark kind")]
     public Task ReportsOneRecordNamedTwiceOnAMultiMarkKind() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public abstract class AggregateRoot<TState>
@@ -154,8 +150,7 @@ public sealed class MarkCountTests
                     }
                 }
                 """)],
-            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), Aggregate(), UseCase(), DomainEvent()]);
 
     /// <summary>LS5003 reports a technical class naming one decision twice.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -163,7 +158,7 @@ public sealed class MarkCountTests
     [Fact(DisplayName = "LS5003 reports a technical class naming one decision twice")]
     public Task ReportsADuplicateFollows() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 namespace Shop.Spending;
 
                 /// <follows>decision/0002-keep-expenses-as-documents</follows>
@@ -175,8 +170,7 @@ public sealed class MarkCountTests
                     }
                 }
                 """)],
-            [ProjectFile(), Decision()],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), Decision()]);
 
     /// <summary>LS5003 reports one proof named twice on a test.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

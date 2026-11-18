@@ -24,19 +24,9 @@ The package requires the .NET 9.0.300 SDK, Visual Studio 17.14, or later.
 
 ### How a File Gets Its Layer
 
-Each rule runs only on the files in the layers its provision covers. A file takes its layer from the nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`). Inside a use case, reaction, or job folder, the file's role suffix decides instead: `Endpoint`, `RequestModel`, and `ResponseModel` mean `WebApi`, while `Command`, `Query`, `Result`, `Handler`, `Validator`, `Job`, and `Worker` mean `Application`. A Kernel project counts as `Domain` and a Platform project as `Infrastructure`; a module project names no layer, so each of its files takes its layer from its folder. A host project counts as `WebApi` or `Worker` by its assembly name (`Shop.Api` reads as `WebApi` beside `Shop.WebApi`), and a test project counts as `Test`.
+Each rule runs only on the files in the layers its provision covers. A file takes its layer from the nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`): a file's layer is its top folder in the module, and its use case is the next folder. A file in a sibling `{Product}.{Module}.Contracts` project counts as `Application` and maps to its owner module. A file with no layer folder on its path falls back to its role suffix: `Endpoint`, `RequestModel`, and `ResponseModel` mean `WebApi`, while `Command`, `Query`, `Result`, `Handler`, `Validator`, `Job`, and `Worker` mean `Application`. A module project names no layer, so each of its files takes its layer from its folder. A Kernel project counts as `Domain` and a Platform project as `Infrastructure`; a host project counts as `WebApi` or `Worker` by its assembly name (`Shop.Api` reads as `WebApi` beside `Shop.WebApi`), and a test project counts as `Test`.
 
-A consumer on the layer-projects extension keeps one layer per project instead. Then the analyzers read the layer from the assembly name suffix (`Shop.Domain`, `Shop.Application.Abstractions`, `Shop.Application`, `Shop.Infrastructure`, `Shop.WebApi`, `Shop.Worker`, `Shop.Domain.Tests`), and any other assembly goes unanalyzed. The build props derive the layout from the project's selected extensions, so the project states nothing itself.
-
-To declare the layer yourself, set `LiteSpecLayer` in the project file:
-
-```xml
-<PropertyGroup>
-  <LiteSpecLayer>Domain</LiteSpecLayer>
-</PropertyGroup>
-```
-
-The accepted values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. One declared value covers every file in the project. `None` switches the whole package off for that project: no analyzer rule runs, and the generator emits neither source nor diagnostics. A file the rules cannot place stays quiet in the same way. A declared value that names no known layer still reports `LS2017`.
+A file the rules cannot place stays quiet.
 
 ### Rules
 
@@ -72,7 +62,6 @@ The accepted values are `Domain`, `Application.Abstractions`, `Application`, `In
 | LS2014 | Application, Infrastructure, Worker | A command handler that finds or creates | [Implement one outcome path per command](https://litespec.dev/7.0.0/backend/application/#implement-one-outcome-path-per-command) |
 | LS2015 | Application, Infrastructure, Worker | A command handler that changes records in a loop | [Issue per-record work from a job](https://litespec.dev/7.0.0/backend/application/#issue-per-record-work-from-a-job) |
 | LS2016 | Application, Infrastructure, Worker | A handler that takes a pipeline-owned collaborator | [Keep uniqueness out of handlers](https://litespec.dev/7.0.0/backend/persistence/#keep-uniqueness-out-of-handlers) |
-| LS2017 | Every layer | A declared layer value that names no known layer | [Package each layer as its own project](https://litespec.dev/7.0.0/backend/dotnet/ext/layer-projects/#package-each-layer-as-its-own-project) |
 | LS2018 | Application, WebApi | A type outside the file's layer: Infrastructure or WebApi from Application, ASP.NET Core or HttpContext from Application, or a Domain type or repository from WebApi | [Follow layer direction in every file](https://litespec.dev/7.0.0/backend/dotnet/architecture/#follow-layer-direction-in-every-file) |
 | LS2019 | Every layer | A type declared in another use case folder, the message and result of another use case included | [Keep use case folders isolated](https://litespec.dev/7.0.0/backend/dotnet/architecture/#keep-use-case-folders-isolated) |
 | LS2020 | Every layer | A type of another module declared outside its Contracts folder | [Reach another module only through Contracts](https://litespec.dev/7.0.0/backend/dotnet/architecture/#reach-another-module-only-through-contracts) |
@@ -83,12 +72,12 @@ The accepted values are `Domain`, `Application.Abstractions`, `Application`, `In
 | LS2025 | Infrastructure | A use case `Infrastructure/` folder naming a Domain or WebApi type | [Follow layer direction in every file](https://litespec.dev/7.0.0/backend/dotnet/architecture/#follow-layer-direction-in-every-file) |
 | LS2026 | Every layer | A record declared with the same members in two use case folders | [Keep use case folders isolated](https://litespec.dev/7.0.0/backend/dotnet/architecture/#keep-use-case-folders-isolated) |
 | LS2027 | Application | Archive, serialization, or document work in Application | [Produce file formats in Infrastructure](https://litespec.dev/7.0.0/backend/architecture/#produce-file-formats-in-infrastructure) |
-| LS2028 | Every layer | A public module type outside `Contracts/` and the entry type | [Expose only Contracts and the entry point](https://litespec.dev/7.0.0/backend/dotnet/architecture/#expose-only-contracts-and-the-entry-point) |
-| LS3001 | All production projects | An asynchronous method whose name does not end in `Async` | [Reveal asynchrony and cancellation in operation names](https://litespec.dev/7.0.0/workspace/naming/#reveal-asynchrony-and-cancellation-in-operation-names) |
-| LS3002 | All production projects | A `CancellationToken` parameter that is not last or not named `cancellationToken` | [Put the cancellation token last](https://litespec.dev/7.0.0/backend/dotnet/naming/#put-the-cancellation-token-last) |
-| LS3003 | All production projects | A C# file whose name differs from its primary top-level type | [Match C# files and primary types](https://litespec.dev/7.0.0/backend/dotnet/naming/#match-c-files-and-primary-types) |
-| LS3004 | All production projects | A concrete class with no derived type that is not sealed | [Keep implementation style consistent](https://litespec.dev/7.0.0/backend/dotnet/naming/#keep-implementation-style-consistent) |
-| LS3005 | All production projects | A class or struct declaring a primary constructor | [Avoid primary constructors on classes and structs](https://litespec.dev/7.0.0/workspace/naming/#avoid-primary-constructors-on-classes-and-structs) |
+| LS2028 | Every layer | A public module type outside its Contracts project and the entry type | [Expose only Contracts and the entry point](https://litespec.dev/7.0.0/backend/dotnet/architecture/#expose-only-contracts-and-the-entry-point) |
+| LS3001 | Every production layer | An asynchronous method whose name does not end in `Async` | [Reveal asynchrony and cancellation in operation names](https://litespec.dev/7.0.0/workspace/naming/#reveal-asynchrony-and-cancellation-in-operation-names) |
+| LS3002 | Every production layer | A `CancellationToken` parameter that is not last or not named `cancellationToken` | [Put the cancellation token last](https://litespec.dev/7.0.0/backend/dotnet/naming/#put-the-cancellation-token-last) |
+| LS3003 | Every production layer | A C# file whose name differs from its primary top-level type | [Match C# files and primary types](https://litespec.dev/7.0.0/backend/dotnet/naming/#match-c-files-and-primary-types) |
+| LS3004 | Every production layer | A concrete class with no derived type that is not sealed | [Keep implementation style consistent](https://litespec.dev/7.0.0/backend/dotnet/naming/#keep-implementation-style-consistent) |
+| LS3005 | Every production layer | A class or struct declaring a primary constructor | [Avoid primary constructors on classes and structs](https://litespec.dev/7.0.0/workspace/naming/#avoid-primary-constructors-on-classes-and-structs) |
 | LS4001 | Test | A test method that contains no assertion | [Prove Each Scenario Through the Public Boundary](https://litespec.dev/7.0.0/quality/testing/#prove-each-scenario-through-the-public-boundary) |
 | LS5003 | Every layer | A code element with more or fewer marks than its kind takes | [Point code and tests up to records](https://litespec.dev/7.0.0/core/system/#point-code-and-tests-up-to-records) |
 | LS5004 | Every layer | A mark written in the style the project did not declare | [Write each mark in the declared style](https://litespec.dev/7.0.0/backend/dotnet/stack/#write-each-mark-in-the-declared-style) |

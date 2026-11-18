@@ -27,7 +27,7 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "A layer rule runs nothing when the project claims no implementation")]
     public async Task NoImplementationClaimRunsNoLayerRule()
     {
-        var diagnostics = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Domain", Claim(implementation: ""), []);
+        var diagnostics = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Spending/Domain/Source.cs", "Shop.Spending", Claim(implementation: ""), []);
 
         Assert.Empty(diagnostics);
     }
@@ -39,7 +39,7 @@ public sealed class LayerClaimTests
     public async Task NoImplementationClaimRunsNoTraceabilityRule()
     {
         var diagnostics = await AnalyzeAsync<MarkStyleAnalyzer>(
-            HandlerSource(), "Shop.Application", Claim(implementation: ""), [ProjectFile(), UseCase()]);
+            HandlerSource(), "Shop.Spending/Application/Source.cs", "Shop.Spending", Claim(implementation: ""), [ProjectFile(), UseCase()]);
 
         Assert.Empty(diagnostics);
     }
@@ -49,7 +49,7 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "The generator writes no source when the project claims no implementation")]
     public void NoImplementationClaimGeneratesNothing()
     {
-        var result = RunGenerator(Claim(implementation: "", layout: "layer-projects"));
+        var result = RunGenerator(Claim(implementation: ""));
 
         Assert.Empty(result.GeneratedTrees);
         Assert.Empty(result.Diagnostics);
@@ -61,9 +61,9 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "An own implementation runs only the traceability rules")]
     public async Task OwnImplementationRunsOnlyTraceability()
     {
-        var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Domain", Claim(implementation: "own"), []);
+        var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Spending/Domain/Source.cs", "Shop.Spending", Claim(implementation: "own"), []);
         var traceability = await AnalyzeAsync<MarkStyleAnalyzer>(
-            HandlerSource(), "Shop.Application", Claim(implementation: "own"), [ProjectFile(), UseCase()]);
+            HandlerSource(), "Shop.Spending/Application/Source.cs", "Shop.Spending", Claim(implementation: "own"), [ProjectFile(), UseCase()]);
 
         Assert.Empty(layer);
         Assert.Equal(new[] { "LS5004" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
@@ -75,9 +75,9 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "A litespec implementation runs every rule")]
     public async Task LiteSpecImplementationRunsEveryRule()
     {
-        var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Domain", Claim(implementation: "litespec"), []);
+        var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Spending/Domain/Source.cs", "Shop.Spending", Claim(implementation: "litespec"), []);
         var traceability = await AnalyzeAsync<MarkStyleAnalyzer>(
-            HandlerSource(), "Shop.Application", Claim(implementation: "litespec"), [ProjectFile(), UseCase()]);
+            HandlerSource(), "Shop.Spending/Application/Source.cs", "Shop.Spending", Claim(implementation: "litespec"), [ProjectFile(), UseCase()]);
 
         Assert.Equal(new[] { "LS1002" }, layer.Select(diagnostic => diagnostic.Id).ToArray());
         Assert.Equal(new[] { "LS5004" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
@@ -89,9 +89,9 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "A build with no claim reads every layer as litespec")]
     public async Task AbsentClaimRunsEveryRule()
     {
-        var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Domain", Claim(), []);
+        var layer = await AnalyzeAsync<DomainEnumAnalyzer>(EnumSource(), "Shop.Spending/Domain/Source.cs", "Shop.Spending", Claim(), []);
         var traceability = await AnalyzeAsync<MarkStyleAnalyzer>(
-            HandlerSource(), "Shop.Application", Claim(), [ProjectFile(), UseCase()]);
+            HandlerSource(), "Shop.Spending/Application/Source.cs", "Shop.Spending", Claim(), [ProjectFile(), UseCase()]);
 
         Assert.Equal(new[] { "LS1002" }, layer.Select(diagnostic => diagnostic.Id).ToArray());
         Assert.Equal(new[] { "LS5004" }, traceability.Select(diagnostic => diagnostic.Id).ToArray());
@@ -104,7 +104,7 @@ public sealed class LayerClaimTests
     public async Task BuildPropertyOverridesTheProjectFile()
     {
         var diagnostics = await AnalyzeAsync<DomainEnumAnalyzer>(
-            EnumSource(), "Shop.Domain", Claim(implementation: "own"), [LayersFile("litespec")]);
+            EnumSource(), "Shop.Spending/Domain/Source.cs", "Shop.Spending", Claim(implementation: "own"), [LayersFile("litespec")]);
 
         Assert.Empty(diagnostics);
     }
@@ -116,9 +116,9 @@ public sealed class LayerClaimTests
     public async Task ProofClaimRunsTheMarkRuleOnTests()
     {
         var claimed = await AnalyzeAsync<TestAssertionAnalyzer>(
-            UnassertedTestSource(), "Shop.Orders.Tests", Claim(implementation: "", proof: "litespec"), []);
+            UnassertedTestSource(), "Shop.Orders.Tests/Source.cs", "Shop.Orders.Tests", Claim(implementation: "", proof: "litespec"), []);
         var unclaimed = await AnalyzeAsync<TestAssertionAnalyzer>(
-            UnassertedTestSource(), "Shop.Orders.Tests", Claim(implementation: "", proof: ""), []);
+            UnassertedTestSource(), "Shop.Orders.Tests/Source.cs", "Shop.Orders.Tests", Claim(implementation: "", proof: ""), []);
 
         Assert.Equal(new[] { "LS4001" }, claimed.Select(diagnostic => diagnostic.Id).ToArray());
         Assert.Empty(unclaimed);
@@ -129,7 +129,7 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "The generator writes source and reports its traceability diagnostic with an own implementation")]
     public void OwnImplementationGenerates()
     {
-        var result = RunGenerator(Claim(implementation: "own", layout: "layer-projects"));
+        var result = RunGenerator(Claim(implementation: "own"));
 
         Assert.NotEmpty(result.GeneratedTrees);
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Id == "LS5009");
@@ -140,7 +140,7 @@ public sealed class LayerClaimTests
     [Fact(DisplayName = "The generator writes source when the build claims no layers")]
     public void AbsentClaimGenerates()
     {
-        var result = RunGenerator(Claim(layout: "layer-projects"));
+        var result = RunGenerator(Claim());
 
         Assert.NotEmpty(result.GeneratedTrees);
     }
@@ -202,12 +202,11 @@ public sealed class LayerClaimTests
         }
         """;
 
-    /// <summary>A build claim: the implementation and proof values, and the layout, each when the test names one.</summary>
+    /// <summary>A build claim: the implementation and proof values, each when the test names one.</summary>
     /// <param name="implementation">The Implementation value, or null when the build sets none.</param>
     /// <param name="proof">The Proof value, or null when the build sets none.</param>
-    /// <param name="layout">The layout value, or null when the build sets none.</param>
     /// <returns>The build properties.</returns>
-    private static IReadOnlyDictionary<string, string> Claim(string? implementation = null, string? proof = null, string? layout = null)
+    private static IReadOnlyDictionary<string, string> Claim(string? implementation = null, string? proof = null)
     {
         var properties = new Dictionary<string, string>(StringComparer.Ordinal);
         if (implementation is not null)
@@ -218,11 +217,6 @@ public sealed class LayerClaimTests
         if (proof is not null)
         {
             properties[ClaimGate.ProofKey] = proof;
-        }
-
-        if (layout is not null)
-        {
-            properties["build_property.LiteSpecLayout"] = layout;
         }
 
         return properties;
@@ -243,19 +237,21 @@ public sealed class LayerClaimTests
     /// <summary>Runs one analyzer over a source under the build properties.</summary>
     /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
     /// <param name="source">The C# source text to run the analyzer over.</param>
+    /// <param name="path">The file path, whose layer folder places the file.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
     /// <param name="build">The build properties the analyzers read.</param>
     /// <param name="additionalFiles">The additional files, each with its path and text.</param>
     /// <returns>The diagnostics the analyzer reported.</returns>
     private static async Task<ImmutableArray<Diagnostic>> AnalyzeAsync<TAnalyzer>(
         string source,
+        string path,
         string assemblyName,
         IReadOnlyDictionary<string, string> build,
         IReadOnlyList<(string Path, string Source)> additionalFiles)
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         var parseOptions = new CSharpParseOptions(LanguageVersion.Latest, DocumentationMode.Parse);
-        var tree = CSharpSyntaxTree.ParseText(SourceText.From(source, Encoding.UTF8), parseOptions, "Source.cs");
+        var tree = CSharpSyntaxTree.ParseText(SourceText.From(source, Encoding.UTF8), parseOptions, path);
         var compilation = CSharpCompilation.Create(
             assemblyName,
             [tree],
@@ -281,7 +277,7 @@ public sealed class LayerClaimTests
     private static GeneratorDriverRunResult RunGenerator(IReadOnlyDictionary<string, string> build)
     {
         var compilation = GeneratorVerify.CreateCompilation(
-            [("Source.cs", "namespace Shop.Spending; internal sealed class Placeholder;")], "Shop.Domain");
+            [("Source.cs", "namespace Shop.Spending; internal sealed class Placeholder;")], "Shop.Spending");
         var additional = RecordPages.Files(
                 "attribute", ("permissions.yaml", RecordPages.PermissionPage("permission/a-b", "permission/a--b")))
             .Select(file => (AdditionalText)new TestAdditionalText(file.Path, file.Text))
@@ -307,10 +303,15 @@ public sealed class LayerClaimTests
     }
 
     /// <summary>Supplies the build properties a test sets; a property the test leaves out is absent.</summary>
-    private sealed class ClaimOptionsProvider(IReadOnlyDictionary<string, string> build) : AnalyzerConfigOptionsProvider
+    private sealed class ClaimOptionsProvider : AnalyzerConfigOptionsProvider
     {
+        public ClaimOptionsProvider(IReadOnlyDictionary<string, string> build)
+        {
+            GlobalOptions = new BuildOptions(build);
+        }
+
         /// <inheritdoc />
-        public override AnalyzerConfigOptions GlobalOptions { get; } = new BuildOptions(build);
+        public override AnalyzerConfigOptions GlobalOptions { get; }
 
         /// <inheritdoc />
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
@@ -319,8 +320,15 @@ public sealed class LayerClaimTests
         public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => GlobalOptions;
 
         /// <summary>Answers each build property with the value the test set, and reports an unset one as absent.</summary>
-        private sealed class BuildOptions(IReadOnlyDictionary<string, string> build) : AnalyzerConfigOptions
+        private sealed class BuildOptions : AnalyzerConfigOptions
         {
+            private readonly IReadOnlyDictionary<string, string> build;
+
+            public BuildOptions(IReadOnlyDictionary<string, string> build)
+            {
+                this.build = build;
+            }
+
             /// <inheritdoc />
             public override bool TryGetValue(string key, out string value)
             {
@@ -337,13 +345,19 @@ public sealed class LayerClaimTests
     }
 
     /// <summary>An additional file by path and text, for record pages and the project file.</summary>
-    private sealed class TestAdditionalText(string path, string source) : AdditionalText
+    private sealed class TestAdditionalText : AdditionalText
     {
         /// <summary>The text the file holds.</summary>
-        private readonly SourceText text = SourceText.From(source, Encoding.UTF8);
+        private readonly SourceText text;
+
+        public TestAdditionalText(string path, string source)
+        {
+            Path = path;
+            text = SourceText.From(source, Encoding.UTF8);
+        }
 
         /// <inheritdoc />
-        public override string Path { get; } = path;
+        public override string Path { get; }
 
         /// <inheritdoc />
         public override SourceText? GetText(CancellationToken cancellationToken = default) => text;

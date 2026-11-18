@@ -63,26 +63,17 @@ sealed class ConsumerConfig
     /// <summary>Gets the URI prefix of every problem type, from <c>problemTypeBase</c>; empty when the declaration names none.</summary>
     public string ProblemTypeBase { get; private set; } = "";
 
-    /// <summary>Gets the module projects, one per module, or the Application project under layer-projects, or the single modules project when the project keeps it.</summary>
+    /// <summary>Gets the module and Contracts projects, one of each per module, or the single modules project when the project keeps it.</summary>
     public IReadOnlyList<string> ModulesRoots { get; private set; } = [];
 
     /// <summary>Gets the first module project, for callers outside the model that still read a single root.</summary>
     public string ModulesRoot => ModulesRoots.Count > 0 ? ModulesRoots[0] : "";
 
-    /// <summary>Gets the Domain project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
-    public string DomainRoot { get; private set; } = "";
-
     /// <summary>Gets the WebApi host projects, in declaration order.</summary>
     public IReadOnlyList<string> WebApiRoots { get; private set; } = [];
 
-    /// <summary>Gets the Infrastructure project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
-    public string InfrastructureRoot { get; private set; } = "";
-
     /// <summary>Gets the background worker host projects, in declaration order.</summary>
     public IReadOnlyList<string> WorkerRoots { get; private set; } = [];
-
-    /// <summary>Gets a value indicating whether the project selects the layer-projects extension, so the five project roots apply.</summary>
-    public bool IsLayerProjects { get; private set; }
 
     /// <summary>Gets the Kernel project holding the business values every module speaks.</summary>
     public string KernelRoot { get; private set; } = "";
@@ -183,7 +174,6 @@ sealed class ConsumerConfig
         var paths = ObjectAt(document, "paths");
         var dotnet = ObjectAt(ObjectAt(document, "stackConfig"), "dotnet");
         var problems = new List<Finding>();
-        var layerProjects = SelectsExtension(document, "layer-projects");
         var selectsDotnet = SelectsDotnet(document);
 
         void ReportMissing(string field, string pattern, string resolved, bool declared)
@@ -200,16 +190,6 @@ sealed class ConsumerConfig
                 Reader = Finding.RoslynReader,
                 ReaderIsQualified = true,
             });
-        }
-
-        string DeclaredRootOrEmpty(string field)
-        {
-            if (StringAt(dotnet, field) is { } pattern)
-            {
-                return DeclaredRoot(field, pattern, reportDefault: false);
-            }
-
-            return "";
         }
 
         string DeclaredRoot(string field, string fallback, bool reportDefault)
@@ -296,7 +276,7 @@ sealed class ConsumerConfig
         config.GlossaryPath = Native(projectPaths.GlossaryPath);
         config.UiPatternCatalog = Combine(config.Root, ReadString(paths, "uiPatterns", CatalogChecks.DefaultCatalog));
         config.BehaviorDocs = Native(projectPaths.BehaviorDocs);
-        var modulesFallback = layerProjects ? "apps/api/src/*.Application" : "apps/api/src/Modules/*";
+        var modulesFallback = "apps/api/src/Modules/*";
         config.ModulesRoots = DeclaredRoots("modules", modulesFallback);
 
         var modulesMissing = selectsDotnet
@@ -309,12 +289,10 @@ sealed class ConsumerConfig
             ReportMissing("modules", modulesFallback, resolved, declared: false);
         }
 
-        config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain", reportDefault: true) : DeclaredRootOrEmpty("domain");
         config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi");
-        config.InfrastructureRoot = layerProjects ? DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure", reportDefault: true) : DeclaredRootOrEmpty("infrastructure");
         config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker");
-        config.KernelRoot = layerProjects ? DeclaredRootOrEmpty("kernel") : DeclaredRoot("kernel", "apps/api/src/*.Kernel", reportDefault: false);
-        config.PlatformRoot = layerProjects ? DeclaredRootOrEmpty("platform") : DeclaredRoot("platform", "apps/api/src/*.Platform", reportDefault: false);
+        config.KernelRoot = DeclaredRoot("kernel", "apps/api/src/*.Kernel", reportDefault: false);
+        config.PlatformRoot = DeclaredRoot("platform", "apps/api/src/*.Platform", reportDefault: false);
 
         if (StringAt(dotnet, "templateStore") is { } storePath)
         {
@@ -374,7 +352,6 @@ sealed class ConsumerConfig
             }
 
             config.Extensions = ids;
-            config.IsLayerProjects = ids.Contains("layer-projects", StringComparer.Ordinal);
         }
 
         if (ObjectAt(document, "proof") is { } proof)
@@ -444,33 +421,6 @@ sealed class ConsumerConfig
     /// <returns>The string, or null.</returns>
     private static string? StringAt(JsonNode? node, string field) =>
         node is JsonObject container && JsonValues.AsString(container[field]) is { Length: > 0 } text ? text : null;
-
-    /// <summary>Whether the declaration selects the extension id in selectedExtensions.</summary>
-    /// <param name="root">The declaration root object.</param>
-    /// <param name="id">The extension id to test for.</param>
-    /// <returns>True when selectedExtensions names the id as a string or an object with that id.</returns>
-    private static bool SelectsExtension(JsonObject root, string id)
-    {
-        if (root["selectedExtensions"] is not JsonArray extensions)
-        {
-            return false;
-        }
-
-        foreach (var entry in extensions)
-        {
-            if (JsonValues.AsString(entry) == id)
-            {
-                return true;
-            }
-
-            if (entry is JsonObject container && JsonValues.PropString(container, "id") == id)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     /// <summary>Whether the declaration selects a stack whose sources the .NET reader reads.</summary>
     /// <param name="root">The declaration root object.</param>

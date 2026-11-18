@@ -549,7 +549,7 @@ A runtime value a record already states, such as an event classification or a re
 
 ### Where Code and Tests Sit
 
-Backend code follows the module layout (module, then aggregate, then use case, in one tree), or the five project trees under the `layer-projects` extension. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout`, whose aggregate is `payout`, sits in `{Product}/Finance/Payout/RequestPayout/`, or in `{Product}.Application/Finance/Payout/RequestPayout/` under `layer-projects`.
+Backend code follows the module layout: one `Contracts/` folder, one `Domain/` folder holding one folder per aggregate, and the `Application/`, `Infrastructure/`, and `WebApi/` layer folders holding one folder per use case they serve, in one tree. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout` sits in `{Product}/Finance/Application/RequestPayout/`.
 
 Tests mirror the code they prove, with the same check: a test marking a scenario sits under the folder path of the scenario's use case.
 

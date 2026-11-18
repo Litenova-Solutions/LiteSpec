@@ -12,7 +12,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 accepts a file named after its type")]
     public Task AcceptsAFileNamedAfterItsType() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("OrderId.cs", """
+            [("Shop.Spending/Domain/OrderId.cs", """
                 using System;
 
                 namespace Shop.Orders;
@@ -26,7 +26,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 reports a type that differs from its file")]
     public Task ReportsATypeThatDiffersFromItsFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.cs", """
+            [("Shop.Spending/Domain/Order.cs", """
                 namespace Shop.Orders;
 
                 public sealed class {|LS3003:Customer|} { }
@@ -38,7 +38,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 reports the second and later types")]
     public Task ReportsTheSecondAndLaterTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.cs", """
+            [("Shop.Spending/Domain/Order.cs", """
                 namespace Shop.Orders
                 {
                     public sealed class Order { }
@@ -55,7 +55,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 reports the first type too when it differs from its file")]
     public Task ReportsTheFirstTypeTooWhenItDiffersFromItsFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.cs", """
+            [("Shop.Spending/Domain/Order.cs", """
                 namespace Shop.Orders;
 
                 public sealed class {|LS3003:Customer|} { }
@@ -69,7 +69,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 ignores a file-scoped companion of the primary type")]
     public Task IgnoresAFileScopedCompanionOfThePrimaryType() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.cs", """
+            [("Shop.Spending/Domain/Order.cs", """
                 namespace Shop.Orders;
 
                 public sealed class Order { }
@@ -83,7 +83,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 accepts a partial class in a dotted file")]
     public Task AcceptsAPartialClassInADottedFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.Validation.cs", """
+            [("Shop.Spending/Domain/Order.Validation.cs", """
                 namespace Shop.Orders;
 
                 public sealed partial class Order
@@ -99,7 +99,7 @@ public sealed class FileTypeNameAnalyzerTests
     public Task AcceptsPartialDeclarationsOfOneTypeAcrossFiles() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
             [
-                ("Order.cs", """
+                ("Shop.Spending/Domain/Order.cs", """
                     namespace Shop.Orders;
 
                     public sealed partial class Order
@@ -107,7 +107,7 @@ public sealed class FileTypeNameAnalyzerTests
                         public int Id { get; }
                     }
                     """),
-                ("Order.Validation.cs", """
+                ("Shop.Spending/Domain/Order.Validation.cs", """
                     namespace Shop.Orders;
 
                     public sealed partial class Order
@@ -123,7 +123,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 ignores nested types")]
     public Task IgnoresNestedTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.cs", """
+            [("Shop.Spending/Domain/Order.cs", """
                 namespace Shop.Orders;
 
                 public sealed class Order
@@ -138,7 +138,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 ignores a file with no types")]
     public Task IgnoresAFileWithNoTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Usings.cs", """
+            [("Shop.Spending/Domain/Usings.cs", """
                 global using System;
                 global using System.Threading.Tasks;
                 """)]);
@@ -149,7 +149,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 ignores generic arity in the type name")]
     public Task IgnoresGenericArityInTheTypeName() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Cache.cs", """
+            [("Shop.Spending/Domain/Cache.cs", """
                 namespace Shop.Orders;
 
                 public sealed class Cache<T> { }
@@ -161,7 +161,7 @@ public sealed class FileTypeNameAnalyzerTests
     [Fact(DisplayName = "LS3003 reports a delegate that differs from its file")]
     public Task ReportsADelegateThatDiffersFromItsFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.cs", """
+            [("Shop.Spending/Domain/Order.cs", """
                 namespace Shop.Orders;
 
                 public delegate void {|LS3003:OrderPlaced|}(int orderId);
@@ -174,23 +174,23 @@ public sealed class FileTypeNameAnalyzerTests
     public Task AcceptsOneMatchingTypePerFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
             [
-                ("Order.cs", """
+                ("Shop.Spending/Domain/Order.cs", """
                     namespace Shop.Orders;
 
                     public sealed class Order { }
                     """),
-                ("Customer.cs", """
+                ("Shop.Spending/Domain/Customer.cs", """
                     namespace Shop.Orders;
 
                     public sealed class Customer { }
                     """),
             ]);
 
-    /// <summary>LS3003 ignores a breach outside the five projects.</summary>
+    /// <summary>LS3003 ignores a breach in a file the layer rules cannot place.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
-    [Fact(DisplayName = "LS3003 ignores a breach outside the five projects")]
-    public Task IgnoresABreachOutsideTheFiveProjects() =>
+    [Fact(DisplayName = "LS3003 ignores a breach in a file the layer rules cannot place")]
+    public Task IgnoresABreachInAnUnplacedFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
             [("Order.cs", """
                 namespace Shop.Orders;
@@ -198,15 +198,4 @@ public sealed class FileTypeNameAnalyzerTests
                 public sealed class Customer { }
                 """)], assemblyName: "Shop.Unknown");
 
-    /// <summary>LS3003 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
-    [Fact(DisplayName = "LS3003 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
-            [("Order.cs", """
-                namespace Shop.Core;
-
-                public sealed class {|LS3003:Customer|} { }
-                """)], assemblyName: "Shop.Core", layer: "WebApi");
 }

@@ -71,11 +71,11 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "Rules for apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
+            "Rules for apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
             result.Output);
         Assert.Contains("Required:", result.Output);
         Assert.Contains("Concern-wide:", result.Output);
@@ -132,7 +132,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Each command MUST implement one use case with one success path", result.Output);
-        Assert.Contains("Each command or query MUST own one use case folder", result.Output);
+        Assert.Contains("Each command or query MUST own one folder named for", result.Output);
     }
 
     /// <summary>A code path in a project that claims no code returns no provisions and says why.</summary>
@@ -205,7 +205,7 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs",
+            "apps/api/src/Modules/Claimwick.Spending/WebApi/SubmitExpense/SubmitExpenseEndpoint.cs",
             "--full");
 
         Assert.Equal(0, result.Status);
@@ -261,21 +261,44 @@ public sealed class RulesCommandTests
         Assert.Contains("Consequences: The handler loads the invoice and the ledger in one call until the split ships.", result.Output);
     }
 
-    /// <summary>A layer-projects endpoint derives its layer from the project name.</summary>
+    /// <summary>A host program derives its layer from the project name.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
-    public void RulesLayeredEndpointUsesProjectName()
+    public void RulesHostProgramUsesProjectName()
     {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Hosts/Demo.WebApi/Program.cs", "sealed class Program;\n");
         var result = TestCli.Run(
             "rules",
-            "--root", TestCli.Fixture("rules-layered"),
-            "apps/api/src/Demo.WebApi/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs");
+            "--root", root.Path,
+            "apps/api/src/Hosts/Demo.WebApi/Program.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "Rules for apps/api/src/Demo.WebApi/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs (stack: dotnet, concern: web-api, artifact: endpoint)",
+            "Rules for apps/api/src/Hosts/Demo.WebApi/Program.cs (stack: dotnet, concern: web-api)",
             result.Output);
-        Assert.Contains("- litespec/backend/api#map-one-operation-per-endpoint:", result.Output);
+    }
+
+    /// <summary>Copies the rules-basic fixture to a temporary root and adds one file.</summary>
+    /// <param name="relative">The added file path, with forward-slash segments.</param>
+    /// <param name="contents">The added file contents.</param>
+    /// <returns>The temporary consumer root.</returns>
+    static TempFolder CopyFixtureWithFile(string relative, string contents)
+    {
+        var source = TestCli.Fixture("rules-basic");
+        var temp = TestCli.Temp("rules-host");
+
+        foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(temp.Path, Path.GetRelativePath(source, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target, overwrite: true);
+        }
+
+        var added = Path.Combine(temp.Path, relative.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(Path.GetDirectoryName(added)!);
+        File.WriteAllText(added, contents);
+        return temp;
     }
 
     /// <summary>Copies one fixture to a temporary root with its layer claim replaced.</summary>

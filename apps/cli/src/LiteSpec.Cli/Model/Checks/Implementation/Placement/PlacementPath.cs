@@ -52,7 +52,7 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
 
     /// <summary>
     ///     Where a reaction or job trigger's code lives, read from its record's effects in this order: the use case it
-    ///     runs, its Application folder; else the first notification it sends; else the first external system it calls.
+    ///     runs, its folder under Application; else the first notification it sends; else the first external system it calls.
     /// </summary>
     /// <param name="record">The reaction or job record whose effects are read.</param>
     /// <returns>The container folder and the PascalCase folder name under it, or null when the trigger names no effect.</returns>
@@ -61,7 +61,7 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
     {
         if (FirstNameOf(record.EdgeIds(RecordFields.Runs)) is { } run)
         {
-            return new("UseCases", Naming.Pascal(run));
+            return new("Application", Naming.Pascal(run));
         }
 
         if (FirstNameOf(record.EdgeIds(RecordFields.Sends)) is { } sent)
@@ -80,7 +80,7 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
     /// <summary>The folder name a read model takes under its module ReadModels folder: the PascalCase plural of the read model name.</summary>
     /// <param name="name">The read model name segment of its identifier, such as reimbursed-expense.</param>
     /// <returns>The plural folder name, such as ReimbursedExpenses.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</follows>
+    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
     internal static string ReadModelFolderOf(string name)
     {
         var pascal = Naming.Pascal(name);

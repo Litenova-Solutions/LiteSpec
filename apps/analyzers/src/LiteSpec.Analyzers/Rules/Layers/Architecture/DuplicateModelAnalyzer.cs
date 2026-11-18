@@ -44,10 +44,10 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
         var records = new List<INamedTypeSymbol>();
         CollectTypes(context.Compilation.Assembly.GlobalNamespace, records);
 
-        var groups = new Dictionary<string, List<SliceRecord>>(StringComparer.Ordinal);
+        var groups = new Dictionary<string, List<UseCaseRecord>>(StringComparer.Ordinal);
         foreach (var record in records)
         {
-            if (!IsSliceRecord(record, scope, map))
+            if (!IsUseCaseRecord(record, scope, map))
             {
                 continue;
             }
@@ -55,11 +55,11 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
             var key = KeyOf(record, map);
             if (!groups.TryGetValue(key, out var group))
             {
-                group = new List<SliceRecord>();
+                group = new List<UseCaseRecord>();
                 groups[key] = group;
             }
 
-            group.Add(new SliceRecord(record, FirstSourceFile(record)!, map.SliceOf(FirstSourceFile(record)!)!));
+            group.Add(new UseCaseRecord(record, FirstSourceFile(record)!, map.UseCaseOf(FirstSourceFile(record)!)!));
         }
 
         foreach (var group in groups.Values)
@@ -82,7 +82,7 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
             for (var index = 1; index < group.Count; index++)
             {
                 var duplicate = group[index];
-                if (duplicate.Slice.Equals(keeper.Slice, StringComparison.Ordinal))
+                if (duplicate.UseCase.Equals(keeper.UseCase, StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -91,8 +91,8 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
                     Descriptors.LS2026,
                     duplicate.Record.Locations[0],
                     duplicate.Record.Name,
-                    CodeMap.FolderName(duplicate.Slice),
-                    CodeMap.FolderName(keeper.Slice),
+                    CodeMap.FolderName(duplicate.UseCase),
+                    CodeMap.FolderName(keeper.UseCase),
                     fix));
             }
         }
@@ -162,8 +162,8 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
     /// <param name="record">The type under inspection.</param>
     /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="map">The architectural home of every source file.</param>
-    /// <returns>True when the record sits in a slice of a production layer.</returns>
-    private static bool IsSliceRecord(INamedTypeSymbol record, FileScope scope, CodeMap map)
+    /// <returns>True when the record sits in a use case of a production layer.</returns>
+    private static bool IsUseCaseRecord(INamedTypeSymbol record, FileScope scope, CodeMap map)
     {
         if (!record.IsRecord || record.IsImplicitlyDeclared || record.DeclaringSyntaxReferences.Length == 0)
         {
@@ -172,7 +172,7 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
 
         return scope.AppliesTo(record)
             && FirstSourceFile(record) is string file
-            && map.SliceOf(file) is not null;
+            && map.UseCaseOf(file) is not null;
     }
 
     /// <summary>Returns the group key: the module, the simple name and the member signature.</summary>
@@ -288,18 +288,18 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
         return null;
     }
 
-    /// <summary>One record declared in a use case folder: its symbol, file and slice.</summary>
-    private sealed class SliceRecord
+    /// <summary>One record declared in a use case folder: its symbol, file and use case key.</summary>
+    private sealed class UseCaseRecord
     {
-        /// <summary>Initializes a new instance of the <see cref="SliceRecord"/> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="UseCaseRecord"/> class.</summary>
         /// <param name="record">The record symbol.</param>
         /// <param name="file">The source file declaring the record.</param>
-        /// <param name="slice">The use case folder holding the file.</param>
-        public SliceRecord(INamedTypeSymbol record, string file, string slice)
+        /// <param name="useCase">The use case key holding the file.</param>
+        public UseCaseRecord(INamedTypeSymbol record, string file, string useCase)
         {
             Record = record;
             File = file;
-            Slice = slice;
+            UseCase = useCase;
         }
 
         /// <summary>Gets the record symbol.</summary>
@@ -308,7 +308,7 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
         /// <summary>Gets the source file declaring the record.</summary>
         public string File { get; }
 
-        /// <summary>Gets the use case folder holding the file.</summary>
-        public string Slice { get; }
+        /// <summary>Gets the use case key holding the file.</summary>
+        public string UseCase { get; }
     }
 }

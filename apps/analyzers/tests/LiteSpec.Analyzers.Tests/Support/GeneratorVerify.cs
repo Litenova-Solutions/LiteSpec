@@ -21,24 +21,16 @@ internal static class GeneratorVerify
     /// <param name="sources">The C# sources with their file paths.</param>
     /// <param name="additionalFiles">The additional files with their file paths.</param>
     /// <param name="assemblyName">The compilation assembly name.</param>
-    /// <param name="layer">The declared LiteSpecLayer property, or null to read the assembly name.</param>
     /// <param name="extraReferences">Further metadata references, such as xUnit.</param>
-    /// <param name="layout">
-    ///     The declared layout name. When null, an assembly named for a layer (<c>Shop.Domain</c>,
-    ///     <c>Shop.WebApi</c>) is a layer-projects project, and any other assembly reads the module layout.
-    /// </param>
     /// <returns>The run outcome.</returns>
     public static GeneratorRun Run(
         IReadOnlyList<(string Path, string Source)> sources,
         IReadOnlyList<(string Path, string Text)> additionalFiles,
-        string assemblyName = "Shop.Domain",
-        string? layer = null,
-        IEnumerable<MetadataReference>? extraReferences = null,
-        string? layout = null)
+        string assemblyName = "Shop.Spending",
+        IEnumerable<MetadataReference>? extraReferences = null)
     {
-        layout ??= LiteSpec.Model.ArchitectureLayerResolver.FromAssemblyName(assemblyName) != LiteSpec.Model.ArchitectureLayer.None ? "layer-projects" : null;
         var compilation = CreateCompilation(sources, assemblyName, extraReferences);
-        var result = RunToResult(CreateDriver(additionalFiles, layer, layout), compilation);
+        var result = RunToResult(CreateDriver(additionalFiles), compilation);
         var generated = new Dictionary<string, string>(StringComparer.Ordinal);
 
         foreach (var item in result.Results)
@@ -101,13 +93,11 @@ internal static class GeneratorVerify
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
     }
 
-    /// <summary>Creates the generator driver with the additional files and the declared layer.</summary>
+    /// <summary>Creates the generator driver with the additional files.</summary>
     /// <param name="additionalFiles">The additional files with their file paths.</param>
-    /// <param name="layer">The declared LiteSpecLayer property, or null to read the assembly name.</param>
-    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
     /// <returns>The driver.</returns>
     public static GeneratorDriver CreateDriver(
-        IReadOnlyList<(string Path, string Text)> additionalFiles, string? layer, string? layout = null)
+        IReadOnlyList<(string Path, string Text)> additionalFiles)
     {
         var texts = new List<AdditionalText>();
 
@@ -120,7 +110,7 @@ internal static class GeneratorVerify
             [new LiteSpecGenerator().AsSourceGenerator()],
             additionalTexts: texts,
             parseOptions: new CSharpParseOptions(LanguageVersion.Latest, DocumentationMode.Parse),
-            optionsProvider: new GlobalOptionsProvider(layer, layout),
+            optionsProvider: new GlobalOptionsProvider(),
             driverOptions: new GeneratorDriverOptions(IncrementalGeneratorOutputKind.None, trackIncrementalGeneratorSteps: true));
     }
 
@@ -143,42 +133,36 @@ internal static class GeneratorVerify
     }
 
     /// <summary>An additional file held in memory.</summary>
-    private sealed class TestAdditionalText(string path, string text) : AdditionalText
+    private sealed class TestAdditionalText : AdditionalText
     {
-        private readonly SourceText source = SourceText.From(text, Encoding.UTF8);
+        private readonly SourceText source;
+
+        public TestAdditionalText(string path, string text)
+        {
+            Path = path;
+            source = SourceText.From(text, Encoding.UTF8);
+        }
 
         /// <inheritdoc />
-        public override string Path { get; } = path;
+        public override string Path { get; }
 
         /// <inheritdoc />
         public override SourceText? GetText(CancellationToken cancellationToken = default) => source;
     }
 
-    /// <summary>Supplies the declared build properties when a test sets them.</summary>
-    private sealed class GlobalOptionsProvider(string? layer, string? layout) : AnalyzerConfigOptionsProvider
+    /// <summary>Supplies no build property: generator tests set none.</summary>
+    private sealed class GlobalOptionsProvider : AnalyzerConfigOptionsProvider
     {
-        public override AnalyzerConfigOptions GlobalOptions { get; } = new Options(layer, layout);
+        public override AnalyzerConfigOptions GlobalOptions { get; } = new Options();
 
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
 
         public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => GlobalOptions;
 
-        private sealed class Options(string? layer, string? layout) : AnalyzerConfigOptions
+        private sealed class Options : AnalyzerConfigOptions
         {
             public override bool TryGetValue(string key, out string value)
             {
-                if (layer is not null && key == "build_property.LiteSpecLayer")
-                {
-                    value = layer;
-                    return true;
-                }
-
-                if (layout is not null && key == "build_property.LiteSpecLayout")
-                {
-                    value = layout;
-                    return true;
-                }
-
                 value = string.Empty;
                 return false;
             }

@@ -16,17 +16,17 @@ public sealed class PartCheckTests
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        var root = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans", "Loan.cs");
-        var state = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans", "LoanState.cs");
+        var root = Path.Combine(temp.Path, "src", "Modules", "Library.Lending", "Domain", "Loans", "Loan.cs");
+        var state = Path.Combine(temp.Path, "src", "Modules", "Library.Lending", "Domain", "Loans", "LoanState.cs");
         AddRoot(model, root, "Loan", "aggregate/lending.loan");
-        AddType(model, state, "LoanState", "Library.Domain.Lending.Loans", 3, false);
+        AddType(model, state, "LoanState", "Library.Lending.Domain.Loans", 3, false);
 
         Assert.DoesNotContain("part-parent-missing", TestModel.Codes(model));
 
         Parts.Compute(model);
 
-        Assert.Contains("src/Domain/Lending/Loans/LoanState.cs:LoanState", model.Parts["aggregate/lending.loan"]);
-        Assert.Contains("src/Domain/Lending/Loans/LoanState.cs:LoanState", model.ToJson());
+        Assert.Contains("src/Modules/Library.Lending/Domain/Loans/LoanState.cs:LoanState", model.Parts["aggregate/lending.loan"]);
+        Assert.Contains("src/Modules/Library.Lending/Domain/Loans/LoanState.cs:LoanState", model.ToJson());
     }
 
     /// <summary>Type In A Subfolder Of The Aggregate Folder Passes.</summary>
@@ -37,10 +37,10 @@ public sealed class PartCheckTests
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        var root = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans", "Loan.cs");
-        var state = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans", "States", "LoanState.cs");
+        var root = Path.Combine(temp.Path, "src", "Modules", "Library.Lending", "Domain", "Loans", "Loan.cs");
+        var state = Path.Combine(temp.Path, "src", "Modules", "Library.Lending", "Domain", "Loans", "States", "LoanState.cs");
         AddRoot(model, root, "Loan", "aggregate/lending.loan");
-        AddType(model, state, "LoanState", "Library.Domain.Lending.Loans.States", 3, false);
+        AddType(model, state, "LoanState", "Library.Lending.Domain.Loans.States", 3, false);
 
         Assert.DoesNotContain("part-parent-missing", TestModel.Codes(model));
     }
@@ -53,15 +53,15 @@ public sealed class PartCheckTests
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        var file = Path.Combine(temp.Path, "src", "Domain", "Lending", "Copies", "CopyTitle.cs");
-        AddType(model, file, "CopyTitle", "Library.Domain.Lending.Copies", 3, false);
+        var file = Path.Combine(temp.Path, "src", "Modules", "Library.Lending", "Domain", "Copies", "CopyTitle.cs");
+        AddType(model, file, "CopyTitle", "Library.Lending.Domain.Copies", 3, false);
 
         var finding = Assert.Single(
             Checker.Check(model).Findings,
             found => found.Code == "part-parent-missing");
 
         Assert.Equal(
-            "Domain type 'CopyTitle' sits in 'src/Domain/Lending/Copies', which holds no aggregate root and is not the Kernel.",
+            "Domain type 'CopyTitle' sits in 'src/Modules/Library.Lending/Domain/Copies', which holds no aggregate root and is not the Kernel.",
             finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(3, finding.Line);
@@ -94,8 +94,8 @@ public sealed class PartCheckTests
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        var file = Path.Combine(temp.Path, "src", "Domain", "Lending", "Copies", "CopyPricer.cs");
-        AddType(model, file, "CopyPricer", "Library.Domain.Lending.Copies", 5, true);
+        var file = Path.Combine(temp.Path, "src", "Modules", "Library.Lending", "Domain", "Copies", "CopyPricer.cs");
+        AddType(model, file, "CopyPricer", "Library.Lending.Domain.Copies", 5, true);
 
         Assert.DoesNotContain("part-parent-missing", TestModel.Codes(model));
 
@@ -112,38 +112,18 @@ public sealed class PartCheckTests
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        var folder = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans");
+        var folder = Path.Combine(temp.Path, "src", "Modules", "Library.Lending", "Domain", "Loans");
         AddRoot(model, Path.Combine(folder, "Loan.cs"), "Loan", "aggregate/lending.loan");
         AddRoot(model, Path.Combine(folder, "Copy.cs"), "Copy", "aggregate/lending.copy");
-        AddType(model, Path.Combine(folder, "LoanState.cs"), "LoanState", "Library.Domain.Lending.Loans", 3, false);
+        AddType(model, Path.Combine(folder, "LoanState.cs"), "LoanState", "Library.Lending.Domain.Loans", 3, false);
 
         Assert.Contains("part-parent-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Type At The Domain Root With No Kernel Belongs To The Kernel.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
-    [Fact]
-    public void TypeAtTheDomainRootWithNoKernelBelongsToTheKernel()
-    {
-        using var temp = TestCli.Temp("checks");
-        File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.yaml"),
-            """{"stackConfig": {"dotnet": {"domain": "src/Domain"}}}""");
-        var model = TestModel.Model(TestModel.Config(temp.Path));
-        var file = Path.Combine(temp.Path, "src", "Domain", "AuditStamp.cs");
-        AddType(model, file, "AuditStamp", "Library.Domain", 3, false);
-
-        Assert.DoesNotContain("part-parent-missing", TestModel.Codes(model));
-
-        Parts.Compute(model);
-
-        Assert.Contains("src/Domain/AuditStamp.cs:AuditStamp", model.Parts["kernel"]);
     }
 
     static void WriteProject(string root) =>
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
-            """{"stackConfig": {"dotnet": {"domain": "src/Domain", "kernel": "src/Library.Kernel"}}}""");
+            """{"stackConfig": {"dotnet": {"modules": "src/Modules/Library.Lending", "kernel": "src/Library.Kernel"}}}""");
 
     static void AddRoot(ProjectModel model, string file, string root, string aggregate, int line = 5) =>
         model.Code.Elements.Add(new MarkedElement(

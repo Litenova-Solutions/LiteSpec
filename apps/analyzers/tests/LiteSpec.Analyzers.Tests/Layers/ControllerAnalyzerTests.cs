@@ -149,24 +149,6 @@ public sealed class ControllerAnalyzerTests
             {
                 public sealed class OrdersController : ControllerBase { }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
-    /// <summary>LS2003 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
-    [Fact(DisplayName = "LS2003 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<ControllerAnalyzer>("""
-            using Microsoft.AspNetCore.Mvc;
-
-            namespace Microsoft.AspNetCore.Mvc
-            {
-                public abstract class ControllerBase { }
-            }
-
-            namespace Shop.Core
-            {
-                public sealed class {|LS2003:OrdersController|} : ControllerBase { }
-            }
-            """, assemblyName: "Shop.Core", layer: "WebApi");
 }

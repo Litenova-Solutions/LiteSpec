@@ -79,11 +79,11 @@ public sealed class AggregateAccessAnalyzerTests
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
                 ("Claimwick.Spending/Domain/Expense/Expense.cs", Root),
                 ("Claimwick.Spending/Domain/Expense/ExpenseLine.cs", Line),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Domain;
                     using Claimwick.Spending.Domain.Expense;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandHandler
                     {
@@ -124,10 +124,10 @@ public sealed class AggregateAccessAnalyzerTests
 
                     public sealed record ExpenseLineInput(int Quantity);
                     """),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Domain.Expense.Inputs;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandHandler
                     {
@@ -149,11 +149,11 @@ public sealed class AggregateAccessAnalyzerTests
             [
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
                 ("Claimwick.Spending/Domain/Expense/Expense.cs", Root),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Domain;
                     using Claimwick.Spending.Domain.Expense;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandHandler
                     {
@@ -189,10 +189,10 @@ public sealed class AggregateAccessAnalyzerTests
                     {
                     }
                     """),
-                ("Claimwick.Spending/UseCases/CloseExpense/Application/CloseExpenseCommandHandler.cs", """
+                ("Claimwick.Spending/Application/CloseExpense/CloseExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Domain.Expense;
 
-                    namespace Claimwick.Spending.UseCases.CloseExpense;
+                    namespace Claimwick.Spending.Application.CloseExpense;
 
                     internal sealed class CloseExpenseCommandHandler
                     {
@@ -246,10 +246,10 @@ public sealed class AggregateAccessAnalyzerTests
                 ("Claimwick.Spending/Domain/Stubs.cs", Stubs),
                 ("Claimwick.Spending/Domain/Expense/Expense.cs", RootWithInput),
                 ("Claimwick.Spending/Domain/Expense/ExpenseLineInput.cs", Input),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Domain.Expense;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandHandler
                     {
@@ -283,11 +283,11 @@ public sealed class AggregateAccessAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Domain;
                     using Claimwick.Spending.Domain.Expense;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandHandler
                     {
@@ -301,21 +301,21 @@ public sealed class AggregateAccessAnalyzerTests
             ],
             assemblyName: "Claimwick.Spending");
 
-    /// <summary>LS1014 reports construction from the old modules project layout.</summary>
+    /// <summary>LS1014 reports construction from the one-modules-project deviation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
-    [Fact(DisplayName = "LS1014 reports construction from the old modules project layout")]
+    [Fact(DisplayName = "LS1014 reports construction from the one-modules-project deviation")]
     public Task ReportsConstructionUnderOneModulesProject() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
             [
-                ("Claimwick.Modules/Spending/Stubs.cs", Stubs),
-                ("Claimwick.Modules/Spending/Expense/Domain/Expense.cs", Root),
-                ("Claimwick.Modules/Spending/Expense/Domain/ExpenseLine.cs", Line),
-                ("Claimwick.Modules/Spending/Expense/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs", """
+                ("Claimwick.Modules/Spending/Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Modules/Spending/Domain/Expense/Expense.cs", Root),
+                ("Claimwick.Modules/Spending/Domain/Expense/ExpenseLine.cs", Line),
+                ("Claimwick.Modules/Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
                     using Claimwick.Spending.Domain;
                     using Claimwick.Spending.Domain.Expense;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class SubmitExpenseCommandHandler
                     {

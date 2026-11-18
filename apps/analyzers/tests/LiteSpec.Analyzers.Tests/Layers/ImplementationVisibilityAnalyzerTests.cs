@@ -15,7 +15,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             public sealed class {|LS2001:PlaceOrderCommandHandler|} { }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2001 reports an internal unsealed validator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -26,7 +26,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             internal class {|LS2001:PlaceOrderValidator|} { }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2001 reports a public unsealed repository once.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -37,7 +37,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             public class {|LS2001:OrderRepository|} { }
-            """, assemblyName: "Shop.Infrastructure");
+            """, path: "Shop.Spending/Infrastructure/Source.cs");
 
     /// <summary>LS2001 accepts an internal sealed handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -48,7 +48,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             internal sealed class PlaceOrderCommandHandler { }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2001 accepts an internal static projection.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -59,7 +59,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             internal static class OrderSummaryProjection { }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2001 reports a public static projection.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -70,7 +70,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             public static class {|LS2001:OrderSummaryProjection|} { }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2001 accepts a class without an implementation name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -81,7 +81,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             public sealed class OrderService { }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2001 reports a nested public endpoint.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -133,7 +133,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             public abstract class OrderHandler { }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2001 ignores an implementation type in Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -144,27 +144,6 @@ public sealed class ImplementationVisibilityAnalyzerTests
             namespace Shop.Orders;
 
             public sealed class PlaceOrderCommandHandler { }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS2001 ignores an implementation type in Application.Abstractions.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
-    [Fact(DisplayName = "LS2001 ignores an implementation type in Application.Abstractions")]
-    public Task IgnoresAnImplementationTypeInApplicationAbstractions() =>
-        Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
-            namespace Shop.Orders;
-
-            public sealed class PlaceOrderCommandHandler { }
-            """, assemblyName: "Shop.Application.Abstractions");
-
-    /// <summary>LS2001 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
-    [Fact(DisplayName = "LS2001 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
-            namespace Shop.Core;
-
-            public sealed class {|LS2001:PlaceOrderCommandHandler|} { }
-            """, assemblyName: "Shop.Core", layer: "Application");
 }

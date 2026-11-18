@@ -211,7 +211,7 @@ public sealed class BookDecisionTests
                 Link("apps/api/qa/Loans.cs", "decision/0004-use-postgres"),
                 Link("apps/api/deploy/compose.yaml", "decision/0004-use-postgres"),
                 Link("apps/shop/src/routes/Home.ts", "decision/0004-use-postgres"),
-                Link("apps/api/src/Library.Domain/Lending/Loan.cs", "decision/0004-use-postgres")));
+                Link("apps/api/src/Modules/Library.Lending/Domain/Loan.cs", "decision/0004-use-postgres")));
 
         BookDecisionDetail.AddDecisionConcerns(model, config);
 

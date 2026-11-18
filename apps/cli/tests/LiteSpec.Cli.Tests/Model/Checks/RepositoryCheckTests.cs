@@ -44,15 +44,15 @@ public sealed class RepositoryCheckTests
     {
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "ILoanRepository.cs", """
+            namespace Library.App.Domain.Loans;
 
             public interface ILoanRepository
             {
                 Loan Load(Guid id);
             }
             """);
-        Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Infrastructure"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "src", "App", "Infrastructure"));
         var model = ChangedLoanModel(temp.Path);
         model.Code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
 
@@ -66,16 +66,16 @@ public sealed class RepositoryCheckTests
     {
         using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "ILoanRepository.cs", """
+            namespace Library.App.Domain.Loans;
 
             public interface ILoanRepository
             {
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, "Infrastructure", "LoanRepository.cs", """
-            namespace Library.Infrastructure.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Infrastructure", "Persistence"), "LoanRepository.cs", """
+            namespace Library.App.Infrastructure.Persistence;
 
             public sealed class LoanRepository : ILoanRepository
             {
@@ -101,18 +101,18 @@ public sealed class RepositoryCheckTests
     /// <param name="root">The fixture root folder the interface file sits under.</param>
     /// <returns>The domain type describing the repository interface.</returns>
     static DomainType RepositoryInterface(string root) =>
-        new("ILoanRepository", "Library.Domain.Lending.Loans", Path.Combine(root, "ILoanRepository.cs"), 1, false);
+        new("ILoanRepository", "Library.App.Domain.Loans", Path.Combine(root, "ILoanRepository.cs"), 1, false);
 
     /// <summary>Creates the Infrastructure folder and declares it, so the check reads past the empty-root gate.</summary>
     /// <param name="root">The fixture root folder to create the folder under.</param>
     static void CreateInfrastructure(string root)
     {
-        Directory.CreateDirectory(Path.Combine(root, "apps", "api", "src", "Library.Infrastructure"));
+        Directory.CreateDirectory(Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Infrastructure"));
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "infrastructure": "apps/api/src/Library.Infrastructure"}}}
+              "modules": "apps/api/src/Modules/Library.Lending"}}}
             """);
     }
 
@@ -121,8 +121,7 @@ public sealed class RepositoryCheckTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
+              "modules": "src/App", "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

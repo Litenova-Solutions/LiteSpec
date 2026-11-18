@@ -358,6 +358,12 @@ internal sealed record PathContext(
 
         foreach (var segment in segments)
         {
+            if (segment.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase))
+            {
+                layer = "application";
+                break;
+            }
+
             layer = segment switch
             {
                 "Domain" => "domain",
@@ -379,24 +385,16 @@ internal sealed record PathContext(
         {
             foreach (var segment in segments)
             {
-                if (segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase)
-                    || segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)
+                if (segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)
                     || string.Equals(segment, "Kernel", StringComparison.Ordinal))
                 {
                     layer = "domain";
                     break;
                 }
 
-                if (segment.EndsWith(".Application", StringComparison.OrdinalIgnoreCase)
-                    || segment.EndsWith(".Worker", StringComparison.OrdinalIgnoreCase))
+                if (segment.EndsWith(".Worker", StringComparison.OrdinalIgnoreCase))
                 {
                     layer = "application";
-                    break;
-                }
-
-                if (segment.EndsWith(".Infrastructure", StringComparison.OrdinalIgnoreCase))
-                {
-                    layer = "infrastructure";
                     break;
                 }
 
@@ -492,11 +490,12 @@ internal sealed record PathContext(
             return "job";
         }
 
-        // A reaction is named {Action}On{Fact}Handler. It sits in the Application folder of the use
-        // case it runs, or in the Notifications or ExternalSystems folder of its module when it sends
-        // or calls instead, so the file name and its folder name the reaction.
+        // A reaction is named {Action}On{Fact}Handler. It sits in the use case folder under
+        // Application for the use case it runs, or in the Notifications or ExternalSystems folder
+        // under Application when it sends or calls instead, so the file name and its folder name
+        // the reaction.
         if (ReactionFileName.IsMatch(name)
-            && (segments.Length >= 2 && segments[^2] == "Application"
+            && (HasSegment(segments, "Application")
                 || HasSegment(segments, "Notifications")
                 || HasSegment(segments, "ExternalSystems")))
         {
@@ -504,8 +503,7 @@ internal sealed record PathContext(
         }
 
         if (HasSegment(segments, "Domain") || HasSegment(segments, "Kernel")
-            || segments.Any(segment => segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase)
-                || segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)))
+            || segments.Any(segment => segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)))
         {
             if (text.Contains("AggregateRoot<", StringComparison.Ordinal))
             {

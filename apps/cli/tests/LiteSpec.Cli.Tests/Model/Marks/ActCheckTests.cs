@@ -270,8 +270,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/BorrowCopy/Application/BorrowCopyCommandHandler.cs", """
-                namespace Library.Lending.UseCases.BorrowCopy.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 /// <implements>use-case/lending.borrow-copy</implements>
                 public sealed class BorrowCopyCommandHandler
@@ -292,8 +292,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/RenewLoan/Application/RenewLoanCommandHandler.cs", """
-                namespace Library.Lending.UseCases.RenewLoan.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewLoan/RenewLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.RenewLoan;
 
                 /// <implements>use-case/lending.renew-loan</implements>
                 public sealed class RenewLoanCommandHandler
@@ -319,8 +319,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/ExpireLoans/Application/ExpireLoansCommandHandler.cs", """
-                namespace Library.Lending.UseCases.ExpireLoans.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/ExpireLoans/ExpireLoansCommandHandler.cs", """
+                namespace Library.Lending.Application.ExpireLoans;
 
                 /// <implements>use-case/lending.expire-loans</implements>
                 public sealed class ExpireLoansCommandHandler
@@ -345,8 +345,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/AbandonLoan/Application/AbandonLoanCommandHandler.cs", """
-                namespace Library.Lending.UseCases.AbandonLoan.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/AbandonLoan/AbandonLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.AbandonLoan;
 
                 /// <implements>use-case/lending.abandon-loan</implements>
                 public sealed class AbandonLoanCommandHandler
@@ -519,8 +519,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/BorrowCopy/Application/BorrowCopyCommandHandler.cs", """
-                namespace Library.Lending.UseCases.BorrowCopy.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 /// <implements>use-case/lending.borrow-copy</implements>
                 public sealed class BorrowCopyCommandHandler
@@ -542,8 +542,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/RenewLoan/Application/RenewLoanCommandHandler.cs", """
-                namespace Library.Lending.UseCases.RenewLoan.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewLoan/RenewLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.RenewLoan;
 
                 /// <implements>use-case/lending.renew-loan</implements>
                 public sealed class RenewLoanCommandHandler
@@ -568,8 +568,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/OpenLoan/Application/OpenLoanCommandHandler.cs", """
-                namespace Library.Lending.UseCases.OpenLoan.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/OpenLoan/OpenLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.OpenLoan;
 
                 using LoanAggregate = Library.Lending.Domain.Loan.Loan;
 
@@ -592,8 +592,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Modules/Library.Lending/UseCases/CloseLoan/Application/CloseLoanCommandHandler.cs", """
-                namespace Library.Lending.UseCases.CloseLoan.Application;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/CloseLoan/CloseLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.CloseLoan;
 
                 /// <implements>use-case/lending.close-loan</implements>
                 public sealed class CloseLoanCommandHandler
@@ -660,10 +660,8 @@ public sealed class ActCheckTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -750,15 +748,15 @@ public sealed class ActCheckTests
 
                 A pass issues one borrow command per record.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommand.cs", """
-                namespace Library.Application.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommand.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 public sealed record BorrowCopyCommand(Guid CopyId);
 
                 public sealed record BorrowCopyCommandResult(Guid CopyId);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs", """
-                namespace Library.Application.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 /// <implements>use-case/lending.borrow-copy</implements>
                 public sealed class BorrowCopyCommandHandler
@@ -770,15 +768,15 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/FanOut/FanOutCommand.cs", """
-                namespace Library.Application.Lending.Loans.FanOut;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/FanOut/FanOutCommand.cs", """
+                namespace Library.Lending.Application.FanOut;
 
                 public sealed record FanOutCommand;
 
                 public sealed record FanOutCommandResult(int Issued);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/FanOut/FanOutCommandHandler.cs", """
-                namespace Library.Application.Lending.Loans.FanOut;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/FanOut/FanOutCommandHandler.cs", """
+                namespace Library.Lending.Application.FanOut;
 
                 /// <implements>use-case/lending.fan-out</implements>
                 public sealed class FanOutCommandHandler
@@ -833,10 +831,8 @@ public sealed class ActCheckTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -913,8 +909,8 @@ public sealed class ActCheckTests
 
                 A loan lends one copy to one reader.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Loan.cs", """
-                namespace Library.Domain.Lending.Loans;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Loan.cs", """
+                namespace Library.Lending.Domain.Loans;
 
                 /// <implements>aggregate/lending.loan</implements>
                 public sealed class Loan : AggregateRoot<LoanId>
@@ -927,8 +923,8 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs", """
-                namespace Library.Domain.Lending.Loans.Events;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs", """
+                namespace Library.Lending.Domain.Loans.Events;
 
                 /// <implements>domain-event/loan.loan-borrowed</implements>
                 public sealed record LoanBorrowedEvent(Guid LoanId, Guid ReaderId, DateOnly DueDate) : IDomainEvent;

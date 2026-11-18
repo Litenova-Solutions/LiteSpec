@@ -10,6 +10,7 @@ Rule ID | Category | Severity | Notes
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+LS2017 | LiteSpec.Layers | Error | Descriptors
 LS5001 | LiteSpec.Traceability | Error | Descriptors
 LS5002 | LiteSpec.Traceability | Error | Descriptors
 LS5007 | LiteSpec.Traceability | Error | Descriptors

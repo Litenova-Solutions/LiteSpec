@@ -49,7 +49,7 @@ Then the provisions a tool checks print under `Checked by a tool:`, one line per
 
 Last, the concern-wide provisions, which govern only through the target's concern, print by identifier only under `Concern-wide:`. With `--full`, every returned provision prints as a statement grouped by strength, rationale and example under each item, with no checked or concern-wide shortening.
 
-The layer is read from the layout: the `Domain`, `Application`, `Infrastructure`, and `WebApi` folders, the `Contracts`, `UseCases`, `Notifications`, `ExternalSystems`, and `ReadModels` folders, the role suffix of a use-case file, or the project name under `layer-projects`. A frontend route, module, or frame maps to its frontend layer, a test file to tests, a record file to records, and an operations file to operations.
+The layer is read from the layout: the top folder of the module, one of `Domain`, `Application`, `Infrastructure`, or `WebApi`, with `Contracts`, `Ports`, `Notifications`, `ExternalSystems`, and `ReadModels` read under their parent layer. A file in a `{Product}.{Module}.Contracts` project reads as application. A frontend route, module, or frame maps to its frontend layer, a test file to tests, a record file to records, and an operations file to operations.
 
 The artifact is read from the file's role suffix, its folder, and the records it marks. A record identifier resolves to the records layer with its type's artifact.
 
@@ -83,13 +83,13 @@ The result holds only provisions on pages the consumer's stacks, shape, and sele
 List the provisions that govern a handler before editing it:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
 Read the rationale and example behind each returned statement:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs --full
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs --full
 ```
 
 List the provisions that govern a use case record:
@@ -119,7 +119,7 @@ litespec rules --root ../consumer litespec/backend/application
 Show the decisions behind a renderer:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/UseCases/ExportExpenses/Infrastructure/ReceiptPdfRenderer.cs
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Infrastructure/ExportExpenses/ReceiptPdfRenderer.cs
 ```
 
 ## Underneath

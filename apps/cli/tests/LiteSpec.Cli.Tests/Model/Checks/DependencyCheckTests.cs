@@ -529,7 +529,7 @@ public sealed class DependencyCheckTests
     }
 
     static void WriteFollower(string root) =>
-        Write(root, "apps/api/src/Library.Application/Lending/Loans/ExtraPackageAdapter.cs", FollowerFile("decision/0099-admit-extra-package", "ExtraPackageAdapter"));
+        Write(root, "apps/api/src/Modules/Library.Lending/Application/ExtraPackageAdapter.cs", FollowerFile("decision/0099-admit-extra-package", "ExtraPackageAdapter"));
 
     static void Write(string root, string relative, string text)
     {

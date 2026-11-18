@@ -119,8 +119,7 @@ public sealed class FailLoudTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra", "worker": "src/Worker"}}}
+              "modules": "src/App", "webapi": "src/WebApi", "worker": "src/Worker"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

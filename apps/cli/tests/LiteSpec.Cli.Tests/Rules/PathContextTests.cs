@@ -27,11 +27,11 @@ public sealed class PathContextTests
     public void RulesRepositoryFileDerivesRepositoryArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Demo/Billing/Invoicing/Domain/InvoiceRepository.cs", "sealed class InvoiceRepository;\n");
+            "apps/api/src/Demo/Billing/Domain/Invoicing/InvoiceRepository.cs", "sealed class InvoiceRepository;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/Invoicing/Domain/InvoiceRepository.cs");
+            "apps/api/src/Demo/Billing/Domain/Invoicing/InvoiceRepository.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("concern: domain, artifact: repository", result.Output);
@@ -48,6 +48,22 @@ public sealed class PathContextTests
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: port", result.Output);
+    }
+
+    /// <summary>A port file in a sibling Contracts project derives the application concern with the port artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
+    [Fact]
+    public void RulesSiblingContractsPortFileDerivesPortArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Modules/Demo.Billing.Contracts/Ports/IPayoutBank.cs", "interface IPayoutBank;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Modules/Demo.Billing.Contracts/Ports/IPayoutBank.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("concern: application, artifact: port", result.Output);
@@ -75,11 +91,11 @@ public sealed class PathContextTests
     public void RulesReactionInUseCaseApplicationFolderDerivesReactionArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Demo/Billing/UseCases/SendInvoice/Application/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
+            "apps/api/src/Demo/Billing/Application/SendInvoice/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/UseCases/SendInvoice/Application/NotifyOnInvoiceSentHandler.cs");
+            "apps/api/src/Demo/Billing/Application/SendInvoice/NotifyOnInvoiceSentHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("concern: application, artifact: reaction", result.Output);
@@ -91,11 +107,11 @@ public sealed class PathContextTests
     public void RulesReactionInNotificationsFolderDerivesReactionArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Demo/Billing/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
+            "apps/api/src/Demo/Billing/Application/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs");
+            "apps/api/src/Demo/Billing/Application/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("concern: application, artifact: reaction", result.Output);
@@ -107,11 +123,11 @@ public sealed class PathContextTests
     public void RulesJobInUseCaseApplicationFolderDerivesJobArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Demo/Billing/UseCases/SendReminders/Application/SendRemindersJob.cs", "sealed class SendRemindersJob;\n");
+            "apps/api/src/Demo/Billing/Application/SendReminders/SendRemindersJob.cs", "sealed class SendRemindersJob;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/UseCases/SendReminders/Application/SendRemindersJob.cs");
+            "apps/api/src/Demo/Billing/Application/SendReminders/SendRemindersJob.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("concern: application, artifact: job", result.Output);

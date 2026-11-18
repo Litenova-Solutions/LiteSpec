@@ -13,7 +13,7 @@ public sealed class MarkStyleTests
     [Fact(DisplayName = "LS5004 reports an attribute mark when the project declares xml")]
     public Task ReportsAnAttributeMarkUnderXml() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -34,8 +34,7 @@ public sealed class MarkStyleTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase()],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), UseCase()]);
 
     /// <summary>LS5004 reports a documentation tag when the project declares attribute.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -43,7 +42,7 @@ public sealed class MarkStyleTests
     [Fact(DisplayName = "LS5004 reports a documentation tag when the project declares attribute")]
     public Task ReportsADocumentationTagUnderAttribute() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -59,8 +58,7 @@ public sealed class MarkStyleTests
                 {
                 }
                 """)],
-            [ProjectFile(marks: "attribute"), UseCase()],
-            assemblyName: "Shop.Application");
+            [ProjectFile(marks: "attribute"), UseCase()]);
 
     /// <summary>LS5004 accepts a mark in the declared xml style.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -68,7 +66,7 @@ public sealed class MarkStyleTests
     [Fact(DisplayName = "LS5004 accepts a mark in the declared xml style")]
     public Task AcceptsAMarkInXmlStyle() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -84,8 +82,7 @@ public sealed class MarkStyleTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase()],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), UseCase()]);
 
     /// <summary>LS5004 accepts a mark in the declared attribute style.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -93,7 +90,7 @@ public sealed class MarkStyleTests
     [Fact(DisplayName = "LS5004 accepts a mark in the declared attribute style")]
     public Task AcceptsAMarkInAttributeStyle() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -114,6 +111,5 @@ public sealed class MarkStyleTests
                 {
                 }
                 """)],
-            [ProjectFile(marks: "attribute"), UseCase()],
-            assemblyName: "Shop.Application");
+            [ProjectFile(marks: "attribute"), UseCase()]);
 }

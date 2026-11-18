@@ -59,7 +59,7 @@ A mark is the link between a code element and the record it implements, proves, 
 
 **Strength:** required
 
-**Statement:** The model builder MUST report `reader-missing` for a configured .NET stack root that matches no folder, and for the default modules root, and the default Domain and Infrastructure roots under the layer-projects layout, when that default matches no folder in a project that selects the .NET reader.
+**Statement:** The model builder MUST report `reader-missing` for a configured .NET stack root that matches no folder, and for the default modules root, when that default matches no folder in a project that selects the .NET reader.
 
 **Rationale:** A root that matches no folder reads no source, so the records that source would implement are not gaps in the product. The tool read nothing where it expected code. Reporting the missing root beside the unimplemented findings lets a reader tell a reader gap from a product gap. The WebApi, worker, and shared kernel defaults name hosts and a kernel that a valid project may omit, so a missing default for those roots stays silent. Only a configured host or kernel path reports.
 

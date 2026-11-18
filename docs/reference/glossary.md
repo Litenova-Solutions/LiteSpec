@@ -110,14 +110,6 @@ Home: docs/core/scope.md
 
 Source: LiteSpec.
 
-### Layer Projects
-
-The backend layout with one project per architecture layer, selected through the `layer-projects` extension.
-
-Home: docs/backend/dotnet/ext/layer-projects.md
-
-Source: LiteSpec.
-
 ### Lockfile
 
 The committed file that records the exact resolved dependency versions.
@@ -128,7 +120,7 @@ Source: the package managers.
 
 ### Module Layout
 
-The default backend layout: every module sits in the modules project beside the shared kernel project, with layer folders at each node, one `UseCases/` folder per aggregate and module, and one flat folder per use case inside it.
+The backend layout: one project per module beside the Kernel and Platform projects, with the `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, and `WebApi/` folders at the top of each module, and one folder per use case inside each layer that serves it.
 
 Home: docs/backend/dotnet/architecture.md
 

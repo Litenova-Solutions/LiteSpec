@@ -44,7 +44,7 @@ None.
 
 **Strength:** default
 
-**Default:** Reference `LiteSpec.Analyzers` at the manifest pin, with `PrivateAssets="all"`, from the shared kernel and modules projects and each host project.
+**Default:** Reference `LiteSpec.Analyzers` at the manifest pin, with `PrivateAssets="all"`, from the Kernel, Platform, and module projects and each host project.
 
 **Replacement:** A project names the projects its analyzer run covers in its project documentation.
 
@@ -79,7 +79,7 @@ Then point a local source at the packages folder, with source mapping for `LiteS
 
 A project reference to the analyzer project does not carry its dependency assemblies with it, so the analyzers fail to load. Use the local feed instead.
 
-**Reviewed for:** Does every shared kernel, modules, and host project file reference `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each business and host project file.
+**Reviewed for:** Does every Kernel, Platform, module, and host project file reference `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each business and host project file.
 
 ### Raise the LiteBus Handler Analyzers to Errors
 

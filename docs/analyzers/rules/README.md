@@ -1,6 +1,6 @@
 # Overview
 
-When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 56 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
+When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 55 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
 
 ## Domain Rules
 
@@ -41,7 +41,6 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2028` run across layers
 - [LS2014: Command Handler Finds or Creates](ls2014.md): reports a handler that creates only where its find came back empty.
 - [LS2015: Command Handler Changes Records in a Loop](ls2015.md): reports a handler writing through a repository inside a loop.
 - [LS2016: Handler Takes a Pipeline-Owned Collaborator](ls2016.md): reports a handler taking the unit of work, the outbox, or another listed collaborator.
-- [LS2017: LiteSpecLayer Names No Known Layer](ls2017.md): reports a `LiteSpecLayer` value naming no known layer.
 - [LS2018: File Names a Type Outside Its Layer](ls2018.md): reports an Application or WebApi file naming a type its layer may not use.
 - [LS2019: Use Case Names a Type of Another Use Case](ls2019.md): reports a use case folder naming a type from another use case folder.
 - [LS2020: Module Names a Type Outside Another Module's Contracts](ls2020.md): reports a module naming another module past its `Contracts/` folder.
@@ -49,10 +48,10 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2028` run across layers
 - [LS2022: Event Published by User Code](ls2022.md): reports user code naming the event mediator or an event publisher.
 - [LS2023: Class Implements Two Message Definitions](ls2023.md): reports a class implementing two message definition contracts.
 - [LS2024: Module Holds Platform-Owned Capability Code](ls2024.md): reports serializer, store, guard, or converter code in a module.
-- [LS2025: Use-Case Infrastructure Names a Type Outside Its Slice](ls2025.md): reports use-case `Infrastructure/` naming a Domain or WebApi type.
+- [LS2025: Use-Case Infrastructure Names a Type Outside Its Layer](ls2025.md): reports use-case `Infrastructure/` naming a Domain or WebApi type.
 - [LS2026: Model Duplicated in Two Use Case Folders](ls2026.md): reports a record declared with the same members in two use case folders.
 - [LS2027: Application Does Infrastructure Work](ls2027.md): reports archive, serialization, or document work in Application.
-- [LS2028: Module Exposes a Public Type Outside Contracts](ls2028.md): reports a public module type outside `Contracts/`.
+- [LS2028: Module Exposes a Public Type Outside Contracts](ls2028.md): reports a public type in a module project outside its entry type.
 
 ## Naming and Style Rules
 

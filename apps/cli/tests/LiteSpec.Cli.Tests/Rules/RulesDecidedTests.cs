@@ -14,7 +14,7 @@ public sealed class RulesDecidedTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ExportExpenses/Infrastructure/ReceiptPdfRenderer.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Infrastructure/ExportExpenses/ReceiptPdfRenderer.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Equal("Decided:", OutputLines(result.Output)[1]);
@@ -172,7 +172,7 @@ public sealed class RulesDecidedTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ExportExpenses/Infrastructure/ReceiptPdfRenderer.cs",
+            "apps/api/src/Modules/Claimwick.Spending/Infrastructure/ExportExpenses/ReceiptPdfRenderer.cs",
             "--full");
 
         Assert.Equal(0, result.Status);

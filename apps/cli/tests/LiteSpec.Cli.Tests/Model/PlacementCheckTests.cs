@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model;
 /// <summary>Proves the code placement check against the broken overlay and module-layout models.</summary>
 public sealed class PlacementCheckTests
 {
-    /// <summary>The overlay reports one placement finding per drift: the aggregate folder, the namespace, the test folder and the stray folder.</summary>
+    /// <summary>The overlay reports one placement finding per drift: the handler folder, the namespace, the test folder, the stray module folder and the stray use case folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void BrokenOverlayReportsEachPlacementDriftOnce()
@@ -26,11 +26,12 @@ public sealed class PlacementCheckTests
         ClosedFolderChecks.Run(model, findings);
         var placed = findings.Where(finding => finding.Code == "code-placement-drift").ToList();
 
-        Assert.Equal(4, placed.Count);
+        Assert.Equal(5, placed.Count);
         Assert.Single(placed, finding => finding.Message == "Handler 'BorrowCopyCommandHandler' sits in folder 'Holds', but marks 'use-case/lending.borrow-copy'.");
-        Assert.Single(placed, finding => finding.Message == "Handler 'BorrowCopyRetryHandler' declares namespace 'Library.Application.Billing.Loans.BorrowCopy', but 'use-case/lending.borrow-copy' places it under 'Library.Lending.Loans.BorrowCopy'.");
+        Assert.Single(placed, finding => finding.Message == "Handler 'BorrowCopyRetryHandler' declares namespace 'Library.Billing.BorrowCopy', but 'use-case/lending.borrow-copy' places it under 'Library.Lending.BorrowCopy'.");
         Assert.Single(placed, finding => finding.Message == "Test 'BorrowCopyScenarios.Borrowing_an_available_copy_succeeds' sits in folder 'Holds', but marks 'scenario/borrow-copy.borrowing-an-available-copy-succeeds'.");
-        Assert.Single(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Application/Archive' names no declared module.");
+        Assert.Single(placed, finding => finding.Message == "Folder 'apps/api/src/Modules/Library.Lending/Archive' names no module folder.");
+        Assert.Single(placed, finding => finding.Message == "Folder 'apps/api/src/Modules/Library.Lending/Application/Holds' names no declared use case.");
         Assert.All(placed, finding => Assert.EndsWith(".", finding.Message));
     }
 
@@ -41,7 +42,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -54,7 +55,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Holds", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Application", "Holds", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         var placed = Run(model);
@@ -71,7 +72,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         WriteCode(file, "Library.Billing.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
@@ -89,8 +90,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
-        WriteCode(file, "Library.Lending.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.Application.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -103,7 +104,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Billing", "Invoices", "Domain", "Events", "LoanBorrowedEvent.cs");
+        var file = ProductFile(temp.Path, "Billing", "Domain", "Invoices", "Events", "LoanBorrowedEvent.cs");
         model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "domain-event/loan.loan-borrowed"));
 
         var placed = Run(model);
@@ -134,8 +135,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = TestFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
-        WriteCode(file, "Library.Acceptance.Tests.Lending.UseCases.BorrowCopy", "BorrowCopyScenarios");
+        var file = TestFile(temp.Path, "Lending", "BorrowCopy", "BorrowCopyScenarios.cs");
+        WriteCode(file, "Library.Acceptance.Tests.Lending.BorrowCopy", "BorrowCopyScenarios");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file));
 
         Assert.Empty(Run(model));
@@ -148,7 +149,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = TestFile(temp.Path, "Billing", "Invoices", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
+        var file = TestFile(temp.Path, "Billing", "BorrowCopy", "BorrowCopyScenarios.cs");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file));
 
         var placed = Run(model);
@@ -165,7 +166,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = TestFile(temp.Path, "Billing", "Invoices", "Infrastructure", "TextGatewayTests.cs");
+        var file = TestFile(temp.Path, "Billing", "Infrastructure", "TextGatewayTests.cs");
         model.Code.Elements.Add(TestElement("TextGatewayTests", "Sending_succeeds", file));
 
         Assert.Empty(Run(model));
@@ -196,25 +197,6 @@ public sealed class PlacementCheckTests
 
         Assert.Equal(2, model.Config.WebApiRoots.Count);
         Assert.Empty(Run(model));
-    }
-
-    /// <summary>A folder in the second declared WebApi host under layer projects that names no declared module reports the folder.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
-    [Fact]
-    public void LayerProjectsSecondWebApiHostFolderNamingNoDeclaredModuleReportsPlacementDrift()
-    {
-        using var temp = TestCli.Temp("placement");
-        var model = PlacementModel(
-            temp.Path,
-            modules: "apps/api/src/Library.Application",
-            webapi: "[\"apps/api/src/Library.WebApi\", \"apps/api/src/Library.Search.WebApi\"]");
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Search.WebApi", "Archive"));
-
-        var placed = Run(model);
-
-        Assert.Contains(
-            placed,
-            finding => finding.Message == "Folder 'apps/api/src/Library.Search.WebApi/Archive' names no declared module.");
     }
 
     /// <summary>A frontend module folder that names no declared module reports the module folder.</summary>
@@ -250,7 +232,7 @@ public sealed class PlacementCheckTests
         Directory.CreateDirectory(folder);
         var file = Path.Combine(folder, "litespec.ts");
         model.Code.Elements.Add(new MarkedElement(
-            CodeKind.FrontendModule, "lending/loans/borrow-copy", null, file, 3,
+            CodeKind.FrontendModule, "lending/borrow-copy", null, file, 3,
             [new CodeMark("use-case/lending.borrow-copy", MarkStyle.Typed, MarkVerb.Implements, file, 1)],
             InTests: false));
 
@@ -281,7 +263,7 @@ public sealed class PlacementCheckTests
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Domain", "Loans"));
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "UseCases", "BorrowCopy"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Application", "BorrowCopy"));
 
         Assert.Empty(Run(model));
     }
@@ -293,8 +275,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
-        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyCommandHandler");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.Application.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -307,15 +289,15 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyEndpoint.cs");
-        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyEndpoint");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyEndpoint.cs");
+        WriteCode(file, "Library.Lending.Application.BorrowCopy", "BorrowCopyEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "BorrowCopyEndpoint", file, "use-case/lending.borrow-copy"));
 
         var finding = Assert.Single(Run(model));
         Assert.Contains("BorrowCopyEndpoint.cs' is a transport type, which sits in WebApi/, not Application/.", finding.Message);
     }
 
-    /// <summary>A reaction that only sends a notification, in the module Notifications folder of that notification, reports nothing.</summary>
+    /// <summary>A reaction that only sends a notification, in the Application Notifications folder of that notification, reports nothing.</summary>
     /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void ModuleLayoutSendOnlyReactionInNotificationFolderReportsNothing()
@@ -323,14 +305,14 @@ public sealed class PlacementCheckTests
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         model.Records.Add(WithEffects(Rec(RecordTypes.Reaction, "reaction/lending.notify-reader", "lending/reaction/notify-reader", temp.Path), """[{"sends": "notification/lending.loan-due"}]"""));
-        var file = ProductFile(temp.Path, "Lending", "Notifications", "LoanDue", "NotifyReaderOnLoanBorrowedHandler.cs");
-        WriteCode(file, "Library.Lending.Notifications.LoanDue", "NotifyReaderOnLoanBorrowedHandler");
+        var file = ProductFile(temp.Path, "Lending", "Application", "Notifications", "LoanDue", "NotifyReaderOnLoanBorrowedHandler.cs");
+        WriteCode(file, "Library.Lending.Application.Notifications.LoanDue", "NotifyReaderOnLoanBorrowedHandler");
         model.Code.Elements.Add(Element(CodeKind.EventHandler, "NotifyReaderOnLoanBorrowedHandler", file, "reaction/lending.notify-reader"));
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>A reaction that runs a use case, in a module Notifications folder, reports the use case Application folder it belongs in.</summary>
+    /// <summary>A reaction that runs a use case, in an Application Notifications folder, reports the use case folder it belongs in.</summary>
     /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void ModuleLayoutRunningReactionInNotificationFolderReportsTriggerDrift()
@@ -338,15 +320,15 @@ public sealed class PlacementCheckTests
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         model.Records.Add(WithEffects(Rec(RecordTypes.Reaction, "reaction/lending.notify-reader", "lending/reaction/notify-reader", temp.Path), """[{"runs": "use-case/lending.borrow-copy"}]"""));
-        var file = ProductFile(temp.Path, "Lending", "Notifications", "LoanDue", "NotifyReaderOnLoanBorrowedHandler.cs");
-        WriteCode(file, "Library.Lending.Notifications.LoanDue", "NotifyReaderOnLoanBorrowedHandler");
+        var file = ProductFile(temp.Path, "Lending", "Application", "Notifications", "LoanDue", "NotifyReaderOnLoanBorrowedHandler.cs");
+        WriteCode(file, "Library.Lending.Application.Notifications.LoanDue", "NotifyReaderOnLoanBorrowedHandler");
         model.Code.Elements.Add(Element(CodeKind.EventHandler, "NotifyReaderOnLoanBorrowedHandler", file, "reaction/lending.notify-reader"));
 
         var placed = Run(model);
 
         // The Notifications folder also names no notification, since the reaction now runs a use case.
         Assert.Equal(2, placed.Count);
-        Assert.Contains(placed, finding => finding.Message == "Event handler 'NotifyReaderOnLoanBorrowedHandler' sits in folder 'LoanDue', but its trigger 'reaction/lending.notify-reader' belongs in 'Lending/UseCases/BorrowCopy/Application'.");
+        Assert.Contains(placed, finding => finding.Message == "Event handler 'NotifyReaderOnLoanBorrowedHandler' sits in folder 'LoanDue', but its trigger 'reaction/lending.notify-reader' belongs in 'Lending/Application/BorrowCopy'.");
     }
 
     /// <summary>A job that runs a use case, in that use case's Application folder, reports nothing.</summary>
@@ -357,8 +339,8 @@ public sealed class PlacementCheckTests
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         model.Records.Add(WithEffects(Rec(RecordTypes.Job, "job/lending.erase-expired", "lending/job/erase-expired", temp.Path), """[{"runs": "use-case/lending.borrow-copy"}]"""));
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "EraseExpiredLoansJob.cs");
-        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "EraseExpiredLoansJob");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "EraseExpiredLoansJob.cs");
+        WriteCode(file, "Library.Lending.Application.BorrowCopy", "EraseExpiredLoansJob");
         model.Code.Elements.Add(Element(CodeKind.Job, "EraseExpiredLoansJob", file, "job/lending.erase-expired"));
 
         Assert.Empty(Run(model));
@@ -379,7 +361,7 @@ public sealed class PlacementCheckTests
         var placed = Run(model);
 
         Assert.Equal(2, placed.Count);
-        Assert.Contains(placed, finding => finding.Message == "Job 'EraseExpiredLoansJob' sits in folder 'EraseExpiredLoans', but its trigger 'job/lending.erase-expired' belongs in 'Lending/UseCases/BorrowCopy/Application'.");
+        Assert.Contains(placed, finding => finding.Message == "Job 'EraseExpiredLoansJob' sits in folder 'EraseExpiredLoans', but its trigger 'job/lending.erase-expired' belongs in 'Lending/Application/BorrowCopy'.");
         Assert.Contains(placed, finding => finding.Message.EndsWith("Lending/Jobs' names no module folder.", StringComparison.Ordinal));
     }
 
@@ -398,7 +380,7 @@ public sealed class PlacementCheckTests
         // The command file is also a message outside its use case folder.
         Assert.Equal(2, placed.Count);
         Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Contracts/Commands' names no Contracts kind folder.");
-        Assert.Contains(placed, finding => finding.Message.EndsWith("it belongs in 'Lending/UseCases/BorrowCopy/Application'.", StringComparison.Ordinal));
+        Assert.Contains(placed, finding => finding.Message.EndsWith("it belongs in 'Lending/Application/BorrowCopy'.", StringComparison.Ordinal));
     }
 
     /// <summary>An aggregate WebApi folder reports that it names no Events or Exceptions folder.</summary>
@@ -419,23 +401,23 @@ public sealed class PlacementCheckTests
         Assert.Contains(placed, finding => finding.Message == "File 'apps/api/src/Library.Modules/Lending/Domain/Loans/WebApi/LoanResponseModel.cs' holds a message, result or transport model outside a use case folder.");
     }
 
-    /// <summary>A read-model projection in its module's read-models folder reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</proves>
+    /// <summary>A read-model projection in its Application read-models folder reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ModuleLayoutReadModelProjectionInReadModelsFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         model.Records.Add(Rec("read-model", "read-model/lending.reimbursed-expense", "lending/read-model/reimbursed-expense", temp.Path));
-        var file = ProductFile(temp.Path, "Lending", "ReadModels", "ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection.cs");
-        WriteCode(file, "Library.Lending.ReadModels.ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection");
+        var file = ProductFile(temp.Path, "Lending", "Application", "ReadModels", "ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection.cs");
+        WriteCode(file, "Library.Lending.Application.ReadModels.ReimbursedExpenses", "ReimbursedExpenseOnLoanBorrowedProjection");
         model.Code.Elements.Add(Element(CodeKind.Technical, "ReimbursedExpenseOnLoanBorrowedProjection", file, "read-model/lending.reimbursed-expense"));
 
         Assert.Empty(Run(model));
     }
 
     /// <summary>A read-model projection outside its read model's ReadModels folder reports the folder the read model takes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder</proves>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ModuleLayoutReadModelProjectionOutsideReadModelsFolderReportsPlacementDrift()
     {
@@ -447,7 +429,7 @@ public sealed class PlacementCheckTests
 
         var placed = Run(model);
 
-        Assert.Contains(placed, finding => finding.Message == "Technical class 'ReimbursedExpenseOnLoanBorrowedProjection' sits in folder 'Projections', but marks 'read-model/lending.reimbursed-expense', so it belongs in 'Lending/ReadModels/ReimbursedExpenses/'.");
+        Assert.Contains(placed, finding => finding.Message == "Technical class 'ReimbursedExpenseOnLoanBorrowedProjection' sits in folder 'Projections', but marks 'read-model/lending.reimbursed-expense', so it belongs in 'Lending/Application/ReadModels/ReimbursedExpenses/'.");
     }
 
     /// <summary>A command in its use case's Application folder reports nothing.</summary>
@@ -457,8 +439,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommand.cs");
-        WriteCode(file, "Library.Lending.UseCases.BorrowCopy.Application", "BorrowCopyCommand");
+        var file = ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommand.cs");
+        WriteCode(file, "Library.Lending.Application.BorrowCopy", "BorrowCopyCommand");
 
         Assert.Empty(Run(model));
     }
@@ -474,7 +456,7 @@ public sealed class PlacementCheckTests
         WriteCode(file, "Library.Lending.Domain.Loans", "BorrowCopyCommand");
 
         var finding = Assert.Single(Run(model));
-        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Domain/Loans/BorrowCopyCommand.cs' holds a message, result or transport model outside a use case folder; it belongs in 'Lending/UseCases/BorrowCopy/Application'.", finding.Message);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Domain/Loans/BorrowCopyCommand.cs' holds a message, result or transport model outside a use case folder; it belongs in 'Lending/Application/BorrowCopy'.", finding.Message);
     }
 
     /// <summary>Adds the effects a reaction or job record declares, as the record file's effects list.</summary>

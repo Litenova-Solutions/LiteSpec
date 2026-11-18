@@ -46,7 +46,7 @@ public sealed class FindingClaimTests
         var claim = Claim("litespec-code-and-proof");
 
         Assert.False(claim.Covers(code, []));
-        Assert.False(claim.Covers(code, ["layer-projects"]));
+        Assert.False(claim.Covers(code, ["audit"]));
         Assert.True(claim.Covers(code, ["delivery"]));
     }
 

@@ -687,7 +687,7 @@ public sealed class FolderCheckTests
         Assert.Equal("Aggregate 'aggregate/posts.posts' sits in 'behavior/modules/posts', but aggregates live in 'behavior/modules/<m>/aggregates/<aggregate>/aggregate.yaml'.", finding.Message);
     }
 
-    /// <summary>Valid BackendLayout Passes.</summary>
+    /// <summary>Valid Layout Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
     public void ValidLayoutPasses()

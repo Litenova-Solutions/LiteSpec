@@ -15,7 +15,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ApproveExpense/Application/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("litespec/backend/api#bound-every-file-upload", result.Output);
@@ -32,7 +32,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ApproveExpense/Application/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
 
@@ -66,7 +66,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/api#store-every-upload-through-infrastructure:", result.Output);
@@ -81,7 +81,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ReimburseExpense/Application/ReimburseExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/persistence#assign-document-numbers-from-a-sequence:", result.Output);
@@ -96,11 +96,11 @@ public sealed class ProvisionWhenTests
         var query = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ListExpenses/Application/ListExpensesQueryHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/ListExpenses/ListExpensesQueryHandler.cs");
         var command = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ApproveExpense/Application/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, query.Status);
         Assert.Equal(0, command.Status);
@@ -121,11 +121,11 @@ public sealed class ProvisionWhenTests
         var erasure = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ErasePersonalData/Application/ErasePersonalDataCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/ErasePersonalData/ErasePersonalDataCommandHandler.cs");
         var plain = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/UseCases/ApproveExpense/Application/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, erasure.Status);
         Assert.Equal(0, plain.Status);

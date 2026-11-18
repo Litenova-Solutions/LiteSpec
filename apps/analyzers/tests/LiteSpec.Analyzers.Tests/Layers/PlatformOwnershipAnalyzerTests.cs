@@ -25,7 +25,7 @@ public sealed class PlatformOwnershipAnalyzerTests
     public Task ReportsStoreSetupInsideAModule() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
             [
-                ("Claimwick.Spending/Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Spending.Contracts/Stubs.cs", Stubs),
                 ("Claimwick.Spending/Infrastructure/Persistence/SpendingStoreSetup.cs", """
                     using PlatformStubs;
 
@@ -49,16 +49,16 @@ public sealed class PlatformOwnershipAnalyzerTests
     public Task ReportsAGuardInsideAModule() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
             [
-                ("Claimwick.Spending/Contracts/Stubs.cs", Stubs),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseCommand.cs", """
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                ("Claimwick.Spending.Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommand.cs", """
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     public sealed class SubmitExpenseCommand;
                     """),
-                ("Claimwick.Spending/UseCases/SubmitExpense/Application/SubmitExpenseGuard.cs", """
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseGuard.cs", """
                     using PlatformStubs;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.Application.SubmitExpense;
 
                     internal sealed class {|LS2024:SubmitExpenseGuard|} : DeclarationGuard<SubmitExpenseCommand, int>
                     {
@@ -74,11 +74,11 @@ public sealed class PlatformOwnershipAnalyzerTests
     public Task ReportsAConverterInsideAModule() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
             [
-                ("Claimwick.Spending/Contracts/Stubs.cs", Stubs),
-                ("Claimwick.Spending/UseCases/SubmitExpense/WebApi/MoneyConverter.cs", """
+                ("Claimwick.Spending.Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Spending/WebApi/SubmitExpense/MoneyConverter.cs", """
                     using PlatformStubs;
 
-                    namespace Claimwick.Spending.UseCases.SubmitExpense;
+                    namespace Claimwick.Spending.WebApi.SubmitExpense;
 
                     internal sealed class {|LS2024:MoneyConverter|} : JsonConverter
                     {
@@ -118,7 +118,7 @@ public sealed class PlatformOwnershipAnalyzerTests
     public Task AcceptsStoreUseInAModuleRepository() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
             [
-                ("Claimwick.Spending/Contracts/Stubs.cs", Stubs),
+                ("Claimwick.Spending.Contracts/Stubs.cs", Stubs),
                 ("Claimwick.Spending/Infrastructure/Persistence/ExpenseRepository.cs", """
                     using PlatformStubs;
 

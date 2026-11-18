@@ -29,7 +29,7 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.{|LS2013:WithTarget|}(command.LoanId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 reports a reason formatted from the message.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -54,7 +54,7 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.{|LS2013:WithReason|}($"Renewed by {command.ReaderName}");
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a target read from a loaded aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -92,7 +92,7 @@ public sealed class HandlerAuditValueAnalyzerTests
                     audit.WithTarget(loan.Id);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a target read from a generated value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -120,7 +120,7 @@ public sealed class HandlerAuditValueAnalyzerTests
                     audit.WithTarget(newId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a constant audit value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -145,7 +145,7 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.WithTarget("loans");
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a message value in a query handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -170,7 +170,7 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(ListLoansQuery query, IAuditScope audit) =>
                     audit.WithTarget(query.ReaderId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a target call on another receiver type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -194,7 +194,7 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, ITraceScope trace) =>
                     trace.WithTarget(command.LoanId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -219,5 +219,5 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.WithTarget(command.LoanId);
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

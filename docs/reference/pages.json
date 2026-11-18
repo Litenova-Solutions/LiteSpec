@@ -421,18 +421,6 @@
       ]
     },
     {
-      "file": "docs/analyzers/rules/ls2017.md",
-      "path": "analyzers/rules/ls2017",
-      "style": "reference",
-      "area": "analyzers",
-      "title": "LS2017: LiteSpecLayer Names No Known Layer",
-      "intent": "",
-      "sections": [
-        "Reference",
-        "Notes"
-      ]
-    },
-    {
       "file": "docs/analyzers/rules/ls2018.md",
       "path": "analyzers/rules/ls2018",
       "style": "reference",
@@ -521,7 +509,7 @@
       "path": "analyzers/rules/ls2025",
       "style": "reference",
       "area": "analyzers",
-      "title": "LS2025: Use-Case Infrastructure Names a Type Outside Its Slice",
+      "title": "LS2025: Use-Case Infrastructure Names a Type Outside Its Layer",
       "intent": "",
       "sections": [
         "Reference",
@@ -884,21 +872,6 @@
       "style": "extension",
       "area": "backend",
       "title": "Executable BDD Acceptance Tests",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/ext/layer-projects.md",
-      "path": "backend/dotnet/ext/layer-projects",
-      "style": "extension",
-      "area": "backend",
-      "title": "Layer Projects",
       "intent": "",
       "sections": [
         "Activation",
@@ -4976,11 +4949,6 @@
       "stack": null
     },
     {
-      "id": "layer-projects",
-      "path": "docs/backend/dotnet/ext/layer-projects.md",
-      "stack": "dotnet"
-    },
-    {
       "id": "jobs",
       "path": "docs/ext/jobs.md",
       "stack": null
@@ -5302,13 +5270,6 @@
       "title": "Live Delivery",
       "files": [
         "docs/ext/realtime.md"
-      ]
-    },
-    {
-      "key": "ext/layer-projects",
-      "title": "Layer Projects",
-      "files": [
-        "docs/backend/dotnet/ext/layer-projects.md"
       ]
     },
     {

@@ -89,10 +89,10 @@ public sealed class ModuleLayoutReaderTests
         var config = ConsumerConfig.Load(temp.Path);
 
         Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Contracts", "Ports", "ITextGateway.cs")));
-        Assert.Equal("Domain", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "Domain", "LoanPricing.cs")));
-        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs")));
-        Assert.Equal("WebApi", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyEndpoint.cs")));
-        Assert.Equal("Infrastructure", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "Infrastructure", "LoanStore.cs")));
+        Assert.Equal("Domain", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Domain", "Loans", "LoanPricing.cs")));
+        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs")));
+        Assert.Equal("WebApi", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "WebApi", "BorrowCopy", "BorrowCopyEndpoint.cs")));
+        Assert.Equal("Infrastructure", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Infrastructure", "Persistence", "LoanStore.cs")));
         Assert.Equal("WebApi", SourceRoots.LayerOf(config, Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi", "Protocol", "SignOutEndpoint.cs")));
     }
 
@@ -111,7 +111,7 @@ public sealed class ModuleLayoutReaderTests
             CodeKind.AggregateRoot, "Loan", null, root, 3,
             [new CodeMark("aggregate/lending.loan", MarkStyle.Xml, MarkVerb.Implements, root, 1)],
             InTests: false));
-        model.Code.DomainTypes.Add(new DomainType("Money", "Library.Lending.Loans", held, 3, false));
+        model.Code.DomainTypes.Add(new DomainType("Money", "Library.Lending.Domain.Loans", held, 3, false));
         model.Code.DomainTypes.Add(new DomainType("Clock", "Library.Kernel", kernel, 3, false));
 
         Parts.Compute(model);
@@ -121,7 +121,7 @@ public sealed class ModuleLayoutReaderTests
         Assert.Empty(Parts.Orphans(model));
     }
 
-    /// <summary>The module, Kernel and Platform roots resolve without the layer-projects extension, leaving the layer roots empty.</summary>
+    /// <summary>The module, Kernel and Platform roots resolve from their defaults.</summary>
     /// <proves>litespec/core/model#declare-size-and-stacks</proves>
     [Fact]
     public void ModuleLayoutResolvesTheModuleKernelAndPlatformRoots()
@@ -135,38 +135,11 @@ public sealed class ModuleLayoutReaderTests
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"}");
         var config = ConsumerConfig.Load(temp.Path);
 
-        Assert.False(config.IsLayerProjects);
         Assert.Equal(
             [Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending")],
             config.ModulesRoots);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel"), config.KernelRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform"), config.PlatformRoot);
-        Assert.Equal("", config.DomainRoot);
-        Assert.Equal("", config.InfrastructureRoot);
-    }
-
-    /// <summary>The layer-projects extension resolves the five project roots from their defaults.</summary>
-    /// <proves>litespec/core/model#declare-size-and-stacks</proves>
-    [Fact]
-    public void LayerProjectsExtensionResolvesFiveRoots()
-    {
-        using var temp = TestCli.Temp("readers");
-        foreach (var project in new[] { "Library.Application", "Library.Domain", "Library.Infrastructure", "Library.WebApi", "Library.Worker" })
-        {
-            Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", project));
-        }
-
-        File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.yaml"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"selectedExtensions\": [{\"id\": \"layer-projects\", \"criterion\": \"five projects\"}]}");
-        var config = ConsumerConfig.Load(temp.Path);
-
-        Assert.True(config.IsLayerProjects);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Application"), Assert.Single(config.ModulesRoots));
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Domain"), config.DomainRoot);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Infrastructure"), config.InfrastructureRoot);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi"), Assert.Single(config.WebApiRoots));
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Worker"), Assert.Single(config.WorkerRoots));
     }
 
     /// <summary>Reads the backend of the module-layout project.</summary>
@@ -182,8 +155,8 @@ public sealed class ModuleLayoutReaderTests
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"kernel\": \"apps/api/src/Library.Kernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
-        WriteSource(ProductFile(root, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs"), """
-            namespace Library.Lending.Loans.UseCases.BorrowCopy;
+        WriteSource(ProductFile(root, "Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs"), """
+            namespace Library.Lending.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
@@ -198,32 +171,32 @@ public sealed class ModuleLayoutReaderTests
             {
             }
             """);
-        WriteSource(ProductFile(root, "Lending", "Loans", "Domain", "LoanPricing.cs"), """
-            namespace Library.Lending.Loans;
+        WriteSource(ProductFile(root, "Lending", "Domain", "Loans", "LoanPricing.cs"), """
+            namespace Library.Lending.Domain.Loans;
 
             /// <implements>rule/loan.copy-available</implements>
             public sealed class LoanPricing
             {
             }
             """);
-        WriteSource(ProductFile(root, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyEndpoint.cs"), """
-            namespace Library.Lending.Loans.UseCases.BorrowCopy;
+        WriteSource(ProductFile(root, "Lending", "WebApi", "BorrowCopy", "BorrowCopyEndpoint.cs"), """
+            namespace Library.Lending.WebApi.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyEndpoint : IEndpoint
             {
             }
             """);
-        WriteSource(ProductFile(root, "Lending", "Loans", "Domain", "ILoanPolicy.cs"), """
-            namespace Library.Lending.Loans;
+        WriteSource(ProductFile(root, "Lending", "Domain", "Loans", "ILoanPolicy.cs"), """
+            namespace Library.Lending.Domain.Loans;
 
             /// <implements>external-system/lending.text-gateway</implements>
             public interface ILoanPolicy
             {
             }
             """);
-        WriteSource(ProductFile(root, "Lending", "Loans", "Infrastructure", "LoanStore.cs"), """
-            namespace Library.Lending.Loans.Infrastructure;
+        WriteSource(ProductFile(root, "Lending", "Infrastructure", "Persistence", "LoanStore.cs"), """
+            namespace Library.Lending.Infrastructure.Persistence;
 
             public sealed class LoanStore
             {

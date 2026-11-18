@@ -364,11 +364,11 @@ A tool that alters the schema from application startup is no reviewed step, whic
 
 **Applies to:** artifact: any
 
-**Default:** Place store setup in the product `Infrastructure/` folder and each module's repositories, mappings, and serialization in its own `Infrastructure/` folders.
+**Default:** Place store setup in the product `Infrastructure/` folder and each module's repositories, mappings, and serialization in its own `Infrastructure/Persistence/` folder.
 
 **Replacement:** A project names its persistence layout in its backend documentation.
 
-**Rationale:** The product `Infrastructure/` folder holds store setup, session and commit plumbing, and serialization shared by every module. Every persistence type then has one discoverable home. Each module keeps its repositories and mappings in its own `Infrastructure/` folders, beside the aggregates they store. Scattered configuration hides the provider setup across the product.
+**Rationale:** The product `Infrastructure/` folder holds store setup, session and commit plumbing, and serialization shared by every module. Every persistence type then has one discoverable home. Each module keeps its repositories and mappings in its own `Infrastructure/Persistence/` folder. Scattered configuration hides the provider setup across the product.
 
 **Example:**
 
@@ -381,24 +381,23 @@ A tool that alters the schema from application startup is no reviewed step, whic
       CommitCommandPostHandler
     Events/
       DomainEventBuffer
-  Posts/                            single aggregate whose name matches the module: files directly under the module
+  Posts/                            single aggregate whose name matches the module
     Infrastructure/
-      PostRepository
-      PostStoreConfiguration
-  Customers/                        two aggregates: one folder per aggregate
-    CustomerAccounts/
-      Infrastructure/
+      Persistence/
+        PostRepository
+        PostStoreConfiguration
+  Customers/                        two aggregates: repositories side by side
+    Infrastructure/
+      Persistence/
         CustomerAccountRepository
         CustomerAccountStoreConfiguration
-    Consents/
-      Infrastructure/
         ConsentRepository
         ConsentStoreConfiguration
 ```
 
-The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. A single-aggregate module stays flat when its aggregate root's plural name equals the module name. `Post` stays flat under `Posts`, and otherwise each aggregate takes its own folder.
+The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`: each module keeps its repositories in its `Infrastructure/Persistence/` folder.
 
-Aggregate-specific configuration sits beside its aggregate. Session and commit plumbing sit under the product store root.
+Aggregate-specific configuration sits beside its aggregate's repository. Session and commit plumbing sit under the product store root.
 
 **Reviewed for:** Is any store setup, repository, or commit file sitting outside the product or module `Infrastructure/` folders? Look at the persistence files beside the module tree.
 

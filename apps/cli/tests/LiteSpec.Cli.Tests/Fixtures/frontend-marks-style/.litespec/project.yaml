@@ -22,11 +22,7 @@ paths:
   - apps/api/tests
 stackConfig:
   dotnet:
-    modules: apps/api/src/Library.Application
-    domain: apps/api/src/Library.Domain
-    webapi:
-    - apps/api/src/Library.WebApi
-    infrastructure: apps/api/src/Library.Infrastructure
+    modules: apps/api/src/Modules/Library.Lending
 frontends:
 - name: web
   path: apps/web

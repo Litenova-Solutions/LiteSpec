@@ -513,6 +513,11 @@ static partial class GeneratedRegions
                 return "domain";
             }
 
+            if (segment.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase))
+            {
+                return "application";
+            }
+
             if (segment.EndsWith(".Application", StringComparison.OrdinalIgnoreCase)
                 || segment.EndsWith(".Worker", StringComparison.OrdinalIgnoreCase))
             {

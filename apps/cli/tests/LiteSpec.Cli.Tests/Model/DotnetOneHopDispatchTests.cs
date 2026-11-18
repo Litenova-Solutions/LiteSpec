@@ -14,8 +14,8 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = TestCli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), MediatorHandler);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "LoanFanout.cs"), MediatorHelper);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "BorrowCopyCommandHandler.cs"), MediatorHandler);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "LoanFanout.cs"), MediatorHelper);
 
         var handler = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Handlers,
@@ -35,8 +35,8 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = TestCli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "PublishEventOnLoanBorrowedHandler.cs"), PublisherReaction);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "LoanEventRelay.cs"), PublisherHelper);
+        WriteApp(temp.Path, Path.Combine("Application", "OnLoanBorrowed", "PublishEventOnLoanBorrowedHandler.cs"), PublisherReaction);
+        WriteApp(temp.Path, Path.Combine("Application", "OnLoanBorrowed", "LoanEventRelay.cs"), PublisherHelper);
 
         var reaction = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions,
@@ -55,8 +55,8 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = TestCli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), SilentHandler);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "LoanFanout.cs"), MediatorHelper);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "BorrowCopyCommandHandler.cs"), SilentHandler);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "LoanFanout.cs"), MediatorHelper);
 
         var handler = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Handlers,
@@ -72,8 +72,8 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = TestCli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), MediatorOnlyHandler);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "LoanFanout.cs"), TwoReceiverHelper);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "BorrowCopyCommandHandler.cs"), MediatorOnlyHandler);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "LoanFanout.cs"), TwoReceiverHelper);
 
         var handler = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Handlers,
@@ -91,9 +91,9 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = TestCli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), ChainedHandler);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "FirstHop.cs"), FirstHop);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "SecondHop.cs"), SecondHop);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "BorrowCopyCommandHandler.cs"), ChainedHandler);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "FirstHop.cs"), FirstHop);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "SecondHop.cs"), SecondHop);
 
         var handler = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Handlers,
@@ -111,8 +111,8 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = TestCli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), InstanceHandler);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "LoanFanout.cs"), InstanceHelper);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "BorrowCopyCommandHandler.cs"), InstanceHandler);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "LoanFanout.cs"), InstanceHelper);
 
         var handler = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Handlers,
@@ -131,7 +131,7 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = TestCli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), RenderingHandler);
+        WriteApp(temp.Path, Path.Combine("Application", "BorrowCopy", "BorrowCopyCommandHandler.cs"), RenderingHandler);
 
         var handler = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Handlers,
@@ -148,8 +148,8 @@ public sealed class DotnetOneHopDispatchTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     static void WriteApp(string root, string relative, string text)
@@ -160,7 +160,7 @@ public sealed class DotnetOneHopDispatchTests
     }
 
     const string RenderingHandler = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         /// <implements>use-case/lending.borrow-copy</implements>
         public sealed class BorrowCopyCommandHandler(IOrderMessenger messenger, ITemplateRenderer templates) : ICommandHandler<BorrowCopyCommand>
@@ -174,7 +174,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string MediatorHandler = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         /// <implements>use-case/lending.borrow-copy</implements>
         public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
@@ -187,7 +187,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string MediatorHelper = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         internal static class LoanFanout
         {
@@ -199,7 +199,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string PublisherReaction = """
-        namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        namespace Library.App.Application.OnLoanBorrowed;
 
         public sealed class PublishEventOnLoanBorrowedHandler(IEventPublisher events) : IEventHandler<LoanBorrowedEvent>
         {
@@ -211,7 +211,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string PublisherHelper = """
-        namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        namespace Library.App.Application.OnLoanBorrowed;
 
         internal static class LoanEventRelay
         {
@@ -224,7 +224,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string SilentHandler = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         /// <implements>use-case/lending.borrow-copy</implements>
         public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
@@ -237,7 +237,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string MediatorOnlyHandler = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         /// <implements>use-case/lending.borrow-copy</implements>
         public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
@@ -250,7 +250,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string TwoReceiverHelper = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         internal static class LoanFanout
         {
@@ -263,7 +263,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string ChainedHandler = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         /// <implements>use-case/lending.borrow-copy</implements>
         public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
@@ -276,7 +276,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string FirstHop = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         internal static class FirstHop
         {
@@ -289,7 +289,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string SecondHop = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         internal static class SecondHop
         {
@@ -302,7 +302,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string InstanceHandler = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         /// <implements>use-case/lending.borrow-copy</implements>
         public sealed class BorrowCopyCommandHandler(IOrderMessenger messenger, ILoanFanout fanout) : ICommandHandler<BorrowCopyCommand>
@@ -315,7 +315,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string InstanceHelper = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.App.Application.BorrowCopy;
 
         public interface ILoanFanout
         {

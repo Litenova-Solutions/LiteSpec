@@ -4,7 +4,7 @@ namespace LiteSpec.Analyzers.Rules;
 
 /// <summary>
 ///     Every diagnostic the package reports. LS1xxx check Domain, LS2xxx the outer layers,
-///     LS3xxx code style in the five production projects, LS4xxx test projects. Each one
+///     LS3xxx code style in every production layer, LS4xxx test projects. Each one
 ///     names the provision it enforces, and its help link opens that provision.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
@@ -43,8 +43,6 @@ internal static class Descriptors
     private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
     /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/backend/dotnet/architecture#keep-implementation-types-internal).</summary>
     private static readonly Provision InternalImplementations = Provision.Of("backend/dotnet/architecture", "keep-implementation-types-internal");
-    /// <summary>The provision the related descriptors enforce: use five application projects (litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project).</summary>
-    private static readonly Provision ApplicationProjects = Provision.Of("backend/dotnet/ext/layer-projects", "package-each-layer-as-its-own-project");
     /// <summary>The provision the related descriptors enforce: follow layer direction in every file (litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file).</summary>
     private static readonly Provision RespectLayerDirection = Provision.Of("backend/dotnet/architecture", "follow-layer-direction-in-every-file");
     /// <summary>The provision the related descriptors enforce: keep use case folders isolated (litespec/backend/dotnet/architecture#keep-use-case-folders-isolated).</summary>
@@ -293,12 +291,6 @@ internal static class Descriptors
         "Handler '{0}' takes '{1}', which the pipeline owns",
         "A command or query handler takes no pipeline-owned collaborator through its constructor; the unit of work, idempotency store, outbox, and uniqueness claim service belong to the pipeline.");
 
-    /// <summary>The LS2017 descriptor: LiteSpecLayer names no known layer.</summary>
-    public static readonly DiagnosticDescriptor LS2017 = Create("LS2017", LayersCategory, ApplicationProjects,
-        "LiteSpecLayer names no known layer",
-        "'{0}' names no known layer; use Domain, Application.Abstractions, Application, Infrastructure, WebApi, Worker, Test, or None",
-        "The LiteSpecLayer property names one of the known application projects, Test, or None to opt out.");
-
     /// <summary>The LS2018 descriptor: Application or WebApi names a type outside its layer.</summary>
     public static readonly DiagnosticDescriptor LS2018 = Create("LS2018", LayersCategory, RespectLayerDirection,
         "File names a type outside its layer",
@@ -341,9 +333,9 @@ internal static class Descriptors
         "'{0}' {1}",
         "A module plugs into the platform by contributing data, never by copying platform code: store and serializer setup, guard evaluation and converters live in the platform.");
 
-    /// <summary>The LS2025 descriptor: Use-case Infrastructure names a type outside its slice.</summary>
+    /// <summary>The LS2025 descriptor: Use-case Infrastructure names a type outside its layer.</summary>
     public static readonly DiagnosticDescriptor LS2025 = Create("LS2025", LayersCategory, RespectLayerDirection,
-        "Use-case Infrastructure names a type outside its slice",
+        "Use-case Infrastructure names a type outside its layer",
         "Use-case Infrastructure uses '{0}', {1}",
         "A use case's Infrastructure folder implements that use case's own ports from platform and library types. It names no Domain type outside typed identifiers and shared-kernel values, and no WebApi type.");
 
@@ -364,7 +356,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2028 = Create("LS2028", LayersCategory, ModuleSurface,
         "Module exposes a public type outside Contracts",
         "'{0}' is public outside Contracts; keep module types internal behind the '{1}' entry type",
-        "In one project per module only the Contracts folder and the module entry type are public. Every other module type stays internal, so the compiler enforces the module boundary.");
+        "In one project per module only the Contracts project and the module entry type are public. Every other module type stays internal, so the compiler enforces the module boundary.");
 
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,

@@ -48,7 +48,7 @@ public sealed class MarkCodeFixTests
             """,
             "Convert mark to attribute",
             [ProjectFile(marks: "attribute"), UseCase()],
-            "Shop.Application");
+            "Shop.Spending", path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>Convert mark turns a follows tag into an attribute.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -82,7 +82,7 @@ public sealed class MarkCodeFixTests
             """,
             "Convert mark to attribute",
             [ProjectFile(marks: "attribute"), Decision()],
-            "Shop.Application");
+            "Shop.Spending", path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>Convert mark turns a follows attribute into a documentation tag.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -128,7 +128,7 @@ public sealed class MarkCodeFixTests
             """,
             "Convert mark to documentation tag",
             [ProjectFile(), Decision()],
-            "Shop.Application");
+            "Shop.Spending", path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>Convert mark turns an attribute into a documentation tag.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -180,7 +180,7 @@ public sealed class MarkCodeFixTests
             """,
             "Convert mark to documentation tag",
             [ProjectFile(), UseCase()],
-            "Shop.Application");
+            "Shop.Spending", path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>Add partial declares the type partial.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -206,7 +206,7 @@ public sealed class MarkCodeFixTests
             """,
             "Declare type partial",
             [ProjectFile(), DomainEvent()],
-            "Shop.Domain");
+            "Shop.Spending", path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>Delete value removes the drifting hand-written Classification.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -237,7 +237,7 @@ public sealed class MarkCodeFixTests
             """,
             "Delete hand-written 'Classification' (the record states 'domain-event/expense.submitted')",
             [ProjectFile(), DomainEvent()],
-            "Shop.Domain");
+            "Shop.Spending", path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>Delete value removes the hand-written value equal to the record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -268,7 +268,7 @@ public sealed class MarkCodeFixTests
             """,
             "Delete hand-written 'Classification' equal to the record",
             [ProjectFile(), DomainEvent()],
-            "Shop.Domain");
+            "Shop.Spending", path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>Fix All converts every mark across the solution.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -277,7 +277,7 @@ public sealed class MarkCodeFixTests
     public Task FixAllConvertsEveryMark() =>
         Verify.CodeFixAllAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
             [
-                ("Submit.cs", """
+                ("Shop.Spending/Application/Submit.cs", """
                     using System;
 
                     namespace Claimwick.Spending;
@@ -298,7 +298,7 @@ public sealed class MarkCodeFixTests
                     {
                     }
                     """),
-                ("Approve.cs", """
+                ("Shop.Spending/Application/Approve.cs", """
                     namespace Claimwick.Spending;
 
                     public sealed class ApproveExpenseCommand;
@@ -312,7 +312,7 @@ public sealed class MarkCodeFixTests
                     """),
             ],
             [
-                ("Submit.cs", """
+                ("Shop.Spending/Application/Submit.cs", """
                     using System;
 
                     namespace Claimwick.Spending;
@@ -333,7 +333,7 @@ public sealed class MarkCodeFixTests
                     {
                     }
                     """),
-                ("Approve.cs", """
+                ("Shop.Spending/Application/Approve.cs", """
                     namespace Claimwick.Spending;
 
                     public sealed class ApproveExpenseCommand;
@@ -348,7 +348,7 @@ public sealed class MarkCodeFixTests
             ],
             [ProjectFile(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense")],
             "ConvertMarkStyle",
-            "Shop.Application");
+            "Shop.Spending");
 
     /// <summary>Convert mark, add partial and delete value offer Fix All.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
@@ -402,7 +402,7 @@ public sealed class MarkCodeFixTests
             """,
             "Convert mark to attribute",
             [ProjectFile(marks: "attribute"), UseCase()],
-            "Shop.Application");
+            "Shop.Spending", path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>Convert mark to attribute keeps the summary.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -446,7 +446,7 @@ public sealed class MarkCodeFixTests
             """,
             "Convert mark to attribute",
             [ProjectFile(marks: "attribute"), UseCase()],
-            "Shop.Application");
+            "Shop.Spending", path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>Convert mark to tag keeps the summary.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -454,7 +454,7 @@ public sealed class MarkCodeFixTests
     [Fact(DisplayName = "Convert mark to tag keeps the summary")]
     public Task ConvertMarkToXmlKeepsSummary() =>
         Verify.CodeFixFilesAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -471,7 +471,7 @@ public sealed class MarkCodeFixTests
                 {
                 }
                 """),
-             ("Attributes.cs", """
+             ("Shop.Spending/Application/Attributes.cs", """
                 namespace LiteSpec;
 
                 internal sealed class ImplementsAttribute : System.Attribute
@@ -479,7 +479,7 @@ public sealed class MarkCodeFixTests
                     public ImplementsAttribute(string id) { }
                 }
                 """)],
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -496,7 +496,7 @@ public sealed class MarkCodeFixTests
                 {
                 }
                 """),
-             ("Attributes.cs", """
+             ("Shop.Spending/Application/Attributes.cs", """
                 namespace LiteSpec;
 
                 internal sealed class ImplementsAttribute : System.Attribute
@@ -506,5 +506,5 @@ public sealed class MarkCodeFixTests
                 """)],
             "Convert mark to documentation tag",
             [ProjectFile(), UseCase()],
-            "Shop.Application");
+            "Shop.Spending");
 }

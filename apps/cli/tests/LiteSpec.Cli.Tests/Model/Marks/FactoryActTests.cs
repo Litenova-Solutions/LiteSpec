@@ -66,10 +66,8 @@ public sealed class FactoryActTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -177,8 +175,8 @@ public sealed class FactoryActTests
 
                 A reader renews an order.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Orders/Order.cs", """
-                namespace Library.Domain.Lending.Orders;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Orders/Order.cs", """
+                namespace Library.Lending.Domain.Orders;
 
                 /// <implements>aggregate/lending.order</implements>
                 public sealed class Order : AggregateRoot<OrderId>
@@ -199,21 +197,21 @@ public sealed class FactoryActTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Orders/OrderSubmittedEvent.cs", """
-                namespace Library.Domain.Lending.Orders;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Orders/OrderSubmittedEvent.cs", """
+                namespace Library.Lending.Domain.Orders;
 
                 /// <implements>domain-event/order.order-submitted</implements>
                 public sealed record OrderSubmittedEvent(Guid OrderId) : IDomainEvent;
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/SubmitOrder/SubmitOrderCommand.cs", """
-                namespace Library.Application.Lending.Orders.SubmitOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/SubmitOrder/SubmitOrderCommand.cs", """
+                namespace Library.Lending.Application.SubmitOrder;
 
                 public sealed record SubmitOrderCommand(Guid OrderId);
 
                 public sealed record SubmitOrderCommandResult(Guid OrderId);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/SubmitOrder/SubmitOrderCommandHandler.cs", """
-                namespace Library.Application.Lending.Orders.SubmitOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/SubmitOrder/SubmitOrderCommandHandler.cs", """
+                namespace Library.Lending.Application.SubmitOrder;
 
                 /// <implements>use-case/lending.submit-order</implements>
                 public sealed class SubmitOrderCommandHandler(IOrderRepository orders)
@@ -227,15 +225,15 @@ public sealed class FactoryActTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/RenewOrder/RenewOrderCommand.cs", """
-                namespace Library.Application.Lending.Orders.RenewOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewOrder/RenewOrderCommand.cs", """
+                namespace Library.Lending.Application.RenewOrder;
 
                 public sealed record RenewOrderCommand(Guid OrderId);
 
                 public sealed record RenewOrderCommandResult(Guid OrderId);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/RenewOrder/RenewOrderCommandHandler.cs", """
-                namespace Library.Application.Lending.Orders.RenewOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewOrder/RenewOrderCommandHandler.cs", """
+                namespace Library.Lending.Application.RenewOrder;
 
                 /// <implements>use-case/lending.renew-order</implements>
                 public sealed class RenewOrderCommandHandler(IOrderRepository orders)

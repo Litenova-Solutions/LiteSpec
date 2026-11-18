@@ -1,5 +1,5 @@
 using Claimwick.Platform.Persistence;
-using Claimwick.Reporting.ReadModels.ReimbursedExpenses;
+using Claimwick.Reporting.Application.ReadModels.ReimbursedExpenses;
 using Marten;
 
 namespace Claimwick.Reporting.Infrastructure.Persistence;

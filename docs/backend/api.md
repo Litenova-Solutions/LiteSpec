@@ -569,32 +569,30 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Applies to:** artifact: endpoint
 
-**Default:** Place each endpoint with its request and response models in the `WebApi/` folder of its use case, and host-only endpoints in the host.
+**Default:** Place each endpoint with its request and response models in the `WebApi/{UseCase}/` folder of its use case, and host-only endpoints in the host.
 
 **Replacement:** A project names its endpoint layout in its backend documentation.
 
-**Rationale:** When each endpoint sits in the `WebApi/` folder of its use case, the folder path matches the specification path, and a reader locates an operation from its use-case identifier without searching. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. The host keeps the endpoints that belong to no use case: protocol endpoints, static assets, and development-only tooling.
+**Rationale:** When each endpoint sits in the `WebApi/{UseCase}/` folder of its use case, the folder path matches the specification path, and a reader locates an operation from its use-case identifier without searching. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. The host keeps the endpoints that belong to no use case: protocol endpoints, static assets, and development-only tooling.
 
-**Example:** The endpoints sit in the `WebApi/` folder of their use case inside the `UseCases/` folder of their module:
+**Example:** The endpoints sit in the `WebApi/{UseCase}/` folder of their use case inside the `WebApi/` folder of their module:
 
 ```text
 {Product}/
   Posts/                            single aggregate whose name matches the module
-    UseCases/
-      CreateDraft/
-        Application/                message, result, handler, validator
-        WebApi/                     endpoint, request model, response model
+    Application/
+      CreateDraft/                  message, result, handler, validator
       GetPost/
-        Application/
-        WebApi/
-  Customers/                        two aggregates: every use case sits in the module UseCases folder
-    UseCases/
+    WebApi/
+      CreateDraft/                  endpoint, request model, response model
+      GetPost/
+  Customers/                        two aggregates: each layer holds one folder per use case it serves
+    Application/
       RestrictAccount/
-        Application/
-        WebApi/
       GrantConsent/
-        Application/
-        WebApi/
+    WebApi/
+      RestrictAccount/
+      GrantConsent/
 ```
 
 Module nesting follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.

@@ -64,7 +64,7 @@ public sealed class DecisionChecksTests
     {
         using var temp = TestCli.Temp("checks");
         var model = ModuleModel(temp.Path);
-        var file = ModuleFile(temp.Path, "Booking", "Holds", "UseCases", "HoldRoom", "HoldRoomCache.cs");
+        var file = ModuleFile(temp.Path, "Booking", "Application", "HoldRoom", "HoldRoomCache.cs");
         model.Code.Elements.Add(Element("HoldRoomCache", file, "use-case/booking.hold-room", "decision/0002-store-orders-as-documents"));
 
         var finding = Assert.Single(WithCode(Checker.Check(model).Findings, "decision-scope-invalid"));

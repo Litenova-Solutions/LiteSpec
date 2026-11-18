@@ -705,7 +705,7 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Replacement:** A project names its own job handler layout in its documentation.
 
-**Rationale:** A job handler lives in the `Application/` folder of the use case its `runs` entry names, so the use case folder shows every way the use case starts. One that runs no use case lives in the module `Notifications/` folder of the notification it sends, or the `ExternalSystems/` folder of the system it calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.
+**Rationale:** A job handler lives in the `Application/` folder of the use case its `runs` entry names, so the use case folder shows every way the use case starts. One that runs no use case lives in the `Application/Notifications/` folder of the notification it sends, or the `Application/ExternalSystems/` folder of the system it calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.
 
 **Reviewed for:** Does every job handler sit in the folder of what it runs, when the project names no other job handler layout? Check the handler folders beside the project documentation.
 

@@ -38,9 +38,8 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "A blocking finding reports an error")]
     public Task BlockingFindingReportsError() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
-            [ProjectFile(), UseCase()],
-            assemblyName: "Shop.Application");
+            [("Shop.Spending/Application/Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
+            [ProjectFile(), UseCase()]);
 
     /// <summary>An editorconfig lowering turns the error into a warning.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -48,9 +47,8 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "An editorconfig lowering turns the error into a warning")]
     public Task EditorconfigLoweringReportsWarning() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Warning"))],
+            [("Shop.Spending/Application/Source.cs", HandlerWithAttributeMark.Replace("{0}", "Warning"))],
             [ProjectFile(), UseCase()],
-            assemblyName: "Shop.Application",
             editorconfig: "dotnet_diagnostic.LS5004.severity = warning");
 
     /// <summary>A waiver covering the file stays silent.</summary>
@@ -59,7 +57,7 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "A waiver covering the file stays silent")]
     public Task WaiverCoveringFileStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -80,8 +78,7 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], paths: ["Source.cs"])],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], paths: ["Shop.Spending/Application/Source.cs"])]);
 
     /// <summary>A lasting waiver, with no expiry date, covers the file and stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -89,7 +86,7 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "A lasting waiver covering the file stays silent")]
     public Task LastingWaiverCoveringFileStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -110,8 +107,7 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], paths: ["Source.cs"], expiresOn: null)],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], paths: ["Shop.Spending/Application/Source.cs"], expiresOn: null)]);
 
     /// <summary>A waiver covering the subject stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -119,7 +115,7 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "A waiver covering the subject stays silent")]
     public Task ExceptionCoveringSubjectStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -140,8 +136,7 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])]);
 
     /// <summary>An expired waiver covers nothing.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -149,9 +144,8 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "An expired waiver covers nothing")]
     public Task ExpiredWaiverCoversNothing() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
-            [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
-            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], expiresOn: "2000-01-01")],
-            assemblyName: "Shop.Application");
+            [("Shop.Spending/Application/Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], expiresOn: "2000-01-01")]);
 
     /// <summary>The traceability context is shared per compilation.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
@@ -161,8 +155,8 @@ public sealed class SeverityMatrixTests
         var records = RecordsWith([ProjectFile(), UseCase()]);
         var compilation = CSharpCompilation.Create("Shop.Application");
 
-        var first = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, records);
-        var second = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, records);
+        var first = TraceabilityContext.GetOrCreate(compilation, records);
+        var second = TraceabilityContext.GetOrCreate(compilation, records);
 
         Assert.Same(first, second);
         Assert.True(TraceabilityContext.TryGet(compilation, out var cached));
@@ -176,7 +170,7 @@ public sealed class SeverityMatrixTests
     {
         var records = RecordsWith([ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"], id: "waiver/marks-deferred"), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "waiver/marks-styled"), Waiver(["mark-missing"], paths: ["Old.cs"], id: "waiver/old-marks", expiresOn: "2000-01-01")]);
         var compilation = CSharpCompilation.Create("Shop.Application");
-        var context = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, records);
+        var context = TraceabilityContext.GetOrCreate(compilation, records);
 
         var byFile = new Finding("mark-missing", "Missing.", "Source.cs", 1, null);
         var byGap = new Finding("mark-style-invalid", "Mixed.", "Other.cs", 1, "use-case/spending.submit-expense");

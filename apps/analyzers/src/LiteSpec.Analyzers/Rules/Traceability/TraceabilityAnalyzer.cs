@@ -37,8 +37,6 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
 
         var state = TraceabilityContext.GetOrCreate(
             context.Compilation,
-            FileScope.DeclaredLayout(context.Options),
-            FileScope.DeclaredLayer(context.Options),
             ClaimGate.Declared(context.Options),
             records);
 

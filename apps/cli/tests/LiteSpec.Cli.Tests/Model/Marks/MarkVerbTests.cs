@@ -83,10 +83,8 @@ public sealed class MarkVerbTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -137,15 +135,15 @@ public sealed class MarkVerbTests
 
                 A reader borrows an available copy.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommand.cs", """
-                namespace Library.Application.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommand.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 public sealed record BorrowCopyCommand(Guid CopyId, Guid ReaderId);
 
                 public sealed record BorrowCopyCommandResult(Guid LoanId);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BadBorrowCopyCommandHandler.cs", """
-                namespace Library.Application.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BadBorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 /// <proves>use-case/lending.borrow-copy</proves>
                 public sealed class BadBorrowCopyCommandHandler
@@ -157,8 +155,8 @@ public sealed class MarkVerbTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/GoodBorrowCopyCommandHandler.cs", """
-                namespace Library.Application.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/GoodBorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 /// <implements>use-case/lending.borrow-copy</implements>
                 public sealed class GoodBorrowCopyCommandHandler
@@ -170,8 +168,8 @@ public sealed class MarkVerbTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/BadBorrowCopyScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/BadBorrowCopyScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class BadBorrowCopyScenarios
                 {
@@ -183,8 +181,8 @@ public sealed class MarkVerbTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/GoodBorrowCopyScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/GoodBorrowCopyScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class GoodBorrowCopyScenarios
                 {

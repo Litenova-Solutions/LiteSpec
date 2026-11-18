@@ -99,7 +99,7 @@ access:
 
 Claimwick lets employees submit work expenses with receipts. The use case record at `.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml` states its access grant, the requirement it fulfills, and the results and scenarios that end and prove it.
 
-The handler `SubmitExpenseCommandHandler.cs` sits in the module's own project, in a folder ordered by module, `UseCases/`, and use case. It carries the mark `<implements>use-case/spending.submit-expense</implements>`, which names the record it serves.
+The handler `SubmitExpenseCommandHandler.cs` sits in the module's own project, in a folder ordered by module, `Application/`, and use case. It carries the mark `<implements>use-case/spending.submit-expense</implements>`, which names the record it serves.
 
 From the project root, `dotnet litespec model check` reports each gap as a finding, and `dotnet litespec model query use-case/spending.submit-expense` shows the record with its links. To narrow the work, `model query --search <text>` finds records by words, `model query --list <type>` lists every record of a type, and `model check --module <module>` limits a run to one module.
 

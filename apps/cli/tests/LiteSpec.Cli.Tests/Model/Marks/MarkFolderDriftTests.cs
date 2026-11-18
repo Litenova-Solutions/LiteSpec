@@ -17,8 +17,8 @@ public sealed class MarkFolderDriftTests
     public void HandlerInAnotherModuleFolderReportsMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "Billing", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Billing", "Application", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -37,8 +37,8 @@ public sealed class MarkFolderDriftTests
     public void HandlerMarkingAnotherUseCaseInItsModuleReportsMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "Booking", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Booking", "Application", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.release-hold"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -56,22 +56,9 @@ public sealed class MarkFolderDriftTests
     public void HandlerInItsModuleAndUseCaseFolderReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "Booking", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Booking", "Application", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
-
-        Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
-    }
-
-    /// <summary>Endpoint Under Endpoints Folder Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
-    [Fact]
-    public void EndpointUnderEndpointsFolderReportsNoMarkFolderDrift()
-    {
-        using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "WebApi", "Endpoints", "Billing", "Invoices", "RaiseInvoice", "RaiseInvoiceEndpoint.cs");
-        model.Code.Elements.Add(Element(CodeKind.Endpoint, "RaiseInvoiceEndpoint", file, "use-case/billing.raise-invoice"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
@@ -82,8 +69,8 @@ public sealed class MarkFolderDriftTests
     public void AggregateRootOutsideItsModuleReportsMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Domain", "Lending", "Loans", "Invoice.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "Invoice.cs");
         model.Code.Elements.Add(Element(CodeKind.AggregateRoot, "Invoice", file, "aggregate/billing.invoice"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -101,8 +88,8 @@ public sealed class MarkFolderDriftTests
     public void JobOutsideItsModuleReportsMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "Lending", "UseCases", "SendReminders", "Application", "SendRemindersJob.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Application", "SendReminders", "SendRemindersJob.cs");
         model.Code.Elements.Add(Element(CodeKind.Job, "SendRemindersJob", file, "job/billing.send-reminders"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -120,21 +107,21 @@ public sealed class MarkFolderDriftTests
     public void ElementOutsideLayerRootsReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
+        var model = ModuleModel(temp.Path);
         var file = Path.Combine(temp.Path, "scratch", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
-    /// <summary>Element Directly In Layer Root Reports No Mark Folder Drift.</summary>
+    /// <summary>Element Directly In Modules Root Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void ElementDirectlyInLayerRootReportsNoMarkFolderDrift()
+    public void ElementDirectlyInModulesRootReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "HoldRoomCommandHandler.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
@@ -146,8 +133,8 @@ public sealed class MarkFolderDriftTests
     public void MarkNamingNoRecordReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "Billing", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Billing", "Application", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.ghost"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
@@ -159,8 +146,8 @@ public sealed class MarkFolderDriftTests
     public void TestElementOutsideItsModuleReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "Billing", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Billing", "Application", "HoldRoom", "HoldRoomCommandHandler.cs");
         var element = Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room") with
         {
             InTests = true,
@@ -176,21 +163,21 @@ public sealed class MarkFolderDriftTests
     public void ElementUnderProviderPlumbingReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Infrastructure", "Persistence", "Postgres", "NpgsqlModule.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Booking", "Infrastructure", "Persistence", "Postgres", "NpgsqlModule.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "NpgsqlModule", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
-    /// <summary>Element Under Cross Module Contracts Reports No Mark Folder Drift.</summary>
+    /// <summary>Element Under Module Contracts Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void ElementUnderCrossModuleContractsReportsNoMarkFolderDrift()
+    public void ElementUnderModuleContractsReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path);
-        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Application.Abstractions", "Shared", "Money.cs");
+        var model = ModuleModel(temp.Path);
+        var file = ProductFile(temp.Path, "Booking", "Contracts", "ModuleEvents", "Money.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
@@ -202,21 +189,21 @@ public sealed class MarkFolderDriftTests
     public void ElementUnderKernelReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
-        var model = DriftModel(temp.Path, "xml", "\"kernel\": \"apps/api/src/Library.Kernel\"");
+        var model = ModuleModel(temp.Path);
         var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel", "Money.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "aggregate/billing.invoice"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
-    /// <summary>Handler Outside Its Module In The Module BackendLayout Reports Mark Folder Drift.</summary>
+    /// <summary>Handler Outside Its Module In The Module Layout Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerOutsideItsModuleReportsMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
-        var file = ProductFile(temp.Path, "Billing", "Holds", "UseCases", "HoldRoom", "Application", "HoldRoomCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Billing", "Application", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -226,20 +213,20 @@ public sealed class MarkFolderDriftTests
         Assert.Contains("use-case/booking.hold-room", finding.Message);
     }
 
-    /// <summary>Handler In Its Module In The Module BackendLayout Reports No Mark Folder Drift.</summary>
+    /// <summary>Handler In Its Module In The Module Layout Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerInItsModuleReportsNoMarkFolderDrift()
     {
         using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
-        var file = ProductFile(temp.Path, "Booking", "Holds", "UseCases", "HoldRoom", "Application", "HoldRoomCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Booking", "Application", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
-    /// <summary>Host Endpoint In The Module BackendLayout Reports No Mark Folder Drift.</summary>
+    /// <summary>Host Endpoint In The Module Layout Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHostEndpointReportsNoMarkFolderDrift()
@@ -283,40 +270,6 @@ public sealed class MarkFolderDriftTests
         return Path.Combine([.. parts]);
     }
 
-    /// <summary>A model with layer roots and the records the drift cases mark.</summary>
-    /// <param name="root">The fixture root folder the record files sit under.</param>
-    /// <param name="marks">The mark style the model declares.</param>
-    /// <param name="dotnetExtra">Extra .NET source appended to the marked file, or null for none.</param>
-    /// <returns>The project model holding the records.</returns>
-    static ProjectModel DriftModel(string root, string marks = "xml", string? dotnetExtra = null)
-    {
-        var dotnet = """
-            "modules": "apps/api/src/Library.Application",
-            "domain": "apps/api/src/Library.Domain",
-            "webapi": "apps/api/src/Library.WebApi",
-            "infrastructure": "apps/api/src/Library.Infrastructure",
-            "worker": "apps/api/src/Library.Worker"
-            """;
-
-        if (dotnetExtra is { Length: > 0 })
-        {
-            dotnet += "," + dotnetExtra;
-        }
-
-        File.WriteAllText(
-            Path.Combine(root, ".litespec/project.yaml"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"" + marks + "\", \"stackConfig\": {\"dotnet\": {" + dotnet + "}}}");
-        var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
-
-        model.Records.Add(Rec("use-case", "use-case/booking.hold-room", root, """{"status": "reviewed", "kind": "command"}"""));
-        model.Records.Add(Rec("use-case", "use-case/booking.release-hold", root, """{"status": "reviewed", "kind": "command"}"""));
-        model.Records.Add(Rec("use-case", "use-case/billing.raise-invoice", root, """{"status": "reviewed", "kind": "command"}"""));
-        model.Records.Add(Rec("aggregate", "aggregate/billing.invoice", root, """{"status": "reviewed"}"""));
-        model.Records.Add(Rec("job", "job/billing.send-reminders", root, """{"status": "reviewed"}"""));
-
-        return model;
-    }
-
     /// <summary>One backend element carrying one mark.</summary>
     /// <param name="kind">The code element kind.</param>
     /// <param name="class">The class name carrying the mark.</param>
@@ -326,19 +279,6 @@ public sealed class MarkFolderDriftTests
     /// <returns>The marked code element.</returns>
     static MarkedElement Element(CodeKind kind, string @class, string file, string recordId, MarkStyle style = MarkStyle.Xml) =>
         new(kind, @class, null, file, 3, [new CodeMark(recordId, style, MarkVerb.Implements, file, 1)], InTests: false);
-
-    /// <summary>One file under a layer root.</summary>
-    /// <param name="root">The fixture root folder.</param>
-    /// <param name="layer">The layer folder name under the root.</param>
-    /// <param name="segments">The path segments under the layer folder.</param>
-    /// <returns>The full path to the file.</returns>
-    static string LayerFile(string root, string layer, params string[] segments)
-    {
-        var parts = new List<string> { root, "apps", "api", "src", "Library." + layer };
-        parts.AddRange(segments);
-
-        return Path.Combine([.. parts]);
-    }
 
     static Record Rec(string type, string id, string root, string json)
     {

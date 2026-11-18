@@ -92,7 +92,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 This informative example demonstrates `litespec/backend/dotnet/naming#match-c-files-and-primary-types`, `litespec/backend/dotnet/naming#put-the-cancellation-token-last`, `litespec/workspace/naming#use-architectural-suffixes`, and `litespec/workspace/naming#keep-namespaces-aligned-with-folders`.
 
 ```csharp
-namespace Example.Posts.UseCases.CreateDraft;
+namespace Example.Posts.Application.CreateDraft;
 
 internal sealed class CreateDraftCommandHandler
 {

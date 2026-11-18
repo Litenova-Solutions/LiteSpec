@@ -139,19 +139,13 @@ properties:
         additionalProperties: false
         properties:
           modules:
-            description: 'The module projects the model builder reads: one project per module under Modules/, each with its aggregates, use cases, reactions and jobs. Defaults to apps/api/src/Modules/*. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application. A single project holding every module stays allowed as apps/api/src/*.Modules.'
+            description: 'The module projects the model builder reads: one project per module under Modules/, each with its Domain, Application, Infrastructure and WebApi layers. Defaults to apps/api/src/Modules/*. A single project holding every module stays allowed as apps/api/src/*.Modules.'
             $ref: '#/$defs/projectPath'
           kernel:
             description: 'The Kernel project the model builder reads: the business values every module speaks, where reasonless names are allowed. Defaults to apps/api/src/*.Kernel.'
             $ref: '#/$defs/projectPath'
           platform:
             description: 'The Platform project the model builder reads: the technical capabilities with no business words. Defaults to apps/api/src/*.Platform.'
-            $ref: '#/$defs/projectPath'
-          domain:
-            description: 'The Domain project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Domain with that extension and to none without it.'
-            $ref: '#/$defs/projectPath'
-          infrastructure:
-            description: 'The Infrastructure project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Infrastructure with that extension and to none without it.'
             $ref: '#/$defs/projectPath'
           webapi:
             description: The web API host projects, one path each.

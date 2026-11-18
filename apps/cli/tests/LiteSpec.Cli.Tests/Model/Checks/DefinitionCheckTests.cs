@@ -416,7 +416,7 @@ public sealed class DefinitionCheckTests
     /// <returns>The Application folder.</returns>
     static string ApplicationFolder(string root)
     {
-        var folder = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "UseCases", "BorrowCopy", "Application");
+        var folder = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "BorrowCopy");
         Directory.CreateDirectory(folder);
 
         return folder;

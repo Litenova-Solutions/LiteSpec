@@ -1,6 +1,6 @@
 # Overview
 
-The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 56 rules, each with its own reference page.
+The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 55 rules, each with its own reference page.
 
 ## How the Pages Fit Together
 
@@ -18,23 +18,9 @@ A project that claims neither layer runs no rule, and the generator writes no so
 
 ### File Layers
 
-The analyzers work out each file's layer from its folder and, inside a use case folder, from its role suffix. A file under a `Domain/`, `Application/`, `Infrastructure/`, or `WebApi/` folder takes that layer. In a use case folder, a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` takes WebApi, and one whose name ends in `Command`, `Query`, `Result`, `Handler`, or `Validator` takes Application, as [the naming page](../workspace/naming.md) states. Test files take Test.
+The analyzers work out each file's layer from its top folder in the module. A file under a `Domain/`, `Application/`, `Infrastructure/`, or `WebApi/` folder takes that layer. Test files take Test.
 
-When the project selects the `layer-projects` extension, the analyzers read the layer from the assembly name suffix instead, as the table below states, and an explicit `LiteSpecLayer` value wins when both exist.
-
-| Assembly name suffix | Layer |
-|:---|:---|
-| `Shop.Domain` | Domain |
-| `Shop.Application.Abstractions` | ApplicationAbstractions |
-| `Shop.Application` | Application |
-| `Shop.Infrastructure` | Infrastructure |
-| `Shop.WebApi` | WebApi |
-| `Shop.Worker` | Worker |
-| `Shop.Domain.Tests` | Test |
-
-Under `layer-projects`, an assembly name with no listed suffix opts the project out, as does an explicit `LiteSpecLayer` value of `None`. Opting out turns off the whole package: no analyzer rule runs, and the generator writes no source and reports no diagnostic in that project. A declared `LiteSpecLayer` value that names no known layer still reports `LS2017`. The package reads the layout from `selectedExtensions` in `.litespec/project.yaml`, so there is nothing else to wire.
-
-In both layouts, three more suffixes name project roles: `Shop.Kernel` reads as Domain, so the business values answer the Domain rules; `Shop.Platform` reads as Infrastructure; and `Shop.Api` reads as WebApi beside the `WebApi` and `Worker` hosts. A module project such as `Shop.Orders` names no layer: each of its files takes its layer from its folder, as above.
+Three assembly name suffixes name project roles: `Shop.Kernel` reads as Domain, so the business values answer the Domain rules; `Shop.Platform` reads as Infrastructure; and `Shop.Api` reads as WebApi beside the `WebApi` and `Worker` hosts. A module project such as `Shop.Orders` names no layer: each of its files takes its layer from its folder, as above.
 
 ### Rule Layers
 
@@ -44,7 +30,6 @@ Each rule runs only in the layers its provision covers:
 - `LS2001` runs on Application, Infrastructure, WebApi, and Worker files.
 - `LS2004`, `LS2005`, `LS2007`, and `LS2009` to `LS2016` run on Application, Infrastructure, and Worker files.
 - `LS2003` and `LS2006` run on WebApi files.
-- `LS2017` reports an unknown declared value in any project.
 - `LS2018` runs on Application and WebApi files.
 - `LS2019` and `LS2020` run on every layer except Test.
 - `LS2021` runs on Domain, Application, and Infrastructure files of the modules project, and `LS2022` on every layer except Test.

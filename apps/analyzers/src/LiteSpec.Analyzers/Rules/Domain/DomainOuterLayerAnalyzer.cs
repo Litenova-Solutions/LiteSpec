@@ -120,7 +120,7 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
     /// <param name="map">The architectural home of every source file.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <returns>True when the type is an outer-layer concern for Domain; otherwise false.</returns>
-    // A value type in a module Contracts folder is a typed identifier or shared value the module
+    // A value type in a module Contracts project or folder is a typed identifier or shared value the module
     // publishes, and an exception there is a rule refusal the module publishes; Domain may name both.
     // A port or an integration event there stays outer.
     private static bool IsOuter(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
