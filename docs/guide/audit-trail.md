@@ -79,11 +79,18 @@ Implement `ICommandPreHandler`, the interface LiteBus runs before every command.
 Read the declaration from the command type, resolve the actor, the tenant, the clock, and the request context, and put the assembled scope into `IExecutionContext.Items`. The ambient execution context carries those items through every later pipeline stage.
 
 ```csharp
-internal sealed class OpenAuditScopePreHandler(IAuditScopeFactory factory) : ICommandPreHandler
+internal sealed class OpenAuditScopePreHandler : ICommandPreHandler
 {
+    private readonly IAuditScopeFactory _factory;
+
+    public OpenAuditScopePreHandler(IAuditScopeFactory factory)
+    {
+        _factory = factory;
+    }
+
     public Task PreHandleAsync(ICommand message, CancellationToken cancellationToken = default)
     {
-        var scope = factory.CreateFor(message);
+        var scope = _factory.CreateFor(message);
         if (scope is not null)
         {
             AmbientExecutionContext.Current.Items[AuditScope.Key] = scope;
@@ -131,19 +138,26 @@ Implement `ICommandErrorHandler`, which runs when any stage throws. Map an autho
 A rollback must not take the evidence with it, so write this record on a connection outside the failing transaction, as `litespec/ext/audit#write-an-unsuccessful-record-outside-the-failed-transaction` requires. Open a second session, write the record, and commit it there.
 
 ```csharp
-internal sealed class WriteFailedAuditRecordErrorHandler(IAuditFailureWriter writer) : ICommandErrorHandler
+internal sealed class WriteFailedAuditRecordErrorHandler : ICommandErrorHandler
 {
+    private readonly IAuditFailureWriter _writer;
+
+    public WriteFailedAuditRecordErrorHandler(IAuditFailureWriter writer)
+    {
+        _writer = writer;
+    }
+
     public async Task HandleErrorAsync(ICommand message, Exception exception, CancellationToken cancellationToken = default)
     {
         var scope = AmbientExecutionContext.Current.Items[AuditScope.Key] as AuditScope;
         if (scope is null)
         {
-            writer.CountMissingScope();
+            _writer.CountMissingScope();
             return;
         }
 
         var outcome = exception is UseCaseForbiddenException ? AuditOutcome.Denied : AuditOutcome.Failed;
-        await writer.WriteOutOfBandAsync(scope.Complete(outcome, exception), cancellationToken);
+        await _writer.WriteOutOfBandAsync(scope.Complete(outcome, exception), cancellationToken);
     }
 }
 ```
@@ -154,7 +168,9 @@ Publish the write failure count of this path, as `litespec/ext/audit#publish-uns
 
 Create a database role that holds `INSERT` and `SELECT` on the audit table and holds neither `UPDATE` nor `DELETE`, and write through that role. The database itself then refuses rewrites, which satisfies `litespec/ext/audit#enforce-append-only-through-storage-privilege`.
 
-Then make tampering visible. Compute `entryHash` over the canonical record content and the preceding `previousHash`, and run a recurring job that walks the chain and raises an alert on a break. The pair satisfies `litespec/ext/audit#chain-records-to-expose-tampering` and `litespec/ext/audit#verify-the-integrity-chain-on-a-schedule`.
+Hold one hash chain segment per audited category and calendar year, each with its own genesis record and checkpoints, as `litespec/ext/audit#segment-the-audit-chain-by-category-and-calendar-year` requires. Then make tampering visible. Compute `entryHash` over the canonical record content and the preceding `previousHash` within the segment, publish a checkpoint of each live segment's head and record count where the store's operators cannot rewrite it, and run a recurring job that walks each live segment and raises an alert on a break. The chain, the checkpoints, and the job satisfy `litespec/ext/audit#chain-records-to-expose-tampering`, `litespec/ext/audit#anchor-the-audit-chain-outside-its-own-store`, and `litespec/ext/audit#verify-the-integrity-chain-on-a-schedule`.
+
+Delete expired segments through a separate operator process under its own account holding `DELETE`, as `litespec/ext/audit#delete-expired-records-through-a-separate-operator-account` requires. Close each segment with a final checkpoint, delete it as a whole after its category's retention ends, and record the deletion in the following segment of the same category.
 
 ### Provide the Read Path
 
