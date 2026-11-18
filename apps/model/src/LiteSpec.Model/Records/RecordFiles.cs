@@ -51,7 +51,7 @@ public static class RecordFiles
         {
             problems.Add(new Finding(
                 "record-invalid",
-                $"Record file '{path}' could not be read: {exception.Message}",
+                $"Record file '{path}' could not be read: {exception.Message}{YamlText.ColonHint(text, exception.Line) ?? string.Empty}",
                 path,
                 exception.Line,
                 null));

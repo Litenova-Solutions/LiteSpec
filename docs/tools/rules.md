@@ -35,7 +35,7 @@ A marked provision identifier always comes back. Project conventions print besid
 
 For a code target, provisions matched only through a marked record collapse to one line per record: `use-case/spending.approve-expense: <n> provisions about the record; model check checks <m>; run rules use-case/spending.approve-expense for the rest`. A record path or record ID still prints them in full, each conditional provision with its condition shown. A path that marks no record leaves conditional provisions out.
 
-`rules --since <ref>` gathers every file changed since the git revision and returns the union with duplicates removed. Tool-checked provisions are left out, and what prints is a report skeleton: one line per judgment provision with its Reviewed for question and an empty `How judged:` line.
+`rules --since <ref>` gathers every file changed since the git revision and returns the union with duplicates removed, ordered by how many changed files each provision governs, most first. Tool-checked provisions are left out, and what prints is a report skeleton: one line per judgment provision with its file count, its Reviewed for question, and an empty `How judged:` line.
 
 `rules <provision-id>` prints one provision in full: strength, statement, rationale, example, Reviewed for or Checked by, and page. `rules <page-id>` prints the page's provision list. Both read the carried provisions file, so both work offline.
 

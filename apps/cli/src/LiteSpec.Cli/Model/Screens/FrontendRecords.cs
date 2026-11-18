@@ -176,7 +176,7 @@ static class FrontendRecords
         lines.AddRange(Union("UseCaseId", useCaseIds));
         lines.AddRange(Union("ScreenId", screenIds));
         lines.AddRange(Union("ProofTargetId", proofTargetIds));
-        lines.Add("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }");
+        lines.Add("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId; readonly offers?: readonly UseCaseId[] }");
         lines.Add("export function proves(id: ProofTargetId): { annotation: [{ type: \"proves\"; description: ProofTargetId }] } {");
         lines.Add("  return { annotation: [{ type: \"proves\", description: id }] };");
         lines.Add("}");

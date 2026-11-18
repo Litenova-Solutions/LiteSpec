@@ -367,15 +367,16 @@ static class RecordReader
         }
 
         JsonText tree;
+        var glossaryText = SourceTree.Read(config.GlossaryPath);
 
         try
         {
-            tree = YamlText.Parse(SourceTree.Read(config.GlossaryPath));
+            tree = YamlText.Parse(glossaryText);
         }
         catch (JsonTextException exception)
         {
             problems.Add(new Finding(
-                "record-invalid", $"The glossary is not YAML: {exception.Message}",
+                "record-invalid", $"The glossary is not YAML: {exception.Message}{YamlText.ColonHint(glossaryText, exception.Line) ?? string.Empty}",
                 config.GlossaryPath, exception.Line, null));
             return;
         }

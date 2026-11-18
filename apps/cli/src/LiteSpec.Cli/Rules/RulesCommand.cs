@@ -108,7 +108,7 @@ static class RulesCommand
         return RunLookup(home, target);
     }
 
-    /// <summary>Runs the change-set mode: the union of judgment provisions over the files changed since the revision.</summary>
+    /// <summary>Runs the change-set mode: the union of judgment provisions over the files changed since the revision, ordered by how many changed files each provision governs.</summary>
     /// <param name="config">The consumer configuration.</param>
     /// <param name="home">The carried LiteSpec release root.</param>
     /// <param name="manifest">The release manifest object.</param>
@@ -128,6 +128,7 @@ static class RulesCommand
         }
 
         var union = new Dictionary<string, ProvisionMatch>(StringComparer.Ordinal);
+        var governing = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var queried = 0;
 
         foreach (var file in files.OrderBy(path => path, StringComparer.Ordinal))
@@ -148,10 +149,20 @@ static class RulesCommand
 
             foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context))
             {
-                if (!match.IsChecked && !union.ContainsKey(match.Entry.Id))
+                if (match.IsChecked)
                 {
-                    union[match.Entry.Id] = match;
+                    continue;
                 }
+
+                union.TryAdd(match.Entry.Id, match);
+
+                if (!governing.TryGetValue(match.Entry.Id, out var governed))
+                {
+                    governed = new HashSet<string>(StringComparer.Ordinal);
+                    governing[match.Entry.Id] = governed;
+                }
+
+                governed.Add(file);
             }
         }
 
@@ -160,11 +171,20 @@ static class RulesCommand
 
         ordered.Sort((left, right) =>
         {
+            // The provisions governing most of the change print first, so the report skeleton
+            // answers the widest judgments before the narrow ones.
+            var governed = governing[right.Entry.Id].Count.CompareTo(governing[left.Entry.Id].Count);
+
+            if (governed != 0)
+            {
+                return governed;
+            }
+
             var rank = groups.IndexOf(left.Entry.Group).CompareTo(groups.IndexOf(right.Entry.Group));
             return rank != 0 ? rank : string.CompareOrdinal(left.Entry.Id, right.Entry.Id);
         });
 
-        PrintSince(sinceRef, queried, ordered);
+        PrintSince(sinceRef, queried, ordered, governing.ToDictionary(pair => pair.Key, pair => pair.Value.Count, StringComparer.Ordinal));
         return 0;
     }
 
@@ -375,11 +395,12 @@ static class RulesCommand
         }
     }
 
-    /// <summary>Prints the change-set report skeleton: one judgment provision per entry with its Reviewed for question, or its Default sentence when it states no verification line, and an empty How judged line.</summary>
+    /// <summary>Prints the change-set report skeleton: one judgment provision per entry with its file count, its Reviewed for question, or its Default sentence when it states no verification line, and an empty How judged line.</summary>
     /// <param name="sinceRef">The git revision the change set was read from.</param>
     /// <param name="files">How many changed files were queried.</param>
     /// <param name="union">The judgment provisions in print order.</param>
-    static void PrintSince(string sinceRef, int files, List<ProvisionMatch> union)
+    /// <param name="counts">How many changed files each provision governs, by provision id.</param>
+    static void PrintSince(string sinceRef, int files, List<ProvisionMatch> union, IReadOnlyDictionary<string, int> counts)
     {
         CliHost.Out.WriteLine($"Rules since {sinceRef} ({files} files, {union.Count} judgment provisions):");
 
@@ -392,7 +413,8 @@ static class RulesCommand
         foreach (var match in union)
         {
             var question = match.Entry.ReviewedFor.Length > 0 ? match.Entry.ReviewedFor : match.Entry.Statement;
-            CliHost.Out.WriteLine($"- {match.Entry.Id}: {question}");
+            var governed = counts[match.Entry.Id];
+            CliHost.Out.WriteLine($"- {match.Entry.Id} ({governed} {(governed == 1 ? "file" : "files")}): {question}");
             CliHost.Out.WriteLine("  How judged:");
         }
     }

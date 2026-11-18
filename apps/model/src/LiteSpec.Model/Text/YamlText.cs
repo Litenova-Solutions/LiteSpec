@@ -185,6 +185,79 @@ public static class YamlText
         return line < 0 ? 0 : line;
     }
 
+    /// <summary>The hint for a parse failure on a line whose plain value holds ': ', or null when the line holds no such value.</summary>
+    /// <param name="text">The YAML text that failed to parse.</param>
+    /// <param name="line">The 1-based failing line.</param>
+    /// <returns>The hint naming the field, or null when the line holds no plain value with ': '.</returns>
+    public static string? ColonHint(string text, int line)
+    {
+        var lines = text.Split('\n');
+
+        if (line < 1 || line > lines.Length)
+        {
+            return null;
+        }
+
+        var trimmed = lines[line - 1].TrimEnd('\r').TrimStart(' ');
+
+        if (trimmed.StartsWith("- ", StringComparison.Ordinal))
+        {
+            trimmed = trimmed.Substring(2).TrimStart(' ');
+        }
+
+        var separator = trimmed.IndexOf(": ", StringComparison.Ordinal);
+
+        if (separator <= 0)
+        {
+            return null;
+        }
+
+        var key = trimmed.Substring(0, separator).TrimEnd(' ');
+
+        if (key.Length == 0 || !IsPlainKey(key))
+        {
+            return null;
+        }
+
+        var value = trimmed.Substring(separator + 2);
+
+        // A quoted or block value may hold ': ' legally, so the failure sits elsewhere.
+        if (value.Length > 0 && value[0] is '"' or '\'' or '|' or '>')
+        {
+            return null;
+        }
+
+        var comment = value.IndexOf(" #", StringComparison.Ordinal);
+
+        if (comment >= 0)
+        {
+            value = value.Substring(0, comment);
+        }
+
+        if (value.IndexOf(": ", StringComparison.Ordinal) < 0)
+        {
+            return null;
+        }
+
+        return $" The '{key}' value contains ': ', which YAML reads as a new key. Quote the value or rephrase it without the colon.";
+    }
+
+    /// <summary>Whether the text reads as one plain mapping key: no spaces, quotes, or comment marks.</summary>
+    /// <param name="text">The key text.</param>
+    /// <returns>True when the text reads as one plain key.</returns>
+    private static bool IsPlainKey(string text)
+    {
+        foreach (var character in text)
+        {
+            if (character is ' ' or '\t' or '#' or ':' or '"' or '\'')
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /// <summary>The duplicate key a YAML error reports, or null when the error reports none.</summary>
     /// <param name="exception">The YAML error.</param>
     /// <returns>The duplicate key, or null.</returns>

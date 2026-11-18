@@ -24,7 +24,7 @@ The five subcommands are `check`, `format`, `render`, `query`, and `edges`.
 
 `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It runs only the findings of the layers the project claims in `layers`, in both the model checks and the consumer pass, as the finding table states per code. It runs the consumer pass over the project file, the record pages, the glossary, and the controlled UI, and reports those findings in the same shape, so one command and one CI step check the whole consumer.
 
-In text, `check` lists every open blocking finding in full, then one line per finding code with its count and level, ordered by level (G, then S, then A) and then by count, such as `       3  record-invalid (level G)`, and then the totals line. Level A findings appear only in those counts unless `--all` lists each one.
+In text, `check` lists every open blocking finding in full, then one line per finding code with its count and level, ordered by level (G, then S, then A) and then by count, such as `       3  record-invalid (level G)`, and then the totals line. Level A findings appear only in those counts unless `--all` lists each one. When the installed release differs from the release the project reviewed, the `release-drift` finding prints before every other finding: it names both releases and the command that installs the reviewed one, because every finding after it may not apply.
 
 With `--format json`, it writes one JSON object: the `findings` array holds every finding the run shows, and the `covered` array holds every finding a live waiver covers.
 
@@ -40,7 +40,7 @@ With `--module <module>`, the command prints only the findings on the records an
 
 `render` rewrites the fenced generated regions in explanation files and documents, touching no text outside the fences. It writes the `source-links` region at the end of each research and constraint explanation that declares sources, and it inserts or rewrites the `agent-protocol` region in `AGENTS.md` from the carried release and the project file.
 
-It also rewrites each marked project-scope skill copy that differs from what the carried release generates, writes `litespec-records.ts` into each React and Svelte frontend frame, and writes the UI source lock beside the shared package.
+It also rewrites each marked project-scope skill copy that differs from what the carried release generates, writes `litespec-records.ts` into each React and Svelte frontend frame, and writes the UI source lock beside the shared package. `render` writes nothing when a record file does not parse: it lists each invalid file and exits 2, so a rendered identifier list is never quietly short.
 
 `query` prints one record with its links in both directions, showing its identifier and its folder path; agents use it to load a record's context. Its completion block carries the stage with three counts, `inScope`, `parked` and `total`: `heldBy` lists only the in-scope records holding the stage back, and `parkedBy` lists each parked record with the waiver parking it and its `expiresOn`.
 
@@ -109,7 +109,7 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 |:--|:--|
 | `0` | The command finished with no open blocking finding and, for `check`, a complete inspection. |
 | `1` | `check` found an open blocking finding or an expired waiver, `query` found no record with the `id`, `format --check` found a file it would change, or the run failed. With `--search` or `--list`, no match prints nothing and exits 0. |
-| `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, the `--list` type or `--module` name is unknown, or `format` found a file that does not parse. |
+| `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, the `--list` type or `--module` name is unknown, or `format` or `render` found a file that does not parse. |
 | `3` | `check` found no open blocking finding but the inspection was incomplete: a reader was missing, so some level S findings report without blocking. The run prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line, one clause per frontend. |
 
 ## Examples

@@ -192,6 +192,13 @@ static class ModelCommand
                     covered = covered.Where(finding => InModule(model, config, finding, onlyModule)).ToList();
                 }
 
+                // A release drift makes every other finding suspect: the installed tool reads the project
+                // against a release the project never reviewed. The drift finding prints first, so no one
+                // starts fixing findings that may not apply.
+                shown = shown
+                    .OrderByDescending(entry => entry.Finding.Code == "release-drift")
+                    .ToList();
+
                 var incomplete = IncompleteLine(MissingReaders(config, shown), NotBlocking(shown));
 
                 if (json)
@@ -327,6 +334,26 @@ static class ModelCommand
             case "render":
             {
                 var model = ModelBuilder.Build(config);
+
+                // A rendered identifier list must never be quietly short: when a record file
+                // does not parse, render writes nothing and names each invalid file instead.
+                var invalid = model.Problems
+                    .Where(finding => finding.Code == "record-invalid" && IsParseFailure(finding))
+                    .Select(finding => PathText.Relative(config.Root, finding.Path))
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(path => path, StringComparer.Ordinal)
+                    .ToList();
+
+                if (invalid.Count > 0)
+                {
+                    foreach (var file in invalid)
+                    {
+                        CliHost.Error.WriteLine($"{file}: does not parse.");
+                    }
+
+                    CliHost.Out.WriteLine("0 files rewritten.");
+                    return 2;
+                }
 
                 // Render writes every generated output: the fenced regions in
                 // explanation files and documents, the agent-protocol region in
@@ -534,6 +561,13 @@ static class ModelCommand
         known.Count == 0
             ? $"Unknown module '{module}': this project declares no modules."
             : $"Unknown module '{module}'. Use one of: {string.Join(", ", known.OrderBy(name => name, StringComparer.Ordinal))}.";
+
+    /// <summary>Whether the finding reports a file that does not parse, rather than one that parses but holds no valid record.</summary>
+    /// <param name="finding">The finding to test.</param>
+    /// <returns>True when the finding reports a record, document, or glossary file that does not parse.</returns>
+    static bool IsParseFailure(Finding finding) =>
+        finding.Message.Contains("could not be read", StringComparison.Ordinal)
+        || finding.Message.StartsWith("The glossary is not YAML", StringComparison.Ordinal);
 
     /// <summary>Whether the finding belongs to the module: its subject record's module, else its file's module folder.</summary>
     /// <param name="model">The built project model resolving the finding subject.</param>
