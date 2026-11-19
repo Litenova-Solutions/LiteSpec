@@ -2,9 +2,13 @@ using LiteBus.Messaging.Abstractions;
 
 namespace Claimwick.Spending.Application.Receipts.AttachReceipt;
 
-/// <summary>Declares the attach-receipt command idempotent through the receipt state, which keeps the same receipt attached.</summary>
-internal sealed class AttachReceiptCommandIdempotencyDefinition : IIdempotencyDefinition<AttachReceiptCommand>
+/// <summary>Declares that attach receipt needs no idempotency key: the command recognizes a repeat by state, since a stored key would outlive that state.</summary>
+internal sealed class AttachReceiptCommandIdempotencyDefinition : IMessageDefinition<AttachReceiptCommand>
 {
-    public IdempotencyDeclaration Idempotency { get; } = IdempotencyDeclaration.Idempotent(
-        "A repeat attaches the same receipt to the same submitted expense, leaving the same receipt attached.");
+    /// <inheritdoc />
+    public void Describe(IMessageDeclarations declarations)
+    {
+        ArgumentNullException.ThrowIfNull(declarations);
+        declarations.Exempt<IdempotencyDeclaration>("recognized by state: the aggregate state already holds the outcome this command sets");
+    }
 }

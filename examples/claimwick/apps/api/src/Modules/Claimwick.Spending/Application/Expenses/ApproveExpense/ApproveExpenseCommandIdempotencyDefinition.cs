@@ -2,9 +2,13 @@ using LiteBus.Messaging.Abstractions;
 
 namespace Claimwick.Spending.Application.Expenses.ApproveExpense;
 
-/// <summary>Declares the approve-expense command idempotent through the expense state, which refuses a second approval.</summary>
-internal sealed class ApproveExpenseCommandIdempotencyDefinition : IIdempotencyDefinition<ApproveExpenseCommand>
+/// <summary>Declares that approve expense needs no idempotency key: the command recognizes a repeat by state, since a stored key would outlive that state.</summary>
+internal sealed class ApproveExpenseCommandIdempotencyDefinition : IMessageDefinition<ApproveExpenseCommand>
 {
-    public IdempotencyDeclaration Idempotency { get; } = IdempotencyDeclaration.Idempotent(
-        "The first approval moves the expense out of the submitted state, so the aggregate refuses a second approval.");
+    /// <inheritdoc />
+    public void Describe(IMessageDeclarations declarations)
+    {
+        ArgumentNullException.ThrowIfNull(declarations);
+        declarations.Exempt<IdempotencyDeclaration>("recognized by state: the aggregate state already holds the outcome this command sets");
+    }
 }

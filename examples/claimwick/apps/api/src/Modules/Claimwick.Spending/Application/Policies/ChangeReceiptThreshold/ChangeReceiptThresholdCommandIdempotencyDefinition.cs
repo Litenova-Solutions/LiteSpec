@@ -2,9 +2,13 @@ using LiteBus.Messaging.Abstractions;
 
 namespace Claimwick.Spending.Application.Policies.ChangeReceiptThreshold;
 
-/// <summary>Declares the change-receipt-threshold command idempotent through the policy state, which keeps the same value in place.</summary>
-internal sealed class ChangeReceiptThresholdCommandIdempotencyDefinition : IIdempotencyDefinition<ChangeReceiptThresholdCommand>
+/// <summary>Declares that change receipt threshold needs no idempotency key: the command recognizes a repeat by state, since a stored key would outlive that state.</summary>
+internal sealed class ChangeReceiptThresholdCommandIdempotencyDefinition : IMessageDefinition<ChangeReceiptThresholdCommand>
 {
-    public IdempotencyDeclaration Idempotency { get; } = IdempotencyDeclaration.Idempotent(
-        "A repeat sets the same threshold on the policy, leaving the same value in place.");
+    /// <inheritdoc />
+    public void Describe(IMessageDeclarations declarations)
+    {
+        ArgumentNullException.ThrowIfNull(declarations);
+        declarations.Exempt<IdempotencyDeclaration>("recognized by state: the aggregate state already holds the outcome this command sets");
+    }
 }

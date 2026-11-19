@@ -2,9 +2,13 @@ using LiteBus.Messaging.Abstractions;
 
 namespace Claimwick.Spending.Application.Expenses.ErasePersonalData;
 
-/// <summary>Declares the erase-personal-data command idempotent through the expense state, since a repeat finds nothing to erase.</summary>
-internal sealed class ErasePersonalDataCommandIdempotencyDefinition : IIdempotencyDefinition<ErasePersonalDataCommand>
+/// <summary>Declares that erase personal data needs no idempotency key: the command recognizes a repeat by state, since a stored key would outlive that state.</summary>
+internal sealed class ErasePersonalDataCommandIdempotencyDefinition : IMessageDefinition<ErasePersonalDataCommand>
 {
-    public IdempotencyDeclaration Idempotency { get; } = IdempotencyDeclaration.Idempotent(
-        "The first call deletes the expense, so a repeat finds nothing to erase.");
+    /// <inheritdoc />
+    public void Describe(IMessageDeclarations declarations)
+    {
+        ArgumentNullException.ThrowIfNull(declarations);
+        declarations.Exempt<IdempotencyDeclaration>("recognized by state: the aggregate state already holds the outcome this command sets");
+    }
 }
