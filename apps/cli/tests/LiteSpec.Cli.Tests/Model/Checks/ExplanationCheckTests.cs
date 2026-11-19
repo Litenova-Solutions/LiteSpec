@@ -143,7 +143,7 @@ public sealed class ExplanationCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks.", "findings": [{"statement": "Others lend for three weeks.", "sources": ["benchmark-report"]}]}""",
+                """{"sources": [{"name": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks.", "findings": [{"statement": "Others lend for three weeks.", "sources": ["benchmark-report"]}]}""",
                 Path.Combine(temp.Path, "benchmarks.md"),
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Source Notes\n\nOne source covers the answer.\n"));
 
@@ -169,7 +169,7 @@ public sealed class ExplanationCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"name": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 Path.Combine(temp.Path, "benchmarks.md"),
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nOthers lend for three weeks [per the report][benchmark-report].\n"));
 
@@ -185,7 +185,7 @@ public sealed class ExplanationCheckTests
         var file = Path.Combine(temp.Path, ".litespec", "benchmarks.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("research", "research/loan-period-benchmarks", file, """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
+            TestModel.Record("research", "research/loan-period-benchmarks", file, """{"sources": [{"name": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }

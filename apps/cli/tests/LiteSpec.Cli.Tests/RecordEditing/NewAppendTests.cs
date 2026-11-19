@@ -30,7 +30,7 @@ public sealed class NewAppendTests
               "id": "result/borrow-copy.copy-unavailable",
               "title": "Copy unavailable",
               "outcome": "refusal",
-              "code": "lending.copy-not-available",
+              "refusal": "refusal/lending.copy-not-available",
               "meaning": "The copy is unavailable."
             },
             {
@@ -209,7 +209,7 @@ public sealed class NewAppendTests
             ["id"] = "result/borrow-copy.copy-on-loan",
             ["title"] = "Copy on loan",
             ["outcome"] = "refusal",
-            ["code"] = "lending.copy-on-loan",
+            ["refusal"] = "refusal/lending.copy-on-loan",
             ["meaning"] = "The copy is on loan.",
         };
         var before = RecordFile.Write(JsonNode.Parse(OrderedJson)!);

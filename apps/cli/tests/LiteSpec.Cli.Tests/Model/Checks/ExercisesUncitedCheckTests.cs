@@ -15,7 +15,7 @@ public sealed class ExercisesUncitedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"], "refusal": "spending.already-reimbursed"}"""),
+            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"], "refusal": "refusal/spending.already-reimbursed"}"""),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending stores the expense."}]}"""),
             TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit-expense.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-succeeds", Path.Combine(temp.Path, "submit-expense.yaml"), """{"given": "An employee paid for a train ticket.", "when": "The employee submits the expense.", "then": "The expense is submitted.", "result": "result/submit-expense.submitted", "exercises": ["rule/expense.reimbursed-once"]}"""));
@@ -35,7 +35,7 @@ public sealed class ExercisesUncitedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.expense"], "refusal": "spending.receipt-missing"}"""),
+            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.expense"], "refusal": "refusal/spending.receipt-missing"}"""),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending checks the receipt rule.", "cites": ["rule/expense.receipt-required-above-threshold"]}]}"""),
             TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit-expense.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-succeeds", Path.Combine(temp.Path, "submit-expense.yaml"), """{"given": "An employee paid for a train ticket.", "when": "The employee submits the expense.", "then": "The expense is submitted.", "result": "result/submit-expense.submitted", "exercises": ["rule/expense.receipt-required-above-threshold"]}"""));
@@ -52,7 +52,7 @@ public sealed class ExercisesUncitedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.expense"], "refusal": "spending.receipt-missing"}"""),
+            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.expense"], "refusal": "refusal/spending.receipt-missing"}"""),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "input": [{"name": "receipt", "meaning": "The proof of payment.", "type": "text", "required": false, "rules": ["rule/expense.receipt-required-above-threshold"], "origin": "caller", "classification": "internal"}], "steps": [{"statement": "Spending stores the expense."}]}"""),
             TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit-expense.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-succeeds", Path.Combine(temp.Path, "submit-expense.yaml"), """{"given": "An employee paid for a train ticket.", "when": "The employee submits the expense.", "then": "The expense is submitted.", "result": "result/submit-expense.submitted", "exercises": ["rule/expense.receipt-required-above-threshold"]}"""));
@@ -69,9 +69,9 @@ public sealed class ExercisesUncitedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.expense"], "refusal": "spending.receipt-missing"}"""),
+            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.expense"], "refusal": "refusal/spending.receipt-missing"}"""),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending stores the expense."}]}"""),
-            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit-expense.yaml"), """{"outcome": "refusal", "code": "spending.receipt-missing"}"""),
+            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit-expense.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.receipt-missing"}"""),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-without-a-receipt-is-refused", Path.Combine(temp.Path, "submit-expense.yaml"), """{"given": "An employee lost the receipt.", "when": "The employee submits the expense.", "then": "The submission is refused.", "result": "result/submit-expense.receipt-missing", "exercises": ["rule/expense.receipt-required-above-threshold"]}"""));
 
         Assert.DoesNotContain("exercises-uncited", TestModel.Codes(model));

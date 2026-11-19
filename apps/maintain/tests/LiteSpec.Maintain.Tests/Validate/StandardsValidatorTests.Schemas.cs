@@ -265,7 +265,7 @@ public sealed partial class StandardsValidatorTests
                 "\"betaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
-        []);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Plural record-type noun holding prose.</summary>
     /// <proves>litespec/core/language#read-each-field-name-in-its-record-type</proves>
@@ -471,7 +471,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
                 "\"reactionPage\":{\"type\":\"object\",\"properties\":{\"triggeredBy\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"skippedWhen\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
-                "\"jobPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]},\"guard\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"jobPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]},\"note\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/aggregateId\"}}}}," +
                 "\"scenarioEntry\":{\"type\":\"object\",\"properties\":{\"exercises\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/ruleId\"}}}}," +
                 "\"aggregateId\":{\"type\":\"string\"}," +
@@ -579,14 +579,14 @@ public sealed partial class StandardsValidatorTests
                 "\"required\":[\"type\",\"id\"]," +
                 "\"properties\":{\"type\":{\"const\":\"screen\"}," +
                 "\"id\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
-                "\"address\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"route\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"host\":{\"$ref\":\"#/$defs/nonEmptyString\"}}," +
-                "\"oneOf\":[{\"required\":[\"address\"],\"not\":{\"required\":[\"host\"]}}," +
-                "{\"required\":[\"host\"],\"not\":{\"required\":[\"address\"]}}]}," +
+                "\"oneOf\":[{\"required\":[\"route\"],\"not\":{\"required\":[\"host\"]}}," +
+                "{\"required\":[\"host\"],\"not\":{\"required\":[\"route\"]}}]}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
             StandardsFixture.Write(root, "templates/consumer/screen.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"screen\",\"id\":\"screen/sample\"," +
-                "\"address\":\"<Route template, or remove this line and keep host>\"," +
+                "\"route\":\"<Route template, or remove this line and keep host>\"," +
                 "\"host\":\"screen/sample\"}"));
         },
         []);
@@ -626,7 +626,7 @@ public sealed partial class StandardsValidatorTests
                 "\"required\":[\"type\",\"batchSize\"]," +
                 "\"properties\":{\"type\":{\"const\":\"job\"}," +
                 "\"batchSize\":{\"type\":\"integer\"}," +
-                "\"retry\":{\"anyOf\":[{\"const\":\"none\"},{\"$ref\":\"#/$defs/retryPolicy\"}]}}}," +
+                "\"retry\":{\"$ref\":\"#/$defs/retryPolicy\"}}}," +
                 "\"retryPolicy\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"maxAttempts\"]," +
                 "\"properties\":{\"maxAttempts\":{\"type\":\"integer\",\"minimum\":1}}}}}");
@@ -676,11 +676,11 @@ public sealed partial class StandardsValidatorTests
                 "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"triggeredBy\":{\"$ref\":\"#/$defs/reactionTriggeredBy\"}}}," +
                 "\"reactionId\":{\"type\":\"string\",\"pattern\":\"^reaction/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
-                "\"reactionTriggeredBy\":{\"type\":\"object\"}," +
+                "\"reactionTriggeredBy\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
             StandardsFixture.Write(root, "templates/consumer/reaction.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"reaction\",\"id\":\"reaction/<module>.<name>\",\"title\":\"<Reaction display title>\"," +
-                "\"triggeredBy\":{}}"));
+                "\"triggeredBy\":[]}"));
         },
         []);
 

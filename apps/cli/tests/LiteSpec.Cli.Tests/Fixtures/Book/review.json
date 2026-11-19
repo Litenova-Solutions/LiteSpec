@@ -238,17 +238,11 @@
         ],
         "choice": "Kiosk",
         "reopenedWhen": "Queues persist.",
-        "decides": [
-          "feature/self-checkout"
-        ],
         "basedOn": [
           "research/member-survey"
         ]
       },
       "links": {
-        "decides": [
-          "feature/self-checkout"
-        ],
         "basedOn": [
           "research/member-survey"
         ]
@@ -1022,16 +1016,9 @@
         "title": "Member",
         "owner": "lending-team",
         "status": "reviewed",
-        "scope": "platform",
-        "allows": [
-          "permission/borrow-copy"
-        ]
+        "scope": "platform"
       },
-      "links": {
-        "allows": [
-          "permission/borrow-copy"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "permission",
@@ -1050,9 +1037,16 @@
         "title": "Borrow Copy",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Borrow a copy."
+        "meaning": "Borrow a copy.",
+        "grantedTo": [
+          "role/member"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/member"
+        ]
+      }
     },
     {
       "type": "entry-point",

@@ -112,7 +112,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused","sentence":"The checkout is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The checkout is refused."}""",
             temp.Path));
 
         var findings = WithCode(model, "wording-alias");
@@ -134,7 +134,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused","sentence":"The sales invoice is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The sales invoice is refused."}""",
             temp.Path));
 
         Assert.Empty(WithCode(model, "wording-alias"));
@@ -152,7 +152,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused","sentence":"The invoice is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The invoice is refused."}""",
             temp.Path));
 
         var findings = WithCode(model, "wording-alias");
@@ -174,7 +174,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused","sentence":"The sales invoice is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The sales invoice is refused."}""",
             temp.Path));
 
         Assert.Empty(WithCode(model, "wording-alias"));
@@ -283,7 +283,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused","sentences":{"nl":"De lijst is geweigerd."}}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentences":{"nl":"De lijst is geweigerd."}}""",
             temp.Path));
 
         Assert.Empty(WithCode(model, "sentence-language-missing"));
@@ -312,7 +312,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "entry-point/app");
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser","languages":["en","nl"]}""", temp.Path));
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
-        using var document = JsonDocument.Parse("""{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused"}""");
+        using var document = JsonDocument.Parse("""{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused"}""");
         model.Records.Add(new Record
         {
             Type = "result",
@@ -408,7 +408,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
         model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"]}""", root));
         model.Records.Add(Rec("result", "result/list-loans.listed", """{"outcome":"success","meaning":"The loans are listed."}""", root));
-        model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused"}""", root));
+        model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused"}""", root));
 
         return model;
     }

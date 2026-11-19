@@ -19,7 +19,7 @@ public sealed class ConstraintBasedOnCheckTests
                 "constraint/library-privacy-law",
                 Path.Combine(temp.Path, "library-privacy-law.yaml"),
                 1,
-                """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records.", "basedOn": ["decision/0001-loan-store"]}"""),
+                """{"authority": "City ordinance.", "sources": [{"name": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records.", "basedOn": ["decision/0001-loan-store"]}"""),
             TestModel.Record(
                 "decision",
                 "decision/0001-loan-store",
@@ -46,13 +46,13 @@ public sealed class ConstraintBasedOnCheckTests
                 "constraint/library-privacy-law",
                 Path.Combine(temp.Path, "library-privacy-law.yaml"),
                 1,
-                """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records.", "basedOn": ["research/loan-terms"]}"""),
+                """{"authority": "City ordinance.", "sources": [{"name": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records.", "basedOn": ["research/loan-terms"]}"""),
             TestModel.Record(
                 "research",
                 "research/loan-terms",
                 Path.Combine(temp.Path, "loan-terms.yaml"),
                 1,
-                """{"sources": [{"key": "lib-manual", "url": "https://example.com/manual", "readOn": "2026-01-02"}], "question": "How long is a loan?", "conclusion": "Loans run for two weeks."}"""));
+                """{"sources": [{"name": "lib-manual", "url": "https://example.com/manual", "readOn": "2026-01-02"}], "question": "How long is a loan?", "conclusion": "Loans run for two weeks."}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Message.Contains("basedOn", StringComparison.Ordinal));
     }

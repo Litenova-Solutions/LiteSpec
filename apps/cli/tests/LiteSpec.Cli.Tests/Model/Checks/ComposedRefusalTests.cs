@@ -68,6 +68,6 @@ public sealed class ComposedRefusalTests
         return TestModel.Model(
             TestModel.Config(root),
             TestModel.Record("use-case", "use-case/lending.register-copy", file, """{"status": "reviewed", "kind": "command"}"""),
-            TestModel.Record("result", "result/register-copy.barcode-taken", file, "{\"status\": \"reviewed\", \"outcome\": \"refusal\", \"code\": \"" + code + "\", \"meaning\": \"Another copy holds the barcode.\"}"));
+            TestModel.Record("result", "result/register-copy.barcode-taken", file, "{\"status\": \"reviewed\", \"outcome\": \"refusal\", \"refusal\": \"refusal/" + code + "\", \"meaning\": \"Another copy holds the barcode.\"}"));
     }
 }

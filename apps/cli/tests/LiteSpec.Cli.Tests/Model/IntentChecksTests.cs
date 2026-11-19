@@ -115,14 +115,33 @@ public sealed class IntentChecksTests
         Assert.Contains("goal-mover-missing", result.Output);
     }
 
-    /// <summary>A flow step naming both an actor and a system blocks with record-invalid.</summary>
+    /// <summary>A flow step naming a system actor no external system represents blocks with record-invalid.</summary>
     /// <proves>litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system</proves>
     [Fact]
-    public void FlowStepWithActorAndSystemBlocks()
+    public void FlowStepWithUnrepresentedSystemActorBlocks()
     {
         using var fixture = ModelFixture.Prepare("large");
+        TestRecords.Write(
+            fixture.Path,
+            ".litespec/intent/actors/mail-relay.yaml",
+            """
+            {
+              "type": "actor",
+              "id": "actor/mail-relay",
+              "title": "Mail Relay",
+              "summary": "The mail relay sends receipts to readers.",
+              "kind": "system",
+              "belongsToTeam": false,
+              "responsibilities": [
+                "The mail relay sends receipts to readers."
+              ],
+              "knowledge": [
+                "The product assumes the mail relay accepts one receipt per call."
+              ]
+            }
+            """);
         var flow = ReadRecord(fixture.Path, FlowFile);
-        ((JsonArray)flow["steps"]!)[0]!["system"] = "external-system/text-gateway";
+        ((JsonArray)flow["steps"]!)[0]!["actor"] = "actor/mail-relay";
         Restamp(fixture.Path, FlowFile, flow);
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");

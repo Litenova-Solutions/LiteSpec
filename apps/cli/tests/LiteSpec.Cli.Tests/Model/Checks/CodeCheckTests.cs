@@ -117,7 +117,7 @@ public sealed class CodeCheckTests
                 "result",
                 "result/borrow-copy.copy-unavailable",
                 Path.Combine(temp.Path, "borrow.md"),
-                """{"outcome": "refusal", "code": "lending.copy-not-available", "meaning": "The copy is unavailable."}"""));
+                """{"outcome": "refusal", "refusal": "refusal/lending.copy-not-available", "meaning": "The copy is unavailable."}"""));
         model.Code.Literals.Add(new CodeLiteral(
             "lending.copy-not-available", Path.Combine(temp.Path, "CopyNotAvailableException.cs"), 8, "CopyNotAvailableException"));
         model.Code.Handlers.Add(new CodeHandler(

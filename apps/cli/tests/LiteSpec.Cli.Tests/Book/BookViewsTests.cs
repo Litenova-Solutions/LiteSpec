@@ -117,7 +117,7 @@ public sealed class BookViewsTests
             Assert.Equal("module/lending", Str(details[jobId], "parent"));
         }
         Assert.Equal("entry-point/library-app", Str(details["screen/library-app.search"], "parent"));
-        Assert.Equal("module/lending", Str(details["integration-event/loan-borrowed"], "parent"));
+        Assert.Equal("aggregate/lending.loan", Str(details["integration-event/loan-borrowed"], "parent"));
         Assert.Equal("product/library", Str(details["flow/borrowing"], "parent"));
 
         // Group nodes carry their layer and type; record nodes carry their records shard.
@@ -365,7 +365,7 @@ public sealed class BookViewsTests
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
         Assert.True(HasEdge(Arr(details["requirement/self-checkout.max-wait"], "out"), "feature/self-checkout", "requirement.cites"));
         Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "use-case/lending.borrow-copy", "rule.governs"));
-        Assert.True(HasEdge(Arr(details["decision/self-checkout-kiosk"], "out"), "feature/self-checkout", "decision.decides"));
+        Assert.True(HasEdge(Arr(details["decision/self-checkout-kiosk"], "out"), "research/member-survey", "decision.basedOn"));
         Assert.True(HasEdge(Arr(details[eventReaction], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
         Assert.True(HasEdge(Arr(details["flow/borrowing"], "out"), "actor/member", "flow.actor"));
         foreach (var (key, carrier) in new[]
@@ -374,7 +374,7 @@ public sealed class BookViewsTests
             ("feature.advances", "feature"),
             ("requirement.cites", "requirement"),
             ("rule.governs", "rule"),
-            ("decision.decides", "decision"),
+            ("decision.basedOn", "decision"),
             ("reaction.triggeredBy", "reaction"),
             ("flow.actor", "flow"),
         })

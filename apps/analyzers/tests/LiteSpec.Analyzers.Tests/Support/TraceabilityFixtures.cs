@@ -63,12 +63,12 @@ internal static class TraceabilityFixtures
     /// <summary>A rule page with its refusal.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
-    /// <param name="refusal">The refusal code the rule names, or null when the rule names no refusal.</param>
+    /// <param name="refusal">The refusal identifier the rule names, or null when the rule names no refusal.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Rule(
         string id = "rule/spending.receipt-required",
         string title = "Receipt required",
-        string? refusal = "spending.receipt-missing")
+        string? refusal = "refusal/spending.receipt-missing")
     {
         var refusalLine = refusal is null ? "" : $",\n  \"refusal\": \"{refusal}\"";
 
@@ -83,11 +83,11 @@ internal static class TraceabilityFixtures
             """);
     }
 
-    /// <summary>A result page with its outcome and code.</summary>
+    /// <summary>A result page with its outcome and refusal.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
     /// <param name="outcome">The outcome the result declares.</param>
-    /// <param name="code">The stable code the result carries.</param>
+    /// <param name="code">The stable code the result carries, written as its refusal identifier.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Result(
         string id = "result/submit-expense.receipt-missing",
@@ -100,7 +100,7 @@ internal static class TraceabilityFixtures
               "id": "{{id}}",
               "title": "{{title}}",
               "outcome": "{{outcome}}",
-              "code": "{{code}}",
+              "refusal": "refusal/{{code}}",
               "meaning": "The expense carries no receipt."
             }
             """);

@@ -11,7 +11,7 @@ internal sealed class RoleFacts : IEquatable<RoleFacts>
     /// <summary>Initializes a new instance of the <see cref="RoleFacts"/> class.Creates role facts.</summary>
     /// <param name="id">The role identifier.</param>
     /// <param name="scope">The reach of the grant, or empty when the record states none.</param>
-    /// <param name="allows">The permission identifiers the record allows, in record order.</param>
+    /// <param name="allows">The permission identifiers granted to the role, in permission record order.</param>
     public RoleFacts(string id, string scope, ImmutableArray<string> allows)
     {
         Id = id;
@@ -25,7 +25,7 @@ internal sealed class RoleFacts : IEquatable<RoleFacts>
     /// <summary>Gets the reach of the grant, or empty when the record states none.</summary>
     public string Scope { get; }
 
-    /// <summary>Gets the permission identifiers the record allows, in record order.</summary>
+    /// <summary>Gets the permission identifiers granted to the role, in permission record order.</summary>
     public ImmutableArray<string> Allows { get; }
 
     /// <inheritdoc />

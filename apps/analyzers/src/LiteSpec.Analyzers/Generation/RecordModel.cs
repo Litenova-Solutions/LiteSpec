@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// <summary>
 /// The record facts the generator reads from the project file and the record files: the declared
 /// mark style, the event identifiers, each rule's refusal code, each permission with its scope,
-/// group and risks, each role with its scope and allowed permissions, and each use case's
+/// group and risks, each role with its scope and granted permissions, and each use case's
 /// access grant.
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
@@ -36,7 +36,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
     /// <param name="eventIds">The event identifiers, sorted.</param>
     /// <param name="ruleCodes">Each rule with a refusal code, sorted by rule.</param>
     /// <param name="permissions">Each permission with its scope, group and risks, sorted by id.</param>
-    /// <param name="roles">Each role with its scope and allowed permissions, sorted by id.</param>
+    /// <param name="roles">Each role with its scope and granted permissions, sorted by id.</param>
     /// <param name="grants">Each use case with an access grant, sorted by use case.</param>
     public RecordModel(
         bool valid,
@@ -71,7 +71,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
     /// <summary>Gets each permission with its scope, group and risks, sorted by id.</summary>
     public ImmutableArray<PermissionFacts> Permissions { get; }
 
-    /// <summary>Gets each role with its scope and allowed permissions, sorted by id.</summary>
+    /// <summary>Gets each role with its scope and granted permissions, sorted by id.</summary>
     public ImmutableArray<RoleFacts> Roles { get; }
 
     /// <summary>Gets each use case with an access grant, sorted by use case.</summary>
@@ -293,11 +293,11 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(codes);
     }
 
-    /// <summary>Returns the permissions of the index, each with the one reach its allowing roles share.</summary>
+    /// <summary>Returns the permissions of the index, each with the one reach the roles its grantedTo names share.</summary>
     /// <remarks>
-    ///     A role holds the scope of its grant, so a permission takes its reach from the roles that allow it. When those
-    ///     roles grant it at one scope, the permission carries that scope; when they grant it at several, or no role allows
-    ///     it, the permission carries an empty scope, because the reach comes from the role the caller holds.
+    ///     A role holds the scope of its grant, so a permission takes its reach from the roles its grantedTo names. When
+    ///     those roles grant it at one scope, the permission carries that scope; when they grant it at several, or no role
+    ///     grants it, the permission carries an empty scope, because the reach comes from the role the caller holds.
     /// </remarks>
     /// <param name="index">The record index that resolves identifiers to records.</param>
     /// <returns>The permissions of the index.</returns>
@@ -318,7 +318,8 @@ internal sealed class RecordModel : IEquatable<RecordModel>
                 record.Id,
                 reaches.TryGetValue(record.Id, out var reach) && reach.Count == 1 ? reach.First() : string.Empty,
                 record.Field("group"),
-                ImmutableArray.CreateRange(record.Ids("risk"))));
+                ImmutableArray.CreateRange(record.Ids("risk")),
+                ImmutableArray.CreateRange(record.Ids("grantedTo"))));
         }
 
         found.Sort(static (left, right) => string.Compare(left.Id, right.Id, StringComparison.Ordinal));
@@ -326,46 +327,92 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(found);
     }
 
-    /// <summary>Collects the distinct scopes of the roles that allow each permission.</summary>
+    /// <summary>Collects the distinct scopes of the roles each permission names in grantedTo.</summary>
     /// <param name="index">The record index that resolves identifiers to records.</param>
     /// <returns>The distinct role scopes by permission identifier.</returns>
     private static Dictionary<string, HashSet<string>> ReachesByPermission(RecordIndex index)
     {
-        var reaches = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var scopes = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
 
         foreach (var role in index.ByType("role"))
         {
-            if (role.Field("scope") is not { Length: > 0 } scope)
+            if (role.Id.Length == 0 || role.Field("scope") is not { Length: > 0 } scope)
             {
                 continue;
             }
 
-            foreach (var permission in role.Ids("allows"))
+            if (!scopes.TryGetValue(role.Id, out var held))
             {
-                if (!reaches.TryGetValue(permission, out var scopes))
-                {
-                    scopes = new HashSet<string>(StringComparer.Ordinal);
-                    reaches[permission] = scopes;
-                }
+                held = new HashSet<string>(StringComparer.Ordinal);
+                scopes[role.Id] = held;
+            }
 
-                scopes.Add(scope);
+            held.Add(scope);
+        }
+
+        var reaches = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        foreach (var permission in index.ByType("permission"))
+        {
+            if (permission.Id.Length == 0)
+            {
+                continue;
+            }
+
+            if (!reaches.TryGetValue(permission.Id, out var granted))
+            {
+                granted = new HashSet<string>(StringComparer.Ordinal);
+                reaches[permission.Id] = granted;
+            }
+
+            foreach (var role in permission.Ids("grantedTo"))
+            {
+                if (scopes.TryGetValue(role, out var held))
+                {
+                    foreach (var scope in held)
+                    {
+                        granted.Add(scope);
+                    }
+                }
             }
         }
 
         return reaches;
     }
 
-    /// <summary>Returns the roles of the index.</summary>
+    /// <summary>Returns the roles of the index, each with the permissions naming it in grantedTo, in permission record order.</summary>
     /// <param name="index">The record index that resolves identifiers to records.</param>
     /// <returns>The roles of the index.</returns>
     private static ImmutableArray<RoleFacts> RolesOf(RecordIndex index)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
+        var granted = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+        foreach (var permission in index.ByType("permission"))
+        {
+            if (permission.Id.Length == 0 || !seen.Add(permission.Id))
+            {
+                continue;
+            }
+
+            foreach (var role in permission.Ids("grantedTo"))
+            {
+                if (!granted.TryGetValue(role, out var held))
+                {
+                    held = new List<string>();
+                    granted[role] = held;
+                }
+
+                held.Add(permission.Id);
+            }
+        }
+
+        var seenRoles = new HashSet<string>(StringComparer.Ordinal);
         var found = new List<RoleFacts>();
 
         foreach (var record in index.ByType("role"))
         {
-            if (record.Id.Length == 0 || !seen.Add(record.Id))
+            if (record.Id.Length == 0 || !seenRoles.Add(record.Id))
             {
                 continue;
             }
@@ -373,7 +420,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             found.Add(new RoleFacts(
                 record.Id,
                 record.Field("scope") ?? string.Empty,
-                ImmutableArray.CreateRange(record.Ids("allows"))));
+                granted.TryGetValue(record.Id, out var held) ? ImmutableArray.CreateRange(held) : ImmutableArray<string>.Empty));
         }
 
         found.Sort(static (left, right) => string.Compare(left.Id, right.Id, StringComparison.Ordinal));

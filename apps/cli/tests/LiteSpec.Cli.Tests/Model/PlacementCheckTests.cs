@@ -384,7 +384,7 @@ public sealed class PlacementCheckTests
         Assert.Contains(placed, finding => finding.Message.EndsWith("holds a command of no public use case; only public use cases sit in Contracts.", StringComparison.Ordinal));
     }
 
-    /// <summary>An aggregate WebApi folder reports that it names no Events or Exceptions folder.</summary>
+    /// <summary>An aggregate WebApi folder reports that it names no Events, Exceptions, Parts, Facts or root-action folder.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void ModuleLayoutAggregateWebApiFolderReportsLayerDrift()
@@ -398,7 +398,7 @@ public sealed class PlacementCheckTests
 
         // The response model is also a transport model outside its use case folder.
         Assert.Equal(2, placed.Count);
-        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Domain/Loans/WebApi' names no Events or Exceptions folder.");
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Domain/Loans/WebApi' names no Events, Exceptions, Parts, Facts or root-action folder.");
         Assert.Contains(placed, finding => finding.Message == "File 'apps/api/src/Library.Modules/Lending/Domain/Loans/WebApi/LoanResponseModel.cs' holds a message, result or transport model outside a use case folder.");
     }
 
@@ -575,7 +575,7 @@ public sealed class PlacementCheckTests
         Assert.Contains("names no use case of aggregate 'Loans'", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>A port holding its interface and a type a signature names, with its adapter beside it, reports nothing.</summary>
+    /// <summary>A port holding its interface and its signature types in Models, with its adapter beside it, reports nothing.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortAndAdapterInNewShapeReportNothing()
@@ -586,8 +586,8 @@ public sealed class PlacementCheckTests
             ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
             "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<PackRate> CurrentRate(string countryCode, CancellationToken cancellationToken);\n}\n");
         WriteSource(
-            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRate.cs"),
-            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackRate(string CountryCode, decimal Rate);\n");
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Models", "PackRate.cs"),
+            "namespace Library.Lending.Ports.CountryPack.Models;\n\npublic sealed record PackRate(string CountryCode, decimal Rate);\n");
         WriteSource(
             ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
             "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
@@ -679,7 +679,7 @@ public sealed class PlacementCheckTests
         Assert.Contains("holds no interface", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>A type in a port folder that no interface signature names reports the folder it belongs in.</summary>
+    /// <summary>A type in a port Models folder that no interface signature names reports the folder it belongs in.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void TypeNoSignatureNamesReportsPlacementDrift()
@@ -689,8 +689,8 @@ public sealed class PlacementCheckTests
         WriteSource(
             ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
             "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
-        var stray = ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "RateCache.cs");
-        WriteSource(stray, "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed class RateCache\n{\n}\n");
+        var stray = ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Models", "RateCache.cs");
+        WriteSource(stray, "namespace Library.Lending.Ports.CountryPack.Models;\n\npublic sealed class RateCache\n{\n}\n");
         WriteSource(
             ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
             "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
@@ -714,11 +714,11 @@ public sealed class PlacementCheckTests
             ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
             "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<PackPage> CurrentPage(string countryCode);\n}\n");
         WriteSource(
-            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackPage.cs"),
-            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackPage(PackRate Rate, int Total);\n");
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Models", "PackPage.cs"),
+            "namespace Library.Lending.Ports.CountryPack.Models;\n\npublic sealed record PackPage(PackRate Rate, int Total);\n");
         WriteSource(
-            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRate.cs"),
-            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackRate(string CountryCode, decimal Rate);\n");
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Models", "PackRate.cs"),
+            "namespace Library.Lending.Ports.CountryPack.Models;\n\npublic sealed record PackRate(string CountryCode, decimal Rate);\n");
         WriteSource(
             ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
             "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
@@ -737,13 +737,13 @@ public sealed class PlacementCheckTests
             ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
             "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<PackPage> CurrentPage(string countryCode);\n}\n");
         WriteSource(
-            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackPage.cs"),
-            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackPage(PackRate Rate, int Total);\n");
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Models", "PackPage.cs"),
+            "namespace Library.Lending.Ports.CountryPack.Models;\n\npublic sealed record PackPage(PackRate Rate, int Total);\n");
         WriteSource(
-            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "PackRate.cs"),
-            "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record PackRate(string CountryCode, Currency Amount);\n");
-        var deep = ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Currency.cs");
-        WriteSource(deep, "namespace Library.Lending.Ports.CountryPack;\n\npublic sealed record Currency(string Code);\n");
+            ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Models", "PackRate.cs"),
+            "namespace Library.Lending.Ports.CountryPack.Models;\n\npublic sealed record PackRate(string CountryCode, Currency Amount);\n");
+        var deep = ProductFile(temp.Path, "Lending", "Ports", "CountryPack", "Models", "Currency.cs");
+        WriteSource(deep, "namespace Library.Lending.Ports.CountryPack.Models;\n\npublic sealed record Currency(string Code);\n");
         WriteSource(
             ProductFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
             "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
@@ -846,9 +846,10 @@ public sealed class PlacementCheckTests
 
         var placed = Run(model);
 
-        // The Loans folder also names no port folder.
-        Assert.Equal(2, placed.Count);
+        // The Loans folder also names no port folder, and BorrowCopy sits in it outside Models/.
+        Assert.Equal(3, placed.Count);
         Assert.Contains(placed, finding => finding.Message == "Adapter 'TextGatewayAdapter' sits in folder 'BorrowCopy', but marks 'external-system/text-gateway', so it belongs in 'Lending/Infrastructure/TextGateway/'.");
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Infrastructure/Loans/BorrowCopy' sits in adapter 'Loans', which holds only its Models/ grouping.");
     }
 
     /// <summary>An adapter beside the port its mark names reports nothing, whatever its own class name.</summary>

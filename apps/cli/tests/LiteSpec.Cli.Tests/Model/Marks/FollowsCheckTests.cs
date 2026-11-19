@@ -174,17 +174,17 @@ public sealed class FollowsCheckTests
         Assert.Equal("Decision 'decision/0003-loan-cache-region' is followed by no code element.", finding.Message);
     }
 
-    /// <summary>A product decision with no decides reports decision-decides-missing.</summary>
+    /// <summary>A product decision named by no settled record reports decision-decides-missing.</summary>
     /// <proves>litespec/core/model#name-what-every-decision-decides</proves>
-    [Fact(DisplayName = "A product decision with no decides reports decision-decides-missing")]
-    public void ProductDecisionWithoutDecidesReportsDecidesNothing()
+    [Fact(DisplayName = "A product decision named by no settled record reports decision-decides-missing")]
+    public void ProductDecisionNamedByNothingReportsDecidesMissing()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var empty = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "decision-decides-missing");
 
         var finding = Assert.Single(empty);
-        Assert.Equal("Decision 'decision/0001-loan-threshold' names nothing it decides.", finding.Message);
+        Assert.Equal("Decision 'decision/0001-loan-threshold' is named by no rule or requirement in basedOn.", finding.Message);
     }
 
     /// <summary>Excluded shapes report nothing.</summary>

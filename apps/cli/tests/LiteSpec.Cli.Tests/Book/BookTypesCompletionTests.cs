@@ -7,51 +7,65 @@ namespace LiteSpec.Cli.Tests.Book;
 /// <summary>Proves the book carries the new record types, completion stages and proof freshness.</summary>
 public sealed class BookTypesCompletionTests
 {
-    /// <summary>A module event parents its module by identifier home and file, sorts before its integration events, and stays unplaced without a module.</summary>
+    /// <summary>A module event parents its aggregate by file, sits beside its integration events, and stays unplaced without an aggregate.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void ModuleEventParentsItsModuleBeforeItsIntegrationEvents()
+    public void ModuleEventParentsItsAggregateWithItsIntegrationEvents()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                "Loan",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
+            Record(
                 "module-event",
                 "module-event/lending.loan-borrowed",
                 "Loan Borrowed",
-                "reviewed"),
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/aggregates/loans/module-events/loan-borrowed/loan-borrowed.yaml"),
             Record(
                 "integration-event",
                 "integration-event/loan-borrowed",
                 "Loan Borrowed",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/integration-events/loan-borrowed/loan-borrowed.yaml"));
+                file: ".litespec/behavior/modules/lending/aggregates/loans/integration-events/loan-borrowed/loan-borrowed.yaml"));
 
-        Assert.Equal("module/lending", BookParents.ParentOf(model, "module-event/lending.loan-borrowed"));
+        Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "module-event/lending.loan-borrowed"));
 
         var outline = BookOutline.Build(model);
         Assert.DoesNotContain("module-event/lending.loan-borrowed", outline.Unplaced);
-        var module = Find(outline.Layers, "module/lending");
-        Assert.NotNull(module);
+        var aggregate = Find(outline.Layers, "aggregate/lending.loan");
+        Assert.NotNull(aggregate);
         Assert.Equal(
-            new[] { "module-event", "integration-event" },
-            module!.Children
+            new[] { "integration-event", "module-event" },
+            aggregate!.Children
                 .Where(child => string.Equals(child.Kind, "record", StringComparison.Ordinal))
                 .Select(child => child.Type)
+                .OrderBy(type => type, StringComparer.Ordinal)
                 .ToList());
 
         var filed = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
+            Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                "Loan",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record("module", "module/copies", "Copies", "reviewed"),
             Record(
                 "module-event",
                 "module-event/copies.loan-borrowed",
                 "Loan Borrowed",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/module-events/loan-borrowed/loan-borrowed.yaml"));
+                file: ".litespec/behavior/modules/lending/aggregates/loans/module-events/loan-borrowed/loan-borrowed.yaml"));
 
-        Assert.Equal("module/lending", BookParents.ParentOf(filed, "module-event/copies.loan-borrowed"));
+        Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(filed, "module-event/copies.loan-borrowed"));
         Assert.DoesNotContain("module-event/copies.loan-borrowed", BookOutline.Build(filed).Unplaced);
 
         var missing = Model(

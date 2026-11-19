@@ -34,7 +34,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecException.Shop.Orders.ReceiptRequiredException.g.cs", out var part), "The exception part is missing.");
         Assert.Contains("public override string Code => \"expense.receipt-missing\";", part, StringComparison.Ordinal);
@@ -68,7 +68,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecException.Shop.Orders.ReceiptRequiredException.g.cs", out var part), "The exception part is missing.");
         Assert.Contains("public string Code => \"expense.receipt-missing\";", part, StringComparison.Ordinal);
@@ -177,7 +177,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -214,7 +214,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -249,7 +249,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
     }
@@ -286,7 +286,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -322,7 +322,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5013", diagnostic.Id);
@@ -359,7 +359,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5013", diagnostic.Id);
@@ -396,7 +396,7 @@ public sealed class ExceptionValueTests
                 }
                 """),
             RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
-                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+                RecordPages.RuleEntry("rule/expense.receipt-required", "refusal/expense.receipt-missing")))));
 
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.Sources.TryGetValue("LiteSpecException.Shop.Orders.ReceiptRequiredException.g.cs", out var part), "The exception part is missing.");

@@ -15,7 +15,7 @@ public sealed class ModelCheckModuleTests
               "id": "module/catalog",
               "title": "Catalog",
               "dependsOn": [],
-              "responsibilities": ["The catalog lists every copy for readers."],
+              "covers": ["The catalog lists every copy for readers."],
               "excludes": ["The catalog tracks no loans."]
             }
             """);

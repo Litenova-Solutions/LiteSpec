@@ -64,7 +64,7 @@ public sealed class ConstraintEffectCheckTests
                 "constraint/tax-receipt-retention",
                 Path.Combine(root, "tax-receipt-retention.yaml"),
                 1,
-                """{"authority": "National tax law.", "sources": [{"key": "national-tax-law", "url": "https://example.com/tax-law", "readOn": "2026-02-10"}], "kind": "legal", "applies": true, "appliesBecause": "We store receipts.", "scope": "Business receipts.", "obligations": [{"statement": "Businesses keep receipts for seven years.", "sources": ["national-tax-law"]}], "productEffect": "A receipt is kept for seven years."}""",
+                """{"authority": "National tax law.", "sources": [{"name": "national-tax-law", "url": "https://example.com/tax-law", "readOn": "2026-02-10"}], "kind": "legal", "applies": true, "appliesBecause": "We store receipts.", "scope": "Business receipts.", "obligations": [{"statement": "Businesses keep receipts for seven years.", "sources": ["national-tax-law"]}], "productEffect": "A receipt is kept for seven years."}""",
                 Path.Combine(root, "tax-receipt-retention.md"),
                 explanation),
             TestModel.Record(

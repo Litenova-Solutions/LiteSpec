@@ -82,7 +82,7 @@ public sealed class ExtensionFieldCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "conflicts": [{"on": "A second approval of the same expense.", "winner": "first-write", "refusal": "spending.approve-conflict"}]}"""));
+            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "conflicts": [{"on": "A second approval of the same expense.", "winner": "first-write", "refusal": "refusal/spending.approve-conflict"}]}"""));
 
         Assert.Contains("field-extension-unselected", TestModel.Codes(model));
     }
@@ -96,7 +96,7 @@ public sealed class ExtensionFieldCheckTests
         SelectExtensions(temp.Path, "concurrency");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "conflicts": [{"on": "A second approval of the same expense.", "winner": "first-write", "refusal": "spending.approve-conflict"}]}"""));
+            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "conflicts": [{"on": "A second approval of the same expense.", "winner": "first-write", "refusal": "refusal/spending.approve-conflict"}]}"""));
 
         Assert.DoesNotContain("field-extension-unselected", TestModel.Codes(model));
     }

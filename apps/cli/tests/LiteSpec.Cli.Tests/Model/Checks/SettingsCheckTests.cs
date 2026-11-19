@@ -372,9 +372,9 @@ public sealed class SettingsCheckTests
         File.WriteAllText(file, project.ToJsonString());
     }
 
-    static string SettingJson(string id, string title, string setBy, string? key)
+    static string SettingJson(string id, string title, string setBy, string? path)
     {
-        var keyLine = key is null ? "" : ",\n  \"key\": \"" + key + "\"";
+        var pathLine = path is null ? "" : ",\n  \"configurationPath\": \"" + path + "\"";
 
         return "{\n"
             + "  \"type\": \"setting\",\n"
@@ -384,7 +384,7 @@ public sealed class SettingsCheckTests
             + "  \"default\": 5,\n"
             + "  \"range\": \"1-10\",\n"
             + "  \"unit\": \"loans\",\n"
-            + "  \"setBy\": \"" + setBy + "\"" + keyLine + ",\n"
+            + "  \"setBy\": \"" + setBy + "\"" + pathLine + ",\n"
             + "  \"outOfRange\": \"refuse\",\n"
             + "  \"fulfills\": [\n"
             + "    \"requirement/borrowing.max-active-loans\"\n"

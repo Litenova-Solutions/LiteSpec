@@ -87,6 +87,28 @@ internal static class PermissionWriter
             return;
         }
 
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var role in records.Roles)
+        {
+            declared.Add(role.Id);
+        }
+
+        foreach (var permission in named)
+        {
+            foreach (var granted in permission.Facts.GrantedTo)
+            {
+                if (!declared.Contains(granted))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        GeneratorDiagnostics.PermissionGrantsUndeclaredRole,
+                        Location.None,
+                        permission.Facts.Id,
+                        granted));
+                }
+            }
+        }
+
         context.AddSource("LiteSpecPermissions.g.cs", PermissionsText(named));
     }
 

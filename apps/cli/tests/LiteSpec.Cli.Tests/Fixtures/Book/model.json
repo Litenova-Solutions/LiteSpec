@@ -182,7 +182,7 @@
             "governs": [
               "use-case/lending.place-hold"
             ],
-            "refusal": "lending.hold-already-waiting",
+            "refusal": "refusal/lending.hold-already-waiting",
             "basedOn": [],
             "fulfills": [
               "requirement/hold-queue.hold-pickup-window"
@@ -259,7 +259,7 @@
             "governs": [
               "use-case/lending.borrow-copy"
             ],
-            "refusal": "lending.copy-not-available",
+            "refusal": "refusal/lending.copy-not-available",
             "basedOn": [],
             "fulfills": [
               "requirement/hold-queue.max-active-loans"
@@ -606,16 +606,9 @@
         ],
         "choice": "21 days",
         "reopenedWhen": "Reader demand shifts.",
-        "decides": [
-          "requirement/hold-queue.loan-period-days"
-        ],
         "basedOn": []
       },
-      "links": {
-        "decides": [
-          "requirement/hold-queue.loan-period-days"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "entry-point",
@@ -1050,9 +1043,18 @@
         "title": "Borrow copy",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Borrow an available copy."
+        "meaning": "Borrow an available copy.",
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
+      }
     },
     {
       "type": "permission",
@@ -1071,9 +1073,16 @@
         "title": "Manage copies",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Register and retire copies."
+        "meaning": "Register and retire copies.",
+        "grantedTo": [
+          "role/librarian"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian"
+        ]
+      }
     },
     {
       "type": "permission",
@@ -1092,9 +1101,18 @@
         "title": "Place hold",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Place and cancel holds."
+        "meaning": "Place and cancel holds.",
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
+      }
     },
     {
       "type": "permission",
@@ -1113,9 +1131,18 @@
         "title": "Read loans",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Read own loans."
+        "meaning": "Read own loans.",
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
+      }
     },
     {
       "type": "problem",
@@ -1239,9 +1266,16 @@
         "status": "approved",
         "kind": "functional",
         "statement": "A loan lasts 21 days.",
-        "cites": []
+        "cites": [],
+        "basedOn": [
+          "decision/0001-loan-period"
+        ]
       },
-      "links": {}
+      "links": {
+        "basedOn": [
+          "decision/0001-loan-period"
+        ]
+      }
     },
     {
       "type": "requirement",
@@ -1632,22 +1666,9 @@
         "title": "Librarian",
         "owner": "lending-team",
         "status": "reviewed",
-        "scope": "platform",
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/manage-copies",
-          "permission/place-hold"
-        ]
+        "scope": "platform"
       },
-      "links": {
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/manage-copies",
-          "permission/place-hold"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "role",
@@ -1666,20 +1687,9 @@
         "title": "Reader",
         "owner": "lending-team",
         "status": "reviewed",
-        "scope": "self",
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/place-hold"
-        ]
+        "scope": "self"
       },
-      "links": {
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/place-hold"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "rule",
@@ -1739,7 +1749,7 @@
         "governs": [
           "use-case/lending.place-hold"
         ],
-        "refusal": "lending.hold-already-waiting",
+        "refusal": "refusal/lending.hold-already-waiting",
         "basedOn": [],
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
@@ -1815,7 +1825,7 @@
         "governs": [
           "use-case/lending.borrow-copy"
         ],
-        "refusal": "lending.copy-not-available",
+        "refusal": "refusal/lending.copy-not-available",
         "basedOn": [],
         "fulfills": [
           "requirement/hold-queue.max-active-loans"

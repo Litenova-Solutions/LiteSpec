@@ -44,7 +44,7 @@ public sealed class ContractBreakTests
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var before = TestModel.Record(
             "result", "result/borrow-copy.copy-unavailable", file,
-            """{"outcome": "refusal", "code": "lending.copy-not-available", "meaning": "The copy is on loan."}""");
+            """{"outcome": "refusal", "refusal": "refusal/lending.copy-not-available", "meaning": "The copy is on loan."}""");
         var after = TestModel.Record(
             "result", "result/borrow-copy.copy-unavailable", file,
             """{"outcome": "refusal", "meaning": "The copy is on loan."}""");
@@ -70,10 +70,10 @@ public sealed class ContractBreakTests
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var before = TestModel.Record(
             "result", "result/borrow-copy.copy-unavailable", file,
-            """{"outcome": "refusal", "code": "lending.copy-not-available", "meaning": "The copy is on loan."}""");
+            """{"outcome": "refusal", "refusal": "refusal/lending.copy-not-available", "meaning": "The copy is on loan."}""");
         var after = TestModel.Record(
             "result", "result/borrow-copy.copy-unavailable", file,
-            """{"outcome": "refusal", "code": "lending.copy-on-loan", "meaning": "The copy is on loan."}""");
+            """{"outcome": "refusal", "refusal": "refusal/lending.copy-on-loan", "meaning": "The copy is on loan."}""");
 
         var findings = ContractBreaks.Find(
             TestModel.Model(config, before),
@@ -98,7 +98,7 @@ public sealed class ContractBreakTests
             """{"outcome": "refusal", "meaning": "The copy is on loan."}""");
         var after = TestModel.Record(
             "result", "result/borrow-copy.copy-unavailable", file,
-            """{"outcome": "refusal", "code": "lending.copy-not-available", "meaning": "The copy is on loan."}""");
+            """{"outcome": "refusal", "refusal": "refusal/lending.copy-not-available", "meaning": "The copy is on loan."}""");
 
         var findings = ContractBreaks.Find(
             TestModel.Model(config, before),

@@ -100,10 +100,10 @@ public sealed class SiblingRuleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"], "refusal": "spending.already-reimbursed"}"""),
+            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"], "refusal": "refusal/spending.already-reimbursed"}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending approves the expense.", "cites": ["rule/expense.reimbursed-once"]}]}"""),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending reimburses the expense."}]}"""),
-            TestModel.Record("result", "result/reimburse-expense.already-reimbursed", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"outcome": "refusal", "code": "spending.already-reimbursed"}"""),
+            TestModel.Record("result", "result/reimburse-expense.already-reimbursed", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.already-reimbursed"}"""),
             TestModel.Record("use-case", "use-case/spending.refuse-expense", Path.Combine(temp.Path, "refuse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending refuses the expense."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "rule-sibling-uncited");

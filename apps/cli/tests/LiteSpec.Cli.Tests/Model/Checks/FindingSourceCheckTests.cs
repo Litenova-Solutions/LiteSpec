@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class FindingSourceCheckTests
 {
     /// <summary>The research fields the cases share, with one source.</summary>
-    const string ResearchFields = """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""";
+    const string ResearchFields = """{"sources": [{"name": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""";
 
     /// <summary>A Findings paragraph with no source link reports, naming the paragraph.</summary>
     /// <proves>litespec/core/intent#state-each-research-finding-with-its-source</proves>

@@ -72,7 +72,7 @@ public sealed class RefusalOwnershipTests
             "rule/expense.receipt-required",
             Path.Combine(temp.Path, "expense-rules.yaml"),
             4,
-            """{"title": "Receipt Required", "kind": "invariant", "statement": "An expense above the threshold carries a receipt.", "refusal": "spending.receipt-missing"}""",
+            """{"title": "Receipt Required", "kind": "invariant", "statement": "An expense above the threshold carries a receipt.", "refusal": "refusal/spending.receipt-missing"}""",
             isEntry: true));
         model.Code.Elements.Add(new MarkedElement(CodeKind.RuleException, "ExpenseReceiptMissingException", null, first, 11, [new CodeMark("rule/expense.receipt-required", MarkStyle.Xml, MarkVerb.Implements, first, 10)], false));
         model.Code.Elements.Add(new MarkedElement(CodeKind.RuleException, "ReceiptMissingException", null, second, 11, [new CodeMark("rule/expense.receipt-required", MarkStyle.Xml, MarkVerb.Implements, second, 10)], false));
@@ -99,14 +99,14 @@ public sealed class RefusalOwnershipTests
             "rule/expense.receipt-required",
             Path.Combine(temp.Path, "expense-rules.yaml"),
             4,
-            """{"title": "Receipt Required", "kind": "invariant", "statement": "An expense above the threshold carries a receipt.", "refusal": "spending.receipt-missing"}""",
+            """{"title": "Receipt Required", "kind": "invariant", "statement": "An expense above the threshold carries a receipt.", "refusal": "refusal/spending.receipt-missing"}""",
             isEntry: true));
         model.Records.Add(TestModel.Record(
             "rule",
             "rule/receipt.kept-readable",
             Path.Combine(temp.Path, "receipt-rules.yaml"),
             4,
-            """{"title": "Kept Readable", "kind": "invariant", "statement": "A kept receipt stays readable.", "refusal": "spending.receipt-unreadable"}""",
+            """{"title": "Kept Readable", "kind": "invariant", "statement": "A kept receipt stays readable.", "refusal": "refusal/spending.receipt-unreadable"}""",
             isEntry: true));
         model.Code.Elements.Add(new MarkedElement(CodeKind.RuleException, "ExpenseReceiptMissingException", null, first, 11, [new CodeMark("rule/expense.receipt-required", MarkStyle.Xml, MarkVerb.Implements, first, 10)], false));
         model.Code.Elements.Add(new MarkedElement(CodeKind.RuleException, "ReceiptMissingException", null, second, 11, [new CodeMark("rule/receipt.kept-readable", MarkStyle.Xml, MarkVerb.Implements, second, 10)], false));

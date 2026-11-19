@@ -86,28 +86,6 @@ internal static class RoleWriter
             return;
         }
 
-        var declared = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var permission in records.Permissions)
-        {
-            declared.Add(permission.Id);
-        }
-
-        foreach (var role in named)
-        {
-            foreach (var allowed in role.Facts.Allows)
-            {
-                if (!declared.Contains(allowed))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        GeneratorDiagnostics.RoleAllowsUndeclaredPermission,
-                        Location.None,
-                        role.Facts.Id,
-                        allowed));
-                }
-            }
-        }
-
         context.AddSource("LiteSpecRoles.g.cs", RolesText(named));
     }
 

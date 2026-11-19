@@ -54,7 +54,7 @@ internal static class RecordPages
 
     /// <summary>Builds a rule entry.</summary>
     /// <param name="id">The rule identifier.</param>
-    /// <param name="refusal">The refusal code, or null for no refusal.</param>
+    /// <param name="refusal">The refusal identifier, or null for no refusal.</param>
     /// <returns>The entry object.</returns>
     public static string RuleEntry(string id, string? refusal) =>
         "{\"type\": \"rule\", \"id\": \"" + id + "\", \"title\": \"A receipt is required\", \"kind\": \"precondition\", \"statement\": \"An expense carries a receipt.\""
@@ -101,12 +101,13 @@ internal static class RecordPages
         return Page("{\"type\": \"permission-set\", \"records\": [" + string.Join(", ", entries) + "]}");
     }
 
-    /// <summary>Builds a permission entry with the group and risks the record states. The reach comes from the roles that allow it.</summary>
+    /// <summary>Builds a permission entry with the group, risks and granted roles the record states. The reach comes from the roles that grant it.</summary>
     /// <param name="id">The permission identifier.</param>
     /// <param name="group">The group, or null for no group field.</param>
     /// <param name="risks">The risks, or null for no risk field.</param>
+    /// <param name="grantedTo">The granted roles, or null for no grantedTo field.</param>
     /// <returns>The entry object.</returns>
-    public static string PermissionEntry(string id, string? group = null, string[]? risks = null)
+    public static string PermissionEntry(string id, string? group = null, string[]? risks = null, string[]? grantedTo = null)
     {
         var entry = "{\"type\": \"permission\", \"id\": \"" + id + "\", \"title\": \"A permission\", \"meaning\": \"Its meaning.\"";
 
@@ -120,6 +121,11 @@ internal static class RecordPages
             entry += ", \"risk\": [" + string.Join(", ", risks.Select(risk => "\"" + risk + "\"")) + "]";
         }
 
+        if (grantedTo is not null)
+        {
+            entry += ", \"grantedTo\": [" + string.Join(", ", grantedTo.Select(role => "\"" + role + "\"")) + "]";
+        }
+
         return entry + "}";
     }
 
@@ -129,23 +135,17 @@ internal static class RecordPages
     public static string PermissionFactsPage(params string[] entries) =>
         Page("{\"type\": \"permission-set\", \"records\": [" + string.Join(", ", entries) + "]}");
 
-    /// <summary>Builds a role page with the scope and allows the record states.</summary>
+    /// <summary>Builds a role page with the scope the record states.</summary>
     /// <param name="id">The role identifier.</param>
     /// <param name="scope">The reach, or null for no scope field.</param>
-    /// <param name="allows">The allowed permissions, or null for no allows field.</param>
     /// <returns>The page text.</returns>
-    public static string RolePage(string id, string? scope = null, string[]? allows = null)
+    public static string RolePage(string id, string? scope = null)
     {
         var page = "{\"type\": \"role\", \"id\": \"" + id + "\", \"title\": \"A role\"";
 
         if (scope is not null)
         {
             page += ", \"scope\": \"" + scope + "\"";
-        }
-
-        if (allows is not null)
-        {
-            page += ", \"allows\": [" + string.Join(", ", allows.Select(allow => "\"" + allow + "\"")) + "]";
         }
 
         return Page(page + "}");

@@ -11,10 +11,10 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated role constants and entries.</summary>
 public sealed class RoleTests
 {
-    /// <summary>Roles list each role with its scope and allows in record order.</summary>
+    /// <summary>Roles list each role with its scope and granted permissions in permission record order.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "Roles list each role with its scope and allows in record order")]
-    public void RolesListScopeAndAllowsInRecordOrder()
+    [Fact(DisplayName = "Roles list each role with its scope and granted permissions in record order")]
+    public void RolesListScopeAndGrantedPermissionsInRecordOrder()
     {
         var run = GeneratorVerify.Run(RoleSources(), ClaimwickFiles(), assemblyName: "Shop.Spending");
 
@@ -27,9 +27,9 @@ public sealed class RoleTests
         Assert.Contains("public const string Finance = \"role/finance\";", roles, StringComparison.Ordinal);
         Assert.Contains("internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Allows);", roles, StringComparison.Ordinal);
 
-        var approver = "new LiteSpecRole(\"role/approver\", \"team\", new string[] { \"permission/approve-expense\", \"permission/list-expenses\", \"permission/manage-policy\" })";
+        var approver = "new LiteSpecRole(\"role/approver\", \"team\", new string[] { \"permission/list-expenses\", \"permission/approve-expense\", \"permission/manage-policy\" })";
         var employee = "new LiteSpecRole(\"role/employee\", \"self\", new string[] { \"permission/submit-expense\", \"permission/list-expenses\" })";
-        var finance = "new LiteSpecRole(\"role/finance\", \"platform\", new string[] { \"permission/reimburse-expense\", \"permission/list-expenses\", \"permission/export-expenses\", \"permission/erase-personal-data\" })";
+        var finance = "new LiteSpecRole(\"role/finance\", \"platform\", new string[] { \"permission/list-expenses\", \"permission/reimburse-expense\", \"permission/export-expenses\", \"permission/erase-personal-data\" })";
         Assert.Contains(approver, roles, StringComparison.Ordinal);
         Assert.Contains(employee, roles, StringComparison.Ordinal);
         Assert.Contains(finance, roles, StringComparison.Ordinal);
@@ -77,7 +77,7 @@ public sealed class RoleTests
         Assert.Equal("role/finance", Property(entry, "Id"));
         Assert.Equal("platform", Property(entry, "Scope"));
         Assert.Equal(
-            new[] { "permission/reimburse-expense", "permission/list-expenses", "permission/export-expenses", "permission/erase-personal-data" },
+            new[] { "permission/list-expenses", "permission/reimburse-expense", "permission/export-expenses", "permission/erase-personal-data" },
             ((System.Collections.IEnumerable)Property(entry, "Allows")!).Cast<string>().ToArray());
 
         var all = roles.GetProperty("All", BindingFlags.Public | BindingFlags.Static);
@@ -93,10 +93,10 @@ public sealed class RoleTests
         Assert.Equal("id", argument.ParamName);
     }
 
-    /// <summary>A role without scope and allows reads empty and empty.</summary>
+    /// <summary>A role without scope that no permission grants reads empty and empty.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "A role without scope and allows reads empty and empty")]
-    public void RoleWithoutScopeAndAllowsReadsDefaults()
+    [Fact(DisplayName = "A role without scope that no permission grants reads empty and empty")]
+    public void RoleWithoutScopeReadsDefaults()
     {
         var run = GeneratorVerify.Run(
             RoleSources(),
@@ -110,26 +110,28 @@ public sealed class RoleTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
-    /// <summary>A role allowing an undeclared permission is emitted and reports LS5012.</summary>
+    /// <summary>A permission granting an undeclared role is emitted and reports LS5012.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "A role allowing an undeclared permission is emitted and reports LS5012")]
-    public void RoleAllowingUndeclaredPermissionReportsLS5012()
+    [Fact(DisplayName = "A permission granting an undeclared role is emitted and reports LS5012")]
+    public void PermissionGrantingUndeclaredRoleReportsLS5012()
     {
         var run = GeneratorVerify.Run(
             RoleSources(),
             RecordPages.Files(
                 "xml",
-                ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/mint-money"])),
+                ("employee.yaml", RecordPages.RolePage("role/employee", "self")),
                 ("permissions.yaml", RecordPages.PermissionFactsPage(
-                    RecordPages.PermissionEntry("permission/submit-expense")))),
+                    RecordPages.PermissionEntry("permission/submit-expense", grantedTo: ["role/employee", "role/ghost"])))),
             assemblyName: "Shop.Spending");
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5012", diagnostic.Id);
-        Assert.Contains("role/employee", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
-        Assert.Contains("permission/mint-money", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("permission/submit-expense", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("role/ghost", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         Assert.True(run.Sources.TryGetValue("LiteSpecRoles.g.cs", out var roles), "The roles source is missing.");
-        Assert.Contains("new LiteSpecRole(\"role/employee\", \"self\", new string[] { \"permission/submit-expense\", \"permission/mint-money\" })", roles, StringComparison.Ordinal);
+        Assert.Contains("new LiteSpecRole(\"role/employee\", \"self\", new string[] { \"permission/submit-expense\" })", roles, StringComparison.Ordinal);
+        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
+        Assert.Contains("new LiteSpecPermission(\"permission/submit-expense\", \"self\", null, new string[] { })", permissions, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
@@ -165,17 +167,17 @@ public sealed class RoleTests
     private static IReadOnlyList<(string Path, string Text)> ClaimwickFiles() =>
         RecordPages.Files(
             "xml",
-            ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/list-expenses"])),
-            ("approver.yaml", RecordPages.RolePage("role/approver", "team", ["permission/approve-expense", "permission/list-expenses", "permission/manage-policy"])),
-            ("finance.yaml", RecordPages.RolePage("role/finance", "platform", ["permission/reimburse-expense", "permission/list-expenses", "permission/export-expenses", "permission/erase-personal-data"])),
+            ("employee.yaml", RecordPages.RolePage("role/employee", "self")),
+            ("approver.yaml", RecordPages.RolePage("role/approver", "team")),
+            ("finance.yaml", RecordPages.RolePage("role/finance", "platform")),
             ("permissions.yaml", RecordPages.PermissionFactsPage(
-                RecordPages.PermissionEntry("permission/submit-expense"),
-                RecordPages.PermissionEntry("permission/list-expenses"),
-                RecordPages.PermissionEntry("permission/approve-expense"),
-                RecordPages.PermissionEntry("permission/manage-policy"),
-                RecordPages.PermissionEntry("permission/reimburse-expense"),
-                RecordPages.PermissionEntry("permission/export-expenses"),
-                RecordPages.PermissionEntry("permission/erase-personal-data"))));
+                RecordPages.PermissionEntry("permission/submit-expense", grantedTo: ["role/employee"]),
+                RecordPages.PermissionEntry("permission/list-expenses", grantedTo: ["role/employee", "role/approver", "role/finance"]),
+                RecordPages.PermissionEntry("permission/approve-expense", grantedTo: ["role/approver"]),
+                RecordPages.PermissionEntry("permission/manage-policy", grantedTo: ["role/approver"]),
+                RecordPages.PermissionEntry("permission/reimburse-expense", grantedTo: ["role/finance"]),
+                RecordPages.PermissionEntry("permission/export-expenses", grantedTo: ["role/finance"]),
+                RecordPages.PermissionEntry("permission/erase-personal-data", grantedTo: ["role/finance"]))));
 
     private static object? Property(object entry, string name)
     {

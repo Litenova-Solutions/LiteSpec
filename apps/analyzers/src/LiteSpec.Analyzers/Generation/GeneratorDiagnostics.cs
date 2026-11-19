@@ -42,15 +42,15 @@ internal static class GeneratorDiagnostics
         helpLinkUri: RuntimeValues.HelpLink,
         customTags: [RuntimeValues.Id]);
 
-    /// <summary>LS5012: a role allows a permission no permission record declares.</summary>
-    public static readonly DiagnosticDescriptor RoleAllowsUndeclaredPermission = new(
+    /// <summary>LS5012: a permission grants a role no role record declares.</summary>
+    public static readonly DiagnosticDescriptor PermissionGrantsUndeclaredRole = new(
         "LS5012",
-        "Role allows an undeclared permission",
-        "Role '{0}' allows '{1}', which no permission record declares",
+        "Permission grants an undeclared role",
+        "Permission '{0}' grants '{1}', which no role record declares",
         "LiteSpec.Traceability",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "A role allows only permissions the shared permission list declares. Provision: " + RegistryPermissionsAndRoles.Id,
+        description: "A permission grants only roles the role records declare. Provision: " + RegistryPermissionsAndRoles.Id,
         helpLinkUri: RegistryPermissionsAndRoles.HelpLink,
         customTags: [RegistryPermissionsAndRoles.Id]);
 

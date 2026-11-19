@@ -161,7 +161,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec("result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused","sentence":"That list is not available."}""", temp.Path));
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"That list is not available."}""", temp.Path));
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
 
         Assert.Empty(WithCode(model, "refusal-sentence-missing"));
@@ -448,7 +448,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Rec("step", "step/walk.start-walk", """{"title":"Start Walk","statement":"The employee starts the walk."}""", root));
         model.Records.Add(Rec("step", "step/walk.finish-walk", """{"title":"Finish Walk","statement":"The employee finishes the walk."}""", root));
         model.Records.Add(Rec("result", "result/list-loans.listed", """{"outcome":"success","meaning":"The loans are listed."}""", root));
-        model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused"}""", root));
+        model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused"}""", root));
         model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", """{"given":"A loan.","when":"The employee lists loans.","then":"Both are listed.","result":"result/list-loans.listed"}""", root));
 
         return model;

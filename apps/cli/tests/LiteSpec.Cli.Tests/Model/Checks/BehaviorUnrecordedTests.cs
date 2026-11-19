@@ -182,7 +182,7 @@ public sealed class BehaviorUnrecordedTests
                 "rule",
                 "rule/loan.due-date-required",
                 Path.Combine(temp.Path, "loan.md"),
-                """{"kind": "invariant", "statement": "A loan has a due date.", "refusal": "lending.due-date-required"}"""));
+                """{"kind": "invariant", "statement": "A loan has a due date.", "refusal": "refusal/lending.due-date-required"}"""));
         model.Code.Literals.Add(new CodeLiteral(
             "lending.due-date-required", Path.Combine(temp.Path, "Loan.cs"), 8, "Loan"));
 
@@ -201,7 +201,7 @@ public sealed class BehaviorUnrecordedTests
                 "result",
                 "result/ghost.refused",
                 Path.Combine(temp.Path, "ghost.md"),
-                """{"outcome": "refusal", "code": "lending.ghost-refusal", "meaning": "The ghost refused."}"""));
+                """{"outcome": "refusal", "refusal": "refusal/lending.ghost-refusal", "meaning": "The ghost refused."}"""));
         model.Code.Literals.Add(new CodeLiteral(
             "lending.ghost-refusal", Path.Combine(temp.Path, "GhostHandler.cs"), 8, "GhostHandler"));
 
