@@ -160,7 +160,7 @@ public sealed class RenameMarksTests
         root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "BorrowCopy", "CommitStep.cs");
 
     static string FollowsAttribute(string root) => Path.Combine(
-        root, "apps", "api", "src", "Modules", "Library.Lending", "Infrastructure", "Persistence", "LoanDocumentStore.cs");
+        root, "apps", "api", "src", "Modules", "Library.Lending", "Infrastructure", "Persistence", "Loans", "LoanDocumentStore.cs");
 
     static string ProvesTag(string root) => Path.Combine(
         root, "apps", "api", "tests", "Library.Acceptance.Tests", "Proof", "ProvesTag.cs");

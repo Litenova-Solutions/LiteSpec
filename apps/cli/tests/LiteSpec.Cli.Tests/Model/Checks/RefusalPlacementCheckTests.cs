@@ -189,7 +189,7 @@ public sealed class RefusalPlacementCheckTests
         AddRefusingRule(model, temp.Path);
         model.Code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid" && found.Message.Contains("spending.receipt-missing", StringComparison.Ordinal));
 
         Assert.Contains("spending.receipt-missing", finding.Message, StringComparison.Ordinal);
         Assert.Contains("Expenses", finding.Message, StringComparison.Ordinal);

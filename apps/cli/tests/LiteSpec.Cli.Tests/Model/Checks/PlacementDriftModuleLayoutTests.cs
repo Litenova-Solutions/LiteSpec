@@ -188,8 +188,8 @@ public sealed class PlacementDriftModuleLayoutTests
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         AddProductRule(model, temp.Path);
-        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel", "TextRequiredException.cs");
-        WriteCode(file, "Library.Kernel", "TextRequiredException");
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel", "Domain", "TextRequiredException.cs");
+        WriteCode(file, "Library.Kernel.Domain", "TextRequiredException");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "TextRequiredException", file, "rule/library.required-text-is-never-blank"));
 
         Assert.Empty(Run(model));

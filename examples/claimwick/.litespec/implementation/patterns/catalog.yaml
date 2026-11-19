@@ -61,7 +61,7 @@ patterns:
     svelte:
       status: adopted
       components:
-      - packages/ui/src/components/data-table.svelte
+      - packages/ui/src/components/data/data-table.svelte
 - id: expense-list-page
   group: page-frames
   title: Expense List Page
