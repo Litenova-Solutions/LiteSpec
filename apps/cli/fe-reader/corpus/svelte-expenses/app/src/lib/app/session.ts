@@ -7,3 +7,5 @@ export async function loadSessionExpenses(): Promise<unknown> {
   const permissions = await loadReceiptPermissions();
   return [await fetchExpenses(), permissions];
 }
+
+export type SessionShape = { workspace: string };

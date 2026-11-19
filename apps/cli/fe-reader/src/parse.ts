@@ -155,12 +155,28 @@ export function collectCalls(sourceFile: ts.SourceFile, lineOffset: number): Cal
   return calls;
 }
 
-// Every module specifier of the import and re-export declarations, sorted with
-// duplicates removed.
+// Whether a declaration brings in types only: `import type`, `export type`, or an
+// import whose every named binding is marked `type`. Such a declaration carries no
+// runtime code, so no call is reached through it.
+function isTypeOnly(statement: ts.ImportDeclaration | ts.ExportDeclaration): boolean {
+  if (ts.isExportDeclaration(statement)) return statement.isTypeOnly;
+  const clause = statement.importClause;
+  if (clause === undefined) return false;
+  if (clause.isTypeOnly) return true;
+  if (clause.name !== undefined) return false;
+  const bindings = clause.namedBindings;
+  return bindings !== undefined
+    && ts.isNamedImports(bindings)
+    && bindings.elements.length > 0
+    && bindings.elements.every(element => element.isTypeOnly);
+}
+
+// Every module specifier of the import and re-export declarations that bring in
+// runtime code, sorted with duplicates removed.
 export function collectImports(sourceFile: ts.SourceFile): string[] {
   const specifiers = new Set<string>();
   for (const statement of sourceFile.statements) {
-    if (ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) {
+    if ((ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) && !isTypeOnly(statement)) {
       const specifier = statement.moduleSpecifier;
       if (specifier !== undefined) {
         const text = plainText(specifier);

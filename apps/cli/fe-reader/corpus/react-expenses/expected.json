@@ -1,6 +1,6 @@
 {
   "protocol": 1,
-  "reader": "1.1.0",
+  "reader": "1.2.0",
   "frontends": [
     {
       "name": "web",
