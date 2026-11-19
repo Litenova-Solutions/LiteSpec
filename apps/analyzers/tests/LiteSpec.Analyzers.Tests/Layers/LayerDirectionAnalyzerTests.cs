@@ -495,4 +495,40 @@ public sealed class LayerDirectionAnalyzerTests
                     """),
             ],
             assemblyName: "Claimwick.Spending");
+
+    /// <summary>LS2018 accepts a pipeline piece naming a repository and a domain type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2018 accepts a pipeline piece naming a repository and a domain type")]
+    public Task AcceptsAPipelinePieceNamingARepositoryAndADomainType() =>
+        Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
+            [
+                ("Claimwick.Spending/Infrastructure/Pipeline/ExpenseAccessMiddleware.cs", """
+                    using Claimwick.Spending.Domain.Expenses;
+
+                    namespace Claimwick.Spending.Infrastructure.Pipeline;
+
+                    internal sealed class ExpenseAccessMiddleware
+                    {
+                        internal void Check(IExpenseRepository repositories, Expense expense)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
+
+                    internal sealed class Expense
+                    {
+                    }
+                    """),
+                ("Claimwick.Spending/Domain/Expenses/IExpenseRepository.cs", """
+                    namespace Claimwick.Spending.Domain.Expenses;
+
+                    internal interface IExpenseRepository
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Spending");
 }

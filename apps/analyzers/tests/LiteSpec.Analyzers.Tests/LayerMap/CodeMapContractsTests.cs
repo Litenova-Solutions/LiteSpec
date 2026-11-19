@@ -92,16 +92,18 @@ public sealed class CodeMapContractsTests
         Assert.Null(map.UseCaseOf(path));
     }
 
-    /// <summary>A file in the WebApi Pipeline sits in no use case, at the root or in a protocol folder.</summary>
+    /// <summary>A file in the Infrastructure Pipeline is no adapter and sits in no use case, at the root or in a protocol folder.</summary>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact]
     public void PipelineFileSitsInNoUseCase()
     {
-        const string path = "Modules/Claimwick.Spending/WebApi/Pipeline/RequestLoggingMiddleware.cs";
-        const string nested = "Modules/Claimwick.Spending/WebApi/Pipeline/OAuth/OAuthHandler.cs";
+        const string path = "Modules/Claimwick.Spending/Infrastructure/Pipeline/RequestLoggingMiddleware.cs";
+        const string nested = "Modules/Claimwick.Spending/Infrastructure/Pipeline/OAuth/OAuthHandler.cs";
 
-        Assert.Equal(ArchitectureLayer.WebApi, MapFor("Claimwick.Spending", path).LayerOf(path));
+        Assert.Equal(ArchitectureLayer.Infrastructure, MapFor("Claimwick.Spending", path).LayerOf(path));
+        Assert.False(CodeMap.IsAdapter(path));
         Assert.Null(MapFor("Claimwick.Spending", path).UseCaseOf(path));
+        Assert.False(CodeMap.IsAdapter(nested));
         Assert.Null(MapFor("Claimwick.Spending", nested).UseCaseOf(nested));
     }
 

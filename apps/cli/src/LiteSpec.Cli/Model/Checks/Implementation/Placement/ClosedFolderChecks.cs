@@ -69,10 +69,10 @@ internal static class ClosedFolderChecks
         "Notifications", "ExternalSystems", "ReadModels", "Settings",
     };
 
-    /// <summary>Fixed folders under a module Infrastructure folder besides its adapter folders: its persistence and its message pipeline pieces.</summary>
+    /// <summary>Fixed folders under a module Infrastructure folder besides its adapter folders: its persistence, its message pipeline pieces and its HTTP pipeline pieces.</summary>
     static readonly HashSet<string> InfrastructureFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Persistence", "Messaging",
+        "Persistence", "Messaging", "Pipeline",
     };
 
     /// <summary>The layer folders a use case folder sits under.</summary>
@@ -1338,7 +1338,7 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module and no Pipeline folder.</summary>
+    /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="webApi">The absolute WebApi folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
@@ -1353,12 +1353,6 @@ internal static class ClosedFolderChecks
 
         foreach (var child in ChildFolders(webApi))
         {
-            if (string.Equals(Path.GetFileName(child), "Pipeline", StringComparison.OrdinalIgnoreCase))
-            {
-                CheckPipelineLevel(config, child, findings);
-                continue;
-            }
-
             if (owned.Count == 0)
             {
                 CheckUseCaseFolder(config, child, "WebApi", findings);
@@ -1382,7 +1376,7 @@ internal static class ClosedFolderChecks
         {
             if (owned.Count > 0)
             {
-                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per aggregate and use case, and Pipeline/.", file, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per aggregate and use case.", file, 1, null));
             }
         }
     }
@@ -1403,7 +1397,7 @@ internal static class ClosedFolderChecks
         CheckUngrouped(config, pipeline, children, _ => true, "group them into one folder per protocol", findings, [".cs"]);
     }
 
-    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence folder, no Messaging folder and no port folder of the module: each adapter folder pairs with one port folder of the same name. An adapter folder naming a provider module is drift: a module reaches another module through its Contracts, not an adapter.</summary>
+    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence folder, no Messaging folder, no Pipeline folder and no port folder of the module: each adapter folder pairs with one port folder of the same name. An adapter folder naming a provider module is drift: a module reaches another module through its Contracts, not an adapter.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="infrastructure">The absolute Infrastructure folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
@@ -1427,6 +1421,12 @@ internal static class ClosedFolderChecks
             if (string.Equals(name, "Messaging", StringComparison.OrdinalIgnoreCase))
             {
                 CheckUseCaseFilesOnly(config, child, "folder", findings);
+                continue;
+            }
+
+            if (string.Equals(name, "Pipeline", StringComparison.OrdinalIgnoreCase))
+            {
+                CheckPipelineLevel(config, child, findings);
                 continue;
             }
 

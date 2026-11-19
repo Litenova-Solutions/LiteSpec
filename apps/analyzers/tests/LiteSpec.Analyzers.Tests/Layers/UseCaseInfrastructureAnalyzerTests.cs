@@ -293,4 +293,35 @@ public sealed class UseCaseInfrastructureAnalyzerTests
                     """),
             ],
             assemblyName: "Claimwick.Export");
+
+    /// <summary>LS2025 accepts a pipeline piece naming a repository and a domain type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2025 accepts a pipeline piece naming a repository and a domain type")]
+    public Task AcceptsAPipelinePieceNamingARepositoryAndADomainType() =>
+        Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
+            [
+                ("Claimwick.Export/Domain/Stubs.cs", Stubs),
+                ("Claimwick.Export/Domain/Workspaces/Workspace.cs", Root),
+                ("Claimwick.Export/Domain/Workspaces/IWorkspaceRepository.cs", """
+                    namespace Claimwick.Export.Domain.Workspaces;
+
+                    internal interface IWorkspaceRepository
+                    {
+                    }
+                    """),
+                ("Claimwick.Export/Infrastructure/Pipeline/WorkspaceAccessMiddleware.cs", """
+                    using Claimwick.Export.Domain.Workspaces;
+
+                    namespace Claimwick.Export.Infrastructure.Pipeline;
+
+                    internal sealed class WorkspaceAccessMiddleware
+                    {
+                        internal void Check(IWorkspaceRepository repositories, Workspace workspace)
+                        {
+                        }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Export");
 }

@@ -199,13 +199,13 @@ internal sealed class CodeMap
 
         if (layer.Equals("WebApi", StringComparison.Ordinal))
         {
-            return !child.Equals("Pipeline", StringComparison.Ordinal);
+            return true;
         }
 
         return false;
     }
 
-    /// <summary>Returns true when the file sits in an Infrastructure adapter folder: below Infrastructure but outside Persistence and Messaging; otherwise false.</summary>
+    /// <summary>Returns true when the file sits in an Infrastructure adapter folder: below Infrastructure but outside Persistence, Messaging and Pipeline; otherwise false.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>True when an adapter folder holds the file; otherwise false.</returns>
     public static bool IsAdapter(string? filePath)
@@ -221,7 +221,8 @@ internal sealed class CodeMap
             if (segments[index].Equals("Infrastructure", StringComparison.Ordinal))
             {
                 return !segments[index + 1].Equals("Persistence", StringComparison.Ordinal)
-                    && !segments[index + 1].Equals("Messaging", StringComparison.Ordinal);
+                    && !segments[index + 1].Equals("Messaging", StringComparison.Ordinal)
+                    && !segments[index + 1].Equals("Pipeline", StringComparison.Ordinal);
             }
         }
 

@@ -110,7 +110,7 @@ Other names were set aside:
 
 Every node of the tree allows a closed set of folder names, so any other folder is refused. The layer of a file is its top folder in the module: a file under `Application/` is Application whatever use case folder holds it, and a file under `Ports/` is read as the ports layer.
 
-A module holds its entry type at its root, then `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, and `WebApi/`. Its public surface lives in the sibling `{Product}.{Module}.Contracts` project beside it. `Domain/` holds one folder per declared aggregate in the plural, whatever the module's number of aggregates and even when the aggregate's name equals the module's. Aggregates live under `Domain/{Aggregates}/`, and the root type keeps its singular name, so `Domain/Expenses/` holds the type `Expense`. `Application/` holds one folder per declared aggregate that has use cases, with one folder per use case inside it, plus one folder per declared module-level read, and the module options class in `Application/Settings/`. `Ports/` holds one folder per driven port of the module: `Ports/{Port}/` holds the interface `I{Port}` with the types its signatures name in `Models/`, with no files directly in `Ports/`, spelling for an external system the record name in PascalCase. `Infrastructure/` holds `Persistence/` with the module store contribution and one folder per aggregate holding its repository implementation, stored documents, and mapping, `Messaging/` with the module's message pipeline pieces, and one adapter folder per port the module implements, each named like its port folder with the adapter class, its options class, its wire types in `Models/`, and the collaborators it needs in `Parts/`. `WebApi/` holds the aggregate use case folders and module-level read folders of use cases reached over HTTP, with the endpoint and its request and response models, and `Pipeline/` with the module's HTTP pipeline pieces serving no single use case. `Domain/` is absent when the module declares no aggregate, `WebApi/` when no use case is reached over HTTP, and `Ports/` when the module declares no port.
+A module holds its entry type at its root, then `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, and `WebApi/`. Its public surface lives in the sibling `{Product}.{Module}.Contracts` project beside it. `Domain/` holds one folder per declared aggregate in the plural, whatever the module's number of aggregates and even when the aggregate's name equals the module's. Aggregates live under `Domain/{Aggregates}/`, and the root type keeps its singular name, so `Domain/Expenses/` holds the type `Expense`. `Application/` holds one folder per declared aggregate that has use cases, with one folder per use case inside it, plus one folder per declared module-level read, and the module options class in `Application/Settings/`. `Ports/` holds one folder per driven port of the module: `Ports/{Port}/` holds the interface `I{Port}` with the types its signatures name in `Models/`, with no files directly in `Ports/`, spelling for an external system the record name in PascalCase. `Infrastructure/` holds `Persistence/` with the module store contribution and one folder per aggregate holding its repository implementation, stored documents, and mapping, `Messaging/` with the module's message pipeline pieces, `Pipeline/` with the module's HTTP pipeline pieces serving no single use case, and one adapter folder per port the module implements, each named like its port folder with the adapter class, its options class, its wire types in `Models/`, and the collaborators it needs in `Parts/`. `WebApi/` holds the aggregate use case folders and module-level read folders of use cases reached over HTTP, with the endpoint and its request and response models. `Domain/` is absent when the module declares no aggregate, `WebApi/` when no use case is reached over HTTP, and `Ports/` when the module declares no port.
 
 Everything that belongs to one aggregate sits in a folder named for the aggregate in the plural, and every layer of the product uses the same folder, so a reader follows one name from the record to the screen. A singular folder makes a namespace such as `Claimwick.Spending.Application.Expense`, and inside `...Application.Expense.SubmitExpense` the C# name lookup finds that namespace before the `Expense` type, so every handler naming its aggregate fails with CS0118. The same smell exists in a singular `Domain/Expense/` holding the type `Expense`. The plural also reads as the collection of the code of that aggregate, the common .NET feature-folder convention, and the record folders of the Claimwick example are already plural. The plural is computed from the name part of the aggregate id, in kebab case for records and the frontend and in PascalCase for .NET.
 
@@ -124,7 +124,7 @@ Everything that belongs to one aggregate sits in a folder named for the aggregat
 | A driven port of the module | `Modules/{Product}.{Module}/Ports/{Port}/` holding `I{Port}` with its signature types in `Models/`, named for its external-system record or capability |
 | The adapter implementing a port | `Modules/{Product}.{Module}/Infrastructure/{Port}/`, the same folder name as its port, with the adapter class, its options class, its wire types in `Models/`, and the collaborators it needs in `Parts/` |
 | The module's message pipeline pieces | `Modules/{Product}.{Module}/Infrastructure/Messaging/` |
-| The module's HTTP pipeline pieces serving no single use case | `Modules/{Product}.{Module}/WebApi/Pipeline/` |
+| The module's HTTP pipeline pieces serving no single use case | `Modules/{Product}.{Module}/Infrastructure/Pipeline/` |
 | An aggregate's repository, stored documents and mapping | `Modules/{Product}.{Module}/Infrastructure/Persistence/{Aggregates}/` |
 | Module-wide store setup | `Modules/{Product}.{Module}/Infrastructure/Persistence/` |
 | The module options class | `Modules/{Product}.{Module}/Application/Settings/{Module}Options.cs` |
@@ -229,15 +229,15 @@ A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-ca
 | Module `Ports/` | one folder per driven port of the module; no files |
 | Module `Ports/{Port}/` | the interface `I{Port}` and `Models/` |
 | Module `Ports/{Port}/Models/` | every type the interface's signatures name |
-| Module `Infrastructure/` | `Persistence/`, `Messaging/`, one folder per port the module implements |
+| Module `Infrastructure/` | `Persistence/`, `Messaging/`, `Pipeline/`, one folder per port the module implements |
 | Module `Infrastructure/Messaging/` | the module's message pipeline pieces: the domain-to-module event mapping, audit writers, and the resolvers and mappers the module registers into the message pipeline; files only |
+| Module `Infrastructure/Pipeline/` | the module's HTTP pipeline pieces serving no single use case: middleware, authorization conditions, authentication handlers; files only, past 20 files one folder per protocol holding that protocol's wire types beside its pieces |
 | Module `Infrastructure/{Port}/` | the adapter class, its options class `{Adapter}Options.cs`, `Models/`, and `Parts/` when the adapter needs collaborators; several adapters of one port sit side by side |
 | Module `Infrastructure/{Port}/Models/` | the external system's wire types: requests, responses, file records |
 | Module `Infrastructure/{Port}/Parts/` | the collaborators the adapter calls |
 | Module `Infrastructure/Persistence/` | the module store contribution, and one folder per aggregate with a repository; no other files |
 | Module `Infrastructure/Persistence/{Aggregates}/` | the aggregate's repository implementation, stored documents, and mapping |
-| Module `WebApi/` | the aggregate use case folders and module-level read folders of use cases reached over HTTP, and `Pipeline/` |
-| Module `WebApi/Pipeline/` | the module's HTTP pipeline pieces serving no single use case: middleware, authorization conditions, authentication handlers; files only, past 20 files one folder per protocol holding that protocol's wire types beside its pieces |
+| Module `WebApi/` | the aggregate use case folders and module-level read folders of use cases reached over HTTP |
 | Module `Application/Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `Application/ExternalSystems/` | one per external system a reaction or job of the module only calls |
 | Module `Application/ReadModels/` | one per declared read model of the module, in the plural |
@@ -269,9 +269,9 @@ Modules/{Product}.Organizations/
     Persistence/       module-wide store setup, with one folder per aggregate
       Teams/           TeamRepository.cs with its stored documents and mapping
     Messaging/         the domain-to-module event mapping, audit writers
+    Pipeline/          middleware, authorization conditions, authentication handlers
     {Port}/             the adapter implementing Ports/{Port}/, same folder name, with its wire types in Models/ and its collaborators in Parts/
   WebApi/
-    Pipeline/          middleware, authorization conditions, authentication handlers
     Teams/
       CreateTeam/      CreateTeamEndpoint.cs  CreateTeamRequestModel.cs  CreateTeamResponseModel.cs
 Modules/{Product}.Organizations.Contracts/
@@ -401,8 +401,8 @@ Modules/{Product}.Organizations.Contracts/
 | `Application/Settings/` | the module options class | the module binds a setting |
 | `Ports/{Port}/` | the interface `I{Port}` with its signature types in `Models/` | the module declares a port |
 | `WebApi/{Aggregates}/{UseCase}/` | the endpoint, its request and response models | the use case is reached over HTTP |
-| `WebApi/Pipeline/` | the module's HTTP pipeline pieces serving no single use case | the module holds HTTP pipeline pieces |
 | `Infrastructure/Messaging/` | the module's message pipeline pieces | the module registers message pipeline pieces |
+| `Infrastructure/Pipeline/` | the module's HTTP pipeline pieces serving no single use case | the module holds HTTP pipeline pieces |
 | `Infrastructure/{Port}/` | the adapter implementing the module's port, with its options class, its wire types in `Models/`, and the collaborators it needs in `Parts/` | the module declares a port |
 
 A module-level read drops the aggregate segment: `Application/{UseCase}/` and `WebApi/{UseCase}/`.

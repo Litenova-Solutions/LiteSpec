@@ -750,40 +750,40 @@ public sealed class FolderGroupingCheckTests
         Assert.All(findings, finding => Assert.Contains("holds an adapter, which sits in its Infrastructure/{Port}/ folder, not in Persistence/", finding.Message, StringComparison.Ordinal));
     }
 
-    /// <summary>Web Api Pipeline Files Pass.</summary>
+    /// <summary>Infrastructure Pipeline Files Pass.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void WebApiPipelineFilesPass()
+    public void InfrastructurePipelineFilesPass()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
-        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "CurrentActorMiddleware.cs"), "namespace Library.Lending.WebApi.Pipeline;\n\npublic sealed class CurrentActorMiddleware\n{\n}\n");
-        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "RecentSignInCondition.cs"), "namespace Library.Lending.WebApi.Pipeline;\n\npublic sealed class RecentSignInCondition\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Infrastructure", "Pipeline", "CurrentActorMiddleware.cs"), "namespace Library.Lending.Infrastructure.Pipeline;\n\npublic sealed class CurrentActorMiddleware\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Infrastructure", "Pipeline", "RecentSignInCondition.cs"), "namespace Library.Lending.Infrastructure.Pipeline;\n\npublic sealed class RecentSignInCondition\n{\n}\n");
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>Web Api Pipeline Protocol Folders Pass.</summary>
+    /// <summary>Infrastructure Pipeline Protocol Folders Pass.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void WebApiPipelineProtocolFoldersPass()
+    public void InfrastructurePipelineProtocolFoldersPass()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
-        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "OAuth", "OAuthHandler.cs"), "namespace Library.Lending.WebApi.Pipeline.OAuth;\n\npublic sealed class OAuthHandler\n{\n}\n");
-        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "OAuth", "OAuthToken.cs"), "namespace Library.Lending.WebApi.Pipeline.OAuth;\n\npublic sealed record OAuthToken(string Value);\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Infrastructure", "Pipeline", "OAuth", "OAuthHandler.cs"), "namespace Library.Lending.Infrastructure.Pipeline.OAuth;\n\npublic sealed class OAuthHandler\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Infrastructure", "Pipeline", "OAuth", "OAuthToken.cs"), "namespace Library.Lending.Infrastructure.Pipeline.OAuth;\n\npublic sealed record OAuthToken(string Value);\n");
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>Web Api Pipeline Past Twenty Files Reports Ungrouped.</summary>
+    /// <summary>Infrastructure Pipeline Past Twenty Files Reports Ungrouped.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void WebApiPipelinePastTwentyFilesReportsUngrouped()
+    public void InfrastructurePipelinePastTwentyFilesReportsUngrouped()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
-        var pipeline = Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "x.cs"))!;
+        var pipeline = Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "Infrastructure", "Pipeline", "x.cs"))!;
         WriteFiles(pipeline, "PipelinePart", 21, ".cs");
 
         var finding = Assert.Single(Run(model));
@@ -792,19 +792,37 @@ public sealed class FolderGroupingCheckTests
         Assert.Contains("group them into one folder per protocol", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Web Api Pipeline Protocol Nested Folder Reports Drift.</summary>
+    /// <summary>Infrastructure Pipeline Protocol Nested Folder Reports Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void WebApiPipelineProtocolNestedFolderReportsDrift()
+    public void InfrastructurePipelineProtocolNestedFolderReportsDrift()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
-        Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "OAuth", "x.cs"))!, "Cache"));
+        Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "Infrastructure", "Pipeline", "OAuth", "x.cs"))!, "Cache"));
 
         var finding = Assert.Single(Run(model));
 
         Assert.Equal("code-placement-drift", finding.Code);
         Assert.Contains("which holds files only", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Web Api Pipeline Folder Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void WebApiPipelineFolderReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        model.Records.Add(Rec("module/lending", "lending", temp.Path));
+        model.Records.Add(AggregateRec("aggregate/lending.loan", "lending", "loans", temp.Path));
+        model.Records.Add(UseCaseRec("use-case/lending.borrow-copy", "lending", "loans", "borrow-copy", temp.Path));
+        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "CurrentActorMiddleware.cs"), "namespace Library.Lending.WebApi.Pipeline;\n\npublic sealed class CurrentActorMiddleware\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("names no declared use case", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Infrastructure Messaging Files Pass.</summary>
