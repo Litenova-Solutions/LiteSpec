@@ -2,6 +2,8 @@ type: external-system
 summary: <what outside system this is and why the product depends on it>
 id: external-system/<name>
 title: <Title in Title Case>
+vendor: <vendor name>
+represents: actor/<name>
 terms:
 - <term id, or remove this line>
 processes:

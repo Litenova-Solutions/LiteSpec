@@ -10,7 +10,7 @@ records:
   governs:
   - use-case/spending.change-reminder-preference
   - aggregate/spending.reminder-preference
-  refusal: spending.not-preference-owner
+  refusal: refusal/spending.not-preference-owner
   basedOn: []
   fulfills:
   - requirement/approval-reminders.remind-approver-after-three-days

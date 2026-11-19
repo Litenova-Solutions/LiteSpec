@@ -6,7 +6,7 @@ terms:
 - <term id, or remove this line>
 # A source carries url or path, never both.
 sources:
-- key: <source key>
+- name: <source name>
   url: <source page>
   readOn: <date read, such as 2026-02-10>
   publishedOn: <date published, such as 2026-01-15, or remove this line>
@@ -16,6 +16,6 @@ conclusion: <the answer, with what the sources state and what the writer infers>
 findings:
 - statement: <one finding, in one sentence>
   sources:
-  - <source key>
+  - <source name>
 openQuestions:
 - <one question the sources do not answer, in one sentence, or remove this line>

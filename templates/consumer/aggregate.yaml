@@ -45,7 +45,7 @@ dataClasses:
   - reason: <why deletion pauses>
     heldOn: <date the hold starts, such as 2026-03-02>
     liftedOn: <date the hold ends, or remove this line>
-limits:
+excludes:
 - <one thing the aggregate does not hold, in one sentence, or remove this line>
 records:
 - type: domain-event

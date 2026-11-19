@@ -10,7 +10,7 @@ serves:
 - goal/<name>
 startedWhen: <the state the actor starts from>
 finishedWhen: <the state the actor ends in>
-# A step names the actor or the outside system, never both.
+# A step names the actor that performs it, a person, an organization or a system actor.
 steps:
 - id: step/<flow>.<act>
   title: <Title in Title Case>

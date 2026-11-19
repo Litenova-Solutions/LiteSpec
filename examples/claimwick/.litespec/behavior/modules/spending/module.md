@@ -2,7 +2,7 @@
 
 Spending is the Claimwick module that handles work expenses: it tracks each expense, its receipt and the policy behind it. An employee who pays for a work cost depends on this module to get the money back, so its rules decide how fast that happens.
 
-## Responsibilities
+## Covers
 
 - Spending submits, decides, reimburses and exports work expenses.
 - Spending tracks receipts and the receipt threshold policy.

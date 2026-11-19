@@ -87,7 +87,7 @@ records:
   id: result/submit-expense.receipt-missing
   title: Receipt Missing
   outcome: refusal
-  code: spending.receipt-missing
+  refusal: refusal/spending.receipt-missing
   sentence: Attach the receipt for this expense, then submit again.
   sentences:
     nl: Voeg het bonnetje voor deze uitgave toe en dien de uitgave daarna opnieuw in.

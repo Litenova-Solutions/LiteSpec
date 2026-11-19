@@ -74,7 +74,7 @@ records:
   id: result/attach-receipt.expense-decided
   title: Expense Decided
   outcome: refusal
-  code: spending.expense-decided
+  refusal: refusal/spending.expense-decided
   sentence: This expense is already decided, so it takes no more receipts.
   sentences:
     nl: Over deze uitgave is al beslist, dus er kunnen geen bonnetjes meer bij.

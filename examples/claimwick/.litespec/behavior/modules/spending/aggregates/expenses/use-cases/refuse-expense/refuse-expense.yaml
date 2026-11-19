@@ -59,7 +59,7 @@ records:
   id: result/refuse-expense.not-submitted
   title: Not Submitted
   outcome: refusal
-  code: spending.not-submitted
+  refusal: refusal/spending.not-submitted
   sentence: This expense is already decided, so there is nothing to refuse.
   sentences:
     nl: Over deze uitgave is al beslist, dus er valt niets meer af te keuren.

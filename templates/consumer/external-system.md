@@ -1,10 +1,10 @@
 # Record Title
 
-Say what outside system this is and why the product depends on it. A reader who has read nothing else should understand the dependency from this paragraph.
+Say what outside system this is, which vendor provides it, and why the product depends on it. A reader who has read nothing else should understand the dependency from this paragraph.
 
 ## Use
 
-Say why the product depends on the system and which calls it makes.
+Say why the product depends on the system and which calls it makes. Name the system actor that stands for it in flows.
 
 ## Data Shared
 

@@ -16,8 +16,6 @@ options:
 choice: <the selected option>
 consequences: <what follows from the choice for the product, the team and the code>
 reopenedWhen: <what would reopen the choice>
-decides:
-- <decided record id, or remove this block>
 admits:
 - package: <nuget:Name or npm:name>
   layer: <layer the package lives in, or remove this line>

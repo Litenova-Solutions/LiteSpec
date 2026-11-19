@@ -59,7 +59,7 @@ records:
   id: result/approve-expense.own-expense
   title: Own Expense
   outcome: refusal
-  code: spending.own-expense
+  refusal: refusal/spending.own-expense
   sentence: You submitted this expense, so another manager must decide it.
   sentences:
     nl: Je hebt deze uitgave zelf ingediend, dus een andere manager moet erover beslissen.
@@ -67,7 +67,7 @@ records:
   id: result/approve-expense.not-submitted
   title: Not Submitted
   outcome: refusal
-  code: spending.not-submitted
+  refusal: refusal/spending.not-submitted
   sentence: This expense is already decided, so there is nothing to approve.
   sentences:
     nl: Over deze uitgave is al beslist, dus er valt niets meer goed te keuren.

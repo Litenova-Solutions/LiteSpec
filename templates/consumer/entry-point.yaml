@@ -14,7 +14,7 @@ session:
   idleTimeout: PT30M
 reauthenticationTriggers:
 - <one action that requires sign-in again, in one sentence, or remove this line>
-limits:
+excludes:
 - <one thing this entry point does not offer, in one sentence, or remove this line>
 density: <public-light|application-balanced|admin-dense, or remove this line>
 voice: <how the product addresses this audience, or remove this line>

@@ -14,7 +14,7 @@ records:
   binds:
   - aggregate/spending.expense
   - aggregate/spending.policy
-  refusal: spending.receipt-missing
+  refusal: refusal/spending.receipt-missing
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt
@@ -26,7 +26,7 @@ records:
   governs:
   - use-case/spending.approve-expense
   - aggregate/spending.expense
-  refusal: spending.own-expense
+  refusal: refusal/spending.own-expense
   basedOn: []
   fulfills:
   - requirement/approval.nobody-approves-own-expense
@@ -38,7 +38,7 @@ records:
   governs:
   - use-case/spending.reimburse-expense
   - aggregate/spending.expense
-  refusal: spending.already-reimbursed
+  refusal: refusal/spending.already-reimbursed
   basedOn: []
   fulfills:
   - requirement/approval.expense-reimbursed-at-most-once
@@ -50,7 +50,7 @@ records:
   governs:
   - use-case/spending.reimburse-expense
   - aggregate/spending.expense
-  refusal: spending.not-approved
+  refusal: refusal/spending.not-approved
   basedOn: []
   fulfills:
   - requirement/approval.expense-reimbursed-at-most-once
@@ -63,7 +63,7 @@ records:
   - use-case/spending.approve-expense
   - use-case/spending.refuse-expense
   - aggregate/spending.expense
-  refusal: spending.not-submitted
+  refusal: refusal/spending.not-submitted
   basedOn: []
   fulfills:
   - requirement/approval.decided-within-five-days
@@ -75,7 +75,7 @@ records:
   governs:
   - use-case/spending.erase-personal-data
   - aggregate/spending.expense
-  refusal: spending.retention-not-ended
+  refusal: refusal/spending.retention-not-ended
   basedOn: []
   fulfills:
   - requirement/approval.erased-after-retention
@@ -86,7 +86,7 @@ records:
   statement: An export carries an approved expense.
   governs:
   - use-case/spending.export-expenses
-  refusal: spending.nothing-approved
+  refusal: refusal/spending.nothing-approved
   basedOn: []
   fulfills:
   - requirement/approval.decided-within-five-days

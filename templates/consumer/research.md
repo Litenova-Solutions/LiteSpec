@@ -4,7 +4,7 @@ Say what question this research answers and why the answer matters to a choice. 
 
 ## Findings
 
-Explains `findings`. Give each finding as its own short paragraph. Give its one claim with the conditions it holds under, cite the source that states it as a reference link `[text][key]`, and say whether that source states the claim or you infer it. Write "the study states ..." for a source's own claim, and "this suggests ..., but the study does not address ..." for an inference.
+Explains `findings`. Give each finding as its own short paragraph. Give its one claim with the conditions it holds under, cite the source that states it as a reference link `[text][name]`, and say whether that source states the claim or you infer it. Write "the study states ..." for a source's own claim, and "this suggests ..., but the study does not address ..." for an inference.
 
 ## Open Questions
 

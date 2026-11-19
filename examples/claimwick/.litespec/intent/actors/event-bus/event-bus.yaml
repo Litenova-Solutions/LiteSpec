@@ -1,0 +1,10 @@
+type: actor
+id: actor/event-bus
+title: Event Bus
+summary: The event bus carries the spending module's expense-submitted event to the readers outside the product.
+kind: system
+belongsToTeam: false
+responsibilities:
+- Carries expense events to outside readers.
+knowledge:
+- The product assumes the event bus delivers each event at least once, in order.

@@ -1,6 +1,6 @@
 # Record Title
 
-Say which refusals this module declares and why they are split this way. A reader who has read nothing else should understand the set from this paragraph.
+Say which refusals this set declares and why they are split this way. A reader who has read nothing else should understand the set from this paragraph.
 
 ## Meaning
 

@@ -2,7 +2,7 @@
 
 These files are starting points for consumer records. `litespec init` copies the project setup files to their targets, writes the six interface quality requirements from `requirements/` to `intent/requirements/`, and writes the local tool manifest, while `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every `<placeholder>` with the project's own before committing, and delete any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves behind, while `litespec model check` rejects a project file still holding one. Each record template shows every field of its type with a placeholder value, and `litespec model check` reports `template-value-unchanged` for any scaffold that keeps one.
 
-A record file holds its record in YAML, with the entries under `records`. A named record gets its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits beside the record file in that folder. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Each feature requirement is a named record in its own folder inside its feature's requirements folder, and each product requirement is a named record in its own folder under `intent/requirements/`. Rules and domain events live on an aggregate file, results live on a use-case file, and scenarios live on their use-case, reaction, or job file. Permissions live on their module's permissions file, refusals on their module's refusals file, and settings on a setting-set file. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Terms live in the glossary at `.litespec/glossary.yaml` rather than on a file.
+A record file holds its record in YAML, with the entries under `records`. A named record gets its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits beside the record file in that folder. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Each feature requirement is a named record in its own folder inside its feature's requirements folder, and each product requirement is a named record in its own folder under `intent/requirements/`. Rules and domain events live on an aggregate file, results live on a use-case file, and scenarios live on their use-case, reaction, or job file. Permissions live on their module's permissions file, refusals on their aggregate's refusals file, and settings on a setting-set file. A refusal no aggregate raises lives on the module's refusals file instead. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Terms live in the glossary at `.litespec/glossary.yaml` rather than on a file.
 
 ## Project Setup
 
@@ -38,9 +38,9 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `requirements` | `.litespec/intent/requirements/<name>/<name>.yaml` | Ships the six interface quality requirements `litespec init` writes: text contrast, control boundary, focus indicator, chart series, reflow, and target size. |
 | `requirement.md` | `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.md` | Explains the requirement beside its record file. |
 | `requirement.md` | `.litespec/intent/requirements/<name>/<name>.md` | Explains the product requirement beside its record file. |
-| `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person or organization that takes part in the product. |
+| `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person, organization, or system that takes part in the product. |
 | `actor.md` | `.litespec/intent/actors/<name>/<name>.md` | Explains the actor beside its record file. |
-| `role.yaml` | `.litespec/intent/roles/<name>/<name>.yaml` | Records one named set of permissions at a scope. |
+| `role.yaml` | `.litespec/intent/roles/<name>/<name>.yaml` | Records one named grant at a scope, held through the permissions that name it. |
 | `role.md` | `.litespec/intent/roles/<name>/<name>.md` | Explains the role beside its record file. |
 | `external-system.yaml` | `.litespec/behavior/modules/<module>/external-systems/<name>/<name>.yaml` | Records one outside system called from one module: its typed operations with their unknown-outcome handling, the data it processes, and its erasure behavior. |
 | `external-system.yaml` | `.litespec/behavior/external-systems/<name>/<name>.yaml` | Records one outside system called from several modules: its typed operations with their unknown-outcome handling, the data it processes, and its erasure behavior. |
@@ -83,12 +83,12 @@ A record file holds its record in YAML, with the entries under `records`. A name
 
 | Template | Target | Purpose |
 |:---|:---|:---|
-| `permission-set.yaml` | `.litespec/behavior/modules/<module>/permissions.yaml` | Holds the permission entries of one module that roles allow. |
+| `permission-set.yaml` | `.litespec/behavior/modules/<module>/permissions.yaml` | Holds the permission entries of one module, each naming the roles that hold it. |
 | `permission-set.md` | `.litespec/behavior/modules/<module>/permissions.md` | Explains the permission set beside its file. |
 | `setting-set.yaml` | `.litespec/behavior/modules/<module>/settings/<name>.yaml` | Holds the setting entries a module runs with. |
 | `setting-set.md` | `.litespec/behavior/modules/<module>/settings/<name>.md` | Explains the setting set beside its file. |
-| `refusals.yaml` | `.litespec/behavior/modules/<module>/refusals.yaml` | Declares each refusal code of one module once, with its meaning. |
-| `refusals.md` | `.litespec/behavior/modules/<module>/refusals.md` | Explains the refusal set beside its file. |
+| `refusals.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/refusals.yaml` | Declares each refusal of one aggregate once, with its meaning. A refusal no aggregate raises lives at `.litespec/behavior/modules/<module>/refusals.yaml` instead. |
+| `refusals.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/refusals.md` | Explains the refusal set beside its file. |
 | `rule-set.yaml` | `.litespec/behavior/modules/<module>/rules/<name>.yaml` | Holds rule entries that sit together outside one aggregate. |
 | `rule-set.md` | `.litespec/behavior/modules/<module>/rules/<name>.md` | Explains the rule set beside its file. |
 | `convention.md` | `.litespec/governance/conventions/<name>.md` | States one project convention in provision shape, with ID, strength, and scope. |
@@ -108,18 +108,18 @@ An explanation file lives in the record's folder beside its record file, sharing
 |:---|:---|
 | product | Scope, Users, Out of Scope |
 | actor | Responsibilities, Knowledge, Example (optional) |
-| role | Access, Limits |
+| role | Access, Excludes |
 | goal | Target, Measurement |
 | direction | None: free-form body after the lead |
 | problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria |
 | constraint | Scope, Rules, Effect on the Product, Open Points (optional) |
 | research | Findings, Open Questions (optional), Source Notes (optional) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
-| module | Responsibilities, Boundaries, Example (optional) |
+| module | Coverage, Boundaries, Example (optional) |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
 | requirement | Example (optional) |
 | flow | Example, Branches (optional) |
-| aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
+| aggregate | Lifecycle, Data and Retention, Example (optional), Excludes (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |
 | rule-set | Rationale, Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |
@@ -130,7 +130,7 @@ An explanation file lives in the record's folder beside its record file, sharing
 | read-model | Sources, Freshness, Example (optional) |
 | reference-data | Values, Example (optional) |
 | external-system | Use, Data Shared, Failure Handling |
-| entry-point | Audience, Authentication, Limits (optional) |
+| entry-point | Audience, Authentication, Excludes (optional) |
 | screen | Task, States, Example |
 | permission-set | Risk, Boundaries (optional) |
 | setting-set | Defaults, Changes (optional) |

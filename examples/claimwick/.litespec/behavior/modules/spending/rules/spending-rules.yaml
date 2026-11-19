@@ -14,7 +14,8 @@ records:
   binds:
   - aggregate/spending.expense
   - aggregate/spending.receipt
-  basedOn: []
+  basedOn:
+  - decision/0002-attach-receipt-writes-two-aggregates
   fulfills:
   - requirement/approval.above-threshold-receipt
 - type: rule

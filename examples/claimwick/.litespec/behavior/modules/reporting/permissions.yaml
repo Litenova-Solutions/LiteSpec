@@ -8,5 +8,7 @@ records:
   id: permission/list-reimbursed-expenses
   title: List Reimbursed Expenses
   meaning: The right to list the reimbursed expenses with the employee each was paid to.
+  grantedTo:
+  - role/finance
   risk:
   - personal-data

@@ -14,7 +14,7 @@ records:
   binds:
   - aggregate/spending.expense
   - aggregate/spending.receipt
-  refusal: spending.expense-decided
+  refusal: refusal/spending.expense-decided
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt

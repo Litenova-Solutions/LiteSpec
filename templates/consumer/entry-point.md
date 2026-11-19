@@ -10,6 +10,6 @@ Explains `audience`. Name who comes in this way and what they come to do.
 
 Explains `authentication`, `session`, `reauthenticationTriggers`. Say how callers prove their identity: the sign-in method and the proof the system checks. If the entry point needs no identity, say why in one sentence.
 
-## Limits
+## Excludes
 
-Explains `limits`. Optional. Say what this entry point does not offer, and where those people go instead.
+Explains `excludes`. Optional. Say what this entry point does not offer, and where those people go instead.

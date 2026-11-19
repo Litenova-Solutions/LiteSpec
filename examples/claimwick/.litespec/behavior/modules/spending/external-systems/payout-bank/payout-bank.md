@@ -1,10 +1,10 @@
 # Payout Bank
 
-The payout bank moves reimbursed money to employees. Claimwick sends one bank file per batch and reads back a settlement report. The payout ends each expense: money the bank never moves stays owed.
+The payout bank moves reimbursed money to employees. Meridian Bank provides the bank. Claimwick sends one bank file per batch and reads back a settlement report. The payout ends each expense: money the bank never moves stays owed.
 
 ## Use
 
-Finance exports the approved expenses of a period, and the payout batch carries them to the bank as one file. The bank settles the batch and reports back per payout, so finance can check each payment against its expense.
+The system actor `actor/payout-bank` stands for the bank in flows. Finance exports the approved expenses of a period, and the payout batch carries them to the bank as one file. The bank settles the batch and reports back per payout, so finance can check each payment against its expense.
 
 ## Data Shared
 

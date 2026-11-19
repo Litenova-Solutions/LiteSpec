@@ -4,7 +4,7 @@ title: Reporting
 summary: Reporting keeps the reimbursed expenses and lists them for finance.
 dependsOn:
 - module/spending
-responsibilities:
+covers:
 - Reporting keeps one row for each reimbursed expense.
 - Reporting reads reimbursement and erasure events from the spending module.
 - Reporting confirms each listed expense still exists in the spending module.

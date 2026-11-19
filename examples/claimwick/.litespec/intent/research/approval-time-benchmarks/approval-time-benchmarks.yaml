@@ -5,7 +5,7 @@ summary: Small companies decide expenses within one week. The study behind this 
 sources:
 - url: https://example.com/expense-study
   readOn: 2026-02-10
-  key: example-expense-study
+  name: example-expense-study
   note: A single small industry study with no company count, read on 2026-02-10.
 question: How fast do small companies decide expenses?
 conclusion: According to one small recent industry study, small companies decide expenses within one week.

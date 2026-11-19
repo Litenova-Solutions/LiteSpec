@@ -3,14 +3,6 @@ id: role/finance
 title: Finance
 summary: Finance moves money for approved expenses.
 scope: platform
-allows:
-- permission/post-reimbursement
-- permission/list-expenses
-- permission/list-reimbursed-expenses
-- permission/export-expenses
-- permission/manage-reminder-preference
-- permission/remove-personal-data
-- permission/read-expense
-limits:
+excludes:
 - Finance does not decide expenses.
 - Finance does not submit expenses.

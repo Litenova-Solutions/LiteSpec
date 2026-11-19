@@ -63,7 +63,7 @@ records:
   id: result/change-reminder-preference.not-preference-owner
   title: Not Preference Owner
   outcome: refusal
-  code: spending.not-preference-owner
+  refusal: refusal/spending.not-preference-owner
   sentence: Only the manager this preference belongs to, or finance, may change it.
   sentences:
     nl: Alleen de manager van wie deze voorkeur is, of finance, mag deze wijzigen.

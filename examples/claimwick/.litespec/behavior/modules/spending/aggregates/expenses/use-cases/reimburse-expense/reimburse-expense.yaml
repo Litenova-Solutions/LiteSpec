@@ -59,7 +59,7 @@ records:
   id: result/reimburse-expense.not-approved
   title: Not Approved
   outcome: refusal
-  code: spending.not-approved
+  refusal: refusal/spending.not-approved
   sentence: This expense is not approved yet, so it cannot be reimbursed.
   sentences:
     nl: Deze uitgave is nog niet goedgekeurd, dus deze kan nog niet worden vergoed.
@@ -67,7 +67,7 @@ records:
   id: result/reimburse-expense.already-reimbursed
   title: Already Reimbursed
   outcome: refusal
-  code: spending.already-reimbursed
+  refusal: refusal/spending.already-reimbursed
   sentence: This expense is already reimbursed.
   sentences:
     nl: Deze uitgave is al vergoed.

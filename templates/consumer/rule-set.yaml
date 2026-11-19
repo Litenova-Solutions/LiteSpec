@@ -17,7 +17,7 @@ records:
   - <aggregate/<module>.<name> or use-case/<module>.<name>, or remove this line>
   binds:
   - aggregate/<module>.<name, or remove this line>
-  refusal: <module>.<reason, or remove this line>
+  refusal: refusal/<module>.<name, or remove this line>
   basedOn:
   - <constraint or research id, or remove this line>
   source: <law|product-choice|contract, or remove this line>

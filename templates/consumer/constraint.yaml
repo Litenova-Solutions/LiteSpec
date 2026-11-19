@@ -7,7 +7,7 @@ summary: <the outside rule, in one sentence>
 authority: <who states the rule>
 # A source carries url or path, never both.
 sources:
-- key: <source key>
+- name: <source name>
   url: <source page>
   readOn: <date read, such as 2026-02-10>
   publishedOn: <date published, such as 2026-01-15, or remove this line>
@@ -21,7 +21,7 @@ scope: <which subjects, transactions and periods the rule covers, in one to thre
 obligations:
 - statement: <one outside rule, in one sentence>
   sources:
-  - <source key>
+  - <source name>
 productEffect: <what the rule does to the product, in one to three sentences>
 openPoints:
 - <one unsettled point, in one sentence, or remove this line>

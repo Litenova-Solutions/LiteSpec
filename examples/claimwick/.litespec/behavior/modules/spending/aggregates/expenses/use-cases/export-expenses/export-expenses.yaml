@@ -80,7 +80,7 @@ records:
   id: result/export-expenses.nothing-approved
   title: Nothing Approved
   outcome: refusal
-  code: spending.nothing-approved
+  refusal: refusal/spending.nothing-approved
   sentence: No approved expense awaits export, so there is no batch to send.
   sentences:
     nl: Er wacht geen goedgekeurde uitgave op export, dus er is geen batch om te verzenden.

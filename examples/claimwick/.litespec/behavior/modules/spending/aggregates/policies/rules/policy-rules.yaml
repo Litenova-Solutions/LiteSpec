@@ -10,7 +10,7 @@ records:
   governs:
   - use-case/spending.change-receipt-threshold
   - aggregate/spending.policy
-  refusal: spending.negative-threshold
+  refusal: refusal/spending.negative-threshold
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt

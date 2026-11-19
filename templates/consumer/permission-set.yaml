@@ -13,6 +13,8 @@ records:
   terms:
   - <term id, or remove this line>
   meaning: <the right this permission grants>
+  grantedTo:
+  - role/<name>
   group: <group name, or remove this line>
   risk:
   - <money|physical-access|personal-data|access, or remove this line>

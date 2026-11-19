@@ -62,8 +62,9 @@ paging:
   cursor: <what the cursor holds>
   defaultLimit: <rows per page>
   maxLimit: <largest accepted limit>
+# A command changes one aggregate. Another aggregate follows through a reaction to the domain event.
 writes:
-- aggregate/<module>.<name, or remove this line>
+- aggregate/<module>.<name>
 reads:
 - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
 consistency:
@@ -76,7 +77,7 @@ consistency:
 conflicts:
   on: <what overlaps>
   winner: <first-write|last-write|merge>
-  refusal: <module>.<reason>
+  refusal: refusal/<module>.<name>
 effects:
 - sends: notification/<module>.<name>
   timing: <inline|after-commit|async>
@@ -131,7 +132,7 @@ records:
   terms:
   - <term id, or remove this line>
   outcome: refusal
-  code: <module>.<reason>
+  refusal: refusal/<module>.<name>
   sentence: <what the person reads, in the product language, or remove this line>
   sentences:
     nl: <the sentence in Dutch>

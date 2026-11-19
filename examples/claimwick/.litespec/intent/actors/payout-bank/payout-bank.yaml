@@ -1,0 +1,10 @@
+type: actor
+id: actor/payout-bank
+title: Payout Bank
+summary: The payout bank moves reimbursed money to employees.
+kind: system
+belongsToTeam: false
+responsibilities:
+- Settles payout batches.
+knowledge:
+- The product assumes the payout bank settles each accepted batch once.

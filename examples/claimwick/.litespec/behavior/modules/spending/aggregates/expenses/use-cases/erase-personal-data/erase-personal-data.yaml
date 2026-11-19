@@ -51,7 +51,7 @@ records:
   id: result/erase-personal-data.retention-not-ended
   title: Retention Not Ended
   outcome: refusal
-  code: spending.retention-not-ended
+  refusal: refusal/spending.retention-not-ended
   sentence: The retention of this expense has not ended, so its personal data stays.
   sentences:
     nl: De bewaartermijn van deze uitgave is nog niet verstreken, dus de persoonsgegevens blijven bewaard.

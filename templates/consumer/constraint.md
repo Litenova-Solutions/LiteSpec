@@ -8,7 +8,7 @@ Explains `scope`. Say which subjects, transactions and periods the rule covers, 
 
 ## Rules
 
-Explains `obligations`. Give each rule as its own paragraph, with its condition and the source that states it, cited as a reference link `[text][key]` to a key in the record's `sources`. State the outside obligation, not what the product does about it, and state no fact the source does not state as settled.
+Explains `obligations`. Give each rule as its own paragraph, with its condition and the source that states it, cited as a reference link `[text][name]` to a name in the record's `sources`. State the outside obligation, not what the product does about it, and state no fact the source does not state as settled.
 
 ## Effect on the Product
 

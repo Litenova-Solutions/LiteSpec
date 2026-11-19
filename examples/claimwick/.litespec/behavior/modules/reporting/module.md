@@ -2,7 +2,7 @@
 
 Reporting is the Claimwick module that lists what the business paid out. It keeps its own copy of each reimbursed expense, built from the events the spending module announces. Finance depends on this module to check each payout against the employee it was paid to.
 
-## Responsibilities
+## Covers
 
 - Reporting keeps one row for each reimbursed expense.
 - Reporting reads reimbursement and erasure events from the spending module.

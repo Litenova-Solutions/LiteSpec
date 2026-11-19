@@ -4,7 +4,7 @@ title: <Title in Title Case>
 terms:
 - <term id, or remove this line>
 summary: <who this actor is and what it does with the product>
-kind: <person|organization>
+kind: <person|organization|system>
 belongsToTeam: <true|false>
 holds:
 - role/<name, or remove this line>

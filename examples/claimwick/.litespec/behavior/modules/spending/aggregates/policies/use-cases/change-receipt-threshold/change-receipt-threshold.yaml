@@ -50,7 +50,7 @@ records:
   id: result/change-receipt-threshold.negative-threshold
   title: Negative Threshold
   outcome: refusal
-  code: spending.negative-threshold
+  refusal: refusal/spending.negative-threshold
   sentence: Enter a threshold of zero or more.
   sentences:
     nl: Voer een drempel van nul of meer in.
