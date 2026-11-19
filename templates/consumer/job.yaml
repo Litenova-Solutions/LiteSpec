@@ -27,7 +27,12 @@ evidence: <where the run is observed, or remove this line>
 effects:
 - runs: use-case/<module>.<name>
   timing: <inline|after-commit|async, or remove this line>
-# An effect sends a notification with sends, or calls an outside operation with calls, instead of runs.
+# An effect sends a notification with sends, sends another module's public command with commands,
+# sends its public query with queries, or calls an outside operation with calls, instead of runs.
+- commands: use-case/<module>.<name>
+  timing: <inline|after-commit|async, or remove this line>
+- queries: use-case/<module>.<name>
+  timing: <inline|after-commit|async, or remove this line>
 outcomes:
 - name: completed
   meaning: <what completed means>

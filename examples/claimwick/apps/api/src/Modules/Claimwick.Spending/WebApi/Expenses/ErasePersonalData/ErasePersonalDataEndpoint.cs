@@ -1,5 +1,6 @@
 using Claimwick.Platform.Http;
 using Claimwick.Spending.Application.Expenses.ErasePersonalData;
+using Claimwick.Spending.Contracts.Expenses;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Spending.WebApi.Expenses.ErasePersonalData;
@@ -20,7 +21,7 @@ internal sealed class ErasePersonalDataEndpoint : IEndpoint
         ICommandMediator mediator,
         CancellationToken cancellationToken)
     {
-        await mediator.SendAsync(new ErasePersonalDataCommand(expenseId), cancellationToken);
+        await mediator.SendAsync(new ErasePersonalDataCommand(ExpenseId.From(expenseId)), cancellationToken);
 
         return TypedResults.NoContent();
     }

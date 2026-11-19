@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Claimwick.Platform.Http;
 using Claimwick.Spending.Application.Expenses.ApproveExpense;
+using Claimwick.Spending.Contracts.Expenses;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Spending.WebApi.Expenses.ApproveExpense;
@@ -25,7 +26,7 @@ internal sealed class ApproveExpenseEndpoint : IEndpoint
     {
         // The approver is the signed-in manager, read from verified claims, never from the request body.
         var approverId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        await mediator.SendAsync(new ApproveExpenseCommand(expenseId, approverId, DateTimeOffset.UtcNow), cancellationToken);
+        await mediator.SendAsync(new ApproveExpenseCommand(ExpenseId.From(expenseId), approverId, DateTimeOffset.UtcNow), cancellationToken);
 
         return TypedResults.NoContent();
     }

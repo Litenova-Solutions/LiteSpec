@@ -25,7 +25,12 @@ effects:
   onExhausted: <what happens after every retry, or remove this line>
   before: <what runs before the effect, or remove this line>
   forEach: <what the effect repeats over, or remove this line>
-# An effect runs a use case with runs, or calls an outside operation with calls, instead of sends.
+# An effect runs a use case with runs, sends another module's public command with commands,
+# sends its public query with queries, or calls an outside operation with calls, instead of sends.
+- commands: use-case/<module>.<name>
+  timing: <inline|after-commit|async, or remove this line>
+- queries: use-case/<module>.<name>
+  timing: <inline|after-commit|async, or remove this line>
 outcomes:
 - name: completed
   meaning: <what completed means>

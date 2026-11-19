@@ -1,4 +1,4 @@
-namespace Claimwick.Spending.Application.Notifications.ApprovalReminder;
+namespace Claimwick.Spending.Application.Settings;
 
 /// <summary>The spending settings bound from configuration.</summary>
 /// <implements>setting/spending.approval-reminder-delay</implements>

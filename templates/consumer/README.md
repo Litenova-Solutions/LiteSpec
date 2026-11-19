@@ -61,10 +61,10 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `job.md` | `.litespec/behavior/modules/<module>/jobs/<name>/<name>.md` | Explains the job beside its record file. |
 | `notification.yaml` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.yaml` | Defines one person-facing message, its audience, delivery, consent and claims. |
 | `notification.md` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.md` | Explains the notification beside its record file. |
-| `module-event.yaml` | `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml` | Defines one fact a module publishes for the other modules of the product, with the domain event it translates and the fields it selects from it. |
-| `module-event.md` | `.litespec/behavior/modules/<module>/module-events/<name>/<name>.md` | Explains the module event beside its record file. |
-| `integration-event.yaml` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.yaml` | Defines one published or consumed integration event with the system it travels through and how an inbound one arrives. |
-| `integration-event.md` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.md` | Explains the integration event beside its record file. |
+| `module-event.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/module-events/<name>/<name>.yaml` | Defines one fact a module publishes for the other modules of the product, with the domain event it translates and the fields it selects from it. |
+| `module-event.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/module-events/<name>/<name>.md` | Explains the module event beside its record file. |
+| `integration-event.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/integration-events/<name>/<name>.yaml` | Defines one published or consumed integration event with the system it travels through and how an inbound one arrives. |
+| `integration-event.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/integration-events/<name>/<name>.md` | Explains the integration event beside its record file. |
 | `read-model.yaml` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml` | Defines one read model a module keeps from the events another module publishes, with its key, fields and freshness. |
 | `read-model.md` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.md` | Explains the read model beside its record file. |
 | `reference-data.yaml` | `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml` | Defines one table of dated business values a module looks up, with the dates each row takes effect and the record behind each value. |

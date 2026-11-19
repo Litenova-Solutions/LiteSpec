@@ -1,5 +1,6 @@
 using Claimwick.Platform.Http;
 using Claimwick.Spending.Application.Receipts.AttachReceipt;
+using Claimwick.Spending.Contracts.Expenses;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Spending.WebApi.Receipts.AttachReceipt;
@@ -22,7 +23,7 @@ internal sealed class AttachReceiptEndpoint : IEndpoint
         ICommandMediator mediator,
         CancellationToken cancellationToken)
     {
-        await mediator.SendAsync(new AttachReceiptCommand(receiptId, expenseId), cancellationToken);
+        await mediator.SendAsync(new AttachReceiptCommand(receiptId, ExpenseId.From(expenseId)), cancellationToken);
 
         return TypedResults.NoContent();
     }

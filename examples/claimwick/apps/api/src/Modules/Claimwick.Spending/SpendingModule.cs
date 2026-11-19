@@ -4,7 +4,10 @@ using Claimwick.Spending.Domain.Expenses;
 using Claimwick.Spending.Domain.Policies;
 using Claimwick.Spending.Domain.ReminderPreferences;
 using Claimwick.Spending.Infrastructure.Persistence;
-using Claimwick.Spending.Application.Notifications.ApprovalReminder;
+using Claimwick.Spending.Infrastructure.Persistence.Expenses;
+using Claimwick.Spending.Infrastructure.Persistence.Policies;
+using Claimwick.Spending.Infrastructure.Persistence.ReminderPreferences;
+using Claimwick.Spending.Application.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

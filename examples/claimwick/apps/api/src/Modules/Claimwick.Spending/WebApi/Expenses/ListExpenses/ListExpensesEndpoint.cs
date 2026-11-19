@@ -28,7 +28,7 @@ internal sealed class ListExpensesEndpoint : IEndpoint
         return TypedResults.Ok(new ListExpensesResponseModel(
             result.Expenses
                 .Select(expense => new ExpenseResponseItemModel(
-                    expense.ExpenseId,
+                    expense.ExpenseId.Value,
                     expense.Amount,
                     expense.Currency,
                     expense.State,

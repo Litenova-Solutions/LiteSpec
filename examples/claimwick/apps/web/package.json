@@ -11,7 +11,8 @@
     "dev": "vite dev",
     "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:structure": "vitest run"
   },
   "dependencies": {
     "@claimwick/api": "workspace:*",
@@ -27,6 +28,7 @@
     "@sveltejs/vite-plugin-svelte": "7.x",
     "svelte-check": "4.x",
     "typescript": "6.x",
-    "vite": "8.x"
+    "vite": "8.x",
+    "vitest": "8.x"
   }
 }

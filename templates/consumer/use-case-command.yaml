@@ -98,6 +98,9 @@ effects:
   forEach: <what the effect repeats over, or remove this line>
 - calls: external-system/<name>#<operation>
   timing: <inline|after-commit|async>
+- queries: use-case/<module>.<name>
+  timing: <inline|after-commit|async>
+# A use case sends no command: commands belong on a reaction or a job.
 idempotency:
   mode: <key|state|none>
   key: <key template over input fields, such as order-{orderId}>

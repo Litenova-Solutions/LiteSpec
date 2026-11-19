@@ -1,4 +1,5 @@
 using Claimwick.Kernel;
+using Claimwick.Spending.Contracts.Expenses;
 using Claimwick.Spending.Domain.Expenses.Events;
 using Claimwick.Spending.Domain.Expenses.Exceptions;
 using Claimwick.Spending.Domain.Receipts.Events;
@@ -8,9 +9,9 @@ namespace Claimwick.Spending.Domain.Expenses;
 
 /// <summary>One work expense an employee submitted for approval and reimbursement.</summary>
 /// <implements>aggregate/spending.expense</implements>
-internal sealed class Expense : AggregateRoot<Guid>
+internal sealed class Expense : AggregateRoot<ExpenseId>
 {
-    private Expense(Guid id, Guid employeeId, Money total, Guid? receiptId)
+    private Expense(ExpenseId id, Guid employeeId, Money total, Guid? receiptId)
     {
         Id = id;
         EmployeeId = employeeId;
@@ -33,7 +34,7 @@ internal sealed class Expense : AggregateRoot<Guid>
 
     /// <summary>Submits one expense, refusing one above the receipt threshold that carries no receipt.</summary>
     /// <implements>use-case/spending.submit-expense</implements>
-    public static Expense Submit(Guid id, Guid employeeId, Money total, Guid? receiptId, Money receiptThreshold)
+    public static Expense Submit(ExpenseId id, Guid employeeId, Money total, Guid? receiptId, Money receiptThreshold)
     {
         if (receiptId is null && total.Amount > receiptThreshold.Amount)
         {

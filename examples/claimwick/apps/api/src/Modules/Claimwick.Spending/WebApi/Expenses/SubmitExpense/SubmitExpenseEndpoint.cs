@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Claimwick.Platform.Http;
 using Claimwick.Spending.Application.Expenses.SubmitExpense;
+using Claimwick.Spending.Contracts.Expenses;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Spending.WebApi.Expenses.SubmitExpense;
@@ -26,11 +27,11 @@ internal sealed class SubmitExpenseEndpoint : IEndpoint
         // The submitter is the signed-in employee, read from verified claims, never from the request body.
         var employeeId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await mediator.SendAsync(
-            new SubmitExpenseCommand(Guid.CreateVersion7(), employeeId, request.Amount, request.Currency, request.ReceiptId),
+            new SubmitExpenseCommand(ExpenseId.From(Guid.CreateVersion7()), employeeId, request.Amount, request.Currency, request.ReceiptId),
             cancellationToken);
 
         return TypedResults.Created(
             $"/api/expenses/{result.ExpenseId}",
-            new SubmitExpenseResponseModel(result.ExpenseId));
+            new SubmitExpenseResponseModel(result.ExpenseId.Value));
     }
 }

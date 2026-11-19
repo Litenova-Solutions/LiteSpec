@@ -1,7 +1,7 @@
 using Claimwick.Spending.Domain.Policies;
 using Marten;
 
-namespace Claimwick.Spending.Infrastructure.Persistence;
+namespace Claimwick.Spending.Infrastructure.Persistence.Policies;
 
 /// <summary>Loads and stages the company spending policy through the scoped document session.</summary>
 /// <implements>aggregate/spending.policy</implements>

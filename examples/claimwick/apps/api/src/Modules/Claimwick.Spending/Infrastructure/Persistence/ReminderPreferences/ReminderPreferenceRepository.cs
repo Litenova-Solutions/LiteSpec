@@ -1,7 +1,7 @@
 using Claimwick.Spending.Domain.ReminderPreferences;
 using Marten;
 
-namespace Claimwick.Spending.Infrastructure.Persistence;
+namespace Claimwick.Spending.Infrastructure.Persistence.ReminderPreferences;
 
 /// <summary>Loads and stages reminder preferences through the scoped document session.</summary>
 /// <implements>aggregate/spending.reminder-preference</implements>

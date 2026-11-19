@@ -1,5 +1,6 @@
 using Claimwick.Platform.Http;
 using Claimwick.Spending.Application.Expenses.ReimburseExpense;
+using Claimwick.Spending.Contracts.Expenses;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Spending.WebApi.Expenses.ReimburseExpense;
@@ -21,7 +22,7 @@ internal sealed class ReimburseExpenseEndpoint : IEndpoint
         ICommandMediator mediator,
         CancellationToken cancellationToken)
     {
-        await mediator.SendAsync(new ReimburseExpenseCommand(expenseId, DateTimeOffset.UtcNow), cancellationToken);
+        await mediator.SendAsync(new ReimburseExpenseCommand(ExpenseId.From(expenseId), DateTimeOffset.UtcNow), cancellationToken);
 
         return TypedResults.NoContent();
     }

@@ -1,4 +1,5 @@
 using Claimwick.Kernel;
+using Claimwick.Spending.Contracts.Expenses;
 
 namespace Claimwick.Spending.Domain.Receipts;
 
@@ -6,7 +7,7 @@ namespace Claimwick.Spending.Domain.Receipts;
 /// <implements>aggregate/spending.receipt</implements>
 internal sealed class Receipt : AggregateRoot<Guid>
 {
-    private Receipt(Guid id, Guid expenseId, DateTimeOffset attachedAt)
+    private Receipt(Guid id, ExpenseId expenseId, DateTimeOffset attachedAt)
     {
         Id = id;
         State = new ReceiptAttachedState(expenseId, attachedAt);
@@ -16,6 +17,6 @@ internal sealed class Receipt : AggregateRoot<Guid>
     public ReceiptState State { get; private set; }
 
     /// <summary>Attaches one receipt to an expense.</summary>
-    public static Receipt Attach(Guid id, Guid expenseId, DateTimeOffset attachedAt) =>
+    public static Receipt Attach(Guid id, ExpenseId expenseId, DateTimeOffset attachedAt) =>
         new(id, expenseId, attachedAt);
 }

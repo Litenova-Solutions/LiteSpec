@@ -1,5 +1,5 @@
 using Claimwick.Reporting.Application.ReadModels.ReimbursedExpenses;
-using Claimwick.Reporting.Ports.Spending;
+using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 using LiteBus.Queries.Abstractions;
 
 namespace Claimwick.Reporting.Application.ListReimbursedExpenses;
@@ -9,12 +9,12 @@ namespace Claimwick.Reporting.Application.ListReimbursedExpenses;
 internal sealed class ListReimbursedExpensesQueryHandler : IQueryHandler<ListReimbursedExpensesQuery, ListReimbursedExpensesQueryResult>
 {
     private readonly IReimbursedExpenseReadModel _readModel;
-    private readonly ISpending _spending;
+    private readonly IQueryMediator _queries;
 
-    public ListReimbursedExpensesQueryHandler(IReimbursedExpenseReadModel readModel, ISpending spending)
+    public ListReimbursedExpensesQueryHandler(IReimbursedExpenseReadModel readModel, IQueryMediator queries)
     {
         _readModel = readModel;
-        _spending = spending;
+        _queries = queries;
     }
 
     public async Task<ListReimbursedExpensesQueryResult> HandleAsync(
@@ -26,7 +26,7 @@ internal sealed class ListReimbursedExpensesQueryHandler : IQueryHandler<ListRei
 
         foreach (var expense in expenses)
         {
-            if (await _spending.ExpenseExistsAsync(expense.Id, cancellationToken))
+            if (await _queries.QueryAsync(new ReadExpenseQuery(expense.Id), cancellationToken) is not null)
             {
                 confirmed.Add(expense);
             }

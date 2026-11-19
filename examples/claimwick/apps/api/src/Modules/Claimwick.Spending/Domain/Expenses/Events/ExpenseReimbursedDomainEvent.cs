@@ -1,11 +1,12 @@
 using Claimwick.Kernel;
+using Claimwick.Spending.Contracts.Expenses;
 
 namespace Claimwick.Spending.Domain.Expenses.Events;
 
 /// <summary>An expense was reimbursed to the employee who submitted it.</summary>
 /// <implements>domain-event/expense.reimbursed</implements>
 internal sealed record ExpenseReimbursedDomainEvent(
-    Guid ExpenseId,
+    ExpenseId ExpenseId,
     Guid EmployeeId,
     decimal Amount,
     string Currency,

@@ -24,7 +24,7 @@ internal sealed class ListReimbursedExpensesEndpoint : IEndpoint
         return TypedResults.Ok(new ListReimbursedExpensesResponseModel(
             result.Expenses
                 .Select(expense => new ReimbursedExpenseResponseItemModel(
-                    expense.Id,
+                    expense.Id.Value,
                     expense.EmployeeId,
                     expense.Amount,
                     expense.Currency,

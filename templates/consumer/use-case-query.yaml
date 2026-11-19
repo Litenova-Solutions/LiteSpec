@@ -68,6 +68,9 @@ reads:
 effects:
 - sends: notification/<module>.<name>
   timing: <inline|after-commit|async>
+- queries: use-case/<module>.<name>
+  timing: <inline|after-commit|async>
+# A use case sends no command: commands belong on a reaction or a job.
 # A query carries no idempotency, consistency or conflicts; see use-case-command.yaml.
 consentRule: rule/<home>.<name, or remove this line>
 # audit applies only when the project selects the audit extension. An exempt query carries exemptBecause instead of level and target.
