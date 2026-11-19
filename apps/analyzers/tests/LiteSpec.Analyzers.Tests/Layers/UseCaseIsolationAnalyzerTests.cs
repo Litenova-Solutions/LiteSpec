@@ -487,4 +487,29 @@ public sealed class UseCaseIsolationAnalyzerTests
                     """),
             ],
             assemblyName: "Claimwick.Spending");
+
+    [Fact(DisplayName = "LS2019 accepts a use case reading the module options class in Application/Settings")]
+    public Task AcceptsAUseCaseReadingTheModuleOptions() =>
+        Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
+            [
+                ("Claimwick.Modules/Organizations/Application/Teams/RenameTeam/RenameTeamCommandHandler.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RenameTeam;
+
+                    using Claimwick.Organizations.Application.Settings;
+
+                    internal sealed class RenameTeamCommandHandler
+                    {
+                        internal int Limit(OrganizationsOptions options) => options.MaxTeamNameLength;
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Application/Settings/OrganizationsOptions.cs", """
+                    namespace Claimwick.Organizations.Application.Settings;
+
+                    internal sealed class OrganizationsOptions
+                    {
+                        internal int MaxTeamNameLength { get; init; }
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
 }

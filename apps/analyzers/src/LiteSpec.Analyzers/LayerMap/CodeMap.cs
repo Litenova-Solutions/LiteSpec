@@ -27,6 +27,7 @@ internal sealed class CodeMap
         "Notifications",
         "ExternalSystems",
         "ReadModels",
+        "Settings",
         "Events",
         "Exceptions",
         "Persistence",
@@ -38,6 +39,7 @@ internal sealed class CodeMap
         "Notifications",
         "ExternalSystems",
         "ReadModels",
+        "Settings",
     };
 
     /// <summary>Initializes a new instance of the <see cref="CodeMap"/> class.</summary>
